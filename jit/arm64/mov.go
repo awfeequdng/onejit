@@ -33,6 +33,10 @@ func (arch Arm64) store(asm *Asm, src Reg, dst Mem) Arm64 {
 }
 
 func (arch Arm64) mov(asm *Asm, src Arg, dst Arg) Arm64 {
+	if src.Kind().IsFloat() || dst.Kind().IsFloat() {
+		return arch.fmov(asm, src, dst)
+	}
+
 	assert(SizeOf(src) == SizeOf(dst))
 
 	if dst.Const() {
@@ -75,7 +79,7 @@ func (arch Arm64) mov(asm *Asm, src Arg, dst Arg) Arm64 {
 
 func (arch Arm64) movRegReg(asm *Asm, src Reg, dst Reg) Arm64 {
 	// arm64 implements "mov src,dst" as "orr xzr,src,dst"
-	asm.Uint32(kbit(dst) | 0x2A0003E0 | valOrX31(src.RegId(), true)<<16 | val(dst))
+	asm.Uint32(kbit(dst) | 0x2A0003E0 | valOrX31(src.RegId(), true)<<16 | kval(dst))
 	return arch
 }
 
@@ -100,7 +104,7 @@ func (arch Arm64) movConstReg(asm *Asm, c Const, dst Reg) Arm64 {
 		immcval = 0x40<<19 | uint32(cval&0xFFFF)
 		movk = true
 	}
-	asm.Uint32(kbit(dst) | 0x12800000 | immcval<<5 | val(dst))
+	asm.Uint32(kbit(dst) | 0x12800000 | immcval<<5 | kval(dst))
 	if movk {
 		arch.movk(asm, uint16(cval>>16), 16, dst)
 		if dst.Kind().Size() == 8 {
@@ -114,7 +118,7 @@ func (arch Arm64) movConstReg(asm *Asm, c Const, dst Reg) Arm64 {
 // set some bits of dst, preserving others
 func (arch Arm64) movk(asm *Asm, cval uint16, shift uint8, dst Reg) Arm64 {
 	if cval != 0 {
-		asm.Uint32(kbit(dst) | 0xF2800000 | uint32(shift)<<17 | uint32(cval)<<5 | val(dst))
+		asm.Uint32(kbit(dst) | 0xF2800000 | uint32(shift)<<17 | uint32(cval)<<5 | kval(dst))
 	}
 	return arch
 }
@@ -156,7 +160,7 @@ func (arch Arm64) loadstore(asm *Asm, op loadstore, m Mem, r Reg) Arm64 {
 	tmp := asm.RegAlloc(Uint64)
 	arch.movConstReg(asm, ConstInt64(int64(off)), tmp)
 
-	asm.Uint32(sizebit | uint32(op^0x1206800) | val(tmp)<<16 | valOrX31(mrid, true)<<5 | val(r))
+	asm.Uint32(sizebit | uint32(op^0x1206800) | kval(tmp)<<16 | valOrX31(mrid, true)<<5 | kval(r))
 
 	asm.RegFree(tmp)
 	return arch
@@ -263,7 +267,7 @@ func (arch Arm64) castRegReg(asm *Asm, src Reg, dst Reg) Arm64 {
 		// "sxtw	src, dst"
 		kbit := uint32(dsize&8) * 0x10080000
 		op := 0x13000C00 | uint32(ssize*2-1)<<12
-		asm.Uint32(kbit | op | val(src)<<5 | val(dst))
+		asm.Uint32(kbit | op | kval(src)<<5 | kval(dst))
 		return arch
 	} else {
 		// zero-extend

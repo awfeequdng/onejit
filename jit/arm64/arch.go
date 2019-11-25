@@ -48,14 +48,24 @@ func (Arm64) RegIdConfig() RegIdConfig {
 	}
 }
 
+func (Arm64) RegIdKind(id RegId) Kind {
+	if id >= X0 && id <= XZR {
+		return Uint64
+	} else if id >= D0 && id <= D31 {
+		return Float64
+	}
+	return Invalid
+}
+
 func (Arm64) RegIdValid(id RegId) bool {
-	return id >= RLo && id < RHi // XZR/XSP is valid only in few, hand-checked cases
+	// XZR/XSP is valid only in few, hand-checked cases
+	return id >= RLo && id <= RHi && id != XZR
 }
 
 func (Arm64) RegIdString(id RegId) string {
 	var s string
 	if id >= RLo && id <= RHi {
-		s = regName8[id]
+		s = regName64[id]
 	}
 	if s == "" {
 		s = fmt.Sprintf("unknown_reg(%#x)", uint8(id))
@@ -74,9 +84,9 @@ func (Arm64) RegString(r Reg) string {
 	if id >= RLo && id <= RHi {
 		switch r.Kind().Size() {
 		case 1, 2, 4:
-			s = regName4[id]
+			s = regName32[id]
 		case 8:
-			s = regName8[id]
+			s = regName64[id]
 		}
 	}
 	if s == "" {

@@ -31,19 +31,18 @@ func MakeCode(instr ...uint32) MachineCode {
 	return MachineCode{ARM64, bytes}
 }
 
-func TestSample(t *testing.T) {
+func TestArith(t *testing.T) {
 	var asm Asm
 	asm.InitArch(Arm64{})
 
-	id := RLo
-	x := MakeReg(id+0, Uint64)
-	y := MakeReg(id+1, Uint64)
-	z := MakeReg(id+2, Uint64)
-	m := MakeMem(8, id, Uint64)
+	x := MakeReg(X0, Uint64)
+	y := MakeReg(X1, Uint64)
+	z := MakeReg(X2, Uint64)
+	m := MakeMem(8, X0, Uint64)
 	c := ConstUint64(0xFFF)
-	asm.RegIncUse(id)
-	asm.RegIncUse(id + 1)
-	asm.RegIncUse(id + 2)
+	asm.RegIncUse(X0)
+	asm.RegIncUse(X1)
+	asm.RegIncUse(X2)
 	asm.Assemble( //
 		MOV, MakeMem(8, RSP, Uint64), MakeReg(RVAR, Uint64),
 		MOV, c, x, //
@@ -64,9 +63,9 @@ func TestSample(t *testing.T) {
 		OR3, c, x, z, //
 		XOR3, x, c, z, //
 	).Epilogue()
-	asm.RegDecUse(id)
-	asm.RegDecUse(id + 1)
-	asm.RegDecUse(id + 2)
+	asm.RegDecUse(X0)
+	asm.RegDecUse(X1)
+	asm.RegDecUse(X2)
 
 	actual := asm.Code()
 	expected := MakeCode(
@@ -129,6 +128,44 @@ func TestCast(t *testing.T) {
 		0x12003c00, // and	w0, w0, #0xffff
 		0x92403c00, // and	x0, x0, #0xffff
 		0x2a0003e0, // mov	w0, w0
+	)
+
+	if !actual.Equal(expected) {
+		t.Errorf("bad assembled code:\n\texpected %s\n\tactual   %s",
+			expected, actual)
+	}
+}
+
+func TestFmov(t *testing.T) {
+	var asm Asm
+	asm.InitArch(Arm64{})
+
+	x7 := MakeReg(X7, Uint64)
+	d0 := MakeReg(D0, Float64)
+	d1 := MakeReg(D1, Float64)
+	d2 := MakeReg(D2, Float64)
+	asm.RegIncUse(X0)
+	asm.RegIncUse(D0)
+	asm.RegIncUse(D1)
+	asm.RegIncUse(D2)
+	asm.Assemble( //
+		MOV, x7, d0, //
+		MOV, d0, d1, //
+		MOV, d1, d2, //
+		MOV, d2, x7, //
+	).Epilogue()
+	asm.RegDecUse(X0)
+	asm.RegDecUse(D0)
+	asm.RegDecUse(D1)
+	asm.RegDecUse(D2)
+
+	actual := asm.Code()
+	expected := MakeCode(
+		0x9e6600e0, //  fmov d0, x7
+		0x1e604001, //	fmov d1, d0
+		0x1e604022, //	fmov d2, d1
+		0x9e670047, //	fmov x7, d2
+		0xd65f03c0, //	ret
 	)
 
 	if !actual.Equal(expected) {

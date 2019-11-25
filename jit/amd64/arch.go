@@ -50,6 +50,14 @@ func (Amd64) RegIdConfig() RegIdConfig {
 	}
 }
 
+func (Amd64) RegIdKind(id RegId) Kind {
+	if id >= RAX && id <= R15 {
+		return Uint64
+	} else {
+		return Invalid
+	}
+}
+
 func (Amd64) RegIdValid(id RegId) bool {
 	return id >= RLo && id <= RHi
 }

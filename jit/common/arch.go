@@ -33,6 +33,7 @@ type Arch interface {
 	String() string
 	RegIdConfig() RegIdConfig
 	RegIdValid(id RegId) bool
+	RegIdKind(id RegId) Kind     // uint64 or float64
 	RegIdString(id RegId) string // RegId -> string
 	RegValid(r Reg) bool
 	RegString(r Reg) string          // Reg -> string

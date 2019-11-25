@@ -39,6 +39,10 @@ func (id RegId) String() string {
 	return fmt.Sprintf("%%unknown_reg(%#x)", uint8(id))
 }
 
+func (id RegId) Kind() Kind {
+	return id.Arch().RegIdKind(id)
+}
+
 func (id RegId) Valid() bool {
 	return id.Arch().RegIdValid(id)
 }
@@ -177,7 +181,7 @@ func (rs *RegIds) Next(id RegId) RegId {
 	return id + 1
 }
 
-func (rs *RegIds) TryAlloc() RegId {
+func (rs *RegIds) TryAlloc(kind Kind) RegId {
 	id := rs.curr
 	// fmt.Printf("TryAlloc: RegIds = %+v\n", *rs)
 	for {
@@ -224,7 +228,7 @@ func (asm *Asm) RegDecUse(id RegId) uint32 {
 }
 
 func (asm *Asm) TryRegAlloc(kind Kind) Reg {
-	id := asm.regIds.TryAlloc()
+	id := asm.regIds.TryAlloc(kind)
 	if !id.Valid() {
 		return Reg{}
 	}

@@ -235,7 +235,7 @@ func (arch Arm64) op3RegRegReg(asm *Asm, op Op3, a Reg, b Reg, dst Reg) Arm64 {
 	arch.extendHighBits(asm, op, a)
 	arch.extendHighBits(asm, op, b)
 	// TODO: on arm64, division by zero returns zero instead of panic
-	asm.Uint32(kbit(dst) | (opbits ^ op3val(op)) | val(b)<<16 | val(a)<<5 | valOrX31(dst.RegId(), op == SETIDX))
+	asm.Uint32(kbit(dst) | (opbits ^ op3val(op)) | kval(b)<<16 | kval(a)<<5 | valOrX31(dst.RegId(), op == SETIDX))
 	return arch
 }
 
@@ -265,7 +265,7 @@ func (arch Arm64) tryOp3RegConstReg(asm *Asm, op Op3, a Reg, cval uint64, dst Re
 	switch imm3 {
 	case Imm3AddSub, Imm3Bitwise:
 		// for op == OR3, also accept a == XZR
-		asm.Uint32(kbit | opval | immcval | valOrX31(a.RegId(), op == OR3)<<5 | val(dst))
+		asm.Uint32(kbit | opval | immcval | valOrX31(a.RegId(), op == OR3)<<5 | kval(dst))
 	case Imm3Shift:
 		arch.shiftRegConstReg(asm, op, a, cval, dst)
 	case Imm3Index:
@@ -295,9 +295,9 @@ func (arch Arm64) shiftRegConstReg(asm *Asm, op Op3, a Reg, cval uint64, dst Reg
 	case SHL3:
 		switch dsize {
 		case 1, 2, 4:
-			asm.Uint32(0x53000000 | uint32(32-cval)<<16 | uint32(31-cval)<<10 | val(a)<<5 | val(dst))
+			asm.Uint32(0x53000000 | uint32(32-cval)<<16 | uint32(31-cval)<<10 | kval(a)<<5 | kval(dst))
 		case 8:
-			asm.Uint32(0xD3400000 | uint32(64-cval)<<16 | uint32(63-cval)<<10 | val(a)<<5 | val(dst))
+			asm.Uint32(0xD3400000 | uint32(64-cval)<<16 | uint32(63-cval)<<10 | kval(a)<<5 | kval(dst))
 		}
 	case SHR3:
 		var unsignedbit uint32
@@ -306,9 +306,9 @@ func (arch Arm64) shiftRegConstReg(asm *Asm, op Op3, a Reg, cval uint64, dst Reg
 		}
 		switch dsize {
 		case 1, 2, 4:
-			asm.Uint32(unsignedbit | 0x13007C00 | uint32(cval)<<16 | val(a)<<5 | val(dst))
+			asm.Uint32(unsignedbit | 0x13007C00 | uint32(cval)<<16 | kval(a)<<5 | kval(dst))
 		case 8:
-			asm.Uint32(unsignedbit | 0x9340FC00 | uint32(cval)<<16 | val(a)<<5 | val(dst))
+			asm.Uint32(unsignedbit | 0x9340FC00 | uint32(cval)<<16 | kval(a)<<5 | kval(dst))
 		}
 	}
 }

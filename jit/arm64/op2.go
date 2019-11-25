@@ -102,6 +102,6 @@ func (arch Arm64) op2(asm *Asm, op Op2, src Arg, dst Arg) Arm64 {
 }
 
 func (arch Arm64) op2RegReg(asm *Asm, op Op2, src Reg, dst Reg) Arm64 {
-	asm.Uint32(kbit(dst) | op2val(op) | val(src)<<16 | val(dst))
+	asm.Uint32(kbit(dst) | op2val(op) | kval(src)<<16 | kval(dst))
 	return arch
 }
