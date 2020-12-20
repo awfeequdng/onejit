@@ -16,10 +16,6 @@
 
 package amd64
 
-import (
-	. "github.com/cosmos72/gomacrojit/jit/common"
-)
-
 // ============================================================================
 // register
 const (
@@ -42,6 +38,8 @@ const (
 	R15
 	RLo RegId = RAX
 	RHi RegId = R15
+	// suggested register to point to local variables
+	RVAR = RSI
 )
 
 var regName1 = [...]string{
@@ -117,14 +115,8 @@ var regName8 = [...]string{
 	R15 - RLo: "%r15",
 }
 
-func ValidateRegId(id RegId) {
-	if id < RLo || id > RHi {
-		Errorf("invalid register: %v", int64(id)-int64(RLo))
-	}
-}
-
 func bits(id RegId) uint8 {
-	ValidateRegId(id)
+	id.Validate()
 	return uint8(id - RLo)
 }
 
@@ -137,7 +129,6 @@ func lohi(r Reg) (uint8, uint8) {
 	return lohiId(r.RegId())
 }
 
-/*
 // return number of assembler bytes needed to encode m.off
 func offlen(m Mem, id RegId) (offlen uint8, offbit uint8) {
 	moffset := m.Offset()
@@ -158,4 +149,3 @@ func quirk24(asm *Asm, id RegId) *Asm {
 	}
 	return asm
 }
-*/

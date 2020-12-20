@@ -17,48 +17,98 @@
 package common
 
 import (
-	"reflect"
+	"unsafe"
 )
 
-type Kind uint8 // narrow version of reflect.Kind
+// intentionally matches reflect.Kind values
+type Kind uint8
 
 const (
-	Invalid = Kind(reflect.Invalid)
-	Bool    = Kind(reflect.Bool)
-	Int     = Kind(reflect.Int)
-	Int8    = Kind(reflect.Int8)
-	Int16   = Kind(reflect.Int16)
-	Int32   = Kind(reflect.Int32)
-	Int64   = Kind(reflect.Int64)
-	Uint    = Kind(reflect.Uint)
-	Uint8   = Kind(reflect.Uint8)
-	Uint16  = Kind(reflect.Uint16)
-	Uint32  = Kind(reflect.Uint32)
-	Uint64  = Kind(reflect.Uint64)
-	Uintptr = Kind(reflect.Uintptr)
-	Float32 = Kind(reflect.Float32)
-	Float64 = Kind(reflect.Float64)
-	Ptr     = Kind(reflect.Ptr)
-	KLo     = Bool
-	KHi     = Ptr
+	Invalid Kind = iota
+	Bool
+	Int
+	Int8
+	Int16
+	Int32
+	Int64
+	Uint
+	Uint8
+	Uint16
+	Uint32
+	Uint64
+	Uintptr
+	Float32
+	Float64
+	Complex64
+	Complex128
+	Array
+	Chan
+	Func
+	Interface
+	Map
+	Ptr
+	Slice
+	String
+	Struct
+	UnsafePointer
+	KLo = Bool
+	KHi = UnsafePointer
 )
 
+var kstring = [...]string{
+	Bool:          "bool",
+	Int:           "int",
+	Int8:          "int8",
+	Int16:         "int16",
+	Int32:         "int32",
+	Int64:         "int64",
+	Uint:          "uint",
+	Uint8:         "uint8",
+	Uint16:        "uint16",
+	Uint32:        "uint32",
+	Uint64:        "uint64",
+	Uintptr:       "uintptr",
+	Float32:       "float32",
+	Float64:       "float64",
+	Complex64:     "complex64",
+	Complex128:    "complex128",
+	Array:         "array",
+	Chan:          "chan",
+	Func:          "func",
+	Interface:     "interface",
+	Map:           "map",
+	Ptr:           "ptr",
+	Slice:         "slice",
+	String:        "string",
+	Struct:        "struct",
+	UnsafePointer: "unsafe.Pointer",
+}
+
 var ksize = [...]Size{
-	Bool:    1,
-	Int:     Size(reflect.TypeOf(int(0)).Size()),
-	Int8:    1,
-	Int16:   2,
-	Int32:   4,
-	Int64:   8,
-	Uint:    Size(reflect.TypeOf(uint(0)).Size()),
-	Uint8:   1,
-	Uint16:  2,
-	Uint32:  4,
-	Uint64:  8,
-	Uintptr: Size(reflect.TypeOf(uintptr(0)).Size()),
-	Float32: 4,
-	Float64: 8,
-	Ptr:     Size(reflect.TypeOf((*int)(nil)).Size()),
+	Bool:          1,
+	Int:           Size(unsafe.Sizeof(int(0))),
+	Int8:          1,
+	Int16:         2,
+	Int32:         4,
+	Int64:         8,
+	Uint:          Size(unsafe.Sizeof(uint(0))),
+	Uint8:         1,
+	Uint16:        2,
+	Uint32:        4,
+	Uint64:        8,
+	Uintptr:       Size(unsafe.Sizeof(uintptr(0))),
+	Float32:       4,
+	Float64:       8,
+	Complex64:     8,
+	Complex128:    16,
+	Chan:          Size(unsafe.Sizeof(make(chan int))),
+	Func:          Size(unsafe.Sizeof(func() {})),
+	Interface:     Size(unsafe.Sizeof(assertError)),
+	Map:           Size(unsafe.Sizeof(map[int]int{})),
+	Ptr:           Size(unsafe.Sizeof((*int)(nil))),
+	Slice:         Size(unsafe.Sizeof([]int{})),
+	String:        Size(unsafe.Sizeof("")),
+	UnsafePointer: Size(unsafe.Sizeof((unsafe.Pointer)(nil))),
 }
 
 func (k Kind) Size() Size {
@@ -68,12 +118,31 @@ func (k Kind) Size() Size {
 	return 0
 }
 
-func (k Kind) Signed() bool {
+func (k Kind) Category() Kind {
 	switch k {
-	case Bool, Uint, Uint8, Uint16, Uint32, Uint64, Uintptr, Ptr:
-		return false
+	case Int, Int8, Int16, Int32, Int64:
+		return Int
+	case Uint, Uint8, Uint16, Uint32, Uint64, Uintptr:
+		return Uint
+	case Float32, Float64:
+		return Float64
+	case Complex64, Complex128:
+		return Complex128
 	default:
+		return k
+	}
+}
+
+func (k Kind) Signed() bool {
+	return k.IsInteger() || k.IsFloat()
+}
+
+func (k Kind) IsInteger() bool {
+	switch k {
+	case Int, Int8, Int16, Int32, Int64, Uint, Uint8, Uint16, Uint32, Uint64, Uintptr:
 		return true
+	default:
+		return false
 	}
 }
 
@@ -81,10 +150,6 @@ func (k Kind) IsFloat() bool {
 	return k == Float32 || k == Float64
 }
 
-func (k Kind) String() string {
-	return reflect.Kind(k).String()
-}
-
-// implement AsmCode interface
-func (k Kind) asmcode() {
+func (k Kind) IsComplex() bool {
+	return k == Complex64 || k == Complex128
 }

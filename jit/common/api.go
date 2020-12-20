@@ -16,46 +16,67 @@
 
 package common
 
-type Size uint8 // 1, 2, 4 or 8
+type Size uint8 // 1, 2, 4, 8 or 16
 
-// symbolic assembly code: instruction or its arguments
-type AsmCode interface {
-	asmcode()
-}
+type Op uint8
 
-// assembled machine code.
-// Executable if compiled for the same architecture
-// the program is running on - see Asm.Func()
-type MachineCode struct {
-	ArchId ArchId
-	Bytes  []uint8
-}
+const (
+	BADOP Op = iota
 
-// argument of assembly instructions
-type Arg interface {
-	RegId() RegId // register used by Arg, or NoReg if Arg is Const
-	Kind() Kind
-	Const() bool
-	asmcode()
-}
+	ADD Op = 9 + iota // +
+	SUB               // -
+	MUL               // *
+	QUO               // /
+	REM               // %
 
-// subset of Arg interface
+	AND     // &
+	OR      // |
+	XOR     // ^
+	SHL     // <<
+	SHR     // >>
+	AND_NOT // &^
+
+	ADD_ASSIGN // +=
+	SUB_ASSIGN // -=
+	MUL_ASSIGN // *=
+	QUO_ASSIGN // /=
+	REM_ASSIGN // %=
+
+	AND_ASSIGN     // &=
+	OR_ASSIGN      // |=
+	XOR_ASSIGN     // ^=
+	SHL_ASSIGN     // <<=
+	SHR_ASSIGN     // >>=
+	AND_NOT_ASSIGN // &^=
+
+	LAND  // &&
+	LOR   // ||
+	ARROW // <-
+	INC   // ++
+	DEC   // --
+
+	EQL    // ==
+	LSS    // <
+	GTR    // >
+	ASSIGN // =
+	NOT    // !
+
+	NEQ // !=
+	LEQ // <=
+	GEQ // >=
+
+	_
+	_
+	_
+	BRACKET // []
+	_
+	_
+	FIELD // .
+)
+
 type Expr interface {
+	RegId() RegId
 	Kind() Kind
 	Const() bool
-}
-
-// memory area where spill registers can be saved
-type Save struct {
-	reg              Reg      // points to memory area
-	start, next, end SaveSlot // memory area indexes
-	bitmap           []bool   // bitmap of used/free indexes
-}
-
-func SizeOf(e Expr) Size {
-	size := e.Kind().Size()
-	if size == 0 {
-		errorf("unknown kind: %v", e.Kind())
-	}
-	return size
+	expr() // private marker
 }

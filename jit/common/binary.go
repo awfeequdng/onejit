@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * mem.go
+ * binary.go
  *
  *  Created on Dec 20, 2020
  *      Author Massimiliano Ghilardi
@@ -16,24 +16,25 @@
 
 package common
 
-// memory address.
-type Mem struct {
+type Binary struct {
 	kind Kind
-	addr Expr
+	op   Op
+	x    Expr
+	y    Expr
 }
 
 // implement Expr interface
-func (m Mem) expr() {}
+func (e Binary) expr() {}
 
-func (m Mem) RegId() RegId {
+func (e Binary) RegId() RegId {
 	return NoRegId
 }
 
-func (m Mem) Kind() Kind {
-	return m.kind
+func (e Binary) Kind() Kind {
+	return e.kind
 }
 
-func (m Mem) Const() bool {
-	// memory access cannot be a constant
-	return false
+func (e Binary) Const() bool {
+	// access to array element or struct field cannot be a constant
+	return e.op != BRACKET && e.op != FIELD && e.x.Const() && e.y.Const()
 }

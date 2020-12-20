@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * mem.go
+ * unary.go
  *
  *  Created on Dec 20, 2020
  *      Author Massimiliano Ghilardi
@@ -16,24 +16,24 @@
 
 package common
 
-// memory address.
-type Mem struct {
+type Unary struct {
 	kind Kind
-	addr Expr
+	op   Op
+	x    Expr
 }
 
 // implement Expr interface
-func (m Mem) expr() {}
+func (e Unary) expr() {}
 
-func (m Mem) RegId() RegId {
+func (e Unary) RegId() RegId {
 	return NoRegId
 }
 
-func (m Mem) Kind() Kind {
-	return m.kind
+func (e Unary) Kind() Kind {
+	return e.kind
 }
 
-func (m Mem) Const() bool {
-	// memory access cannot be a constant
-	return false
+func (e Unary) Const() bool {
+	// address dereference cannot be a constant
+	return e.op != MUL && e.x.Const()
 }

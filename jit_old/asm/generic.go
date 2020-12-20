@@ -1,5 +1,7 @@
+// +build !amd64,!arm64
+
 /*
- * gomacrojit - JIT compiler in Go
+ * gomacrojitjit - JIT compiler in Go
  *
  * Copyright (C) 2019 Massimiliano Ghilardi
  *
@@ -8,15 +10,20 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * gomacrojit.go
+ * generic.go
  *
- *  Created on Nov 23, 2019
+ *  Created on Feb 13, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package gomacrojit
+package asm
 
 import (
-	_ "github.com/cosmos72/gomacrojit/jit"
-	_ "github.com/cosmos72/gomacrojit/jit_old"
+	"github.com/cosmos72/gomacrojit/jit_old/common"
+)
+
+const (
+	ARCH_ID        = common.NOARCH
+	ARCH_SUPPORTED = false
+	NAME           = "generic"
 )
