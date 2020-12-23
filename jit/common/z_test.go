@@ -8,36 +8,18 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * mem.go
+ * z_test.go
  *
- *  Created on Dec 20, 2020
+ *  Created on Dec 23, 2020
  *      Author Massimiliano Ghilardi
  */
 
 package common
 
-// memory address.
-type Mem struct {
-	kind Kind
-	addr Expr
-}
+import (
+	"testing"
+)
 
-// implement Expr interface
-func (m Mem) expr() {}
-
-func (m Mem) RegId() RegId {
-	return NoRegId
-}
-
-func (m Mem) Kind() Kind {
-	return m.kind
-}
-
-func (m Mem) Const() bool {
-	// memory access cannot be a constant
-	return false
-}
-
-func (m Mem) Size() Size {
-	return m.kind.Size()
+func TestUnary(t *testing.T) {
+	Unary(INC, ConstInt(7))
 }

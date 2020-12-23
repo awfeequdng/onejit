@@ -16,21 +16,22 @@
 
 package common
 
-// machine register
-type RegId uint16
+// machine register or local variable
+type RegId uint32
 
 const (
-	NoRegId RegId = 0
+	NoRegId      RegId = 0
+	minSoftRegId RegId = 256
 )
 
 func (id RegId) ArchId() ArchId {
-	return ArchId(1 + id>>8)
+	return ArchId(1 + id>>24)
 }
 
 // machine register with kind and size
 type Reg struct {
-	id   RegId
 	kind Kind
+	id   RegId
 }
 
 // implement Expr interface

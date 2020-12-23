@@ -38,3 +38,13 @@ func Assert(flag bool) {
 		panic(assertError)
 	}
 }
+
+func badOpKind(op Op, kind Kind) Kind {
+	Errorf("invalid operation: %v %v", op, kind)
+	return Void // unreachable
+}
+
+func badOpKind2(op Op, kind1 Kind, kind2 Kind) Kind {
+	Errorf("invalid operation: %v %v %v", op, kind1, kind2)
+	return Void // unreachable
+}
