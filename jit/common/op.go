@@ -67,16 +67,23 @@ const (
 	LEQ // <=
 	GEQ // >=
 
-	_       // DEFINE   // :=
-	_       // ELLIPSIS // ...
+	_ // DEFINE   // :=
+	_
 	CAST    // LPAREN   // (
 	BRACKET // LBRACK   // [
 	_
 	_
-	FIELD // .
+	FIELD // DOT // .
+
+	JUMP    Op = 73 // GOTO
+	JUMP_IF Op = 74 // IF
+	RET     Op = 80 // RETURN
+
+	NEG  = SUB // -
+	STAR = MUL // *
 
 	opLo = BADOP
-	opHi = FIELD
+	opHi = JUMP_IF
 )
 
 var opstring = [...]string{
@@ -118,6 +125,9 @@ var opstring = [...]string{
 	CAST:           "CAST",
 	BRACKET:        "[]",
 	FIELD:          ".",
+	JUMP:           "JUMP",
+	JUMP_IF:        "JUMP_IF",
+	RET:            "RET",
 }
 
 func (op Op) String() string {

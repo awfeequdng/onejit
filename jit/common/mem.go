@@ -33,7 +33,7 @@ func (m Mem) Kind() Kind {
 	return m.kind
 }
 
-func (m Mem) Const() bool {
+func (m Mem) IsConst() bool {
 	// memory access cannot be a constant
 	return false
 }

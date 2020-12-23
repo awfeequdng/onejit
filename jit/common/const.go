@@ -38,7 +38,7 @@ func (c Const) Kind() Kind {
 	return c.kind
 }
 
-func (c Const) Const() bool {
+func (c Const) IsConst() bool {
 	return true
 }
 

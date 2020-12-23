@@ -17,6 +17,7 @@
 package common
 
 import (
+	"strconv"
 	"unsafe"
 )
 
@@ -51,8 +52,8 @@ const (
 	_   // String
 	_   // Struct
 	_   // UnsafePointer
-	KLo = Bool
-	KHi = Complex128
+	kLo = Bool
+	kHi = Ptr
 )
 
 var kstring = [...]string{
@@ -120,10 +121,17 @@ var ksize = [...]Size{
 }
 
 func (k Kind) Size() Size {
-	if k >= KLo && k <= KHi {
+	if k >= kLo && k <= kHi {
 		return ksize[k]
 	}
 	return 0
+}
+
+func (k Kind) String() string {
+	if k >= kLo && k <= kHi {
+		return kstring[k]
+	}
+	return "Kind(" + strconv.Itoa(int(k)) + ")"
 }
 
 func (k Kind) Category() Kind {
@@ -154,7 +162,7 @@ func (k Kind) IsInteger() bool {
 	}
 }
 
-func (k Kind) isIntOrPtr() bool {
+func (k Kind) isIntegerOrPtr() bool {
 	return k == Ptr || k.IsInteger()
 }
 
@@ -167,11 +175,11 @@ func (k Kind) IsComplex() bool {
 }
 
 func (k Kind) IsOrdered() bool {
-	return k.IsInteger() || k.IsFloat()
+	return k.isIntegerOrPtr() || k.IsFloat()
 }
 
 func (k Kind) IsComparable() bool {
-	return k.IsInteger() || k.IsFloat()
+	return k.isIntegerOrPtr() || k.IsFloat() || k.IsComplex()
 }
 
 func (k Kind) mustBeBool(op Op) Kind {
@@ -181,22 +189,29 @@ func (k Kind) mustBeBool(op Op) Kind {
 	return k
 }
 
-func (k Kind) mustBeInteger(op Op) Kind {
-	if !k.isIntOrPtr() {
+func (k Kind) mustBeIntegerOrPtr(op Op) Kind {
+	if !k.isIntegerOrPtr() {
 		badOpKind(op, k)
 	}
 	return k
 }
 
-func (k Kind) mustBeNumber(op Op) Kind {
+func (k Kind) mustBeNumberOrPtr(op Op) Kind {
 	if k == Bool {
 		badOpKind(op, k)
 	}
 	return k
 }
 
-func kindMustBeInteger(op Op, k1 Kind, k2 Kind) Kind {
-	if k1 == k2 && k1.isIntOrPtr() {
+func (k Kind) mustBePtr(op Op) Kind {
+	if k != Ptr {
+		badOpKind(op, k)
+	}
+	return k
+}
+
+func kindMustBeIntegerOrPtr(op Op, k1 Kind, k2 Kind) Kind {
+	if k1 == k2 && k1.isIntegerOrPtr() {
 		return k1
 	}
 	return badOpKind2(op, k1, k2)
@@ -216,7 +231,7 @@ func kindMustBeComparable(op Op, k1 Kind, k2 Kind) Kind {
 	return badOpKind2(op, k1, k2)
 }
 
-func kindMustBeNumber(op Op, k1 Kind, k2 Kind) Kind {
+func kindMustBeNumberOrPtr(op Op, k1 Kind, k2 Kind) Kind {
 	if k1 == k2 && k1 != Bool {
 		return k1
 	}

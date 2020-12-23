@@ -58,9 +58,9 @@ func (e UnaryExpr) Kind() Kind {
 	return e.kind
 }
 
-func (e UnaryExpr) Const() bool {
+func (e UnaryExpr) IsConst() bool {
 	// address dereference cannot be a constant
-	return e.op != MUL && e.x.Const()
+	return e.op != MUL && e.x.IsConst()
 }
 
 func (e UnaryExpr) Size() Size {
@@ -72,21 +72,31 @@ func (e UnaryExpr) Size() Size {
 func unaryKind(op Op, x Expr) Kind {
 	k := x.Kind()
 	switch op {
+	case NEG: // unary -
+		return k.mustBeNumberOrPtr(op)
 	case INC, DEC:
-		if k != Ptr {
-			k.mustBeNumber(op)
-		}
-		return nonConst(op, x)
-	case NOT:
+		k.mustBeNumberOrPtr(op)
+		return mustBeAssignable(op, x)
+	case NOT: // unary !
 		k.mustBeBool(op)
 		return Bool
+	case JUMP:
+		k.mustBePtr(op)
+		return Void
+	case RET:
+		// RET accepts any kind and returns Void.
+		// kinds it will be checked against function signature
+		return Void
 	}
 	return badOpKind(op, k)
 }
 
-func nonConst(op Op, x Expr) Kind {
-	if x.Const() {
-		Errorf("cannot assign to constant: %v %v", op, x.Kind())
+func mustBeAssignable(op Op, x Expr) Kind {
+	switch x := x.(type) {
+	case Reg, Mem:
+		break
+	default:
+		Errorf("cannot assign to expression: %v %T", op, x)
 	}
 	return Void
 }

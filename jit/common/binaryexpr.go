@@ -60,9 +60,9 @@ func (e BinaryExpr) Size() Size {
 	return e.kind.Size()
 }
 
-func (e BinaryExpr) Const() bool {
+func (e BinaryExpr) IsConst() bool {
 	// access to array element or struct field cannot be a constant
-	return e.op != BRACKET && e.op != FIELD && e.x.Const() && e.y.Const()
+	return e.op != BRACKET && e.op != FIELD && e.x.IsConst() && e.y.IsConst()
 }
 
 // ========================= helpers ===========================================
@@ -71,28 +71,33 @@ func binaryKind(op Op, x Expr, y Expr) Kind {
 	k1, k2 := x.Kind(), y.Kind()
 	switch op {
 	case ADD, SUB, MUL, QUO:
-		return kindMustBeNumber(op, k1, k2)
+		return kindMustBeNumberOrPtr(op, k1, k2)
 
 	case REM, AND, OR, XOR, AND_NOT:
-		kindMustBeInteger(op, k1, k2)
-		return k1
+		return kindMustBeIntegerOrPtr(op, k1, k2)
 
 	case SHL, SHR:
-		k1.mustBeInteger(op)
-		k2.mustBeInteger(op)
+		k1.mustBeIntegerOrPtr(op)
+		k2.mustBeIntegerOrPtr(op)
 		return k1
 
 	case ADD_ASSIGN, SUB_ASSIGN, MUL_ASSIGN, QUO_ASSIGN:
-		kindMustBeNumber(op, k1, k2)
+		mustBeAssignable(op, x)
+		kindMustBeNumberOrPtr(op, k1, k2)
 		return Void
 
-	case REM_ASSIGN, AND_ASSIGN, OR_ASSIGN, XOR_ASSIGN, AND_NOT_ASSIGN, ASSIGN:
-		kindMustBeInteger(op, k1, k2)
+	case REM_ASSIGN, AND_ASSIGN, OR_ASSIGN, XOR_ASSIGN, AND_NOT_ASSIGN:
+		kindMustBeIntegerOrPtr(op, k1, k2)
+		fallthrough
+
+	case ASSIGN:
+		mustBeAssignable(op, x)
 		return Void
 
 	case SHL_ASSIGN, SHR_ASSIGN:
-		k1.mustBeInteger(op)
-		k2.mustBeInteger(op)
+		mustBeAssignable(op, x)
+		k1.mustBeIntegerOrPtr(op)
+		k2.mustBeIntegerOrPtr(op)
 		return Void
 
 	case LAND, LOR:
@@ -107,6 +112,16 @@ func binaryKind(op Op, x Expr, y Expr) Kind {
 	case LSS, GTR, LEQ, GEQ:
 		kindMustBeOrdered(op, k1, k2)
 		return Bool
+
+	case JUMP_IF:
+		k1.mustBePtr(op)
+		k2.mustBeBool(op)
+		return Void
+
+	case RET:
+		// RET accepts any kind and returns Void.
+		// kinds it will be checked against function signature
+		return Void
 
 	default:
 		return badOpKind2(op, k1, k2)

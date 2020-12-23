@@ -21,7 +21,7 @@ type Size uintptr // 1, 2, 4, 8 or 16
 type Expr interface {
 	RegId() RegId
 	Kind() Kind
-	Const() bool
+	IsConst() bool
 	Size() Size
 	expr() // private marker
 }

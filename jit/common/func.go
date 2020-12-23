@@ -70,9 +70,13 @@ func (m Label) Kind() Kind {
 	return Ptr
 }
 
-func (m Label) Const() bool {
+func (m Label) IsConst() bool {
 	// Label is a link-time constant
 	return true
+}
+
+func (m Label) Size() Size {
+	return 0
 }
 
 // ================================== Func =====================================
@@ -87,10 +91,54 @@ type Func struct {
 }
 
 func NewFunc(name string, sig *Signature) *Func {
-	return &Func{
+	f := &Func{
 		name: name,
 		sig:  sig,
 	}
+	narg := sig.NumIn()
+	for i := 0; i < narg; i++ {
+		f.NewReg(sig.In(i))
+	}
+	f.NewLabel() // prepare f.Label()
+	return f
+}
+
+func (f *Func) Name() string {
+	return f.name
+}
+
+func (f *Func) Signature() *Signature {
+	return f.sig
+}
+
+// return number of arguments
+func (f *Func) NumArg() int {
+	return f.sig.NumIn()
+}
+
+// return number of results
+func (f *Func) NumRet() int {
+	return f.sig.NumOut()
+}
+
+// return i-th argument
+func (f *Func) Arg(i int) Reg {
+	return f.regs[:f.NumArg()][i]
+}
+
+/* return a label pointing to function's beginning */
+func (f *Func) Label() Label {
+	return f.labels[0]
+}
+
+func (f *Func) Stmt(e Expr) *Func {
+	f.code = append(f.code, e)
+	return f
+}
+
+func (f *Func) Block(e ...Expr) *Func {
+	f.code = append(f.code, e...)
+	return f
 }
 
 func (f *Func) NewReg(kind Kind) Reg {
@@ -106,10 +154,12 @@ func (f *Func) NewLabel() Label {
 	if len(f.labelPool) >= cap(f.labelPool) {
 		f.labelPool = make([]uintptr, 0, 16)
 	}
-	_ = append(f.labelPool, 0) // does not reallocate
-	return Label{
+	f.labelPool = append(f.labelPool, 0) // does not reallocate
+	l := Label{
 		addr: &f.labelPool[len(f.labelPool)-1],
 	}
+	f.labels = append(f.labels, l)
+	return l
 }
 
 func (f *Func) NewCall(callf Expr, sig *Signature, args []Expr) CallExpr {

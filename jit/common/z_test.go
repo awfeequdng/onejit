@@ -21,5 +21,55 @@ import (
 )
 
 func TestUnary(t *testing.T) {
-	Unary(INC, ConstInt(7))
+	Unary(SUB, ConstInt(7))
+}
+
+func TestBinary(t *testing.T) {
+	var e Expr = Binary(ADD, ConstInt(3), ConstInt(4))
+	if !e.IsConst() {
+		t.Errorf("expression should be constant")
+	}
+}
+
+func TestFunc(t *testing.T) {
+	/*
+	 * emulate the following code:
+	 * func fib(n uintptr) uintptr {
+	 *   if n > 2 {
+	 *     n = fib(n-1) + fib(n-2)
+	 *	 } else {
+	 *	   n = 1
+	 *	 }
+	 *   return n
+	 * }
+	 */
+	f := NewFunc("fib", NewSignature([]Kind{Uintptr}, []Kind{Uintptr}))
+	small, out := f.NewLabel(), f.NewLabel()
+	n := f.Arg(0)
+	f.Block(
+		Binary(JUMP_IF, small, Binary(LEQ, n, ConstUintptr(2))),
+		Binary(ASSIGN, n,
+			Binary(ADD,
+				f.NewCall(
+					f.Label(), f.Signature(),
+					[]Expr{
+						Binary(SUB, n, ConstUintptr(1)),
+					},
+				),
+				f.NewCall(
+					f.Label(), f.Signature(),
+					[]Expr{
+						Binary(SUB, n, ConstUintptr(2)),
+					},
+				))),
+		Unary(JUMP, out),
+		small,
+		Binary(ASSIGN, n, ConstUintptr(1)),
+		out,
+		Unary(RET, n),
+	)
+
+	if f.Signature().NumIn() != 1 || f.Signature().NumOut() != 1 {
+		t.Errorf("bad function signature")
+	}
 }

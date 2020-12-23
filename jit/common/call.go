@@ -57,7 +57,7 @@ func (c CallExpr) Kind() Kind {
 	return c.exprs[c.narg+1].Kind()
 }
 
-func (c CallExpr) Const() bool {
+func (c CallExpr) IsConst() bool {
 	return false
 }
 

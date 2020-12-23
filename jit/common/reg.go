@@ -41,7 +41,7 @@ func (r Reg) RegId() RegId {
 	return r.id
 }
 
-func (r Reg) Const() bool {
+func (r Reg) IsConst() bool {
 	return false
 }
 
