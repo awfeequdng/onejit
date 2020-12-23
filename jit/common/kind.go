@@ -52,11 +52,12 @@ const (
 	_   // String
 	_   // Struct
 	_   // UnsafePointer
-	kLo = Bool
+	kLo = Void
 	kHi = Ptr
 )
 
 var kstring = [...]string{
+	Void:       "void",
 	Bool:       "bool",
 	Int:        "int",
 	Int8:       "int8",
@@ -128,10 +129,58 @@ func (k Kind) Size() Size {
 }
 
 func (k Kind) String() string {
+	var s string
 	if k >= kLo && k <= kHi {
-		return kstring[k]
+		s = kstring[k]
+	} else {
+		s = "Kind(" + strconv.Itoa(int(k)) + ")"
 	}
-	return "Kind(" + strconv.Itoa(int(k)) + ")"
+	return s
+}
+
+var ksuffix = [...]string{
+	Bool:       "e",
+	Int8:       "b",
+	Int16:      "h",
+	Int32:      "i",
+	Int64:      "l",
+	Uint8:      "ub",
+	Uint16:     "uh",
+	Uint32:     "ui",
+	Uint64:     "ul",
+	Float32:    "f",
+	Float64:    "lf",
+	Complex64:  "c",
+	Complex128: "lc",
+	Ptr:        "p",
+}
+
+func init() {
+	k := Int64
+	if unsafe.Sizeof(int(0)) == 4 {
+		k = Int32
+	}
+	ksuffix[Int] = ksuffix[k]
+
+	k = Uint64
+	if unsafe.Sizeof(uint(0)) == 4 {
+		k = Uint32
+	}
+	ksuffix[Uint] = ksuffix[k]
+
+	k = Uint64
+	if unsafe.Sizeof(uintptr(0)) == 4 {
+		k = Uint32
+	}
+	ksuffix[Uintptr] = ksuffix[k]
+}
+
+func (k Kind) asmSuffix() string {
+	var s string
+	if k >= kLo && k <= kHi {
+		s = ksuffix[k]
+	}
+	return s
 }
 
 func (k Kind) Category() Kind {

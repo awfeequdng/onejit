@@ -83,7 +83,7 @@ const (
 	STAR = MUL // *
 
 	opLo = BADOP
-	opHi = JUMP_IF
+	opHi = RET
 )
 
 var opstring = [...]string{

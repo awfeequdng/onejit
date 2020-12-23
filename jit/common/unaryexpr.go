@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * unary.go
+ * unaryexpr.go
  *
  *  Created on Dec 20, 2020
  *      Author Massimiliano Ghilardi
@@ -85,7 +85,7 @@ func unaryKind(op Op, x Expr) Kind {
 		return Void
 	case RET:
 		// RET accepts any kind and returns Void.
-		// kinds it will be checked against function signature
+		// kind will be checked against function signature
 		return Void
 	}
 	return badOpKind(op, k)

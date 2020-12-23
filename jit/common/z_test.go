@@ -72,4 +72,5 @@ func TestFunc(t *testing.T) {
 	if f.Signature().NumIn() != 1 || f.Signature().NumOut() != 1 {
 		t.Errorf("bad function signature")
 	}
+	t.Log(f)
 }

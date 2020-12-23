@@ -48,3 +48,69 @@ func badOpKind2(op Op, kind1 Kind, kind2 Kind) Kind {
 	Errorf("invalid operation: %v %v %v", op, kind1, kind2)
 	return Void // unreachable
 }
+
+// ============================== Formatter ====================================
+
+func (c Const) Format(st fmt.State, x rune) {
+	fmt.Fprint(st, c.Interface())
+}
+
+func (r Reg) Format(st fmt.State, x rune) {
+	fmt.Fprintf(st, "reg%x%s", r.id, r.kind.asmSuffix())
+}
+
+func (m Mem) Format(st fmt.State, x rune) {
+	fmt.Fprintf(st, "mem%s%v", m.kind.asmSuffix(), m.addr)
+}
+
+func (l Label) Format(st fmt.State, x rune) {
+	fmt.Fprintf(st, "label%x", l.index)
+}
+
+func (e UnaryExpr) Format(st fmt.State, x rune) {
+	fmt.Fprintf(st, "(%v %v)", e.op, e.x)
+}
+
+func (e BinaryExpr) Format(st fmt.State, x rune) {
+	fmt.Fprintf(st, "(%v %v %v)", e.x, e.op, e.y)
+}
+
+var (
+	comma  = []byte(", ")
+	rparen = []byte(")")
+)
+
+func (e CallExpr) Format(st fmt.State, x rune) {
+	fmt.Fprintf(st, "(CALL %v ", e.Func())
+	for i, nin := 0, e.NumIn(); i < nin; i++ {
+		if i != 0 {
+			st.Write(comma)
+		}
+		fmt.Fprint(st, e.In(i))
+	}
+	st.Write(rparen)
+}
+
+func (f *Func) Format(st fmt.State, x rune) {
+	fmt.Fprintf(st, "FUNC %v (", f.Name())
+	for i, narg := 0, f.NumArg(); i < narg; i++ {
+		if i != 0 {
+			st.Write(comma)
+		}
+		fmt.Fprint(st, f.Arg(i))
+	}
+	if nret := f.NumRet(); nret > 0 {
+		st.Write([]byte(") => ("))
+		for i := 0; i < nret; i++ {
+			if i != 0 {
+				st.Write(comma)
+			}
+			fmt.Fprint(st, f.Signature().Out(i))
+		}
+	}
+	st.Write([]byte(") {\n"))
+	for _, stmt := range f.code {
+		fmt.Fprintf(st, "    %v\n", stmt)
+	}
+	st.Write([]byte("}\n"))
+}

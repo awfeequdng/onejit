@@ -16,10 +16,15 @@
 
 package common
 
+import (
+	"math"
+	"unsafe"
+)
+
 type Const struct {
 	kind Kind
 	re   int64
-	imag int64
+	im   int64
 }
 
 var (
@@ -46,9 +51,10 @@ func (c Const) Size() Size {
 	return c.kind.Size()
 }
 
-func (c Const) Val() int64 {
-	return c.re
-}
+var (
+	ifalse interface{} = false
+	itrue  interface{} = true
+)
 
 func (c Const) Int() int64 {
 	return c.re
@@ -56,6 +62,76 @@ func (c Const) Int() int64 {
 
 func (c Const) Uint() uint64 {
 	return uint64(c.re)
+}
+
+func (c Const) Float32() float32 {
+	return math.Float32frombits(uint32(c.re))
+}
+
+func (c Const) Float64() float64 {
+	return math.Float64frombits(uint64(c.re))
+}
+
+func (c Const) Complex64() complex64 {
+	return complex(
+		math.Float32frombits(uint32(c.re)),
+		math.Float32frombits(uint32(c.im)))
+}
+
+func (c Const) Complex128() complex128 {
+	return complex(
+		math.Float64frombits(uint64(c.re)),
+		math.Float64frombits(uint64(c.im)))
+}
+
+func (c Const) Ptr() unsafe.Pointer {
+	return unsafe.Pointer(uintptr(c.re))
+}
+
+func (c Const) Interface() interface{} {
+	var i interface{}
+	val := c.re
+	switch c.kind {
+	case Bool:
+		if val == 0 {
+			i = ifalse
+		} else {
+			i = itrue
+		}
+	case Int:
+		i = int(val)
+	case Int8:
+		i = int8(val)
+	case Int16:
+		i = int16(val)
+	case Int32:
+		i = int32(val)
+	case Int64:
+		i = int64(val)
+	case Uint:
+		i = uint(val)
+	case Uint8:
+		i = uint8(val)
+	case Uint16:
+		i = uint16(val)
+	case Uint32:
+		i = uint32(val)
+	case Uint64:
+		i = uint64(val)
+	case Uintptr:
+		i = uintptr(val)
+	case Float32:
+		i = c.Float32()
+	case Float64:
+		i = c.Float64()
+	case Complex64:
+		i = c.Complex64()
+	case Complex128:
+		i = c.Complex128()
+	case Ptr:
+		i = c.Ptr()
+	}
+	return i
 }
 
 // convert Const to a different kind

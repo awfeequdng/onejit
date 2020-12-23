@@ -56,7 +56,8 @@ func (s *Signature) Out(i int) Kind {
 
 type Label struct {
 	// allocated on creation, *addr computed lazily
-	addr *uintptr
+	addr  *uintptr
+	index int // only for debugging
 }
 
 // implement Expr interface
@@ -82,12 +83,13 @@ func (m Label) Size() Size {
 // ================================== Func =====================================
 
 type Func struct {
-	name      string
-	sig       *Signature
-	regs      []Reg
-	labels    []Label
-	labelPool []uintptr
-	code      []Expr
+	name       string
+	sig        *Signature
+	regs       []Reg
+	labels     []Label
+	labelPool  []uintptr
+	labelIndex int
+	code       []Expr
 }
 
 func NewFunc(name string, sig *Signature) *Func {
@@ -95,11 +97,12 @@ func NewFunc(name string, sig *Signature) *Func {
 		name: name,
 		sig:  sig,
 	}
+	l := f.NewLabel() // prepare f.Label()
+	f.Stmt(l)         // and insert it
 	narg := sig.NumIn()
 	for i := 0; i < narg; i++ {
 		f.NewReg(sig.In(i))
 	}
-	f.NewLabel() // prepare f.Label()
 	return f
 }
 
@@ -156,9 +159,11 @@ func (f *Func) NewLabel() Label {
 	}
 	f.labelPool = append(f.labelPool, 0) // does not reallocate
 	l := Label{
-		addr: &f.labelPool[len(f.labelPool)-1],
+		addr:  &f.labelPool[len(f.labelPool)-1],
+		index: f.labelIndex,
 	}
 	f.labels = append(f.labels, l)
+	f.labelIndex++
 	return l
 }
 
