@@ -80,6 +80,14 @@ var (
 	rparen = []byte(")")
 )
 
+func (e TupleExpr) Format(st fmt.State, x rune) {
+	fmt.Fprintf(st, "(%v", e.op)
+	for _, expr := range e.list {
+		fmt.Fprintf(st, " %v", expr)
+	}
+	st.Write(rparen)
+}
+
 func (e CallExpr) Format(st fmt.State, x rune) {
 	fmt.Fprintf(st, "(CALL %v ", e.Func())
 	for i, nin := 0, e.NumIn(); i < nin; i++ {
@@ -100,7 +108,7 @@ func (f *Func) Format(st fmt.State, x rune) {
 		fmt.Fprint(st, f.Arg(i))
 	}
 	if nret := f.NumRet(); nret > 0 {
-		st.Write([]byte(") => ("))
+		st.Write([]byte(") -> ("))
 		for i := 0; i < nret; i++ {
 			if i != 0 {
 				st.Write(comma)

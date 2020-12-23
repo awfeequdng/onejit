@@ -19,12 +19,12 @@ package common
 // ================================== CallExpr =================================
 
 type CallExpr struct {
-	exprs []Expr
+	list []Expr
 	narg  int
 }
 
 func (c CallExpr) Func() Expr {
-	return c.exprs[0]
+	return c.list[0]
 }
 
 func (c CallExpr) NumIn() int {
@@ -32,15 +32,15 @@ func (c CallExpr) NumIn() int {
 }
 
 func (c CallExpr) NumOut() int {
-	return len(c.exprs) - c.narg - 1
+	return len(c.list) - c.narg - 1
 }
 
 func (c CallExpr) In(i int) Expr {
-	return c.exprs[1 : c.narg+1][i]
+	return c.list[1 : c.narg+1][i]
 }
 
 func (c CallExpr) Out(i int) Expr {
-	return c.exprs[c.narg+1:][i]
+	return c.list[c.narg+1:][i]
 }
 
 // implement Expr interface
@@ -54,7 +54,7 @@ func (c CallExpr) Kind() Kind {
 	if c.NumOut() == 0 {
 		return Void
 	}
-	return c.exprs[c.narg+1].Kind()
+	return c.list[c.narg+1].Kind()
 }
 
 func (c CallExpr) IsConst() bool {

@@ -97,8 +97,7 @@ func NewFunc(name string, sig *Signature) *Func {
 		name: name,
 		sig:  sig,
 	}
-	l := f.NewLabel() // prepare f.Label()
-	f.Stmt(l)         // and insert it
+	f.NewLabel() // prepare f.Label()
 	narg := sig.NumIn()
 	for i := 0; i < narg; i++ {
 		f.NewReg(sig.In(i))
@@ -190,7 +189,7 @@ func (f *Func) NewCall(callf Expr, sig *Signature, args []Expr) CallExpr {
 		}
 	}
 	return CallExpr{
-		exprs: exprs,
+		list: exprs,
 		narg:  narg,
 	}
 }

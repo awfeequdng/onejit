@@ -66,7 +66,7 @@ func TestFunc(t *testing.T) {
 		small,
 		Binary(ASSIGN, n, ConstUintptr(1)),
 		out,
-		Unary(RET, n),
+		Tuple(RET, n),
 	)
 
 	if f.Signature().NumIn() != 1 || f.Signature().NumOut() != 1 {
