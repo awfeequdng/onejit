@@ -19,8 +19,29 @@ package jit
 // ================================== CallExpr =================================
 
 type CallExpr struct {
+	sig *Signature
 	list []Expr
-	narg  int
+}
+
+func Call(fn Expr, sig* Signature, args []Expr) CallExpr {
+	narg := len(args)
+	if n := sig.NumIn(); narg != n {
+		Errorf("bad number of arguments in call: have %d, want %d", narg, n)
+	}
+	for i := range args {
+		karg := args[i].Kind()
+		kind := sig.In(i)
+		if karg != kind {
+			Errorf("bad argument in call %v: have %d, want %d", i+1, karg, kind)
+		}
+	}
+	list := make([]Expr, len(args) + 1)
+	list[0] = fn
+	copy(list[1:], args)
+	return CallExpr{
+		sig,
+		list,
+	}
 }
 
 func (c CallExpr) Func() Expr {
@@ -28,19 +49,15 @@ func (c CallExpr) Func() Expr {
 }
 
 func (c CallExpr) NumIn() int {
-	return c.narg
-}
-
-func (c CallExpr) NumOut() int {
-	return len(c.list) - c.narg - 1
+	return len(c.list) - 1
 }
 
 func (c CallExpr) In(i int) Expr {
-	return c.list[1 : c.narg+1][i]
+	return c.list[i + 1]
 }
 
-func (c CallExpr) Out(i int) Expr {
-	return c.list[c.narg+1:][i]
+func (c CallExpr) Signature() *Signature {
+	return c.sig
 }
 
 // implement Expr interface
@@ -51,10 +68,10 @@ func (c CallExpr) RegId() RegId {
 }
 
 func (c CallExpr) Kind() Kind {
-	if c.NumOut() == 0 {
+	if c.sig.NumOut() == 0 {
 		return Void
 	}
-	return c.list[c.narg+1].Kind()
+	return c.sig.Out(0)
 }
 
 func (c CallExpr) IsConst() bool {

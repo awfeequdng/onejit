@@ -50,13 +50,13 @@ func TestFunc(t *testing.T) {
 		Binary(JUMP_IF, small, Binary(LEQ, n, ConstUintptr(2))),
 		Binary(ASSIGN, n,
 			Binary(ADD,
-				f.NewCall(
+				Call(
 					f.Label(), f.Signature(),
 					[]Expr{
 						Binary(SUB, n, ConstUintptr(1)),
 					},
 				),
-				f.NewCall(
+				Call(
 					f.Label(), f.Signature(),
 					[]Expr{
 						Binary(SUB, n, ConstUintptr(2)),

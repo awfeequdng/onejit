@@ -165,31 +165,3 @@ func (f *Func) NewLabel() Label {
 	f.labelIndex++
 	return l
 }
-
-func (f *Func) NewCall(callf Expr, sig *Signature, args []Expr) CallExpr {
-	narg := len(args)
-	if n := sig.NumIn(); narg != n {
-		Errorf("bad number of arguments in call: have %d, want %d", narg, n)
-	}
-	for i := range args {
-		karg := args[i].Kind()
-		kind := sig.In(i)
-		if karg != kind {
-			Errorf("bad argument %v in call: have %d, want %d", i+1, karg, kind)
-		}
-	}
-	nret := sig.NumOut()
-
-	exprs := make([]Expr, 1+narg+nret)
-	{
-		exprs[0] = callf
-		copy(exprs[1:], args)
-		for i := 0; i < nret; i++ {
-			exprs[1+narg+i] = f.NewReg(sig.Out(i))
-		}
-	}
-	return CallExpr{
-		list: exprs,
-		narg:  narg,
-	}
-}
