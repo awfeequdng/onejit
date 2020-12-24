@@ -14,7 +14,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package common
+package jit
 
 type UnaryExpr struct {
 	_    noteq

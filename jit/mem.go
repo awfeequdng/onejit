@@ -14,7 +14,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package common
+package jit
 
 // memory address.
 type Mem struct {

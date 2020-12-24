@@ -14,7 +14,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package common
+package jit
 
 type Size uintptr // 1, 2, 4, 8 or 16
 

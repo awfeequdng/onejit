@@ -14,7 +14,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package common
+package jit
 
 // machine register or local variable
 type RegId uint32
