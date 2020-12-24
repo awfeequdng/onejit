@@ -89,12 +89,16 @@ func (e TupleExpr) Format(st fmt.State, x rune) {
 }
 
 func (e CallExpr) Format(st fmt.State, x rune) {
-	fmt.Fprintf(st, "(CALL %v ", e.Func())
-	for i, nin := 0, e.NumIn(); i < nin; i++ {
+	if fun := e.Func(); fun != nil {
+		fmt.Fprintf(st, "(CALL %v ", fun.Name())
+	} else {
+		fmt.Fprintf(st, "(CALL %v ", e.FuncExpr())
+	}
+	for i, n := 0, e.NumArg(); i < n; i++ {
 		if i != 0 {
 			st.Write(comma)
 		}
-		fmt.Fprint(st, e.In(i))
+		fmt.Fprint(st, e.Arg(i))
 	}
 	st.Write(rparen)
 }

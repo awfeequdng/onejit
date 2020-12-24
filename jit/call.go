@@ -20,10 +20,14 @@ package jit
 
 type CallExpr struct {
 	sig  *Signature
+	fun *Func // nil if not known
 	list []Expr
 }
 
 func Call(fn Expr, sig *Signature, args []Expr) CallExpr {
+	if kind := fn.Kind(); kind != Ptr {
+		Errorf("bad function kind in call: have %v, want %v", kind, Ptr)
+	}
 	if sig == nil {
 		Errorf("nil signature in call")
 	}
@@ -42,20 +46,32 @@ func Call(fn Expr, sig *Signature, args []Expr) CallExpr {
 	list[0] = fn
 	copy(list[1:], args)
 	return CallExpr{
-		sig,
-		list,
+		sig:  sig,
+		list: list,
 	}
 }
 
-func (c CallExpr) Func() Expr {
+// also allows inlining
+func CallFunc(fun *Func, args []Expr) CallExpr {
+	call := Call(fun.Label(), fun.Signature(), args)
+	call.fun = fun
+	return call
+}
+
+// return nil if not known
+func (c CallExpr) Func() *Func {
+	return c.fun
+}
+
+func (c CallExpr) FuncExpr() Expr {
 	return c.list[0]
 }
 
-func (c CallExpr) NumIn() int {
+func (c CallExpr) NumArg() int {
 	return len(c.list) - 1
 }
 
-func (c CallExpr) In(i int) Expr {
+func (c CallExpr) Arg(i int) Expr {
 	return c.list[i+1]
 }
 

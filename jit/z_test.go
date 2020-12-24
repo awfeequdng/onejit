@@ -51,14 +51,12 @@ func TestFunc(t *testing.T) {
 			ToStmt(
 				Binary(ASSIGN, n,
 					Binary(ADD,
-						Call(
-							f.Label(), f.Signature(),
+						CallFunc(f,
 							[]Expr{
 								Binary(SUB, n, ConstUintptr(1)),
 							},
 						),
-						Call(
-							f.Label(), f.Signature(),
+						CallFunc(f,
 							[]Expr{
 								Binary(SUB, n, ConstUintptr(2)),
 							},

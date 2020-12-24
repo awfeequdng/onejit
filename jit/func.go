@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * function.go
+ * func.go
  *
  *  Created on Dec 23, 2020
  *      Author Massimiliano Ghilardi
@@ -61,23 +61,23 @@ type Label struct {
 }
 
 // implement Expr interface
-func (m Label) expr() {}
+func (l Label) expr() {}
 
-func (m Label) RegId() RegId {
+func (l Label) RegId() RegId {
 	return NoRegId
 }
 
-func (m Label) Kind() Kind {
+func (l Label) Kind() Kind {
 	return Ptr
 }
 
-func (m Label) IsConst() bool {
+func (l Label) IsConst() bool {
 	// Label is a link-time constant
 	return true
 }
 
-func (m Label) Size() Size {
-	return 0
+func (l Label) Size() Size {
+	return Ptr.Size()
 }
 
 // ================================== Func =====================================
