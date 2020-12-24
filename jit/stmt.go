@@ -26,7 +26,7 @@ type ExprStmt struct {
 	expr Expr
 }
 
-func MakeStmt(expr Expr) ExprStmt {
+func ToStmt(expr Expr) ExprStmt {
 	return ExprStmt{
 		expr: expr,
 	}
@@ -49,6 +49,9 @@ type IfStmt struct {
 }
 
 func If(cond Expr, then_ Stmt, else_ Stmt) IfStmt {
+	if kind := cond.Kind(); kind != Bool {
+		badOpKind(JUMP_IF, kind)
+	}
 	return IfStmt{
 		cond:  cond,
 		then_: then_,
@@ -78,6 +81,14 @@ type BlockStmt struct {
 	list []Stmt
 }
 
+func (s BlockStmt) Len() int {
+	return len(s.list)
+}
+
+func (s BlockStmt) At(i int) Stmt {
+	return s.list[i]
+}
+
 func Block(list ...Stmt) BlockStmt {
 	return BlockStmt{
 		list: list,
@@ -91,4 +102,32 @@ func BlockSlice(list []Stmt) BlockStmt {
 }
 
 func (s BlockStmt) stmt() {
+}
+
+// ============================ WhileStmt ========================================
+
+type WhileStmt struct {
+	cond Expr
+	body Stmt
+}
+
+func (s WhileStmt) Cond() Expr {
+	return s.cond
+}
+
+func (s WhileStmt) Body() Stmt {
+	return s.body
+}
+
+func While(cond Expr, body Stmt) WhileStmt {
+	if kind := cond.Kind(); kind != Bool {
+		badOpKind(JUMP_IF, kind)
+	}
+	return WhileStmt{
+		cond: cond,
+		body: body,
+	}
+}
+
+func (s WhileStmt) stmt() {
 }

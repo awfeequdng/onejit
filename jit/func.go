@@ -133,13 +133,42 @@ func (f *Func) Label() Label {
 	return f.labels[0]
 }
 
-func (f *Func) Stmt(e Expr) *Func {
+func (f *Func) AddExpr(e Expr) *Func {
 	f.code = append(f.code, e)
 	return f
 }
 
-func (f *Func) Block(e ...Expr) *Func {
+func (f *Func) AddExprs(e ...Expr) *Func {
 	f.code = append(f.code, e...)
+	return f
+}
+
+func (f *Func) AddStmt(stmt Stmt) *Func {
+	switch stmt := stmt.(type) {
+	case ExprStmt:
+		f.AddExpr(stmt.Expr())
+	case IfStmt:
+		labelElse := f.NewLabel()
+		labelEndif := f.NewLabel()
+		f.AddExpr(Binary(JUMP_IF, labelElse, Unary(NOT, stmt.Cond())))
+		f.AddStmt(stmt.Then())
+		f.AddExpr(Unary(JUMP, labelEndif))
+		f.AddExpr(labelElse)
+		f.AddStmt(stmt.Else())
+		f.AddExpr(labelEndif)
+	case BlockStmt:
+		for _, s := range stmt.list {
+			f.AddStmt(s)
+		}
+	case WhileStmt:
+		labelLoop := f.NewLabel()
+		labelTest := f.NewLabel()
+		f.AddExpr(Unary(JUMP, labelTest))
+		f.AddExpr(labelLoop)
+		f.AddStmt(stmt.Body())
+		f.AddExpr(labelTest)
+		f.AddExpr(Binary(JUMP_IF, labelLoop, stmt.Cond()))
+	}
 	return f
 }
 

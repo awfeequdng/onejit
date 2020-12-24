@@ -44,30 +44,29 @@ func TestFunc(t *testing.T) {
 	 * }
 	 */
 	f := NewFunc("fib", NewSignature([]Kind{Uintptr}, []Kind{Uintptr}))
-	small, out := f.NewLabel(), f.NewLabel()
 	n := f.Arg(0)
-	f.Block(
-		Binary(JUMP_IF, small, Binary(LEQ, n, ConstUintptr(2))),
-		Binary(ASSIGN, n,
-			Binary(ADD,
-				Call(
-					f.Label(), f.Signature(),
-					[]Expr{
-						Binary(SUB, n, ConstUintptr(1)),
-					},
-				),
-				Call(
-					f.Label(), f.Signature(),
-					[]Expr{
-						Binary(SUB, n, ConstUintptr(2)),
-					},
-				))),
-		Unary(JUMP, out),
-		small,
-		Binary(ASSIGN, n, ConstUintptr(1)),
-		out,
-		Tuple(RET, n),
-	)
+	f.AddStmt(
+		If(Binary(GTR, n, ConstUintptr(2)),
+			// then
+			ToStmt(
+				Binary(ASSIGN, n,
+					Binary(ADD,
+						Call(
+							f.Label(), f.Signature(),
+							[]Expr{
+								Binary(SUB, n, ConstUintptr(1)),
+							},
+						),
+						Call(
+							f.Label(), f.Signature(),
+							[]Expr{
+								Binary(SUB, n, ConstUintptr(2)),
+							},
+						)))),
+			// else
+			ToStmt(
+				Binary(ASSIGN, n, ConstUintptr(1)))))
+	f.AddExpr(Tuple(RET, n))
 
 	if f.Signature().NumIn() != 1 || f.Signature().NumOut() != 1 {
 		t.Errorf("bad function signature")
