@@ -19,11 +19,14 @@ package jit
 // ================================== CallExpr =================================
 
 type CallExpr struct {
-	sig *Signature
+	sig  *Signature
 	list []Expr
 }
 
-func Call(fn Expr, sig* Signature, args []Expr) CallExpr {
+func Call(fn Expr, sig *Signature, args []Expr) CallExpr {
+	if sig == nil {
+		Errorf("nil signature in call")
+	}
 	narg := len(args)
 	if n := sig.NumIn(); narg != n {
 		Errorf("bad number of arguments in call: have %d, want %d", narg, n)
@@ -32,10 +35,10 @@ func Call(fn Expr, sig* Signature, args []Expr) CallExpr {
 		karg := args[i].Kind()
 		kind := sig.In(i)
 		if karg != kind {
-			Errorf("bad argument in call %v: have %d, want %d", i+1, karg, kind)
+			Errorf("bad argument %v in call: have %d, want %d", i+1, karg, kind)
 		}
 	}
-	list := make([]Expr, len(args) + 1)
+	list := make([]Expr, len(args)+1)
 	list[0] = fn
 	copy(list[1:], args)
 	return CallExpr{
@@ -53,7 +56,7 @@ func (c CallExpr) NumIn() int {
 }
 
 func (c CallExpr) In(i int) Expr {
-	return c.list[i + 1]
+	return c.list[i+1]
 }
 
 func (c CallExpr) Signature() *Signature {

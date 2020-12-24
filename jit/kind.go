@@ -21,6 +21,8 @@ import (
 	"unsafe"
 )
 
+type Size uintptr // 1, 2, 4, 8 or 16
+
 // intentionally matches reflect.Kind values
 type Kind uint8
 

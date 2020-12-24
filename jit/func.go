@@ -49,7 +49,7 @@ func (s *Signature) In(i int) Kind {
 }
 
 func (s *Signature) Out(i int) Kind {
-	return s.kinds[s.nparam:][i]
+	return s.kinds[s.nparam+i]
 }
 
 // ================================== Label ====================================

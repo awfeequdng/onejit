@@ -22,17 +22,23 @@ type TupleExpr struct {
 }
 
 func Tuple(op Op, expr ...Expr) TupleExpr {
-	return TupleExpr{
-		op:   tupleOp(op),
-		list: expr,
-	}
+	return tuple(op, expr)
 }
 
 func TupleSlice(op Op, expr []Expr) TupleExpr {
-	return TupleExpr{
-		op:   tupleOp(op),
-		list: append([]Expr(nil), expr...),
-	}
+	return tuple(op, dup(expr))
+}
+
+func Ret(expr ...Expr) TupleExpr {
+	return tuple(RET, expr)
+}
+
+func RetSlice(expr []Expr) TupleExpr {
+	return tuple(RET, dup(expr))
+}
+
+func AssignCall(to []Expr, call CallExpr) TupleExpr {
+	return tuple(ASSIGN, append(dup(to), call))
 }
 
 func (e TupleExpr) Op() Op {
@@ -68,11 +74,42 @@ func (e TupleExpr) Size() Size {
 
 // ========================= helpers ===========================================
 
-func tupleOp(op Op) Op {
+func dup(expr []Expr) []Expr {
+	ret := make([]Expr, len(expr))
+	copy(ret, expr)
+	return ret
+}
+
+func tuple(op Op, expr []Expr) TupleExpr {
 	switch op {
-	case RET: // return
-		return op
+	case ASSIGN:
+		n := len(expr) - 1
+		if n < 0 {
+			Errorf("missing CallExpr in tuple %v", op)
+		}
+		call, ok := expr[n].(CallExpr)
+		if !ok {
+			Errorf("bad last expression in tuple %v: have %T, want CallExpr", op, expr[n])
+		}
+		sig := call.Signature()
+		if n != sig.NumOut() {
+			Errorf("bad number of destinations in tuple %v: have %d, want %d", op, n, sig.NumOut())
+		}
+		for i := 0; i < n; i++ {
+			kind := expr[i].Kind()
+			karg := sig.Out(i)
+			if karg != kind {
+				Errorf("bad destination %v in tuple %v: have %d, want %d", i+1, op, karg, kind)
+			}
+		}
+		break
+	case RET:
+		break
+	default:
+		Errorf("invalid tuple operation: %v", op)
 	}
-	badOpKind(op, Void)
-	return BADOP
+	return TupleExpr{
+		op:   op,
+		list: expr,
+	}
 }

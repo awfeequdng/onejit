@@ -8,15 +8,13 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * api.go
+ * expr.go
  *
- *  Created on Jan 23, 2019
+ *  Created on Dec 20, 2020
  *      Author Massimiliano Ghilardi
  */
 
 package jit
-
-type Size uintptr // 1, 2, 4, 8 or 16
 
 type Expr interface {
 	RegId() RegId

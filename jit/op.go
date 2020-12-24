@@ -20,16 +20,26 @@ import (
 	"strconv"
 )
 
-type Op uint8 // intentionally same values as go.Token
+type (
+	Op uint8
+)
 
+// intentionally same values as go.Token
 const (
-	BADOP Op = iota
-
-	ADD Op = 9 + iota // +
-	SUB               // -
-	MUL               // *
-	QUO               // /
-	REM               // %
+	_ Op = iota
+	_
+	_
+	_
+	_
+	_
+	_
+	_
+	_
+	ADD // +
+	SUB // -
+	MUL // *
+	QUO // /
+	REM // %
 
 	AND     // &
 	OR      // |
@@ -82,12 +92,11 @@ const (
 	NEG  = SUB // -
 	STAR = MUL // *
 
-	opLo = BADOP
+	opLo = ADD
 	opHi = RET
 )
 
 var opstring = [...]string{
-	BADOP:          "BADOP",
 	ADD:            "+",
 	SUB:            "-",
 	MUL:            "*",
