@@ -76,16 +76,16 @@ func TestFuncRecursion(t *testing.T) {
 
 func TestFuncIteration(t *testing.T) {
 	/*
-			 * compile the following code:
-			 * func collatz(n uintptr) {
-		     *   for n != 1 {
-			 *     if (n & 1) != 0 {
-			 *       n = (n * 3) + 1
-			 *     }
-			 *	   n /= 2
-			 *	 }
-			 * }
-	*/
+	 * compile the following code:
+	 * func collatz(n uintptr) {
+	 *   for n != 1 {
+	 *     if (n & 1) != 0 {
+	 *       n = (n * 3) + 1
+	 *     }
+	 *     n /= 2
+	 *   }
+	 * }
+	 */
 	f := NewFunc("collatz", NewSignature([]Kind{Uintptr}, nil))
 	n := f.Arg(0)
 	one := ConstUintptr(1)
