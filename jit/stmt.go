@@ -44,7 +44,7 @@ func (s *ExprStmt) Expr() Expr {
 
 // implement Stmt interface
 func (s *ExprStmt) compile(f *Func) {
-	f.AddExpr(s.expr)
+	f.AddCompiled(s.expr)
 }
 
 // ============================ IfStmt ===========================================
@@ -85,14 +85,14 @@ func (s *IfStmt) compile(f *Func) {
 	if s.Else() != nil {
 		labelElse = f.NewLabel()
 	}
-	f.AddExpr(Binary(JUMP_IF, labelElse, Unary(NOT, s.Cond())))
-	f.AddStmt(s.Then())
+	f.AddCompiled(Binary(JUMP_IF, labelElse, Unary(NOT, s.Cond())))
+	s.Then().compile(f)
 	if s.Else() != nil {
-		f.AddExpr(Unary(JUMP, labelEndif))
-		f.AddExpr(labelElse)
-		f.AddStmt(s.Else())
+		f.AddCompiled(Unary(JUMP, labelEndif))
+		f.AddCompiled(labelElse)
+		s.Else().compile(f)
 	}
-	f.AddExpr(labelEndif)
+	f.AddCompiled(labelEndif)
 }
 
 // ============================ BlockStmt ========================================
@@ -123,7 +123,7 @@ func BlockSlice(list []Stmt) *BlockStmt {
 
 func (s *BlockStmt) compile(f *Func) {
 	for _, stmt := range s.list {
-		f.AddStmt(stmt)
+		stmt.compile(f)
 	}
 }
 
@@ -138,7 +138,7 @@ func Break() *BreakStmt {
 }
 
 func (s *BreakStmt) compile(f *Func) {
-	f.AddExpr(Unary(JUMP, f.Breaks().Top()))
+	f.AddCompiled(Unary(JUMP, f.Breaks().Top()))
 }
 
 // ============================ ContinueStmt ===================================
@@ -152,7 +152,7 @@ func Continue() *ContinueStmt {
 }
 
 func (s *ContinueStmt) compile(f *Func) {
-	f.AddExpr(Unary(JUMP, f.Continues().Top()))
+	f.AddCompiled(Unary(JUMP, f.Continues().Top()))
 }
 
 // ============================ ForStmt ========================================
@@ -205,21 +205,21 @@ func (s *ForStmt) compile(f *Func) {
 	}()
 
 	if s.Init() != nil {
-		f.AddStmt(s.Init())
+		s.Init().compile(f)
 	}
 	if s.Cond() != nil {
-		f.AddExpr(Unary(JUMP, labelTest))
+		f.AddCompiled(Unary(JUMP, labelTest))
 	}
-	f.AddExpr(labelLoop)
-	f.AddStmt(s.Body())
+	f.AddCompiled(labelLoop)
+	s.Body().compile(f)
 	if s.Post() != nil {
-		f.AddStmt(s.Post())
+		s.Post().compile(f)
 	}
-	f.AddExpr(labelTest)
+	f.AddCompiled(labelTest)
 	if s.Cond() != nil {
-		f.AddExpr(Binary(JUMP_IF, labelLoop, s.Cond()))
+		f.AddCompiled(Binary(JUMP_IF, labelLoop, s.Cond()))
 	} else {
-		f.AddExpr(Unary(JUMP_IF, labelLoop))
+		f.AddCompiled(Unary(JUMP_IF, labelLoop))
 	}
-	f.AddExpr(labelBreak)
+	f.AddCompiled(labelBreak)
 }

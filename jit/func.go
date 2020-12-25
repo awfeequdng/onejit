@@ -98,6 +98,32 @@ func (ls *Labels) Pop() {
 	ls.list = ls.list[0 : len(ls.list)-1]
 }
 
+// ================================== Source, Compiled =========================
+
+type Source struct {
+	regn   int
+	labeln int
+	list   []Stmt
+}
+
+func (s *Source) AddStmt(stmt Stmt) *Source {
+	s.list = append(s.list, stmt)
+	return s
+}
+
+func (s *Source) AddExpr(e Expr) *Source {
+	return s.AddStmt(ToStmt(e))
+}
+
+type Compiled struct {
+	code []Expr
+}
+
+func (c *Compiled) Add(e Expr) *Compiled {
+	c.code = append(c.code, e)
+	return c
+}
+
 // ================================== Func =====================================
 
 type Func struct {
@@ -109,14 +135,8 @@ type Func struct {
 	breaks     Labels
 	continues  Labels
 	labelIndex int
-	source     struct {
-		regn   int
-		labeln int
-		list   []Stmt
-	}
-	compiled struct {
-		code []Expr
-	}
+	source     Source
+	compiled   Compiled
 }
 
 func NewFunc(name string, sig *Signature) *Func {
@@ -171,12 +191,12 @@ func (f *Func) Continues() *Labels {
 }
 
 func (f *Func) AddExpr(e Expr) *Func {
-	f.source.list = append(f.source.list, ToStmt(e))
+	f.source.AddExpr(e)
 	return f
 }
 
-func (f *Func) AddStmt(stmt Stmt) *Func {
-	f.source.list = append(f.source.list, stmt)
+func (f *Func) AddStmt(s Stmt) *Func {
+	f.source.AddStmt(s)
 	return f
 }
 
@@ -215,4 +235,18 @@ func (f *Func) NewLabel() Label {
 	f.labels = append(f.labels, l)
 	f.labelIndex++
 	return l
+}
+
+func (f *Func) Compile() {
+	f.source.labeln = len(f.labels)
+	f.source.regn = len(f.regs)
+	f.compiled.code = nil
+	for _, stmt := range f.source.list {
+		stmt.compile(f)
+	}
+}
+
+func (f *Func) AddCompiled(e Expr) *Func {
+	f.compiled.Add(e)
+	return f
 }

@@ -70,6 +70,8 @@ func TestFuncRecursion(t *testing.T) {
 		t.Errorf("bad function signature")
 	}
 	t.Log(f)
+	f.Compile()
+	t.Log(f)
 }
 
 func TestFuncIteration(t *testing.T) {
@@ -94,5 +96,7 @@ func TestFuncIteration(t *testing.T) {
 					ToStmt(Binary(ASSIGN, n, Binary(ADD, Binary(MUL, n, ConstUintptr(3)), one))),
 					nil),
 				ToStmt(Binary(QUO_ASSIGN, n, ConstUintptr(2))))))
+	t.Log(f)
+	f.Compile()
 	t.Log(f)
 }

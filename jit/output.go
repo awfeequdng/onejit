@@ -243,6 +243,18 @@ func (s *ForStmt) print(p *printer) {
 	p.nl().state.Write(rparen)
 }
 
+func (s *Source) print(p *printer) {
+	for _, stmt := range s.list {
+		p.nl().print(stmt)
+	}
+}
+
+func (c *Compiled) print(p *printer) {
+	for _, expr := range c.code {
+		p.nl().format(expr)
+	}
+}
+
 func (f *Func) print(p *printer) {
 	fmt.Fprintf(p.state, "FUNC %v (", f.Name())
 	for i, narg := 0, f.NumArg(); i < narg; i++ {
@@ -261,8 +273,10 @@ func (f *Func) print(p *printer) {
 		}
 	}
 	p.write(") {").enter()
-	for _, stmt := range f.source.list {
-		p.nl().print(stmt)
+	if len(f.compiled.code) != 0 {
+		p.print(&f.compiled)
+	} else {
+		p.print(&f.source)
 	}
 	p.leave().nl().write("}\n")
 }
