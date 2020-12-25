@@ -100,3 +100,11 @@ func (c *CallExpr) IsConst() bool {
 func (c *CallExpr) Size() Size {
 	return c.Kind().Size()
 }
+
+func (c *CallExpr) Children() int {
+	return len(c.list)
+}
+
+func (c *CallExpr) Child(i int) Expr {
+	return c.list[i]
+}

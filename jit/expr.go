@@ -25,6 +25,8 @@ type Expr interface {
 	Kind() Kind
 	IsConst() bool
 	Size() Size
+	Children() int
+	Child(i int) Expr
 	expr() // private marker
 	fmt.Formatter
 }

@@ -41,3 +41,14 @@ func (m Mem) IsConst() bool {
 func (m Mem) Size() Size {
 	return m.kind.Size()
 }
+
+func (m Mem) Children() int {
+	return 1
+}
+
+func (m Mem) Child(i int) Expr {
+	if i != 0 {
+		badIndex(i, 1)
+	}
+	return m.addr
+}

@@ -65,6 +65,22 @@ func (e *BinaryExpr) IsConst() bool {
 	return e.op != BRACKET && e.op != FIELD && e.x.IsConst() && e.y.IsConst()
 }
 
+func (e *BinaryExpr) Children() int {
+	return 2
+}
+
+func (e *BinaryExpr) Child(i int) Expr {
+	switch i {
+	case 0:
+		return e.x
+	case 1:
+		return e.y
+	default:
+		badIndex(i, 2)
+		return nil
+	}
+}
+
 // ========================= helpers ===========================================
 
 func binaryKind(op Op, x Expr, y Expr) Kind {

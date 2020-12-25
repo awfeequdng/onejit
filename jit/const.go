@@ -51,6 +51,17 @@ func (c Const) Size() Size {
 	return c.kind.Size()
 }
 
+func (c Const) Children() int {
+	return 0
+}
+
+func (c Const) Child(i int) Expr {
+	badIndex(i, 0)
+	return nil
+}
+
+// ============================= helpers =======================================
+
 var (
 	ifalse interface{} = false
 	itrue  interface{} = true

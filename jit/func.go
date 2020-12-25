@@ -80,6 +80,15 @@ func (l Label) Size() Size {
 	return Ptr.Size()
 }
 
+func (l Label) Children() int {
+	return 0
+}
+
+func (l Label) Child(i int) Expr {
+	badIndex(i, 0)
+	return nil
+}
+
 // ================================== Labels ===================================
 
 type Labels struct {

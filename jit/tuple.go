@@ -45,14 +45,6 @@ func (e *TupleExpr) Op() Op {
 	return e.op
 }
 
-func (e *TupleExpr) Len() int {
-	return len(e.list)
-}
-
-func (e *TupleExpr) At(i int) Expr {
-	return e.list[i]
-}
-
 // implement Expr interface
 func (e *TupleExpr) expr() {}
 
@@ -70,6 +62,14 @@ func (e *TupleExpr) IsConst() bool {
 
 func (e *TupleExpr) Size() Size {
 	return Void.Size()
+}
+
+func (e *TupleExpr) Children() int {
+	return len(e.list)
+}
+
+func (e *TupleExpr) Child(i int) Expr {
+	return e.list[i]
 }
 
 // ========================= helpers ===========================================

@@ -67,6 +67,17 @@ func (e *UnaryExpr) Size() Size {
 	return e.kind.Size()
 }
 
+func (e *UnaryExpr) Children() int {
+	return 1
+}
+
+func (e *UnaryExpr) Child(i int) Expr {
+	if i != 0 {
+		badIndex(i, 1)
+	}
+	return e.x
+}
+
 // ========================= helpers ===========================================
 
 func unaryKind(op Op, x Expr) Kind {
