@@ -109,7 +109,14 @@ type Func struct {
 	breaks     Labels
 	continues  Labels
 	labelIndex int
-	code       []Expr
+	source     struct {
+		regn   int
+		labeln int
+		list   []Stmt
+	}
+	compiled struct {
+		code []Expr
+	}
 }
 
 func NewFunc(name string, sig *Signature) *Func {
@@ -164,17 +171,12 @@ func (f *Func) Continues() *Labels {
 }
 
 func (f *Func) AddExpr(e Expr) *Func {
-	f.code = append(f.code, e)
-	return f
-}
-
-func (f *Func) AddExprs(e ...Expr) *Func {
-	f.code = append(f.code, e...)
+	f.source.list = append(f.source.list, ToStmt(e))
 	return f
 }
 
 func (f *Func) AddStmt(stmt Stmt) *Func {
-	stmt.compile(f)
+	f.source.list = append(f.source.list, stmt)
 	return f
 }
 

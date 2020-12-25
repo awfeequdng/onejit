@@ -16,12 +16,17 @@
 
 package jit
 
+import (
+	"fmt"
+)
+
 type Expr interface {
 	RegId() RegId
 	Kind() Kind
 	IsConst() bool
 	Size() Size
 	expr() // private marker
+	fmt.Formatter
 }
 
 type noteq [0]func() // not comparable

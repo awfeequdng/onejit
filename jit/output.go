@@ -51,28 +51,28 @@ func badOpKind2(op Op, kind1 Kind, kind2 Kind) Kind {
 
 // ============================== Formatter ====================================
 
-func (c Const) Format(st fmt.State, x rune) {
-	fmt.Fprint(st, c.Interface())
+func (c Const) Format(state fmt.State, x rune) {
+	fmt.Fprint(state, c.Interface())
 }
 
-func (r Reg) Format(st fmt.State, x rune) {
-	fmt.Fprintf(st, "reg%x%s", r.id, r.kind.asmSuffix())
+func (r Reg) Format(state fmt.State, x rune) {
+	fmt.Fprintf(state, "reg%x%s", r.id, r.kind.asmSuffix())
 }
 
-func (m Mem) Format(st fmt.State, x rune) {
-	fmt.Fprintf(st, "mem%s%v", m.kind.asmSuffix(), m.addr)
+func (m Mem) Format(state fmt.State, x rune) {
+	fmt.Fprintf(state, "mem%s%v", m.kind.asmSuffix(), m.addr)
 }
 
-func (l Label) Format(st fmt.State, x rune) {
-	fmt.Fprintf(st, "label%x", l.index)
+func (l Label) Format(state fmt.State, x rune) {
+	fmt.Fprintf(state, "label%x", l.index)
 }
 
-func (e UnaryExpr) Format(st fmt.State, x rune) {
-	fmt.Fprintf(st, "(%v %v)", e.op, e.x)
+func (e UnaryExpr) Format(state fmt.State, x rune) {
+	fmt.Fprintf(state, "(%v %v)", e.op, e.x)
 }
 
-func (e BinaryExpr) Format(st fmt.State, x rune) {
-	fmt.Fprintf(st, "(%v %v %v)", e.x, e.op, e.y)
+func (e BinaryExpr) Format(state fmt.State, x rune) {
+	fmt.Fprintf(state, "(%v %v %v)", e.x, e.op, e.y)
 }
 
 var (
@@ -80,49 +80,189 @@ var (
 	rparen = []byte(")")
 )
 
-func (e TupleExpr) Format(st fmt.State, x rune) {
-	fmt.Fprintf(st, "(%v", e.op)
+func (e TupleExpr) Format(state fmt.State, x rune) {
+	fmt.Fprintf(state, "(%v", e.op)
 	for _, expr := range e.list {
-		fmt.Fprintf(st, " %v", expr)
+		fmt.Fprintf(state, " %v", expr)
 	}
-	st.Write(rparen)
+	state.Write(rparen)
 }
 
-func (e CallExpr) Format(st fmt.State, x rune) {
+func (e CallExpr) Format(state fmt.State, x rune) {
 	if fun := e.Func(); fun != nil {
-		fmt.Fprintf(st, "(CALL %v ", fun.Name())
+		fmt.Fprintf(state, "(CALL %v ", fun.Name())
 	} else {
-		fmt.Fprintf(st, "(CALL %v ", e.FuncExpr())
+		fmt.Fprintf(state, "(CALL %v ", e.FuncExpr())
 	}
 	for i, n := 0, e.NumArg(); i < n; i++ {
 		if i != 0 {
-			st.Write(comma)
+			state.Write(comma)
 		}
-		fmt.Fprint(st, e.Arg(i))
+		fmt.Fprint(state, e.Arg(i))
 	}
-	st.Write(rparen)
+	state.Write(rparen)
 }
 
-func (f *Func) Format(st fmt.State, x rune) {
-	fmt.Fprintf(st, "FUNC %v (", f.Name())
+func (s *ExprStmt) Format(state fmt.State, x rune) {
+	s.print(&printer{state, x, 0})
+}
+
+func (s *IfStmt) Format(state fmt.State, x rune) {
+	s.print(&printer{state, x, 0})
+}
+
+func (s *BlockStmt) Format(state fmt.State, x rune) {
+	s.print(&printer{state, x, 0})
+}
+
+func (s *BreakStmt) Format(state fmt.State, x rune) {
+	s.print(&printer{state, x, 0})
+}
+
+func (s *ContinueStmt) Format(state fmt.State, x rune) {
+	s.print(&printer{state, x, 0})
+}
+
+func (s *ForStmt) Format(state fmt.State, x rune) {
+	s.print(&printer{state, x, 0})
+}
+
+func (f *Func) Format(state fmt.State, x rune) {
+	f.print(&printer{state, x, 0})
+}
+
+// ============================== printer ======================================
+
+type printer struct {
+	state fmt.State
+	x     rune
+	depth int
+}
+
+type printable interface {
+	print(*printer)
+}
+
+var spaces = []byte("\n                                                                                ")
+
+const spacen = 80
+
+func (p *printer) write(str string) *printer {
+	p.state.Write([]byte(str))
+	return p
+}
+
+func (p *printer) format(obj fmt.Formatter) *printer {
+	obj.Format(p.state, p.x)
+	return p
+}
+
+func (p *printer) print(obj printable) *printer {
+	obj.print(p)
+	return p
+}
+
+func (p *printer) enter() *printer {
+	p.depth += 4
+	return p
+}
+
+func (p *printer) leave() *printer {
+	p.depth -= 4
+	return p
+}
+
+func (p *printer) nl() *printer {
+	start := 0
+	n := p.depth + 4
+	for n > 0 {
+		chunk := min2(n, spacen)
+		p.state.Write(spaces[start : n+1])
+		n -= chunk
+		start = 1
+	}
+	return p
+}
+
+func min2(a, b int) int {
+	if a > b {
+		a = b
+	}
+	return a
+}
+
+func (s *ExprStmt) print(p *printer) {
+	p.format(s.expr)
+}
+
+func (s *IfStmt) print(p *printer) {
+	p.write("(IF ").format(s.cond.(fmt.Formatter))
+	p.enter().nl().write("THEN ").print(s.Then())
+	if s.Else() != nil {
+		p.nl().write("ELSE ").print(s.Else())
+	}
+	p.leave().nl().state.Write(rparen)
+}
+
+func (s *BlockStmt) print(p *printer) {
+	p.write("(BLOCK").enter()
+	for _, stmt := range s.list {
+		p.nl().print(stmt)
+	}
+	p.leave().nl().state.Write(rparen)
+}
+
+func (s *BreakStmt) print(p *printer) {
+	p.write("(BREAK)")
+}
+
+func (s *ContinueStmt) print(p *printer) {
+	p.write("(CONTINUE)")
+}
+
+func (s *ForStmt) print(p *printer) {
+	p.write("(FOR ")
+	if s.Init() != nil {
+		p.print(s.Init()).write(" ")
+	} else {
+		p.write("nil ")
+	}
+	if s.Cond() != nil {
+		p.format(s.Cond()).write(" ")
+	} else {
+		p.write("true ")
+	}
+	if s.Post() != nil {
+		p.print(s.Post()).write(" ")
+	} else {
+		p.write("nil ")
+	}
+	if s.Body() != nil {
+		p.enter().nl().print(s.Body()).leave()
+	}
+	p.nl().state.Write(rparen)
+}
+
+func (f *Func) print(p *printer) {
+	fmt.Fprintf(p.state, "FUNC %v (", f.Name())
 	for i, narg := 0, f.NumArg(); i < narg; i++ {
 		if i != 0 {
-			st.Write(comma)
+			p.state.Write(comma)
 		}
-		fmt.Fprint(st, f.Arg(i))
+		fmt.Fprint(p.state, f.Arg(i))
 	}
 	if nret := f.NumRet(); nret > 0 {
-		st.Write([]byte(") -> ("))
+		p.state.Write([]byte(") -> ("))
 		for i := 0; i < nret; i++ {
 			if i != 0 {
-				st.Write(comma)
+				p.state.Write(comma)
 			}
-			fmt.Fprint(st, f.Signature().Out(i))
+			fmt.Fprint(p.state, f.Signature().Out(i))
 		}
 	}
-	st.Write([]byte(") {\n"))
-	for _, stmt := range f.code {
-		fmt.Fprintf(st, "    %v\n", stmt)
+	p.write(") {").enter()
+	for _, stmt := range f.source.list {
+		p.nl().print(stmt)
 	}
-	st.Write([]byte("}\n"))
+	p.leave().nl().write("}\n")
 }

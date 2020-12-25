@@ -16,8 +16,14 @@
 
 package jit
 
+import (
+	"fmt"
+)
+
 type Stmt interface {
 	compile(f *Func)
+	fmt.Formatter
+	printable
 }
 
 // ============================ ExprStmt =========================================
