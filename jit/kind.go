@@ -288,3 +288,16 @@ func kindMustBeNumberOrPtr(op Op, k1 Kind, k2 Kind) Kind {
 	}
 	return badOpKind2(op, k1, k2)
 }
+
+func kindMustBeSubset(label string, subset Kind, whole Kind) {
+	if whole.Size() >= subset.Size() {
+		if whole.isIntegerOrPtr() && subset.isIntegerOrPtr() {
+			return
+		}
+		// FLOAT subset of a COMPLEX register is the real part
+		if whole.IsComplex() && subset.IsFloat() && whole.Size() == subset.Size()*2 {
+			return
+		}
+	}
+	Errorf("invalid %s.ReadOnly: %v is not a subset of %v", label, subset, whole)
+}

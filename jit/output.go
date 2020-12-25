@@ -60,12 +60,20 @@ func (c Const) Format(state fmt.State, x rune) {
 	fmt.Fprint(state, c.Interface())
 }
 
+func readonlyPrefix(ro bool) string {
+	var s string
+	if ro {
+		s = "RO"
+	}
+	return s
+}
+
 func (r Reg) Format(state fmt.State, x rune) {
-	fmt.Fprintf(state, "reg%x%s", r.id, r.kind.asmSuffix())
+	fmt.Fprintf(state, "reg%s%x%s", readonlyPrefix(r.ro), r.id, r.kind.asmSuffix())
 }
 
 func (m Mem) Format(state fmt.State, x rune) {
-	fmt.Fprintf(state, "mem%s%v", m.kind.asmSuffix(), m.addr)
+	fmt.Fprintf(state, "mem%s%s%v", readonlyPrefix(m.ro), m.kind.asmSuffix(), m.addr)
 }
 
 func (l Label) Format(state fmt.State, x rune) {

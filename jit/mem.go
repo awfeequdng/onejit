@@ -19,7 +19,21 @@ package jit
 // memory address.
 type Mem struct {
 	kind Kind
+	ro   bool // readonly?
 	addr Expr
+}
+
+func (m Mem) IsAssignable() bool {
+	return !m.ro
+}
+
+// return a read-only view of a subset of memory contents
+// note: memory does not become immutable - it can still be modified
+// through the original struct
+// note: the current implementation assumes little-endian!
+func (m Mem) ReadOnly(subset Kind) Mem {
+	kindMustBeSubset("Mem", subset, m.kind)
+	return Mem{kind: subset, ro: true, addr: m.addr}
 }
 
 // implement Expr interface
@@ -34,7 +48,7 @@ func (m Mem) Kind() Kind {
 }
 
 func (m Mem) IsConst() bool {
-	// memory access cannot be a constant
+	// memory access cannot be a compile-time constant
 	return false
 }
 

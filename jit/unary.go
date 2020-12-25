@@ -104,10 +104,15 @@ func unaryKind(op Op, x Expr) Kind {
 
 func mustBeAssignable(op Op, x Expr) Kind {
 	switch x := x.(type) {
-	case Reg, Mem:
-		break
-	default:
-		Errorf("cannot assign to expression: %v %T", op, x)
+	case Reg:
+		if x.IsAssignable() {
+			return Void
+		}
+	case Mem:
+		if x.IsAssignable() {
+			return Void
+		}
 	}
+	Errorf("cannot assign to expression: %v %T", op, x)
 	return Void
 }

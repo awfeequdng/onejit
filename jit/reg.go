@@ -32,6 +32,19 @@ func (id RegId) ArchId() ArchId {
 type Reg struct {
 	kind Kind
 	id   RegId
+	ro   bool // readonly?
+}
+
+func (r Reg) IsAssignable() bool {
+	return !r.ro
+}
+
+// return a read-only view of a subset of register bits
+// note: register does not become immutable - it can still be modified
+// through the original struct
+func (r Reg) ReadOnly(subset Kind) Reg {
+	kindMustBeSubset("Reg", subset, r.kind)
+	return Reg{kind: subset, id: r.id, ro: true}
 }
 
 // implement Expr interface
