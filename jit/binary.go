@@ -69,15 +69,14 @@ func (e *BinaryExpr) Children() int {
 	return 2
 }
 
-func (e *BinaryExpr) Child(i int) Expr {
+func (e *BinaryExpr) Child(i int) Node {
 	switch i {
 	case 0:
 		return e.x
 	case 1:
 		return e.y
 	default:
-		badIndex(i, 2)
-		return nil
+		return badIndex(i, 2)
 	}
 }
 

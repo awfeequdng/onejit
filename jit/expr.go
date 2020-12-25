@@ -20,13 +20,17 @@ import (
 	"fmt"
 )
 
+type Node interface {
+	Children() int
+	Child(i int) Node
+}
+
 type Expr interface {
 	RegId() RegId
 	Kind() Kind
 	IsConst() bool
 	Size() Size
-	Children() int
-	Child(i int) Expr
+	Node
 	expr() // private marker
 	fmt.Formatter
 }

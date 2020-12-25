@@ -46,9 +46,9 @@ func (m Mem) Children() int {
 	return 1
 }
 
-func (m Mem) Child(i int) Expr {
-	if i != 0 {
-		badIndex(i, 1)
+func (m Mem) Child(i int) Node {
+	if i == 0 {
+		return m.addr
 	}
-	return m.addr
+	return badIndex(i, 1)
 }

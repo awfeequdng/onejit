@@ -21,6 +21,7 @@ import (
 )
 
 type Stmt interface {
+	Node
 	compile(f *Func)
 	fmt.Formatter
 	printable
@@ -43,6 +44,17 @@ func (s *ExprStmt) Expr() Expr {
 }
 
 // implement Stmt interface
+func (s *ExprStmt) Children() int {
+	return 1
+}
+
+func (s *ExprStmt) Child(i int) Node {
+	if i == 0 {
+		return s.expr
+	}
+	return badIndex(i, 0)
+}
+
 func (s *ExprStmt) compile(f *Func) {
 	f.AddCompiled(s.expr)
 }
@@ -79,6 +91,23 @@ func (s *IfStmt) Else() Stmt {
 }
 
 // implement Stmt interface
+func (s *IfStmt) Children() int {
+	return 3
+}
+
+func (s *IfStmt) Child(i int) Node {
+	switch i {
+	case 0:
+		return s.Cond()
+	case 1:
+		return s.Then()
+	case 2:
+		return s.Else()
+	default:
+		return badIndex(i, 3)
+	}
+}
+
 func (s *IfStmt) compile(f *Func) {
 	labelEndif := f.NewLabel()
 	labelElse := labelEndif
@@ -101,14 +130,6 @@ type BlockStmt struct {
 	list []Stmt
 }
 
-func (s *BlockStmt) Len() int {
-	return len(s.list)
-}
-
-func (s *BlockStmt) At(i int) Stmt {
-	return s.list[i]
-}
-
 func Block(list ...Stmt) *BlockStmt {
 	return &BlockStmt{
 		list: list,
@@ -119,6 +140,15 @@ func BlockSlice(list []Stmt) *BlockStmt {
 	return &BlockStmt{
 		list: append([]Stmt(nil), list...),
 	}
+}
+
+// implement Stmt interface
+func (s *BlockStmt) Children() int {
+	return len(s.list)
+}
+
+func (s *BlockStmt) Child(i int) Node {
+	return s.list[i]
 }
 
 func (s *BlockStmt) compile(f *Func) {
@@ -137,6 +167,15 @@ func Break() *BreakStmt {
 	return breakStmt
 }
 
+// implement Stmt interface
+func (s *BreakStmt) Children() int {
+	return 0
+}
+
+func (s *BreakStmt) Child(i int) Node {
+	return badIndex(i, 0)
+}
+
 func (s *BreakStmt) compile(f *Func) {
 	f.AddCompiled(Unary(JUMP, f.Breaks().Top()))
 }
@@ -149,6 +188,15 @@ var continueStmt = &ContinueStmt{}
 
 func Continue() *ContinueStmt {
 	return continueStmt
+}
+
+// implement Stmt interface
+func (s *ContinueStmt) Children() int {
+	return 0
+}
+
+func (s *ContinueStmt) Child(i int) Node {
+	return badIndex(i, 0)
 }
 
 func (s *ContinueStmt) compile(f *Func) {
@@ -189,6 +237,26 @@ func For(init Stmt, cond Expr, post Stmt, body Stmt) *ForStmt {
 		cond: cond,
 		post: post,
 		body: body,
+	}
+}
+
+// implement Stmt interface
+func (s *ForStmt) Children() int {
+	return 4
+}
+
+func (s *ForStmt) Child(i int) Node {
+	switch i {
+	case 0:
+		return s.init
+	case 1:
+		return s.cond
+	case 2:
+		return s.post
+	case 3:
+		return s.body
+	default:
+		return badIndex(i, 4)
 	}
 }
 

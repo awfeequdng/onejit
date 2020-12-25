@@ -68,7 +68,7 @@ func (e *TupleExpr) Children() int {
 	return len(e.list)
 }
 
-func (e *TupleExpr) Child(i int) Expr {
+func (e *TupleExpr) Child(i int) Node {
 	return e.list[i]
 }
 

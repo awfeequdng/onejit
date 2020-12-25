@@ -105,6 +105,6 @@ func (c *CallExpr) Children() int {
 	return len(c.list)
 }
 
-func (c *CallExpr) Child(i int) Expr {
+func (c *CallExpr) Child(i int) Node {
 	return c.list[i]
 }

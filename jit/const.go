@@ -55,9 +55,8 @@ func (c Const) Children() int {
 	return 0
 }
 
-func (c Const) Child(i int) Expr {
-	badIndex(i, 0)
-	return nil
+func (c Const) Child(i int) Node {
+	return badIndex(i, 0)
 }
 
 // ============================= helpers =======================================

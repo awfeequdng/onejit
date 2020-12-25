@@ -84,9 +84,8 @@ func (l Label) Children() int {
 	return 0
 }
 
-func (l Label) Child(i int) Expr {
-	badIndex(i, 0)
-	return nil
+func (l Label) Child(i int) Node {
+	return badIndex(i, 0)
 }
 
 // ================================== Labels ===================================
@@ -107,7 +106,7 @@ func (ls *Labels) Pop() {
 	ls.list = ls.list[0 : len(ls.list)-1]
 }
 
-// ================================== Source, Compiled =========================
+// ================================== Source ===================================
 
 type Source struct {
 	regn   int
@@ -124,6 +123,16 @@ func (s *Source) AddExpr(e Expr) *Source {
 	return s.AddStmt(ToStmt(e))
 }
 
+func (s *Source) Children() int {
+	return len(s.list)
+}
+
+func (s *Source) Child(i int) Node {
+	return s.list[i]
+}
+
+// ================================== Compiled =================================
+
 type Compiled struct {
 	code []Expr
 }
@@ -131,6 +140,14 @@ type Compiled struct {
 func (c *Compiled) Add(e Expr) *Compiled {
 	c.code = append(c.code, e)
 	return c
+}
+
+func (c *Compiled) Children() int {
+	return len(c.code)
+}
+
+func (c *Compiled) Child(i int) Node {
+	return c.code[i]
 }
 
 // ================================== Func =====================================

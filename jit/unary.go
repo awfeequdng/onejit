@@ -71,11 +71,11 @@ func (e *UnaryExpr) Children() int {
 	return 1
 }
 
-func (e *UnaryExpr) Child(i int) Expr {
-	if i != 0 {
-		badIndex(i, 1)
+func (e *UnaryExpr) Child(i int) Node {
+	if i == 0 {
+		return e.x
 	}
-	return e.x
+	return badIndex(i, 1)
 }
 
 // ========================= helpers ===========================================

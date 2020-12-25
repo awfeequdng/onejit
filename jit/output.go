@@ -49,8 +49,9 @@ func badOpKind2(op Op, kind1 Kind, kind2 Kind) Kind {
 	return Void // unreachable
 }
 
-func badIndex(i int, n int) {
+func badIndex(i int, n int) Node {
 	Errorf("index out of range: %v with length %v", i, n)
+	return nil // unreachable
 }
 
 // ============================== Formatter ====================================
