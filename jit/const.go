@@ -220,3 +220,7 @@ func ConstUint64(val uint64) Const {
 func ConstUintptr(val uintptr) Const {
 	return Const{kind: Uintptr, re: int64(val)}
 }
+
+func Zero(kind Kind) Const {
+	return Const{kind: kind}
+}

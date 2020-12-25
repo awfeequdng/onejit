@@ -17,7 +17,7 @@
 package jit
 
 type Stmt interface {
-	stmt() // private marker
+	compile(f *Func)
 }
 
 // ============================ ExprStmt =========================================
@@ -37,7 +37,8 @@ func (s *ExprStmt) Expr() Expr {
 }
 
 // implement Stmt interface
-func (s *ExprStmt) stmt() {
+func (s *ExprStmt) compile(f *Func) {
+	f.AddExpr(s.expr)
 }
 
 // ============================ IfStmt ===========================================
@@ -72,7 +73,20 @@ func (s *IfStmt) Else() Stmt {
 }
 
 // implement Stmt interface
-func (s *IfStmt) stmt() {
+func (s *IfStmt) compile(f *Func) {
+	labelEndif := f.NewLabel()
+	labelElse := labelEndif
+	if s.Else() != nil {
+		labelElse = f.NewLabel()
+	}
+	f.AddExpr(Binary(JUMP_IF, labelElse, Unary(NOT, s.Cond())))
+	f.AddStmt(s.Then())
+	if s.Else() != nil {
+		f.AddExpr(Unary(JUMP, labelEndif))
+		f.AddExpr(labelElse)
+		f.AddStmt(s.Else())
+	}
+	f.AddExpr(labelEndif)
 }
 
 // ============================ BlockStmt ========================================
@@ -101,7 +115,38 @@ func BlockSlice(list []Stmt) *BlockStmt {
 	}
 }
 
-func (s *BlockStmt) stmt() {
+func (s *BlockStmt) compile(f *Func) {
+	for _, stmt := range s.list {
+		f.AddStmt(stmt)
+	}
+}
+
+// ============================ BreakStmt ======================================
+
+type BreakStmt struct{}
+
+var breakStmt = &BreakStmt{}
+
+func Break() *BreakStmt {
+	return breakStmt
+}
+
+func (s *BreakStmt) compile(f *Func) {
+	f.AddExpr(Unary(JUMP, f.Breaks().Top()))
+}
+
+// ============================ ContinueStmt ===================================
+
+type ContinueStmt struct{}
+
+var continueStmt = &ContinueStmt{}
+
+func Continue() *ContinueStmt {
+	return continueStmt
+}
+
+func (s *ContinueStmt) compile(f *Func) {
+	f.AddExpr(Unary(JUMP, f.Continues().Top()))
 }
 
 // ============================ ForStmt ========================================
@@ -141,5 +186,34 @@ func For(init Stmt, cond Expr, post Stmt, body Stmt) *ForStmt {
 	}
 }
 
-func (s *ForStmt) stmt() {
+func (s *ForStmt) compile(f *Func) {
+	labelLoop := f.NewLabel()
+	labelTest := f.NewLabel()
+	labelBreak := f.NewLabel()
+
+	f.Breaks().Push(labelBreak)
+	f.Continues().Push(labelTest)
+	defer func() {
+		f.Breaks().Pop()
+		f.Continues().Pop()
+	}()
+
+	if s.Init() != nil {
+		f.AddStmt(s.Init())
+	}
+	if s.Cond() != nil {
+		f.AddExpr(Unary(JUMP, labelTest))
+	}
+	f.AddExpr(labelLoop)
+	f.AddStmt(s.Body())
+	if s.Post() != nil {
+		f.AddStmt(s.Post())
+	}
+	f.AddExpr(labelTest)
+	if s.Cond() != nil {
+		f.AddExpr(Binary(JUMP_IF, labelLoop, s.Cond()))
+	} else {
+		f.AddExpr(Unary(JUMP_IF, labelLoop))
+	}
+	f.AddExpr(labelBreak)
 }

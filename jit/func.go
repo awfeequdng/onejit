@@ -80,6 +80,24 @@ func (l Label) Size() Size {
 	return Ptr.Size()
 }
 
+// ================================== Labels ===================================
+
+type Labels struct {
+	list []Label
+}
+
+func (ls *Labels) Top() Label {
+	return ls.list[len(ls.list)-1]
+}
+
+func (ls *Labels) Push(l Label) {
+	ls.list = append(ls.list, l)
+}
+
+func (ls *Labels) Pop() {
+	ls.list = ls.list[0 : len(ls.list)-1]
+}
+
 // ================================== Func =====================================
 
 type Func struct {
@@ -88,6 +106,8 @@ type Func struct {
 	regs       []Reg
 	labels     []Label
 	labelPool  []uintptr
+	breaks     Labels
+	continues  Labels
 	labelIndex int
 	code       []Expr
 }
@@ -133,6 +153,16 @@ func (f *Func) Label() Label {
 	return f.labels[0]
 }
 
+/* return the stack of destination labels for 'break' */
+func (f *Func) Breaks() *Labels {
+	return &f.breaks
+}
+
+/* return the stack of destination labels for 'continue' */
+func (f *Func) Continues() *Labels {
+	return &f.continues
+}
+
 func (f *Func) AddExpr(e Expr) *Func {
 	f.code = append(f.code, e)
 	return f
@@ -144,38 +174,20 @@ func (f *Func) AddExprs(e ...Expr) *Func {
 }
 
 func (f *Func) AddStmt(stmt Stmt) *Func {
-	switch stmt := stmt.(type) {
-	case *ExprStmt:
-		f.AddExpr(stmt.Expr())
-	case *IfStmt:
-		labelElse := f.NewLabel()
-		labelEndif := f.NewLabel()
-		f.AddExpr(Binary(JUMP_IF, labelElse, Unary(NOT, stmt.Cond())))
-		f.AddStmt(stmt.Then())
-		f.AddExpr(Unary(JUMP, labelEndif))
-		f.AddExpr(labelElse)
-		f.AddStmt(stmt.Else())
-		f.AddExpr(labelEndif)
-	case *BlockStmt:
-		for _, s := range stmt.list {
-			f.AddStmt(s)
+	stmt.compile(f)
+	return f
+}
+
+func (f *Func) Add(xs ...interface{}) *Func {
+	for _, x := range xs {
+		switch x := x.(type) {
+		case Expr:
+			f.AddExpr(x)
+		case Stmt:
+			f.AddStmt(x)
+		default:
+			Errorf("unsupported type: %T", x)
 		}
-	case *ForStmt:
-		labelLoop := f.NewLabel()
-		labelTest := f.NewLabel()
-		if stmt.Init() != nil {
-			f.AddStmt(stmt.Init())
-		}
-		f.AddExpr(Unary(JUMP, labelTest))
-		f.AddExpr(labelLoop)
-		f.AddStmt(stmt.Body())
-		if stmt.Post() != nil {
-			f.AddStmt(stmt.Post())
-		}
-		f.AddExpr(labelTest)
-		f.AddExpr(Binary(JUMP_IF, labelLoop, stmt.Cond()))
-	default:
-		Errorf("unsupported Stmt type: %T", stmt)
 	}
 	return f
 }
