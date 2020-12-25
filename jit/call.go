@@ -16,15 +16,15 @@
 
 package jit
 
-// ================================== CallExpr =================================
+// ================================== *CallExpr =================================
 
 type CallExpr struct {
 	sig  *Signature
-	fun *Func // nil if not known
+	fun  *Func // nil if not known
 	list []Expr
 }
 
-func Call(fn Expr, sig *Signature, args []Expr) CallExpr {
+func Call(fn Expr, sig *Signature, args []Expr) *CallExpr {
 	if kind := fn.Kind(); kind != Ptr {
 		Errorf("bad function kind in call: have %v, want %v", kind, Ptr)
 	}
@@ -45,58 +45,58 @@ func Call(fn Expr, sig *Signature, args []Expr) CallExpr {
 	list := make([]Expr, len(args)+1)
 	list[0] = fn
 	copy(list[1:], args)
-	return CallExpr{
+	return &CallExpr{
 		sig:  sig,
 		list: list,
 	}
 }
 
 // also allows inlining
-func CallFunc(fun *Func, args []Expr) CallExpr {
+func CallFunc(fun *Func, args []Expr) *CallExpr {
 	call := Call(fun.Label(), fun.Signature(), args)
 	call.fun = fun
 	return call
 }
 
 // return nil if not known
-func (c CallExpr) Func() *Func {
+func (c *CallExpr) Func() *Func {
 	return c.fun
 }
 
-func (c CallExpr) FuncExpr() Expr {
+func (c *CallExpr) FuncExpr() Expr {
 	return c.list[0]
 }
 
-func (c CallExpr) NumArg() int {
+func (c *CallExpr) NumArg() int {
 	return len(c.list) - 1
 }
 
-func (c CallExpr) Arg(i int) Expr {
+func (c *CallExpr) Arg(i int) Expr {
 	return c.list[i+1]
 }
 
-func (c CallExpr) Signature() *Signature {
+func (c *CallExpr) Signature() *Signature {
 	return c.sig
 }
 
 // implement Expr interface
-func (c CallExpr) expr() {}
+func (c *CallExpr) expr() {}
 
-func (c CallExpr) RegId() RegId {
+func (c *CallExpr) RegId() RegId {
 	return NoRegId
 }
 
-func (c CallExpr) Kind() Kind {
+func (c *CallExpr) Kind() Kind {
 	if c.sig.NumOut() == 0 {
 		return Void
 	}
 	return c.sig.Out(0)
 }
 
-func (c CallExpr) IsConst() bool {
+func (c *CallExpr) IsConst() bool {
 	return false
 }
 
-func (c CallExpr) Size() Size {
+func (c *CallExpr) Size() Size {
 	return c.Kind().Size()
 }

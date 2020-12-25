@@ -23,47 +23,47 @@ type UnaryExpr struct {
 	x    Expr
 }
 
-func Unary(op Op, x Expr) UnaryExpr {
-	return UnaryExpr{
+func Unary(op Op, x Expr) *UnaryExpr {
+	return &UnaryExpr{
 		kind: unaryKind(op, x),
 		op:   op,
 		x:    x,
 	}
 }
 
-func Cast(to Kind, x Expr) UnaryExpr {
-	return UnaryExpr{
+func Cast(to Kind, x Expr) *UnaryExpr {
+	return &UnaryExpr{
 		kind: to,
 		op:   CAST,
 		x:    x,
 	}
 }
 
-func (e UnaryExpr) Op() Op {
+func (e *UnaryExpr) Op() Op {
 	return e.op
 }
 
-func (e UnaryExpr) X() Expr {
+func (e *UnaryExpr) X() Expr {
 	return e.x
 }
 
 // implement Expr interface
-func (e UnaryExpr) expr() {}
+func (e *UnaryExpr) expr() {}
 
-func (e UnaryExpr) RegId() RegId {
+func (e *UnaryExpr) RegId() RegId {
 	return NoRegId
 }
 
-func (e UnaryExpr) Kind() Kind {
+func (e *UnaryExpr) Kind() Kind {
 	return e.kind
 }
 
-func (e UnaryExpr) IsConst() bool {
+func (e *UnaryExpr) IsConst() bool {
 	// address dereference cannot be a constant
 	return e.op != MUL && e.x.IsConst()
 }
 
-func (e UnaryExpr) Size() Size {
+func (e *UnaryExpr) Size() Size {
 	return e.kind.Size()
 }
 

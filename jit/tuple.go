@@ -21,54 +21,54 @@ type TupleExpr struct {
 	list []Expr
 }
 
-func Tuple(op Op, expr ...Expr) TupleExpr {
+func Tuple(op Op, expr ...Expr) *TupleExpr {
 	return tuple(op, expr)
 }
 
-func TupleSlice(op Op, expr []Expr) TupleExpr {
+func TupleSlice(op Op, expr []Expr) *TupleExpr {
 	return tuple(op, dup(expr))
 }
 
-func Ret(expr ...Expr) TupleExpr {
+func Ret(expr ...Expr) *TupleExpr {
 	return tuple(RET, expr)
 }
 
-func RetSlice(expr []Expr) TupleExpr {
+func RetSlice(expr []Expr) *TupleExpr {
 	return tuple(RET, dup(expr))
 }
 
-func AssignCall(to []Expr, call CallExpr) TupleExpr {
+func AssignCall(to []Expr, call *CallExpr) *TupleExpr {
 	return tuple(ASSIGN, append(dup(to), call))
 }
 
-func (e TupleExpr) Op() Op {
+func (e *TupleExpr) Op() Op {
 	return e.op
 }
 
-func (e TupleExpr) Len() int {
+func (e *TupleExpr) Len() int {
 	return len(e.list)
 }
 
-func (e TupleExpr) At(i int) Expr {
+func (e *TupleExpr) At(i int) Expr {
 	return e.list[i]
 }
 
 // implement Expr interface
-func (e TupleExpr) expr() {}
+func (e *TupleExpr) expr() {}
 
-func (e TupleExpr) RegId() RegId {
+func (e *TupleExpr) RegId() RegId {
 	return NoRegId
 }
 
-func (e TupleExpr) Kind() Kind {
+func (e *TupleExpr) Kind() Kind {
 	return Void
 }
 
-func (e TupleExpr) IsConst() bool {
+func (e *TupleExpr) IsConst() bool {
 	return false
 }
 
-func (e TupleExpr) Size() Size {
+func (e *TupleExpr) Size() Size {
 	return Void.Size()
 }
 
@@ -80,14 +80,14 @@ func dup(expr []Expr) []Expr {
 	return ret
 }
 
-func tuple(op Op, expr []Expr) TupleExpr {
+func tuple(op Op, expr []Expr) *TupleExpr {
 	switch op {
 	case ASSIGN:
 		n := len(expr) - 1
 		if n < 0 {
 			Errorf("missing CallExpr in tuple %v", op)
 		}
-		call, ok := expr[n].(CallExpr)
+		call, ok := expr[n].(*CallExpr)
 		if !ok {
 			Errorf("bad last expression in tuple %v: have %T, want CallExpr", op, expr[n])
 		}
@@ -108,7 +108,7 @@ func tuple(op Op, expr []Expr) TupleExpr {
 	default:
 		Errorf("invalid tuple operation: %v", op)
 	}
-	return TupleExpr{
+	return &TupleExpr{
 		op:   op,
 		list: expr,
 	}

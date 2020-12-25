@@ -24,8 +24,8 @@ type BinaryExpr struct {
 	y    Expr
 }
 
-func Binary(op Op, x Expr, y Expr) BinaryExpr {
-	return BinaryExpr{
+func Binary(op Op, x Expr, y Expr) *BinaryExpr {
+	return &BinaryExpr{
 		kind: binaryKind(op, x, y),
 		op:   op,
 		x:    x,
@@ -33,34 +33,34 @@ func Binary(op Op, x Expr, y Expr) BinaryExpr {
 	}
 }
 
-func (e BinaryExpr) Op() Op {
+func (e *BinaryExpr) Op() Op {
 	return e.op
 }
 
-func (e BinaryExpr) X() Expr {
+func (e *BinaryExpr) X() Expr {
 	return e.x
 }
 
-func (e BinaryExpr) Y() Expr {
+func (e *BinaryExpr) Y() Expr {
 	return e.y
 }
 
 // implement Expr interface
-func (e BinaryExpr) expr() {}
+func (e *BinaryExpr) expr() {}
 
-func (e BinaryExpr) RegId() RegId {
+func (e *BinaryExpr) RegId() RegId {
 	return NoRegId
 }
 
-func (e BinaryExpr) Kind() Kind {
+func (e *BinaryExpr) Kind() Kind {
 	return e.kind
 }
 
-func (e BinaryExpr) Size() Size {
+func (e *BinaryExpr) Size() Size {
 	return e.kind.Size()
 }
 
-func (e BinaryExpr) IsConst() bool {
+func (e *BinaryExpr) IsConst() bool {
 	// access to array element or struct field cannot be a constant
 	return e.op != BRACKET && e.op != FIELD && e.x.IsConst() && e.y.IsConst()
 }

@@ -26,18 +26,18 @@ type ExprStmt struct {
 	expr Expr
 }
 
-func ToStmt(expr Expr) ExprStmt {
-	return ExprStmt{
+func ToStmt(expr Expr) *ExprStmt {
+	return &ExprStmt{
 		expr: expr,
 	}
 }
 
-func (s ExprStmt) Expr() Expr {
+func (s *ExprStmt) Expr() Expr {
 	return s.expr
 }
 
 // implement Stmt interface
-func (s ExprStmt) stmt() {
+func (s *ExprStmt) stmt() {
 }
 
 // ============================ IfStmt ===========================================
@@ -48,31 +48,31 @@ type IfStmt struct {
 	else_ Stmt
 }
 
-func If(cond Expr, then_ Stmt, else_ Stmt) IfStmt {
+func If(cond Expr, then_ Stmt, else_ Stmt) *IfStmt {
 	if kind := cond.Kind(); kind != Bool {
 		badOpKind(JUMP_IF, kind)
 	}
-	return IfStmt{
+	return &IfStmt{
 		cond:  cond,
 		then_: then_,
 		else_: else_,
 	}
 }
 
-func (s IfStmt) Cond() Expr {
+func (s *IfStmt) Cond() Expr {
 	return s.cond
 }
 
-func (s IfStmt) Then() Stmt {
+func (s *IfStmt) Then() Stmt {
 	return s.then_
 }
 
-func (s IfStmt) Else() Stmt {
+func (s *IfStmt) Else() Stmt {
 	return s.else_
 }
 
 // implement Stmt interface
-func (s IfStmt) stmt() {
+func (s *IfStmt) stmt() {
 }
 
 // ============================ BlockStmt ========================================
@@ -81,53 +81,65 @@ type BlockStmt struct {
 	list []Stmt
 }
 
-func (s BlockStmt) Len() int {
+func (s *BlockStmt) Len() int {
 	return len(s.list)
 }
 
-func (s BlockStmt) At(i int) Stmt {
+func (s *BlockStmt) At(i int) Stmt {
 	return s.list[i]
 }
 
-func Block(list ...Stmt) BlockStmt {
-	return BlockStmt{
+func Block(list ...Stmt) *BlockStmt {
+	return &BlockStmt{
 		list: list,
 	}
 }
 
-func BlockSlice(list []Stmt) BlockStmt {
-	return BlockStmt{
+func BlockSlice(list []Stmt) *BlockStmt {
+	return &BlockStmt{
 		list: append([]Stmt(nil), list...),
 	}
 }
 
-func (s BlockStmt) stmt() {
+func (s *BlockStmt) stmt() {
 }
 
-// ============================ WhileStmt ========================================
+// ============================ ForStmt ========================================
 
-type WhileStmt struct {
+type ForStmt struct {
+	init Stmt
 	cond Expr
+	post Stmt
 	body Stmt
 }
 
-func (s WhileStmt) Cond() Expr {
+func (s *ForStmt) Init() Stmt {
+	return s.init
+}
+
+func (s *ForStmt) Cond() Expr {
 	return s.cond
 }
 
-func (s WhileStmt) Body() Stmt {
+func (s *ForStmt) Post() Stmt {
+	return s.post
+}
+
+func (s *ForStmt) Body() Stmt {
 	return s.body
 }
 
-func While(cond Expr, body Stmt) WhileStmt {
-	if kind := cond.Kind(); kind != Bool {
-		badOpKind(JUMP_IF, kind)
+func For(init Stmt, cond Expr, post Stmt, body Stmt) *ForStmt {
+	if cond != nil && cond.Kind() != Bool {
+		badOpKind(JUMP_IF, cond.Kind())
 	}
-	return WhileStmt{
+	return &ForStmt{
+		init: init,
 		cond: cond,
+		post: post,
 		body: body,
 	}
 }
 
-func (s WhileStmt) stmt() {
+func (s *ForStmt) stmt() {
 }

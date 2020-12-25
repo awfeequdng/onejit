@@ -145,9 +145,9 @@ func (f *Func) AddExprs(e ...Expr) *Func {
 
 func (f *Func) AddStmt(stmt Stmt) *Func {
 	switch stmt := stmt.(type) {
-	case ExprStmt:
+	case *ExprStmt:
 		f.AddExpr(stmt.Expr())
-	case IfStmt:
+	case *IfStmt:
 		labelElse := f.NewLabel()
 		labelEndif := f.NewLabel()
 		f.AddExpr(Binary(JUMP_IF, labelElse, Unary(NOT, stmt.Cond())))
@@ -156,18 +156,26 @@ func (f *Func) AddStmt(stmt Stmt) *Func {
 		f.AddExpr(labelElse)
 		f.AddStmt(stmt.Else())
 		f.AddExpr(labelEndif)
-	case BlockStmt:
+	case *BlockStmt:
 		for _, s := range stmt.list {
 			f.AddStmt(s)
 		}
-	case WhileStmt:
+	case *ForStmt:
 		labelLoop := f.NewLabel()
 		labelTest := f.NewLabel()
+		if stmt.Init() != nil {
+			f.AddStmt(stmt.Init())
+		}
 		f.AddExpr(Unary(JUMP, labelTest))
 		f.AddExpr(labelLoop)
 		f.AddStmt(stmt.Body())
+		if stmt.Post() != nil {
+			f.AddStmt(stmt.Post())
+		}
 		f.AddExpr(labelTest)
 		f.AddExpr(Binary(JUMP_IF, labelLoop, stmt.Cond()))
+	default:
+		Errorf("unsupported Stmt type: %T", stmt)
 	}
 	return f
 }
