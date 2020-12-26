@@ -22,15 +22,18 @@ import (
 
 type Class uint8
 
+// Class values are ordered from strongest "keep at left in binary expressions"
+// to strongest "keep at right in binary expressions"
+// this simplifies code that pattern-matches expression trees
 const (
-	CONST Class = iota
-	LABEL
-	REG
+	REG Class = iota
 	MEM
 	UNARY
 	BINARY
 	TUPLE
 	CALL
+	LABEL
+	CONST
 )
 
 type Node interface {

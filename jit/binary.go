@@ -25,6 +25,9 @@ type BinaryExpr struct {
 }
 
 func Binary(op Op, x Expr, y Expr) *BinaryExpr {
+	if op.IsCommutative() && x.Class() > y.Class() {
+		x, y = y, x
+	}
 	return &BinaryExpr{
 		kind: binaryKind(op, x, y),
 		op:   op,

@@ -96,6 +96,8 @@ const (
 )
 
 var opstring = [...]string{
+	BADOP:          "BADOP",
+	NOOP:           "NOOP",
 	ADD:            "+",
 	SUB:            "-",
 	MUL:            "*",
@@ -147,4 +149,13 @@ func (op Op) String() string {
 	}
 	return s
 
+}
+
+func (op Op) IsCommutative() bool {
+	var ret bool
+	switch op {
+	case ADD, MUL, AND, OR, XOR, EQL, NEQ:
+		ret = true
+	}
+	return ret
 }
