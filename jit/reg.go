@@ -1,7 +1,7 @@
 /*
  * gomacrojit - JIT compiler in Go
  *
- * Copyright (C) 2018-2019 Massimiliano Ghilardi
+ * Copyright (C) 2018-2020 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -37,6 +37,16 @@ type Reg struct {
 
 func (r Reg) IsAssignable() bool {
 	return !r.ro
+}
+
+// return a dummy register with specified kind.
+// writes to this register are discarded,
+// and reads to this register always return zero
+//
+// among other things, it is used in a TupleExpr
+// to discard some values of a multi-valued CallExpr
+func NoReg(kind Kind) Reg {
+	return Reg{kind: kind, id: NoRegId}
 }
 
 // return a read-only view of a subset of register bits
