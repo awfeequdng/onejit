@@ -60,6 +60,10 @@ func (c Const) Format(state fmt.State, x rune) {
 	fmt.Fprint(state, c.Interface())
 }
 
+func (id RegId) Format(state fmt.State, x rune) {
+	fmt.Fprintf(state, "rid%x", int(id))
+}
+
 func readonlyPrefix(ro bool) string {
 	var s string
 	if ro {
@@ -69,11 +73,27 @@ func readonlyPrefix(ro bool) string {
 }
 
 func (r Reg) Format(state fmt.State, x rune) {
-	fmt.Fprintf(state, "reg%s%x%s", readonlyPrefix(r.ro), r.id, r.kind.SizeString())
+	fmt.Fprintf(state, "reg%s%x%s", readonlyPrefix(r.ro), int(r.id), r.kind.SizeString())
 }
 
 func (m Mem) Format(state fmt.State, x rune) {
 	fmt.Fprintf(state, "mem%s%s%v", readonlyPrefix(m.ro), m.kind.SizeString(), m.addr)
+}
+
+func (m Amd64Mem) Format(state fmt.State, x rune) {
+	if m.base == NoRegId {
+		if m.index == NoRegId {
+			fmt.Fprintf(state, "%d", m.offset)
+		} else {
+			fmt.Fprintf(state, "%d(%v,%d)", m.offset, m.index, m.Scale())
+		}
+	} else {
+		if m.index == NoRegId {
+			fmt.Fprintf(state, "%d(%v)", m.offset, m.base)
+		} else {
+			fmt.Fprintf(state, "%d(%v,%v,%d)", m.offset, m.base, m.index, m.Scale())
+		}
+	}
 }
 
 func (l Label) Format(state fmt.State, x rune) {

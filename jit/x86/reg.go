@@ -70,7 +70,7 @@ func RegIdString(id RegId) string {
 			s = regName[id]
 		}
 	} else {
-		s = fmt.Sprintf("%%badregid:%d%s", int(id))
+		s = fmt.Sprintf("%%badregid:%x%s", int(id))
 	}
 	return s
 }
@@ -87,7 +87,7 @@ func RegString(r Reg) string {
 		}
 	}
 	if len(s) == 0 {
-		s = fmt.Sprintf("%%badreg:%d%s", int(id), r.Kind().SizeString())
+		s = fmt.Sprintf("%%badreg:%x%s", int(id), r.Kind().SizeString())
 	}
 	return s
 }

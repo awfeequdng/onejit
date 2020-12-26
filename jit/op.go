@@ -26,9 +26,9 @@ type (
 
 // intentionally same values as go.Token
 const (
-	_ Op = iota
+	BADOP Op = iota
 	_
-	_
+	NOOP // COMMENT
 	_
 	_
 	_

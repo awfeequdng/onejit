@@ -226,7 +226,7 @@ func RegIdValid(id RegId) bool {
 
 func RegIdValidate(id RegId) {
 	if !RegIdValid(id) {
-		Errorf("invalid register id: %d", int(id))
+		Errorf("invalid register id: 0x%x", int(id))
 	}
 }
 
@@ -239,7 +239,7 @@ func RegIdString(id RegId) string {
 			s = regName16[id]
 		}
 	} else {
-		s = fmt.Sprintf("%%badregid:%d", int(id))
+		s = fmt.Sprintf("%%badregid:%x", int(id))
 	}
 	return s
 }
@@ -262,7 +262,7 @@ func RegString(r Reg) string {
 		}
 	}
 	if len(s) == 0 {
-		s = fmt.Sprintf("%%badreg:%d%s", int(id), r.Kind().SizeString())
+		s = fmt.Sprintf("%%badreg:%x%s", int(id), r.Kind().SizeString())
 	}
 	return s
 }
@@ -281,25 +281,22 @@ func lohi(r Reg) (uint8, uint8) {
 	return lohiId(r.RegId())
 }
 
-/*
-// return number of assembler bytes needed to encode m.off
-func offlen(m Mem, id RegId) (offlen uint8, offbit uint8) {
-	moffset := m.Offset()
+func quirk24(asm *Assembler, id RegId) *Assembler {
+	if id == RSP || id == R12 {
+		asm.Byte(0x24) // amd64 quirk
+	}
+	return asm
+}
+
+// return number of assembler bytes needed to encode offset
+func offlen(offset int32, id RegId) (offlen uint8, offbit uint8) {
 	switch {
-	// (%rbp) and (%r13) registers must use 1-byte offset even if m.off == 0
-	case moffset == 0 && id != RBP && id != R13:
+	// (%rbp) and (%r13) registers must use 1-byte offset even if offset == 0
+	case offset == 0 && id != RBP && id != R13:
 		return 0, 0
-	case moffset == int32(int8(moffset)):
+	case offset == int32(int8(offset)):
 		return 1, 0x40
 	default:
 		return 4, 0x80
 	}
 }
-
-func quirk24(asm *Asm, id RegId) *Asm {
-	if id == RSP || id == R12 {
-		asm.Bytes(0x24) // amd64 quirk
-	}
-	return asm
-}
-*/

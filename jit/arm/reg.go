@@ -125,7 +125,7 @@ func RegIdValid(id RegId) bool {
 
 func RegIdValidate(id RegId) {
 	if !RegIdValid(id) {
-		Errorf("invalid register id: %d", int(id))
+		Errorf("invalid register id: 0x%x", int(id))
 	}
 }
 
@@ -138,7 +138,7 @@ func RegIdString(id RegId) string {
 			s = regNameNEON[id]
 		}
 	} else {
-		s = fmt.Sprintf("badregid:%d", int(id))
+		s = fmt.Sprintf("badregid:%x", int(id))
 	}
 	return s
 }
@@ -161,7 +161,7 @@ func RegString(r Reg) string {
 		}
 	}
 	if len(s) == 0 {
-		s = fmt.Sprintf("badreg:%d%s", int(id), r.Kind().SizeString())
+		s = fmt.Sprintf("badreg:%x%s", int(id), r.Kind().SizeString())
 	}
 	return s
 }

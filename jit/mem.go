@@ -36,6 +36,10 @@ func (m Mem) ReadOnly(subset Kind) Mem {
 	return Mem{kind: subset, ro: true, addr: m.addr}
 }
 
+func (m Mem) Addr() Expr {
+	return m.addr
+}
+
 // implement Expr interface
 func (m Mem) expr() {}
 

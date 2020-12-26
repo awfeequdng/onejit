@@ -70,6 +70,10 @@ var (
 	itrue  interface{} = true
 )
 
+func (c Const) IsZero() bool {
+	return c.re == 0 && c.im == 0
+}
+
 func (c Const) Int() int64 {
 	return c.re
 }

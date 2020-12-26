@@ -17,7 +17,7 @@
 package jit
 
 // machine register or local variable
-type RegId uint32
+type RegId uint16
 
 const (
 	NoRegId      RegId = 0
@@ -30,8 +30,8 @@ func (id RegId) ArchId() ArchId {
 
 // machine register with kind and size
 type Reg struct {
-	kind Kind
 	id   RegId
+	kind Kind
 	ro   bool // readonly?
 }
 
@@ -42,7 +42,7 @@ func (r Reg) IsAssignable() bool {
 // return an architecture-specific Reg.
 // used by subfolders
 func archReg(kind Kind, id RegId) Reg {
-	return Reg{kind: kind, id: id}
+	return Reg{id: id, kind: kind}
 }
 
 // return a dummy register with specified kind.
