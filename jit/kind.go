@@ -177,7 +177,7 @@ func init() {
 	ksuffix[Uintptr] = ksuffix[k]
 }
 
-func (k Kind) asmSuffix() string {
+func (k Kind) SizeString() string {
 	var s string
 	if k >= kLo && k <= kHi {
 		s = ksuffix[k]

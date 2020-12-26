@@ -64,6 +64,10 @@ func (e *TupleExpr) Size() Size {
 	return Void.Size()
 }
 
+func (e *TupleExpr) Class() Class {
+	return TUPLE
+}
+
 func (e *TupleExpr) Children() int {
 	return len(e.list)
 }

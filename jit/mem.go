@@ -56,6 +56,10 @@ func (m Mem) Size() Size {
 	return m.kind.Size()
 }
 
+func (m Mem) Class() Class {
+	return MEM
+}
+
 func (m Mem) Children() int {
 	return 1
 }

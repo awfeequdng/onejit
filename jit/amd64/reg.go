@@ -10,13 +10,15 @@
  *
  * reg.go
  *
- *  Created on May 20, 2018
+ *  Created on Dec 26, 2020
  *      Author Massimiliano Ghilardi
  */
 
 package amd64
 
 import (
+	"fmt"
+
 	. "github.com/cosmos72/gomacrojit/jit"
 )
 
@@ -60,7 +62,7 @@ const (
 	RHi RegId = XMM15
 )
 
-var regName1 = [...]string{
+var regName1 = [33]string{
 	RAX:   "%al",
 	RCX:   "%cl",
 	RDX:   "%dl",
@@ -94,7 +96,7 @@ var regName1 = [...]string{
 	XMM14: "%xmm14b",
 	XMM15: "%xmm15b",
 }
-var regName2 = [...]string{
+var regName2 = [33]string{
 	RAX:   "%ax",
 	RCX:   "%cx",
 	RDX:   "%dx",
@@ -128,7 +130,7 @@ var regName2 = [...]string{
 	XMM14: "%xmm14w",
 	XMM15: "%xmm15w",
 }
-var regName4 = [...]string{
+var regName4 = [33]string{
 	RAX:   "%eax",
 	RCX:   "%ecx",
 	RDX:   "%edx",
@@ -162,7 +164,7 @@ var regName4 = [...]string{
 	XMM14: "%xmm14d",
 	XMM15: "%xmm15d",
 }
-var regName8 = [...]string{
+var regName8 = [33]string{
 	RAX:   "%rax",
 	RCX:   "%rcx",
 	RDX:   "%rdx",
@@ -196,7 +198,7 @@ var regName8 = [...]string{
 	XMM14: "%xmm14q",
 	XMM15: "%xmm15q",
 }
-var regName16 = [...]string{
+var regName16 = [33]string{
 	XMM0:  "%xmm0",
 	XMM1:  "%xmm1",
 	XMM2:  "%xmm2",
@@ -215,15 +217,56 @@ var regName16 = [...]string{
 	XMM15: "%xmm15",
 }
 
-func ValidateRegId(id RegId) {
-	if id < RLo || id > RHi {
-		Errorf("invalid register id: %v", int(id))
+func RegIdValid(id RegId) bool {
+	return id >= RLo && id <= RHi
+}
+
+func RegIdValidate(id RegId) {
+	if !RegIdValid(id) {
+		Errorf("invalid register id: %d", int(id))
 	}
 }
 
+func RegIdString(id RegId) string {
+	var s string
+	if RegIdValid(id) {
+		if id < XMM0 {
+			s = regName8[id]
+		} else {
+			s = regName16[id]
+		}
+	} else {
+		s = fmt.Sprintf("%%badregid:%d", int(id))
+	}
+	return s
+}
+
+func RegString(r Reg) string {
+	id := r.RegId()
+	var s string
+	if RegIdValid(id) {
+		switch r.Kind().Size() {
+		case 1:
+			s = regName1[id]
+		case 2:
+			s = regName2[id]
+		case 4:
+			s = regName4[id]
+		case 8:
+			s = regName8[id]
+		case 16:
+			s = regName16[id]
+		}
+	}
+	if len(s) == 0 {
+		s = fmt.Sprintf("%%badreg:%d%s", int(id), r.Kind().SizeString())
+	}
+	return s
+}
+
 func bits(id RegId) uint8 {
-	ValidateRegId(id)
-	return uint8(id - 1)
+	RegIdValidate(id)
+	return uint8(id-1) & 15
 }
 
 func lohiId(id RegId) (uint8, uint8) {

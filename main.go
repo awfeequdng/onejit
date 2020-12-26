@@ -18,6 +18,9 @@ package main
 
 import (
 	. "github.com/cosmos72/gomacrojit/jit"
+	_ "github.com/cosmos72/gomacrojit/jit/amd64"
+	_ "github.com/cosmos72/gomacrojit/jit/arm64"
+	_ "github.com/cosmos72/gomacrojit/jit/x86"
 	_ "github.com/cosmos72/gomacrojit/jit_old"
 )
 

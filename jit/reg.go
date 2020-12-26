@@ -39,6 +39,12 @@ func (r Reg) IsAssignable() bool {
 	return !r.ro
 }
 
+// return an architecture-specific Reg.
+// used by subfolders
+func archReg(kind Kind, id RegId) Reg {
+	return Reg{kind: kind, id: id}
+}
+
 // return a dummy register with specified kind.
 // writes to this register are discarded,
 // and reads to this register always return zero
@@ -74,6 +80,10 @@ func (r Reg) Kind() Kind {
 
 func (r Reg) Size() Size {
 	return r.kind.Size()
+}
+
+func (r Reg) Class() Class {
+	return REG
 }
 
 func (r Reg) Children() int {

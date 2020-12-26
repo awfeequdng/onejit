@@ -67,6 +67,10 @@ func (e *UnaryExpr) Size() Size {
 	return e.kind.Size()
 }
 
+func (e *UnaryExpr) Class() Class {
+	return UNARY
+}
+
 func (e *UnaryExpr) Children() int {
 	return 1
 }

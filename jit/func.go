@@ -80,6 +80,10 @@ func (l Label) Size() Size {
 	return Ptr.Size()
 }
 
+func (l Label) Class() Class {
+	return CALL
+}
+
 func (l Label) Children() int {
 	return 0
 }

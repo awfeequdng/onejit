@@ -69,11 +69,11 @@ func readonlyPrefix(ro bool) string {
 }
 
 func (r Reg) Format(state fmt.State, x rune) {
-	fmt.Fprintf(state, "reg%s%x%s", readonlyPrefix(r.ro), r.id, r.kind.asmSuffix())
+	fmt.Fprintf(state, "reg%s%x%s", readonlyPrefix(r.ro), r.id, r.kind.SizeString())
 }
 
 func (m Mem) Format(state fmt.State, x rune) {
-	fmt.Fprintf(state, "mem%s%s%v", readonlyPrefix(m.ro), m.kind.asmSuffix(), m.addr)
+	fmt.Fprintf(state, "mem%s%s%v", readonlyPrefix(m.ro), m.kind.SizeString(), m.addr)
 }
 
 func (l Label) Format(state fmt.State, x rune) {

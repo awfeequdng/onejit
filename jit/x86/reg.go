@@ -17,6 +17,8 @@
 package amd64
 
 import (
+	"fmt"
+
 	. "github.com/cosmos72/gomacrojit/jit"
 	"github.com/cosmos72/gomacrojit/jit/amd64"
 )
@@ -43,36 +45,54 @@ const (
 	RHi  = XMM7
 )
 
-func ValidateRegId(id RegId) {
-	if id < RLo || id > RHi || (id > EDI && id < XMM0) {
-		Errorf("invalid register id: %v", int(id))
+// go:linkname regName github.com/cosmos72/gomacrojit/jit/amd64.regname4
+var regName [33]string
+
+// go:linkname regNameXMM github.com/cosmos72/gomacrojit/jit/amd64.regname16
+var regNameXMM [33]string
+
+func RegIdValid(id RegId) bool {
+	return id >= RLo && id <= RHi && (id <= EDI || id >= XMM0)
+}
+
+func RegIdValidate(id RegId) {
+	if !RegIdValid(id) {
+		Errorf("invalid register id: %d", int(id))
 	}
+}
+
+func RegIdString(id RegId) string {
+	var s string
+	if RegIdValid(id) {
+		if id >= XMM0 {
+			s = regNameXMM[id]
+		} else {
+			s = regName[id]
+		}
+	} else {
+		s = fmt.Sprintf("%%badregid:%d%s", int(id))
+	}
+	return s
+}
+
+func RegString(r Reg) string {
+	id := r.RegId()
+	size := r.Kind().Size()
+	var s string
+	if RegIdValid(id) {
+		if size <= 4 {
+			s = amd64.RegString(r)
+		} else if size == 8 && id >= XMM0 {
+			s = regNameXMM[id]
+		}
+	}
+	if len(s) == 0 {
+		s = fmt.Sprintf("%%badreg:%d%s", int(id), r.Kind().SizeString())
+	}
+	return s
 }
 
 func bits(id RegId) uint8 {
-	ValidateRegId(id)
-	return uint8(id - 1)
+	RegIdValidate(id)
+	return uint8(id-1) & 7
 }
-
-/*
-// return number of assembler bytes needed to encode m.off
-func offlen(m Mem, id RegId) (offlen uint8, offbit uint8) {
-	moffset := m.Offset()
-	switch {
-	// (%rbp) and (%r13) registers must use 1-byte offset even if m.off == 0
-	case moffset == 0 && id != RBP && id != R13:
-		return 0, 0
-	case moffset == int32(int8(moffset)):
-		return 1, 0x40
-	default:
-		return 4, 0x80
-	}
-}
-
-func quirk24(asm *Asm, id RegId) *Asm {
-	if id == RSP || id == R12 {
-		asm.Bytes(0x24) // amd64 quirk
-	}
-	return asm
-}
-*/

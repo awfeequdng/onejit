@@ -51,6 +51,10 @@ func (c Const) Size() Size {
 	return c.kind.Size()
 }
 
+func (c Const) Class() Class {
+	return CONST
+}
+
 func (c Const) Children() int {
 	return 0
 }

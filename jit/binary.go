@@ -65,6 +65,10 @@ func (e *BinaryExpr) IsConst() bool {
 	return e.op != BRACKET && e.op != FIELD && e.x.IsConst() && e.y.IsConst()
 }
 
+func (e *BinaryExpr) Class() Class {
+	return BINARY
+}
+
 func (e *BinaryExpr) Children() int {
 	return 2
 }

@@ -20,6 +20,19 @@ import (
 	"fmt"
 )
 
+type Class uint8
+
+const (
+	CONST Class = iota
+	LABEL
+	REG
+	MEM
+	UNARY
+	BINARY
+	TUPLE
+	CALL
+)
+
 type Node interface {
 	Children() int
 	Child(i int) Node
@@ -30,6 +43,7 @@ type Expr interface {
 	Kind() Kind
 	IsConst() bool
 	Size() Size
+	Class() Class
 	Node
 	expr() // private marker
 	fmt.Formatter

@@ -101,6 +101,10 @@ func (c *CallExpr) Size() Size {
 	return c.Kind().Size()
 }
 
+func (c *CallExpr) Class() Class {
+	return CALL
+}
+
 func (c *CallExpr) Children() int {
 	return len(c.list)
 }
