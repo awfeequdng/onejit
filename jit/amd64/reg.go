@@ -22,8 +22,7 @@ import (
 	. "github.com/cosmos72/gomacrojit/jit"
 )
 
-// ============================================================================
-// register
+// ============================ RegId ==========================================
 const (
 	noregid RegId = NoRegId + iota
 	RAX
@@ -58,8 +57,12 @@ const (
 	XMM13
 	XMM14
 	XMM15
-	RLo RegId = RAX
-	RHi RegId = XMM15
+	rLo   RegId = RAX
+	rHi   RegId = R15
+	xMMLo RegId = XMM0
+	xMMHi RegId = XMM15
+	idLo        = rLo
+	idHi        = xMMHi
 )
 
 var regName1 = [33]string{
@@ -218,7 +221,7 @@ var regName16 = [33]string{
 }
 
 func RegIdValid(id RegId) bool {
-	return id >= RLo && id <= RHi
+	return id >= idLo && id <= idHi
 }
 
 func RegIdValidate(id RegId) {
@@ -230,7 +233,7 @@ func RegIdValidate(id RegId) {
 func RegIdString(id RegId) string {
 	var s string
 	if RegIdValid(id) {
-		if id < XMM0 {
+		if id <= rHi {
 			s = regName8[id]
 		} else {
 			s = regName16[id]

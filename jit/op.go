@@ -73,11 +73,10 @@ const (
 	ASSIGN // =
 	NOT    // !
 
-	NEQ // !=
-	LEQ // <=
-	GEQ // >=
-
-	_ // DEFINE   // :=
+	NEQ  // !=
+	LEQ  // <=
+	GEQ  // >=
+	ZERO // DEFINE // :=
 	_
 	CAST    // LPAREN   // (
 	BRACKET // LBRACK   // [

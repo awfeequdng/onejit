@@ -1,2 +1,2 @@
 # gomacrojit
-JIT compiler in Go
+[ALPHA] JIT compiler in Go

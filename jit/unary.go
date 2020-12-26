@@ -98,6 +98,8 @@ func unaryKind(op Op, x Expr) Kind {
 	case JUMP:
 		k.mustBePtr(op)
 		return Void
+	case ZERO: // clear (i.e set to zero) register or memory
+		return mustBeAssignable(op, x)
 	case RET:
 		// RET accepts any kind and returns Void.
 		// kind will be checked against function signature
