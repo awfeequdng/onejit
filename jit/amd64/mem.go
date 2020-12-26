@@ -23,14 +23,15 @@ import (
 // convert a general Mem expression to Amd64Mem
 // may allocate registers for intermediate expressions
 func toAmd64Mem(f *Func, m Mem) Amd64Mem {
-	kind := m.Kind()
+	// kind := m.Kind()
 	switch expr := m.Addr().(type) {
 	case *BinaryExpr:
 		switch expr.Op() {
 		case ADD:
-			return addToAmd64Mem(f, expr.X(), expr.Y())
+			// return addToAmd64Mem(f, expr.X(), expr.Y())
 		case SUB:
-			return addToAmd64Mem(f, expr.X(), expr.Y())
+			// return addToAmd64Mem(f, expr.X(), expr.Y())
 		}
 	}
+	panic("unimplemented: toAmd64Mem")
 }
