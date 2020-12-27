@@ -36,3 +36,19 @@ func (ac *ArchCompiled) Children() int {
 func (ac *ArchCompiled) Child(i int) Node {
 	return ac.code[i]
 }
+
+func spillToReg(e Expr, ac *ArchCompiled) Reg {
+	var reg Reg
+	switch e := e.(type) {
+	case Reg:
+		reg = e
+	case Const:
+		reg = e.spillToReg(ac)
+	case Label:
+		reg = e.spillToReg(ac)
+	default:
+		reg = ac.Func().NewReg(e.Kind())
+		ac.Add(Binary(ASSIGN, reg, e))
+	}
+	return reg
+}

@@ -93,10 +93,6 @@ func (c *CallExpr) Kind() Kind {
 	return c.sig.Out(0)
 }
 
-func (c *CallExpr) IsConst() bool {
-	return false
-}
-
 func (c *CallExpr) Size() Size {
 	return c.Kind().Size()
 }
@@ -111,4 +107,13 @@ func (c *CallExpr) Children() int {
 
 func (c *CallExpr) Child(i int) Node {
 	return c.list[i]
+}
+
+func (c *CallExpr) IsConst() bool {
+	return false
+}
+
+func (c *CallExpr) IsPure() bool {
+	// TODO: call IsPure() on args, implement Func.IsPure()
+	return false
 }

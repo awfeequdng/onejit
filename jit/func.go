@@ -78,11 +78,6 @@ func (l Label) Kind() Kind {
 	return Ptr
 }
 
-func (l Label) IsConst() bool {
-	// Label is a link-time constant
-	return true
-}
-
 func (l Label) Size() Size {
 	return Ptr.Size()
 }
@@ -97,6 +92,16 @@ func (l Label) Children() int {
 
 func (l Label) Child(i int) Node {
 	return badIndex(i, 0)
+}
+
+func (l Label) IsConst() bool {
+	// Label is a link-time constant
+	return true
+}
+
+func (l Label) IsPure() bool {
+	// Label is a jump target, cannot be optimized away
+	return false
 }
 
 // ================================== Labels ===================================

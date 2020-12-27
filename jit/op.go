@@ -88,20 +88,24 @@ const (
 	JUMP_IF Op = 74 // IF
 	RET     Op = 80 // RETURN
 
-	cmp Op = 81 // arch-specific: set arch flags to comparison result
-	jeq Op = 82 // arch-specific: jump if equal
-	jlt Op = 83 // arch-specific: jump if less
-	jgt Op = 84 // arch-specific: jump if greater
-	jne Op = 85 // arch-specific: jump if not equal
-	jle Op = 86 // arch-specific: jump if less or equal
-	jge Op = 87 // arch-specific: jump if greater or equal
+	jeq Op = 81 // arch-specific: jump if equal
+	jlt Op = 82 // arch-specific: jump if less
+	jgt Op = 83 // arch-specific: jump if greater
+	jne Op = 84 // arch-specific: jump if not equal
+	jle Op = 85 // arch-specific: jump if less or equal
+	jge Op = 86 // arch-specific: jump if greater or equal
+	jz  Op = 87 // arch-specific: jump if zero
+	jnz Op = 88 // arch-specific: jump if not zero
+
+	cmp      Op = 89 // arch-specific: set arch flags to result of comparison
+	x86_test Op = 90 // arch-specific: set arch flags to result of bitwise and
 
 	NEG  = SUB // -
 	INV  = XOR // ^
 	STAR = MUL // *
 
 	opLo = ADD
-	opHi = jge
+	opHi = x86_test
 )
 
 var opstring = [...]string{
@@ -147,13 +151,16 @@ var opstring = [...]string{
 	JUMP:           "JUMP",
 	JUMP_IF:        "JUMP_IF",
 	RET:            "RET",
-	cmp:            "CMP",
 	jeq:            "JEQ",
 	jlt:            "JLT",
 	jgt:            "JGT",
 	jne:            "JNE",
 	jle:            "JLE",
 	jge:            "JGE",
+	jz:             "JZ",
+	jnz:            "JNZ",
+	cmp:            "CMP",
+	x86_test:       "X86_TEST",
 }
 
 func (op Op) String() string {

@@ -70,10 +70,6 @@ func (r Reg) RegId() RegId {
 	return r.id
 }
 
-func (r Reg) IsConst() bool {
-	return false
-}
-
 func (r Reg) Kind() Kind {
 	return r.kind
 }
@@ -92,4 +88,13 @@ func (r Reg) Children() int {
 
 func (r Reg) Child(i int) Node {
 	return badIndex(i, 0)
+}
+
+func (r Reg) IsConst() bool {
+	return false
+}
+
+func (r Reg) IsPure() bool {
+	// reading a register has no side effects
+	return true
 }

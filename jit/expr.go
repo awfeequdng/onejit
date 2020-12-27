@@ -45,6 +45,8 @@ type Expr interface {
 	RegId() RegId
 	Kind() Kind
 	IsConst() bool
+	// true if expression only computes a result, without any assignment, jump or call
+	IsPure() bool
 	Size() Size
 	Class() Class
 	Node

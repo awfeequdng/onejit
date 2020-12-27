@@ -63,11 +63,6 @@ func (e *BinaryExpr) Size() Size {
 	return e.kind.Size()
 }
 
-func (e *BinaryExpr) IsConst() bool {
-	// access to array element or struct field cannot be a constant
-	return e.op != BRACKET && e.op != FIELD && e.x.IsConst() && e.y.IsConst()
-}
-
 func (e *BinaryExpr) Class() Class {
 	return BINARY
 }
@@ -85,6 +80,24 @@ func (e *BinaryExpr) Child(i int) Node {
 	default:
 		return badIndex(i, 2)
 	}
+}
+
+func (e *BinaryExpr) IsConst() bool {
+	// access to array element or struct field cannot be a constant
+	return e.op != BRACKET && e.op != FIELD && e.x.IsConst() && e.y.IsConst()
+}
+
+func (e *BinaryExpr) IsPure() bool {
+	var ret bool
+	switch e.Op() {
+	case ADD, SUB, MUL, QUO, REM,
+		AND, OR, XOR, AND_NOT,
+		SHL, SHR, LAND, LOR,
+		EQL, NEQ, LSS, GTR, LEQ, GEQ:
+
+		ret = e.x.IsPure() && e.y.IsPure()
+	}
+	return ret
 }
 
 // ========================= helpers ===========================================
@@ -145,8 +158,12 @@ func binaryKind(op Op, x Expr, y Expr) Kind {
 		// kinds will be checked against function signature
 		return Void
 
-	case cmp: // compare and set arch-specific flags
+	case cmp: // compare, then set arch-specific flags
 		kindMustBeOrdered(op, k1, k2)
+		return Flags
+
+	case x86_test: // bitwise-and, then set arch-specific flags
+		kindMustBeIntegerOrPtr(op, k1, k2)
 		return Flags
 
 	default:

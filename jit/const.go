@@ -43,10 +43,6 @@ func (c Const) Kind() Kind {
 	return c.kind
 }
 
-func (c Const) IsConst() bool {
-	return true
-}
-
 func (c Const) Size() Size {
 	return c.kind.Size()
 }
@@ -61,6 +57,13 @@ func (c Const) Children() int {
 
 func (c Const) Child(i int) Node {
 	return badIndex(i, 0)
+}
+
+func (c Const) IsConst() bool {
+	return true
+}
+func (c Const) IsPure() bool {
+	return true
 }
 
 // ============================= helpers =======================================
@@ -256,4 +259,13 @@ func ConstUintptr(val uintptr) Const {
 
 func Zero(kind Kind) Const {
 	return Const{kind: kind}
+}
+
+func toInt32(c Const) (int32, bool) {
+	c.Kind().mustBeIntegerOrPtr(STAR)
+	val := c.Int()
+	if val != int64(int32(val)) {
+		return 0, false
+	}
+	return int32(val), true
 }

@@ -68,11 +68,6 @@ func (e *UnaryExpr) Kind() Kind {
 	return e.kind
 }
 
-func (e *UnaryExpr) IsConst() bool {
-	// address dereference cannot be a constant
-	return e.op != MUL && e.x.IsConst()
-}
-
 func (e *UnaryExpr) Size() Size {
 	return e.kind.Size()
 }
@@ -90,6 +85,20 @@ func (e *UnaryExpr) Child(i int) Node {
 		return e.x
 	}
 	return badIndex(i, 1)
+}
+
+func (e *UnaryExpr) IsConst() bool {
+	// address dereference cannot be a constant
+	return e.op != MUL && e.x.IsConst()
+}
+
+func (e *UnaryExpr) IsPure() bool {
+	var ret bool
+	switch e.Op() {
+	case NEG, INV, LNOT:
+		ret = e.x.IsPure()
+	}
+	return ret
 }
 
 // ========================= helpers ===========================================

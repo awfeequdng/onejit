@@ -84,11 +84,6 @@ func (m Amd64Mem) Kind() Kind {
 	return m.kind
 }
 
-func (m Amd64Mem) IsConst() bool {
-	// memory access cannot be a compile-time constant
-	return false
-}
-
 func (m Amd64Mem) Size() Size {
 	return m.kind.Size()
 }
@@ -115,4 +110,44 @@ func (m Amd64Mem) Child(i int) Node {
 		return archReg(Int64, m.index)
 	}
 	return badIndex(i, 2)
+}
+
+func (m Amd64Mem) IsConst() bool {
+	// memory access cannot be a compile-time constant
+	return false
+}
+
+func (m Amd64Mem) IsPure() bool {
+	// reading from memory has no side effects
+	return true
+}
+
+func toAmd64Mem(m Mem, ac *ArchCompiled) Expr {
+	var ret Amd64Mem
+	// kind := m.Kind()
+	switch addr := m.Addr().(type) {
+	case Const:
+		if offset, ok := toInt32(addr); ok {
+			ret = MakeAmd64Mem(m.Kind(), offset, NoRegId, NoRegId, 0)
+		} else {
+			reg := addr.spillToReg(ac)
+			ret = MakeAmd64Mem(m.Kind(), 0, reg.RegId(), NoRegId, 0)
+		}
+	case Reg:
+		addr.Kind().mustBeUintptrOrPtr("Amd64Mem")
+		ret = MakeAmd64Mem(m.Kind(), 0, addr.RegId(), NoRegId, 0)
+	case *BinaryExpr:
+		switch addr.Op() {
+		case ADD:
+			// return addToAmd64Mem(f, expr.X(), expr.Y())
+		case SUB:
+			// return addToAmd64Mem(f, expr.X(), expr.Y())
+		}
+		Warnf("toAmd64Mem: unimplemented address type: %T", addr)
+		return m
+	default:
+		Warnf("toAmd64Mem: unsupported address type: %T", addr)
+		return m
+	}
+	return ret
 }

@@ -60,11 +60,6 @@ func (m Mem) Kind() Kind {
 	return m.kind
 }
 
-func (m Mem) IsConst() bool {
-	// memory access cannot be a compile-time constant
-	return false
-}
-
 func (m Mem) Size() Size {
 	return m.kind.Size()
 }
@@ -82,4 +77,15 @@ func (m Mem) Child(i int) Node {
 		return m.addr
 	}
 	return badIndex(i, 1)
+}
+
+func (m Mem) IsConst() bool {
+	// memory access cannot be a compile-time constant
+	return false
+}
+
+func (m Mem) IsPure() bool {
+	// reading a memory address has the same side effects
+	// as computing the address to be read
+	return m.addr.IsPure()
 }

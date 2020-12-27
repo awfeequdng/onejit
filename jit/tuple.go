@@ -56,10 +56,6 @@ func (e *TupleExpr) Kind() Kind {
 	return Void
 }
 
-func (e *TupleExpr) IsConst() bool {
-	return false
-}
-
 func (e *TupleExpr) Size() Size {
 	return Void.Size()
 }
@@ -74,6 +70,15 @@ func (e *TupleExpr) Children() int {
 
 func (e *TupleExpr) Child(i int) Node {
 	return e.list[i]
+}
+
+func (e *TupleExpr) IsConst() bool {
+	return false
+}
+
+func (e *TupleExpr) IsPure() bool {
+	// tuples are either assignments or returns => they have side effects
+	return false
 }
 
 // ========================= helpers ===========================================

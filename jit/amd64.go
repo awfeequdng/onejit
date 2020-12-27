@@ -70,11 +70,39 @@ func toAmd64Const(c Const, ac *ArchCompiled) Expr {
 // and copy its result to a temporary register.
 // may allocate registers for intermediate expressions
 func toAmd64Reg(e Expr, ac *ArchCompiled) Expr {
-	e = toAmd64(e, false, ac)
 	if e.Class() != REG {
-		reg := ac.Func().NewReg(e.Kind())
-		ac.Add(Binary(ASSIGN, reg, e))
-		e = reg
+		e = toAmd64(e, false, ac)
+		e = spillToReg(e, ac)
+	}
+	return e
+}
+
+// convert a generic Expr to a concrete Expr for amd64 architecture,
+// and return its result either as a temporary register or as a memory reference.
+// may allocate registers for intermediate expressions
+func toAmd64RegOrMem(e Expr, ac *ArchCompiled) Expr {
+	switch e.Class() {
+	case REG:
+		break
+	case MEM:
+		e = toAmd64Mem(e.(Mem), ac)
+	default:
+		e = toAmd64Reg(e, ac)
+	}
+	return e
+}
+
+// convert a generic Expr to a concrete Expr for amd64 architecture,
+// and return its result either as a temporary register or as a constant.
+// may allocate registers for intermediate expressions
+func toAmd64RegOrConst(e Expr, ac *ArchCompiled) Expr {
+	switch e.Class() {
+	case REG:
+		break
+	case CONST:
+		e = toAmd64Const(e.(Const), ac)
+	default:
+		e = toAmd64Reg(e, ac)
 	}
 	return e
 }
@@ -118,75 +146,6 @@ func toAmd64Unary(e *UnaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 	return Unary(op, toAmd64(x, false, ac))
 }
 
-func toAmd64Binary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
-	op, x, y := e.Op(), e.X(), e.Y()
-	k1, k2 := x.Kind(), y.Kind()
-	var ret Expr
-	switch op {
-	case ADD, SUB, MUL, QUO:
-		// TODO
-
-	case REM, AND, OR, XOR, AND_NOT:
-		// TODO
-
-	case SHL, SHR:
-		// TODO
-
-	case ADD_ASSIGN, SUB_ASSIGN, MUL_ASSIGN, QUO_ASSIGN:
-		// TODO
-
-	case REM_ASSIGN, AND_ASSIGN, OR_ASSIGN, XOR_ASSIGN, AND_NOT_ASSIGN:
-		// TODO
-
-	case ASSIGN:
-		// TODO
-
-	case SHL_ASSIGN, SHR_ASSIGN:
-		// TODO
-
-	case LAND, LOR:
-		// TODO
-
-	case EQL, NEQ:
-		// TODO
-
-	case LSS, GTR, LEQ, GEQ:
-		// TODO
-
-	case JUMP_IF:
-		k1.mustBePtr(op)
-		k2.mustBeBool(op)
-
-		l, ok1 := x.(Label)
-		cond, ok2 := y.(*BinaryExpr)
-		if !ok1 || !ok2 || !cond.Op().IsComparison() {
-			Errorf("toAmd64Binary: unimplemented %v", e)
-		}
-		op := cond.Op()
-		x = toAmd64(cond.X(), false, ac)
-		y = toAmd64(cond.Y(), false, ac)
-
-		if x.Class() > y.Class() {
-			x, y = y, x
-			op = swapComparison(op)
-		}
-		x, y := toAmd64ClassicOperands(x, y, ac)
-		ac.Add(Binary(cmp, x, y))
-		return Unary(toConditionalJump(op), l)
-
-	case RET:
-		// TODO
-
-	default:
-		badOpKind2(op, k1, k2)
-	}
-	if ret == nil {
-		Warnf("toAmd64Binary: unimplemented %v", e)
-		ret = e
-	}
-	return ret
-}
-
 func toAmd64Tuple(e *TupleExpr, toplevel bool, ac *ArchCompiled) Expr {
 	Warnf("toAmd64Tuple: unimplemented %v", e)
 	return e
@@ -195,70 +154,4 @@ func toAmd64Tuple(e *TupleExpr, toplevel bool, ac *ArchCompiled) Expr {
 func toAmd64Call(e *CallExpr, toplevel bool, ac *ArchCompiled) Expr {
 	Warnf("toAmd64Call: unimplemented %v", e)
 	return e
-}
-
-func toAmd64Mem(m Mem, ac *ArchCompiled) Expr {
-	var ret Amd64Mem
-	// kind := m.Kind()
-	switch addr := m.Addr().(type) {
-	case Const:
-		if offset, ok := toInt32(addr); ok {
-			ret = MakeAmd64Mem(m.Kind(), offset, NoRegId, NoRegId, 0)
-		} else {
-			reg := addr.spillToReg(ac)
-			ret = MakeAmd64Mem(m.Kind(), 0, reg.RegId(), NoRegId, 0)
-		}
-	case Reg:
-		addr.Kind().mustBeUintptrOrPtr("Amd64Mem")
-		ret = MakeAmd64Mem(m.Kind(), 0, addr.RegId(), NoRegId, 0)
-	case *BinaryExpr:
-		switch addr.Op() {
-		case ADD:
-			// return addToAmd64Mem(f, expr.X(), expr.Y())
-		case SUB:
-			// return addToAmd64Mem(f, expr.X(), expr.Y())
-		}
-		Warnf("toAmd64Mem: unimplemented address type: %T", addr)
-		return m
-	default:
-		Warnf("toAmd64Mem: unsupported address type: %T", addr)
-		return m
-	}
-	return ret
-}
-
-func toInt32(c Const) (int32, bool) {
-	c.Kind().mustBeIntegerOrPtr(STAR)
-	val := c.Int()
-	if val != int64(int32(val)) {
-		return 0, false
-	}
-	return int32(val), true
-}
-
-// force x,y to one of the combinations natively supported by Amd64 instructions:
-// Reg, Reg
-// Reg, Mem
-// Reg, Const
-// Mem, Reg
-// Mem, Const
-func toAmd64ClassicOperands(x Expr, y Expr, ac *ArchCompiled) (Expr, Expr) {
-	c1, c2 := x.Class(), y.Class()
-	switch c1 {
-	case REG, MEM:
-		break
-	default:
-		x = toAmd64Reg(x, ac)
-		c1 = x.Class()
-	}
-	switch c2 {
-	case REG, CONST:
-		break
-	default:
-		if c1 == REG && c2 == MEM {
-			break
-		}
-		y = toAmd64Reg(y, ac)
-	}
-	return x, y
 }

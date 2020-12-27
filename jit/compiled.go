@@ -30,7 +30,9 @@ func (c *Compiled) Func() *Func {
 }
 
 func (c *Compiled) Add(e Expr) *Compiled {
-	c.code = append(c.code, e)
+	if !e.IsPure() {
+		c.code = append(c.code, e)
+	}
 	return c
 }
 
