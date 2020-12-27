@@ -138,7 +138,12 @@ func (s *Source) Child(i int) Node {
 // ================================== Compiled =================================
 
 type Compiled struct {
+	fun  *Func
 	code []Expr
+}
+
+func (c *Compiled) Func() *Func {
+	return c.fun
 }
 
 func (c *Compiled) Add(e Expr) *Compiled {
@@ -166,7 +171,6 @@ type Func struct {
 	continues  Labels
 	labelIndex int
 	source     Source
-	compiled   Compiled
 }
 
 func NewFunc(name string, sig *Signature) *Func {
@@ -267,16 +271,12 @@ func (f *Func) NewLabel() Label {
 	return l
 }
 
-func (f *Func) Compile() {
+func (f *Func) Compile() *Compiled {
 	f.source.labeln = len(f.labels)
 	f.source.regn = len(f.regs)
-	f.compiled.code = nil
+	compiled := Compiled{fun: f}
 	for _, stmt := range f.source.list {
-		stmt.compile(f)
+		stmt.compileTo(&compiled)
 	}
-}
-
-func (f *Func) AddCompiled(e Expr) *Func {
-	f.compiled.Add(e)
-	return f
+	return &compiled
 }

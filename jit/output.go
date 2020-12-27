@@ -160,6 +160,10 @@ func (s *ForStmt) Format(state fmt.State, x rune) {
 	s.print(&printer{state, x, 0})
 }
 
+func (c *Compiled) Format(state fmt.State, x rune) {
+	c.print(&printer{state, x, 0})
+}
+
 func (f *Func) Format(state fmt.State, x rune) {
 	f.print(&printer{state, x, 0})
 }
@@ -283,12 +287,20 @@ func (s *Source) print(p *printer) {
 }
 
 func (c *Compiled) print(p *printer) {
+	c.fun.printHeader(p)
 	for _, expr := range c.code {
 		p.nl().format(expr)
 	}
+	c.fun.printFooter(p)
 }
 
 func (f *Func) print(p *printer) {
+	f.printHeader(p)
+	f.printSource(p)
+	f.printFooter(p)
+}
+
+func (f *Func) printHeader(p *printer) {
 	fmt.Fprintf(p.state, "FUNC %v (", f.Name())
 	for i, narg := 0, f.NumArg(); i < narg; i++ {
 		if i != 0 {
@@ -306,10 +318,12 @@ func (f *Func) print(p *printer) {
 		}
 	}
 	p.write(") {").enter()
-	if len(f.compiled.code) != 0 {
-		p.print(&f.compiled)
-	} else {
-		p.print(&f.source)
-	}
+}
+
+func (f *Func) printSource(p *printer) {
+	p.print(&f.source)
+}
+
+func (f *Func) printFooter(p *printer) {
 	p.leave().nl().write("}\n")
 }

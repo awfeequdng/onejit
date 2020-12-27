@@ -27,6 +27,15 @@ func (m Mem) IsAssignable() bool {
 	return !m.ro
 }
 
+func MakeMem(kind Kind, addr Expr) Mem {
+	addr.Kind().mustBeUintptrOrPtr("Mem")
+	return Mem{
+		kind: kind,
+		ro:   false,
+		addr: addr,
+	}
+}
+
 // return a read-only view of a subset of memory contents
 // note: memory does not become immutable - it can still be modified
 // through the original struct

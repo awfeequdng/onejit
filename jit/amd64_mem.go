@@ -25,6 +25,24 @@ type Amd64Mem struct {
 	kind    Kind
 }
 
+func MakeAmd64Mem(kind Kind, offset int32, base RegId, index RegId, scale uint8) Amd64Mem {
+	if index != NoRegId {
+		switch scale {
+		case 1, 2, 4, 8:
+			break
+		default:
+			Errorf("bad Amd64Mem scale: have %d, want 1,2,4 or 8", scale)
+		}
+	}
+	return Amd64Mem{
+		offset:  offset,
+		base:    base,
+		index:   index,
+		roscale: scale,
+		kind:    kind,
+	}
+}
+
 func (m Amd64Mem) IsAssignable() bool {
 	return m.roscale&128 == 0
 }
@@ -97,4 +115,42 @@ func (m Amd64Mem) Child(i int) Node {
 		return archReg(Int64, m.index)
 	}
 	return badIndex(i, 2)
+}
+
+// ================================== helpers ===================================
+
+// convert a general Mem expression to Amd64Mem
+// may allocate registers for intermediate expressions
+func ToAmd64Mem(f *Func, m Mem) Amd64Mem {
+	var ret Amd64Mem
+	// kind := m.Kind()
+	switch addr := m.Addr().(type) {
+	case Const:
+		if offset, ok := toInt32(addr); ok {
+			ret = MakeAmd64Mem(m.Kind(), offset, NoRegId, NoRegId, 0)
+		}
+	// case Label:
+	case Reg:
+		addr.Kind().mustBeUintptrOrPtr("Amd64Mem")
+		ret = MakeAmd64Mem(m.Kind(), 0, addr.RegId(), NoRegId, 0)
+	case *BinaryExpr:
+		switch addr.Op() {
+		case ADD:
+			// return addToAmd64Mem(f, expr.X(), expr.Y())
+		case SUB:
+			// return addToAmd64Mem(f, expr.X(), expr.Y())
+		}
+	default:
+		panic("unimplemented: toAmd64Mem")
+	}
+	return ret
+}
+
+func toInt32(c Const) (int32, bool) {
+	c.Kind().mustBeIntegerOrPtr(STAR)
+	val := c.Int()
+	if val != int64(int32(val)) {
+		return 0, false
+	}
+	return int32(val), true
 }

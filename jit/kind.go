@@ -289,6 +289,16 @@ func kindMustBeNumberOrPtr(op Op, k1 Kind, k2 Kind) Kind {
 	return badOpKind2(op, k1, k2)
 }
 
+func (k Kind) mustBeUintptrOrPtr(label string) Kind {
+	switch k {
+	case Uintptr, Ptr:
+		break
+	default:
+		Errorf("bad %s address kind: have %v, want UintPtr or Ptr", label, k)
+	}
+	return k
+}
+
 func kindMustBeSubset(label string, subset Kind, whole Kind) {
 	if whole.Size() >= subset.Size() {
 		if whole.isIntegerOrPtr() && subset.isIntegerOrPtr() {

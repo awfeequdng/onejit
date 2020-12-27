@@ -22,7 +22,7 @@ import (
 
 type Stmt interface {
 	Node
-	compile(f *Func)
+	compileTo(to *Compiled)
 	fmt.Formatter
 	printable
 }
@@ -55,8 +55,8 @@ func (s *ExprStmt) Child(i int) Node {
 	return badIndex(i, 0)
 }
 
-func (s *ExprStmt) compile(f *Func) {
-	f.AddCompiled(s.expr)
+func (s *ExprStmt) compileTo(c *Compiled) {
+	c.Add(s.expr)
 }
 
 // ============================ IfStmt ===========================================
@@ -108,20 +108,21 @@ func (s *IfStmt) Child(i int) Node {
 	}
 }
 
-func (s *IfStmt) compile(f *Func) {
+func (s *IfStmt) compileTo(c *Compiled) {
+	f := c.Func()
 	labelEndif := f.NewLabel()
 	labelElse := labelEndif
 	if s.Else() != nil {
 		labelElse = f.NewLabel()
 	}
-	f.AddCompiled(Binary(JUMP_IF, labelElse, Unary(NOT, s.Cond())))
-	s.Then().compile(f)
+	c.Add(Binary(JUMP_IF, labelElse, Unary(NOT, s.Cond())))
+	s.Then().compileTo(c)
 	if s.Else() != nil {
-		f.AddCompiled(Unary(JUMP, labelEndif))
-		f.AddCompiled(labelElse)
-		s.Else().compile(f)
+		c.Add(Unary(JUMP, labelEndif))
+		c.Add(labelElse)
+		s.Else().compileTo(c)
 	}
-	f.AddCompiled(labelEndif)
+	c.Add(labelEndif)
 }
 
 // ============================ BlockStmt ========================================
@@ -151,9 +152,9 @@ func (s *BlockStmt) Child(i int) Node {
 	return s.list[i]
 }
 
-func (s *BlockStmt) compile(f *Func) {
+func (s *BlockStmt) compileTo(c *Compiled) {
 	for _, stmt := range s.list {
-		stmt.compile(f)
+		stmt.compileTo(c)
 	}
 }
 
@@ -176,8 +177,8 @@ func (s *BreakStmt) Child(i int) Node {
 	return badIndex(i, 0)
 }
 
-func (s *BreakStmt) compile(f *Func) {
-	f.AddCompiled(Unary(JUMP, f.Breaks().Top()))
+func (s *BreakStmt) compileTo(c *Compiled) {
+	c.Add(Unary(JUMP, c.Func().Breaks().Top()))
 }
 
 // ============================ ContinueStmt ===================================
@@ -199,8 +200,8 @@ func (s *ContinueStmt) Child(i int) Node {
 	return badIndex(i, 0)
 }
 
-func (s *ContinueStmt) compile(f *Func) {
-	f.AddCompiled(Unary(JUMP, f.Continues().Top()))
+func (s *ContinueStmt) compileTo(c *Compiled) {
+	c.Add(Unary(JUMP, c.Func().Continues().Top()))
 }
 
 // ============================ ForStmt ========================================
@@ -260,7 +261,8 @@ func (s *ForStmt) Child(i int) Node {
 	}
 }
 
-func (s *ForStmt) compile(f *Func) {
+func (s *ForStmt) compileTo(c *Compiled) {
+	f := c.Func()
 	labelLoop := f.NewLabel()
 	labelTest := f.NewLabel()
 	labelBreak := f.NewLabel()
@@ -273,21 +275,21 @@ func (s *ForStmt) compile(f *Func) {
 	}()
 
 	if s.Init() != nil {
-		s.Init().compile(f)
+		s.Init().compileTo(c)
 	}
 	if s.Cond() != nil {
-		f.AddCompiled(Unary(JUMP, labelTest))
+		c.Add(Unary(JUMP, labelTest))
 	}
-	f.AddCompiled(labelLoop)
-	s.Body().compile(f)
+	c.Add(labelLoop)
+	s.Body().compileTo(c)
 	if s.Post() != nil {
-		s.Post().compile(f)
+		s.Post().compileTo(c)
 	}
-	f.AddCompiled(labelTest)
+	c.Add(labelTest)
 	if s.Cond() != nil {
-		f.AddCompiled(Binary(JUMP_IF, labelLoop, s.Cond()))
+		c.Add(Binary(JUMP_IF, labelLoop, s.Cond()))
 	} else {
-		f.AddCompiled(Unary(JUMP_IF, labelLoop))
+		c.Add(Unary(JUMP_IF, labelLoop))
 	}
-	f.AddCompiled(labelBreak)
+	c.Add(labelBreak)
 }
