@@ -16,29 +16,12 @@
 
 package jit
 
-import (
-	"fmt"
-)
-
 type ArchId uint8
 
 const (
 	NOARCH ArchId = iota
 	AMD64
 	ARM64
+	ARM
+	X86
 )
-
-type Arch interface {
-	Id() ArchId
-	String() string
-}
-
-var Archs = make(map[ArchId]Arch) // {ARM64:Arm64{}, AMD64:Amd64{}}
-
-func (archId ArchId) String() string {
-	arch := Archs[archId]
-	if arch != nil {
-		return arch.String()
-	}
-	return fmt.Sprintf("ArchId(%d)", uint8(archId))
-}

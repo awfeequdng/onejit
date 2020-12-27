@@ -135,30 +135,6 @@ func (s *Source) Child(i int) Node {
 	return s.list[i]
 }
 
-// ================================== Compiled =================================
-
-type Compiled struct {
-	fun  *Func
-	code []Expr
-}
-
-func (c *Compiled) Func() *Func {
-	return c.fun
-}
-
-func (c *Compiled) Add(e Expr) *Compiled {
-	c.code = append(c.code, e)
-	return c
-}
-
-func (c *Compiled) Children() int {
-	return len(c.code)
-}
-
-func (c *Compiled) Child(i int) Node {
-	return c.code[i]
-}
-
 // ================================== Func =====================================
 
 type Func struct {
@@ -278,5 +254,7 @@ func (f *Func) Compile() *Compiled {
 	for _, stmt := range f.source.list {
 		stmt.compileTo(&compiled)
 	}
+	compiled.labeln = len(f.labels)
+	compiled.regn = len(f.regs)
 	return &compiled
 }
