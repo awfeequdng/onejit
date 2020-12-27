@@ -28,8 +28,8 @@ type Const struct {
 }
 
 var (
-	False = NewConst(Bool, 0)
-	True  = NewConst(Bool, 1)
+	False = MakeConst(Bool, 0)
+	True  = MakeConst(Bool, 1)
 )
 
 // implement Expr interface
@@ -64,6 +64,13 @@ func (c Const) Child(i int) Node {
 }
 
 // ============================= helpers =======================================
+
+// save Const to a temporary register
+func (c Const) spillToReg(ac *ArchCompiled) Reg {
+	reg := ac.Func().NewReg(c.kind)
+	ac.Add(Binary(ASSIGN, reg, c))
+	return reg
+}
 
 var (
 	ifalse interface{} = false
@@ -191,8 +198,16 @@ func (c Const) Cast(to Kind) Const {
 	return Const{kind: to, re: val}
 }
 
-func NewConst(kind Kind, val int64) Const {
+func MakeConst(kind Kind, val int64) Const {
 	return Const{kind: kind, re: val}
+}
+
+func ConstBool(flag bool) Const {
+	c := Const{kind: Bool}
+	if flag {
+		c.re = 1
+	}
+	return c
 }
 
 func ConstInt(val int) Const {

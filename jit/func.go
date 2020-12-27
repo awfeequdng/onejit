@@ -60,6 +60,13 @@ type Label struct {
 	index int // only for debugging
 }
 
+// save Label to a temporary register
+func (l Label) spillToReg(ac *ArchCompiled) Reg {
+	reg := ac.Func().NewReg(Ptr)
+	ac.Add(Binary(ASSIGN, reg, l))
+	return reg
+}
+
 // implement Expr interface
 func (l Label) expr() {}
 
@@ -81,7 +88,7 @@ func (l Label) Size() Size {
 }
 
 func (l Label) Class() Class {
-	return CALL
+	return LABEL
 }
 
 func (l Label) Children() int {
@@ -202,11 +209,15 @@ func (f *Func) Continues() *Labels {
 
 func (f *Func) AddExpr(e Expr) *Func {
 	f.source.AddExpr(e)
+	f.source.labeln = len(f.labels)
+	f.source.regn = len(f.regs)
 	return f
 }
 
 func (f *Func) AddStmt(s Stmt) *Func {
 	f.source.AddStmt(s)
+	f.source.labeln = len(f.labels)
+	f.source.regn = len(f.regs)
 	return f
 }
 
@@ -248,8 +259,6 @@ func (f *Func) NewLabel() Label {
 }
 
 func (f *Func) Compile() *Compiled {
-	f.source.labeln = len(f.labels)
-	f.source.regn = len(f.regs)
 	compiled := Compiled{fun: f}
 	for _, stmt := range f.source.list {
 		stmt.compileTo(&compiled)

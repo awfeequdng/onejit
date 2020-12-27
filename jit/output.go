@@ -25,6 +25,10 @@ func Debugf(format string, args ...interface{}) {
 	fmt.Printf("// debug: "+format+"\n", args...)
 }
 
+func Warnf(format string, args ...interface{}) {
+	fmt.Printf("// warning: "+format+"\n", args...)
+}
+
 var errorPrefix = "jit error: "
 
 func Errorf(format string, args ...interface{}) {
@@ -164,6 +168,10 @@ func (c *Compiled) Format(state fmt.State, x rune) {
 	c.print(&printer{state, x, 0})
 }
 
+func (ac *ArchCompiled) Format(state fmt.State, x rune) {
+	((*Compiled)(ac)).Format(state, x)
+}
+
 func (f *Func) Format(state fmt.State, x rune) {
 	f.print(&printer{state, x, 0})
 }
@@ -292,6 +300,10 @@ func (c *Compiled) print(p *printer) {
 		p.nl().format(expr)
 	}
 	c.fun.printFooter(p)
+}
+
+func (ac *ArchCompiled) print(p *printer) {
+	((*Compiled)(ac)).print(p)
 }
 
 func (f *Func) print(p *printer) {

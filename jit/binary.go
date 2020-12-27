@@ -145,6 +145,10 @@ func binaryKind(op Op, x Expr, y Expr) Kind {
 		// kinds will be checked against function signature
 		return Void
 
+	case cmp: // compare and set arch-specific flags
+		kindMustBeOrdered(op, k1, k2)
+		return Flags
+
 	default:
 		return badOpKind2(op, k1, k2)
 	}

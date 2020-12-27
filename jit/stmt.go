@@ -115,7 +115,7 @@ func (s *IfStmt) compileTo(c *Compiled) {
 	if s.Else() != nil {
 		labelElse = f.NewLabel()
 	}
-	c.Add(Binary(JUMP_IF, labelElse, Unary(NOT, s.Cond())))
+	c.Add(Binary(JUMP_IF, labelElse, Unary(LNOT, s.Cond())))
 	s.Then().compileTo(c)
 	if s.Else() != nil {
 		c.Add(Unary(JUMP, labelEndif))
@@ -281,7 +281,9 @@ func (s *ForStmt) compileTo(c *Compiled) {
 		c.Add(Unary(JUMP, labelTest))
 	}
 	c.Add(labelLoop)
-	s.Body().compileTo(c)
+	{
+		s.Body().compileTo(c)
+	}
 	if s.Post() != nil {
 		s.Post().compileTo(c)
 	}

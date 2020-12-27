@@ -71,7 +71,7 @@ const (
 	LSS    // <
 	GTR    // >
 	ASSIGN // =
-	NOT    // !
+	LNOT   // !
 
 	NEQ  // !=
 	LEQ  // <=
@@ -88,11 +88,20 @@ const (
 	JUMP_IF Op = 74 // IF
 	RET     Op = 80 // RETURN
 
+	cmp Op = 81 // arch-specific: set arch flags to comparison result
+	jeq Op = 82 // arch-specific: jump if equal
+	jlt Op = 83 // arch-specific: jump if less
+	jgt Op = 84 // arch-specific: jump if greater
+	jne Op = 85 // arch-specific: jump if not equal
+	jle Op = 86 // arch-specific: jump if less or equal
+	jge Op = 87 // arch-specific: jump if greater or equal
+
 	NEG  = SUB // -
+	INV  = XOR // ^
 	STAR = MUL // *
 
 	opLo = ADD
-	opHi = RET
+	opHi = jge
 )
 
 var opstring = [...]string{
@@ -128,7 +137,7 @@ var opstring = [...]string{
 	LSS:            "<",
 	GTR:            ">",
 	ASSIGN:         "=",
-	NOT:            "!",
+	LNOT:           "!",
 	NEQ:            "!=",
 	LEQ:            "<=",
 	GEQ:            ">=",
@@ -138,6 +147,13 @@ var opstring = [...]string{
 	JUMP:           "JUMP",
 	JUMP_IF:        "JUMP_IF",
 	RET:            "RET",
+	cmp:            "CMP",
+	jeq:            "JEQ",
+	jlt:            "JLT",
+	jgt:            "JGT",
+	jne:            "JNE",
+	jle:            "JLE",
+	jge:            "JGE",
 }
 
 func (op Op) String() string {
@@ -158,4 +174,71 @@ func (op Op) IsCommutative() bool {
 		ret = true
 	}
 	return ret
+}
+
+func (op Op) IsComparison() bool {
+	var ret bool
+	switch op {
+	case EQL, LSS, GTR, NEQ, LEQ, GEQ:
+		ret = true
+	}
+	return ret
+}
+
+func notComparison(op Op) Op {
+	switch op {
+	case EQL:
+		op = NEQ
+	case NEQ:
+		op = EQL
+	case LSS:
+		op = GEQ
+	case GTR:
+		op = LEQ
+	case LEQ:
+		op = GTR
+	case GEQ:
+		op = LSS
+	default:
+		Errorf("bad notComparison op: have %v, want EQL,NEQ,LSS,GTR,LEQ or GEQ", op)
+	}
+	return op
+}
+
+func swapComparison(op Op) Op {
+	switch op {
+	case EQL, NEQ:
+		break
+	case LSS:
+		op = GTR
+	case GTR:
+		op = LSS
+	case LEQ:
+		op = GEQ
+	case GEQ:
+		op = LEQ
+	default:
+		Errorf("bad swapComparison op: have %v, want EQL,NEQ,LSS,GTR,LEQ or GEQ", op)
+	}
+	return op
+}
+
+func toConditionalJump(op Op) Op {
+	switch op {
+	case EQL:
+		return jeq
+	case NEQ:
+		return jne
+	case LSS:
+		return jlt
+	case GTR:
+		return jgt
+	case LEQ:
+		return jle
+	case GEQ:
+		return jge
+	default:
+		Errorf("bad toConditionalJump op: have %v, want EQL,NEQ,LSS,GTR,LEQ or GEQ", op)
+	}
+	return op
 }

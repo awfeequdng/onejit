@@ -23,9 +23,19 @@ type UnaryExpr struct {
 	x    Expr
 }
 
-func Unary(op Op, x Expr) *UnaryExpr {
+func Unary(op Op, x Expr) Expr {
+	kind := unaryKind(op, x)
+	if op == LNOT && kind == Bool && x.Class() == BINARY {
+		bx := x.(*BinaryExpr)
+		bop := bx.Op()
+		if bop.IsComparison() {
+			// simplify !(a < b) to (a >= b)
+			// and similarly for other comparisons
+			return Binary(swapComparison(bop), bx.X(), bx.Y())
+		}
+	}
 	return &UnaryExpr{
-		kind: unaryKind(op, x),
+		kind: kind,
 		op:   op,
 		x:    x,
 	}
@@ -87,15 +97,15 @@ func (e *UnaryExpr) Child(i int) Node {
 func unaryKind(op Op, x Expr) Kind {
 	k := x.Kind()
 	switch op {
-	case NEG: // unary -
+	case NEG, INV: // unary - ^
 		return k.mustBeNumberOrPtr(op)
 	case INC, DEC:
 		k.mustBeNumberOrPtr(op)
 		return mustBeAssignable(op, x)
-	case NOT: // unary !
+	case LNOT: // unary !
 		k.mustBeBool(op)
 		return Bool
-	case JUMP:
+	case JUMP, jeq, jlt, jgt, jne, jle, jge:
 		k.mustBePtr(op)
 		return Void
 	case ZERO: // clear (i.e set to zero) register or memory

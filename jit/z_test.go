@@ -69,9 +69,12 @@ func TestFuncRecursion(t *testing.T) {
 	if f.Signature().NumIn() != 1 || f.Signature().NumOut() != 1 {
 		t.Errorf("bad function signature")
 	}
-	t.Log(f)
+	t.Log("source\n", f)
+	f.Compile()
 	compiled := f.Compile()
-	t.Log(compiled)
+	t.Log("compiled\n", compiled)
+	arch_compiled := compiled.ToArch(AMD64)
+	t.Log("amd64 compiled\n", arch_compiled)
 }
 
 func TestFuncIteration(t *testing.T) {
@@ -96,8 +99,10 @@ func TestFuncIteration(t *testing.T) {
 					ToStmt(Binary(ASSIGN, n, Binary(ADD, Binary(MUL, n, ConstUintptr(3)), one))),
 					nil),
 				ToStmt(Binary(QUO_ASSIGN, n, ConstUintptr(2))))))
-	t.Log(f)
+	t.Log("source\n", f)
 	f.Compile()
 	compiled := f.Compile()
-	t.Log(compiled)
+	t.Log("compiled\n", compiled)
+	arch_compiled := compiled.ToArch(AMD64)
+	t.Log("amd64 compiled\n", arch_compiled)
 }

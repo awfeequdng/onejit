@@ -50,12 +50,14 @@ const (
 	_ // Interface
 	_ // Map
 	Ptr
-	_   // Slice
-	_   // String
-	_   // Struct
-	_   // UnsafePointer
+	_ // Slice
+	_ // String
+	_ // Struct
+	_ // UnsafePointer
+	Flags
+
 	kLo = Void
-	kHi = Ptr
+	kHi = Flags
 )
 
 var kstring = [...]string{
@@ -90,6 +92,7 @@ var kstring = [...]string{
 		Struct:        "struct",
 		UnsafePointer: "unsafe.Pointer",
 	*/
+	Flags: "Flags",
 }
 
 var ksize = [...]Size{
@@ -155,6 +158,7 @@ var ksuffix = [...]string{
 	Complex64:  "c",
 	Complex128: "lc",
 	Ptr:        "p",
+	Flags:      "fl",
 }
 
 func init() {
