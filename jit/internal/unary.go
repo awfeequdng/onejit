@@ -25,20 +25,15 @@ type UnaryExpr struct {
 
 func Unary(op Op, x Expr) Expr {
 	kind := unaryKind(op, x)
-	if op == LNOT && kind == Bool && x.Class() == BINARY {
-		bx := x.(*BinaryExpr)
-		bop := bx.Op()
-		if bop.IsComparison() {
-			// simplify !(a < b) to (a >= b)
-			// and similarly for other comparisons
-			return Binary(SwapComparison(bop), bx.X(), bx.Y())
+	ret := unaryOptimize(op, kind, x)
+	if ret == nil {
+		ret = &UnaryExpr{
+			kind: kind,
+			op:   op,
+			x:    x,
 		}
 	}
-	return &UnaryExpr{
-		kind: kind,
-		op:   op,
-		x:    x,
-	}
+	return ret
 }
 
 func Cast(to Kind, x Expr) Expr {
@@ -125,4 +120,40 @@ func unaryKind(op Op, x Expr) Kind {
 		return Void
 	}
 	return BadOpKind(op, k)
+}
+
+func unaryOptimize(op Op, kind Kind, x Expr) Expr {
+	var ret Expr
+	xop := x.Op()
+	if op == LNOT && kind == Bool {
+		switch x := x.(type) {
+		case *UnaryExpr:
+			if xop == LNOT {
+				// simplify !(!a) to a
+				ret = x.X()
+			}
+		case *BinaryExpr:
+			if xop.IsComparison() {
+				// simplify !(a < b) to (a >= b)
+				// and similarly for other comparisons
+				ret = Binary(SwapComparison(xop), x.X(), x.Y())
+			}
+		}
+	} else if (op == NEG || op == INV) && (xop == NEG || xop == INV) {
+		switch x := x.(type) {
+		case *UnaryExpr:
+			if op == xop {
+				// simplify -(-a) to a
+				// simplify ^(^a) to a
+				ret = x.X()
+			} else if op == NEG {
+				// simplify -(^a) to a+1
+				ret = Binary(ADD, x.X(), MakeConst(kind, 1))
+			} else {
+				// simplify ^(-a) to a-1
+				ret = Binary(ADD, x.X(), MakeConst(kind, -1))
+			}
+		}
+	}
+	return ret
 }

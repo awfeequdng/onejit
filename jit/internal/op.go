@@ -219,8 +219,9 @@ var opstring = [...]string{
 	ARCH_JZ:        "JZ",
 	ARCH_JNZ:       "JNZ",
 	ARCH_CMP:       "CMP",
-	X86_TEST:       "X86_TEST",
 	X86_LEA:        "X86_LEA",
+	X86_TEST:       "X86_TEST",
+	X86_TESTZ:      "X86_TESTZ",
 }
 
 func (op Op) String() string {
@@ -253,7 +254,7 @@ func (op Op) IsComparison() bool {
 	return ret
 }
 
-func notComparison(op Op) Op {
+func NotComparison(op Op) Op {
 	switch op {
 	case EQL:
 		op = NEQ

@@ -54,12 +54,8 @@ func TestFuncRecursion(t *testing.T) {
 			ToStmt(
 				Binary(ASSIGN, n,
 					Binary(ADD,
-						CallFunc(f,
-							Binary(SUB, n, ConstUintptr(1)),
-						),
-						CallFunc(f,
-							Binary(SUB, n, ConstUintptr(2)),
-						)))),
+						CallFunc(f, Binary(SUB, n, ConstUintptr(1))),
+						CallFunc(f, Binary(SUB, n, ConstUintptr(2)))))),
 			// else
 			ToStmt(
 				Binary(ASSIGN, n, ConstUintptr(1)))),

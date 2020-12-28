@@ -162,7 +162,7 @@ func binaryKind(op Op, x Expr, y Expr) Kind {
 		Kind2MustBeOrdered(op, k1, k2)
 		return ArchFlags
 
-	case X86_TEST: // bitwise-and, then set arch-specific flags
+	case X86_TEST, X86_TESTZ: // bitwise-and, then set arch-specific flags
 		Kind2MustBeIntegerOrPtr(op, k1, k2)
 		return ArchFlags
 

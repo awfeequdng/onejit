@@ -168,7 +168,7 @@ func compileJumpIf(e *BinaryExpr, ac *ArchCompiled) Expr {
 	} else {
 		op, x, y = compileAsCmp(cond, ac)
 	}
-	ac.Add(Binary(ChooseOp(isTest, op, ARCH_CMP), x, y))
+	ac.Add(Binary(ChooseOp(isTest, X86_TEST, ARCH_CMP), x, y))
 	return Unary(ToConditionalJump(op), l)
 }
 
