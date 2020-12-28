@@ -47,19 +47,20 @@ func (m Mem) Format(state fmt.State, x rune) {
 }
 
 func (m Amd64Mem) Format(state fmt.State, x rune) {
-	if m.base == NoRegId {
-		if m.index == NoRegId {
-			fmt.Fprintf(state, "%d", m.offset)
-		} else {
-			fmt.Fprintf(state, "%d(%v,%d)", m.offset, m.index, m.Scale())
-		}
-	} else {
-		if m.index == NoRegId {
-			fmt.Fprintf(state, "%d(%v)", m.offset, m.base)
-		} else {
-			fmt.Fprintf(state, "%d(%v,%v,%d)", m.offset, m.base, m.index, m.Scale())
-		}
+	var separator string
+	fmt.Fprintf(state, "(mem%s%s ", readonlyPrefix(!m.IsAssignable()), m.kind.SizeString())
+	if m.offset != 0 {
+		fmt.Fprintf(state, "%d", m.offset)
+		separator = " + "
 	}
+	if m.base != NoRegId {
+		fmt.Fprintf(state, "%s%d", separator, m.base)
+		separator = " + "
+	}
+	if m.index != NoRegId {
+		fmt.Fprintf(state, "%s%v * %d", separator, m.index, m.Scale())
+	}
+	state.Write(rparen)
 }
 
 func (l Label) Format(state fmt.State, x rune) {

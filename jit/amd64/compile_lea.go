@@ -49,7 +49,13 @@ func compileAsLea(e *BinaryExpr, ac *ArchCompiled) Expr {
 
 	switch e.Op() {
 	case ADD:
-		// TODO: x*scale + offset
+		if xe, ok := x.(*BinaryExpr); ok && xe.Op() == MUL {
+			// may be x*scale + base_or_offset
+			return compileAsLea3(xe.X(), xe.Y(), y, ac)
+		} else if ye, ok := y.(*BinaryExpr); ok && ye.Op() == MUL {
+			// may be base_or_offset + x*scale
+			return compileAsLea3(ye.X(), ye.Y(), x, ac)
+		}
 		base := compileReg(x, ac)
 		y = compileRegOrConst(y, ac)
 		return makeLea2(base, y)
@@ -81,6 +87,48 @@ func compileAsLea(e *BinaryExpr, ac *ArchCompiled) Expr {
 		return makeLea3(base, index, scale)
 	}
 	return e
+}
+
+func compileAsLea3(eindex Expr, escale Expr, eoffset Expr, ac *ArchCompiled) Amd64Mem {
+	var base, index Reg
+	var scale uint8
+	var offset int32
+
+	eindex = compileRegOrConst(eindex, ac)
+	escale = compileRegOrConst(escale, ac)
+	eoffset = compileRegOrConst(eoffset, ac)
+	if eindex.Class() == CONSTANT && escale.Class() != CONSTANT {
+		eindex, escale = escale, eindex
+	}
+	if c, ok := escale.(Const); ok {
+		switch val := c.Int(); val {
+		case 1, 2, 4, 8:
+			index = eindex.(Reg)
+			scale = uint8(val)
+		case 3, 5, 9:
+			base = eindex.(Reg)
+			index = base
+			scale = uint8(val) - 1
+		}
+	}
+	if scale == 0 {
+		index = SpillToReg(Binary(MUL, eindex, escale), ac)
+		scale = 1
+	}
+	if c, ok := eoffset.(Const); ok {
+		offset = int32(c.Int())
+	} else {
+		if base.RegId() != NoRegId {
+			// base is already occupied, spill it
+			index = SpillToReg(
+				Unary(X86_LEA,
+					MakeAmd64Mem(Uintptr, 0, base.RegId(), index.RegId(), scale)),
+				ac)
+			scale = 1
+		}
+		base = eoffset.(Reg)
+	}
+	return MakeAmd64Mem(Uintptr, offset, base.RegId(), index.RegId(), scale)
 }
 
 func makeLea2(base Reg, offsetOrIndex Expr) Amd64Mem {
