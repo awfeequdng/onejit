@@ -18,7 +18,93 @@ package internal
 
 import (
 	"fmt"
+	"strings"
 )
+
+// convert a strings.Builder into a fmt.State
+type buffer strings.Builder
+
+func (b *buffer) Write(bytes []byte) (n int, err error) {
+	return (*strings.Builder)(b).Write(bytes)
+}
+
+func (b *buffer) Width() (wid int, ok bool) {
+	return 0, false
+}
+
+func (b *buffer) Precision() (prec int, ok bool) {
+	return 0, false
+}
+
+func (b *buffer) Flag(c int) bool {
+	return false
+}
+
+func (b *buffer) String() string {
+	return (*strings.Builder)(b).String()
+}
+
+// ============================== Stringer ====================================
+
+func (c Const) String() string {
+	var buf buffer
+	c.Format(&buf, 'v')
+	return buf.String()
+}
+
+func (id RegId) String() string {
+	var buf buffer
+	fmt.Fprintf(&buf, "rid%x", int(id))
+	return buf.String()
+}
+
+func (r Reg) String() string {
+	var buf buffer
+	r.Format(&buf, 'v')
+	return buf.String()
+}
+
+func (m Mem) String() string {
+	var buf buffer
+	m.Format(&buf, 'v')
+	return buf.String()
+}
+
+func (m Amd64Mem) String() string {
+	var buf buffer
+	m.Format(&buf, 'v')
+	return buf.String()
+}
+
+func (l Label) String() string {
+	var buf buffer
+	l.Format(&buf, 'v')
+	return buf.String()
+}
+
+func (e UnaryExpr) String() string {
+	var buf buffer
+	e.Format(&buf, 'v')
+	return buf.String()
+}
+
+func (e BinaryExpr) String() string {
+	var buf buffer
+	e.Format(&buf, 'v')
+	return buf.String()
+}
+
+func (e TupleExpr) String() string {
+	var buf buffer
+	e.Format(&buf, 'v')
+	return buf.String()
+}
+
+func (e CallExpr) String() string {
+	var buf buffer
+	e.Format(&buf, 'v')
+	return buf.String()
+}
 
 // ============================== Formatter ====================================
 
@@ -142,7 +228,7 @@ func (f *Func) Format(state fmt.State, x rune) {
 // ============================== printer ======================================
 
 type printer struct {
-	state fmt.State
+	out   fmt.State
 	x     rune
 	depth int
 }
@@ -156,12 +242,12 @@ var spaces = []byte("\n                                                         
 const spacen = 80
 
 func (p *printer) write(str string) *printer {
-	p.state.Write([]byte(str))
+	p.out.Write([]byte(str))
 	return p
 }
 
 func (p *printer) format(obj fmt.Formatter) *printer {
-	obj.Format(p.state, p.x)
+	obj.Format(p.out, p.x)
 	return p
 }
 
@@ -185,7 +271,7 @@ func (p *printer) nl() *printer {
 	n := p.depth + 4
 	for n > 0 {
 		chunk := min2(n, spacen)
-		p.state.Write(spaces[start : n+1])
+		p.out.Write(spaces[start : n+1])
 		n -= chunk
 		start = 1
 	}
@@ -209,7 +295,7 @@ func (s *IfStmt) print(p *printer) {
 	if s.Else() != nil {
 		p.nl().write("ELSE ").print(s.Else())
 	}
-	p.leave().nl().state.Write(rparen)
+	p.leave().nl().out.Write(rparen)
 }
 
 func (s *BlockStmt) print(p *printer) {
@@ -217,7 +303,7 @@ func (s *BlockStmt) print(p *printer) {
 	for _, stmt := range s.list {
 		p.nl().print(stmt)
 	}
-	p.leave().nl().state.Write(rparen)
+	p.leave().nl().out.Write(rparen)
 }
 
 func (s *BreakStmt) print(p *printer) {
@@ -248,7 +334,7 @@ func (s *ForStmt) print(p *printer) {
 	if s.Body() != nil {
 		p.enter().nl().print(s.Body()).leave()
 	}
-	p.nl().state.Write(rparen)
+	p.nl().out.Write(rparen)
 }
 
 func (s *Source) print(p *printer) {
@@ -276,20 +362,20 @@ func (f *Func) print(p *printer) {
 }
 
 func (f *Func) printHeader(p *printer) {
-	fmt.Fprintf(p.state, "FUNC %v (", f.Name())
+	fmt.Fprintf(p.out, "FUNC %v (", f.Name())
 	for i, narg := 0, f.NumArg(); i < narg; i++ {
 		if i != 0 {
-			p.state.Write(comma)
+			p.out.Write(comma)
 		}
-		fmt.Fprint(p.state, f.Arg(i))
+		fmt.Fprint(p.out, f.Arg(i))
 	}
 	if nret := f.NumRet(); nret > 0 {
-		p.state.Write([]byte(") -> ("))
+		p.out.Write([]byte(") -> ("))
 		for i := 0; i < nret; i++ {
 			if i != 0 {
-				p.state.Write(comma)
+				p.out.Write(comma)
 			}
-			fmt.Fprint(p.state, f.Signature().Out(i))
+			fmt.Fprint(p.out, f.Signature().Out(i))
 		}
 	}
 	p.write(") {").enter()

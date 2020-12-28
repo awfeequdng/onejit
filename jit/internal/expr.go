@@ -46,14 +46,15 @@ type Node interface {
 }
 
 type Expr interface {
+	expr() // private marker
 	RegId() RegId
 	IsConst() bool
 	// true if expression only computes a result, without any assignment, jump or call
 	IsPure() bool
 	Size() Size
 	Node
-	expr() // private marker
 	fmt.Formatter
+	fmt.Stringer
 }
 
 type noteq [0]func() // not comparable
