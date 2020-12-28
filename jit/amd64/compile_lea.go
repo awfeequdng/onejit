@@ -50,27 +50,50 @@ func compileAsLea(e *BinaryExpr, ac *ArchCompiled) Expr {
 	switch e.Op() {
 	case ADD:
 		// TODO: x*scale + offset
-		reg := compileReg(x, ac)
+		base := compileReg(x, ac)
 		y = compileRegOrConst(y, ac)
-		return makeLea2(reg, y)
+		return makeLea2(base, y)
 	case SUB:
-		reg := compileReg(x, ac)
+		base := compileReg(x, ac)
 
 		c := y.(Const)
 		c = MakeConst(c.Kind(), -c.Int())
 		y = compileConst(c, ac)
-		return makeLea2(reg, y)
+		return makeLea2(base, y)
+
+	case MUL: // x*scale
+		var base, index Reg
+		var scale uint8
+		reg := compileReg(x, ac)
+		c := compileConst(y.(Const), ac).(Const)
+
+		switch val := c.Int(); val {
+		case 1: // should be already optimized away...
+			base = reg
+		case 2, 4, 8:
+			index = reg
+			scale = uint8(val)
+		case 3, 5, 9:
+			base = reg
+			index = reg
+			scale = uint8(val - 1)
+		}
+		return makeLea3(base, index, scale)
 	}
 	return e
 }
 
-func makeLea2(x Reg, y Expr) Amd64Mem {
-	if c, ok := y.(Const); ok {
+func makeLea2(base Reg, offsetOrIndex Expr) Amd64Mem {
+	if c, ok := offsetOrIndex.(Const); ok {
 		offset, ok := toInt32(c)
 		if !ok {
 			Errorf("makeLea2 internal error: constant %v overflows int32", c.Int())
 		}
-		return MakeAmd64Mem(Uintptr, offset, x.RegId(), NoRegId, 0)
+		return MakeAmd64Mem(Uintptr, offset, base.RegId(), NoRegId, 0)
 	}
-	return MakeAmd64Mem(Uintptr, 0, x.RegId(), y.RegId(), 1)
+	return MakeAmd64Mem(Uintptr, 0, base.RegId(), offsetOrIndex.RegId(), 1)
+}
+
+func makeLea3(base Reg, index Reg, scale uint8) Amd64Mem {
+	return MakeAmd64Mem(Uintptr, 0, base.RegId(), index.RegId(), scale)
 }
