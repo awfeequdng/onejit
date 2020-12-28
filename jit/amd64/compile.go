@@ -8,17 +8,28 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * amd64.go
+ * compile.go
  *
  *  Created on Dec 27, 2020
  *      Author Massimiliano Ghilardi
  */
 
-package jit
+package amd64
+
+import (
+	. "github.com/cosmos72/gomacrojit/jit/internal"
+)
+
+func init() {
+	Archs[AMD64] = Arch{
+		AMD64,
+		Compile,
+	}
+}
 
 // convert a generic Expr to a concrete Expr for amd64 architecture.
 // may allocate registers for intermediate expressions
-func toAmd64(expr Expr, toplevel bool, ac *ArchCompiled) Expr {
+func Compile(expr Expr, toplevel bool, ac *ArchCompiled) Expr {
 	var ret Expr
 	switch e := expr.(type) {
 	case Const:
@@ -30,7 +41,7 @@ func toAmd64(expr Expr, toplevel bool, ac *ArchCompiled) Expr {
 		if toplevel {
 			ret = expr
 		} else {
-			ret = e.spillToReg(ac)
+			ret = SpillToReg(expr, ac)
 		}
 	case Reg:
 		if toplevel { // no side effect, optimize away
@@ -56,14 +67,14 @@ func toAmd64(expr Expr, toplevel bool, ac *ArchCompiled) Expr {
 
 func toAmd64Const(c Const, ac *ArchCompiled) Expr {
 	k := c.Kind()
-	if !k.isIntegerOrPtr() {
+	if !k.IsIntegerOrPtr() {
 		Errorf("toAmd64Const: unsupported %v const", k)
 	}
 	if _, ok := toInt32(c); ok {
 		return c
 	}
 	// constant value is too large, save it in a register
-	return c.spillToReg(ac)
+	return SpillToReg(c, ac)
 }
 
 // convert a generic Expr to a concrete Expr for amd64 architecture,
@@ -71,8 +82,8 @@ func toAmd64Const(c Const, ac *ArchCompiled) Expr {
 // may allocate registers for intermediate expressions
 func toAmd64Reg(e Expr, ac *ArchCompiled) Expr {
 	if e.Class() != REG {
-		e = toAmd64(e, false, ac)
-		e = spillToReg(e, ac)
+		e = Compile(e, false, ac)
+		e = SpillToReg(e, ac)
 	}
 	return e
 }
@@ -116,34 +127,34 @@ func toAmd64Unary(e *UnaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 		if toplevel { // no side effect, optimize away
 			return nil
 		}
-		k.mustBeNumberOrPtr(op)
+		KindMustBeNumberOrPtr(op, k)
 
 	case INC, DEC:
-		k.mustBeNumberOrPtr(op)
-		mustBeAssignable(op, x)
+		KindMustBeNumberOrPtr(op, k)
+		ExprMustBeAssignable(op, x)
 
 	case LNOT: // unary !
-		k.mustBeBool(op)
+		KindMustBe(op, k, Bool)
 		if toplevel { // no side effect, optimize away
 			return nil
 		}
-		return Binary(XOR, toAmd64(x, false, ac), MakeConst(k, 1))
+		return Binary(XOR, Compile(x, false, ac), MakeConst(k, 1))
 
 	case JUMP:
-		k.mustBePtr(op)
+		KindMustBe(op, k, Ptr)
 		if toplevel && x.Class() == LABEL {
 			return e
 		}
 
 	case ZERO: // clear (i.e set to zero) register or memory
-		mustBeAssignable(op, x)
+		ExprMustBeAssignable(op, x)
 
 	case RET:
 
 	default:
-		badOpKind(op, k)
+		BadOpKind(op, k)
 	}
-	return Unary(op, toAmd64(x, false, ac))
+	return Unary(op, Compile(x, false, ac))
 }
 
 func toAmd64Tuple(e *TupleExpr, toplevel bool, ac *ArchCompiled) Expr {
@@ -154,4 +165,13 @@ func toAmd64Tuple(e *TupleExpr, toplevel bool, ac *ArchCompiled) Expr {
 func toAmd64Call(e *CallExpr, toplevel bool, ac *ArchCompiled) Expr {
 	Warnf("toAmd64Call: unimplemented %v", e)
 	return e
+}
+
+func toInt32(c Const) (int32, bool) {
+	KindMustBeIntegerOrPtr(STAR, c.Kind())
+	val := c.Int()
+	if val != int64(int32(val)) {
+		return 0, false
+	}
+	return int32(val), true
 }

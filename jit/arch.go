@@ -10,18 +10,22 @@
  *
  * arch.go
  *
- *  Created on Feb 13, 2019
+ *  Created on Dec 28, 2020
  *      Author Massimiliano Ghilardi
  */
 
 package jit
 
-type ArchId uint8
+import (
+	"github.com/cosmos72/gomacrojit/jit/internal"
+)
 
 const (
-	NOARCH ArchId = iota
-	AMD64
-	ARM64
-	ARM
-	X86
+	NOARCH = internal.NOARCH
+	AMD64  = internal.AMD64
+	ARM64  = internal.ARM64
+	ARM    = internal.ARM
+	X86    = internal.X86
 )
+
+var Archs = internal.Archs

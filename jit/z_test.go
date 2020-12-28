@@ -14,10 +14,13 @@
  *      Author Massimiliano Ghilardi
  */
 
-package jit
+package jit_test
 
 import (
 	"testing"
+
+	. "github.com/cosmos72/gomacrojit/jit"
+	_ "github.com/cosmos72/gomacrojit/jit/amd64"
 )
 
 func TestUnary(t *testing.T) {

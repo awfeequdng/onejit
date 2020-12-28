@@ -14,7 +14,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package jit
+package internal
 
 // ================================== ArchCompiled =============================
 
@@ -37,7 +37,7 @@ func (ac *ArchCompiled) Child(i int) Node {
 	return ac.code[i]
 }
 
-func spillToReg(e Expr, ac *ArchCompiled) Reg {
+func SpillToReg(e Expr, ac *ArchCompiled) Reg {
 	var reg Reg
 	switch e := e.(type) {
 	case Reg:

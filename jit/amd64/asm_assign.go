@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * aisgn.go
+ * asm_assign.go
  *
  *  Created on Jan 23, 2019
  *      Author Massimiliano Ghilardi
@@ -17,7 +17,7 @@
 package amd64
 
 import (
-	. "github.com/cosmos72/gomacrojit/jit"
+	. "github.com/cosmos72/gomacrojit/jit/internal"
 )
 
 // %reg = const

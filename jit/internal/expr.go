@@ -14,7 +14,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package jit
+package internal
 
 import (
 	"fmt"
@@ -57,3 +57,18 @@ type Expr interface {
 }
 
 type noteq [0]func() // not comparable
+
+func ExprMustBeAssignable(op Op, x Expr) Kind {
+	switch x := x.(type) {
+	case Reg:
+		if x.IsAssignable() {
+			return Void
+		}
+	case Mem:
+		if x.IsAssignable() {
+			return Void
+		}
+	}
+	Errorf("cannot assign to expression: %v %T", op, x)
+	return Void
+}

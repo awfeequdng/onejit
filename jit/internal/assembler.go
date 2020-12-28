@@ -14,7 +14,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package jit
+package internal
 
 type Assembler struct {
 	code []byte

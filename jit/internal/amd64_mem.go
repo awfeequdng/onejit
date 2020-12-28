@@ -14,7 +14,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package jit
+package internal
 
 // amd64 memory location.
 type Amd64Mem struct {
@@ -51,7 +51,7 @@ func (m Amd64Mem) IsAssignable() bool {
 // note: memory does not become immutable - it can still be modified
 // through the original struct
 func (m Amd64Mem) ReadOnly(subset Kind) Amd64Mem {
-	kindMustBeSubset("Amd64Mem", subset, m.kind)
+	KindMustBeSubset("Amd64Mem", subset, m.kind)
 	m.kind = subset
 	m.roscale |= 128
 	return m
@@ -97,23 +97,30 @@ func (m Amd64Mem) Size() Size {
 }
 
 func (m Amd64Mem) Children() int {
-	return 2
+	return 4
 }
 
 func (m Amd64Mem) Child(i int) Node {
 	switch i {
 	case 0:
+		return ConstInt32(m.offset)
+	case 1:
 		if m.base == NoRegId {
 			return nil
 		}
 		return archReg(Ptr, m.base)
-	case 1:
+	case 2:
 		if m.index == NoRegId {
 			return nil
 		}
 		return archReg(Int64, m.index)
+	case 3:
+		if m.index == NoRegId {
+			return nil
+		}
+		return ConstUint8(m.Scale())
 	}
-	return badIndex(i, 2)
+	return BadIndex(i, 4)
 }
 
 func (m Amd64Mem) IsConst() bool {
@@ -124,34 +131,4 @@ func (m Amd64Mem) IsConst() bool {
 func (m Amd64Mem) IsPure() bool {
 	// reading from memory has no side effects
 	return true
-}
-
-func toAmd64Mem(m Mem, ac *ArchCompiled) Expr {
-	var ret Amd64Mem
-	// kind := m.Kind()
-	switch addr := m.Addr().(type) {
-	case Const:
-		if offset, ok := toInt32(addr); ok {
-			ret = MakeAmd64Mem(m.Kind(), offset, NoRegId, NoRegId, 0)
-		} else {
-			reg := addr.spillToReg(ac)
-			ret = MakeAmd64Mem(m.Kind(), 0, reg.RegId(), NoRegId, 0)
-		}
-	case Reg:
-		addr.Kind().mustBeUintptrOrPtr("Amd64Mem")
-		ret = MakeAmd64Mem(m.Kind(), 0, addr.RegId(), NoRegId, 0)
-	case *BinaryExpr:
-		switch addr.Op() {
-		case ADD:
-			// return addToAmd64Mem(f, expr.X(), expr.Y())
-		case SUB:
-			// return addToAmd64Mem(f, expr.X(), expr.Y())
-		}
-		Warnf("toAmd64Mem: unimplemented address type: %T", addr)
-		return m
-	default:
-		Warnf("toAmd64Mem: unsupported address type: %T", addr)
-		return m
-	}
-	return ret
 }

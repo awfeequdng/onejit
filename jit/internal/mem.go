@@ -14,7 +14,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package jit
+package internal
 
 // memory address.
 type Mem struct {
@@ -28,7 +28,7 @@ func (m Mem) IsAssignable() bool {
 }
 
 func MakeMem(kind Kind, addr Expr) Mem {
-	addr.Kind().mustBeUintptrOrPtr("Mem")
+	KindMustBeUintptrOrPtr("Mem", addr.Kind())
 	return Mem{
 		kind: kind,
 		ro:   false,
@@ -41,7 +41,7 @@ func MakeMem(kind Kind, addr Expr) Mem {
 // through the original struct
 // note: the current implementation assumes little-endian!
 func (m Mem) ReadOnly(subset Kind) Mem {
-	kindMustBeSubset("Mem", subset, m.kind)
+	KindMustBeSubset("Mem", subset, m.kind)
 	return Mem{kind: subset, ro: true, addr: m.addr}
 }
 
@@ -80,7 +80,7 @@ func (m Mem) Child(i int) Node {
 	if i == 0 {
 		return m.addr
 	}
-	return badIndex(i, 1)
+	return BadIndex(i, 1)
 }
 
 func (m Mem) IsConst() bool {

@@ -14,7 +14,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package jit
+package internal
 
 // ================================== Compiled =================================
 
@@ -38,31 +38,12 @@ func (c *Compiled) Add(e Expr) *Compiled {
 
 func (c *Compiled) ToArch(archid ArchId) *ArchCompiled {
 	ac := ArchCompiled{fun: c.fun}
-	switch archid {
-	case AMD64:
+	compile := Archs[archid].Compile
+	if compile == nil {
+		Warnf("unimplemented %v.Compile", archid)
+	} else {
 		for _, e := range c.code {
-			e := toAmd64(e, true, &ac)
-			if e != nil {
-				ac.Add(e)
-			}
-		}
-	case ARM64:
-		for _, e := range c.code {
-			e = toArm64(e, true, &ac)
-			if e != nil {
-				ac.Add(e)
-			}
-		}
-	case ARM:
-		for _, e := range c.code {
-			e = toArm(e, true, &ac)
-			if e != nil {
-				ac.Add(e)
-			}
-		}
-	case X86:
-		for _, e := range c.code {
-			e = toX86(e, true, &ac)
+			e := compile(e, true, &ac)
 			if e != nil {
 				ac.Add(e)
 			}

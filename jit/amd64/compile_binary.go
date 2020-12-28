@@ -8,13 +8,17 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * amd64_binary.go
+ * compile_binary.go
  *
  *  Created on Dec 27, 2020
  *      Author Massimiliano Ghilardi
  */
 
-package jit
+package amd64
+
+import (
+	. "github.com/cosmos72/gomacrojit/jit/internal"
+)
 
 func toAmd64Binary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 	op, x, y := e.Op(), e.X(), e.Y()
@@ -38,7 +42,7 @@ func toAmd64Binary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 			switch ye.Op() {
 			case NEG, INV, LNOT:
 				x = toAmd64RegOrMem(x, ac)
-				y = toAmd64(ye, false, ac)
+				y = Compile(ye, false, ac)
 				ret = Binary(op, x, y)
 			}
 		case *BinaryExpr:
@@ -79,7 +83,7 @@ func toAmd64Binary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 		// TODO
 
 	default:
-		badOpKind2(op, k1, k2)
+		BadOpKind2(op, k1, k2)
 	}
 	if ret == nil {
 		Warnf("toAmd64Binary: unimplemented %v", e)
@@ -92,7 +96,7 @@ func toAmd64ClassicBinary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 	x, y := toAmd64ClassicOperands(e.X(), e.Y(), ac)
 	e = Binary(e.Op(), x, y)
 	if !toplevel {
-		return spillToReg(e, ac)
+		return SpillToReg(e, ac)
 	}
 	return e
 }
@@ -100,8 +104,8 @@ func toAmd64ClassicBinary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 func toAmd64JumpIf(e *BinaryExpr, ac *ArchCompiled) Expr {
 	op, x, y := e.Op(), e.X(), e.Y()
 
-	x.Kind().mustBePtr(op)
-	y.Kind().mustBeBool(op)
+	KindMustBe(op, x.Kind(), Ptr)
+	KindMustBe(op, y.Kind(), Bool)
 
 	l, ok1 := x.(Label)
 	cond, ok2 := y.(*BinaryExpr)
@@ -114,16 +118,16 @@ func toAmd64JumpIf(e *BinaryExpr, ac *ArchCompiled) Expr {
 		Warnf("toAmd64Binary: unimplemented %v", e)
 		return e
 	}
-	x = toAmd64(cond.X(), false, ac)
-	y = toAmd64(cond.Y(), false, ac)
+	x = Compile(cond.X(), false, ac)
+	y = Compile(cond.Y(), false, ac)
 
 	if x.Class() > y.Class() {
 		x, y = y, x
-		op = swapComparison(op)
+		op = SwapComparison(op)
 	}
 	x, y = toAmd64ClassicOperands(x, y, ac)
 	ac.Add(Binary(ARCH_CMP, x, y))
-	return Unary(toConditionalJump(op), l)
+	return Unary(ToConditionalJump(op), l)
 }
 
 // force x,y to one of the combinations natively supported by Amd64 instructions:
