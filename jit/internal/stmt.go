@@ -157,12 +157,6 @@ type BlockStmt struct {
 
 func Block(list ...Stmt) *BlockStmt {
 	return &BlockStmt{
-		list: list,
-	}
-}
-
-func BlockSlice(list []Stmt) *BlockStmt {
-	return &BlockStmt{
 		list: append([]Stmt(nil), list...),
 	}
 }

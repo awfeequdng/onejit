@@ -145,14 +145,17 @@ const (
 	ARCH_JNZ // arch-specific: jump if not zero
 	_
 	ARCH_CMP // arch-specific: set arch flags to result of comparison
-	X86_TEST // arch-specific: set arch flags to result of bitwise and
+	X86_TEST // amd64, x86 only: set arch flags to result of bitwise and
+	X86_LEA  // amd64, x86 only: LEA
+
+	opMax
 
 	NEG  = SUB // -
 	INV  = XOR // ^
 	STAR = MUL // *
 
 	opLo = BADOP
-	opHi = X86_TEST
+	opHi = opMax - 1
 )
 
 var opstring = [...]string{
@@ -216,6 +219,7 @@ var opstring = [...]string{
 	ARCH_JNZ:       "JNZ",
 	ARCH_CMP:       "CMP",
 	X86_TEST:       "X86_TEST",
+	X86_LEA:        "X86_LEA",
 }
 
 func (op Op) String() string {

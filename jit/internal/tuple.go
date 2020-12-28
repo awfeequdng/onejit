@@ -22,18 +22,10 @@ type TupleExpr struct {
 }
 
 func Tuple(op Op, expr ...Expr) *TupleExpr {
-	return tuple(op, expr)
-}
-
-func TupleSlice(op Op, expr []Expr) *TupleExpr {
 	return tuple(op, dup(expr))
 }
 
 func Ret(expr ...Expr) *TupleExpr {
-	return tuple(RET, expr)
-}
-
-func RetSlice(expr []Expr) *TupleExpr {
 	return tuple(RET, dup(expr))
 }
 

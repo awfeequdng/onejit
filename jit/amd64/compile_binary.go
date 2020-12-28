@@ -20,70 +20,50 @@ import (
 	. "github.com/cosmos72/gomacrojit/jit/internal"
 )
 
-func toAmd64Binary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
-	op, x, y := e.Op(), e.X(), e.Y()
-	k1, k2 := x.Kind(), y.Kind()
+func compileBinary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
+	op := e.Op()
 	var ret Expr
 	switch op {
 	case ADD, SUB, MUL, AND, OR, XOR:
-		ret = toAmd64ClassicBinary(e, toplevel, ac)
+		ret = compileClassicBinary(e, toplevel, ac)
 
 	case QUO, REM, AND_NOT:
 		// TODO
-		ret = toAmd64ClassicBinary(e, toplevel, ac)
+		ret = compileClassicBinary(e, toplevel, ac)
 
 	case SHL, SHR:
 		// TODO
-		ret = toAmd64ClassicBinary(e, toplevel, ac)
+		ret = compileClassicBinary(e, toplevel, ac)
 
 	case ASSIGN:
-		switch ye := y.(type) {
-		case *UnaryExpr:
-			switch ye.Op() {
-			case NEG, INV, LNOT:
-				x = toAmd64RegOrMem(x, ac)
-				y = Compile(ye, false, ac)
-				ret = Binary(op, x, y)
-			}
-		case *BinaryExpr:
-			switch ye.Op() {
-			case ADD, SUB, MUL, AND, OR, XOR, QUO, REM, AND_NOT,
-				LAND, LOR, EQL, NEQ, LSS, GTR, LEQ, GEQ:
-				x = toAmd64RegOrMem(x, ac)
-				y = toAmd64ClassicBinary(ye, true, ac)
-				ret = Binary(op, x, y)
-			}
-		}
-		if ret == nil {
-			ret = toAmd64ClassicBinary(e, true, ac)
-		}
+		ret = compileAssign(e, ac)
 
 	case ADD_ASSIGN, SUB_ASSIGN, MUL_ASSIGN, QUO_ASSIGN,
 		REM_ASSIGN, AND_ASSIGN, OR_ASSIGN, XOR_ASSIGN, AND_NOT_ASSIGN,
 		SHL_ASSIGN, SHR_ASSIGN:
 		// TODO
-		ret = toAmd64ClassicBinary(e, toplevel, ac)
+		ret = compileClassicBinary(e, toplevel, ac)
 
 	case LAND, LOR:
 		// TODO
-		ret = toAmd64ClassicBinary(e, toplevel, ac)
+		ret = compileClassicBinary(e, toplevel, ac)
 
 	case EQL, NEQ:
 		// TODO
-		ret = toAmd64ClassicBinary(e, toplevel, ac)
+		ret = compileClassicBinary(e, toplevel, ac)
 
 	case LSS, GTR, LEQ, GEQ:
 		// TODO
-		ret = toAmd64ClassicBinary(e, toplevel, ac)
+		ret = compileClassicBinary(e, toplevel, ac)
 
 	case JUMP_IF:
-		return toAmd64JumpIf(e, ac)
+		return compileJumpIf(e, ac)
 
 	case RET:
 		// TODO
 
 	default:
-		BadOpKind2(op, k1, k2)
+		BadOpKind2(op, e.X().Kind(), e.Y().Kind())
 	}
 	if ret == nil {
 		Warnf("toAmd64Binary: unimplemented %v", e)
@@ -92,8 +72,8 @@ func toAmd64Binary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 	return ret
 }
 
-func toAmd64ClassicBinary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
-	x, y := toAmd64ClassicOperands(e.X(), e.Y(), ac)
+func compileClassicBinary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
+	x, y := compileClassicOperands(e.X(), e.Y(), ac)
 	e = Binary(e.Op(), x, y)
 	if !toplevel {
 		return SpillToReg(e, ac)
@@ -101,7 +81,63 @@ func toAmd64ClassicBinary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 	return e
 }
 
-func toAmd64JumpIf(e *BinaryExpr, ac *ArchCompiled) Expr {
+// force x,y to one of the combinations natively supported by Amd64 instructions:
+// Reg, Reg
+// Reg, Mem
+// Reg, Const
+// Mem, Reg
+// Mem, Const
+func compileClassicOperands(x Expr, y Expr, ac *ArchCompiled) (Expr, Expr) {
+	c1, c2 := x.Class(), y.Class()
+	switch c1 {
+	case REG:
+		break
+	default:
+		x = compileRegOrMem(x, ac)
+		c1 = x.Class()
+	}
+	switch c2 {
+	case REG:
+		break
+	case CONSTANT:
+		y = compileConst(y.(Const), ac)
+	default:
+		if c1 == REG {
+			y = compileRegOrMem(y, ac)
+		} else {
+			y = compileReg(y, ac)
+		}
+	}
+	return x, y
+}
+
+func compileAssign(e *BinaryExpr, ac *ArchCompiled) Expr {
+	op, x, y := e.Op(), e.X(), e.Y()
+	var ret Expr
+	switch ye := y.(type) {
+	case *UnaryExpr:
+		switch y.Op() {
+		case NEG, INV, LNOT:
+			x = compileRegOrMem(x, ac)
+			y = compileUnary(ye, false, ac)
+			ret = Binary(op, x, y)
+		}
+	case *BinaryExpr:
+		switch y.Op() {
+		case ADD, SUB, MUL, AND, OR, XOR, QUO, REM, AND_NOT,
+			LAND, LOR, EQL, NEQ, LSS, GTR, LEQ, GEQ:
+			x = compileRegOrMem(x, ac)
+			y = compileClassicBinary(ye, true, ac)
+			ret = Binary(op, x, y)
+		}
+	}
+	if ret == nil {
+		ret = compileClassicBinary(e, true, ac)
+	}
+	return ret
+}
+
+func compileJumpIf(e *BinaryExpr, ac *ArchCompiled) Expr {
 	op, x, y := e.Op(), e.X(), e.Y()
 
 	KindMustBe(op, x.Kind(), Ptr)
@@ -125,37 +161,7 @@ func toAmd64JumpIf(e *BinaryExpr, ac *ArchCompiled) Expr {
 		x, y = y, x
 		op = SwapComparison(op)
 	}
-	x, y = toAmd64ClassicOperands(x, y, ac)
+	x, y = compileClassicOperands(x, y, ac)
 	ac.Add(Binary(ARCH_CMP, x, y))
 	return Unary(ToConditionalJump(op), l)
-}
-
-// force x,y to one of the combinations natively supported by Amd64 instructions:
-// Reg, Reg
-// Reg, Mem
-// Reg, Const
-// Mem, Reg
-// Mem, Const
-func toAmd64ClassicOperands(x Expr, y Expr, ac *ArchCompiled) (Expr, Expr) {
-	c1, c2 := x.Class(), y.Class()
-	switch c1 {
-	case REG:
-		break
-	default:
-		x = toAmd64RegOrMem(x, ac)
-		c1 = x.Class()
-	}
-	switch c2 {
-	case REG:
-		break
-	case CONSTANT:
-		y = toAmd64Const(y.(Const), ac)
-	default:
-		if c1 == REG {
-			y = toAmd64RegOrMem(y, ac)
-		} else {
-			y = toAmd64Reg(y, ac)
-		}
-	}
-	return x, y
 }

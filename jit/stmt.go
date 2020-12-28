@@ -32,10 +32,6 @@ func Block(list ...Stmt) *BlockStmt {
 	return internal.Block(list...)
 }
 
-func BlockSlice(list []Stmt) *BlockStmt {
-	return internal.BlockSlice(list)
-}
-
 func Break() *BreakStmt {
 	return internal.Break()
 }

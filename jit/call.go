@@ -20,11 +20,11 @@ import (
 	"github.com/cosmos72/gomacrojit/jit/internal"
 )
 
-func Call(fn Expr, sig *Signature, args []Expr) *CallExpr {
-	return internal.Call(fn, sig, args)
+func Call(fn Expr, sig *Signature, args ...Expr) *CallExpr {
+	return internal.Call(fn, sig, args...)
 }
 
 // also allows inlining
-func CallFunc(fun *Func, args []Expr) *CallExpr {
-	return internal.CallFunc(fun, args)
+func CallFunc(fun *Func, args ...Expr) *CallExpr {
+	return internal.CallFunc(fun, args...)
 }

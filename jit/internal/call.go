@@ -19,12 +19,13 @@ package internal
 // ================================== *CallExpr =================================
 
 type CallExpr struct {
-	sig  *Signature
-	fun  *Func // nil if not known
-	list []Expr
+	sig    *Signature
+	fun    *Func // nil if not known
+	fnexpr Expr
+	args   []Expr
 }
 
-func Call(fn Expr, sig *Signature, args []Expr) *CallExpr {
+func Call(fn Expr, sig *Signature, args ...Expr) *CallExpr {
 	if kind := fn.Kind(); kind != Ptr {
 		Errorf("bad function kind in call: have %v, want %v", kind, Ptr)
 	}
@@ -42,18 +43,16 @@ func Call(fn Expr, sig *Signature, args []Expr) *CallExpr {
 			Errorf("bad argument %v in call: have %d, want %d", i+1, karg, kind)
 		}
 	}
-	list := make([]Expr, len(args)+1)
-	list[0] = fn
-	copy(list[1:], args)
 	return &CallExpr{
-		sig:  sig,
-		list: list,
+		sig:    sig,
+		fnexpr: fn,
+		args:   dup(args),
 	}
 }
 
 // also allows inlining
-func CallFunc(fun *Func, args []Expr) *CallExpr {
-	call := Call(fun.Label(), fun.Signature(), args)
+func CallFunc(fun *Func, args ...Expr) *CallExpr {
+	call := Call(fun.Label(), fun.Signature(), args...)
 	call.fun = fun
 	return call
 }
@@ -64,15 +63,15 @@ func (c *CallExpr) Func() *Func {
 }
 
 func (c *CallExpr) FuncExpr() Expr {
-	return c.list[0]
+	return c.fnexpr
 }
 
 func (c *CallExpr) NumArg() int {
-	return len(c.list) - 1
+	return len(c.args)
 }
 
 func (c *CallExpr) Arg(i int) Expr {
-	return c.list[i+1]
+	return c.args[i]
 }
 
 func (c *CallExpr) Signature() *Signature {
@@ -106,11 +105,15 @@ func (c *CallExpr) Size() Size {
 }
 
 func (c *CallExpr) Children() int {
-	return len(c.list)
+	return 1 + len(c.args)
 }
 
 func (c *CallExpr) Child(i int) Node {
-	return c.list[i]
+	if i == 0 {
+		return c.fnexpr
+	} else {
+		return c.args[i-1]
+	}
 }
 
 func (c *CallExpr) IsConst() bool {

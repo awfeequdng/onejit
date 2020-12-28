@@ -20,7 +20,7 @@ import (
 	. "github.com/cosmos72/gomacrojit/jit/internal"
 )
 
-func toAmd64Mem(m Mem, ac *ArchCompiled) Expr {
+func compileMem(m Mem, ac *ArchCompiled) Expr {
 	var ret Amd64Mem
 	// kind := m.Kind()
 	switch addr := m.Addr().(type) {

@@ -24,16 +24,8 @@ func Tuple(op Op, expr ...Expr) *TupleExpr {
 	return internal.Tuple(op, expr...)
 }
 
-func TupleSlice(op Op, expr []Expr) *TupleExpr {
-	return internal.TupleSlice(op, expr)
-}
-
 func Ret(expr ...Expr) *TupleExpr {
 	return internal.Ret(expr...)
-}
-
-func RetSlice(expr []Expr) *TupleExpr {
-	return internal.RetSlice(expr)
 }
 
 func AssignCall(to []Expr, call *CallExpr) *TupleExpr {
