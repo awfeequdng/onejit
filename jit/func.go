@@ -68,22 +68,26 @@ func (l Label) spillToReg(ac *ArchCompiled) Reg {
 }
 
 // implement Expr interface
-func (l Label) expr() {}
+func (l Label) Class() Class {
+	return LABEL
+}
 
-func (l Label) RegId() RegId {
-	return NoRegId
+func (l Label) Op() Op {
+	return CONST
 }
 
 func (l Label) Kind() Kind {
 	return Ptr
 }
 
-func (l Label) Size() Size {
-	return Ptr.Size()
+func (l Label) expr() {}
+
+func (l Label) RegId() RegId {
+	return NoRegId
 }
 
-func (l Label) Class() Class {
-	return LABEL
+func (l Label) Size() Size {
+	return Ptr.Size()
 }
 
 func (l Label) Children() int {

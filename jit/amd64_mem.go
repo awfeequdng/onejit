@@ -74,22 +74,26 @@ func (m Amd64Mem) Scale() uint8 {
 }
 
 // implement Expr interface
-func (m Amd64Mem) expr() {}
+func (m Amd64Mem) Class() Class {
+	return MEM
+}
 
-func (m Amd64Mem) RegId() RegId {
-	return NoRegId
+func (m Amd64Mem) Op() Op {
+	return VAR
 }
 
 func (m Amd64Mem) Kind() Kind {
 	return m.kind
 }
 
-func (m Amd64Mem) Size() Size {
-	return m.kind.Size()
+func (m Amd64Mem) expr() {}
+
+func (m Amd64Mem) RegId() RegId {
+	return NoRegId
 }
 
-func (m Amd64Mem) Class() Class {
-	return MEM
+func (m Amd64Mem) Size() Size {
+	return m.kind.Size()
 }
 
 func (m Amd64Mem) Children() int {

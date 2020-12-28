@@ -64,22 +64,26 @@ func (r Reg) ReadOnly(subset Kind) Reg {
 }
 
 // implement Expr interface
-func (r Reg) expr() {}
+func (r Reg) Class() Class {
+	return REG
+}
 
-func (r Reg) RegId() RegId {
-	return r.id
+func (r Reg) Op() Op {
+	return VAR
 }
 
 func (r Reg) Kind() Kind {
 	return r.kind
 }
 
-func (r Reg) Size() Size {
-	return r.kind.Size()
+func (r Reg) expr() {}
+
+func (r Reg) RegId() RegId {
+	return r.id
 }
 
-func (r Reg) Class() Class {
-	return REG
+func (r Reg) Size() Size {
+	return r.kind.Size()
 }
 
 func (r Reg) Children() int {

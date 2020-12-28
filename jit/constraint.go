@@ -48,7 +48,7 @@ type ConstConstraint struct {
 }
 
 func (cc ConstConstraint) Class() Class {
-	return CONST
+	return CONSTANT
 }
 
 func (cc ConstConstraint) Children() int {

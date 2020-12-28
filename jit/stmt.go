@@ -44,6 +44,18 @@ func (s *ExprStmt) Expr() Expr {
 }
 
 // implement Stmt interface
+func (s *ExprStmt) Class() Class {
+	return STMT
+}
+
+func (s *ExprStmt) Op() Op {
+	return EXPR
+}
+
+func (s *ExprStmt) Kind() Kind {
+	return Void
+}
+
 func (s *ExprStmt) Children() int {
 	return 1
 }
@@ -91,6 +103,18 @@ func (s *IfStmt) Else() Stmt {
 }
 
 // implement Stmt interface
+func (s *IfStmt) Class() Class {
+	return STMT
+}
+
+func (s *IfStmt) Op() Op {
+	return IF
+}
+
+func (s *IfStmt) Kind() Kind {
+	return Void
+}
+
 func (s *IfStmt) Children() int {
 	return 3
 }
@@ -144,6 +168,18 @@ func BlockSlice(list []Stmt) *BlockStmt {
 }
 
 // implement Stmt interface
+func (s *BlockStmt) Class() Class {
+	return STMT
+}
+
+func (s *BlockStmt) Op() Op {
+	return BLOCK
+}
+
+func (s *BlockStmt) Kind() Kind {
+	return Void
+}
+
 func (s *BlockStmt) Children() int {
 	return len(s.list)
 }
@@ -169,6 +205,18 @@ func Break() *BreakStmt {
 }
 
 // implement Stmt interface
+func (s *BreakStmt) Class() Class {
+	return STMT
+}
+
+func (s *BreakStmt) Op() Op {
+	return BREAK
+}
+
+func (s *BreakStmt) Kind() Kind {
+	return Void
+}
+
 func (s *BreakStmt) Children() int {
 	return 0
 }
@@ -192,6 +240,18 @@ func Continue() *ContinueStmt {
 }
 
 // implement Stmt interface
+func (s *ContinueStmt) Class() Class {
+	return STMT
+}
+
+func (s *ContinueStmt) Op() Op {
+	return CONTINUE
+}
+
+func (s *ContinueStmt) Kind() Kind {
+	return Void
+}
+
 func (s *ContinueStmt) Children() int {
 	return 0
 }
@@ -242,6 +302,18 @@ func For(init Stmt, cond Expr, post Stmt, body Stmt) *ForStmt {
 }
 
 // implement Stmt interface
+func (s *ForStmt) Class() Class {
+	return STMT
+}
+
+func (s *ForStmt) Op() Op {
+	return FOR
+}
+
+func (s *ForStmt) Kind() Kind {
+	return Void
+}
+
 func (s *ForStmt) Children() int {
 	return 4
 }

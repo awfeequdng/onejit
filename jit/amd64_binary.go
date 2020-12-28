@@ -122,7 +122,7 @@ func toAmd64JumpIf(e *BinaryExpr, ac *ArchCompiled) Expr {
 		op = swapComparison(op)
 	}
 	x, y = toAmd64ClassicOperands(x, y, ac)
-	ac.Add(Binary(cmp, x, y))
+	ac.Add(Binary(ARCH_CMP, x, y))
 	return Unary(toConditionalJump(op), l)
 }
 
@@ -144,7 +144,7 @@ func toAmd64ClassicOperands(x Expr, y Expr, ac *ArchCompiled) (Expr, Expr) {
 	switch c2 {
 	case REG:
 		break
-	case CONST:
+	case CONSTANT:
 		y = toAmd64Const(y.(Const), ac)
 	default:
 		if c1 == REG {

@@ -26,15 +26,16 @@ type (
 
 // intentionally same values as go.Token
 const (
-	BADOP Op = iota
-	_
-	NOOP // COMMENT
-	_
-	_
-	_
-	_
-	_
-	_
+	BADOP Op = iota // ILLEGAL
+	_               // EOF
+	NOOP            // COMMENT
+	_               // IDENT
+	_               // INT
+	_               // FLOAT
+	_               // IMAG
+	_               // CHAR
+	_               // STRING
+
 	ADD // +
 	SUB // -
 	MUL // *
@@ -73,39 +74,85 @@ const (
 	ASSIGN // =
 	LNOT   // !
 
-	NEQ  // !=
-	LEQ  // <=
-	GEQ  // >=
-	ZERO // DEFINE // :=
+	NEQ     // !=
+	LEQ     // <=
+	GEQ     // >=
+	ZERO    // DEFINE    // :=
+	_       // ELLIPSIS  // ...
+	CAST    // LPAREN    // (
+	BRACKET // LBRACK    // [
+	BLOCK   // LBRACE    // {
+	_       // COMMA     // ,
+	FIELD   // PERIOD    // .
+	EXPR    // RPAREN    // ) // returned by ExprStmt.Op()
+	_       // RBRACK    // ]
+	_       // RBRACE    // }
+	_       // SEMICOLON // ;
+	_       // COLON     // :
+	BREAK
+	CASE
+	_           // CHAN
+	CONST       // returned by Const.Op() and Label.Op()
+	CONTINUE    //
+	_           // DEFAULT
+	_           // DEFER
+	FALLTHROUGH //
+	FOR         //
+	_           // FUNC
+	_           // GO
+	JUMP        // GOTO
+	IF          //
+	_           // IMPORT
+	_           // INTERFACE
+	_           // MAP
+	_           // PACKAGE
+	_           // RANGE
+	RET         // RETURN
+	_           // SELECT
+	_           // STRUCT
+	SWITCH      //
+	_           // TYPE
+	VAR         // returned by Reg.Op() and Mem.Op()
 	_
-	CAST    // LPAREN   // (
-	BRACKET // LBRACK   // [
 	_
 	_
-	FIELD // DOT // .
-
-	JUMP    Op = 73 // GOTO
-	JUMP_IF Op = 74 // IF
-	RET     Op = 80 // RETURN
-
-	jeq Op = 81 // arch-specific: jump if equal
-	jlt Op = 82 // arch-specific: jump if less
-	jgt Op = 83 // arch-specific: jump if greater
-	jne Op = 84 // arch-specific: jump if not equal
-	jle Op = 85 // arch-specific: jump if less or equal
-	jge Op = 86 // arch-specific: jump if greater or equal
-	jz  Op = 87 // arch-specific: jump if zero
-	jnz Op = 88 // arch-specific: jump if not zero
-
-	cmp      Op = 89 // arch-specific: set arch flags to result of comparison
-	x86_test Op = 90 // arch-specific: set arch flags to result of bitwise and
+	_
+	_
+	_
+	_
+	_
+	_
+	_
+	_
+	_
+	_
+	_
+	_
+	JUMP_IF // 100
+	_
+	_
+	_
+	_
+	_
+	_
+	ARCH_JEQ // arch-specific: jump if equal
+	ARCH_JLT // arch-specific: jump if less
+	ARCH_JGT // arch-specific: jump if greater
+	ARCH_JNE // arch-specific: jump if not equal
+	ARCH_JLE // arch-specific: jump if less or equal
+	ARCH_JGE // arch-specific: jump if greater or equal
+	ARCH_JZ  // arch-specific: jump if zero
+	ARCH_JNZ // arch-specific: jump if not zero
+	_
+	ARCH_CMP // arch-specific: set arch flags to result of comparison
+	X86_TEST // arch-specific: set arch flags to result of bitwise and
 
 	NEG  = SUB // -
 	INV  = XOR // ^
 	STAR = MUL // *
 
-	opLo = ADD
-	opHi = x86_test
+	opLo = BADOP
+	opHi = X86_TEST
 )
 
 var opstring = [...]string{
@@ -147,27 +194,36 @@ var opstring = [...]string{
 	GEQ:            ">=",
 	CAST:           "CAST",
 	BRACKET:        "[]",
+	BLOCK:          "{}",
 	FIELD:          ".",
+	BREAK:          "BREAK",
+	CASE:           "CASE",
+	CONTINUE:       "CONTINUE",
+	FALLTHROUGH:    "FALLTHROUGH",
+	FOR:            "FOR",
 	JUMP:           "JUMP",
-	JUMP_IF:        "JUMP_IF",
+	IF:             "IF",
 	RET:            "RET",
-	jeq:            "JEQ",
-	jlt:            "JLT",
-	jgt:            "JGT",
-	jne:            "JNE",
-	jle:            "JLE",
-	jge:            "JGE",
-	jz:             "JZ",
-	jnz:            "JNZ",
-	cmp:            "CMP",
-	x86_test:       "X86_TEST",
+	SWITCH:         "SWITCH",
+	JUMP_IF:        "JUMP_IF",
+	ARCH_JEQ:       "JEQ",
+	ARCH_JLT:       "JLT",
+	ARCH_JGT:       "JGT",
+	ARCH_JNE:       "JNE",
+	ARCH_JLE:       "JLE",
+	ARCH_JGE:       "JGE",
+	ARCH_JZ:        "JZ",
+	ARCH_JNZ:       "JNZ",
+	ARCH_CMP:       "CMP",
+	X86_TEST:       "X86_TEST",
 }
 
 func (op Op) String() string {
 	var s string
 	if op >= opLo && op <= opHi {
 		s = opstring[op]
-	} else {
+	}
+	if len(s) == 0 {
 		s = "Op(" + strconv.Itoa(int(op)) + ")"
 	}
 	return s
@@ -233,17 +289,17 @@ func swapComparison(op Op) Op {
 func toConditionalJump(op Op) Op {
 	switch op {
 	case EQL:
-		return jeq
+		return ARCH_JEQ
 	case NEQ:
-		return jne
+		return ARCH_JNE
 	case LSS:
-		return jlt
+		return ARCH_JLT
 	case GTR:
-		return jgt
+		return ARCH_JGT
 	case LEQ:
-		return jle
+		return ARCH_JLE
 	case GEQ:
-		return jge
+		return ARCH_JGE
 	default:
 		Errorf("bad toConditionalJump op: have %v, want EQL,NEQ,LSS,GTR,LEQ or GEQ", op)
 	}

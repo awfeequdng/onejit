@@ -41,27 +41,27 @@ func AssignCall(to []Expr, call *CallExpr) *TupleExpr {
 	return tuple(ASSIGN, append(dup(to), call))
 }
 
-func (e *TupleExpr) Op() Op {
-	return e.op
+// implement Expr interface
+func (e *TupleExpr) Class() Class {
+	return TUPLE
 }
 
-// implement Expr interface
-func (e *TupleExpr) expr() {}
-
-func (e *TupleExpr) RegId() RegId {
-	return NoRegId
+func (e *TupleExpr) Op() Op {
+	return e.op
 }
 
 func (e *TupleExpr) Kind() Kind {
 	return Void
 }
 
-func (e *TupleExpr) Size() Size {
-	return Void.Size()
+func (e *TupleExpr) expr() {}
+
+func (e *TupleExpr) RegId() RegId {
+	return NoRegId
 }
 
-func (e *TupleExpr) Class() Class {
-	return TUPLE
+func (e *TupleExpr) Size() Size {
+	return Void.Size()
 }
 
 func (e *TupleExpr) Children() int {

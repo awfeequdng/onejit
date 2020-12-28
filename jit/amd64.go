@@ -99,7 +99,7 @@ func toAmd64RegOrConst(e Expr, ac *ArchCompiled) Expr {
 	switch e.Class() {
 	case REG:
 		break
-	case CONST:
+	case CONSTANT:
 		e = toAmd64Const(e.(Const), ac)
 	default:
 		e = toAmd64Reg(e, ac)

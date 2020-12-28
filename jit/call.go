@@ -80,10 +80,12 @@ func (c *CallExpr) Signature() *Signature {
 }
 
 // implement Expr interface
-func (c *CallExpr) expr() {}
+func (c *CallExpr) Class() Class {
+	return CALL
+}
 
-func (c *CallExpr) RegId() RegId {
-	return NoRegId
+func (c *CallExpr) Op() Op {
+	return VAR
 }
 
 func (c *CallExpr) Kind() Kind {
@@ -93,12 +95,14 @@ func (c *CallExpr) Kind() Kind {
 	return c.sig.Out(0)
 }
 
-func (c *CallExpr) Size() Size {
-	return c.Kind().Size()
+func (c *CallExpr) expr() {}
+
+func (c *CallExpr) RegId() RegId {
+	return NoRegId
 }
 
-func (c *CallExpr) Class() Class {
-	return CALL
+func (c *CallExpr) Size() Size {
+	return c.Kind().Size()
 }
 
 func (c *CallExpr) Children() int {

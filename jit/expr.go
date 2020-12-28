@@ -33,22 +33,24 @@ const (
 	TUPLE
 	CALL
 	LABEL
-	CONST
+	CONSTANT
+	STMT
 )
 
 type Node interface {
+	Class() Class
+	Op() Op
+	Kind() Kind
 	Children() int
 	Child(i int) Node
 }
 
 type Expr interface {
 	RegId() RegId
-	Kind() Kind
 	IsConst() bool
 	// true if expression only computes a result, without any assignment, jump or call
 	IsPure() bool
 	Size() Size
-	Class() Class
 	Node
 	expr() // private marker
 	fmt.Formatter

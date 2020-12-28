@@ -33,22 +33,26 @@ var (
 )
 
 // implement Expr interface
-func (c Const) expr() {}
+func (c Const) Class() Class {
+	return CONSTANT
+}
 
-func (c Const) RegId() RegId {
-	return NoRegId
+func (c Const) Op() Op {
+	return CONST
 }
 
 func (c Const) Kind() Kind {
 	return c.kind
 }
 
-func (c Const) Size() Size {
-	return c.kind.Size()
+func (c Const) expr() {}
+
+func (c Const) RegId() RegId {
+	return NoRegId
 }
 
-func (c Const) Class() Class {
-	return CONST
+func (c Const) Size() Size {
+	return c.kind.Size()
 }
 
 func (c Const) Children() int {

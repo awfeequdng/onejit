@@ -50,22 +50,26 @@ func (m Mem) Addr() Expr {
 }
 
 // implement Expr interface
-func (m Mem) expr() {}
+func (m Mem) Class() Class {
+	return MEM
+}
 
-func (m Mem) RegId() RegId {
-	return NoRegId
+func (m Mem) Op() Op {
+	return VAR
 }
 
 func (m Mem) Kind() Kind {
 	return m.kind
 }
 
-func (m Mem) Size() Size {
-	return m.kind.Size()
+func (m Mem) expr() {}
+
+func (m Mem) RegId() RegId {
+	return NoRegId
 }
 
-func (m Mem) Class() Class {
-	return MEM
+func (m Mem) Size() Size {
+	return m.kind.Size()
 }
 
 func (m Mem) Children() int {
