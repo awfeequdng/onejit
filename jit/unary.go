@@ -20,10 +20,12 @@ import (
 	"github.com/cosmos72/gomacrojit/jit/internal"
 )
 
+// optimizes, and may return a type != *UnaryExpr
 func Unary(op Op, x Expr) Expr {
 	return internal.Unary(op, x)
 }
 
-func Cast(to Kind, x Expr) *UnaryExpr {
+// optimizes, and may return a type != *UnaryExpr
+func Cast(to Kind, x Expr) Expr {
 	return internal.Cast(to, x)
 }

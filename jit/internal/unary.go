@@ -41,7 +41,7 @@ func Unary(op Op, x Expr) Expr {
 	}
 }
 
-func Cast(to Kind, x Expr) *UnaryExpr {
+func Cast(to Kind, x Expr) Expr {
 	return &UnaryExpr{
 		kind: to,
 		op:   CAST,

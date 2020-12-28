@@ -20,6 +20,7 @@ import (
 	"github.com/cosmos72/gomacrojit/jit/internal"
 )
 
-func Binary(op Op, x Expr, y Expr) *BinaryExpr {
+// optimizes, and may return a type != *BinaryExpr
+func Binary(op Op, x Expr, y Expr) Expr {
 	return internal.Binary(op, x, y)
 }

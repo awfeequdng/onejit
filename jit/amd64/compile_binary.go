@@ -74,11 +74,11 @@ func compileBinary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 
 func compileClassicBinary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 	x, y := compileClassicOperands(e.X(), e.Y(), ac)
-	e = Binary(e.Op(), x, y)
+	ret := Binary(e.Op(), x, y)
 	if !toplevel {
-		return SpillToReg(e, ac)
+		return SpillToReg(ret, ac)
 	}
-	return e
+	return ret
 }
 
 // force x,y to one of the combinations natively supported by Amd64 instructions:

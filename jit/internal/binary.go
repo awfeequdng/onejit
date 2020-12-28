@@ -24,7 +24,7 @@ type BinaryExpr struct {
 	y    Expr
 }
 
-func Binary(op Op, x Expr, y Expr) *BinaryExpr {
+func Binary(op Op, x Expr, y Expr) Expr {
 	if op.IsCommutative() && x.Class() > y.Class() {
 		x, y = y, x
 	}
