@@ -73,3 +73,8 @@ func ExprMustBeAssignable(op Op, x Expr) Kind {
 	Errorf("cannot assign to expression: %v %T", op, x)
 	return Void
 }
+
+func IsZero(e Node) bool {
+	c, ok := e.(Const)
+	return ok && c.re == 0 && c.im == 0
+}

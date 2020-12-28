@@ -114,7 +114,7 @@ func unaryKind(op Op, x Expr) Kind {
 	case LNOT: // unary !
 		k.mustBe(Bool, op)
 		return Bool
-	case JUMP, ARCH_JEQ, ARCH_JLT, ARCH_JGT, ARCH_JNE, ARCH_JLE, ARCH_JGE:
+	case JUMP, ARCH_JEQ, ARCH_JLT, ARCH_JGT, ARCH_JNE, ARCH_JLE, ARCH_JGE, ARCH_JZ, ARCH_JNZ:
 		k.mustBe(Ptr, op)
 		return Void
 	case ZERO: // clear (i.e set to zero) register or memory

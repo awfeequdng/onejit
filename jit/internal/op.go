@@ -144,9 +144,10 @@ const (
 	ARCH_JZ  // arch-specific: jump if zero
 	ARCH_JNZ // arch-specific: jump if not zero
 	_
-	ARCH_CMP // arch-specific: set arch flags to result of comparison
-	X86_TEST // amd64, x86 only: set arch flags to result of bitwise and
-	X86_LEA  // amd64, x86 only: LEA
+	ARCH_CMP  // arch-specific: set arch flags to result of comparison
+	X86_LEA   // amd64, x86 only: LEA
+	X86_TEST  // amd64, x86 only: set arch flags to result of bitwise and
+	X86_TESTZ // amd64, x86 only: set arch flags to result of bitwise and
 
 	opMax
 
@@ -304,8 +305,20 @@ func ToConditionalJump(op Op) Op {
 		return ARCH_JLE
 	case GEQ:
 		return ARCH_JGE
+	case X86_TEST:
+		return ARCH_JNZ
+	case X86_TESTZ:
+		return ARCH_JZ
 	default:
 		Errorf("bad ToConditionalJump op: have %v, want EQL,NEQ,LSS,GTR,LEQ or GEQ", op)
 	}
 	return op
+}
+
+func ChooseOp(flag bool, ifTrue Op, ifFalse Op) Op {
+	ret := ifFalse
+	if flag {
+		ret = ifTrue
+	}
+	return ret
 }

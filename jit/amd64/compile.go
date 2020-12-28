@@ -156,12 +156,12 @@ func compileUnary(e *UnaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 }
 
 func compileTuple(e *TupleExpr, toplevel bool, ac *ArchCompiled) Expr {
-	Warnf("toAmd64Tuple: unimplemented %v", e)
+	Warnf("unimplemented amd64.compileTuple() %v", e)
 	return e
 }
 
 func compileCall(e *CallExpr, toplevel bool, ac *ArchCompiled) Expr {
-	Warnf("toAmd64Call: unimplemented %v", e)
+	Warnf("unimplemented amd64.compileCall() %v", e)
 	return e
 }
 

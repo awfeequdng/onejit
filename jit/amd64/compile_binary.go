@@ -66,7 +66,7 @@ func compileBinary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 		BadOpKind2(op, e.X().Kind(), e.Y().Kind())
 	}
 	if ret == nil {
-		Warnf("toAmd64Binary: unimplemented %v", e)
+		Warnf("unimplemented amd64.compileBinary() for %v", e)
 		ret = e
 	}
 	return ret
@@ -154,22 +154,57 @@ func compileJumpIf(e *BinaryExpr, ac *ArchCompiled) Expr {
 	l, ok1 := x.(Label)
 	cond, ok2 := y.(*BinaryExpr)
 	if !ok1 || !ok2 {
-		Warnf("toAmd64Binary: unimplemented %v", e)
+		Warnf("unimplemented amd64.compileJumpIf() for %v", e)
 		return e
 	}
 	op = cond.Op()
 	if !op.IsComparison() {
-		Warnf("toAmd64Binary: unimplemented %v", e)
+		Warnf("unimplemented amd64.compileJumpIf() for %v", e)
 		return e
 	}
-	x = Compile(cond.X(), false, ac)
-	y = Compile(cond.Y(), false, ac)
+	isTest := canCompileAsTest(cond)
+	if isTest {
+		op, x, y = compileAsTest(cond, ac)
+	} else {
+		op, x, y = compileAsCmp(cond, ac)
+	}
+	ac.Add(Binary(ChooseOp(isTest, op, ARCH_CMP), x, y))
+	return Unary(ToConditionalJump(op), l)
+}
 
+// compile (a cmp b) with cmp being == != < > <= >=
+func compileAsCmp(cond *BinaryExpr, ac *ArchCompiled) (Op, Expr, Expr) {
+	op := cond.Op()
+	x := Compile(cond.X(), false, ac)
+	y := Compile(cond.Y(), false, ac)
 	if x.Class() > y.Class() {
 		x, y = y, x
 		op = SwapComparison(op)
 	}
 	x, y = compileClassicOperands(x, y, ac)
-	ac.Add(Binary(ARCH_CMP, x, y))
-	return Unary(ToConditionalJump(op), l)
+	return op, x, y
+}
+
+// true if expression is ((a AND b) == 0) or ((a AND b) != 0)
+func canCompileAsTest(e *BinaryExpr) bool {
+	op := e.Op()
+	var ret bool
+	if (op == EQL || op == NEQ) && IsZero(e.Y()) {
+		ab, ok := e.X().(*BinaryExpr)
+		ret = (ok && ab.Op() == AND)
+	}
+	return ret
+}
+
+// compile ((a AND b) == 0) or ((a AND b) != 0)
+func compileAsTest(e *BinaryExpr, ac *ArchCompiled) (Op, Expr, Expr) {
+	ab := e.X().(*BinaryExpr)
+	x, y := compileClassicOperands(ab.X(), ab.Y(), ac)
+	op := e.Op()
+	if op == NEQ {
+		op = X86_TEST
+	} else {
+		op = X86_TESTZ
+	}
+	return op, x, y
 }

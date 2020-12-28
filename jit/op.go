@@ -139,8 +139,9 @@ const (
 	ARCH_JZ  = internal.ARCH_JZ  // arch-specific: jump if zero
 	ARCH_JNZ = internal.ARCH_JNZ // arch-specific: jump if not zero
 	_
-	ARCH_CMP = internal.ARCH_CMP // arch-specific: set arch flags to result of comparison
-	X86_TEST = internal.X86_TEST // arch-specific: set arch flags to result of bitwise and
+	ARCH_CMP  = internal.ARCH_CMP  // arch-specific: set arch flags to result of comparison
+	X86_TEST  = internal.X86_TEST  // arch-specific: set arch flags to result of bitwise and
+	X86_TESTZ = internal.X86_TESTZ // arch-specific: set arch flags to result of bitwise and
 
 	NEG  = internal.NEG  // -
 	INV  = internal.INV  // ^

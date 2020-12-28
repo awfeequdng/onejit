@@ -41,10 +41,10 @@ func compileMem(m Mem, ac *ArchCompiled) Expr {
 		case SUB:
 			// return addToAmd64Mem(f, expr.X(), expr.Y())
 		}
-		Warnf("toAmd64Mem: unimplemented address type: %T", addr)
+		Warnf("unimplemented amd64.compileMem() for address type %T", addr)
 		return m
 	default:
-		Warnf("toAmd64Mem: unsupported address type: %T", addr)
+		Warnf("unimplemented amd64.compileMem() for address type %T", addr)
 		return m
 	}
 	return ret
