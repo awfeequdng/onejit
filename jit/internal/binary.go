@@ -25,15 +25,21 @@ type BinaryExpr struct {
 }
 
 func Binary(op Op, x Expr, y Expr) Expr {
-	if op.IsCommutative() && x.Class() > y.Class() {
+	kind := binaryKind(op, x, y)
+	if CanSwapOp(op) && x.Class() > y.Class() {
+		op = SwapOp(op)
 		x, y = y, x
 	}
-	return &BinaryExpr{
-		kind: binaryKind(op, x, y),
-		op:   op,
-		x:    x,
-		y:    y,
+	ret := binaryOptimize(op, kind, x, y)
+	if ret == nil {
+		ret = &BinaryExpr{
+			kind: kind,
+			op:   op,
+			x:    x,
+			y:    y,
+		}
 	}
+	return EvalConst(ret)
 }
 
 func (e *BinaryExpr) Op() Op {
@@ -173,4 +179,8 @@ func binaryKind(op Op, x Expr, y Expr) Kind {
 	default:
 		return BadOpKind2(op, k1, k2)
 	}
+}
+
+func binaryOptimize(op Op, kind Kind, x Expr, y Expr) Expr {
+	return nil
 }

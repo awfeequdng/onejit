@@ -40,7 +40,7 @@ func Call(fn Expr, sig *Signature, args ...Expr) *CallExpr {
 		karg := args[i].Kind()
 		kind := sig.In(i)
 		if karg != kind {
-			Errorf("bad argument %v in call: have %d, want %d", i+1, karg, kind)
+			Errorf("bad argument %v in call: have %v, want %v", i+1, karg, kind)
 		}
 	}
 	return &CallExpr{

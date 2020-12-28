@@ -31,6 +31,10 @@ func MakeConst(kind Kind, val int64) Const {
 	return internal.MakeConst(kind, val)
 }
 
+func MakeConst2(kind Kind, re int64, im int64) Const {
+	return internal.MakeConst2(kind, re, im)
+}
+
 func ConstBool(flag bool) Const {
 	return internal.ConstBool(flag)
 }

@@ -23,8 +23,17 @@ import (
 	_ "github.com/cosmos72/gomacrojit/jit/amd64"
 )
 
+func init() {
+	// needed by Compiled.ToArch(AMD64) below
+	SetCpuWidth(CpuWidth64)
+}
+
 func TestUnary(t *testing.T) {
-	Unary(SUB, ConstInt(7))
+	e := Unary(SUB, ConstInt(7))
+	if !e.IsConst() {
+		t.Errorf("expression should be constant")
+	}
+	t.Log(e)
 }
 
 func TestBinary(t *testing.T) {
@@ -32,6 +41,7 @@ func TestBinary(t *testing.T) {
 	if !e.IsConst() {
 		t.Errorf("expression should be constant")
 	}
+	t.Log(e)
 }
 
 func TestFuncRecursion(t *testing.T) {

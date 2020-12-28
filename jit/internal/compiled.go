@@ -38,9 +38,13 @@ func (c *Compiled) Add(e Expr) *Compiled {
 
 func (c *Compiled) ToArch(archid ArchId) *ArchCompiled {
 	ac := ArchCompiled{fun: c.fun}
-	compile := Archs[archid].Compile
+	arch := Archs[archid]
+	compile := arch.Compile
 	if compile == nil {
 		Warnf("unimplemented %v.Compile", archid)
+	} else if GetCpuWidth() != arch.CpuWidth {
+		Errorf("GetCpuWidth() is currently %v, but Compiled.ToArch(%v) needs %v. Please call SetCpuWidth() *BEFORE* any other jit function",
+			GetCpuWidth(), archid, arch.CpuWidth)
 	} else {
 		for _, e := range c.code {
 			e := compile(e, true, &ac)

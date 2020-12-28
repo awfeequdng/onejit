@@ -26,6 +26,7 @@ type (
 	ArchId    = internal.ArchId
 	Assembler = internal.Assembler
 	Const     = internal.Const
+	CpuWidth  = internal.CpuWidth
 	Func      = internal.Func
 	Label     = internal.Label
 	Labels    = internal.Labels

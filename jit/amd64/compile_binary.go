@@ -178,8 +178,8 @@ func compileAsCmp(cond *BinaryExpr, ac *ArchCompiled) (Op, Expr, Expr) {
 	x := Compile(cond.X(), false, ac)
 	y := Compile(cond.Y(), false, ac)
 	if x.Class() > y.Class() {
+		op = SwapOp(op)
 		x, y = y, x
-		op = SwapComparison(op)
 	}
 	x, y = compileClassicOperands(x, y, ac)
 	return op, x, y

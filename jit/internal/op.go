@@ -274,20 +274,24 @@ func NotComparison(op Op) Op {
 	return op
 }
 
-func SwapComparison(op Op) Op {
-	switch op {
-	case EQL, NEQ:
-		break
-	case LSS:
-		op = GTR
-	case GTR:
-		op = LSS
-	case LEQ:
-		op = GEQ
-	case GEQ:
-		op = LEQ
-	default:
-		Errorf("bad swapComparison op: have %v, want EQL,NEQ,LSS,GTR,LEQ or GEQ", op)
+func CanSwapOp(op Op) bool {
+	return op.IsCommutative() || op.IsComparison()
+}
+
+func SwapOp(op Op) Op {
+	if !op.IsCommutative() {
+		switch op {
+		case LSS:
+			op = GTR
+		case GTR:
+			op = LSS
+		case LEQ:
+			op = GEQ
+		case GEQ:
+			op = LEQ
+		default:
+			Errorf("bad SwapOp op: have %v, want ADD,MUL,AND,OR,XOR,EQL,NEQ,LSS,GTR,LEQ or GEQ", op)
+		}
 	}
 	return op
 }

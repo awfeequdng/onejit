@@ -209,6 +209,10 @@ func MakeConst(kind Kind, val int64) Const {
 	return Const{kind: kind, re: val}
 }
 
+func MakeConst2(kind Kind, re int64, im int64) Const {
+	return Const{kind: kind, re: re, im: im}
+}
+
 func ConstBool(flag bool) Const {
 	c := Const{kind: Bool}
 	if flag {
@@ -259,6 +263,30 @@ func ConstUint64(val uint64) Const {
 
 func ConstUintptr(val uintptr) Const {
 	return Const{kind: Uintptr, re: int64(val)}
+}
+
+func ConstFloat32(val float32) Const {
+	return Const{kind: Float32, re: int64(math.Float32bits(val))}
+}
+
+func ConstFloat64(val float64) Const {
+	return Const{kind: Float64, re: int64(math.Float64bits(val))}
+}
+
+func ConstComplex64(val complex64) Const {
+	return Const{
+		kind: Complex64,
+		re:   int64(math.Float32bits(real(val))),
+		im:   int64(math.Float32bits(imag(val))),
+	}
+}
+
+func ConstComplex128(val complex128) Const {
+	return Const{
+		kind: Complex128,
+		re:   int64(math.Float64bits(real(val))),
+		im:   int64(math.Float64bits(imag(val))),
+	}
 }
 
 func ConstZero(kind Kind) Const {

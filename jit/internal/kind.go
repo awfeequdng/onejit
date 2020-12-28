@@ -18,8 +18,56 @@ package internal
 
 import (
 	"strconv"
-	"unsafe"
 )
+
+type CpuWidth uint8 // 32 or 64
+
+const (
+	CpuWidth32 = CpuWidth(32)
+	CpuWidth64 = CpuWidth(64)
+	// only works for 32 or 64 bits
+	CpuWidthHost = CpuWidth(((^uintptr(0) >> 31) & 32) + 32)
+)
+
+var cpuWidth CpuWidth = CpuWidthHost
+
+func GetCpuWidth() CpuWidth {
+	return cpuWidth
+}
+
+func SetCpuWidth(val CpuWidth) {
+	if val != CpuWidth32 && val != CpuWidth64 {
+		Errorf("bad CPUWidth: have %d, want 32 or 64", int(val))
+	}
+	cpuWidth = val
+
+	ksize[Int] = Size(val / 8)
+	ksize[Uint] = Size(val / 8)
+	ksize[Uintptr] = Size(val / 8)
+	ksize[Ptr] = Size(val / 8)
+
+	k := Int64
+	if val == CpuWidth32 {
+		k = Int32
+	}
+	ksuffix[Int] = ksuffix[k]
+
+	k = Uint64
+	if val == CpuWidth32 {
+		k = Uint32
+	}
+	ksuffix[Uint] = ksuffix[k]
+
+	k = Uint64
+	if val == CpuWidth32 {
+		k = Uint32
+	}
+	ksuffix[Uintptr] = ksuffix[k]
+}
+
+func init() {
+	SetCpuWidth(CpuWidthHost)
+}
 
 type Size uintptr // 1, 2, 4, 8 or 16
 
@@ -60,7 +108,7 @@ const (
 	kHi = ArchFlags
 )
 
-var kstring = [...]string{
+var kstring = [kHi + 1]string{
 	Void:       "void",
 	Bool:       "bool",
 	Int:        "int",
@@ -95,19 +143,16 @@ var kstring = [...]string{
 	ArchFlags: "ArchFlags",
 }
 
-var ksize = [...]Size{
+var ksize = [kHi + 1]Size{
 	Bool:       1,
-	Int:        Size(unsafe.Sizeof(int(0))),
 	Int8:       1,
 	Int16:      2,
 	Int32:      4,
 	Int64:      8,
-	Uint:       Size(unsafe.Sizeof(uint(0))),
 	Uint8:      1,
 	Uint16:     2,
 	Uint32:     4,
 	Uint64:     8,
-	Uintptr:    Size(unsafe.Sizeof(uintptr(0))),
 	Float32:    4,
 	Float64:    8,
 	Complex64:  8,
@@ -118,7 +163,6 @@ var ksize = [...]Size{
 		Interface:     Size(unsafe.Sizeof(assertError)),
 		Map:           Size(unsafe.Sizeof(map[int]int{})),
 	*/
-	Ptr: Size(unsafe.Sizeof((*int)(nil))),
 	/*
 		Slice:         Size(unsafe.Sizeof([]int{})),
 		String:        Size(unsafe.Sizeof("")),
@@ -143,7 +187,7 @@ func (k Kind) String() string {
 	return s
 }
 
-var ksuffix = [...]string{
+var ksuffix = [kHi + 1]string{
 	Bool:       "e",
 	Int8:       "b",
 	Int16:      "h",
@@ -159,26 +203,6 @@ var ksuffix = [...]string{
 	Complex128: "lc",
 	Ptr:        "p",
 	ArchFlags:  "fl",
-}
-
-func init() {
-	k := Int64
-	if unsafe.Sizeof(int(0)) == 4 {
-		k = Int32
-	}
-	ksuffix[Int] = ksuffix[k]
-
-	k = Uint64
-	if unsafe.Sizeof(uint(0)) == 4 {
-		k = Uint32
-	}
-	ksuffix[Uint] = ksuffix[k]
-
-	k = Uint64
-	if unsafe.Sizeof(uintptr(0)) == 4 {
-		k = Uint32
-	}
-	ksuffix[Uintptr] = ksuffix[k]
 }
 
 func (k Kind) SizeString() string {
@@ -204,8 +228,12 @@ func (k Kind) Category() Kind {
 	}
 }
 
-func (k Kind) Signed() bool {
-	return k.IsInteger() || k.IsFloat()
+func (k Kind) IsSigned() bool {
+	switch k {
+	case Int, Int8, Int16, Int32, Int64, Float32, Float64:
+		return true
+	}
+	return false
 }
 
 func (k Kind) IsInteger() bool {

@@ -23,6 +23,7 @@ import (
 func init() {
 	Archs[AMD64] = Arch{
 		AMD64,
+		CpuWidth64,
 		Compile,
 	}
 }

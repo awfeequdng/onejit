@@ -20,6 +20,22 @@ import (
 	"github.com/cosmos72/gomacrojit/jit/internal"
 )
 
+const (
+	CpuWidth32   = internal.CpuWidth32
+	CpuWidth64   = internal.CpuWidth64
+	CpuWidthHost = internal.CpuWidthHost
+)
+
+func GetCpuWidth() CpuWidth {
+	return internal.GetCpuWidth()
+}
+
+// if host and target have different CPU widths (32 vs 64 bit),
+// call this function *BEFORE* compiling, specifying target CPU width
+func SetCpuWidth(val CpuWidth) {
+	internal.SetCpuWidth(val)
+}
+
 // intentionally matches reflect.Kind values
 const (
 	Void       = internal.Void // Invalid

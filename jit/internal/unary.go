@@ -33,7 +33,7 @@ func Unary(op Op, x Expr) Expr {
 			x:    x,
 		}
 	}
-	return ret
+	return EvalConst(ret)
 }
 
 func Cast(to Kind, x Expr) Expr {
@@ -83,13 +83,19 @@ func (e *UnaryExpr) Child(i int) Node {
 }
 
 func (e *UnaryExpr) IsConst() bool {
-	// address dereference cannot be a constant
-	return e.op != MUL && e.x.IsConst()
+	var ret bool
+	switch e.Op() {
+	// only -x ^x !x can be constant
+	case NEG, INV, LNOT:
+		ret = e.x.IsConst()
+	}
+	return ret
 }
 
 func (e *UnaryExpr) IsPure() bool {
 	var ret bool
 	switch e.Op() {
+	// only -x ^x !x can be pure
 	case NEG, INV, LNOT:
 		ret = e.x.IsPure()
 	}
@@ -136,7 +142,7 @@ func unaryOptimize(op Op, kind Kind, x Expr) Expr {
 			if xop.IsComparison() {
 				// simplify !(a < b) to (a >= b)
 				// and similarly for other comparisons
-				ret = Binary(SwapComparison(xop), x.X(), x.Y())
+				ret = Binary(SwapOp(xop), x.X(), x.Y())
 			}
 		}
 	} else if (op == NEG || op == INV) && (xop == NEG || xop == INV) {

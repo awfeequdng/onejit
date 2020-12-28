@@ -34,17 +34,18 @@ const (
 
 type Arch struct {
 	ArchId
-	Compile func(expr Expr, toplevel bool, ac *ArchCompiled) Expr
+	CpuWidth CpuWidth
+	Compile  func(expr Expr, toplevel bool, ac *ArchCompiled) Expr
 }
 
 var Archs = map[ArchId]Arch{}
 
 var archName = [...]string{
-	NOARCH: "noarch",
-	AMD64:  "amd64",
-	ARM64:  "arm64",
-	ARM:    "arm",
-	X86:    "x86",
+	NOARCH: "NOARCH",
+	AMD64:  "AMD64",
+	ARM64:  "ARM64",
+	ARM:    "ARM",
+	X86:    "X86",
 }
 
 func (archid ArchId) String() string {
