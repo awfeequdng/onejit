@@ -166,6 +166,10 @@ func binaryKind(op Op, x Expr, y Expr) Kind {
 		Kind2MustBeIntegerOrPtr(op, k1, k2)
 		return ArchFlags
 
+	case X86_LEA: // assign memory address
+		Kind2MustBeIntegerOrPtr(op, k1, k2)
+		return Void
+
 	default:
 		return BadOpKind2(op, k1, k2)
 	}

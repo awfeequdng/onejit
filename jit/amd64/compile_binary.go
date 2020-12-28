@@ -116,18 +116,26 @@ func compileAssign(e *BinaryExpr, ac *ArchCompiled) Expr {
 	var ret Expr
 	switch ye := y.(type) {
 	case *UnaryExpr:
-		switch y.Op() {
+		switch ye.Op() {
 		case NEG, INV, LNOT:
 			x = compileRegOrMem(x, ac)
 			y = compileUnary(ye, false, ac)
 			ret = Binary(op, x, y)
 		}
 	case *BinaryExpr:
-		switch y.Op() {
-		case ADD, SUB, MUL, AND, OR, XOR, QUO, REM, AND_NOT,
+		switch ye.Op() {
+		case ADD, SUB, MUL:
+			if canCompileAsLea(ye) {
+				y = compileAsLea(ye, ac)
+				x = compileReg(x, ac)
+				ret = Binary(X86_LEA, x, y)
+				break
+			}
+			fallthrough
+		case AND, OR, XOR, QUO, REM, AND_NOT,
 			LAND, LOR, EQL, NEQ, LSS, GTR, LEQ, GEQ:
-			x = compileRegOrMem(x, ac)
 			y = compileClassicBinary(ye, true, ac)
+			x = compileRegOrMem(x, ac)
 			ret = Binary(op, x, y)
 		}
 	}

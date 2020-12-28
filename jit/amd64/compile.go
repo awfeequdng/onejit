@@ -75,12 +75,15 @@ func compileConst(c Const, ac *ArchCompiled) Expr {
 // convert a generic Expr to a concrete Expr for amd64 architecture,
 // and copy its result to a temporary register.
 // may allocate registers for intermediate expressions
-func compileReg(e Expr, ac *ArchCompiled) Expr {
-	if e.Class() != REG {
+func compileReg(e Expr, ac *ArchCompiled) Reg {
+	var ret Reg
+	if e.Class() == REG {
+		ret = e.(Reg)
+	} else {
 		e = Compile(e, false, ac)
-		e = SpillToReg(e, ac)
+		ret = SpillToReg(e, ac)
 	}
-	return e
+	return ret
 }
 
 // convert a generic Expr to a concrete Expr for amd64 architecture,

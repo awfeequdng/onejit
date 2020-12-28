@@ -43,7 +43,7 @@ func (r Reg) Format(state fmt.State, x rune) {
 }
 
 func (m Mem) Format(state fmt.State, x rune) {
-	fmt.Fprintf(state, "mem%s%s%v", readonlyPrefix(m.ro), m.kind.SizeString(), m.addr)
+	fmt.Fprintf(state, "(mem%s%s %v)", readonlyPrefix(m.ro), m.kind.SizeString(), m.addr)
 }
 
 func (m Amd64Mem) Format(state fmt.State, x rune) {
