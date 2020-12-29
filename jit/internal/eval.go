@@ -283,7 +283,9 @@ func geqConst(x Const, y Const) Const {
 func truncateInt(op Op, kind Kind, val int64) int64 {
 	switch kind {
 	case Int:
-		val = int64(int(val))
+		if kind.Size() == 4 {
+			val = int64(int32(val))
+		}
 	case Int8:
 		val = int64(int8(val))
 	case Int16:
@@ -292,8 +294,10 @@ func truncateInt(op Op, kind Kind, val int64) int64 {
 		val = int64(int32(val))
 	case Int64:
 		break
-	case Uint:
-		val = int64(uint(val))
+	case Uint, Uintptr, Ptr:
+		if kind.Size() == 4 {
+			val = int64(uint32(val))
+		}
 	case Uint8:
 		val = int64(uint8(val))
 	case Uint16:
@@ -301,9 +305,7 @@ func truncateInt(op Op, kind Kind, val int64) int64 {
 	case Uint32:
 		val = int64(uint32(val))
 	case Uint64:
-		val = int64(uint64(val))
-	case Uintptr, Ptr:
-		val = int64(uintptr(val))
+		break
 	default:
 		BadOpKind(op, kind)
 	}

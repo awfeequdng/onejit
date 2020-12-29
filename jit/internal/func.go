@@ -56,7 +56,7 @@ func (s *Signature) Out(i int) Kind {
 
 type Label struct {
 	// allocated on creation, *addr computed lazily
-	addr  *uintptr
+	addr  *uint64
 	index int // only for debugging
 }
 
@@ -158,7 +158,7 @@ type Func struct {
 	sig        *Signature
 	regs       []Reg
 	labels     []Label
-	labelPool  []uintptr
+	labelPool  []uint64
 	breaks     Labels
 	continues  Labels
 	labelIndex int
@@ -255,7 +255,7 @@ func (f *Func) NewReg(kind Kind) Reg {
 
 func (f *Func) NewLabel() Label {
 	if len(f.labelPool) >= cap(f.labelPool) {
-		f.labelPool = make([]uintptr, 0, 16)
+		f.labelPool = make([]uint64, 0, 16)
 	}
 	f.labelPool = append(f.labelPool, 0) // does not reallocate
 	l := Label{

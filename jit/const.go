@@ -39,7 +39,8 @@ func ConstBool(flag bool) Const {
 	return internal.ConstBool(flag)
 }
 
-func ConstInt(val int) Const {
+// target 'int' may be 64 bits
+func ConstInt(val int64) Const {
 	return internal.ConstInt(val)
 }
 
@@ -59,7 +60,8 @@ func ConstInt64(val int64) Const {
 	return internal.ConstInt64(val)
 }
 
-func ConstUint(val uint) Const {
+// target 'uint' may be 64 bits
+func ConstUint(val uint64) Const {
 	return internal.ConstUint(val)
 }
 
@@ -79,7 +81,8 @@ func ConstUint64(val uint64) Const {
 	return internal.ConstUint64(val)
 }
 
-func ConstUintptr(val uintptr) Const {
+// target 'uintptr' may be 64 bits
+func ConstUintptr(val uint64) Const {
 	return internal.ConstUintptr(val)
 }
 

@@ -123,6 +123,7 @@ func (c Const) Ptr() unsafe.Pointer {
 func (c Const) Interface() interface{} {
 	var i interface{}
 	val := c.re
+	targetIs32bit := cpuWidth == 32
 	switch c.kind {
 	case Bool:
 		if val == 0 {
@@ -131,7 +132,9 @@ func (c Const) Interface() interface{} {
 			i = itrue
 		}
 	case Int:
-		i = int(val)
+		if targetIs32bit {
+			i = int32(val)
+		}
 	case Int8:
 		i = int8(val)
 	case Int16:
@@ -140,8 +143,12 @@ func (c Const) Interface() interface{} {
 		i = int32(val)
 	case Int64:
 		i = int64(val)
-	case Uint:
-		i = uint(val)
+	case Uint, Uintptr:
+		if targetIs32bit {
+			i = uint32(val)
+		} else {
+			i = uint64(val)
+		}
 	case Uint8:
 		i = uint8(val)
 	case Uint16:
@@ -150,8 +157,6 @@ func (c Const) Interface() interface{} {
 		i = uint32(val)
 	case Uint64:
 		i = uint64(val)
-	case Uintptr:
-		i = uintptr(val)
 	case Float32:
 		i = c.Float32()
 	case Float64:
@@ -197,7 +202,7 @@ func (c Const) Cast(to Kind) Const {
 	case Uint64:
 		val = int64(uint64(val)) // should be a nop
 	case Uintptr:
-		val = int64(uintptr(val))
+		val = int64(uint64(val))
 	default:
 		Errorf("Const.Cast: unsupported constant kind: %v", c.kind)
 	}
@@ -221,8 +226,9 @@ func ConstBool(flag bool) Const {
 	return c
 }
 
-func ConstInt(val int) Const {
-	return Const{kind: Int, re: int64(val)}
+// target 'int' may be 64 bits
+func ConstInt(val int64) Const {
+	return Const{kind: Int, re: val}
 }
 
 func ConstInt8(val int8) Const {
@@ -241,7 +247,8 @@ func ConstInt64(val int64) Const {
 	return Const{kind: Int64, re: val}
 }
 
-func ConstUint(val uint) Const {
+// target 'uint' may be 64 bits
+func ConstUint(val uint64) Const {
 	return Const{kind: Uint, re: int64(val)}
 }
 
@@ -261,7 +268,8 @@ func ConstUint64(val uint64) Const {
 	return Const{kind: Uint64, re: int64(val)}
 }
 
-func ConstUintptr(val uintptr) Const {
+// target 'uintptr' may be 64 bits
+func ConstUintptr(val uint64) Const {
 	return Const{kind: Uintptr, re: int64(val)}
 }
 
