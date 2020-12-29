@@ -52,7 +52,7 @@ type (
 	ForStmt      = internal.ForStmt
 	IfStmt       = internal.IfStmt
 
-	Source       = internal.Source
-	Compiled     = internal.Compiled
-	ArchCompiled = internal.ArchCompiled
+	Source   = internal.Source
+	Compiled = internal.Compiled
+	Asm      = internal.Asm
 )

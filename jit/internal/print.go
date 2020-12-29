@@ -217,7 +217,7 @@ func (c *Compiled) Format(state fmt.State, x rune) {
 	c.print(&printer{state, x, 0})
 }
 
-func (ac *ArchCompiled) Format(state fmt.State, x rune) {
+func (ac *Asm) Format(state fmt.State, x rune) {
 	((*Compiled)(ac)).Format(state, x)
 }
 
@@ -351,7 +351,7 @@ func (c *Compiled) print(p *printer) {
 	c.fun.printFooter(p)
 }
 
-func (ac *ArchCompiled) print(p *printer) {
+func (ac *Asm) print(p *printer) {
 	((*Compiled)(ac)).print(p)
 }
 

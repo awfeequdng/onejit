@@ -35,7 +35,7 @@ const (
 type Arch struct {
 	ArchId
 	CpuWidth CpuWidth
-	Compile  func(expr Expr, toplevel bool, ac *ArchCompiled) Expr
+	Compile  func(expr Expr, toplevel bool, ac *Asm) Expr
 }
 
 var Archs = map[ArchId]Arch{}

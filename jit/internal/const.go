@@ -73,7 +73,7 @@ func (c Const) IsPure() bool {
 // ============================= helpers =======================================
 
 // save Const to a temporary register
-func (c Const) spillToReg(ac *ArchCompiled) Reg {
+func (c Const) spillToReg(ac *Asm) Reg {
 	reg := ac.Func().NewReg(c.kind)
 	ac.Add(Binary(ASSIGN, reg, c))
 	return reg

@@ -43,7 +43,7 @@ func canCompileAsLea(e *BinaryExpr) bool {
 }
 
 // compile BinaryExpr as memory operand of LEA
-func compileAsLea(e *BinaryExpr, ac *ArchCompiled) Expr {
+func compileAsLea(e *BinaryExpr, ac *Asm) Expr {
 	KindMustBeIntegerOrPtr(X86_LEA, e.Kind())
 	x, y := e.X(), e.Y()
 
@@ -89,7 +89,7 @@ func compileAsLea(e *BinaryExpr, ac *ArchCompiled) Expr {
 	return e
 }
 
-func compileAsLea3(eindex Expr, escale Expr, eoffset Expr, ac *ArchCompiled) Amd64Mem {
+func compileAsLea3(eindex Expr, escale Expr, eoffset Expr, ac *Asm) Amd64Mem {
 	var base, index Reg
 	var scale uint8
 	var offset int32

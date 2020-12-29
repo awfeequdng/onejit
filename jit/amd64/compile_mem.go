@@ -20,7 +20,7 @@ import (
 	. "github.com/cosmos72/onejit/jit/internal"
 )
 
-func compileMem(m Mem, ac *ArchCompiled) Expr {
+func compileMem(m Mem, ac *Asm) Expr {
 	var ret Amd64Mem
 	// kind := m.Kind()
 	switch addr := m.Addr().(type) {

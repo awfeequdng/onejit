@@ -36,8 +36,8 @@ func (c *Compiled) Add(e Expr) *Compiled {
 	return c
 }
 
-func (c *Compiled) ToArch(archid ArchId) *ArchCompiled {
-	ac := ArchCompiled{fun: c.fun}
+func (c *Compiled) ToArch(archid ArchId) *Asm {
+	ac := Asm{fun: c.fun}
 	arch := Archs[archid]
 	compile := arch.Compile
 	if compile == nil {

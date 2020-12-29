@@ -30,7 +30,7 @@ func init() {
 
 // convert a generic Expr to a concrete Expr for amd64 architecture.
 // may allocate registers for intermediate expressions
-func Compile(expr Expr, toplevel bool, ac *ArchCompiled) Expr {
+func Compile(expr Expr, toplevel bool, ac *Asm) Expr {
 	var ret Expr
 	if toplevel && expr.IsPure() {
 		Debugf("expression has no effect: %v", expr)
@@ -61,7 +61,7 @@ func Compile(expr Expr, toplevel bool, ac *ArchCompiled) Expr {
 	return ret
 }
 
-func compileConst(c Const, ac *ArchCompiled) Expr {
+func compileConst(c Const, ac *Asm) Expr {
 	k := c.Kind()
 	if !k.IsIntegerOrPtr() {
 		Errorf("toAmd64Const: unsupported %v const", k)
@@ -76,7 +76,7 @@ func compileConst(c Const, ac *ArchCompiled) Expr {
 // convert a generic Expr to a concrete Expr for amd64 architecture,
 // and copy its result to a temporary register.
 // may allocate registers for intermediate expressions
-func compileReg(e Expr, ac *ArchCompiled) Reg {
+func compileReg(e Expr, ac *Asm) Reg {
 	var ret Reg
 	if e.Class() == REG {
 		ret = e.(Reg)
@@ -90,7 +90,7 @@ func compileReg(e Expr, ac *ArchCompiled) Reg {
 // convert a generic Expr to a concrete Expr for amd64 architecture,
 // and return its result either as a temporary register or as a memory reference.
 // may allocate registers for intermediate expressions
-func compileRegOrMem(e Expr, ac *ArchCompiled) Expr {
+func compileRegOrMem(e Expr, ac *Asm) Expr {
 	switch e.Class() {
 	case REG:
 		break
@@ -105,7 +105,7 @@ func compileRegOrMem(e Expr, ac *ArchCompiled) Expr {
 // convert a generic Expr to a concrete Expr for amd64 architecture,
 // and return its result either as a temporary register or as a constant.
 // may allocate registers for intermediate expressions
-func compileRegOrConst(e Expr, ac *ArchCompiled) Expr {
+func compileRegOrConst(e Expr, ac *Asm) Expr {
 	switch e.Class() {
 	case REG:
 		break
@@ -117,7 +117,7 @@ func compileRegOrConst(e Expr, ac *ArchCompiled) Expr {
 	return e
 }
 
-func compileUnary(e *UnaryExpr, toplevel bool, ac *ArchCompiled) Expr {
+func compileUnary(e *UnaryExpr, toplevel bool, ac *Asm) Expr {
 	op, x := e.Op(), e.X()
 	k := x.Kind()
 	switch op {
@@ -156,12 +156,12 @@ func compileUnary(e *UnaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 	return Unary(op, Compile(x, false, ac))
 }
 
-func compileTuple(e *TupleExpr, toplevel bool, ac *ArchCompiled) Expr {
+func compileTuple(e *TupleExpr, toplevel bool, ac *Asm) Expr {
 	Warnf("unimplemented amd64.compileTuple() %v", e)
 	return e
 }
 
-func compileCall(e *CallExpr, toplevel bool, ac *ArchCompiled) Expr {
+func compileCall(e *CallExpr, toplevel bool, ac *Asm) Expr {
 	Warnf("unimplemented amd64.compileCall() %v", e)
 	return e
 }

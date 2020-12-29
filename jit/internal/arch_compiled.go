@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * arch_compiled.go
+ * asm.go
  *
  *  Created on Dec 27, 2020
  *      Author Massimiliano Ghilardi
@@ -16,28 +16,28 @@
 
 package internal
 
-// ================================== ArchCompiled =============================
+// ================================== Asm ========================================
 
-type ArchCompiled Compiled
+type Asm Compiled
 
-func (ac *ArchCompiled) Func() *Func {
+func (ac *Asm) Func() *Func {
 	return ac.fun
 }
 
-func (ac *ArchCompiled) Add(e Expr) *ArchCompiled {
+func (ac *Asm) Add(e Expr) *Asm {
 	ac.code = append(ac.code, e)
 	return ac
 }
 
-func (ac *ArchCompiled) Children() int {
+func (ac *Asm) Children() int {
 	return len(ac.code)
 }
 
-func (ac *ArchCompiled) Child(i int) Node {
+func (ac *Asm) Child(i int) Node {
 	return ac.code[i]
 }
 
-func SpillToReg(e Expr, ac *ArchCompiled) Reg {
+func SpillToReg(e Expr, ac *Asm) Reg {
 	var reg Reg
 	switch e := e.(type) {
 	case Reg:

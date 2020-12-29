@@ -20,7 +20,7 @@ import (
 	. "github.com/cosmos72/onejit/jit/internal"
 )
 
-func compileBinary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
+func compileBinary(e *BinaryExpr, toplevel bool, ac *Asm) Expr {
 	op := e.Op()
 	var ret Expr
 	switch op {
@@ -72,7 +72,7 @@ func compileBinary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 	return ret
 }
 
-func compileClassicBinary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
+func compileClassicBinary(e *BinaryExpr, toplevel bool, ac *Asm) Expr {
 	x, y := compileClassicOperands(e.X(), e.Y(), ac)
 	ret := Binary(e.Op(), x, y)
 	if !toplevel {
@@ -87,7 +87,7 @@ func compileClassicBinary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {
 // Reg, Const
 // Mem, Reg
 // Mem, Const
-func compileClassicOperands(x Expr, y Expr, ac *ArchCompiled) (Expr, Expr) {
+func compileClassicOperands(x Expr, y Expr, ac *Asm) (Expr, Expr) {
 	c1, c2 := x.Class(), y.Class()
 	switch c1 {
 	case REG:
@@ -111,7 +111,7 @@ func compileClassicOperands(x Expr, y Expr, ac *ArchCompiled) (Expr, Expr) {
 	return x, y
 }
 
-func compileAssign(e *BinaryExpr, ac *ArchCompiled) Expr {
+func compileAssign(e *BinaryExpr, ac *Asm) Expr {
 	op, x, y := e.Op(), e.X(), e.Y()
 	var ret Expr
 	switch ye := y.(type) {
@@ -145,7 +145,7 @@ func compileAssign(e *BinaryExpr, ac *ArchCompiled) Expr {
 	return ret
 }
 
-func compileJumpIf(e *BinaryExpr, ac *ArchCompiled) Expr {
+func compileJumpIf(e *BinaryExpr, ac *Asm) Expr {
 	op, x, y := e.Op(), e.X(), e.Y()
 
 	KindMustBe(op, x.Kind(), Ptr)
@@ -173,7 +173,7 @@ func compileJumpIf(e *BinaryExpr, ac *ArchCompiled) Expr {
 }
 
 // compile (a cmp b) with cmp being == != < > <= >=
-func compileAsCmp(cond *BinaryExpr, ac *ArchCompiled) (Op, Expr, Expr) {
+func compileAsCmp(cond *BinaryExpr, ac *Asm) (Op, Expr, Expr) {
 	op := cond.Op()
 	x := Compile(cond.X(), false, ac)
 	y := Compile(cond.Y(), false, ac)
@@ -197,7 +197,7 @@ func canCompileAsTest(e *BinaryExpr) bool {
 }
 
 // compile ((a AND b) == 0) or ((a AND b) != 0)
-func compileAsTest(e *BinaryExpr, ac *ArchCompiled) (Op, Expr, Expr) {
+func compileAsTest(e *BinaryExpr, ac *Asm) (Op, Expr, Expr) {
 	ab := e.X().(*BinaryExpr)
 	x, y := compileClassicOperands(ab.X(), ab.Y(), ac)
 	op := e.Op()

@@ -61,7 +61,7 @@ type Label struct {
 }
 
 // save Label to a temporary register
-func (l Label) spillToReg(ac *ArchCompiled) Reg {
+func (l Label) spillToReg(ac *Asm) Reg {
 	reg := ac.Func().NewReg(Ptr)
 	ac.Add(Binary(ASSIGN, reg, l))
 	return reg
