@@ -117,6 +117,22 @@ func compileRegOrConst(e Expr, ac *Asm) Expr {
 	return e
 }
 
+// convert a generic Expr to a concrete Expr for amd64 architecture,
+// and return its result either as a temporary register, as a memory reference
+// or as a label.
+// may allocate registers for intermediate expressions
+func compileRegOrMemOrLabel(e Expr, ac *Asm) Expr {
+	switch e.Class() {
+	case REG, LABEL:
+		break
+	case CONSTANT:
+		e = compileConst(e.(Const), ac)
+	default:
+		e = compileRegOrMem(e, ac)
+	}
+	return e
+}
+
 func compileUnary(e *UnaryExpr, toplevel bool, ac *Asm) Expr {
 	op, x := e.Op(), e.X()
 	k := x.Kind()
@@ -162,8 +178,23 @@ func compileTuple(e *TupleExpr, toplevel bool, ac *Asm) Expr {
 }
 
 func compileCall(e *CallExpr, toplevel bool, ac *Asm) Expr {
-	Warnf("unimplemented amd64.compileCall() %v", e)
-	return e
+	f := e.Func()
+	var fexpr Expr
+	if f == nil {
+		fexpr = compileRegOrMemOrLabel(e.FuncExpr(), ac)
+	}
+	n := e.NumArg()
+	args := make([]Expr, n)
+	for i := 0; i < n; i++ {
+		args[i] = compileReg(e.Arg(i), ac)
+	}
+	var ret Expr
+	if f == nil {
+		ret = Call(fexpr, e.Signature(), args...)
+	} else {
+		ret = CallFunc(f, args...)
+	}
+	return ret
 }
 
 func toInt32(c Const) (int32, bool) {

@@ -25,7 +25,7 @@ type UnaryExpr struct {
 
 func Unary(op Op, x Expr) Expr {
 	kind := unaryKind(op, x)
-	ret := unaryOptimize(op, kind, x)
+	ret := optimizeUnary(op, kind, x)
 	if ret == nil {
 		ret = &UnaryExpr{
 			kind: kind,
@@ -128,7 +128,7 @@ func unaryKind(op Op, x Expr) Kind {
 	return BadOpKind(op, k)
 }
 
-func unaryOptimize(op Op, kind Kind, x Expr) Expr {
+func optimizeUnary(op Op, kind Kind, x Expr) Expr {
 	var ret Expr
 	xop := x.Op()
 	if op == LNOT && kind == Bool {

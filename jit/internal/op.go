@@ -151,9 +151,10 @@ const (
 
 	opMax
 
-	NEG  = SUB // -
-	INV  = XOR // ^
-	STAR = MUL // *
+	NEG        = SUB        // -
+	INV        = XOR        // ^
+	STAR       = MUL        // *
+	NEG_ASSIGN = SUB_ASSIGN // x = -x
 
 	opLo = BADOP
 	opHi = opMax - 1

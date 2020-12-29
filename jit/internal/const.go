@@ -18,7 +18,6 @@ package internal
 
 import (
 	"math"
-	"unsafe"
 )
 
 type Const struct {
@@ -116,8 +115,9 @@ func (c Const) Complex128() complex128 {
 		math.Float64frombits(uint64(c.im)))
 }
 
-func (c Const) Ptr() unsafe.Pointer {
-	return unsafe.Pointer(uintptr(c.re))
+// target pointers may be 64 bit
+func (c Const) Ptr() uint64 {
+	return uint64(c.re)
 }
 
 func (c Const) Interface() interface{} {
@@ -134,6 +134,8 @@ func (c Const) Interface() interface{} {
 	case Int:
 		if targetIs32bit {
 			i = int32(val)
+		} else {
+			i = val
 		}
 	case Int8:
 		i = int8(val)
@@ -299,4 +301,55 @@ func ConstComplex128(val complex128) Const {
 
 func ConstZero(kind Kind) Const {
 	return Const{kind: kind}
+}
+
+func IsZero(e Node) bool {
+	c, ok := e.(Const)
+	return ok && c.IsZero()
+}
+
+func IsOne(c Const) bool {
+	var ok bool
+	if c.im == 0 {
+		kind := c.kind
+		if kind.IsIntegerOrPtr() {
+			ok = (c.re == 1)
+		} else {
+			switch kind {
+			case Float32, Complex64:
+				ok = (c.Float32() == 1.0)
+			case Float64, Complex128:
+				ok = (c.Float64() == 1.0)
+			}
+		}
+	}
+	return ok
+}
+
+func IsMinusOne(c Const) bool {
+	var ok bool
+	if c.im == 0 {
+		kind := c.kind
+		if kind.IsIntegerOrPtr() {
+			ok = (c.re == -1)
+		} else {
+			switch kind {
+			case Float32, Complex64:
+				ok = (c.Float32() == -1.0)
+			case Float64, Complex128:
+				ok = (c.Float64() == -1.0)
+			}
+		}
+	}
+	return ok
+}
+
+func IsIntPowerOf2(c Const) (uint64, bool) {
+	var val uint64
+	var flag bool
+	if c.kind.IsIntegerOrPtr() && (c.re > 0 || !c.kind.IsSigned()) {
+		val = uint64(c.re)
+		flag = val != 0 && val&(val-1) == 0
+	}
+	return val, flag
 }

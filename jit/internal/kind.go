@@ -216,33 +216,42 @@ func (k Kind) SizeString() string {
 func (k Kind) Category() Kind {
 	switch k {
 	case Int, Int8, Int16, Int32, Int64:
-		return Int
+		k = Int
 	case Uint, Uint8, Uint16, Uint32, Uint64, Uintptr:
-		return Uint
+		k = Uint
 	case Float32, Float64:
-		return Float64
+		k = Float64
 	case Complex64, Complex128:
-		return Complex128
-	default:
-		return k
+		k = Complex128
 	}
+	return k
 }
 
 func (k Kind) IsSigned() bool {
+	var ret bool
 	switch k {
-	case Int, Int8, Int16, Int32, Int64, Float32, Float64:
-		return true
+	case Int, Int8, Int16, Int32, Int64, Float32, Float64, Complex64, Complex128:
+		ret = true
 	}
-	return false
+	return ret
+}
+
+func (k Kind) IsUnsigned() bool {
+	var ret bool
+	switch k {
+	case Uint, Uint8, Uint16, Uint32, Uint64, Uintptr, Ptr:
+		ret = true
+	}
+	return ret
 }
 
 func (k Kind) IsInteger() bool {
+	var ret bool
 	switch k {
 	case Int, Int8, Int16, Int32, Int64, Uint, Uint8, Uint16, Uint32, Uint64, Uintptr:
-		return true
-	default:
-		return false
+		ret = true
 	}
+	return ret
 }
 
 func (k Kind) IsIntegerOrPtr() bool {

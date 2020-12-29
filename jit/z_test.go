@@ -79,7 +79,7 @@ func TestFuncRecursion(t *testing.T) {
 	compiled := f.Compile()
 	t.Log("compiled\n", compiled)
 	arch_compiled := compiled.ToArch(AMD64)
-	t.Log("amd64 compiled\n", arch_compiled)
+	t.Log("amd64 asm\n", arch_compiled)
 }
 
 func TestFuncIteration(t *testing.T) {
@@ -109,5 +109,5 @@ func TestFuncIteration(t *testing.T) {
 	compiled := f.Compile()
 	t.Log("compiled\n", compiled)
 	arch_compiled := compiled.ToArch(AMD64)
-	t.Log("amd64 compiled\n", arch_compiled)
+	t.Log("amd64 asm\n", arch_compiled)
 }

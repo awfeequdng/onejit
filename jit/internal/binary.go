@@ -30,7 +30,7 @@ func Binary(op Op, x Expr, y Expr) Expr {
 		op = SwapOp(op)
 		x, y = y, x
 	}
-	ret := binaryOptimize(op, kind, x, y)
+	ret := optimizeBinary(op, kind, x, y)
 	if ret == nil {
 		ret = &BinaryExpr{
 			kind: kind,
@@ -181,6 +181,116 @@ func binaryKind(op Op, x Expr, y Expr) Kind {
 	}
 }
 
-func binaryOptimize(op Op, kind Kind, x Expr, y Expr) Expr {
-	return nil
+func optimizeBinary(op Op, kind Kind, x Expr, y Expr) Expr {
+	var ret Expr
+	switch op {
+	case ADD:
+		if IsZero(y) {
+			// simplify (x + 0) to x
+			ret = x
+		}
+	case SUB:
+		if IsZero(y) {
+			// simplify (x - 0) to x
+			ret = x
+		} else if IsZero(x) {
+			// simplify (0 - y) to -y
+			ret = Unary(NEG, y)
+		} else if y.Kind().IsIntegerOrPtr() {
+			c, ok := x.(Const)
+			if ok && IsMinusOne(c) {
+				// simplify (-1 - y) to ^y
+				ret = Unary(INV, y)
+			}
+		}
+	case MUL:
+		c, ok := y.(Const)
+		if !ok {
+			break
+		} else if c.IsZero() {
+			if x.IsPure() {
+				// simplify (x * 0) to 0
+				ret = y
+			}
+		} else if IsOne(c) {
+			// simplify (x * 1) to x
+			ret = x
+		} else if IsMinusOne(c) {
+			// simplify (x * -1) to -x
+			ret = Unary(NEG, x)
+		} else if val, ok := IsIntPowerOf2(c); ok {
+			// simplify (x * (1<<k)) to x << k
+			k := uintLog2(val)
+			ret = Binary(SHL, x, ConstUint8(k))
+		}
+	case MUL_ASSIGN:
+		c, ok := y.(Const)
+		if !ok {
+			break
+		} else if c.IsZero() {
+			if x.IsPure() {
+				// simplify (x *= 0) to x = 0
+				ret = Unary(ZERO, x)
+			}
+		} else if IsOne(c) {
+			// simplify (x *= 1) to x or void
+			if x.IsPure() {
+				ret = MakeConst(Void, 0)
+			} else {
+				ret = x
+			}
+		} else if IsMinusOne(c) {
+			// simplify (x *= -1) to x = -x
+			ret = Unary(NEG_ASSIGN, x)
+		} else if val, ok := IsIntPowerOf2(c); ok {
+			// simplify (x *= (1<<k)) to x <<= k
+			k := uintLog2(val)
+			ret = Binary(SHL_ASSIGN, x, ConstUint8(k))
+		}
+	case QUO:
+		c, ok := y.(Const)
+		if !ok {
+			break
+		} else if IsOne(c) {
+			// simplify (x / 1) to x
+			ret = x
+		} else if IsMinusOne(c) {
+			// simplify (x / -1) to -x
+			ret = Unary(NEG, x)
+		} else if val, ok := IsIntPowerOf2(c); ok && x.Kind().IsUnsigned() {
+			// simplify (x / (1<<k)) to x >> k
+			k := uintLog2(val)
+			ret = Binary(SHR, x, ConstUint8(k))
+		}
+	case QUO_ASSIGN:
+		c, ok := y.(Const)
+		if !ok {
+			break
+		} else if IsOne(c) {
+			// simplify (x /= 1) to x or void
+			if x.IsPure() {
+				ret = MakeConst(Void, 0)
+			} else {
+				ret = x
+			}
+		} else if IsMinusOne(c) {
+			// simplify (x /= -1) to x = -x
+			ret = Unary(NEG_ASSIGN, x)
+		} else if val, ok := IsIntPowerOf2(c); ok && x.Kind().IsUnsigned() {
+			// simplify (x /= (1<<k)) to x >>= k
+			k := uintLog2(val)
+			ret = Binary(SHR_ASSIGN, x, ConstUint8(k))
+		}
+	}
+	return ret
+}
+
+// return integer log2(val)
+func uintLog2(val uint64) uint8 {
+	var ret uint8
+	for val > 1 {
+		ret++
+		val >>= 1
+	}
+	return ret
 }

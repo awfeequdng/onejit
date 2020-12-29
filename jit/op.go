@@ -143,7 +143,8 @@ const (
 	X86_TEST  = internal.X86_TEST  // arch-specific: set arch flags to result of bitwise and
 	X86_TESTZ = internal.X86_TESTZ // arch-specific: set arch flags to result of bitwise and
 
-	NEG  = internal.NEG  // -
-	INV  = internal.INV  // ^
-	STAR = internal.STAR // *
+	NEG        = internal.NEG        // -
+	INV        = internal.INV        // ^
+	STAR       = internal.STAR       // *
+	NEG_ASSIGN = internal.NEG_ASSIGN // x = -x
 )
