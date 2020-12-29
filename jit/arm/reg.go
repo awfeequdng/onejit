@@ -1,5 +1,5 @@
 /*
- * gomacrojit - JIT compiler in Go
+ * onejit - JIT compiler in Go
  *
  * Copyright (C) 2018-2020 Massimiliano Ghilardi
  *
@@ -19,7 +19,7 @@ package arm
 import (
 	"fmt"
 
-	. "github.com/cosmos72/gomacrojit/jit"
+	. "github.com/cosmos72/onejit/jit"
 )
 
 // ============================================================================
@@ -97,7 +97,7 @@ var regName = [17]string{
 	R15: "r15",
 }
 
-// go:linkname regNameNEON github.com/cosmos72/gomacrojit/jit/arm64.regname8
+// go:linkname regNameNEON github.com/cosmos72/onejit/jit/arm64.regname8
 var regNameNEON [33]string
 
 var regNameNEONQ = [16]string{

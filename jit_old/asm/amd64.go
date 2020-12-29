@@ -1,7 +1,7 @@
 // +build amd64
 
 /*
- * gomacrojitjit - JIT compiler in Go
+ * onejitjit - JIT compiler in Go
  *
  * Copyright (C) 2018-2020 Massimiliano Ghilardi
  *
@@ -19,7 +19,7 @@
 package asm
 
 import (
-	"github.com/cosmos72/gomacrojit/jit_old/amd64"
+	"github.com/cosmos72/onejit/jit_old/amd64"
 )
 
 const (

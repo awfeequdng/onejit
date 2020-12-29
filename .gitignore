@@ -1,11 +1,10 @@
-# Binaries for programs and plugins
 *~
-*.exe
+*.debug
 *.dll
 *.dylib
-*.debug
+*.exe
 *.o
 *.out
 *.so
 *.test
-/gomacrojit
+/onejit

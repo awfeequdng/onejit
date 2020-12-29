@@ -1,5 +1,5 @@
 /*
- * gomacrojit - JIT compiler in Go
+ * onejit - JIT compiler in Go
  *
  * Copyright (C) 2018-2020-2020 Massimiliano Ghilardi
  *
@@ -19,8 +19,8 @@ package jit_test
 import (
 	"testing"
 
-	. "github.com/cosmos72/gomacrojit/jit"
-	_ "github.com/cosmos72/gomacrojit/jit/amd64"
+	. "github.com/cosmos72/onejit/jit"
+	_ "github.com/cosmos72/onejit/jit/amd64"
 )
 
 func init() {

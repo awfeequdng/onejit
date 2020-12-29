@@ -1,5 +1,5 @@
 /*
- * gomacrojitjit - JIT compiler in Go
+ * onejitjit - JIT compiler in Go
  *
  * Copyright (C) 2018-2020 Massimiliano Ghilardi
  *
@@ -21,8 +21,8 @@ import (
 	"unsafe"
 
 	"github.com/bnagy/gapstone"
-	. "github.com/cosmos72/gomacrojit/jit_old"
-	"github.com/cosmos72/gomacrojit/jit_old/asm"
+	. "github.com/cosmos72/onejit/jit_old"
+	"github.com/cosmos72/onejit/jit_old/asm"
 )
 
 type Engine = gapstone.Engine

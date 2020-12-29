@@ -1,5 +1,5 @@
 /*
- * gomacrojitjit - JIT compiler in Go
+ * onejitjit - JIT compiler in Go
  *
  * Copyright (C) 2018-2020 Massimiliano Ghilardi
  *
@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"go/token"
 
-	"github.com/cosmos72/gomacrojit/jit_old/common"
+	"github.com/cosmos72/onejit/jit_old/common"
 )
 
 type Op2 uint8 // binary expression operator

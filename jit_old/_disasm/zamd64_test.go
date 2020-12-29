@@ -1,5 +1,5 @@
 /*
- * gomacrojitjit - JIT compiler in Go
+ * onejitjit - JIT compiler in Go
  *
  * Copyright (C) 2018-2020 Massimiliano Ghilardi
  *
@@ -20,8 +20,8 @@ import (
 	"math/rand"
 	"testing"
 
-	. "github.com/cosmos72/gomacrojit/jit_old/amd64"
-	pkgasm "github.com/cosmos72/gomacrojit/jit_old/asm"
+	. "github.com/cosmos72/onejit/jit_old/amd64"
+	pkgasm "github.com/cosmos72/onejit/jit_old/asm"
 )
 
 func Var(index uint16) Mem {

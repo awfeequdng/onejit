@@ -1,5 +1,5 @@
 /*
- * gomacrojit - JIT compiler in Go
+ * onejit - JIT compiler in Go
  *
  * Copyright (C) 2018-2020 Massimiliano Ghilardi
  *
@@ -17,7 +17,7 @@
 package amd64
 
 import (
-	. "github.com/cosmos72/gomacrojit/jit/internal"
+	. "github.com/cosmos72/onejit/jit/internal"
 )
 
 func compileBinary(e *BinaryExpr, toplevel bool, ac *ArchCompiled) Expr {

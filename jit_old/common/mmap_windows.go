@@ -1,7 +1,7 @@
 // +build windows
 
 /*
- * gomacrojit - JIT compiler in Go
+ * onejit - JIT compiler in Go
  *
  * Copyright (C) 2018-2019 Massimiliano Ghilardi
  *

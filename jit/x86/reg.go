@@ -1,5 +1,5 @@
 /*
- * gomacrojit - JIT compiler in Go
+ * onejit - JIT compiler in Go
  *
  * Copyright (C) 2020 Massimiliano Ghilardi
  *
@@ -19,8 +19,8 @@ package amd64
 import (
 	"fmt"
 
-	. "github.com/cosmos72/gomacrojit/jit"
-	"github.com/cosmos72/gomacrojit/jit/amd64"
+	. "github.com/cosmos72/onejit/jit"
+	"github.com/cosmos72/onejit/jit/amd64"
 )
 
 // ============================ RegId ==========================================
@@ -45,10 +45,10 @@ const (
 	RHi  = XMM7
 )
 
-// go:linkname regName github.com/cosmos72/gomacrojit/jit/amd64.regname4
+// go:linkname regName github.com/cosmos72/onejit/jit/amd64.regname4
 var regName [33]string
 
-// go:linkname regNameXMM github.com/cosmos72/gomacrojit/jit/amd64.regname16
+// go:linkname regNameXMM github.com/cosmos72/onejit/jit/amd64.regname16
 var regNameXMM [33]string
 
 func RegIdValid(id RegId) bool {

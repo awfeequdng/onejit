@@ -1,5 +1,5 @@
 /*
- * gomacrojit - JIT compiler in Go
+ * onejit - JIT compiler in Go
  *
  * Copyright (C) 2018-2020 Massimiliano Ghilardi
  *
@@ -17,11 +17,11 @@
 package main
 
 import (
-	. "github.com/cosmos72/gomacrojit/jit"
-	_ "github.com/cosmos72/gomacrojit/jit/amd64"
-	_ "github.com/cosmos72/gomacrojit/jit/arm64"
-	_ "github.com/cosmos72/gomacrojit/jit/x86"
-	_ "github.com/cosmos72/gomacrojit/jit_old"
+	. "github.com/cosmos72/onejit/jit"
+	_ "github.com/cosmos72/onejit/jit/amd64"
+	_ "github.com/cosmos72/onejit/jit/arm64"
+	_ "github.com/cosmos72/onejit/jit/x86"
+	_ "github.com/cosmos72/onejit/jit_old"
 )
 
 func main() {

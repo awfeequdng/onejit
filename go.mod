@@ -1,4 +1,4 @@
-module github.com/cosmos72/gomacrojit
+module github.com/cosmos72/onejit
 
 go 1.10
 

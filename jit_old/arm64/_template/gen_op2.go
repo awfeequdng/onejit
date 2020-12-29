@@ -1,5 +1,5 @@
 /*
- * gomacrojitjit - JIT compiler in Go
+ * onejitjit - JIT compiler in Go
  *
  * Copyright (C) 2018-2020 Massimiliano Ghilardi
  *
@@ -21,7 +21,7 @@ import (
 	"io"
 	"os"
 
-	arch "github.com/cosmos72/gomacrojit/jit_old/arm64"
+	arch "github.com/cosmos72/onejit/jit_old/arm64"
 )
 
 type genOp2 struct {

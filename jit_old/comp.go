@@ -1,5 +1,5 @@
 /*
- * gomacrojitjit - JIT compiler in Go
+ * onejitjit - JIT compiler in Go
  *
  * Copyright (C) 2018-2020 Massimiliano Ghilardi
  *
@@ -19,7 +19,7 @@ package jit
 import (
 	"bytes"
 
-	"github.com/cosmos72/gomacrojit/jit_old/asm"
+	"github.com/cosmos72/onejit/jit_old/asm"
 )
 
 // argument of Comp.Compile()

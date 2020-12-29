@@ -1,5 +1,5 @@
 /*
- * gomacrojit - JIT compiler in Go
+ * onejit - JIT compiler in Go
  *
  * Copyright (C) 2018-2020 Massimiliano Ghilardi
  *
@@ -19,7 +19,7 @@ package amd64
 import (
 	"fmt"
 
-	. "github.com/cosmos72/gomacrojit/jit"
+	. "github.com/cosmos72/onejit/jit"
 )
 
 // ============================ RegId ==========================================

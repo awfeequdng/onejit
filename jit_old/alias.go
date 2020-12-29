@@ -1,5 +1,5 @@
 /*
- * gomacrojitjit - JIT compiler in Go
+ * onejitjit - JIT compiler in Go
  *
  * Copyright (C) 2018-2020 Massimiliano Ghilardi
  *
@@ -20,8 +20,8 @@ import (
 	"errors"
 	"reflect"
 
-	"github.com/cosmos72/gomacrojit/jit_old/asm"
-	"github.com/cosmos72/gomacrojit/jit_old/common"
+	"github.com/cosmos72/onejit/jit_old/asm"
+	"github.com/cosmos72/onejit/jit_old/common"
 )
 
 type (
