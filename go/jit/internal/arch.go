@@ -1,7 +1,7 @@
 /*
  * onejit - JIT compiler in Go
  *
- * Copyright (C) 2018-2020 Massimiliano Ghilardi
+ * Copyright (C) 2018-2020-2020 Massimiliano Ghilardi
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,23 +17,53 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.go
+ * arch.go
  *
- *  Created on Nov 23, 2019
+ *  Created on Feb 13, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package main
+package internal
 
 import (
-	. "github.com/cosmos72/onejit/go/jit"
-	_ "github.com/cosmos72/onejit/go/jit/amd64"
-	_ "github.com/cosmos72/onejit/go/jit/arm64"
-	_ "github.com/cosmos72/onejit/go/jit/x86"
-	_ "github.com/cosmos72/onejit/go/jit_old"
+	"fmt"
 )
 
-func main() {
-	f := NewFunc("main", NewSignature(nil, nil))
-	f.Compile()
+type ArchId uint8
+
+const (
+	NOARCH ArchId = iota
+	AMD64
+	ARM64
+	ARM
+	X86
+	archLo = NOARCH
+	archHi = X86
+)
+
+type Arch struct {
+	ArchId
+	CpuWidth CpuWidth
+	Compile  func(expr Expr, toplevel bool, ac *Asm) Expr
+}
+
+var Archs = map[ArchId]Arch{}
+
+var archName = [...]string{
+	NOARCH: "NOARCH",
+	AMD64:  "AMD64",
+	ARM64:  "ARM64",
+	ARM:    "ARM",
+	X86:    "X86",
+}
+
+func (archid ArchId) String() string {
+	var s string
+	if archid >= archLo && archid <= archHi {
+		s = archName[archid]
+	}
+	if len(s) == 0 {
+		s = fmt.Sprintf("ArchId(%d)", int(archid))
+	}
+	return s
 }

@@ -1,2 +1,2 @@
 # onejit
-[ALPHA] JIT compiler in Go
+[ALPHA] JIT compiler

@@ -17,23 +17,32 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.go
+ * z_test.go
  *
- *  Created on Nov 23, 2019
+ *  Created on Feb 10, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package main
+package common
 
 import (
-	. "github.com/cosmos72/onejit/go/jit"
-	_ "github.com/cosmos72/onejit/go/jit/amd64"
-	_ "github.com/cosmos72/onejit/go/jit/arm64"
-	_ "github.com/cosmos72/onejit/go/jit/x86"
-	_ "github.com/cosmos72/onejit/go/jit_old"
+	"testing"
 )
 
-func main() {
-	f := NewFunc("main", NewSignature(nil, nil))
-	f.Compile()
+func EqUint8(t *testing.T, actual uint8, expected uint8) {
+	if actual != expected {
+		t.Errorf("expected %d,\tactual %d", expected, actual)
+	}
+}
+
+func TestLog2(t *testing.T) {
+	for shift := uint8(1); shift < 64; shift++ {
+		n := uint64(1) << shift
+		actual, _ := Log2Uint(n)
+		EqUint8(t, actual, shift)
+		actual, _ = Log2Uint(n - 1)
+		EqUint8(t, actual, 0)
+		actual, _ = Log2Uint(n + 1)
+		EqUint8(t, actual, 0)
+	}
 }

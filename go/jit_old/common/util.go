@@ -17,23 +17,30 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.go
+ * util.go
  *
- *  Created on Nov 23, 2019
+ *  Created on Feb 24, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package main
+package common
 
-import (
-	. "github.com/cosmos72/onejit/go/jit"
-	_ "github.com/cosmos72/onejit/go/jit/amd64"
-	_ "github.com/cosmos72/onejit/go/jit/arm64"
-	_ "github.com/cosmos72/onejit/go/jit/x86"
-	_ "github.com/cosmos72/onejit/go/jit_old"
-)
+func sliceEqual(lhs []uint8, rhs []uint8) bool {
+	size := len(lhs)
+	if size != len(rhs) {
+		return false
+	}
+	if size == 0 || &lhs[0] == &rhs[0] {
+		return true
+	}
+	for i := 0; i < size; i++ {
+		if lhs[i] != rhs[i] {
+			return false
+		}
+	}
+	return true
+}
 
-func main() {
-	f := NewFunc("main", NewSignature(nil, nil))
-	f.Compile()
+func (code MachineCode) Equal(other MachineCode) bool {
+	return code.ArchId == other.ArchId && sliceEqual(code.Bytes, other.Bytes)
 }

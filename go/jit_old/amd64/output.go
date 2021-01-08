@@ -17,23 +17,33 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.go
+ * output.go
  *
- *  Created on Nov 23, 2019
+ *  Created on May 20, 2018
  *      Author Massimiliano Ghilardi
  */
 
-package main
+package amd64
 
 import (
-	. "github.com/cosmos72/onejit/go/jit"
-	_ "github.com/cosmos72/onejit/go/jit/amd64"
-	_ "github.com/cosmos72/onejit/go/jit/arm64"
-	_ "github.com/cosmos72/onejit/go/jit/x86"
-	_ "github.com/cosmos72/onejit/go/jit_old"
+	"errors"
+	"fmt"
 )
 
-func main() {
-	f := NewFunc("main", NewSignature(nil, nil))
-	f.Compile()
+func debugf(format string, args ...interface{}) {
+	fmt.Printf("// debug amd64: "+format+"\n", args...)
+}
+
+var errorPrefix = "amd64 assembler error: "
+
+func errorf(format string, args ...interface{}) {
+	panic(errors.New(errorPrefix + fmt.Sprintf(format, args...)))
+}
+
+var assertError = errors.New("amd64 assembler error, assertion failed")
+
+func assert(flag bool) {
+	if !flag {
+		panic(assertError)
+	}
 }

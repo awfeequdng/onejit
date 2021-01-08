@@ -17,23 +17,52 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.go
+ * mem.go
  *
- *  Created on Nov 23, 2019
+ *  Created on Jan 23, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package main
+package common
 
 import (
-	. "github.com/cosmos72/onejit/go/jit"
-	_ "github.com/cosmos72/onejit/go/jit/amd64"
-	_ "github.com/cosmos72/onejit/go/jit/arm64"
-	_ "github.com/cosmos72/onejit/go/jit/x86"
-	_ "github.com/cosmos72/onejit/go/jit_old"
+	"fmt"
 )
 
-func main() {
-	f := NewFunc("main", NewSignature(nil, nil))
-	f.Compile()
+// hardware memory location.
+type Mem struct {
+	off int32
+	reg Reg // also defines kind, width and signedness
+}
+
+func (m Mem) String() string {
+	arch := m.reg.id.Arch()
+	if arch != nil {
+		return arch.MemString(m)
+	}
+	return fmt.Sprintf("%v@{%v+%v}", m.reg.kind, m.reg.id, m.off)
+}
+
+// implement Arg interface
+func (m Mem) RegId() RegId {
+	return m.reg.id
+}
+
+func (m Mem) Kind() Kind {
+	return m.reg.kind
+}
+
+func (m Mem) Const() bool {
+	return false
+}
+
+func (m Mem) asmcode() {
+}
+
+func (m Mem) Offset() int32 {
+	return m.off
+}
+
+func MakeMem(off int32, id RegId, kind Kind) Mem {
+	return Mem{off: off, reg: Reg{id: id, kind: kind}}
 }

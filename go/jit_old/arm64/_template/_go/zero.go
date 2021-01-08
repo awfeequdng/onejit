@@ -17,23 +17,35 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.go
+ * zero.go
  *
- *  Created on Nov 23, 2019
+ *  Created on Feb 07, 2019
  *      Author Massimiliano Ghilardi
  */
 
 package main
 
-import (
-	. "github.com/cosmos72/onejit/go/jit"
-	_ "github.com/cosmos72/onejit/go/jit/amd64"
-	_ "github.com/cosmos72/onejit/go/jit/arm64"
-	_ "github.com/cosmos72/onejit/go/jit/x86"
-	_ "github.com/cosmos72/onejit/go/jit_old"
-)
+// go:nosplit
+func Zero0(env *Env) {
+	env.IP++
+}
 
-func main() {
-	f := NewFunc("main", NewSignature(nil, nil))
-	f.Compile()
+// go:nosplit
+func Zero8(env *Env) uint8 {
+	return uint8(env.Ints[0])
+}
+
+// go:nosplit
+func Zero16(env *Env) uint16 {
+	return uint16(env.Ints[0])
+}
+
+// go:nosplit
+func Zero32(env *Env) uint32 {
+	return uint32(env.Ints[0])
+}
+
+// go:nosplit
+func Zero64(env *Env) uint64 {
+	return uint64(env.Ints[0])
 }

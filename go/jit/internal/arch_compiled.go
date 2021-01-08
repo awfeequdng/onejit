@@ -1,7 +1,7 @@
 /*
  * onejit - JIT compiler in Go
  *
- * Copyright (C) 2018-2020 Massimiliano Ghilardi
+ * Copyright (C) 2018-2020-2020 Massimiliano Ghilardi
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,23 +17,47 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.go
+ * asm.go
  *
- *  Created on Nov 23, 2019
+ *  Created on Dec 27, 2020
  *      Author Massimiliano Ghilardi
  */
 
-package main
+package internal
 
-import (
-	. "github.com/cosmos72/onejit/go/jit"
-	_ "github.com/cosmos72/onejit/go/jit/amd64"
-	_ "github.com/cosmos72/onejit/go/jit/arm64"
-	_ "github.com/cosmos72/onejit/go/jit/x86"
-	_ "github.com/cosmos72/onejit/go/jit_old"
-)
+// ================================== Asm ========================================
 
-func main() {
-	f := NewFunc("main", NewSignature(nil, nil))
-	f.Compile()
+type Asm Compiled
+
+func (ac *Asm) Func() *Func {
+	return ac.fun
+}
+
+func (ac *Asm) Add(e Expr) *Asm {
+	ac.code = append(ac.code, e)
+	return ac
+}
+
+func (ac *Asm) Children() int {
+	return len(ac.code)
+}
+
+func (ac *Asm) Child(i int) Node {
+	return ac.code[i]
+}
+
+func SpillToReg(e Expr, ac *Asm) Reg {
+	var reg Reg
+	switch e := e.(type) {
+	case Reg:
+		reg = e
+	case Const:
+		reg = e.spillToReg(ac)
+	case Label:
+		reg = e.spillToReg(ac)
+	default:
+		reg = ac.Func().NewReg(e.Kind())
+		ac.Add(Binary(ASSIGN, reg, e))
+	}
+	return reg
 }

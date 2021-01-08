@@ -1,7 +1,7 @@
 /*
  * onejit - JIT compiler in Go
  *
- * Copyright (C) 2018-2020 Massimiliano Ghilardi
+ * Copyright (C) 2018-2019 Massimiliano Ghilardi
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,23 +17,22 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.go
+ * output.go
  *
- *  Created on Nov 23, 2019
+ *  Created on May 20, 2018
  *      Author Massimiliano Ghilardi
  */
 
-package main
+package jit
 
 import (
-	. "github.com/cosmos72/onejit/go/jit"
-	_ "github.com/cosmos72/onejit/go/jit/amd64"
-	_ "github.com/cosmos72/onejit/go/jit/arm64"
-	_ "github.com/cosmos72/onejit/go/jit/x86"
-	_ "github.com/cosmos72/onejit/go/jit_old"
+	"fmt"
 )
 
-func main() {
-	f := NewFunc("main", NewSignature(nil, nil))
-	f.Compile()
+func debugf(format string, args ...interface{}) {
+	fmt.Printf("// debug jit: "+format+"\n", args...)
+}
+
+func errorf(format string, args ...interface{}) {
+	panic(fmt.Errorf("jit compiler error: "+format, args...))
 }

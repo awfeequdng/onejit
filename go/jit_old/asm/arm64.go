@@ -1,3 +1,5 @@
+// +build arm64
+
 /*
  * onejit - JIT compiler in Go
  *
@@ -17,23 +19,20 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.go
+ * arm64.go
  *
- *  Created on Nov 23, 2019
+ *  Created on Feb 13, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package main
+package asm
 
 import (
-	. "github.com/cosmos72/onejit/go/jit"
-	_ "github.com/cosmos72/onejit/go/jit/amd64"
-	_ "github.com/cosmos72/onejit/go/jit/arm64"
-	_ "github.com/cosmos72/onejit/go/jit/x86"
-	_ "github.com/cosmos72/onejit/go/jit_old"
+	"github.com/cosmos72/onejit/go/jit_old/arm64"
 )
 
-func main() {
-	f := NewFunc("main", NewSignature(nil, nil))
-	f.Compile()
-}
+const (
+	ARCH_ID        = arm64.ARM64
+	ARCH_SUPPORTED = true
+	NAME           = arm64.NAME
+)

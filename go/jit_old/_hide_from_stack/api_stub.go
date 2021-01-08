@@ -1,3 +1,5 @@
+// +build !gc !amd64,!arm64
+
 /*
  * onejit - JIT compiler in Go
  *
@@ -17,23 +19,49 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.go
+ * api_stub.go
  *
- *  Created on Nov 23, 2019
+ *  Created on Oct 27, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package main
+package hide_from_stack
 
-import (
-	. "github.com/cosmos72/onejit/go/jit"
-	_ "github.com/cosmos72/onejit/go/jit/amd64"
-	_ "github.com/cosmos72/onejit/go/jit/arm64"
-	_ "github.com/cosmos72/onejit/go/jit/x86"
-	_ "github.com/cosmos72/onejit/go/jit_old"
-)
+// Return an array of function addresses {call0, call16 ... call512}
+// If unsupported on this CPU or compiler, all values will be zero.
+func MakeCallArray() [7]uintptr {
+	return [7]uintptr{}
+}
 
-func main() {
-	f := NewFunc("main", NewSignature(nil, nil))
-	f.Compile()
+func call0() {
+	unimplemented()
+}
+func call16() {
+	unimplemented()
+}
+func call32() {
+	unimplemented()
+}
+func call64() {
+	unimplemented()
+}
+func call128() {
+	unimplemented()
+}
+func call256() {
+	unimplemented()
+}
+
+// ensure stack has > 512 free bytes
+func GrowStack() {
+	unimplemented()
+}
+
+func hidden_jit_func(uintptr) {
+	unimplemented()
+}
+
+// go:noinline
+func unimplemented() {
+	panic("hide_from_stack: not implemented on this CPU and/or compiler")
 }

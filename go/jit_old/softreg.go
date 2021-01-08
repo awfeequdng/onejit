@@ -17,23 +17,55 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.go
+ * softreg.go
  *
- *  Created on Nov 23, 2019
+ *  Created on Feb 10, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package main
+package jit
 
 import (
-	. "github.com/cosmos72/onejit/go/jit"
-	_ "github.com/cosmos72/onejit/go/jit/amd64"
-	_ "github.com/cosmos72/onejit/go/jit/arm64"
-	_ "github.com/cosmos72/onejit/go/jit/x86"
-	_ "github.com/cosmos72/onejit/go/jit_old"
+	"github.com/cosmos72/onejit/go/jit_old/common"
 )
 
-func main() {
-	f := NewFunc("main", NewSignature(nil, nil))
-	f.Compile()
+func (c *Comp) NewSoftReg(kind Kind) SoftReg {
+	id := c.nextSoftReg
+	c.nextSoftReg++
+	s := MakeSoftReg(id, kind)
+	c.code.SoftReg(common.ALLOC, s)
+	return s
+}
+
+func (c *Comp) newTempReg(kind Kind) SoftReg {
+	id := c.nextTempReg
+	c.nextTempReg++
+	s := MakeSoftReg(id, kind)
+	c.code.SoftReg(common.ALLOC, s)
+	return s
+}
+
+func (c *Comp) FreeSoftReg(s SoftReg) {
+	if s.Valid() && !s.IsTemp() {
+		if s.Id()+1 == c.nextSoftReg {
+			c.nextSoftReg--
+		}
+		c.code.SoftReg(common.FREE, s)
+	}
+}
+
+func (c *Comp) freeTempReg(s SoftReg) {
+	if s.Valid() && s.IsTemp() {
+		if s.Id()+1 == c.nextTempReg {
+			c.nextTempReg--
+		}
+		c.code.SoftReg(common.FREE, s)
+	}
+}
+
+// alloc or free soft reg
+func (c *Comp) SoftReg(inst Inst1Misc, s SoftReg) {
+	if s.Valid() {
+		c.code.SoftReg(inst.Asm(), s)
+	}
 }

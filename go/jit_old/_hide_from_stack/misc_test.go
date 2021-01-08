@@ -1,3 +1,5 @@
+// +build !gc !amd64,!arm64
+
 /*
  * onejit - JIT compiler in Go
  *
@@ -17,23 +19,31 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.go
+ * misc_test.go
  *
- *  Created on Nov 23, 2019
+ *  Created on Nov 01, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package main
+package hide_from_stack
 
-import (
-	. "github.com/cosmos72/onejit/go/jit"
-	_ "github.com/cosmos72/onejit/go/jit/amd64"
-	_ "github.com/cosmos72/onejit/go/jit/arm64"
-	_ "github.com/cosmos72/onejit/go/jit/x86"
-	_ "github.com/cosmos72/onejit/go/jit_old"
-)
+func asm_address_of_canary() func(uintptr) {
+	return canary
+}
 
-func main() {
-	f := NewFunc("main", NewSignature(nil, nil))
-	f.Compile()
+func asm_call_canary(arg uintptr) {
+	canary(arg)
+}
+
+func asm_call_func(func_address uintptr, arg uintptr) {
+	unimplemented()
+}
+
+func asm_call_closure(tocall func(uintptr), arg uintptr) {
+	tocall(arg)
+}
+
+func asm_loop() {
+	for {
+	}
 }

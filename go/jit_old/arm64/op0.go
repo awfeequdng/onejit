@@ -17,23 +17,33 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.go
+ * op0.go
  *
- *  Created on Nov 23, 2019
+ *  Created on Jan 27, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package main
+package arm64
 
-import (
-	. "github.com/cosmos72/onejit/go/jit"
-	_ "github.com/cosmos72/onejit/go/jit/amd64"
-	_ "github.com/cosmos72/onejit/go/jit/arm64"
-	_ "github.com/cosmos72/onejit/go/jit/x86"
-	_ "github.com/cosmos72/onejit/go/jit_old"
-)
+// ============================================================================
+// no-arg instruction
 
-func main() {
-	f := NewFunc("main", NewSignature(nil, nil))
-	f.Compile()
+func op0val(op Op0) uint32 {
+	var val uint32
+	switch op {
+	case BAD:
+		val = 0x00000000
+	case NOP:
+		val = 0xD503201F
+	case RET:
+		val = 0xD65F03C0
+	default:
+		errorf("unknown Op0 instruction: %v", op)
+	}
+	return val
+}
+
+// ============================================================================
+func (arch Arm64) Op0(asm *Asm, op Op0) *Asm {
+	return asm.Uint32(op0val(op))
 }

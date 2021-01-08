@@ -17,23 +17,35 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.go
+ * deconstruct_func.go
  *
- *  Created on Nov 23, 2019
+ *  Created on Oct 27, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package main
+package hide_from_stack
 
 import (
-	. "github.com/cosmos72/onejit/go/jit"
-	_ "github.com/cosmos72/onejit/go/jit/amd64"
-	_ "github.com/cosmos72/onejit/go/jit/arm64"
-	_ "github.com/cosmos72/onejit/go/jit/x86"
-	_ "github.com/cosmos72/onejit/go/jit_old"
+	"unsafe"
 )
 
-func main() {
-	f := NewFunc("main", NewSignature(nil, nil))
-	f.Compile()
+type closureHeader struct {
+	funcAddress uintptr
+	closureData [0]uintptr
+}
+
+func deconstruct_any_func(fun interface{}) *closureHeader {
+	type interfaceHeader struct {
+		typ uintptr
+		val *closureHeader
+	}
+	return (*interfaceHeader)(unsafe.Pointer(&fun)).val
+}
+
+func deconstruct_func0(fun func()) *closureHeader {
+	return *(**closureHeader)(unsafe.Pointer(&fun))
+}
+
+func deconstruct_func8(fun func(uintptr)) *closureHeader {
+	return *(**closureHeader)(unsafe.Pointer(&fun))
 }
