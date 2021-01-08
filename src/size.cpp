@@ -17,36 +17,18 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * archid.cpp
+ * size.cpp
  *
  *  Created on Jan 28, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/archid.hpp"
-
-#include <ostream>
+#include "onejit/size.hpp"
 
 namespace onejit {
 
-static const std::string archstring[] = {
-    "NOARCH", "AMD64", "ARM64", "ARM", "X86",
-};
-
-const std::string &ArchId::String() const {
-  uint8_t i = val;
-  if (i >= sizeof(archstring) / sizeof(archstring[0])) {
-    i = 0;
-  }
-  switch (Val()) {
-  case NOARCH.Val():
-    break;
-  }
-  return archstring[i];
-}
-
-std::ostream &operator<<(std::ostream &out, ArchId archid) {
-  return out << archid.String();
+std::ostream &operator<<(std::ostream &out, Size size) {
+  return out << size.Val();
 }
 
 } // namespace onejit

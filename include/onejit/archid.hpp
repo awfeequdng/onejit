@@ -17,36 +17,44 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * archid.cpp
+ * archid.hpp
  *
  *  Created on Jan 28, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/archid.hpp"
+#ifndef ONEJIT_ARCHID_HPP
+#define ONEJIT_ARCHID_HPP
 
-#include <ostream>
+#include <cstdint> // uint8_t
+#include <iosfwd>
+#include <string>
 
 namespace onejit {
 
-static const std::string archstring[] = {
-    "NOARCH", "AMD64", "ARM64", "ARM", "X86",
+class ArchId {
+public:
+  constexpr explicit ArchId(uint8_t archid) : val(archid) {
+  }
+
+  const std::string &String() const;
+
+  constexpr uint8_t Val() const {
+    return val;
+  }
+
+private:
+  uint8_t val;
 };
 
-const std::string &ArchId::String() const {
-  uint8_t i = val;
-  if (i >= sizeof(archstring) / sizeof(archstring[0])) {
-    i = 0;
-  }
-  switch (Val()) {
-  case NOARCH.Val():
-    break;
-  }
-  return archstring[i];
-}
+std::ostream &operator<<(std::ostream &out, ArchId archid);
 
-std::ostream &operator<<(std::ostream &out, ArchId archid) {
-  return out << archid.String();
-}
+constexpr const ArchId NOARCH(0);
+constexpr const ArchId AMD64(1);
+constexpr const ArchId ARM64(2);
+constexpr const ArchId ARM(3);
+constexpr const ArchId X86(4);
 
-} // namespace onejit
+}; // namespace onejit
+
+#endif // ONEJIT_ARCH_HPP

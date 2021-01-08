@@ -99,7 +99,8 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_onejit_OBJECTS = archid.$(OBJEXT) main.$(OBJEXT)
+am_onejit_OBJECTS = archid.$(OBJEXT) kind.$(OBJEXT) main.$(OBJEXT) \
+	size.$(OBJEXT)
 onejit_OBJECTS = $(am_onejit_OBJECTS)
 onejit_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -117,7 +118,8 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/main.Po
+am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/kind.Po \
+	./$(DEPDIR)/main.Po ./$(DEPDIR)/size.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -295,7 +297,7 @@ SUBDIRS =
 
 # AM_CPPFLAGS         = -I$(top_srcdir)/include
 # onejit_CPPFLAGS     = -I$(top_srcdir)/include
-onejit_SOURCES = archid.cpp main.cpp
+onejit_SOURCES = archid.cpp kind.cpp main.cpp size.cpp
 all: all-recursive
 
 .SUFFIXES:
@@ -383,7 +385,9 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/archid.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kind.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/size.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -608,7 +612,9 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/archid.Po
+	-rm -f ./$(DEPDIR)/kind.Po
 	-rm -f ./$(DEPDIR)/main.Po
+	-rm -f ./$(DEPDIR)/size.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -655,7 +661,9 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/archid.Po
+	-rm -f ./$(DEPDIR)/kind.Po
 	-rm -f ./$(DEPDIR)/main.Po
+	-rm -f ./$(DEPDIR)/size.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
