@@ -1,2 +1,2 @@
 # onejit
-[ALPHA] JIT compiler
+[ALPHA] JIT compiler in C++
