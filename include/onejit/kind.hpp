@@ -35,17 +35,17 @@ namespace onejit {
 
 class Kind {
 public:
-  constexpr explicit Kind(uint8_t kind) : val(kind) {
+  constexpr explicit Kind(uint8_t kind) : val_(kind) {
   }
 
-  constexpr uint8_t Val() const {
-    return val;
+  constexpr uint8_t val() const {
+    return val_;
   }
-  Size Size() const;
-  const std::string &String() const;
+  Size size() const;
+  const std::string &string() const;
 
 private:
-  uint8_t val;
+  uint8_t val_;
 };
 
 std::ostream &operator<<(std::ostream &out, Kind kind);

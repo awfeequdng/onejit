@@ -34,17 +34,17 @@ namespace onejit {
 
 class ArchId {
 public:
-  constexpr explicit ArchId(uint8_t archid) : val(archid) {
+  constexpr explicit ArchId(uint8_t archid) : val_(archid) {
   }
 
-  const std::string &String() const;
+  const std::string &string() const;
 
-  constexpr uint8_t Val() const {
-    return val;
+  constexpr uint8_t val() const {
+    return val_;
   }
 
 private:
-  uint8_t val;
+  uint8_t val_;
 };
 
 std::ostream &operator<<(std::ostream &out, ArchId archid);

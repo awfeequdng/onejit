@@ -34,24 +34,24 @@ namespace onejit {
 
 class Size {
 public:
-  constexpr explicit Size(size_t n) : log2(uintlog2(n, -1)) {
+  constexpr explicit Size(size_t n) : log2_(uintlog2(n, -1)) {
   }
 
   // 255 means Val() == 0
-  constexpr uint8_t Log2() const {
-    return log2;
+  constexpr uint8_t log2() const {
+    return log2_;
   }
-  constexpr size_t Val() const {
-    return log2 == uint8_t(-1) ? 0 : size_t(1) << log2;
+  constexpr size_t val() const {
+    return log2_ == uint8_t(-1) ? 0 : size_t(1) << log2_;
   }
-  std::string String() const;
+  std::string string() const;
 
 private:
   constexpr static uint8_t uintlog2(size_t n, uint8_t accum) {
     return n == 0 ? accum : uintlog2(n >> 1, accum + 1);
   }
 
-  uint8_t log2;
+  uint8_t log2_;
 };
 
 std::ostream &operator<<(std::ostream &out, Size size);

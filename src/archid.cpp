@@ -33,20 +33,16 @@ static const std::string archstring[] = {
     "NOARCH", "AMD64", "ARM64", "ARM", "X86",
 };
 
-const std::string &ArchId::String() const {
-  uint8_t i = val;
+const std::string &ArchId::string() const {
+  uint8_t i = val_;
   if (i >= sizeof(archstring) / sizeof(archstring[0])) {
     i = 0;
-  }
-  switch (Val()) {
-  case NOARCH.Val():
-    break;
   }
   return archstring[i];
 }
 
 std::ostream &operator<<(std::ostream &out, ArchId archid) {
-  return out << archid.String();
+  return out << archid.string();
 }
 
 } // namespace onejit

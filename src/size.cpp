@@ -28,7 +28,7 @@
 namespace onejit {
 
 std::ostream &operator<<(std::ostream &out, Size size) {
-  return out << size.Val();
+  return out << size.val();
 }
 
 } // namespace onejit
