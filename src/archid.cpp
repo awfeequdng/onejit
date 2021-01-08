@@ -1,7 +1,7 @@
 /*
- * onejit - JIT compiler in Go
+ * onejit - JIT compiler in C++
  *
- * Copyright (C) 2018-2020 Massimiliano Ghilardi
+ * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,22 +17,43 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * func.go
+ * archid.cpp
  *
- *  Created on Dec 28, 2020
+ *  Created on Jan 28, 2020
  *      Author Massimiliano Ghilardi
  */
 
-package jit
+#include "archid.hpp"
 
-import (
-	"github.com/cosmos72/onejit/go/jit/internal"
-)
+#include <ostream>
 
-func NewSignature(params []Kind, results []Kind) *Signature {
-	return internal.NewSignature(params, results)
+namespace onejit {
+
+std::string to_string(ArchId archid) {
+  const char* s = nullptr;
+  switch (archid) {
+    case NOARCH:
+    default:
+      s = "NOARCH";
+      break;
+    case AMD64:
+      s = "AMD64";
+      break;
+    case ARM64:
+      s = "ARM64";
+      break;
+    case ARM:
+      s = "ARM";
+      break;
+    case X86:
+      s = "X86";
+      break;
+  }
+  return std::string(s);
 }
 
-func NewFunc(name string, sig *Signature) *Func {
-	return internal.NewFunc(name, sig)
+std::ostream& operator<<(std::ostream& out, ArchId archid) {
+  return out << to_string(archid);
 }
+
+}  // namespace onejit

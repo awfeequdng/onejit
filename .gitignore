@@ -7,5 +7,15 @@
 *.out
 *.so
 *.test
-/onejit
+.deps
+.libs
+a.out
+config.cache
+config.log
+config.status
+Makefile
+/autom4te.cache
 /go/go
+/include/config.h
+/include/stamp-h1
+/src/onejit

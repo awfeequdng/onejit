@@ -1,7 +1,7 @@
 /*
  * onejit - JIT compiler in Go
  *
- * Copyright (C) 2018-2020-2020 Massimiliano Ghilardi
+ * Copyright (C) 2018-2020 Massimiliano Ghilardi
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
