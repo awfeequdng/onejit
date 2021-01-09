@@ -27,7 +27,7 @@
 
 #include <onejit/view.hpp>
 
-#include <iosfwd> // std::ostream
+#include <ostream>
 
 namespace onejit {
 
@@ -52,7 +52,9 @@ public:
   }
 };
 
-std::ostream &operator<<(std::ostream &out, Chars chars);
+inline std::ostream &operator<<(std::ostream &out, Chars chars) {
+  return out.write(chars.data(), chars.size());
+}
 
 } // namespace onejit
 

@@ -24,6 +24,7 @@
  */
 
 #include "onejit/op2.hpp"
+#include "onejit/chars.hpp"
 
 #include <ostream>
 
@@ -37,14 +38,12 @@ static const Chars op2string[] = {
     "!=", "<=", ">=",                                                    //
 };
 
-static const Chars op2string_other[] = {"?", "goto"};
-
 const Chars &to_string(Op2 op) {
+  uint8_t i = LOR + 1; // "?"
   if (op >= ADD && op <= GEQ) {
-    return op2string[op - ADD];
+    i = op - ADD;
   }
-  uint8_t i = (op == GOTO) ? 1 : 0;
-  return op2string_other[i];
+  return op2string[i];
 }
 
 std::ostream &operator<<(std::ostream &out, Op2 op) {

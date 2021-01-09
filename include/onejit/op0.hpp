@@ -26,8 +26,6 @@
 #ifndef ONEJIT_OP0_HPP
 #define ONEJIT_OP0_HPP
 
-#include <onejit/chars.hpp>
-
 #include <cstdint> // uint8_t
 #include <iosfwd>  // std::ostream
 
@@ -40,6 +38,7 @@ enum Op0 : uint8_t {
   FALLTHROUGH = 69,
 };
 
+class Chars;
 const Chars &to_string(Op0 op);
 
 std::ostream &operator<<(std::ostream &out, Op0 op);

@@ -24,6 +24,7 @@
  */
 
 #include "onejit/kind.hpp"
+#include "onejit/chars.hpp"
 
 namespace onejit {
 

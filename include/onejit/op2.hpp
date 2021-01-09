@@ -26,8 +26,6 @@
 #ifndef ONEJIT_OP2_HPP
 #define ONEJIT_OP2_HPP
 
-#include <onejit/chars.hpp>
-
 #include <cstdint> // uint8_t
 #include <iosfwd>  // std::ostream
 
@@ -72,10 +70,9 @@ enum Op2 : uint8_t {
   NEQ = ASSIGN + 2, // !=
   LEQ,              // <=
   GEQ,              // >=
-
-  GOTO = 73,
 };
 
+class Chars;
 const Chars &to_string(Op2 op);
 
 std::ostream &operator<<(std::ostream &out, Op2 op);

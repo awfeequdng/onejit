@@ -24,6 +24,7 @@
  */
 
 #include "onejit/group.hpp"
+#include "onejit/chars.hpp"
 
 #include <ostream>
 

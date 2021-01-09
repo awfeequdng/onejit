@@ -26,7 +26,6 @@
 #ifndef ONEJIT_KIND_HPP
 #define ONEJIT_KIND_HPP
 
-#include <onejit/chars.hpp>
 #include <onejit/group.hpp>
 #include <onejit/size.hpp>
 
@@ -34,6 +33,8 @@
 #include <iosfwd>  // std::ostream
 
 namespace onejit {
+
+class Chars;
 
 class Kind {
 public:

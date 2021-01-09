@@ -17,33 +17,39 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * archid.cpp
+ * op1.cpp
  *
- *  Created on Jan 08, 2020
+ *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/archid.hpp"
+#include "onejit/op1.hpp"
 #include "onejit/chars.hpp"
 
 #include <ostream>
 
 namespace onejit {
 
-static const Chars archstring[] = {
-    "NOARCH", "AMD64", "ARM64", "ARM", "X86",
-};
+const Chars op1string[] = {"?", "^", "!", "goto"};
 
-const Chars &ArchId::string() const {
-  uint8_t i = val_;
-  if (i >= sizeof(archstring) / sizeof(archstring[0])) {
-    i = 0;
+const Chars &to_string(Op1 op) {
+  uint8_t i = 0;
+  switch (op) {
+  case XOR1:
+    i = 1;
+    break;
+  case NOT1:
+    i = 2;
+    break;
+  case GOTO:
+    i = 3;
+    break;
   }
-  return archstring[i];
+  return op1string[i];
 }
 
-std::ostream &operator<<(std::ostream &out, ArchId archid) {
-  return out << archid.string();
+std::ostream &operator<<(std::ostream &out, Op1 op) {
+  return out << to_string(op);
 }
 
 } // namespace onejit

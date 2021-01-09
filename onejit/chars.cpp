@@ -29,8 +29,6 @@
 
 namespace onejit {
 
-std::ostream &operator<<(std::ostream &out, Chars chars) {
-  return out.write(chars.data(), chars.size());
-}
+// nothing to do
 
 } // namespace onejit

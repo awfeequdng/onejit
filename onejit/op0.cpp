@@ -24,6 +24,7 @@
  */
 
 #include "onejit/op0.hpp"
+#include "onejit/chars.hpp"
 
 #include <ostream>
 

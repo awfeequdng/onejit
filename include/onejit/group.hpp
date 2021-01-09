@@ -26,8 +26,6 @@
 #ifndef ONEJIT_GROUP_HPP
 #define ONEJIT_GROUP_HPP
 
-#include <onejit/chars.hpp>
-
 #include <cstdint> // uint8_t
 #include <iosfwd>  // std::ostream
 
@@ -45,6 +43,7 @@ enum Group : uint8_t {
   gArch = 27, // arch-specific kind
 };
 
+class Chars;
 const Chars &to_string(Group g);
 
 std::ostream &operator<<(std::ostream &out, Group g);
