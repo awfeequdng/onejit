@@ -5,5 +5,5 @@ AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 ColumnLimit:    100
 Standard:       Cpp11
-SortIncludes:   false
+SortIncludes:   true
 UseTab:         Never

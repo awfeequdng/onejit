@@ -17,12 +17,31 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.cpp
+ * category.hpp
  *
- *  Created on Jan 28, 2020
+ *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-int main(int arcc, char *argv[]) {
-  return 0;
-}
+#ifndef ONEJIT_GROUP_HPP
+#define ONEJIT_GROUP_HPP
+
+#include <cstdint> // uint8_t
+
+namespace onejit {
+
+// intentionally matches Go reflect.Kind values
+enum Group : uint8_t {
+  gVoid = 0,
+  gBool = 1,
+  gInt = 2,
+  gUint = 7,
+  gFloat = 14,
+  gComplex = 16,
+  gPtr = 22,
+  gArch = 27, // arch-specific kind
+};
+
+} // namespace onejit
+
+#endif // ONEJIT_GROUP_HPP

@@ -17,32 +17,12 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * archid.cpp
+ * main.cpp
  *
- *  Created on Jan 28, 2020
+ *  Created on Jan 08, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/archid.hpp"
-
-#include <ostream>
-
-namespace onejit {
-
-static const std::string archstring[] = {
-    "NOARCH", "AMD64", "ARM64", "ARM", "X86",
-};
-
-const std::string &ArchId::string() const {
-  uint8_t i = val_;
-  if (i >= sizeof(archstring) / sizeof(archstring[0])) {
-    i = 0;
-  }
-  return archstring[i];
+int main(int arcc, char *argv[]) {
+  return 0;
 }
-
-std::ostream &operator<<(std::ostream &out, ArchId archid) {
-  return out << archid.string();
-}
-
-} // namespace onejit

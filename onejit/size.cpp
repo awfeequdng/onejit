@@ -17,44 +17,18 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * archid.hpp
+ * size.cpp
  *
  *  Created on Jan 08, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_ARCHID_HPP
-#define ONEJIT_ARCHID_HPP
-
-#include <cstdint> // uint8_t
-#include <iosfwd>
-#include <string>
+#include "onejit/size.hpp"
 
 namespace onejit {
 
-class ArchId {
-public:
-  constexpr explicit ArchId(uint8_t archid) : val_(archid) {
-  }
+std::ostream &operator<<(std::ostream &out, Size size) {
+  return out << size.val();
+}
 
-  const std::string &string() const;
-
-  constexpr uint8_t val() const {
-    return val_;
-  }
-
-private:
-  uint8_t val_;
-};
-
-std::ostream &operator<<(std::ostream &out, ArchId archid);
-
-constexpr const ArchId NOARCH(0);
-constexpr const ArchId AMD64(1);
-constexpr const ArchId ARM64(2);
-constexpr const ArchId ARM(3);
-constexpr const ArchId X86(4);
-
-}; // namespace onejit
-
-#endif // ONEJIT_ARCH_HPP
+} // namespace onejit

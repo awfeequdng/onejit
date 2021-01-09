@@ -18,4 +18,4 @@ Makefile
 /go/go
 /include/config.h
 /include/stamp-h1
-/src/onejit
+/onejit/jit

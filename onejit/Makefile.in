@@ -86,8 +86,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = onejit$(EXEEXT)
-subdir = src
+bin_PROGRAMS = jit$(EXEEXT)
+subdir = onejit
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -99,10 +99,10 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_onejit_OBJECTS = archid.$(OBJEXT) kind.$(OBJEXT) main.$(OBJEXT) \
+am_jit_OBJECTS = archid.$(OBJEXT) kind.$(OBJEXT) main.$(OBJEXT) \
 	size.$(OBJEXT)
-onejit_OBJECTS = $(am_onejit_OBJECTS)
-onejit_LDADD = $(LDADD)
+jit_OBJECTS = $(am_jit_OBJECTS)
+jit_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -134,8 +134,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(onejit_SOURCES)
-DIST_SOURCES = $(onejit_SOURCES)
+SOURCES = $(jit_SOURCES)
+DIST_SOURCES = $(jit_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -296,8 +296,8 @@ SUBDIRS =
 # pkglib_LTLIBRARIES  =
 
 # AM_CPPFLAGS         = -I$(top_srcdir)/include
-# onejit_CPPFLAGS     = -I$(top_srcdir)/include
-onejit_SOURCES = archid.cpp kind.cpp main.cpp size.cpp
+# jit_CPPFLAGS        = -I$(top_srcdir)/include
+jit_SOURCES = archid.cpp kind.cpp main.cpp size.cpp
 all: all-recursive
 
 .SUFFIXES:
@@ -311,9 +311,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign onejit/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign src/Makefile
+	  $(AUTOMAKE) --foreign onejit/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -374,9 +374,9 @@ uninstall-binPROGRAMS:
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
-onejit$(EXEEXT): $(onejit_OBJECTS) $(onejit_DEPENDENCIES) $(EXTRA_onejit_DEPENDENCIES) 
-	@rm -f onejit$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(onejit_OBJECTS) $(onejit_LDADD) $(LIBS)
+jit$(EXEEXT): $(jit_OBJECTS) $(jit_DEPENDENCIES) $(EXTRA_jit_DEPENDENCIES) 
+	@rm -f jit$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(jit_OBJECTS) $(jit_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -701,8 +701,8 @@ uninstall-am: uninstall-binPROGRAMS
 .PRECIOUS: Makefile
 
 
-# onejit_LDFLAGS      = -export-dynamic $(LDFLAGS_BIN_EXPORT_DYNAMIC)
-# onejit_LDADD        =
+# jit_LDFLAGS         = -export-dynamic $(LDFLAGS_BIN_EXPORT_DYNAMIC)
+# jit_LDADD           =
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

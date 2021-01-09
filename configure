@@ -585,7 +585,7 @@ PACKAGE_STRING='onejit 0.0.0'
 PACKAGE_BUGREPORT='github.com/cosmos72/onejit'
 PACKAGE_URL=''
 
-ac_unique_file="src/archid.cpp"
+ac_unique_file="onejit/archid.cpp"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -3820,7 +3820,7 @@ done
 
 # Checks for library functions.
 
-ac_config_files="$ac_config_files Makefile src/Makefile"
+ac_config_files="$ac_config_files Makefile onejit/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -4551,7 +4551,7 @@ do
     "include/config.h") CONFIG_HEADERS="$CONFIG_HEADERS include/config.h" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
+    "onejit/Makefile") CONFIG_FILES="$CONFIG_FILES onejit/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

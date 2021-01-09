@@ -19,7 +19,7 @@
  *
  * size.hpp
  *
- *  Created on Jan 28, 2020
+ *  Created on Jan 08, 2020
  *      Author Massimiliano Ghilardi
  */
 
@@ -34,6 +34,9 @@ namespace onejit {
 
 class Size {
 public:
+  constexpr Size() : log2_(-1) {
+  }
+
   constexpr explicit Size(size_t n) : log2_(uintlog2(n, -1)) {
   }
 
