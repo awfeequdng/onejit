@@ -17,32 +17,33 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * archid.cpp
+ * op0.hpp
  *
- *  Created on Jan 08, 2020
+ *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/archid.hpp"
+#ifndef ONEJIT_OP0_HPP
+#define ONEJIT_OP0_HPP
 
-#include <ostream>
+#include <onejit/chars.hpp>
+
+#include <cstdint> // uint8_t
+#include <iosfwd>  // std::ostream
 
 namespace onejit {
 
-static const Chars archstring[] = {
-    "NOARCH", "AMD64", "ARM64", "ARM", "X86",
+// intentionally match Go go/token.Token values
+enum Op0 : uint8_t {
+  BREAK = 61,
+  CONTINUE = 65,
+  FALLTHROUGH = 69,
 };
 
-const Chars &ArchId::string() const {
-  uint8_t i = val_;
-  if (i >= sizeof(archstring) / sizeof(archstring[0])) {
-    i = 0;
-  }
-  return archstring[i];
-}
+const Chars &to_string(Op0 op);
 
-std::ostream &operator<<(std::ostream &out, ArchId archid) {
-  return out << archid.string();
-}
+std::ostream &operator<<(std::ostream &out, Op0 op);
 
 } // namespace onejit
+
+#endif // ONEJIT_GROUP_HPP

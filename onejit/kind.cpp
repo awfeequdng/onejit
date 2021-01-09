@@ -25,11 +25,9 @@
 
 #include "onejit/kind.hpp"
 
-#include <vector>
-
 namespace onejit {
 
-static const std::vector<std::string> kstring{
+static const Chars kstring[] = {
     "void",      "bool",                                              //
     "?",         "int8",    "int16",     "int32",      "int64",       //
     "?",         "uint8",   "uint16",    "uint32",     "uint64", "?", //
@@ -62,9 +60,9 @@ static const Group kgroup[] = {
     gArch,                                            // ArchFlags
 };
 
-const std::string &Kind::string() const {
+const Chars &Kind::string() const {
   uint8_t i = val_;
-  if (i >= kstring.size()) {
+  if (i >= sizeof(kstring) / sizeof(kstring[0])) {
     i = 0;
   }
   return kstring[i];

@@ -25,6 +25,8 @@
 
 #include "onejit/size.hpp"
 
+#include <ostream>
+
 namespace onejit {
 
 std::ostream &operator<<(std::ostream &out, Size size) {

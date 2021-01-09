@@ -25,7 +25,7 @@ AC_CHECK_HEADERS([cstdint])
 # C++ flags '-g -O2' are already tested by AC_PROG_CXX
 # C++ flags '-p -pg' are incompatible with -fomit-frame-pointer
 initial_CXXFLAGS="$CXXFLAGS"
-for try_flag in -std=c++11 -fomit-frame-pointer -pipe -Wall -Wshadow -Wundef \
+for try_flag in -std=c++11 -fomit-frame-pointer -pipe -Wall -W -Wshadow -Wundef \
                 -Wcast-qual -Wcast-align -Wpointer-arith -Wsign-compare
 do
   save_CXXFLAGS="$CXXFLAGS"

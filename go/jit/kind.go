@@ -45,7 +45,7 @@ func SetCpuWidth(val CpuWidth) {
 	internal.SetCpuWidth(val)
 }
 
-// intentionally matches reflect.Kind values
+// intentionally match reflect.Kind values
 const (
 	Void       = internal.Void // Invalid
 	Bool       = internal.Bool

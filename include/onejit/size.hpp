@@ -26,9 +26,9 @@
 #ifndef ONEJIT_SIZE_HPP
 #define ONEJIT_SIZE_HPP
 
-#include <cstddef>  // size_t
-#include <cstdint>  // uint8_t
-#include <iostream> // std::ostream
+#include <cstddef> // size_t
+#include <cstdint> // uint8_t
+#include <iosfwd>  // std::ostream
 
 namespace onejit {
 
@@ -47,7 +47,7 @@ public:
   constexpr size_t val() const {
     return log2_ == uint8_t(-1) ? 0 : size_t(1) << log2_;
   }
-  std::string string() const;
+  // std::string string() const;
 
 private:
   constexpr static uint8_t uintlog2(size_t n, uint8_t accum) {

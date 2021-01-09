@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * category.hpp
+ * group.hpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
@@ -26,12 +26,14 @@
 #ifndef ONEJIT_GROUP_HPP
 #define ONEJIT_GROUP_HPP
 
+#include <onejit/chars.hpp>
+
 #include <cstdint> // uint8_t
 #include <iosfwd>  // std::ostream
 
 namespace onejit {
 
-// intentionally matches Go reflect.Kind values
+// intentionally match Go reflect.Kind values
 enum Group : uint8_t {
   gVoid = 0,
   gBool = 1,
@@ -43,7 +45,7 @@ enum Group : uint8_t {
   gArch = 27, // arch-specific kind
 };
 
-const std::string &to_string(Group g);
+const Chars &to_string(Group g);
 
 std::ostream &operator<<(std::ostream &out, Group g);
 

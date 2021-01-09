@@ -26,11 +26,10 @@
 #include "onejit/group.hpp"
 
 #include <ostream>
-#include <vector>
 
 namespace onejit {
 
-static const std::vector<std::string> gstring{
+static const Chars gstring[] = {
     "void", "bool",                            //
     "int",  "?",     "?", "?",       "?",      //
     "uint", "?",     "?", "?",       "?", "?", //
@@ -41,10 +40,10 @@ static const std::vector<std::string> gstring{
     "arch",
 };
 
-const std::string &to_string(Group g) {
+const Chars &to_string(Group g) {
   uint8_t i = (uint8_t)g;
-  if (i >= gstring.size()) {
-    i = 0;
+  if (i >= sizeof(gstring) / sizeof(gstring[0])) {
+    i = 3; // "?"
   }
   return gstring[i];
 }

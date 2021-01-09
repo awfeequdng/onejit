@@ -17,32 +17,43 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * archid.cpp
+ * chars.hpp
  *
- *  Created on Jan 08, 2020
+ *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
+#ifndef ONEJIT_CHARS_HPP
+#define ONEJIT_CHARS_HPP
 
-#include "onejit/archid.hpp"
+#include <onejit/view.hpp>
 
-#include <ostream>
+#include <iosfwd> // std::ostream
 
 namespace onejit {
 
-static const Chars archstring[] = {
-    "NOARCH", "AMD64", "ARM64", "ARM", "X86",
+/** read-only view of chars[] */
+class Chars : public View<char> {
+private:
+  typedef char T;
+  typedef View<char> Base;
+
+public:
+  constexpr Chars() : Base() {
+  }
+  template <size_t N> constexpr Chars(const T (&addr)[N]) : Base(addr, N - 1) {
+  }
+  constexpr Chars(const T *addr, size_t n) : Base(addr, n) {
+  }
+  constexpr Chars(const Base &other) : Base(other) {
+  }
+
+  Chars view(size_t start, size_t end) const {
+    return Chars(Base::view(start, end));
+  }
 };
 
-const Chars &ArchId::string() const {
-  uint8_t i = val_;
-  if (i >= sizeof(archstring) / sizeof(archstring[0])) {
-    i = 0;
-  }
-  return archstring[i];
-}
-
-std::ostream &operator<<(std::ostream &out, ArchId archid) {
-  return out << archid.string();
-}
+std::ostream &operator<<(std::ostream &out, Chars chars);
 
 } // namespace onejit
+
+#endif /* ONEJIT_VIEW_HPP */

@@ -105,8 +105,8 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libonejit_a_AR = $(AR) $(ARFLAGS)
 libonejit_a_LIBADD =
-am_libonejit_a_OBJECTS = archid.$(OBJEXT) group.$(OBJEXT) \
-	kind.$(OBJEXT) size.$(OBJEXT)
+am_libonejit_a_OBJECTS = archid.$(OBJEXT) chars.$(OBJEXT) \
+	group.$(OBJEXT) kind.$(OBJEXT) op0.$(OBJEXT) size.$(OBJEXT)
 libonejit_a_OBJECTS = $(am_libonejit_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -123,8 +123,9 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/group.Po \
-	./$(DEPDIR)/kind.Po ./$(DEPDIR)/size.Po
+am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/chars.Po \
+	./$(DEPDIR)/group.Po ./$(DEPDIR)/kind.Po ./$(DEPDIR)/op0.Po \
+	./$(DEPDIR)/size.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -305,7 +306,7 @@ noinst_LIBRARIES = libonejit.a
 
 # AM_CPPFLAGS          = -I$(top_srcdir)/include
 # libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
-libonejit_a_SOURCES = archid.cpp group.cpp kind.cpp size.cpp
+libonejit_a_SOURCES = archid.cpp chars.cpp group.cpp kind.cpp op0.cpp size.cpp
 all: all-recursive
 
 .SUFFIXES:
@@ -355,8 +356,10 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/archid.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chars.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/group.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kind.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/op0.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/size.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -579,8 +582,10 @@ clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/archid.Po
+	-rm -f ./$(DEPDIR)/chars.Po
 	-rm -f ./$(DEPDIR)/group.Po
 	-rm -f ./$(DEPDIR)/kind.Po
+	-rm -f ./$(DEPDIR)/op0.Po
 	-rm -f ./$(DEPDIR)/size.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -628,8 +633,10 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/archid.Po
+	-rm -f ./$(DEPDIR)/chars.Po
 	-rm -f ./$(DEPDIR)/group.Po
 	-rm -f ./$(DEPDIR)/kind.Po
+	-rm -f ./$(DEPDIR)/op0.Po
 	-rm -f ./$(DEPDIR)/size.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic

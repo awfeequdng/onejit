@@ -26,9 +26,10 @@
 #ifndef ONEJIT_ARCHID_HPP
 #define ONEJIT_ARCHID_HPP
 
+#include <onejit/chars.hpp>
+
 #include <cstdint> // uint8_t
 #include <iosfwd>
-#include <string>
 
 namespace onejit {
 
@@ -37,7 +38,7 @@ public:
   constexpr explicit ArchId(uint8_t archid) : val_(archid) {
   }
 
-  const std::string &string() const;
+  const Chars &string() const;
 
   constexpr uint8_t val() const {
     return val_;

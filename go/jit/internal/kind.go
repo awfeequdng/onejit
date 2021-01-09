@@ -80,7 +80,7 @@ func init() {
 
 type Size uint64 // 1, 2, 4, 8 or 16
 
-// intentionally matches reflect.Kind values
+// intentionally match reflect.Kind values
 type Kind uint8
 
 const (

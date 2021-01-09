@@ -26,17 +26,20 @@
 #ifndef ONEJIT_KIND_HPP
 #define ONEJIT_KIND_HPP
 
+#include <onejit/chars.hpp>
 #include <onejit/group.hpp>
 #include <onejit/size.hpp>
 
 #include <cstdint> // uint8_t
 #include <iosfwd>  // std::ostream
-#include <string>
 
 namespace onejit {
 
 class Kind {
 public:
+  constexpr Kind() : val_(0 /*Void*/) {
+  }
+
   constexpr explicit Kind(uint8_t kind) : val_(kind) {
   }
 
@@ -83,7 +86,7 @@ public:
     return is(gInt, gUint, gFloat, gPtr);
   }
 
-  const std::string &string() const;
+  const Chars &string() const;
 
 private:
   uint8_t val_;
@@ -91,7 +94,7 @@ private:
 
 std::ostream &operator<<(std::ostream &out, Kind kind);
 
-// intentionally matches Go reflect.Kind values
+// intentionally match Go reflect.Kind values
 constexpr const Kind Void(0);
 constexpr const Kind Bool(1);
 // Int
