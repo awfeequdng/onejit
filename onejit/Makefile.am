@@ -7,7 +7,7 @@ noinst_LIBRARIES       = libonejit.a
 # libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
 
 libonejit_a_SOURCES    = archid.cpp chars.cpp group.cpp kind.cpp \
-                         op0.cpp op1.cpp op2.cpp opn.cpp size.cpp
+                         op1.cpp op2.cpp opn.cpp size.cpp type.cpp
 
 # libonejit_a_LDFLAGS  =
 # libonejit_a_LDADD    =

@@ -17,14 +17,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * op0.hpp
+ * type.hpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_OP0_HPP
-#define ONEJIT_OP0_HPP
+#ifndef ONEJIT_TYPE_HPP
+#define ONEJIT_TYPE_HPP
 
 #include <cstdint> // uint8_t
 #include <iosfwd>  // std::ostream
@@ -32,17 +32,26 @@
 namespace onejit {
 
 // intentionally match Go go/token.Token values
-enum Op0 : uint8_t {
+enum Type : uint8_t {
+  BAD = 0,
+  UNARY = 1,
+  BINARY = 2,
+  TUPLE = 3,
   BREAK = 61,
+  CASE = 62,
   CONTINUE = 65,
+  DEFAULT = 66,
   FALLTHROUGH = 69,
+  FOR = 70,
+  IF = 74,
+  SWITCH = 73,
 };
 
 class Chars;
-const Chars &to_string(Op0 op);
+const Chars &to_string(Type op);
 
-std::ostream &operator<<(std::ostream &out, Op0 op);
+std::ostream &operator<<(std::ostream &out, Type op);
 
 } // namespace onejit
 
-#endif // ONEJIT_OP0_HPP
+#endif // ONEJIT_TYPE_HPP
