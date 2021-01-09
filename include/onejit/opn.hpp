@@ -17,14 +17,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * op1.hpp
+ * opn.hpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_OP1_HPP
-#define ONEJIT_OP1_HPP
+#ifndef ONEJIT_OPN_HPP
+#define ONEJIT_OPN_HPP
 
 #include <cstdint> // uint8_t
 #include <iosfwd>  // std::ostream
@@ -32,17 +32,16 @@
 namespace onejit {
 
 // intentionally match Go go/token.Token values
-enum Op1 : uint8_t {
-  XOR1 = 19,
-  NOT1 = 43,
-  GOTO = 73,
+enum OpN : uint8_t {
+  CALL = 54, // LPAREN
+  RETURN = 80,
 };
 
 class Chars;
-const Chars &to_string(Op1 op);
+const Chars &to_string(OpN op);
 
-std::ostream &operator<<(std::ostream &out, Op1 op);
+std::ostream &operator<<(std::ostream &out, OpN op);
 
 } // namespace onejit
 
-#endif // ONEJIT_OP1_HPP
+#endif // ONEJIT_OPN_HPP

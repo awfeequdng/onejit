@@ -79,4 +79,4 @@ std::ostream &operator<<(std::ostream &out, Op2 op);
 
 } // namespace onejit
 
-#endif // ONEJIT_GROUP_HPP
+#endif // ONEJIT_OP2_HPP

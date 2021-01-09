@@ -45,4 +45,4 @@ std::ostream &operator<<(std::ostream &out, Op0 op);
 
 } // namespace onejit
 
-#endif // ONEJIT_GROUP_HPP
+#endif // ONEJIT_OP0_HPP
