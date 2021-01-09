@@ -30,13 +30,13 @@
 namespace onejit {
 
 static const std::vector<std::string> kstring{
-    "void",      "bool",                                             //
-    "",          "int8",    "int16",     "int32",      "int64",      //
-    "",          "uint8",   "uint16",    "uint32",     "uint64", "", //
-    "float32",   "float64", "complex64", "complex128",               //
-    "",          "",        "",          "",           "",           //
-    "ptr",                                                           //
-    "",          "",        "",          "",                         //
+    "void",      "bool",                                              //
+    "?",         "int8",    "int16",     "int32",      "int64",       //
+    "?",         "uint8",   "uint16",    "uint32",     "uint64", "?", //
+    "float32",   "float64", "complex64", "complex128",                //
+    "?",         "?",       "?",         "?",          "?",           //
+    "ptr",                                                            //
+    "?",         "?",       "?",         "?",                         //
     "archflags",
 };
 
@@ -84,6 +84,10 @@ Group Kind::group() const {
     i = 0;
   }
   return kgroup[i];
+}
+
+std::ostream &operator<<(std::ostream &out, Kind kind) {
+  return out << kind.string();
 }
 
 } // namespace onejit

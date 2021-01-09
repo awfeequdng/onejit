@@ -23,6 +23,16 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/kind.hpp>
+
+#include <iostream>
+
+using namespace onejit;
+
 int main(int arcc, char *argv[]) {
+  for (uint8_t i = 0; i <= ArchFlags.val(); i++) {
+    const Kind k(i);
+    std::cout << "Kind " << k << ", Group " << k.group() << ", size " << k.size() << '\n';
+  }
   return 0;
 }

@@ -1,8 +1,10 @@
 *~
+*.a
 *.debug
 *.dll
 *.dylib
 *.exe
+*.la
 *.o
 *.out
 *.so
@@ -18,4 +20,4 @@ Makefile
 /go/go
 /include/config.h
 /include/stamp-h1
-/onejit/jit
+/jit

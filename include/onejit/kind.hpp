@@ -30,6 +30,7 @@
 #include <onejit/size.hpp>
 
 #include <cstdint> // uint8_t
+#include <iosfwd>  // std::ostream
 #include <string>
 
 namespace onejit {

@@ -10,6 +10,7 @@ AM_INIT_AUTOMAKE([1.14 foreign subdir-objects])
 
 # Checks for programs.
 AC_PROG_CXX
+AC_PROG_RANLIB
 AC_LANG(C++)
 
 # Checks for libraries.
@@ -49,6 +50,8 @@ done
 
 
 # Checks for library functions.
+
+AC_SUBST(LIBONEJIT, '$(top_builddir)/onejit/libonejit.a')
 
 AC_CONFIG_FILES([Makefile onejit/Makefile])
 

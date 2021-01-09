@@ -17,36 +17,40 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * category.hpp
+ * group.cpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_GROUP_HPP
-#define ONEJIT_GROUP_HPP
+#include "onejit/group.hpp"
 
-#include <cstdint> // uint8_t
-#include <iosfwd>  // std::ostream
+#include <ostream>
+#include <vector>
 
 namespace onejit {
 
-// intentionally matches Go reflect.Kind values
-enum Group : uint8_t {
-  gVoid = 0,
-  gBool = 1,
-  gInt = 2,
-  gUint = 7,
-  gFloat = 14,
-  gComplex = 16,
-  gPtr = 22,
-  gArch = 27, // arch-specific kind
+static const std::vector<std::string> gstring{
+    "void", "bool",                            //
+    "int",  "?",     "?", "?",       "?",      //
+    "uint", "?",     "?", "?",       "?", "?", //
+    "?",    "float", "",  "complex",           //
+    "?",    "?",     "?", "?",       "?",      //
+    "ptr",                                     //
+    "?",    "?",     "?", "?",                 //
+    "arch",
 };
 
-const std::string &to_string(Group g);
+const std::string &to_string(Group g) {
+  uint8_t i = (uint8_t)g;
+  if (i >= gstring.size()) {
+    i = 0;
+  }
+  return gstring[i];
+}
 
-std::ostream &operator<<(std::ostream &out, Group g);
+std::ostream &operator<<(std::ostream &out, Group g) {
+  return out << to_string(g);
+}
 
 } // namespace onejit
-
-#endif // ONEJIT_GROUP_HPP
