@@ -24,15 +24,18 @@
  */
 
 #include "onejit/arg.hpp"
+#include "onejit/assert.hpp"
 
 namespace onejit {
 
 uint8_t Arg::children() const {
-  uint8_t n = to_children(type());
-  if (n == uint8_t(-1)) {
-    n = code_->get8(offset_ + 1);
-  }
-  return n;
+  return code_ == nullptr ? 0 : code_->get8(offset_ + 1);
+}
+
+Arg Arg::child(uint8_t i) const {
+  assert(i < children());
+  Offset offset = code_->get32(size_t(i) * sizeof(Offset) + offset_ + 2);
+  return Arg(code_, offset);
 }
 
 } // namespace onejit

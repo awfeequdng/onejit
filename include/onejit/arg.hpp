@@ -41,6 +41,7 @@ public:
   }
 
   uint8_t children() const;
+  Arg child(uint8_t i) const;
 
 protected:
   constexpr Arg(Code *code, Offset offset) //

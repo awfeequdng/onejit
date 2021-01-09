@@ -51,7 +51,6 @@ enum Type : uint8_t {
 
 class Chars;
 const Chars &to_string(Type t);
-uint8_t to_children(Type t);
 
 std::ostream &operator<<(std::ostream &out, Type t);
 

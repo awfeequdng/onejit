@@ -36,12 +36,6 @@ static const Chars tstring[] = {
     "if",      "for",   "switch",   "tuple",       "?",
 };
 
-static const uint8_t tchildren[] = {
-    0, 0, 0,   0, //
-    1, 1, 2,   2, //
-    3, 4, 255, 255, 0,
-};
-
 const Chars &to_string(Type t) {
   const uint8_t n = sizeof(tstring) / sizeof(tstring[0]);
   uint8_t i = uint8_t(t);
@@ -49,15 +43,6 @@ const Chars &to_string(Type t) {
     i = n - 1;
   }
   return tstring[i];
-}
-
-uint8_t to_children(Type t) {
-  const uint8_t n = sizeof(tchildren) / sizeof(tchildren[0]);
-  uint8_t i = uint8_t(t);
-  if (i >= n) {
-    i = n - 1;
-  }
-  return tchildren[i];
 }
 
 std::ostream &operator<<(std::ostream &out, Type t) {
