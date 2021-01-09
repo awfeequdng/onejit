@@ -25,7 +25,7 @@
 #ifndef ONEJIT_VIEW_HPP
 #define ONEJIT_VIEW_HPP
 
-#include <onejit/assert.hpp>
+#include <onejit/check.hpp>
 
 #include <cstddef> // size_t
 #include <cstring> // memcmp()
@@ -91,7 +91,7 @@ public:
   }
 
   const T &operator[](size_t index) const {
-    assert(index < size_);
+    check(index, <, size_);
     return data_[index];
   }
 
@@ -129,13 +129,13 @@ public:
   }
 
   const T *end() const {
-    assert(data_ || !size_);
+    check(data_, ||, size_ == 0);
     return data_ + size_;
   }
 
   View view(size_t start, size_t end) const {
-    assert(start <= end);
-    assert(end <= size_);
+    check(start, <=, end);
+    check(end, <=, size_);
     return View(data_ + start, end - start);
   }
 

@@ -24,7 +24,7 @@
  */
 
 #include "onejit/arg.hpp"
-#include "onejit/assert.hpp"
+#include "onejit/check.hpp"
 
 namespace onejit {
 
@@ -33,8 +33,8 @@ uint8_t Arg::children() const {
 }
 
 Arg Arg::child(uint8_t i) const {
-  assert(i < children());
-  Offset offset = code_->get32(size_t(i) * sizeof(Offset) + offset_ + 2);
+  check(i, <, children());
+  Offset offset = offset_ + code_->get32(size_t(i) * sizeof(Offset) + offset_ + 2);
   return Arg(code_, offset);
 }
 

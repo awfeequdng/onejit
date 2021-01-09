@@ -26,9 +26,10 @@
 #define ONEJIT_ASSERT_HPP
 
 #ifdef __OPTIMIZE__
-#define assert(...)
+#define check(lhs, op, rhs)
 #else
 #include <cassert>
+#define check(lhs, op, rhs) assert((lhs) op (rhs))
 #endif
 
 #endif /* ONEJIT_ASSERT_HPP */
