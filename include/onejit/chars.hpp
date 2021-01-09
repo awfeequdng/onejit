@@ -31,7 +31,7 @@
 
 namespace onejit {
 
-/** read-only view of chars[] */
+/** read-only view of char[] */
 class Chars : public View<char> {
 private:
   typedef char T;
@@ -58,4 +58,4 @@ inline std::ostream &operator<<(std::ostream &out, Chars chars) {
 
 } // namespace onejit
 
-#endif /* ONEJIT_VIEW_HPP */
+#endif /* ONEJIT_CHARS_HPP */

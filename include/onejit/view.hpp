@@ -25,7 +25,8 @@
 #ifndef ONEJIT_VIEW_HPP
 #define ONEJIT_VIEW_HPP
 
-#include <cassert>
+#include <onejit/assert.hpp>
+
 #include <cstddef> // size_t
 #include <cstring> // memcmp()
 

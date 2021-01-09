@@ -17,44 +17,22 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * type.hpp
+ * offset.hpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_TYPE_HPP
-#define ONEJIT_TYPE_HPP
+#ifndef ONEJIT_OFFSET_HPP
+#define ONEJIT_OFFSET_HPP
 
-#include <cstdint> // uint8_t
-#include <iosfwd>  // std::ostream
+#include <cstdint> // uint*_t
 
 namespace onejit {
 
-enum Type : uint8_t {
-  BAD = 0,
-  BREAK = 1,
-  CONTINUE = 2,
-  FALLTHROUGH = 3,
-
-  DEFAULT = 4,
-  UNARY = 5,
-
-  BINARY = 6,
-  CASE = 7,
-
-  IF = 8,
-  FOR = 9,
-  SWITCH = 10,
-  TUPLE = 11,
-};
-
-class Chars;
-const Chars &to_string(Type t);
-uint8_t to_children(Type t);
-
-std::ostream &operator<<(std::ostream &out, Type t);
+class Code;
+typedef uint32_t Offset;
 
 } // namespace onejit
 
-#endif // ONEJIT_TYPE_HPP
+#endif // ONEJIT_OFFSET_HPP

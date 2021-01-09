@@ -30,56 +30,38 @@
 
 namespace onejit {
 
-static const Chars typestring[] = {
-    "bad",     "unary",       "binary", "tuple", "break",  "case", "continue",
-    "default", "fallthrough", "for",    "if",    "switch", "?",
+static const Chars tstring[] = {
+    "bad",     "break", "continue", "fallthrough", //
+    "default", "unary", "binary",   "case",        //
+    "if",      "for",   "switch",   "tuple",       "?",
 };
 
-const Chars &to_string(Type op) {
-  uint8_t i = sizeof(typestring) / sizeof(typestring[0]) - 1; // "?"
-  switch (op) {
-  case BAD:
-    i = 0;
-    break;
-  case UNARY:
-    i = 1;
-    break;
-  case BINARY:
-    i = 2;
-    break;
-  case TUPLE:
-    i = 3;
-    break;
-  case BREAK:
-    i = 4;
-    break;
-  case CASE:
-    i = 5;
-    break;
-  case CONTINUE:
-    i = 6;
-    break;
-  case DEFAULT:
-    i = 7;
-    break;
-  case FALLTHROUGH:
-    i = 8;
-    break;
-  case FOR:
-    i = 9;
-    break;
-  case IF:
-    i = 10;
-    break;
-  case SWITCH:
-    i = 11;
-    break;
+static const uint8_t tchildren[] = {
+    0, 0, 0,   0, //
+    1, 1, 2,   2, //
+    3, 4, 255, 255, 0,
+};
+
+const Chars &to_string(Type t) {
+  const uint8_t n = sizeof(tstring) / sizeof(tstring[0]);
+  uint8_t i = uint8_t(t);
+  if (i >= n) {
+    i = n - 1;
   }
-  return typestring[i];
+  return tstring[i];
 }
 
-std::ostream &operator<<(std::ostream &out, Type op) {
-  return out << to_string(op);
+uint8_t to_children(Type t) {
+  const uint8_t n = sizeof(tchildren) / sizeof(tchildren[0]);
+  uint8_t i = uint8_t(t);
+  if (i >= n) {
+    i = n - 1;
+  }
+  return tchildren[i];
+}
+
+std::ostream &operator<<(std::ostream &out, Type t) {
+  return out << to_string(t);
 }
 
 } // namespace onejit

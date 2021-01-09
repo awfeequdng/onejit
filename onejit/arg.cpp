@@ -17,44 +17,22 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * type.hpp
+ * arg.cpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_TYPE_HPP
-#define ONEJIT_TYPE_HPP
-
-#include <cstdint> // uint8_t
-#include <iosfwd>  // std::ostream
+#include "onejit/arg.hpp"
 
 namespace onejit {
 
-enum Type : uint8_t {
-  BAD = 0,
-  BREAK = 1,
-  CONTINUE = 2,
-  FALLTHROUGH = 3,
-
-  DEFAULT = 4,
-  UNARY = 5,
-
-  BINARY = 6,
-  CASE = 7,
-
-  IF = 8,
-  FOR = 9,
-  SWITCH = 10,
-  TUPLE = 11,
-};
-
-class Chars;
-const Chars &to_string(Type t);
-uint8_t to_children(Type t);
-
-std::ostream &operator<<(std::ostream &out, Type t);
+uint8_t Arg::children() const {
+  uint8_t n = to_children(type());
+  if (n == uint8_t(-1)) {
+    n = code_->get8(offset_ + 1);
+  }
+  return n;
+}
 
 } // namespace onejit
-
-#endif // ONEJIT_TYPE_HPP

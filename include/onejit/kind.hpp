@@ -80,7 +80,7 @@ public:
   }
 
   bool is_unsigned() const {
-    return is(gBool /*remove?*/, gUint);
+    return is(gBool /*remove?*/, gUint, gPtr);
   }
 
   bool is_ordered() const {

@@ -17,44 +17,49 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * type.hpp
+ * arg.hpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_TYPE_HPP
-#define ONEJIT_TYPE_HPP
+#ifndef ONEJIT_ARG_HPP
+#define ONEJIT_ARG_HPP
 
-#include <cstdint> // uint8_t
-#include <iosfwd>  // std::ostream
+#include <onejit/code.hpp>
 
 namespace onejit {
 
-enum Type : uint8_t {
-  BAD = 0,
-  BREAK = 1,
-  CONTINUE = 2,
-  FALLTHROUGH = 3,
+////////////////////////////////////////////////////////////////////////////////
+class Arg {
+public:
+  constexpr Arg() : code_(nullptr), offset_(0) {
+  }
 
-  DEFAULT = 4,
-  UNARY = 5,
+  Type type() const {
+    return code_ == nullptr ? BAD : Type(code_->get8(offset_));
+  }
 
-  BINARY = 6,
-  CASE = 7,
+  uint8_t children() const;
 
-  IF = 8,
-  FOR = 9,
-  SWITCH = 10,
-  TUPLE = 11,
+protected:
+  constexpr Arg(Code *code, Offset offset) //
+      : code_(code), offset_(offset) {
+  }
+
+  constexpr Code *code() const {
+    return code_;
+  }
+
+  constexpr Offset offset() const {
+    return offset_;
+  }
+
+private:
+  Code *code_;
+  Offset offset_;
 };
-
-class Chars;
-const Chars &to_string(Type t);
-uint8_t to_children(Type t);
-
-std::ostream &operator<<(std::ostream &out, Type t);
 
 } // namespace onejit
 
-#endif // ONEJIT_TYPE_HPP
+#endif // ONEJIT_ARG_HPP
