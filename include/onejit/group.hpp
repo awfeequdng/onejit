@@ -31,16 +31,15 @@
 
 namespace onejit {
 
-// intentionally match Go reflect.Kind values
 enum Group : uint8_t {
   gVoid = 0,
   gBool = 1,
   gInt = 2,
-  gUint = 7,
-  gFloat = 14,
-  gComplex = 16,
-  gPtr = 22,
-  gArch = 27, // arch-specific kind
+  gUint = 3,
+  gFloat = 4,
+  gComplex = 5,
+  gPtr = 6,
+  gArch = 7, // arch-specific Kind
 };
 
 class Chars;

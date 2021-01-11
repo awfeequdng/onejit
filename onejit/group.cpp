@@ -31,20 +31,16 @@
 namespace onejit {
 
 static const Chars gstring[] = {
-    "void", "bool",                            //
-    "int",  "?",     "?", "?",       "?",      //
-    "uint", "?",     "?", "?",       "?", "?", //
-    "?",    "float", "",  "complex",           //
-    "?",    "?",     "?", "?",       "?",      //
-    "ptr",                                     //
-    "?",    "?",     "?", "?",                 //
-    "arch",
+    "void", "bool",                     //
+    "int",  "uint", "float", "complex", //
+    "ptr",  "arch", "?",                //
 };
 
 const Chars &to_string(Group g) {
+  enum _ { n = sizeof(gstring) / sizeof(gstring[0]) };
   uint8_t i = (uint8_t)g;
-  if (i >= sizeof(gstring) / sizeof(gstring[0])) {
-    i = 3; // "?"
+  if (i >= n) {
+    i = n - 1; // "?"
   }
   return gstring[i];
 }

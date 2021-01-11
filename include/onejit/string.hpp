@@ -25,6 +25,7 @@
 #ifndef ONEJIT_STRING_HPP
 #define ONEJIT_STRING_HPP
 
+#include <onejit/chars.hpp>
 #include <onejit/vector.hpp>
 
 #include <ostream>
@@ -40,9 +41,9 @@ private:
 public:
   constexpr String() : Base() {
   }
-  template <size_t N> constexpr String(const T (&addr)[N]) : Base(addr, N - 1) {
+  template <size_t N> String(const T (&addr)[N]) : Base(addr, N - 1) {
   }
-  constexpr String(const T *addr, size_t n) : Base(addr, n) {
+  String(const T *addr, size_t n) : Base(addr, n) {
   }
   explicit String(const View<T> &other) : Base(other) {
   }
@@ -52,20 +53,21 @@ public:
   }
   explicit String(const String &other) : Base(other) {
   }
+  ~String();
 
   Chars view(size_t start, size_t end) const {
     return Chars(Base::view(start, end));
   }
 
-  using Base::ref;
-  void ref(const Chars &other) {
-    Base::ref(other);
+  using Base::dup;
+  bool dup(const Chars &other) {
+    return Base::dup(other);
   }
 
-}; // namespace onejit
+}; // class String
 
-inline std::ostream &operator<<(std::ostream &out, const String &string) {
-  return out.write(chars.data(), chars.size());
+inline std::ostream &operator<<(std::ostream &out, const String &str) {
+  return out.write(str.data(), str.size());
 }
 
 } // namespace onejit

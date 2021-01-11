@@ -48,8 +48,8 @@ class String;
 template <class T> class Vector;
 template <class T> class View;
 
-typedef Span<char> CharSpan;
 typedef View<uint8_t> Bytes;
+typedef Span<char> CharSpan;
 typedef View<NodeHeader> CodeView;
 
 } // namespace onejit

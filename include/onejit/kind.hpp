@@ -95,35 +95,22 @@ private:
 
 std::ostream &operator<<(std::ostream &out, Kind kind);
 
-// intentionally match Go reflect.Kind values
 constexpr const Kind Void(0);
 constexpr const Kind Bool(1);
-// Int
-constexpr const Kind Int8(3);
-constexpr const Kind Int16(4);
-constexpr const Kind Int32(5);
-constexpr const Kind Int64(6);
-// Uint
-constexpr const Kind Uint8(8);
-constexpr const Kind Uint16(9);
-constexpr const Kind Uint32(10);
-constexpr const Kind Uint64(11);
-// Uintptr
-constexpr const Kind Float32(13);
-constexpr const Kind Float64(14);
-constexpr const Kind Complex64(15);
-constexpr const Kind Complex128(16);
-// Array
-// Chan
-// Func
-// Interface
-// Map
-constexpr const Kind Ptr(22);
-// Slice
-// String
-// Struct
-// UnsafePointer
-constexpr const Kind ArchFlags(27);
+constexpr const Kind Int8(2);
+constexpr const Kind Int16(3);
+constexpr const Kind Int32(4);
+constexpr const Kind Int64(5);
+constexpr const Kind Uint8(6);
+constexpr const Kind Uint16(7);
+constexpr const Kind Uint32(8);
+constexpr const Kind Uint64(9);
+constexpr const Kind Float32(10);
+constexpr const Kind Float64(11);
+constexpr const Kind Complex64(12);
+constexpr const Kind Complex128(13);
+constexpr const Kind Ptr(14);
+constexpr const Kind ArchFlags(15);
 
 } // namespace onejit
 

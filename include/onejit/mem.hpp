@@ -30,18 +30,18 @@
 namespace onejit {
 namespace mem {
 
-void *alloc_bytes(size_t n_bytes);
-void *realloc_bytes(void *addr, size_t n_bytes);
-void free_bytes(void *addr);
+void *alloc_bytes(size_t n_bytes) throw();
+void *realloc_bytes(void *addr, size_t new_n_bytes) throw();
+void free_bytes(void *addr) throw();
 
-template <class T> T *alloc(size_t n_elements) {
+template <class T> T *alloc(size_t n_elements) throw() {
   return reinterpret_cast<T *>(alloc_bytes(n_elements * sizeof(T)));
 }
 
-template <class T> T *realloc(T *addr, size_t n_elements) {
+template <class T> T *realloc(T *addr, size_t n_elements) throw() {
   return reinterpret_cast<T *>(realloc_bytes(addr, n_elements * sizeof(T)));
 }
-template <class T> void free(T *addr) {
+template <class T> void free(T *addr) throw() {
   free_bytes(addr);
 }
 

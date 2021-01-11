@@ -29,36 +29,30 @@
 namespace onejit {
 
 static const Chars kstring[] = {
-    "void",      "bool",                                              //
-    "?",         "int8",    "int16",     "int32",      "int64",       //
-    "?",         "uint8",   "uint16",    "uint32",     "uint64", "?", //
-    "float32",   "float64", "complex64", "complex128",                //
-    "?",         "?",       "?",         "?",          "?",           //
-    "ptr",                                                            //
-    "?",         "?",       "?",         "?",                         //
+    "void",      "bool",                               //
+    "int8",      "int16",   "int32",     "int64",      //
+    "uint8",     "uint16",  "uint32",    "uint64",     //
+    "float32",   "float64", "complex64", "complex128", //
+    "ptr",                                             //
     "archflags",
 };
 
 static const Size ksize[] = {
-    Size(0), Size(1),                                     // Void, Bool
-    Size(),  Size(1), Size(2), Size(4),  Size(8),         // Int*
-    Size(),  Size(1), Size(2), Size(4),  Size(8), Size(), // Uint*
-    Size(4), Size(8), Size(8), Size(16),                  // Float* Complex*
-    Size(),  Size(),  Size(),  Size(),   Size(),          //
-    Size(8),                                              // Ptr
-    Size(),  Size(),  Size(),  Size(),                    //
-    Size(8),                                              // ArchFlags
+    Size(0), Size(1),                    // Void, Bool
+    Size(1), Size(2), Size(4), Size(8),  // Int*
+    Size(1), Size(2), Size(4), Size(8),  // Uint*
+    Size(4), Size(8), Size(8), Size(16), // Float* Complex*
+    Size(8),                             // Ptr
+    Size(8),                             // ArchFlags
 };
 
 static const Group kgroup[] = {
-    gVoid,  gBool,                                    // Void, Bool
-    gVoid,  gInt,   gInt,     gInt,     gInt,         // Int*
-    gVoid,  gUint,  gUint,    gUint,    gUint, gVoid, // Uint*
-    gFloat, gFloat, gComplex, gComplex,               // Float* Complex*
-    gVoid,  gVoid,  gVoid,    gVoid,    gVoid,        //
-    gPtr,                                             // Ptr
-    gVoid,  gVoid,  gVoid,    gVoid,                  //
-    gArch,                                            // ArchFlags
+    gVoid,  gBool,                      // Void, Bool
+    gInt,   gInt,   gInt,     gInt,     // Int*
+    gUint,  gUint,  gUint,    gUint,    // Uint*
+    gFloat, gFloat, gComplex, gComplex, // Float* Complex*
+    gPtr,                               // Ptr
+    gArch,                              // ArchFlags
 };
 
 const Chars &Kind::string() const {

@@ -25,6 +25,7 @@
 #ifndef ONEJIT_VECTOR_HPP
 #define ONEJIT_VECTOR_HPP
 
+#include <onejit/mem.hpp>
 #include <onejit/span.hpp>
 
 namespace onejit {
@@ -33,7 +34,8 @@ namespace onejit {
 // 1. T must have trivial copy constructor, destructor and assignment operator
 // 2. zero-initializing T must be equivalent to T default constructor
 template <class T> class Vector : protected Span<T> {
-private:
+  static_assert(std::is_trivial<T>::true, "Vector<T>: element type T must be trivial");
+
   typedef Span<T> Base;
 
   // do not implement. reason: any allocation failure would not be visible
@@ -92,7 +94,7 @@ public:
   typedef const T *const_pointer;
   typedef const T *const_iterator;
 
-  Vector() : Base(), cap_(0) {
+  constexpr Vector() : Base(), cap_(0) {
   }
   Vector(const T *addr, size_t n) : Base(), cap_(0) {
     dup(addr, n);
@@ -115,7 +117,7 @@ public:
     destroy();
   }
 
-  size_t capacity() const {
+  constexpr size_t capacity() const {
     return cap_;
   }
   using Base::begin;
@@ -158,8 +160,8 @@ public:
 
   bool reserve(size_t newcap) {
     if (newcap > cap_) {
-      T *olddata = fail() ? (T *)0 : data();
-      T *newdata = mem::realloc(olddata, cap_, newcap);
+      T *olddata = data();
+      T *newdata = mem::realloc(olddata, newcap);
       if (!newdata) {
         if (cap_ == 0) {
           data_ = NULL;
