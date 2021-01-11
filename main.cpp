@@ -32,9 +32,9 @@ using namespace onejit;
 int main(int argc, char *argv[]) {
   (void)argc;
   (void)argv;
-  for (uint8_t i = 0; i <= ArchFlags.val(); i++) {
+  for (uint8_t i = 0; i <= ArchFlags.val() + 1; i++) {
     const Kind k(i);
-    std::cout << "Kind " << k << ", Group " << k.group() << ", size " << k.size() << '\n';
+    std::cout << "Kind " << k << ", Group " << k.group() << ", bits " << k.bits() << '\n';
   }
   return 0;
 }

@@ -29,8 +29,8 @@
 
 namespace onejit {
 
-std::ostream &operator<<(std::ostream &out, Size size) {
-  return out << size.val();
+std::ostream &operator<<(std::ostream &out, Bits bits) {
+  return out << bits.val();
 }
 
 } // namespace onejit

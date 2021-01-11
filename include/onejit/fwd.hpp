@@ -31,6 +31,7 @@
 namespace onejit {
 
 class ArchId;
+class Bits;
 class Break;
 class Code;
 class Continue;
@@ -40,7 +41,6 @@ class Kind;
 class Node;
 typedef uint32_t NodeHeader;
 typedef uint32_t Offset;
-class Size;
 template <class T> class Span;
 class Stmt0;
 class Stmt1;

@@ -105,10 +105,10 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libonejit_a_AR = $(AR) $(ARFLAGS)
 libonejit_a_LIBADD =
-am_libonejit_a_OBJECTS = archid.$(OBJEXT) chars.$(OBJEXT) \
-	code.$(OBJEXT) mem.$(OBJEXT) group.$(OBJEXT) kind.$(OBJEXT) \
-	node.$(OBJEXT) op1.$(OBJEXT) op2.$(OBJEXT) opn.$(OBJEXT) \
-	size.$(OBJEXT) type.$(OBJEXT)
+am_libonejit_a_OBJECTS = archid.$(OBJEXT) bits.$(OBJEXT) \
+	chars.$(OBJEXT) code.$(OBJEXT) mem.$(OBJEXT) group.$(OBJEXT) \
+	kind.$(OBJEXT) node.$(OBJEXT) op1.$(OBJEXT) op2.$(OBJEXT) \
+	opn.$(OBJEXT) type.$(OBJEXT)
 libonejit_a_OBJECTS = $(am_libonejit_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -125,10 +125,10 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/chars.Po \
-	./$(DEPDIR)/code.Po ./$(DEPDIR)/group.Po ./$(DEPDIR)/kind.Po \
-	./$(DEPDIR)/mem.Po ./$(DEPDIR)/node.Po ./$(DEPDIR)/op1.Po \
-	./$(DEPDIR)/op2.Po ./$(DEPDIR)/opn.Po ./$(DEPDIR)/size.Po \
+am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/bits.Po \
+	./$(DEPDIR)/chars.Po ./$(DEPDIR)/code.Po ./$(DEPDIR)/group.Po \
+	./$(DEPDIR)/kind.Po ./$(DEPDIR)/mem.Po ./$(DEPDIR)/node.Po \
+	./$(DEPDIR)/op1.Po ./$(DEPDIR)/op2.Po ./$(DEPDIR)/opn.Po \
 	./$(DEPDIR)/type.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -310,8 +310,8 @@ noinst_LIBRARIES = libonejit.a
 
 # AM_CPPFLAGS          = -I$(top_srcdir)/include
 # libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
-libonejit_a_SOURCES = archid.cpp chars.cpp code.cpp mem.cpp group.cpp kind.cpp \
-                         node.cpp op1.cpp op2.cpp opn.cpp size.cpp string.gpp type.cpp
+libonejit_a_SOURCES = archid.cpp bits.cpp chars.cpp code.cpp mem.cpp group.cpp \
+                         kind.cpp node.cpp op1.cpp op2.cpp opn.cpp string.gpp type.cpp
 
 all: all-recursive
 
@@ -362,6 +362,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/archid.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bits.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chars.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/code.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/group.Po@am__quote@ # am--include-marker
@@ -371,7 +372,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/op1.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/op2.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opn.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/size.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/type.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -594,6 +594,7 @@ clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/archid.Po
+	-rm -f ./$(DEPDIR)/bits.Po
 	-rm -f ./$(DEPDIR)/chars.Po
 	-rm -f ./$(DEPDIR)/code.Po
 	-rm -f ./$(DEPDIR)/group.Po
@@ -603,7 +604,6 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/op1.Po
 	-rm -f ./$(DEPDIR)/op2.Po
 	-rm -f ./$(DEPDIR)/opn.Po
-	-rm -f ./$(DEPDIR)/size.Po
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -651,6 +651,7 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/archid.Po
+	-rm -f ./$(DEPDIR)/bits.Po
 	-rm -f ./$(DEPDIR)/chars.Po
 	-rm -f ./$(DEPDIR)/code.Po
 	-rm -f ./$(DEPDIR)/group.Po
@@ -660,7 +661,6 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/op1.Po
 	-rm -f ./$(DEPDIR)/op2.Po
 	-rm -f ./$(DEPDIR)/opn.Po
-	-rm -f ./$(DEPDIR)/size.Po
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic

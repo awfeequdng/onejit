@@ -29,21 +29,20 @@
 namespace onejit {
 
 static const Chars kstring[] = {
-    "void",      "bool",                               //
-    "int8",      "int16",   "int32",     "int64",      //
-    "uint8",     "uint16",  "uint32",    "uint64",     //
-    "float32",   "float64", "complex64", "complex128", //
-    "ptr",                                             //
-    "archflags",
+    "void",    "bool",                                 //
+    "int8",    "int16",     "int32",     "int64",      //
+    "uint8",   "uint16",    "uint32",    "uint64",     //
+    "float32", "float64",   "complex64", "complex128", //
+    "ptr",     "archflags", "?",                       //
 };
 
-static const Size ksize[] = {
-    Size(0), Size(1),                    // Void, Bool
-    Size(1), Size(2), Size(4), Size(8),  // Int*
-    Size(1), Size(2), Size(4), Size(8),  // Uint*
-    Size(4), Size(8), Size(8), Size(16), // Float* Complex*
-    Size(8),                             // Ptr
-    Size(8),                             // ArchFlags
+static const Bits kbits[] = {
+    Bits(0),  Bits(1),                       // Void, Bool
+    Bits(8),  Bits(16), Bits(32), Bits(64),  // Int*
+    Bits(8),  Bits(16), Bits(32), Bits(64),  // Uint*
+    Bits(32), Bits(64), Bits(64), Bits(128), // Float* Complex*
+    Bits(64),                                // Ptr
+    Bits(64),                                // ArchFlags
 };
 
 static const Group kgroup[] = {
@@ -56,19 +55,20 @@ static const Group kgroup[] = {
 };
 
 const Chars &Kind::string() const {
+  enum _ { n = sizeof(kstring) / sizeof(kstring[0]) };
   uint8_t i = val_;
-  if (i >= sizeof(kstring) / sizeof(kstring[0])) {
-    i = 0;
+  if (i >= n) {
+    i = n - 1;
   }
   return kstring[i];
 }
 
-Size Kind::size() const {
+Bits Kind::bits() const {
   uint8_t i = val_;
-  if (i >= sizeof(ksize) / sizeof(ksize[0])) {
+  if (i >= sizeof(kbits) / sizeof(kbits[0])) {
     i = 0;
   }
-  return ksize[i];
+  return kbits[i];
 }
 
 Group Kind::group() const {

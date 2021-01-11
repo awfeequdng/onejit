@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * size.hpp
+ * bits.hpp
  *
  *  Created on Jan 08, 2020
  *      Author Massimiliano Ghilardi
@@ -32,12 +32,12 @@
 
 namespace onejit {
 
-class Size {
+class Bits {
 public:
-  constexpr Size() : log2_(-1) {
+  constexpr Bits() : log2_(-1) {
   }
 
-  constexpr explicit Size(size_t n) : log2_(uintlog2(n, -1)) {
+  constexpr explicit Bits(size_t n) : log2_(uintlog2(n, -1)) {
   }
 
   // 255 means Val() == 0
@@ -47,7 +47,7 @@ public:
   constexpr size_t val() const {
     return log2_ == uint8_t(-1) ? 0 : size_t(1) << log2_;
   }
-  // std::string string() const;
+  // String string() const;
 
 private:
   constexpr static uint8_t uintlog2(size_t n, uint8_t accum) {
@@ -57,7 +57,7 @@ private:
   uint8_t log2_;
 };
 
-std::ostream &operator<<(std::ostream &out, Size size);
+std::ostream &operator<<(std::ostream &out, Bits size);
 
 } // namespace onejit
 

@@ -63,6 +63,13 @@
         "thread": "cpp",
         "typeinfo": "cpp",
         "__nullptr": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "__hash_table": "cpp",
+        "__split_buffer": "cpp",
+        "queue": "cpp",
+        "stack": "cpp",
+        "__locale": "cpp",
+        "filesystem": "cpp",
+        "locale": "cpp"
     }
 }

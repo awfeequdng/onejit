@@ -48,7 +48,7 @@ public:
     return val_;
   }
 
-  Size size() const;
+  Bits bits() const;
 
   Group group() const;
 
