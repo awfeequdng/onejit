@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69])
-AC_INIT([onejit], [0.0.0], [github.com/cosmos72/onejit])
+AC_PREREQ([2.70])
+AC_INIT([onejit],[0.0.0],[github.com/cosmos72/onejit])
 AC_CONFIG_SRCDIR([onejit/archid.cpp])
 AC_CONFIG_HEADERS([include/config.h])
 AC_CONFIG_AUX_DIR([admin])
@@ -31,16 +31,15 @@ do
   save_CXXFLAGS="$CXXFLAGS"
   CXXFLAGS="$CXXFLAGS $try_flag"
   try_flag_id="`echo \"$try_flag\" | tr =+- _x_`"
-  AC_CACHE_CHECK(for C++ compiler flag $try_flag, ac_cv_cflag$try_flag_id, AC_TRY_COMPILE(
-  [
+  AC_CACHE_CHECK(for C++ compiler flag $try_flag, ac_cv_cflag$try_flag_id, AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     int ret0(void) {
       return 0;
     }
-  ] , [
+   ]], [[
     int a = ret0();
-  ], [
+  ]])],[
     eval "ac_cv_cflag$try_flag_id=yes"
-  ], [
+  ],[
     eval "ac_cv_cflag$try_flag_id=no"
     CXXFLAGS="$save_CXXFLAGS"
   ]))
