@@ -17,69 +17,57 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * stmt.hpp
+ * chars.hpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
+#ifndef ONEJIT_STRING_HPP
+#define ONEJIT_STRING_HPP
 
-#ifndef ONEJIT_STMT_HPP
-#define ONEJIT_STMT_HPP
+#include <onejit/vector.hpp>
 
-#include <onejit/node.hpp>
+#include <ostream>
 
 namespace onejit {
 
-class Stmt0 {
-public:
-  constexpr Stmt0() : type_(BAD) {
-  }
-
-  constexpr type() const {
-    return type_;
-  }
-
-protected:
-  constexpr explicit Stmt0(Type t) : type_(t) {
-  }
-
+/** resizeable vector of char */
+class String : public Vector<char> {
 private:
-  Type type_;
-};
+  typedef char T;
+  typedef Vector<char> Base;
 
-////////////////////////////////////////////////////////////////////////////////
-class Stmt1 : public Node {
 public:
-  constexpr Stmt1() : Node() {
+  constexpr String() : Base() {
+  }
+  template <size_t N> constexpr String(const T (&addr)[N]) : Base(addr, N - 1) {
+  }
+  constexpr String(const T *addr, size_t n) : Base(addr, n) {
+  }
+  explicit String(const View<T> &other) : Base(other) {
+  }
+  explicit String(const Span<T> &other) : Base(other) {
+  }
+  explicit String(const Vector<T> &other) : Base(other) {
+  }
+  explicit String(const String &other) : Base(other) {
   }
 
-protected:
-  constexpr Stmt1(Code *code, Offset offset) //
-      : Node(code, offset) {
+  Chars view(size_t start, size_t end) const {
+    return Chars(Base::view(start, end));
   }
-};
 
-////////////////////////////////////////////////////////////////////////////////
-class Break : Stmt0 {
-public:
-  Break() : Stmt0(BREAK) {
+  using Base::ref;
+  void ref(const Chars &other) {
+    Base::ref(other);
   }
-};
 
-////////////////////////////////////////////////////////////////////////////////
-class Continue : Stmt0 {
-public:
-  Continue() : Stmt0(CONTINUE) {
-  }
-};
+}; // namespace onejit
 
-////////////////////////////////////////////////////////////////////////////////
-class Fallthrough : Stmt0 {
-public:
-  Fallthrough() : Stmt0(FALLTHROUGH) {
-  }
-};
+inline std::ostream &operator<<(std::ostream &out, const String &string) {
+  return out.write(chars.data(), chars.size());
+}
 
 } // namespace onejit
 
-#endif // ONEJIT_STMT_HPP
+#endif /* ONEJIT_STRING_HPP */

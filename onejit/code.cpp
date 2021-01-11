@@ -37,51 +37,56 @@ Code::Code(size_t capacity) : Base() {
 }
 
 Code::~Code() {
+  static_assert(sizeof(NodeHeader) == 4, "sizeof(NodeHeader) must be 4");
+  static_assert(sizeof(uint32_t) == 4, "sizeof(uint32_t) must be 4");
+  static_assert(sizeof(uint64_t) == 8, "sizeof(uint32_t) must be 8");
+  static_assert(sizeof(float) == 4, "sizeof(double) must be 4");
+  static_assert(sizeof(double) == 8, "sizeof(double) must be 8");
 }
 
-uint8_t Code::get8(Offset offset) const {
-  return at(offset);
+const uint32_t &Code::at(Offset byte_offset) const {
+  return Base::at(byte_offset / sizeof(uint32_t));
 }
-uint16_t Code::get16(Offset offset) const {
-  const uint8_t *addr = &at(offset + 1) - 1;
-  uint16_t val;
-  std::memcpy(&val, addr, sizeof(val));
-  return val;
-}
-uint32_t Code::get32(Offset offset) const {
-  const uint8_t *addr = &at(offset + 3) - 3;
-  uint32_t val;
-  std::memcpy(&val, addr, sizeof(val));
-  return val;
-}
-uint64_t Code::get64(Offset offset) const {
-  const uint8_t *addr = &at(offset + 7) - 7;
+uint64_t Code::uint64(Offset byte_offset) const {
+  const uint32_t *addr = &at(byte_offset + 1) - 1;
   uint64_t val;
   std::memcpy(&val, addr, sizeof(val));
   return val;
 }
+float Code::float32(Offset byte_offset) const {
+  const uint32_t *addr = &at(byte_offset);
+  float val;
+  std::memcpy(&val, addr, sizeof(val));
+  return val;
+}
+double Code::float64(Offset byte_offset) const {
+  const uint32_t *addr = &at(byte_offset + 1) - 1;
+  double val;
+  std::memcpy(&val, addr, sizeof(val));
+  return val;
+}
 
-void Code::add(const Bytes data) {
+Code &Code::add(const CodeView data) {
   Base::insert(Base::end(), data.begin(), data.end());
+  return *this;
 }
-
-void Code::add8(uint8_t val) {
-  add(Bytes(&val, sizeof(val)));
+Code &Code::add(uint32_t val) {
+  return add(CodeView(&val, 1));
 }
-void Code::add16(uint16_t val) {
-  uint8_t v[2];
+Code &Code::add(uint64_t val) {
+  uint32_t v[2];
   memcpy(v, &val, sizeof(v));
-  add(Bytes(v, sizeof(v)));
+  return add(CodeView(v, 2));
 }
-void Code::add32(uint32_t val) {
-  uint8_t v[4];
+Code &Code::add(float val) {
+  uint32_t v[1];
   memcpy(v, &val, sizeof(v));
-  add(Bytes(v, sizeof(v)));
+  return add(CodeView(v, 1));
 }
-void Code::add64(uint64_t val) {
-  uint8_t v[8];
+Code &Code::add(double val) {
+  uint32_t v[2];
   memcpy(v, &val, sizeof(v));
-  add(Bytes(v, sizeof(v)));
+  return add(CodeView(v, 2));
 }
 
 } // namespace onejit

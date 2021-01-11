@@ -17,69 +17,57 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * stmt.hpp
+ * node.hpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_STMT_HPP
-#define ONEJIT_STMT_HPP
+#ifndef ONEJIT_ARG_HPP
+#define ONEJIT_ARG_HPP
 
-#include <onejit/node.hpp>
+#include <onejit/code.hpp>
 
 namespace onejit {
 
-class Stmt0 {
+////////////////////////////////////////////////////////////////////////////////
+class Node {
 public:
-  constexpr Stmt0() : type_(BAD) {
+  constexpr Node() : code_(nullptr), offset_(0), header_(BAD) {
   }
 
-  constexpr type() const {
-    return type_;
+  Type type() const {
+    return Type(header_);
   }
+
+  uint16_t children() const;
+  Node child(uint16_t i) const;
 
 protected:
-  constexpr explicit Stmt0(Type t) : type_(t) {
+  Node(Code *code, Offset byte_offset);
+
+  constexpr Node(Code *code, Offset byte_offset, NodeHeader header)
+      : code_(code), offset_(byte_offset), header_(header) {
+  }
+
+  constexpr Code *code() const {
+    return code_;
+  }
+
+  constexpr Offset offset() const {
+    return offset_;
+  }
+
+  constexpr NodeHeader header() const {
+    return header_;
   }
 
 private:
-  Type type_;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-class Stmt1 : public Node {
-public:
-  constexpr Stmt1() : Node() {
-  }
-
-protected:
-  constexpr Stmt1(Code *code, Offset offset) //
-      : Node(code, offset) {
-  }
-};
-
-////////////////////////////////////////////////////////////////////////////////
-class Break : Stmt0 {
-public:
-  Break() : Stmt0(BREAK) {
-  }
-};
-
-////////////////////////////////////////////////////////////////////////////////
-class Continue : Stmt0 {
-public:
-  Continue() : Stmt0(CONTINUE) {
-  }
-};
-
-////////////////////////////////////////////////////////////////////////////////
-class Fallthrough : Stmt0 {
-public:
-  Fallthrough() : Stmt0(FALLTHROUGH) {
-  }
+  Code *code_;
+  Offset offset_;
+  NodeHeader header_;
 };
 
 } // namespace onejit
 
-#endif // ONEJIT_STMT_HPP
+#endif // ONEJIT_ARG_HPP

@@ -17,25 +17,55 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * arg.cpp
+ * mem.cpp
  *
- *  Created on Jan 09, 2020
+ *  Created on Jan 11, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/arg.hpp"
-#include "onejit/check.hpp"
+#include "onejit/mem.hpp"
+
+#include <cstdlib>
+#include <exception>
 
 namespace onejit {
+namespace mem {
 
-uint8_t Arg::children() const {
-  return code_ == nullptr ? 0 : code_->get8(offset_ + 1);
+static void throw_bad_alloc() {
+  throw std::bad_alloc();
 }
 
-Arg Arg::child(uint8_t i) const {
-  check(i, <, children());
-  Offset offset = offset_ + code_->get32(size_t(i) * sizeof(Offset) + offset_ + 2);
-  return Arg(code_, offset);
+void *alloc_bytes(size_t n_bytes) {
+  if (n_bytes == 0) {
+    return NULL;
+  }
+  void *addr = std::malloc(n_bytes);
+  if (!addr) {
+    throw_bad_alloc();
+  }
+  return addr;
 }
 
+void *realloc_bytes(void *addr, size_t n_bytes) {
+  if (!addr) {
+    return alloc_bytes(n_bytes);
+  }
+  if (n_bytes == 0) {
+    free_bytes(addr);
+    return NULL;
+  }
+  void *new_addr = std::realloc(addr, n_bytes);
+  if (!new_addr) {
+    throw_bad_alloc();
+  }
+  return new_addr;
+}
+
+void free_bytes(void *addr) {
+  if (addr) {
+    std::free(addr);
+  }
+}
+
+} // namespace mem
 } // namespace onejit

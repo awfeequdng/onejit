@@ -17,50 +17,32 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * arg.hpp
+ * node.cpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_ARG_HPP
-#define ONEJIT_ARG_HPP
-
-#include <onejit/code.hpp>
+#include "onejit/node.hpp"
+#include "onejit/check.hpp"
 
 namespace onejit {
 
-////////////////////////////////////////////////////////////////////////////////
-class Arg {
-public:
-  constexpr Arg() : code_(nullptr), offset_(0) {
+Node::Node(Code *code, Offset byte_offset) : code_(code), offset_(byte_offset), header_(BAD) {
+  if (code) {
+    header_ = code->at(byte_offset);
   }
+}
 
-  Type type() const {
-    return code_ == nullptr ? BAD : Type(code_->get8(offset_));
-  }
+uint16_t Node::children() const {
+  return header_ >> 16;
+}
 
-  uint8_t children() const;
-  Arg child(uint8_t i) const;
-
-protected:
-  constexpr Arg(Code *code, Offset offset) //
-      : code_(code), offset_(offset) {
-  }
-
-  constexpr Code *code() const {
-    return code_;
-  }
-
-  constexpr Offset offset() const {
-    return offset_;
-  }
-
-private:
-  Code *code_;
-  Offset offset_;
-};
+Node Node::child(uint16_t i) const {
+  check(i, <, children());
+  Offset offset =
+      offset_ + code_->uint32(size_t(i) * sizeof(Offset) + offset_ + sizeof(NodeHeader));
+  return Node(code_, offset);
+}
 
 } // namespace onejit
-
-#endif // ONEJIT_ARG_HPP

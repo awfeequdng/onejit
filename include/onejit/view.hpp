@@ -26,6 +26,7 @@
 #define ONEJIT_VIEW_HPP
 
 #include <onejit/check.hpp>
+#include <onejit/fwd.hpp>
 
 #include <cstddef> // size_t
 #include <cstring> // memcmp()
@@ -55,7 +56,6 @@ public:
   constexpr View(const T *addr, size_t n) : data_(addr), size_(n) {
   }
 
-#if 0
   View(const Span<T> &other) {
     ref(other);
   }
@@ -76,7 +76,6 @@ public:
     ref(other);
     return *this;
   }
-#endif // 0
 
   constexpr size_t capacity() const {
     return size_;
@@ -103,27 +102,6 @@ public:
     return size_ == 0;
   }
 
-  template <class VEC> bool operator==(const VEC &other) const {
-    static_assert(
-        sizeof(value_type) == sizeof(typename VEC::value_type),
-        "onejit::View<T>::operator==(VEC) mismatched sizes of value_type and VEC::value_type");
-
-    return size_ == other.size() && !std::memcmp(data(), other.data(), size_ * sizeof(value_type));
-  }
-
-  void ref(const T *addr, size_t n) {
-    data_ = addr;
-    size_ = n;
-  }
-  void ref(const View<T> &other) {
-    data_ = other.data_;
-    size_ = other.size_;
-  }
-#if 0
-  void ref(const Span<T> &other);
-  void ref(const Vector<T> &other);
-#endif // 0
-
   constexpr const T *begin() const {
     return data_;
   }
@@ -143,6 +121,25 @@ public:
     View temp = *this;
     *this = other;
     other = temp;
+  }
+
+  void ref(const T *addr, size_t n) {
+    data_ = addr;
+    size_ = n;
+  }
+  void ref(const View<T> &other) {
+    data_ = other.data_;
+    size_ = other.size_;
+  }
+  void ref(const Span<T> &other);
+  void ref(const Vector<T> &other);
+
+  template <class VEC> bool operator==(const VEC &other) const {
+    static_assert(
+        sizeof(value_type) == sizeof(typename VEC::value_type),
+        "onejit::View<T>::operator==(VEC) mismatched sizes of value_type and VEC::value_type");
+
+    return size_ == other.size() && !std::memcmp(data(), other.data(), size_ * sizeof(value_type));
   }
 };
 

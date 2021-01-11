@@ -27,7 +27,7 @@
 #define ONEJIT_CODE_HPP
 
 #include <onejit/bytes.hpp>
-#include <onejit/offset.hpp>
+#include <onejit/fwd.hpp>
 #include <onejit/type.hpp>
 
 #include <cstdint> // uint8_t
@@ -35,29 +35,40 @@
 
 namespace onejit {
 
-class Arg;
-
-class Code : private std::vector<uint8_t> {
-  friend class Arg;
-  typedef std::vector<uint8_t> Base;
+class Code : private std::vector<NodeHeader> {
+  friend class Node;
+  typedef std::vector<NodeHeader> Base;
 
 public:
   Code();
   explicit Code(size_t capacity);
   ~Code();
 
-  uint8_t get8(Offset offset) const;
-  uint16_t get16(Offset offset) const;
-  uint32_t get32(Offset offset) const;
-  uint64_t get64(Offset offset) const;
+  const NodeHeader &at(Offset byte_offset) const;
+  int32_t i32(Offset byte_offset) const {
+    return int32_t(at(byte_offset));
+  }
+  uint32_t uint32(Offset byte_offset) const {
+    return at(byte_offset);
+  }
+  int64_t int64(Offset byte_offset) const {
+    return int64_t(uint64(byte_offset));
+  }
+  uint64_t uint64(Offset byte_offset) const;
+  float float32(Offset byte_offset) const;
+  double float64(Offset byte_offset) const;
 
-  void add(Bytes data);
-  void add8(uint8_t val);
-  void add16(uint16_t val);
-  void add32(uint32_t val);
-  void add64(uint64_t val);
-
-private:
+  Code &add(CodeView data);
+  Code &add(int32_t val) {
+    return add(uint32_t(val));
+  }
+  Code &add(uint32_t val);
+  Code &add(int64_t val) {
+    return add(uint64_t(val));
+  }
+  Code &add(uint64_t val);
+  Code &add(float val);
+  Code &add(double val);
 };
 
 } // namespace onejit
