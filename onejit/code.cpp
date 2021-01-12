@@ -24,20 +24,22 @@
  */
 
 #include "onejit/code.hpp"
+#include "onejit/nodeheader.hpp"
 
 #include <cstring>
 
 namespace onejit {
 
-Code::Code() : Base() {
+Code::Code() : Base(), good_(true) {
 }
 
-Code::Code(size_t capacity) : Base() {
-  reserve(capacity);
+Code::Code(size_t capacity) : Base(), good_(true) {
+  good_ &= reserve(capacity);
 }
 
 Code::~Code() {
   static_assert(sizeof(NodeHeader) == 4, "sizeof(NodeHeader) must be 4");
+  static_assert(sizeof(CodeItem) == 4, "sizeof(CodeItem) must be 4");
   static_assert(sizeof(uint32_t) == 4, "sizeof(uint32_t) must be 4");
   static_assert(sizeof(uint64_t) == 8, "sizeof(uint32_t) must be 8");
   static_assert(sizeof(float) == 4, "sizeof(double) must be 4");
@@ -45,47 +47,54 @@ Code::~Code() {
 }
 
 const uint32_t &Code::at(Offset byte_offset) const {
-  return Base::at(byte_offset / sizeof(uint32_t));
+  return Base::operator[](byte_offset / sizeof(uint32_t));
 }
+
 uint64_t Code::uint64(Offset byte_offset) const {
-  const uint32_t *addr = &at(byte_offset + 1) - 1;
+  const uint32_t *addr = &at(byte_offset + 4) - 1;
   uint64_t val;
   std::memcpy(&val, addr, sizeof(val));
   return val;
 }
+
 float Code::float32(Offset byte_offset) const {
   const uint32_t *addr = &at(byte_offset);
   float val;
   std::memcpy(&val, addr, sizeof(val));
   return val;
 }
+
 double Code::float64(Offset byte_offset) const {
-  const uint32_t *addr = &at(byte_offset + 1) - 1;
+  const uint32_t *addr = &at(byte_offset + 4) - 1;
   double val;
   std::memcpy(&val, addr, sizeof(val));
   return val;
 }
 
 Code &Code::add(const CodeView data) {
-  Base::insert(Base::end(), data.begin(), data.end());
+  good_ = good_ && Base::append(data);
   return *this;
 }
+
 Code &Code::add(uint32_t val) {
   return add(CodeView(&val, 1));
 }
+
 Code &Code::add(uint64_t val) {
   uint32_t v[2];
-  memcpy(v, &val, sizeof(v));
+  std::memcpy(v, &val, sizeof(v));
   return add(CodeView(v, 2));
 }
+
 Code &Code::add(float val) {
   uint32_t v[1];
-  memcpy(v, &val, sizeof(v));
+  std::memcpy(v, &val, sizeof(v));
   return add(CodeView(v, 1));
 }
+
 Code &Code::add(double val) {
   uint32_t v[2];
-  memcpy(v, &val, sizeof(v));
+  std::memcpy(v, &val, sizeof(v));
   return add(CodeView(v, 2));
 }
 

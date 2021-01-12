@@ -28,13 +28,16 @@
 #include <onejit/mem.hpp>
 #include <onejit/span.hpp>
 
+#include <cstdint>     // uint32_t
+#include <type_traits> // std::is_trivial<T>
+
 namespace onejit {
 
 // dynamically resizeable vector of arbitrary type T, with two constraints:
 // 1. T must have trivial copy constructor, destructor and assignment operator
 // 2. zero-initializing T must be equivalent to T default constructor
 template <class T> class Vector : protected Span<T> {
-  static_assert(std::is_trivial<T>::true, "Vector<T>: element type T must be trivial");
+  static_assert(std::is_trivial<T>::value, "Vector<T>: element type T must be trivial");
 
   typedef Span<T> Base;
 
@@ -76,7 +79,7 @@ protected:
     if (!ensure_capacity(n)) {
       return false;
     }
-    if (n > size_) {
+    if (zerofill && n > size_) {
       std::memset(data() + size_, '\0', (n - size_) * sizeof(T));
     }
     size_ = n;
@@ -208,6 +211,9 @@ template <class T> void Span<T>::ref(Vector<T> &other) {
 template <class T> void swap(Vector<T> &left, Vector<T> &right) {
   left.swap(right);
 }
+
+extern template class Vector<char>;
+extern template class Vector<uint32_t>;
 
 typedef Vector<char> CharVec;
 

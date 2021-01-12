@@ -17,45 +17,16 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * type.hpp
+ * vector.cpp
  *
- *  Created on Jan 09, 2020
+ *  Created on Jan 12, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_TYPE_HPP
-#define ONEJIT_TYPE_HPP
-
-#include <cstdint> // uint8_t
-#include <iosfwd>  // std::ostream
+#include "onejit/vector.hpp"
 
 namespace onejit {
 
-enum Type : uint8_t {
-  BAD = 0,
-  BREAK = 1,
-  CONTINUE = 2,
-  FALLTHROUGH = 3,
-
-  REG = 4,
-  UNARY = 5,
-  BINARY = 6,
-  TUPLE = 7,
-  MEM = 8,
-  CONST = 9,
-
-  DEFAULT = 10,
-  CASE = 11,
-  IF = 12,
-  FOR = 13,
-  SWITCH = 14,
-};
-
-class Chars;
-const Chars &to_string(Type t);
-
-std::ostream &operator<<(std::ostream &out, Type t);
+template class Vector<uint32_t>;
 
 } // namespace onejit
-
-#endif // ONEJIT_TYPE_HPP

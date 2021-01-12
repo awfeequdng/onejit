@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.70])
+AC_PREREQ([2.69])
 AC_INIT([onejit],[0.0.0],[github.com/cosmos72/onejit])
 AC_CONFIG_SRCDIR([onejit/archid.cpp])
 AC_CONFIG_HEADERS([include/config.h])

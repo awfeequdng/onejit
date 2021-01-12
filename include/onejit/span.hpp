@@ -76,7 +76,7 @@ public:
   using Base::size;
   using Base::view;
 
-  constexpr T *data() {
+  T *data() {
     return const_cast<T *>(data_);
   }
 

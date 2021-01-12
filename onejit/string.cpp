@@ -29,6 +29,8 @@
 
 namespace onejit {
 
+template class Vector<char>;
+
 String::~String() {
 }
 

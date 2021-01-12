@@ -29,22 +29,26 @@
 #include <onejit/bytes.hpp>
 #include <onejit/fwd.hpp>
 #include <onejit/type.hpp>
+#include <onejit/vector.hpp>
 
-#include <cstdint> // uint8_t
-#include <vector>
+#include <cstdint> // uint32_t
 
 namespace onejit {
 
-class Code : private std::vector<NodeHeader> {
+class Code : private Vector<CodeItem> {
   friend class Node;
-  typedef std::vector<NodeHeader> Base;
+  typedef Vector<CodeItem> Base;
 
 public:
   Code();
   explicit Code(size_t capacity);
   ~Code();
 
-  const NodeHeader &at(Offset byte_offset) const;
+  constexpr explicit operator bool() const {
+    return good_;
+  }
+
+  const CodeItem &at(Offset byte_offset) const;
   int32_t i32(Offset byte_offset) const {
     return int32_t(at(byte_offset));
   }
@@ -69,6 +73,9 @@ public:
   Code &add(uint64_t val);
   Code &add(float val);
   Code &add(double val);
+
+private:
+  bool good_;
 };
 
 } // namespace onejit

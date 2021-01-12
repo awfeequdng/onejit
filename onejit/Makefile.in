@@ -107,8 +107,9 @@ libonejit_a_AR = $(AR) $(ARFLAGS)
 libonejit_a_LIBADD =
 am_libonejit_a_OBJECTS = archid.$(OBJEXT) bits.$(OBJEXT) \
 	chars.$(OBJEXT) code.$(OBJEXT) mem.$(OBJEXT) group.$(OBJEXT) \
-	kind.$(OBJEXT) node.$(OBJEXT) op1.$(OBJEXT) op2.$(OBJEXT) \
-	opn.$(OBJEXT) type.$(OBJEXT)
+	kind.$(OBJEXT) node.$(OBJEXT) nodeheader.$(OBJEXT) \
+	op1.$(OBJEXT) op2.$(OBJEXT) opn.$(OBJEXT) string.$(OBJEXT) \
+	type.$(OBJEXT) vector.$(OBJEXT)
 libonejit_a_OBJECTS = $(am_libonejit_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -128,8 +129,9 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/bits.Po \
 	./$(DEPDIR)/chars.Po ./$(DEPDIR)/code.Po ./$(DEPDIR)/group.Po \
 	./$(DEPDIR)/kind.Po ./$(DEPDIR)/mem.Po ./$(DEPDIR)/node.Po \
-	./$(DEPDIR)/op1.Po ./$(DEPDIR)/op2.Po ./$(DEPDIR)/opn.Po \
-	./$(DEPDIR)/type.Po
+	./$(DEPDIR)/nodeheader.Po ./$(DEPDIR)/op1.Po \
+	./$(DEPDIR)/op2.Po ./$(DEPDIR)/opn.Po ./$(DEPDIR)/string.Po \
+	./$(DEPDIR)/type.Po ./$(DEPDIR)/vector.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -223,6 +225,7 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
+CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
@@ -231,7 +234,9 @@ DEPDIR = @DEPDIR@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
+EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -307,8 +312,9 @@ noinst_LIBRARIES = libonejit.a
 
 # AM_CPPFLAGS          = -I$(top_srcdir)/include
 # libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
-libonejit_a_SOURCES = archid.cpp bits.cpp chars.cpp code.cpp mem.cpp group.cpp \
-                         kind.cpp node.cpp op1.cpp op2.cpp opn.cpp string.gpp type.cpp
+libonejit_a_SOURCES = archid.cpp bits.cpp chars.cpp code.cpp mem.cpp group.cpp kind.cpp \
+                         node.cpp nodeheader.cpp op1.cpp op2.cpp opn.cpp string.cpp type.cpp \
+                         vector.cpp
 
 all: all-recursive
 
@@ -366,10 +372,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kind.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mem.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/node.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nodeheader.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/op1.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/op2.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opn.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/type.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vector.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -598,10 +607,13 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/kind.Po
 	-rm -f ./$(DEPDIR)/mem.Po
 	-rm -f ./$(DEPDIR)/node.Po
+	-rm -f ./$(DEPDIR)/nodeheader.Po
 	-rm -f ./$(DEPDIR)/op1.Po
 	-rm -f ./$(DEPDIR)/op2.Po
 	-rm -f ./$(DEPDIR)/opn.Po
+	-rm -f ./$(DEPDIR)/string.Po
 	-rm -f ./$(DEPDIR)/type.Po
+	-rm -f ./$(DEPDIR)/vector.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -655,10 +667,13 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/kind.Po
 	-rm -f ./$(DEPDIR)/mem.Po
 	-rm -f ./$(DEPDIR)/node.Po
+	-rm -f ./$(DEPDIR)/nodeheader.Po
 	-rm -f ./$(DEPDIR)/op1.Po
 	-rm -f ./$(DEPDIR)/op2.Po
 	-rm -f ./$(DEPDIR)/opn.Po
+	-rm -f ./$(DEPDIR)/string.Po
 	-rm -f ./$(DEPDIR)/type.Po
+	-rm -f ./$(DEPDIR)/vector.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

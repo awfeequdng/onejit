@@ -17,56 +17,51 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * node.hpp
+ * nodeheader.hpp
  *
- *  Created on Jan 09, 2020
+ *  Created on Jan 12, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_NODE_HPP
-#define ONEJIT_NODE_HPP
+#ifndef ONEJIT_NODEHEADER_HPP
+#define ONEJIT_NODEHEADER_HPP
 
 #include <onejit/fwd.hpp>
-#include <onejit/nodeheader.hpp>
+#include <onejit/kind.hpp>
 #include <onejit/type.hpp>
 
 namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
-// base interface of BinaryExpr, UnaryExpr, Stmt*
-class Node : public NodeHeader {
-  using Base = NodeHeader;
+// first CodeItem contained in BinaryExpr, UnaryExpr, Stmt*
+class NodeHeader {
+  friend class Node;
 
 public:
-  constexpr Node() : Base(BAD), offset_(0), code_(nullptr) {
+  constexpr NodeHeader() : val_(BAD) {
   }
 
-  constexpr uint16_t children() const {
-    return code_ ? Base::children() : 0;
+  constexpr explicit NodeHeader(CodeItem item) : val_(item) {
   }
 
-  Node child(uint16_t i) const;
-
-protected:
-  constexpr Node(Code *code, Offset byte_offset, NodeHeader header)
-      : Base(header), offset_(byte_offset), code_(code) {
+  constexpr Type type() const {
+    return Type(val_ & 0xF);
   }
 
-  constexpr Code *code() const {
-    return code_;
+  constexpr Kind kind() const {
+    return Kind(val_ >> 4);
   }
 
-  constexpr Offset offset() const {
-    return offset_;
-  }
-
-  constexpr NodeHeader header() const {
-    return *this;
+  constexpr uint32_t children() const {
+    return val_ >> 8;
   }
 
 private:
-  Offset offset_;
-  Code *code_;
+  constexpr CodeItem val() const {
+    return val_;
+  }
+
+  CodeItem val_;
 };
 
 } // namespace onejit

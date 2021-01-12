@@ -34,12 +34,13 @@ class ArchId;
 class Bits;
 class Break;
 class Code;
+typedef uint32_t CodeItem;
 class Continue;
 class Chars;
 class Fallthrough;
 class Kind;
 class Node;
-typedef uint32_t NodeHeader;
+class NodeHeader;
 typedef uint32_t Offset;
 template <class T> class Span;
 class Stmt0;
@@ -50,7 +51,7 @@ template <class T> class View;
 
 typedef View<uint8_t> Bytes;
 typedef Span<char> CharSpan;
-typedef View<NodeHeader> CodeView;
+typedef View<CodeItem> CodeView;
 
 } // namespace onejit
 

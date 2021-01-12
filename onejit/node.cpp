@@ -25,24 +25,57 @@
 
 #include "onejit/node.hpp"
 #include "onejit/check.hpp"
+#include "onejit/code.hpp"
 
 namespace onejit {
 
-Node::Node(Code *code, Offset byte_offset) : code_(code), offset_(byte_offset), header_(BAD) {
-  if (code) {
-    header_ = code->at(byte_offset);
-  }
+static bool is_direct(CodeItem item) {
+  return item <= FALLTHROUGH || (item & 3) != 0;
 }
 
-uint16_t Node::children() const {
-  return header_ >> 16;
+static NodeHeader direct_header(CodeItem item) {
+  Type t = BAD;
+  Kind k = Void;
+  if (item <= FALLTHROUGH) {
+    t = Type(item);
+  } else if ((item & 1) == 1) {
+    t = CONST;
+    k = Kind((item >> 1) & 0xF);
+  } else {
+    t = REG;
+    k = Kind((item >> 2) & 0xF);
+  }
+  return NodeHeader(t | (uint32_t(k.val()) << 8));
+}
+
+static uint32_t direct_data(CodeItem item, NodeHeader header) {
+  const Type t = header.type();
+  uint32_t data;
+  if (t <= FALLTHROUGH) {
+    data = 0;
+  } else if (t == CONST) {
+    if (header.kind().is_unsigned()) {
+      data = item >> 5;
+    } else {
+      // signed right shift is implementation-dependent: use a division
+      data = int32_t(item) / 32;
+    }
+  } else { // t == REG
+    data = item >> 6;
+  }
+  return data;
 }
 
 Node Node::child(uint16_t i) const {
   check(i, <, children());
-  Offset offset =
-      offset_ + code_->uint32(size_t(i) * sizeof(Offset) + offset_ + sizeof(NodeHeader));
-  return Node(code_, offset);
+  const CodeItem item = code_->uint32(size_t(i) * sizeof(Offset) + offset_ + sizeof(NodeHeader));
+  if (is_direct(item)) {
+    NodeHeader header = direct_header(item);
+    return Node(nullptr, direct_data(item, header), header);
+  } else {
+    const Offset offset = offset_ + item;
+    return Node(code_, offset, NodeHeader(code_->uint32(offset)));
+  }
 }
 
 } // namespace onejit
