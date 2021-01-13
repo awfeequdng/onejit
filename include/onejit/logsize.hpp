@@ -83,6 +83,18 @@ constexpr inline bool operator==(size_t a, LogSize b) {
   return a == b.val();
 }
 
+constexpr inline bool operator!=(LogSize a, LogSize b) {
+  return a.log2() != b.log2();
+}
+
+constexpr inline bool operator!=(LogSize a, size_t b) {
+  return a.val() != b;
+}
+
+constexpr inline bool operator!=(size_t a, LogSize b) {
+  return a != b.val();
+}
+
 constexpr inline bool operator<(LogSize a, LogSize b) {
   // use overflow to convert log2() == 255 to 0
   return uint8_t(1 + a.log2()) < uint8_t(1 + b.log2());
