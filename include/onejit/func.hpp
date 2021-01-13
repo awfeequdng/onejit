@@ -17,20 +17,33 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * size.cpp
+ * func.hpp
  *
- *  Created on Jan 08, 2020
+ *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/size.hpp"
+#ifndef ONEJIT_FUNC_HPP
+#define ONEJIT_FUNC_HPP
 
-#include <ostream>
+#include <onejit/fwd.hpp>
+#include <onejit/reg.hpp>
+#include <onejit/vector.hpp>
 
 namespace onejit {
 
-std::ostream &operator<<(std::ostream &out, Bits bits) {
-  return out << bits.val();
-}
+class Func {
+
+public:
+  explicit Func(Code *holder);
+
+  Reg new_reg(Kind kind);
+
+private:
+  Code *holder_;
+  Vector<Reg> regs_;
+};
 
 } // namespace onejit
+
+#endif // ONEJIT_FUNC_HPP

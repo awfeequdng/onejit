@@ -17,48 +17,27 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * bits.hpp
+ * func.cpp
  *
- *  Created on Jan 08, 2020
+ *  Created on Jan 13, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_SIZE_HPP
-#define ONEJIT_SIZE_HPP
-
-#include <cstddef> // size_t
-#include <cstdint> // uint8_t
-#include <iosfwd>  // std::ostream
+#include "onejit/func.hpp"
 
 namespace onejit {
 
-class Bits {
-public:
-  constexpr Bits() : log2_(-1) {
-  }
+enum { FIRST_SOFTREGID = 0x1000 };
 
-  constexpr explicit Bits(size_t n) : log2_(uintlog2(n, -1)) {
-  }
+Func::Func(Code *holder) : holder_(holder), regs_() {
+}
 
-  // 255 means Val() == 0
-  constexpr uint8_t log2() const {
-    return log2_;
+Reg Func::new_reg(Kind kind) {
+  const Reg reg(kind, RegId(regs_.size() + FIRST_SOFTREGID));
+  if (kind == Void || !regs_.append(reg)) {
+    return Reg();
   }
-  constexpr size_t val() const {
-    return log2_ == uint8_t(-1) ? 0 : size_t(1) << log2_;
-  }
-  // String string() const;
-
-private:
-  constexpr static uint8_t uintlog2(size_t n, uint8_t accum) {
-    return n == 0 ? accum : uintlog2(n >> 1, accum + 1);
-  }
-
-  uint8_t log2_;
-};
-
-std::ostream &operator<<(std::ostream &out, Bits size);
+  return reg;
+}
 
 } // namespace onejit
-
-#endif // ONEJIT_SIZE_HPP

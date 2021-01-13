@@ -17,48 +17,20 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * fwd.hpp
+ * logsize.cpp
  *
- *  Created on Jan 09, 2020
+ *  Created on Jan 08, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_FWD_HPP
-#define ONEJIT_FWD_HPP
+#include "onejit/logsize.hpp"
 
-#include <cstdint> // uint*_t
+#include <ostream>
 
 namespace onejit {
 
-class ArchId;
-class LogSize;
-class Break;
-class Code;
-class Continue;
-class Chars;
-class Fallthrough;
-class Func;
-class Kind;
-class Node;
-class NodeHeader;
-class Reg;
-class RegId;
-template <class T> class Span;
-class Stmt0;
-class Stmt1;
-class String;
-template <class T> class Vector;
-template <class T> class View;
-
-typedef uint32_t CodeItem;
-typedef LogSize Bits;
-typedef LogSize SimdN;
-typedef uint32_t Offset;
-
-typedef View<uint8_t> Bytes;
-typedef Span<char> CharSpan;
-typedef View<CodeItem> CodeView;
+std::ostream &operator<<(std::ostream &out, LogSize size) {
+  return out << size.val();
+}
 
 } // namespace onejit
-
-#endif // ONEJIT_FWD_HPP

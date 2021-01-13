@@ -70,6 +70,13 @@
         "stack": "cpp",
         "__locale": "cpp",
         "filesystem": "cpp",
-        "locale": "cpp"
+        "locale": "cpp",
+        "__atomic": "cpp",
+        "__functional_base": "cpp",
+        "__functional_base_03": "cpp",
+        "__tuple": "cpp"
+    },
+    "files.watcherExclude": {
+        "**/.git/**": true
     }
 }

@@ -26,6 +26,7 @@
 #include "onejit/mem.hpp"
 
 #include <cstdlib>
+#include <cstring>
 
 namespace onejit {
 namespace mem {
@@ -34,12 +35,16 @@ void *alloc_bytes(size_t n_bytes) throw() {
   return std::malloc(n_bytes);
 }
 
-void *realloc_bytes(void *addr, size_t n_bytes) throw() {
-  return std::realloc(addr, n_bytes);
+void clear_bytes(void *addr, size_t n_bytes) throw() {
+  std::memset(addr, 0, n_bytes);
 }
 
 void free_bytes(void *addr) throw() {
   std::free(addr);
+}
+
+void *realloc_bytes(void *addr, size_t n_bytes) throw() {
+  return std::realloc(addr, n_bytes);
 }
 
 } // namespace mem

@@ -26,23 +26,27 @@
 #ifndef ONEJIT_NODE_HPP
 #define ONEJIT_NODE_HPP
 
-#include <onejit/fwd.hpp>
 #include <onejit/nodeheader.hpp>
-#include <onejit/type.hpp>
 
 namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
 // base interface of BinaryExpr, UnaryExpr, Stmt*
-class Node : public NodeHeader {
+class Node : private NodeHeader {
   using Base = NodeHeader;
+
+  friend class Reg;
+  friend class Stmt0;
 
 public:
   constexpr Node() : Base(BAD), offset_(0), code_(nullptr) {
   }
 
+  using Base::kind;
+  using Base::type;
+
   constexpr uint16_t children() const {
-    return code_ ? Base::children() : 0;
+    return code_ == nullptr ? 0 : type() == UNARY ? 1 : type() == BINARY ? 2 : Base::data();
   }
 
   Node child(uint16_t i) const;

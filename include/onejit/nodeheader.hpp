@@ -38,30 +38,33 @@ class NodeHeader {
   friend class Node;
 
 public:
-  constexpr NodeHeader() : val_(BAD) {
+  constexpr NodeHeader() : type_(BAD), kind_(Void), data_(0) {
   }
 
-  constexpr explicit NodeHeader(CodeItem item) : val_(item) {
+  constexpr explicit NodeHeader(CodeItem item)
+      : type_(Type(item & 0xFF)), kind_(Kind(item >> 8)), data_(item >> 16) {
+  }
+
+  constexpr NodeHeader(Type type, Kind kind, uint16_t data)
+      : type_(type), kind_(kind), data_(data) {
   }
 
   constexpr Type type() const {
-    return Type(val_ & 0xF);
+    return type_;
   }
 
   constexpr Kind kind() const {
-    return Kind(val_ >> 4);
+    return kind_;
   }
 
-  constexpr uint32_t children() const {
-    return val_ >> 8;
+  constexpr uint32_t data() const {
+    return data_;
   }
 
 private:
-  constexpr CodeItem val() const {
-    return val_;
-  }
-
-  CodeItem val_;
+  Type type_;
+  Kind kind_;
+  uint16_t data_;
 };
 
 } // namespace onejit

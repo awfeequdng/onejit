@@ -35,9 +35,12 @@ namespace onejit {
 
 // dynamically resizeable vector of arbitrary type T, with two constraints:
 // 1. T must have trivial copy constructor, destructor and assignment operator
-// 2. zero-initializing T must be equivalent to T default constructor
+// 2. zero-initializing T must be produce a valid T instance
 template <class T> class Vector : protected Span<T> {
-  static_assert(std::is_trivial<T>::value, "Vector<T>: element type T must be trivial");
+  static_assert(std::is_trivially_copyable<T>::value,
+                "Vector<T>: element type T must be trivially copyable");
+  static_assert(std::is_trivially_destructible<T>::value,
+                "Vector<T>: element type T must be trivially destructible");
 
   typedef Span<T> Base;
 
@@ -80,7 +83,7 @@ protected:
       return false;
     }
     if (zerofill && n > size_) {
-      std::memset(data() + size_, '\0', (n - size_) * sizeof(T));
+      mem::clear(data() + size_, n - size_);
     }
     size_ = n;
     return true;

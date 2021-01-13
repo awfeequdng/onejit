@@ -30,7 +30,7 @@
 namespace onejit {
 
 static bool is_direct(CodeItem item) {
-  return item <= FALLTHROUGH || (item & 3) != 0;
+  return item == 0 || (item & 3) != 0;
 }
 
 static NodeHeader direct_header(CodeItem item) {
@@ -40,12 +40,12 @@ static NodeHeader direct_header(CodeItem item) {
     t = Type(item);
   } else if ((item & 1) == 1) {
     t = CONST;
-    k = Kind((item >> 1) & 0xF);
+    k = Kind((item >> 1) & 0x7F);
   } else {
     t = REG;
-    k = Kind((item >> 2) & 0xF);
+    k = Kind((item >> 2) & 0x7F);
   }
-  return NodeHeader(t | (uint32_t(k.val()) << 8));
+  return NodeHeader(t, k, 0);
 }
 
 static uint32_t direct_data(CodeItem item, NodeHeader header) {
@@ -55,13 +55,13 @@ static uint32_t direct_data(CodeItem item, NodeHeader header) {
     data = 0;
   } else if (t == CONST) {
     if (header.kind().is_unsigned()) {
-      data = item >> 5;
+      data = item >> 8;
     } else {
       // signed right shift is implementation-dependent: use a division
-      data = int32_t(item) / 32;
+      data = int32_t(item & ~0xFF) / 256;
     }
   } else { // t == REG
-    data = item >> 6;
+    data = item >> 9;
   }
   return data;
 }

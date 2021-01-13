@@ -23,6 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/code.hpp>
+#include <onejit/func.hpp>
 #include <onejit/kind.hpp>
 
 #include <iostream>
@@ -32,9 +34,17 @@ using namespace onejit;
 int main(int argc, char *argv[]) {
   (void)argc;
   (void)argv;
-  for (uint8_t i = 0; i <= ArchFlags.val() + 1; i++) {
+  for (uint8_t i = 0; i < 2 * (1 + ArchFlags.val()); i++) {
     const Kind k(i);
     std::cout << "Kind " << k << ", Group " << k.group() << ", bits " << k.bits() << '\n';
   }
+
+  Code holder;
+  Func func(&holder);
+  for (uint8_t i = 0; i <= ArchFlags.val(); i++) {
+    const Reg reg = func.new_reg(Kind(i));
+    std::cout << "Reg " << reg << '\n';
+  }
+
   return 0;
 }

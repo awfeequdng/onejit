@@ -27,7 +27,7 @@
 #define ONEJIT_KIND_HPP
 
 #include <onejit/group.hpp>
-#include <onejit/size.hpp>
+#include <onejit/logsize.hpp>
 
 #include <cstdint> // uint8_t
 #include <iosfwd>  // std::ostream
@@ -44,11 +44,19 @@ public:
   constexpr explicit Kind(uint8_t kind) : val_(kind) {
   }
 
+  constexpr Kind(uint8_t kind, SimdN simd_n) //
+      : val_((kind & 0xF) | (simd_n.log2() << 4)) {
+  }
+
   constexpr uint8_t val() const {
     return val_;
   }
 
   Bits bits() const;
+
+  constexpr SimdN simdn() const {
+    return SimdN::fromlog2(val_ >> 4);
+  }
 
   Group group() const;
 
@@ -88,10 +96,19 @@ public:
   }
 
   const Chars &string() const;
+  const Chars &stringsuffix() const;
 
 private:
   uint8_t val_;
 };
+
+constexpr bool operator==(Kind a, Kind b) {
+  return a.val() == b.val();
+}
+
+constexpr bool operator!=(Kind a, Kind b) {
+  return a.val() != b.val();
+}
 
 std::ostream &operator<<(std::ostream &out, Kind kind);
 

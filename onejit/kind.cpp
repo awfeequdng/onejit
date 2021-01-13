@@ -26,6 +26,8 @@
 #include "onejit/kind.hpp"
 #include "onejit/chars.hpp"
 
+#define N_OF(array) (sizeof(array) / sizeof(array[0]))
+
 namespace onejit {
 
 static const Chars kstring[] = {
@@ -36,13 +38,20 @@ static const Chars kstring[] = {
     "ptr",     "archflags", "?",                       //
 };
 
+static const Chars kstringsuffix[] = {
+    "v",  "e",               //
+    "b",  "s",   "i",  "l",  //
+    "ub", "us",  "ui", "ul", //
+    "f",  "d",   "cf", "cd", //
+    "p",  "cmp", "?",        //
+};
+
 static const Bits kbits[] = {
     Bits(0),  Bits(1),                       // Void, Bool
     Bits(8),  Bits(16), Bits(32), Bits(64),  // Int*
     Bits(8),  Bits(16), Bits(32), Bits(64),  // Uint*
-    Bits(32), Bits(64), Bits(64), Bits(128), // Float* Complex*
-    Bits(64),                                // Ptr
-    Bits(64),                                // ArchFlags
+    Bits(32), Bits(64), Bits(64), Bits(128), // Float*, Complex*
+    Bits(64), Bits(64),                      // Ptr, ArchFlags
 };
 
 static const Group kgroup[] = {
@@ -50,37 +59,50 @@ static const Group kgroup[] = {
     gInt,   gInt,   gInt,     gInt,     // Int*
     gUint,  gUint,  gUint,    gUint,    // Uint*
     gFloat, gFloat, gComplex, gComplex, // Float* Complex*
-    gPtr,                               // Ptr
-    gArch,                              // ArchFlags
+    gPtr,   gArch,                      // Ptr, ArchFlags
 };
 
 const Chars &Kind::string() const {
-  enum _ { n = sizeof(kstring) / sizeof(kstring[0]) };
-  uint8_t i = val_;
+  enum _ { n = N_OF(kstring) };
+  uint8_t i = val_ & 0xF;
   if (i >= n) {
     i = n - 1;
   }
   return kstring[i];
 }
 
+const Chars &Kind::stringsuffix() const {
+  enum _ { n = N_OF(kstringsuffix) };
+  uint8_t i = val_ & 0xF;
+  if (i >= n) {
+    i = n - 1;
+  }
+  return kstringsuffix[i];
+}
+
 Bits Kind::bits() const {
-  uint8_t i = val_;
-  if (i >= sizeof(kbits) / sizeof(kbits[0])) {
+  uint8_t i = val_ & 0xF;
+  if (i >= N_OF(kbits)) {
     i = 0;
   }
-  return kbits[i];
+  return kbits[i] * simdn();
 }
 
 Group Kind::group() const {
-  uint8_t i = val_;
-  if (i >= sizeof(kgroup) / sizeof(kgroup[0])) {
+  uint8_t i = val_ & 0xF;
+  if (i >= N_OF(kgroup)) {
     i = 0;
   }
   return kgroup[i];
 }
 
 std::ostream &operator<<(std::ostream &out, Kind kind) {
-  return out << kind.string();
+  out << kind.string();
+  const size_t n = kind.simdn().val();
+  if (n != 1) {
+    out << 'x' << n;
+  }
+  return out;
 }
 
 } // namespace onejit

@@ -17,48 +17,27 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * fwd.hpp
+ * reg.cpp
  *
- *  Created on Jan 09, 2020
+ *  Created on Jan 13, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_FWD_HPP
-#define ONEJIT_FWD_HPP
+#include "onejit/reg.hpp"
+#include "onejit/chars.hpp"
 
-#include <cstdint> // uint*_t
+#include <ios>
+#include <ostream>
 
 namespace onejit {
 
-class ArchId;
-class LogSize;
-class Break;
-class Code;
-class Continue;
-class Chars;
-class Fallthrough;
-class Func;
-class Kind;
-class Node;
-class NodeHeader;
-class Reg;
-class RegId;
-template <class T> class Span;
-class Stmt0;
-class Stmt1;
-class String;
-template <class T> class Vector;
-template <class T> class View;
+std::ostream &operator<<(std::ostream &out, RegId regid) {
+  return out << Chars("rid") << std::hex << regid.val() << std::dec;
+}
 
-typedef uint32_t CodeItem;
-typedef LogSize Bits;
-typedef LogSize SimdN;
-typedef uint32_t Offset;
-
-typedef View<uint8_t> Bytes;
-typedef Span<char> CharSpan;
-typedef View<CodeItem> CodeView;
+std::ostream &operator<<(std::ostream &out, Reg reg) {
+  return out << Chars("reg") << std::hex << reg.regid().val() << std::dec << '_'
+             << reg.kind().stringsuffix();
+}
 
 } // namespace onejit
-
-#endif // ONEJIT_FWD_HPP

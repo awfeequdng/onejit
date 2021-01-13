@@ -35,8 +35,20 @@ public:
   constexpr Stmt0() : type_(BAD) {
   }
 
-  constexpr type() const {
+  constexpr Type type() const {
     return type_;
+  }
+
+  constexpr Kind kind() const {
+    return Void;
+  }
+
+  constexpr uint16_t children() const {
+    return 0;
+  }
+
+  constexpr operator Node() const {
+    return Node(nullptr, 0, NodeHeader(type_, Void, 0));
   }
 
 protected:
@@ -48,9 +60,22 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class Stmt1 : public Node {
+class Stmt1 : private Node {
+  typedef Node Base;
+
 public:
   constexpr Stmt1() : Node() {
+  }
+
+  using Base::kind;
+  using Base::type;
+
+  constexpr uint16_t children() const {
+    return 1;
+  }
+
+  constexpr operator Node() const {
+    return *this;
   }
 
 protected:
