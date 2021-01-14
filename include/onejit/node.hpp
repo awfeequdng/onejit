@@ -35,6 +35,7 @@ namespace onejit {
 class Node : private NodeHeader {
   using Base = NodeHeader;
 
+  friend class Const;
   friend class Reg;
   friend class Stmt0;
 

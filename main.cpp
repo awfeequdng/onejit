@@ -24,6 +24,7 @@
  */
 
 #include <onejit/code.hpp>
+#include <onejit/const.hpp>
 #include <onejit/func.hpp>
 #include <onejit/kind.hpp>
 
@@ -42,9 +43,15 @@ int main(int argc, char *argv[]) {
   Code holder;
   Func func(&holder);
   for (uint8_t i = 0; i <= ArchFlags.val(); i++) {
-    const Reg reg = func.new_reg(Kind(i));
-    std::cout << "Reg " << reg << '\n';
+    const Reg r = func.new_reg(Kind(i));
+    std::cout << "Reg " << r << '\n';
+    func.add(r);
+
+    const Reg r2 = Reg::from_direct(r.direct());
+    CHECK(r, ==, r2);
   }
+  Const c(uint32_t(0x7FFFFF));
+  func.add(c);
 
   return 0;
 }

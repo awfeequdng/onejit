@@ -195,9 +195,14 @@ public:
   }
 
   void swap(Vector &other) {
-    std::swap(data_, other.data_);
-    std::swap(size_, other.size_);
-    std::swap(cap_, other.cap_);
+    struct {
+      const T *data;
+      size_t size;
+      const size_t cap;
+    } v = {};
+    std::memcpy(static_cast<void *>(&v), this, sizeof(v));
+    std::memcpy(static_cast<void *>(this), &other, sizeof(v));
+    std::memcpy(static_cast<void *>(&other), &v, sizeof(v));
   }
 };
 

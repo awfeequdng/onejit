@@ -31,13 +31,13 @@
 
 namespace onejit {
 
-std::ostream &operator<<(std::ostream &out, RegId regid) {
-  return out << Chars("rid") << std::hex << regid.val() << std::dec;
+std::ostream &operator<<(std::ostream &out, RegId id) {
+  return out << Chars("id") << std::hex << id.val() << std::dec;
 }
 
-std::ostream &operator<<(std::ostream &out, Reg reg) {
-  return out << Chars("reg") << std::hex << reg.regid().val() << std::dec << '_'
-             << reg.kind().stringsuffix();
+std::ostream &operator<<(std::ostream &out, Reg r) {
+  return out << Chars(" reg") << std::hex << r.id().val() << std::dec << '_'
+             << r.kind().stringsuffix();
 }
 
 } // namespace onejit

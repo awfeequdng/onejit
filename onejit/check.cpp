@@ -17,38 +17,28 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * func.hpp
+ * check.cpp
  *
- *  Created on Jan 09, 2020
+ *  Created on Jan 14, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_FUNC_HPP
-#define ONEJIT_FUNC_HPP
+#include "onejit/check.hpp"
 
-#include <onejit/fwd.hpp>
-#include <onejit/reg.hpp>
-#include <onejit/vector.hpp>
+#include <stdexcept>
+#include <string>
 
 namespace onejit {
 
-class Func {
-
-public:
-  explicit Func(Code *holder);
-
-  Reg new_reg(Kind kind);
-
-  Func &add(Reg r);
-  Func &add(Const c);
-
-private:
-  Func &add(CodeItem item);
-
-  Code *holder_;
-  Vector<Reg> regs_;
-};
+void
+#ifdef __GNUC__
+    __attribute__((noreturn))
+#endif
+    CheckFailed::dothrow() {
+  throw std::range_error(                                           //
+      std::string("check failed: ") + lhs_ + ' ' + op_ + ' ' + rhs_ //
+      + "\n\t" + lhs_ + "\t= " + lval_                              //
+      + "\n\t" + rhs_ + "\t= " + rval_);
+}
 
 } // namespace onejit
-
-#endif // ONEJIT_FUNC_HPP

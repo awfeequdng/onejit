@@ -24,6 +24,10 @@
  */
 
 #include "onejit/func.hpp"
+#include "onejit/code.hpp"
+#include "onejit/const.hpp"
+
+#include <stdexcept>
 
 namespace onejit {
 
@@ -33,11 +37,30 @@ Func::Func(Code *holder) : holder_(holder), regs_() {
 }
 
 Reg Func::new_reg(Kind kind) {
-  const Reg reg(kind, RegId(regs_.size() + FIRST_SOFTREGID));
-  if (kind == Void || !regs_.append(reg)) {
+  const Reg r(kind, RegId(regs_.size() + FIRST_SOFTREGID));
+  if (kind == Void || !regs_.append(r)) {
     return Reg();
   }
-  return reg;
+  return r;
+}
+
+Func &Func::add(CodeItem item) {
+  holder_->add(item);
+  return *this;
+}
+
+Func &Func::add(Reg r) {
+  if (r.is_direct()) {
+    return add(r.direct());
+  }
+  throw std::runtime_error("unimplemented: Func::add() of large Reg");
+}
+
+Func &Func::add(Const c) {
+  if (c.is_direct()) {
+    return add(c.direct());
+  }
+  throw std::runtime_error("unimplemented: Func::add() of large Const");
 }
 
 } // namespace onejit

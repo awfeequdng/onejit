@@ -31,35 +31,35 @@
 namespace onejit {
 
 static const Chars kstring[] = {
-    "void",    "bool",                                 //
-    "int8",    "int16",     "int32",     "int64",      //
-    "uint8",   "uint16",    "uint32",    "uint64",     //
-    "float32", "float64",   "complex64", "complex128", //
-    "ptr",     "archflags", "?",                       //
+    "void",    "bool",                          //
+    "int8",    "int16",     "int32",  "int64",  //
+    "uint8",   "uint16",    "uint32", "uint64", //
+    "float32", "float64",   "?",      "?",      //
+    "ptr",     "archflags", "?",
 };
 
 static const Chars kstringsuffix[] = {
     "v",  "e",               //
     "b",  "s",   "i",  "l",  //
     "ub", "us",  "ui", "ul", //
-    "f",  "d",   "cf", "cd", //
-    "p",  "cmp", "?",        //
+    "f",  "d",   "?",  "?",  //
+    "p",  "cmp", "?",
 };
 
 static const Bits kbits[] = {
-    Bits(0),  Bits(1),                       // Void, Bool
-    Bits(8),  Bits(16), Bits(32), Bits(64),  // Int*
-    Bits(8),  Bits(16), Bits(32), Bits(64),  // Uint*
-    Bits(32), Bits(64), Bits(64), Bits(128), // Float*, Complex*
-    Bits(64), Bits(64),                      // Ptr, ArchFlags
+    Bits(0),  Bits(1),                      // Void, Bool
+    Bits(8),  Bits(16), Bits(32), Bits(64), // Int*
+    Bits(8),  Bits(16), Bits(32), Bits(64), // Uint*
+    Bits(32), Bits(64), Bits(),   Bits(),   // Float*
+    Bits(64), Bits(64),                     // Ptr, ArchFlags
 };
 
 static const Group kgroup[] = {
-    gVoid,  gBool,                      // Void, Bool
-    gInt,   gInt,   gInt,     gInt,     // Int*
-    gUint,  gUint,  gUint,    gUint,    // Uint*
-    gFloat, gFloat, gComplex, gComplex, // Float* Complex*
-    gPtr,   gArch,                      // Ptr, ArchFlags
+    gVoid,  gBool,                //
+    gInt,   gInt,   gInt,  gInt,  //
+    gUint,  gUint,  gUint, gUint, //
+    gFloat, gFloat, gVoid, gVoid, //
+    gPtr,   gArch,                //
 };
 
 const Chars &Kind::string() const {

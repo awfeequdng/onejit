@@ -17,19 +17,58 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * assert.hpp
+ * check.hpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_ASSERT_HPP
-#define ONEJIT_ASSERT_HPP
+#ifndef ONEJIT_CHECK_HPP
+#define ONEJIT_CHECK_HPP
+
+#include <sstream>
 
 #ifdef __OPTIMIZE__
 #define check(lhs, op, rhs)
 #else
-#include <cassert>
-#define check(lhs, op, rhs) assert((lhs) op (rhs))
+#define check(lhs, op, rhs) CHECK(lhs, op, rhs)
 #endif
 
-#endif /* ONEJIT_ASSERT_HPP */
+#define CHECK(lhs, op, rhs)                                                                        \
+  do {                                                                                             \
+    if ((lhs) /**/ op /**/ (rhs)) {                                                                \
+      break;                                                                                       \
+    }                                                                                              \
+    ::onejit::CheckFailed(lhs, rhs, #lhs, #op, #rhs);                                              \
+  } while (false);
+
+namespace onejit {
+
+class CheckFailed {
+public:
+  template <class T1, class T2>
+  CheckFailed(const T1 &lhs, const T2 &rhs, const char *lstr, const char *opstr, const char *rstr)
+      : lhs_(lstr), op_(opstr), rhs_(rstr) {
+    std::stringstream lval, rval;
+    lval << lhs;
+    rval << rhs;
+    lval_ = lval.str().c_str();
+    rval_ = rval.str().c_str();
+    dothrow();
+  }
+
+private:
+  void
+#ifdef __GNUC__
+      __attribute__((noreturn))
+#endif
+      dothrow();
+
+  const char *lval_;
+  const char *rval_;
+  const char *lhs_;
+  const char *op_;
+  const char *rhs_;
+};
+
+} // namespace onejit
+#endif /* ONEJIT_CHECK_HPP */

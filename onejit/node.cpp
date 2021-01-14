@@ -26,56 +26,33 @@
 #include "onejit/node.hpp"
 #include "onejit/check.hpp"
 #include "onejit/code.hpp"
+#include "onejit/const.hpp"
+#include "onejit/reg.hpp"
 
 namespace onejit {
-
-static bool is_direct(CodeItem item) {
-  return item == 0 || (item & 3) != 0;
-}
-
-static NodeHeader direct_header(CodeItem item) {
-  Type t = BAD;
-  Kind k = Void;
-  if (item <= FALLTHROUGH) {
-    t = Type(item);
-  } else if ((item & 1) == 1) {
-    t = CONST;
-    k = Kind((item >> 1) & 0x7F);
-  } else {
-    t = REG;
-    k = Kind((item >> 2) & 0x7F);
-  }
-  return NodeHeader(t, k, 0);
-}
-
-static uint32_t direct_data(CodeItem item, NodeHeader header) {
-  const Type t = header.type();
-  uint32_t data;
-  if (t <= FALLTHROUGH) {
-    data = 0;
-  } else if (t == CONST) {
-    if (header.kind().is_unsigned()) {
-      data = item >> 8;
-    } else {
-      // signed right shift is implementation-dependent: use a division
-      data = int32_t(item & ~0xFF) / 256;
-    }
-  } else { // t == REG
-    data = item >> 9;
-  }
-  return data;
-}
 
 Node Node::child(uint16_t i) const {
   check(i, <, children());
   const CodeItem item = code_->uint32(size_t(i) * sizeof(Offset) + offset_ + sizeof(NodeHeader));
-  if (is_direct(item)) {
-    NodeHeader header = direct_header(item);
-    return Node(nullptr, direct_data(item, header), header);
+
+  Code *code = code_;
+  uint32_t offset = 0;
+  NodeHeader header;
+
+  if (item <= FALLTHROUGH) {
+    header = NodeHeader(Type(item), Void, 0);
+  } else if ((item & 1) == 1) {
+    // direct Const
+    return Node(Const::from_direct(item));
+  } else if ((item & 3) != 0) {
+    // direct Reg
+    return Node(Reg::from_direct(item));
   } else {
-    const Offset offset = offset_ + item;
-    return Node(code_, offset, NodeHeader(code_->uint32(offset)));
+    // indirect Node
+    offset = offset_ + item;
+    header = NodeHeader(code_->uint32(offset));
   }
+  return Node(code, offset, header);
 }
 
 } // namespace onejit

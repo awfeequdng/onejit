@@ -34,6 +34,7 @@ class ArchId;
 class LogSize;
 class Break;
 class Code;
+class Const;
 class Continue;
 class Chars;
 class Fallthrough;

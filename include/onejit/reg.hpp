@@ -34,6 +34,7 @@ namespace onejit {
 
 class RegId {
   friend class Func;
+  friend class Reg;
 
 public:
   constexpr RegId() : val_() {
@@ -61,15 +62,16 @@ constexpr bool operator!=(RegId a, RegId b) {
 
 constexpr const RegId NOID = RegId();
 
-std::ostream &operator<<(std::ostream &out, RegId regid);
+std::ostream &operator<<(std::ostream &out, RegId id);
 
 ////////////////////////////////////////////////////////////////////////////////
 
 class Reg {
   friend class Func;
+  friend class Node;
 
 public:
-  constexpr Reg() : kind_(Void), regid_() {
+  constexpr Reg() : kind_(Void), id_() {
   }
 
   constexpr Type type() const {
@@ -84,32 +86,43 @@ public:
     return 0;
   }
 
-  constexpr operator Node() const {
-    return Node(nullptr, regid_.val(), NodeHeader(REG, kind_, 0));
+  constexpr RegId id() const {
+    return id_;
   }
 
   constexpr explicit operator bool() const {
     return kind_ != Void;
   }
 
-  constexpr RegId regid() const {
-    return regid_;
+  constexpr operator Node() const {
+    return Node(nullptr, id_.val(), NodeHeader(REG, kind_, 0));
+  }
+
+  constexpr bool is_direct() const {
+    return (kind_.val() & 0x80) == 0 && (id_.val() & 0x800000) == 0;
+  }
+  // usable only if is_direct() returns true
+  constexpr uint32_t direct() const {
+    return 0x2 | uint32_t(kind_.val() & 0x7F) << 2 | id_.val() << 9;
+  }
+  constexpr static Reg from_direct(uint32_t data) {
+    return Reg(Kind((data >> 2) & 0x7F), RegId(data >> 9));
   }
 
 private:
-  constexpr Reg(Kind kind, RegId regid) : kind_(kind), regid_(regid) {
+  constexpr Reg(Kind kind, RegId id) : kind_(kind), id_(id) {
   }
 
   Kind kind_;
-  RegId regid_;
+  RegId id_;
 };
 
 constexpr bool operator==(Reg a, Reg b) {
-  return a.kind() == b.kind() && a.regid() == b.regid();
+  return a.kind() == b.kind() && a.id() == b.id();
 }
 
 constexpr bool operator!=(Reg a, Reg b) {
-  return a.kind() != b.kind() || a.regid() != b.regid();
+  return a.kind() != b.kind() || a.id() != b.id();
 }
 
 std::ostream &operator<<(std::ostream &out, Reg reg);

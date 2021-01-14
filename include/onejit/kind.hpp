@@ -124,8 +124,8 @@ constexpr const Kind Uint32(8);
 constexpr const Kind Uint64(9);
 constexpr const Kind Float32(10);
 constexpr const Kind Float64(11);
-constexpr const Kind Complex64(12);
-constexpr const Kind Complex128(13);
+// Complex64
+// Complex128
 constexpr const Kind Ptr(14);
 constexpr const Kind ArchFlags(15);
 
