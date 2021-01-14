@@ -157,7 +157,7 @@ public:
   }
 
   void clear() {
-    (void)resize(0);
+    (void)resize0(0, false);
   }
 
   bool resize(size_t n) {
