@@ -78,7 +78,7 @@ protected:
     return reserve(n >= cap2 ? n : cap2);
   }
 
-  bool resize0(size_t n, bool zerofill) {
+  bool ONEJIT_NOINLINE resize0(size_t n, bool zerofill) {
     if (!ensure_capacity(n)) {
       return false;
     }
@@ -138,7 +138,7 @@ public:
   using Base::span;
   using Base::view;
 
-  bool dup(const T *addr, size_t n) {
+  bool ONEJIT_NOINLINE dup(const T *addr, size_t n) {
     if (!ensure_capacity(n)) {
       return false;
     }
@@ -146,10 +146,10 @@ public:
     size_ = n;
     return true;
   }
-  bool dup(const View<T> &other) {
+  bool dup(View<T> other) {
     return dup(other.data(), other.size());
   }
-  bool dup(const Span<T> &other) {
+  bool dup(Span<T> other) {
     return dup(other.data(), other.size());
   }
   bool dup(const Vector &other) {
@@ -195,14 +195,9 @@ public:
   }
 
   void swap(Vector &other) {
-    struct {
-      const T *data;
-      size_t size;
-      const size_t cap;
-    } v = {};
-    std::memcpy(static_cast<void *>(&v), this, sizeof(v));
-    std::memcpy(static_cast<void *>(this), &other, sizeof(v));
-    std::memcpy(static_cast<void *>(&other), &v, sizeof(v));
+    mem::swap(data_, other.data_);
+    mem::swap(size_, other.size_);
+    mem::swap(cap_, other.cap_);
   }
 };
 

@@ -71,7 +71,7 @@ double Code::float64(Offset byte_offset) const {
   return val;
 }
 
-Code &Code::add(const CodeView data) {
+Code & ONEJIT_NOINLINE Code::add(const CodeView data) {
   good_ = good_ && Base::append(data);
   return *this;
 }

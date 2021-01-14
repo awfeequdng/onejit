@@ -26,6 +26,7 @@
 #define ONEJIT_MEM_HPP
 
 #include <cstddef> // size_t
+#include <utility> // std::move()
 
 namespace onejit {
 namespace mem {
@@ -49,6 +50,12 @@ template <class T> void free(T *addr) throw() {
 
 template <class T> T *realloc(T *addr, size_t n_elements) throw() {
   return reinterpret_cast<T *>(realloc_bytes(addr, n_elements * sizeof(T)));
+}
+
+template<class T> void swap(T &a, T &b) {
+  T tmp = std::move(a);
+  a = std::move(b);
+  b = std::move(tmp);
 }
 
 } // namespace mem

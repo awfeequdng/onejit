@@ -28,6 +28,14 @@
 
 #include <cstdint> // uint*_t
 
+#ifdef __GNUC__
+#define ONEJIT_NOINLINE __attribute__((noinline))
+#define ONEJIT_NORETURN __attribute__((noreturn))
+#else
+#define ONEJIT_NOINLINE
+#define ONEJIT_NORETURN
+#endif
+
 namespace onejit {
 
 class ArchId;
