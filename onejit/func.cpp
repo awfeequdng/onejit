@@ -41,7 +41,7 @@ VarExpr Func::new_var(Kind kind) {
   if (kind == Void || !regs_.append(var)) {
     return VarExpr{};
   }
-  return VarExpr::create(holder_, var);
+  return VarExpr::create(var, holder_);
 }
 
 Func &Func::add(CodeItem item) {

@@ -35,19 +35,19 @@ Var VarExpr::var() const {
   }
 }
 
-VarExpr VarExpr::create(Code *code, Var var) {
-  CodeItem offset_or_data = code->offset();
+VarExpr VarExpr::create(Var var, Code *holder) {
+  CodeItem offset_or_data = holder->offset();
   const bool is_direct = var.is_direct();
 
-  if (is_direct || code->add(var.indirect())) {
+  if (is_direct || holder->add(var.indirect())) {
     // must match Var::operator Node()
     NodeHeader header = NodeHeader{VAR, var.kind(), 0};
     if (is_direct) {
       // must match Var::operator Node()
       offset_or_data = var.id().val();
-      code = nullptr;
+      holder = nullptr;
     }
-    return VarExpr{header, offset_or_data, code};
+    return VarExpr{header, offset_or_data, holder};
   }
   return VarExpr{};
 }
