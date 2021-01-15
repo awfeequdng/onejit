@@ -52,6 +52,12 @@ VarExpr VarExpr::create(Var var, Code *holder) {
   return VarExpr{};
 }
 
+void VarExpr::add_to(Code *holder) const {
+  holder->add(is_direct() //
+                  ? Var{kind(), VarId{offset_or_data()}}.direct()
+                  : offset_or_data());
+}
+
 std::ostream &operator<<(std::ostream &out, VarExpr v) {
   return out << v.var();
 }

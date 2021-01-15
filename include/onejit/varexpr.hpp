@@ -74,9 +74,7 @@ private:
 
   static VarExpr create(Var var, Code *holder);
 
-  void add_to(Code *holder) const {
-    holder->add(offset_or_data());
-  }
+  void add_to(Code *holder) const;
 };
 
 std::ostream &operator<<(std::ostream &out, VarExpr v);
