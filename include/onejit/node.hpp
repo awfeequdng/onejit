@@ -26,51 +26,61 @@
 #ifndef ONEJIT_NODE_HPP
 #define ONEJIT_NODE_HPP
 
+#include <onejit/check.hpp>
+#include <onejit/code.hpp>
 #include <onejit/nodeheader.hpp>
 
 namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
-// base interface of BinaryExpr, UnaryExpr, Stmt*
-class Node : private NodeHeader {
+// base class of BinaryExpr, ConstExpr, UnaryExpr, VarExpr, Stmt*
+class Node : protected NodeHeader {
   using Base = NodeHeader;
 
   friend class Const;
-  friend class Reg;
+  friend class Var;
   friend class Stmt0;
 
 public:
-  constexpr Node() : Base(BAD), offset_(0), code_(nullptr) {
+  constexpr Node() : Base(BAD), data_{0}, code_{nullptr} {
   }
 
   using Base::kind;
   using Base::type;
 
   constexpr uint16_t children() const {
-    return code_ == nullptr ? 0 : type() == UNARY ? 1 : type() == BINARY ? 2 : Base::data();
+    return code_ == nullptr || type_ == VAR || type_ == CONST
+               ? 0
+               : type_ == UNARY ? 1 : type_ == BINARY ? 2 : Base::data();
   }
 
   Node child(uint16_t i) const;
 
 protected:
-  constexpr Node(Code *code, Offset byte_offset, NodeHeader header)
-      : Base(header), offset_(byte_offset), code_(code) {
+  constexpr Node(NodeHeader header, CodeItem offset_or_data, Code *code)
+      : Base{header}, data_{offset_or_data}, code_{code} {
   }
 
   constexpr Code *code() const {
     return code_;
   }
 
-  constexpr Offset offset() const {
-    return offset_;
+  constexpr CodeItem offset_or_data() const {
+    return data_;
   }
 
   constexpr NodeHeader header() const {
     return *this;
   }
 
+  // get indirect data
+  CodeItem at(Offset byte_offset) const {
+    check(code, !=, nullptr);
+    return code_->at(data_ + byte_offset);
+  }
+
 private:
-  Offset offset_;
+  CodeItem data_;
   Code *code_;
 };
 

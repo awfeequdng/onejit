@@ -17,38 +17,64 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * func.hpp
+ * varexpr.hpp
  *
- *  Created on Jan 09, 2020
+ *  Created on Jan 15, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_FUNC_HPP
-#define ONEJIT_FUNC_HPP
+#ifndef ONEJIT_VAREXPR_HPP
+#define ONEJIT_VAREXPR_HPP
 
-#include <onejit/fwd.hpp>
+#include <onejit/node.hpp>
 #include <onejit/var.hpp>
-#include <onejit/vector.hpp>
+
+#include <iosfwd>
 
 namespace onejit {
 
-class Func {
+// an expression containing only a local variable or register.
+class VarExpr : public Node {
+  using Base = Node;
+
+  friend class Func;
 
 public:
-  explicit Func(Code *holder);
+  constexpr VarExpr() : Base{NodeHeader{VAR, Void, 0}, 0, nullptr} {
+  }
 
-  Var new_var(Kind kind);
+  constexpr Type type() const {
+    return VAR;
+  }
 
-  Func &add(Var v);
-  Func &add(Const c);
+  using Base::kind;
+
+  constexpr uint16_t children() const {
+    return 0;
+  }
+
+  Var var() const;
+
+  VarId id() const {
+    return var().id();
+  }
+
+  constexpr explicit operator bool() const {
+    return kind() != Void;
+  }
+
+  constexpr bool is_direct() const {
+    return code() == nullptr;
+  }
 
 private:
-  Func &add(CodeItem item);
-
-  Code *holder_;
-  Vector<Var> regs_;
+  constexpr VarExpr(NodeHeader header, CodeItem offset_or_data, Code *code)
+      : Base{header, offset_or_data, code} {
+  }
 };
+
+std::ostream &operator<<(std::ostream &out, VarExpr expr);
 
 } // namespace onejit
 
-#endif // ONEJIT_FUNC_HPP
+#endif // ONEJIT_VAR_HPP

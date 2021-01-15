@@ -50,12 +50,13 @@ class Func;
 class Kind;
 class Node;
 class NodeHeader;
-class Reg;
-class RegId;
 template <class T> class Span;
 class Stmt0;
 class Stmt1;
 class String;
+class Test;
+class Var;
+class VarId;
 template <class T> class Vector;
 template <class T> class View;
 

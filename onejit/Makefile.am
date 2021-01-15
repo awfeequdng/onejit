@@ -8,7 +8,7 @@ noinst_LIBRARIES       = libonejit.a
 
 libonejit_a_SOURCES    = archid.cpp chars.cpp check.cpp code.cpp func.cpp mem.cpp group.cpp \
                          kind.cpp logsize.cpp node.cpp nodeheader.cpp op1.cpp op2.cpp opn.cpp \
-                         reg.cpp string.cpp type.cpp vector.cpp
+                         string.cpp type.cpp var.cpp varexpr.cpp vector.cpp
 
 # libonejit_a_LDFLAGS  =
 # libonejit_a_LDADD    =

@@ -30,11 +30,13 @@
 
 #include <iostream>
 
-using namespace onejit;
+namespace onejit {
+class Test {
+public:
+  static void run();
+};
 
-int main(int argc, char *argv[]) {
-  (void)argc;
-  (void)argv;
+void Test::run() {
   for (uint8_t i = 0; i < 2 * (1 + ArchFlags.val()); i++) {
     const Kind k(i);
     std::cout << "Kind " << k << ", Group " << k.group() << ", bits " << k.bits() << '\n';
@@ -43,15 +45,26 @@ int main(int argc, char *argv[]) {
   Code holder;
   Func func(&holder);
   for (uint8_t i = 0; i <= ArchFlags.val(); i++) {
-    const Reg r = func.new_reg(Kind(i));
-    std::cout << "Reg " << r << '\n';
-    func.add(r);
+    const Var v = func.new_var(Kind(i));
+    std::cout << "Var " << v << '\n';
+    func.add(v);
 
-    const Reg r2 = Reg::from_direct(r.direct());
-    CHECK(r, ==, r2);
+    const Var v2 = Var::from_direct(v.direct());
+    CHECK(v, ==, v2);
   }
   Const c(uint32_t(0x7FFFFF));
   func.add(c);
+}
+
+} // namespace onejit
+
+using namespace onejit;
+
+int main(int argc, char *argv[]) {
+  (void)argc;
+  (void)argv;
+
+  onejit::Test::run();
 
   return 0;
 }

@@ -36,12 +36,12 @@ enum { FIRST_SOFTREGID = 0x1000 };
 Func::Func(Code *holder) : holder_(holder), regs_() {
 }
 
-Reg Func::new_reg(Kind kind) {
-  const Reg r(kind, RegId(regs_.size() + FIRST_SOFTREGID));
-  if (kind == Void || !regs_.append(r)) {
-    return Reg();
+Var Func::new_var(Kind kind) {
+  const Var v(kind, VarId(regs_.size() + FIRST_SOFTREGID));
+  if (kind == Void || !regs_.append(v)) {
+    return Var();
   }
-  return r;
+  return v;
 }
 
 Func &Func::add(CodeItem item) {
@@ -49,11 +49,11 @@ Func &Func::add(CodeItem item) {
   return *this;
 }
 
-Func &Func::add(Reg r) {
-  if (r.is_direct()) {
-    return add(r.direct());
+Func &Func::add(Var v) {
+  if (v.is_direct()) {
+    return add(v.direct());
   }
-  throw std::runtime_error("unimplemented: Func::add() of large Reg");
+  throw std::runtime_error("unimplemented: Func::add() of large Var");
 }
 
 Func &Func::add(Const c) {

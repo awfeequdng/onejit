@@ -38,15 +38,15 @@ class NodeHeader {
   friend class Node;
 
 public:
-  constexpr NodeHeader() : type_(BAD), kind_(Void), data_(0) {
+  constexpr NodeHeader() : type_{BAD}, kind_{Void}, data_{0} {
   }
 
   constexpr explicit NodeHeader(CodeItem item)
-      : type_(Type(item & 0xFF)), kind_(Kind(item >> 8)), data_(item >> 16) {
+      : type_{Type(item & 0xFF)}, kind_{Kind(item >> 8)}, data_{uint16_t(item >> 16)} {
   }
 
   constexpr NodeHeader(Type type, Kind kind, uint16_t data)
-      : type_(type), kind_(kind), data_(data) {
+      : type_{type}, kind_{kind}, data_{data} {
   }
 
   constexpr Type type() const {

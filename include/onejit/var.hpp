@@ -17,14 +17,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * reg.hpp
+ * var.hpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_REG_HPP
-#define ONEJIT_REG_HPP
+#ifndef ONEJIT_VAR_HPP
+#define ONEJIT_VAR_HPP
 
 #include <onejit/node.hpp>
 
@@ -32,12 +32,12 @@
 
 namespace onejit {
 
-class RegId {
+class VarId {
   friend class Func;
-  friend class Reg;
+  friend class Var;
 
 public:
-  constexpr RegId() : val_() {
+  constexpr VarId() : val_() {
   }
 
   constexpr uint32_t val() const {
@@ -45,37 +45,40 @@ public:
   }
 
 private:
-  constexpr explicit RegId(uint32_t val)
+  constexpr explicit VarId(uint32_t val)
       : val_{uint8_t(val), uint8_t(val >> 8), uint8_t(val >> 16)} {
   }
 
   uint8_t val_[3];
 };
 
-constexpr bool operator==(RegId a, RegId b) {
+constexpr bool operator==(VarId a, VarId b) {
   return a.val() == b.val();
 }
 
-constexpr bool operator!=(RegId a, RegId b) {
+constexpr bool operator!=(VarId a, VarId b) {
   return a.val() != b.val();
 }
 
-constexpr const RegId NOID = RegId();
+constexpr const VarId NOID = VarId();
 
-std::ostream &operator<<(std::ostream &out, RegId id);
+std::ostream &operator<<(std::ostream &out, VarId id);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Reg {
+// a local variable or register.
+class Var {
   friend class Func;
   friend class Node;
+  friend class VarExpr;
+  friend class Test;
 
 public:
-  constexpr Reg() : kind_(Void), id_() {
+  constexpr Var() : kind_{Void}, id_{} {
   }
 
   constexpr Type type() const {
-    return REG;
+    return VAR;
   }
 
   constexpr Kind kind() const {
@@ -86,7 +89,7 @@ public:
     return 0;
   }
 
-  constexpr RegId id() const {
+  constexpr VarId id() const {
     return id_;
   }
 
@@ -94,39 +97,49 @@ public:
     return kind_ != Void;
   }
 
-  constexpr operator Node() const {
-    return Node(nullptr, id_.val(), NodeHeader(REG, kind_, 0));
-  }
-
   constexpr bool is_direct() const {
     return (kind_.val() & 0x80) == 0 && (id_.val() & 0x800000) == 0;
   }
-  // usable only if is_direct() returns true
+
+private:
+  constexpr Var(Kind kind, VarId id) : kind_{kind}, id_{id} {
+  }
+
+  // useful only if is_direct() returns true
   constexpr uint32_t direct() const {
     return 0x2 | uint32_t(kind_.val() & 0x7F) << 2 | id_.val() << 9;
   }
-  constexpr static Reg from_direct(uint32_t data) {
-    return Reg(Kind((data >> 2) & 0x7F), RegId(data >> 9));
+  constexpr static Var from_direct(uint32_t data) {
+    return Var{Kind((data >> 2) & 0x7F), VarId{data >> 9}};
   }
 
-private:
-  constexpr Reg(Kind kind, RegId id) : kind_(kind), id_(id) {
+  // useful only if is_direct() returns false
+  constexpr uint32_t indirect() const {
+    return kind_.val() | id_.val() << 8;
+  }
+  constexpr static Var from_indirect(uint32_t data) {
+    return Var{Kind(data), VarId{data >> 8}};
+  }
+
+  // usable only if is_direct() returns true
+  constexpr operator Node() const {
+    return Node{NodeHeader{VAR, kind_, 0}, id_.val(), nullptr};
   }
 
   Kind kind_;
-  RegId id_;
+  VarId id_;
 };
 
-constexpr bool operator==(Reg a, Reg b) {
+constexpr bool operator==(Var a, Var b) {
   return a.kind() == b.kind() && a.id() == b.id();
 }
 
-constexpr bool operator!=(Reg a, Reg b) {
+constexpr bool operator!=(Var a, Var b) {
   return a.kind() != b.kind() || a.id() != b.id();
 }
 
-std::ostream &operator<<(std::ostream &out, Reg reg);
+std::ostream &operator<<(std::ostream &out, Var var);
 
 } // namespace onejit
 
-#endif // ONEJIT_REG_HPP
+#endif // ONEJIT_VAR_HPP

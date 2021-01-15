@@ -37,7 +37,7 @@ enum Type : uint8_t {
   CONTINUE = 2,
   FALLTHROUGH = 3,
 
-  REG = 4,
+  VAR = 4,
   UNARY = 5,
   BINARY = 6,
   TUPLE = 7,

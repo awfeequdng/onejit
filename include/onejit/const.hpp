@@ -34,11 +34,11 @@ namespace onejit {
 
 union ConstFloat32 {
 public:
-  constexpr ConstFloat32() : float_(0.0f) {
+  constexpr ConstFloat32() : float_{0.0f} {
   }
-  constexpr explicit ConstFloat32(float val) : float_(val) {
+  constexpr explicit ConstFloat32(float val) : float_{val} {
   }
-  constexpr explicit ConstFloat32(uint32_t bits) : bits_(bits) {
+  constexpr explicit ConstFloat32(uint32_t bits) : bits_{bits} {
   }
 
   constexpr float val() const {
@@ -51,17 +51,17 @@ public:
 private:
   float float_;
   uint32_t bits_;
-};
+}; // namespace onejit
 
 ////////////////////////////////////////////////////////////////////////////////
 
 union ConstFloat64 {
 public:
-  constexpr ConstFloat64() : float_(0.0) {
+  constexpr ConstFloat64() : float_{0.0} {
   }
-  constexpr explicit ConstFloat64(double val) : float_(val) {
+  constexpr explicit ConstFloat64(double val) : float_{val} {
   }
-  constexpr explicit ConstFloat64(uint64_t bits) : bits_(bits) {
+  constexpr explicit ConstFloat64(uint64_t bits) : bits_{bits} {
   }
 
   constexpr double val() const {
@@ -74,7 +74,7 @@ public:
 private:
   double float_;
   uint64_t bits_;
-};
+}; // namespace onejit
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -83,29 +83,29 @@ class Const {
   friend class Node;
 
 public:
-  constexpr Const() : kind_(Void), bits_() {
+  constexpr Const() : kind_{Void}, bits_{} {
   }
-  constexpr explicit Const(bool val) : kind_(Bool), bits_(val) {
+  constexpr explicit Const(bool val) : kind_{Bool}, bits_{uint64_t(val)} {
   }
-  constexpr explicit Const(int8_t val) : kind_(Int8), bits_(val) {
+  constexpr explicit Const(int8_t val) : kind_{Int8}, bits_{uint64_t(val)} {
   }
-  constexpr explicit Const(int16_t val) : kind_(Int16), bits_(val) {
+  constexpr explicit Const(int16_t val) : kind_{Int16}, bits_{uint64_t(val)} {
   }
-  constexpr explicit Const(int32_t val) : kind_(Int32), bits_(val) {
+  constexpr explicit Const(int32_t val) : kind_{Int32}, bits_{uint64_t(val)} {
   }
-  constexpr explicit Const(int64_t val) : kind_(Int64), bits_(val) {
+  constexpr explicit Const(int64_t val) : kind_{Int64}, bits_{uint64_t(val)} {
   }
-  constexpr explicit Const(uint8_t val) : kind_(Uint8), bits_(val) {
+  constexpr explicit Const(uint8_t val) : kind_{Uint8}, bits_{uint64_t(val)} {
   }
-  constexpr explicit Const(uint16_t val) : kind_(Uint16), bits_(val) {
+  constexpr explicit Const(uint16_t val) : kind_{Uint16}, bits_{uint64_t(val)} {
   }
-  constexpr explicit Const(uint32_t val) : kind_(Uint32), bits_(val) {
+  constexpr explicit Const(uint32_t val) : kind_{Uint32}, bits_{uint64_t(val)} {
   }
-  constexpr explicit Const(uint64_t val) : kind_(Uint64), bits_(val) {
+  constexpr explicit Const(uint64_t val) : kind_{Uint64}, bits_{uint64_t(val)} {
   }
-  constexpr explicit Const(float val) : kind_(Float32), bits_(ConstFloat32(val).bits()) {
+  constexpr explicit Const(float val) : kind_{Float32}, bits_{ConstFloat32{val}.bits()} {
   }
-  constexpr explicit Const(double val) : kind_(Float64), bits_(ConstFloat64(val).bits()) {
+  constexpr explicit Const(double val) : kind_{Float64}, bits_{ConstFloat64{val}.bits()} {
   }
 
   constexpr Type type() const {
@@ -151,10 +151,10 @@ public:
   }
 
   constexpr float float32() const {
-    return ConstFloat32(uint32_t(bits_)).val();
+    return ConstFloat32{uint32_t(bits_)}.val();
   }
   constexpr double float64() const {
-    return ConstFloat64(bits_).val();
+    return ConstFloat64{bits_}.val();
   }
 
   constexpr bool is_direct() const {
@@ -167,16 +167,16 @@ public:
   }
   constexpr static Const from_direct(uint32_t data) {
     // signed right shift is implementation-dependent: use a division
-    return Const(Kind((data >> 1) & 0x7F), int32_t(data & ~0xFF) / 256);
+    return Const{Kind((data >> 1) & 0x7F), uint64_t(int32_t(data & ~0xFF) / 256)};
   }
 
 private:
-  constexpr Const(Kind kind, uint64_t bits) : kind_(kind), bits_(bits) {
+  constexpr Const(Kind kind, uint64_t bits) : kind_{kind}, bits_{bits} {
   }
 
-  // only works for direct constants
+  // usable only if is_direct() returns true
   constexpr operator Node() const {
-    return Node(nullptr, uint32_t(bits_), NodeHeader(CONST, kind_, 0));
+    return Node{NodeHeader{CONST, kind_, 0}, CodeItem(bits_), nullptr};
   }
 
   Kind kind_;

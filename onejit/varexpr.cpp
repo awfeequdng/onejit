@@ -17,27 +17,22 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * reg.cpp
+ * varexpr.cpp
  *
  *  Created on Jan 13, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/reg.hpp"
-#include "onejit/chars.hpp"
-
-#include <ios>
-#include <ostream>
+#include "onejit/varexpr.hpp"
 
 namespace onejit {
 
-std::ostream &operator<<(std::ostream &out, RegId id) {
-  return out << Chars("id") << std::hex << id.val() << std::dec;
-}
-
-std::ostream &operator<<(std::ostream &out, Reg r) {
-  return out << Chars(" reg") << std::hex << r.id().val() << std::dec << '_'
-             << r.kind().stringsuffix();
+Var VarExpr::var() const {
+  if (is_direct()) {
+    return Var::from_direct(offset_or_data());
+  } else {
+    return Var::from_indirect(at(0));
+  }
 }
 
 } // namespace onejit

@@ -48,7 +48,7 @@ public:
   }
 
   constexpr operator Node() const {
-    return Node(nullptr, 0, NodeHeader(type_, Void, 0));
+    return Node{NodeHeader{type_, Void, 0}, 0, nullptr};
   }
 
 protected:
