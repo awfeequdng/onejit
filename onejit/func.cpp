@@ -36,24 +36,17 @@ enum { FIRST_SOFTREGID = 0x1000 };
 Func::Func(Code *holder) : holder_(holder), regs_() {
 }
 
-Var Func::new_var(Kind kind) {
-  const Var v(kind, VarId(regs_.size() + FIRST_SOFTREGID));
-  if (kind == Void || !regs_.append(v)) {
-    return Var();
+VarExpr Func::new_var(Kind kind) {
+  const Var var(kind, VarId(regs_.size() + FIRST_SOFTREGID));
+  if (kind == Void || !regs_.append(var)) {
+    return VarExpr{};
   }
-  return v;
+  return VarExpr::create(holder_, var);
 }
 
 Func &Func::add(CodeItem item) {
   holder_->add(item);
   return *this;
-}
-
-Func &Func::add(Var v) {
-  if (v.is_direct()) {
-    return add(v.direct());
-  }
-  throw std::runtime_error("unimplemented: Func::add() of large Var");
 }
 
 Func &Func::add(Const c) {

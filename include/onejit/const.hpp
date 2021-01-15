@@ -107,6 +107,8 @@ public:
   }
   constexpr explicit Const(double val) : kind_{Float64}, bits_{ConstFloat64{val}.bits()} {
   }
+  constexpr Const(Kind kind, uint64_t bits) : kind_{kind}, bits_{bits} {
+  }
 
   constexpr Type type() const {
     return CONST;
@@ -157,6 +159,7 @@ public:
     return ConstFloat64{bits_}.val();
   }
 
+private:
   constexpr bool is_direct() const {
     // true if highest 41 bits are either 0 or 0x1FFFFFFFFFF
     return (kind_.val() & 0x80) == 0 && (bits_ < 0x800000 || int64_t(bits_) >= -0x800000);
@@ -170,12 +173,9 @@ public:
     return Const{Kind((data >> 1) & 0x7F), uint64_t(int32_t(data & ~0xFF) / 256)};
   }
 
-private:
-  constexpr Const(Kind kind, uint64_t bits) : kind_{kind}, bits_{bits} {
-  }
-
   // usable only if is_direct() returns true
   constexpr operator Node() const {
+    // implementation must match ConstExpr::create()
     return Node{NodeHeader{CONST, kind_, 0}, CodeItem(bits_), nullptr};
   }
 

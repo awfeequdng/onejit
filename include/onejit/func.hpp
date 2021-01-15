@@ -27,7 +27,7 @@
 #define ONEJIT_FUNC_HPP
 
 #include <onejit/fwd.hpp>
-#include <onejit/var.hpp>
+#include <onejit/varexpr.hpp>
 #include <onejit/vector.hpp>
 
 namespace onejit {
@@ -37,9 +37,13 @@ class Func {
 public:
   explicit Func(Code *holder);
 
-  Var new_var(Kind kind);
+  VarExpr new_var(Kind kind);
 
-  Func &add(Var v);
+  Func &add(const VarExpr &v) {
+    v.add_to(holder_);
+    return *this;
+  }
+
   Func &add(Const c);
 
 private:

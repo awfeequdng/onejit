@@ -45,12 +45,13 @@ void Test::run() {
   Code holder;
   Func func(&holder);
   for (uint8_t i = 0; i <= ArchFlags.val(); i++) {
-    const Var v = func.new_var(Kind(i));
-    std::cout << "Var " << v << '\n';
+    const VarExpr v = func.new_var(Kind(i));
+    std::cout << "VarExpr " << v << '\n';
     func.add(v);
 
-    const Var v2 = Var::from_direct(v.direct());
-    CHECK(v, ==, v2);
+    const Var var1 = v.var();
+    const Var var2 = Var::from_direct(var1.direct());
+    CHECK(var1, ==, var2);
   }
   Const c(uint32_t(0x7FFFFF));
   func.add(c);

@@ -35,6 +35,7 @@ namespace onejit {
 class VarId {
   friend class Func;
   friend class Var;
+  friend class VarExpr;
 
 public:
   constexpr VarId() : val_() {
@@ -97,12 +98,12 @@ public:
     return kind_ != Void;
   }
 
-  constexpr bool is_direct() const {
-    return (kind_.val() & 0x80) == 0 && (id_.val() & 0x800000) == 0;
-  }
-
 private:
   constexpr Var(Kind kind, VarId id) : kind_{kind}, id_{id} {
+  }
+
+  constexpr bool is_direct() const {
+    return (kind_.val() & 0x80) == 0 && (id_.val() & 0x800000) == 0;
   }
 
   // useful only if is_direct() returns true
@@ -121,8 +122,9 @@ private:
     return Var{Kind(data), VarId{data >> 8}};
   }
 
-  // usable only if is_direct() returns true
+  // usable only if is_direct() returns true.
   constexpr operator Node() const {
+    // implementation must match VarExpr::create()
     return Node{NodeHeader{VAR, kind_, 0}, id_.val(), nullptr};
   }
 

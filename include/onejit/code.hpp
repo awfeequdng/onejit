@@ -74,6 +74,10 @@ public:
   Code &add(float val);
   Code &add(double val);
 
+  constexpr Offset offset() const {
+    return Base::size() * sizeof(CodeItem);
+  }
+
 private:
   bool good_;
 };

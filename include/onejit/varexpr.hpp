@@ -71,9 +71,15 @@ private:
   constexpr VarExpr(NodeHeader header, CodeItem offset_or_data, Code *code)
       : Base{header, offset_or_data, code} {
   }
+
+  static VarExpr create(Code *code, Var var);
+
+  void add_to(Code *code) const {
+    code->add(offset_or_data());
+  }
 };
 
-std::ostream &operator<<(std::ostream &out, VarExpr expr);
+std::ostream &operator<<(std::ostream &out, VarExpr v);
 
 } // namespace onejit
 
