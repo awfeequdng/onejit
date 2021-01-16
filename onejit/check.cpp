@@ -44,10 +44,10 @@ void
 
 } // namespace onejit
 
+#ifndef __clang__
 namespace std {
-
 std::ostream &operator<<(std::ostream &out, std::nullptr_t) {
   return out << onejit::Chars("nullptr");
 }
-
 } // namespace std
+#endif // __clang__

@@ -73,8 +73,10 @@ private:
 
 } // namespace onejit
 
+#ifndef __clang__
 namespace std {
 std::ostream &operator<<(std::ostream &, std::nullptr_t);
 }
+#endif // __clang__
 
 #endif /* ONEJIT_CHECK_HPP */
