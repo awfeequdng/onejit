@@ -25,6 +25,7 @@
 #ifndef ONEJIT_CHECK_HPP
 #define ONEJIT_CHECK_HPP
 
+#include <iosfwd>
 #include <sstream>
 
 #ifdef __OPTIMIZE__
@@ -71,4 +72,9 @@ private:
 };
 
 } // namespace onejit
+
+namespace std {
+std::ostream &operator<<(std::ostream &, std::nullptr_t);
+}
+
 #endif /* ONEJIT_CHECK_HPP */

@@ -32,7 +32,7 @@
 namespace onejit {
 
 CodeItem Node::at(Offset byte_offset) const {
-  check(code, !=, nullptr);
+  check(code_, !=, nullptr);
   return code_->at(off_or_dir_ + byte_offset);
 }
 
@@ -42,25 +42,25 @@ Node Node::child(uint16_t i) const {
       code_->uint32(size_t(i) * sizeof(Offset) + off_or_dir_ + sizeof(NodeHeader));
 
   NodeHeader header;
-  uint32_t off_or_dir;
+  uint32_t offset_or_direct;
 
   if (item <= FALLTHROUGH) {
-    off_or_dir = 0;
-    header = NodeHeader(Type(item), Void, 0);
+    offset_or_direct = 0;
+    header = NodeHeader{Type(item), Void, 0};
   } else if ((item & 1) == 1) {
     // direct Const
-    off_or_dir = item;
-    header = NodeHeader(CONST, Const::kind_from_direct(item), 0);
+    offset_or_direct = item;
+    header = NodeHeader{CONST, Const::kind_from_direct(item), 0};
   } else if ((item & 3) != 0) {
     // direct Var
-    off_or_dir = item;
-    header = NodeHeader(VAR, Var::kind_from_direct(item), 0);
+    offset_or_direct = item;
+    header = NodeHeader{VAR, Var::kind_from_direct(item), 0};
   } else {
     // indirect Node
-    off_or_dir = off_or_dir_ + item;
-    header = NodeHeader(code_->uint32(off_or_dir));
+    offset_or_direct = off_or_dir_ + item;
+    header = NodeHeader{code_->at(offset_or_direct)};
   }
-  return Node{header, off_or_dir, code_};
+  return Node{header, offset_or_direct, code_};
 }
 
 } // namespace onejit

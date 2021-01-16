@@ -78,36 +78,51 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////////
+
 class Const {
   friend class Func;
   friend class Node;
 
 public:
-  constexpr Const() : kind_{Void}, bits_{} {
+  constexpr Const() //
+      : bits_{}, kind_{Void}, direct_{*this} {
   }
-  constexpr explicit Const(bool val) : kind_{Bool}, bits_{uint64_t(val)} {
+  constexpr explicit Const(bool val) //
+      : bits_{uint64_t(val)}, kind_{Bool}, direct_{*this} {
   }
-  constexpr explicit Const(int8_t val) : kind_{Int8}, bits_{uint64_t(val)} {
+  constexpr explicit Const(int8_t val) //
+      : bits_{uint64_t(val)}, kind_{Int8}, direct_{*this, 0} {
   }
-  constexpr explicit Const(int16_t val) : kind_{Int16}, bits_{uint64_t(val)} {
+  constexpr explicit Const(int16_t val) //
+      : bits_{uint64_t(val)}, kind_{Int16}, direct_{*this, 0} {
   }
-  constexpr explicit Const(int32_t val) : kind_{Int32}, bits_{uint64_t(val)} {
+  constexpr explicit Const(int32_t val) //
+      : bits_{uint64_t(val)}, kind_{Int32}, direct_{*this, 0} {
   }
-  constexpr explicit Const(int64_t val) : kind_{Int64}, bits_{uint64_t(val)} {
+  constexpr explicit Const(int64_t val) //
+      : bits_{uint64_t(val)}, kind_{Int64}, direct_{*this, 0} {
   }
-  constexpr explicit Const(uint8_t val) : kind_{Uint8}, bits_{uint64_t(val)} {
+  constexpr explicit Const(uint8_t val) //
+      : bits_{uint64_t(val)}, kind_{Uint8}, direct_{*this} {
   }
-  constexpr explicit Const(uint16_t val) : kind_{Uint16}, bits_{uint64_t(val)} {
+  constexpr explicit Const(uint16_t val) //
+      : bits_{uint64_t(val)}, kind_{Uint16}, direct_{*this} {
   }
-  constexpr explicit Const(uint32_t val) : kind_{Uint32}, bits_{uint64_t(val)} {
+  constexpr explicit Const(uint32_t val) //
+      : bits_{uint64_t(val)}, kind_{Uint32}, direct_{*this, 0} {
   }
-  constexpr explicit Const(uint64_t val) : kind_{Uint64}, bits_{uint64_t(val)} {
+  constexpr explicit Const(uint64_t val) //
+      : bits_{uint64_t(val)}, kind_{Uint64}, direct_{*this, 0} {
   }
-  constexpr explicit Const(float val) : kind_{Float32}, bits_{ConstFloat32{val}.bits()} {
+  constexpr explicit Const(float val) //
+      : bits_{ConstFloat32{val}.bits()}, kind_{Float32}, direct_{*this, 0} {
   }
-  constexpr explicit Const(double val) : kind_{Float64}, bits_{ConstFloat64{val}.bits()} {
+  constexpr explicit Const(double val) //
+      : bits_{ConstFloat64{val}.bits()}, kind_{Float64}, direct_{*this, 0} {
   }
-  constexpr Const(Kind kind, uint64_t bits) : kind_{kind}, bits_{bits} {
+  constexpr Const(Kind kind, uint64_t bits) //
+      : bits_{bits}, kind_{kind}, direct_{*this, 0} {
   }
 
   constexpr Type type() const {
@@ -116,10 +131,6 @@ public:
 
   constexpr Kind kind() const {
     return kind_;
-  }
-
-  constexpr uint16_t children() const {
-    return 0;
   }
 
   constexpr explicit operator bool() const {
@@ -160,24 +171,98 @@ public:
   }
 
 private:
-  constexpr bool is_direct() const {
-    // true if highest 41 bits are either 0 or 0x1FFFFFFFFFF
-    return (kind_.val() & 0xF0) == 0 && (bits_ < 0x800000 || int64_t(bits_) >= -0x800000);
-  }
-  // usable only if is_direct() returns true
-  constexpr uint32_t direct() const {
-    return 0x1 | uint32_t(kind_.val() & 0xF) << 1 | uint32_t(bits_) << 5;
-  }
-  constexpr static Kind kind_from_direct(uint32_t data) {
-    return Kind((data >> 1) & 0xF);
-  }
-  constexpr static Const from_direct(uint32_t data) {
-    // signed right shift is implementation-dependent: use a division
-    return Const{Kind((data >> 1) & 0x7F), uint64_t(int32_t(data & ~0xFF) / 256)};
+  class Direct;
+
+  constexpr Const(uint64_t bits, Kind kind, Direct direct) //
+      : bits_{bits}, kind_{kind}, direct_{direct} {
   }
 
-  Kind kind_;
+  class Direct {
+    friend class Const;
+
+  public:
+    constexpr explicit Direct(uint32_t data) : val_(data) {
+    }
+
+    // bits_ contains at most 16 bits => is always direct
+    constexpr explicit Direct(Const c)
+        : val_{1 | (c.kind_.val() & 0x0F) << 1 | uint32_t(c.bits_ & 0x7FFFFF) << 8} {
+    }
+
+    // create direct value if possible, otherwise zero
+    constexpr Direct(Const c, int) : val_{recurse(c, 0, 0)} {
+    }
+
+    constexpr Kind kind() const {
+      return Kind((val_ >> 1) & 0xF);
+    }
+
+    constexpr Const to_const() const {
+      return Const{xor_mask() ^ lrot(imm(), rotation_bits()), kind(), *this};
+    }
+
+  private:
+    constexpr uint64_t xor_mask() const {
+      return -uint64_t(val_ >> 31);
+    }
+
+    constexpr uint64_t imm() const {
+      return (val_ >> 8) & 0x7FFFFF;
+    }
+
+    constexpr uint64_t rotation_bits() const {
+      return (val_ >> 8) & 0x7FFFFF;
+    }
+
+    constexpr static uint64_t lrot(uint64_t val, uint8_t rotate_bits) {
+      return rotate_bits == 0 ? val : (val << rotate_bits) | (val >> (64 - rotate_bits));
+    }
+
+    constexpr static uint64_t rrot(uint64_t val, uint8_t rotate_bits) {
+      return rotate_bits == 0 ? val : (val >> rotate_bits) | (val << (64 - rotate_bits));
+    }
+
+    // return direct value if possible, otherwise zero
+    constexpr static uint32_t recurse(Const c, uint8_t rotate_bits, uint64_t xor_mask) {
+      return can_direct(c, rotate_bits, xor_mask)                               //
+                 ? make_direct(c, rotate_bits, xor_mask)                        //
+                 : xor_mask == 0 ? recurse(c, rotate_bits, ~xor_mask)           //
+                                 : rotate_bits < 64                             //
+                                       ? recurse(c, rotate_bits + 8, ~xor_mask) //
+                                       : 0;
+    }
+
+    constexpr static bool can_direct(Const c, uint8_t rotate_bits, uint64_t xor_mask) {
+      return rrot(c.bits_ ^ xor_mask, rotate_bits) <= 0x7FFFFF;
+    }
+
+    constexpr static uint32_t make_direct(Const c, uint8_t rotate_bits, uint64_t xor_mask) {
+      return 1 | (c.kind_.val() & 0x0F) << 1                        //
+             | uint32_t(rotate_bits / 8) << 5                       //
+             | uint32_t(rrot(c.bits_ ^ xor_mask, rotate_bits)) << 8 //
+             | uint32_t(xor_mask & (1 << 31));
+    }
+
+  private:
+    uint32_t val_;
+  };
+
+  constexpr bool is_direct() const {
+    return (direct_.val_ & 1) != 0;
+  }
+
+  // usable only if is_direct() returns true
+  constexpr uint32_t direct() const {
+    return direct_.val_;
+  }
+
+  constexpr static Kind kind_from_direct(uint32_t data) {
+    return Direct(data).kind();
+  }
+
   uint64_t bits_;
+  Kind kind_;
+  Direct direct_;
 };
 
 constexpr bool operator==(Const a, Const b) {

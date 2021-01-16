@@ -24,6 +24,7 @@
  */
 
 #include "onejit/check.hpp"
+#include "onejit/chars.hpp"
 
 #include <stdexcept>
 #include <string>
@@ -42,3 +43,11 @@ void
 }
 
 } // namespace onejit
+
+namespace std {
+
+std::ostream &operator<<(std::ostream &out, std::nullptr_t) {
+  return out << onejit::Chars("nullptr");
+}
+
+} // namespace std
