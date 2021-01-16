@@ -40,14 +40,11 @@ Code::Code(size_t capacity) : Base(), good_(true) {
 Code::~Code() {
   static_assert(sizeof(NodeHeader) == 4, "sizeof(NodeHeader) must be 4");
   static_assert(sizeof(CodeItem) == 4, "sizeof(CodeItem) must be 4");
+  static_assert(sizeof(Offset) == 4, "sizeof(Offset) must be 4");
   static_assert(sizeof(uint32_t) == 4, "sizeof(uint32_t) must be 4");
   static_assert(sizeof(uint64_t) == 8, "sizeof(uint32_t) must be 8");
   static_assert(sizeof(float) == 4, "sizeof(double) must be 4");
   static_assert(sizeof(double) == 8, "sizeof(double) must be 8");
-}
-
-const uint32_t &Code::at(Offset byte_offset) const {
-  return Base::operator[](byte_offset / sizeof(uint32_t));
 }
 
 uint64_t Code::uint64(Offset byte_offset) const {
@@ -71,7 +68,7 @@ double Code::float64(Offset byte_offset) const {
   return val;
 }
 
-Code & ONEJIT_NOINLINE Code::add(const CodeView data) {
+Code &ONEJIT_NOINLINE Code::add(const CodeView data) {
   good_ = good_ && Base::append(data);
   return *this;
 }

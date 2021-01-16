@@ -26,6 +26,7 @@
 #ifndef ONEJIT_FUNC_HPP
 #define ONEJIT_FUNC_HPP
 
+#include <onejit/code.hpp>
 #include <onejit/fwd.hpp>
 #include <onejit/varexpr.hpp>
 #include <onejit/vector.hpp>

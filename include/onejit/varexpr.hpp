@@ -68,13 +68,14 @@ public:
   }
 
 private:
+  constexpr VarExpr(const Node &node) : Base{node} {
+  }
+
   constexpr VarExpr(NodeHeader header, CodeItem offset_or_direct, Code *holder)
       : Base{header, offset_or_direct, holder} {
   }
 
   static VarExpr create(Var var, Code *holder);
-
-  void add_to(Code *holder) const;
 };
 
 std::ostream &operator<<(std::ostream &out, VarExpr v);

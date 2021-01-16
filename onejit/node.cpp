@@ -31,6 +31,11 @@
 
 namespace onejit {
 
+CodeItem Node::at(Offset byte_offset) const {
+  check(code, !=, nullptr);
+  return code_->at(off_or_dir_ + byte_offset);
+}
+
 Node Node::child(uint16_t i) const {
   check(i, <, children());
   const CodeItem item =
@@ -45,11 +50,11 @@ Node Node::child(uint16_t i) const {
   } else if ((item & 1) == 1) {
     // direct Const
     off_or_dir = item;
-    header = NodeHeader(CONST, Const::from_direct(item).kind(), 0);
+    header = NodeHeader(CONST, Const::kind_from_direct(item), 0);
   } else if ((item & 3) != 0) {
     // direct Var
     off_or_dir = item;
-    header = NodeHeader(VAR, Var::from_direct(item).kind(), 0);
+    header = NodeHeader(VAR, Var::kind_from_direct(item), 0);
   } else {
     // indirect Node
     off_or_dir = off_or_dir_ + item;

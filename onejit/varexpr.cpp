@@ -24,38 +24,32 @@
  */
 
 #include "onejit/varexpr.hpp"
+#include "onejit/code.hpp"
 
 namespace onejit {
 
 Var VarExpr::var() const {
   if (is_direct()) {
-    return Var{kind(), VarId{offset_or_direct()}};
+    return Var::from_direct(offset_or_direct());
   } else {
-    return Var::from_indirect(at(0));
+    return Var::from_indirect(kind(), at(sizeof(CodeItem)));
   }
 }
 
 VarExpr VarExpr::create(Var var, Code *holder) {
-  CodeItem offset_or_direct = holder->offset();
-  const bool is_direct = var.is_direct();
+  const NodeHeader header{VAR, var.kind(), 0};
+  CodeItem off_or_dir = holder->offset();
 
-  if (is_direct || holder->add(var.indirect())) {
-    // must match Var::operator Node()
-    NodeHeader header = NodeHeader{VAR, var.kind(), 0};
-    if (is_direct) {
-      // must match Var::operator Node()
-      offset_or_direct = var.id().val();
-      holder = nullptr;
-    }
-    return VarExpr{header, offset_or_direct, holder};
+  if (var.is_direct()) {
+    // must match Node::child()
+    off_or_dir = var.direct();
+    holder = nullptr;
+    // must match Node::child()
+  } else if (!holder->add(header) || !holder->add(var.indirect())) {
+    holder->truncate(off_or_dir);
+    return VarExpr{};
   }
-  return VarExpr{};
-}
-
-void VarExpr::add_to(Code *holder) const {
-  holder->add(is_direct() //
-                  ? Var{kind(), VarId{offset_or_direct()}}.direct()
-                  : offset_or_direct());
+  return VarExpr{header, off_or_dir, holder};
 }
 
 std::ostream &operator<<(std::ostream &out, VarExpr v) {

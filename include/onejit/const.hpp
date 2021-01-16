@@ -162,11 +162,14 @@ public:
 private:
   constexpr bool is_direct() const {
     // true if highest 41 bits are either 0 or 0x1FFFFFFFFFF
-    return (kind_.val() & 0x80) == 0 && (bits_ < 0x800000 || int64_t(bits_) >= -0x800000);
+    return (kind_.val() & 0xF0) == 0 && (bits_ < 0x800000 || int64_t(bits_) >= -0x800000);
   }
   // usable only if is_direct() returns true
   constexpr uint32_t direct() const {
-    return 0x1 | uint32_t(kind_.val() & 0x7F) << 1 | uint32_t(bits_) << 8;
+    return 0x1 | uint32_t(kind_.val() & 0xF) << 1 | uint32_t(bits_) << 5;
+  }
+  constexpr static Kind kind_from_direct(uint32_t data) {
+    return Kind((data >> 1) & 0xF);
   }
   constexpr static Const from_direct(uint32_t data) {
     // signed right shift is implementation-dependent: use a division

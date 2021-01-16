@@ -27,7 +27,6 @@
 #define ONEJIT_NODE_HPP
 
 #include <onejit/check.hpp>
-#include <onejit/code.hpp>
 #include <onejit/nodeheader.hpp>
 
 namespace onejit {
@@ -47,7 +46,7 @@ public:
   using Base::type;
 
   constexpr uint16_t children() const {
-    return code_ == nullptr || type_ == VAR || type_ == CONST
+    return is_direct() || type_ == VAR || type_ == CONST
                ? 0
                : type_ == UNARY ? 1 : type_ == BINARY ? 2 : Base::op_or_children();
   }
@@ -76,10 +75,7 @@ protected:
   }
 
   // get indirect data
-  CodeItem at(Offset byte_offset) const {
-    check(code, !=, nullptr);
-    return code_->at(off_or_dir_ + byte_offset);
-  }
+  CodeItem at(Offset byte_offset) const;
 
 private:
   CodeItem off_or_dir_;

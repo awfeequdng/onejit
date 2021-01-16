@@ -28,6 +28,7 @@
 
 #include <onejit/bytes.hpp>
 #include <onejit/fwd.hpp>
+#include <onejit/node.hpp>
 #include <onejit/type.hpp>
 #include <onejit/vector.hpp>
 
@@ -48,7 +49,10 @@ public:
     return good_;
   }
 
-  const CodeItem &at(Offset byte_offset) const;
+  const CodeItem &at(Offset byte_offset) const {
+    return Base::operator[](byte_offset / sizeof(CodeItem));
+  }
+
   int32_t i32(Offset byte_offset) const {
     return int32_t(at(byte_offset));
   }
@@ -63,6 +67,9 @@ public:
   double float64(Offset byte_offset) const;
 
   Code &add(CodeView data);
+  Code &add(NodeHeader header) {
+    return add(header.item());
+  }
   Code &add(int32_t val) {
     return add(uint32_t(val));
   }
@@ -76,6 +83,13 @@ public:
 
   constexpr Offset offset() const {
     return Base::size() * sizeof(CodeItem);
+  }
+
+  void truncate(Offset size) {
+    size /= sizeof(CodeItem);
+    if (size_ > size) {
+      size_ = size;
+    }
   }
 
 private:

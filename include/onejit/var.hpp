@@ -86,10 +86,6 @@ public:
     return kind_;
   }
 
-  constexpr uint16_t children() const {
-    return 0;
-  }
-
   constexpr VarId id() const {
     return id_;
   }
@@ -110,16 +106,19 @@ private:
   constexpr uint32_t direct() const {
     return 0x2 | uint32_t(kind_.val() & 0x7F) << 2 | id_.val() << 9;
   }
+  constexpr static Kind kind_from_direct(uint32_t data) {
+    return Kind((data >> 2) & 0x7F);
+  }
   constexpr static Var from_direct(uint32_t data) {
-    return Var{Kind((data >> 2) & 0x7F), VarId{data >> 9}};
+    return Var{kind_from_direct(data), VarId{data >> 9}};
   }
 
   // useful only if is_direct() returns false
   constexpr uint32_t indirect() const {
-    return kind_.val() | id_.val() << 8;
+    return id_.val();
   }
-  constexpr static Var from_indirect(uint32_t data) {
-    return Var{Kind(data), VarId{data >> 8}};
+  constexpr static Var from_indirect(Kind kind, uint32_t data) {
+    return Var{kind, VarId{data}};
   }
 
   Kind kind_;

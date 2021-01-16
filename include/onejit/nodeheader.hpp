@@ -61,6 +61,10 @@ public:
     return op_or_n_;
   }
 
+  constexpr CodeItem item() const {
+    return type_ | uint32_t(kind_.val()) << 8 | uint32_t(op_or_n_) << 16;
+  }
+
 private:
   Type type_;
   Kind kind_;
