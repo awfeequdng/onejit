@@ -26,9 +26,13 @@
 #ifndef ONEJIT_FUNC_HPP
 #define ONEJIT_FUNC_HPP
 
+#include <onejit/binaryexpr.hpp>
 #include <onejit/code.hpp>
 #include <onejit/constexpr.hpp>
 #include <onejit/fwd.hpp>
+#include <onejit/op1.hpp>
+#include <onejit/op2.hpp>
+#include <onejit/unaryexpr.hpp>
 #include <onejit/varexpr.hpp>
 #include <onejit/vector.hpp>
 
@@ -45,6 +49,14 @@ public:
 
   VarExpr new_var(Kind kind);
 
+  UnaryExpr new_unary(Kind kind, Op1 op, const Expr &arg) {
+    return UnaryExpr::create(kind, op, arg, holder_);
+  }
+
+  BinaryExpr new_binary(Kind kind, const Expr &left, Op2 op, const Expr &right) {
+    return BinaryExpr::create(kind, left, op, right, holder_);
+  }
+
   Func &add(const Node &node) {
     return add(node.offset_or_direct());
   }
@@ -56,7 +68,7 @@ private:
   }
 
   Code *holder_;
-  Vector<Var> regs_;
+  Vector<Var> vars_;
 };
 
 } // namespace onejit

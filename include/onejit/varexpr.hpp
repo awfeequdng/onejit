@@ -61,7 +61,10 @@ public:
   }
 
 private:
-  constexpr explicit VarExpr(const Node &node) : Base{node} {
+  // downcast Node to ConstExpr
+  constexpr explicit VarExpr(const Node &node) //
+      : Base{node.header(), node.offset_or_direct(),
+             node.offset_or_direct() & 2 ? nullptr : node.code()} {
   }
 
   constexpr VarExpr(NodeHeader header, Offset offset_or_direct, Code *code) //

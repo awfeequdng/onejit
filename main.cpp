@@ -24,10 +24,7 @@
  */
 
 #include <onejit/chars.hpp>
-#include <onejit/code.hpp>
-#include <onejit/const.hpp>
 #include <onejit/func.hpp>
-#include <onejit/kind.hpp>
 
 #include <iostream>
 
@@ -45,22 +42,18 @@ void Test::run() {
 
   Code holder;
   Func func(&holder);
+
+  ConstExpr ce = func.new_const(Const{1.5f});
+
   for (uint8_t i = 0; i <= ArchFlags.val(); i++) {
     const VarExpr ve = func.new_var(Kind(i));
-    std::cout << "VarExpr " << ve << '\n';
-    func.add(ve);
+    BinaryExpr be = func.new_binary(ve.kind(), ce, ADD, ve);
+    std::cout << "BinaryExpr " << be << '\n';
 
     const Var var1 = ve.var();
     const Var var2 = Var::parse_direct(var1.direct());
     CHECK(var1, ==, var2);
   }
-  ConstExpr ce1 = func.new_const(Const{uint32_t(0x7FFFFF)});
-  ConstExpr ce2 = func.new_const(Const{1.5f});
-  func.add(ce1);
-  func.add(ce2);
-
-  std::cout << "ConstExpr " << ce1 << '\n';
-  std::cout << "ConstExpr " << ce2 << '\n';
 
   std::cout << std::hex;
   for (const CodeItem item : holder) {

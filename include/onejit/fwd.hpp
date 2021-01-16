@@ -40,6 +40,7 @@ namespace onejit {
 
 class ArchId;
 class LogSize;
+class BinaryExpr;
 class Break;
 class Code;
 class Const;
@@ -56,6 +57,7 @@ class Stmt0;
 class Stmt1;
 class String;
 class Test;
+class UnaryExpr;
 class Var;
 class VarId;
 class VarExpr;

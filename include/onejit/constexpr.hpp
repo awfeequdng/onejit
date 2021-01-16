@@ -57,7 +57,10 @@ public:
   Const constant() const;
 
 private:
-  constexpr explicit ConstExpr(const Node &node) : Base{node} {
+  // downcast Node to ConstExpr
+  constexpr explicit ConstExpr(const Node &node) //
+      : Base{node.header(), node.offset_or_direct(),
+             node.offset_or_direct() & 1 ? nullptr : node.code()} {
   }
 
   constexpr ConstExpr(NodeHeader header, Offset offset_or_direct, Code *code) //

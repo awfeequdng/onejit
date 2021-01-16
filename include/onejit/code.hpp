@@ -72,6 +72,9 @@ public:
   Code &add(NodeHeader header) {
     return add(header.item());
   }
+  Code &add(const Node &node) {
+    return add(node.offset_or_direct());
+  }
   Code &add(int32_t i32) {
     return add(uint32_t(i32));
   }

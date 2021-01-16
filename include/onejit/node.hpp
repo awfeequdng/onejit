@@ -38,6 +38,9 @@ namespace onejit {
 class Node : protected NodeHeader {
   using Base = NodeHeader;
 
+  friend class Code;
+  friend class ConstExpr;
+  friend class VarExpr;
   friend class Func;
 
 public:

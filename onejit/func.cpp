@@ -31,14 +31,17 @@
 
 namespace onejit {
 
-enum { FIRST_SOFTREGID = 0x1000 };
+enum { FIRST_VARID = 0x1000 };
 
-Func::Func(Code *holder) : holder_(holder), regs_() {
+Func::Func(Code *holder) : holder_(holder), vars_() {
 }
 
 VarExpr Func::new_var(Kind kind) {
-  const Var var(kind, VarId(regs_.size() + FIRST_SOFTREGID));
-  if (kind == Void || !regs_.append(var)) {
+  const Var var{
+      kind,
+      VarId{uint32_t(kind == Void ? 0 : vars_.size() + FIRST_VARID)},
+  };
+  if (kind != Void && !vars_.append(var)) {
     return VarExpr{};
   }
   return VarExpr::create(var, holder_);
