@@ -25,7 +25,9 @@
 #ifndef ONEJIT_CHECK_HPP
 #define ONEJIT_CHECK_HPP
 
-#include <iosfwd>
+#include <onejit/fwd.hpp>
+
+#include <ostream>
 #include <sstream>
 
 #ifdef __OPTIMIZE__
@@ -39,7 +41,7 @@
     if ((lhs) /**/ op /**/ (rhs)) {                                                                \
       break;                                                                                       \
     }                                                                                              \
-    ::onejit::CheckFailed(lhs, rhs, #lhs, #op, #rhs);                                              \
+    ::onejit::CheckFailed(lhs, rhs, #lhs, #op, #rhs, __FILE__, __LINE__).throw_error();            \
   } while (false);
 
 namespace onejit {
@@ -47,36 +49,44 @@ namespace onejit {
 class CheckFailed {
 public:
   template <class T1, class T2>
-  CheckFailed(const T1 &lhs, const T2 &rhs, const char *lstr, const char *opstr, const char *rstr)
-      : lhs_(lstr), op_(opstr), rhs_(rstr) {
-    std::stringstream lval, rval;
-    lval << lhs;
-    rval << rhs;
-    lval_ = lval.str().c_str();
-    rval_ = rval.str().c_str();
-    dothrow();
+  CheckFailed(const T1 &lhs, const T2 &rhs,                          //
+              const char *lstr, const char *opstr, const char *rstr, //
+              const char *file, int line)
+      : lhs_(lstr), op_(opstr), rhs_(rstr), file_(file), line_(line) {
+
+    print(lval_, lhs);
+    print(rval_, rhs);
   }
 
-private:
-  void
-#ifdef __GNUC__
-      __attribute__((noreturn))
-#endif
-      dothrow();
+  void ONEJIT_NORETURN throw_error() const;
 
-  const char *lval_;
-  const char *rval_;
+private:
+  template <class T> static void print(std::string &out, const T &val) {
+    std::stringstream buf;
+    buf << val;
+    out = buf.str();
+  }
+
+  template <class T> static void print(std::string &out, const T *val) {
+    std::stringstream buf;
+    buf.write("0x", 2);
+    buf << std::hex << size_t(val);
+    out = buf.str();
+  }
+
+  static void print(std::string &out, nullptr_t) {
+    out.assign("nullptr", 7);
+  }
+
+  std::string lval_;
+  std::string rval_;
   const char *lhs_;
   const char *op_;
   const char *rhs_;
+  const char *file_;
+  int line_;
 };
 
 } // namespace onejit
-
-#ifndef __clang__
-namespace std {
-std::ostream &operator<<(std::ostream &, std::nullptr_t);
-}
-#endif // __clang__
 
 #endif /* ONEJIT_CHECK_HPP */

@@ -31,23 +31,14 @@
 
 namespace onejit {
 
-void
-#ifdef __GNUC__
-    __attribute__((noreturn))
-#endif
-    CheckFailed::dothrow() {
-  throw std::range_error(                                           //
-      std::string("check failed: ") + lhs_ + ' ' + op_ + ' ' + rhs_ //
-      + "\n\t" + lhs_ + "\t= " + lval_                              //
-      + "\n\t" + rhs_ + "\t= " + rval_);
+void ONEJIT_NORETURN CheckFailed::throw_error() const {
+  std::stringstream buf;
+  buf << Chars("check failed at ") << file_ << ':' << line_ //
+      << '\t' << lhs_ << ' ' << op_ << ' ' << rhs_          //
+      << Chars("\n\t") << lhs_ << Chars("\t= ") << lval_    //
+      << Chars("\n\t") << rhs_ << Chars("\t= ") << rval_;
+
+  throw std::range_error(buf.str());
 }
 
 } // namespace onejit
-
-#ifndef __clang__
-namespace std {
-std::ostream &operator<<(std::ostream &out, std::nullptr_t) {
-  return out << onejit::Chars("nullptr");
-}
-} // namespace std
-#endif // __clang__

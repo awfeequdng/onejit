@@ -26,7 +26,7 @@
 #ifndef ONEJIT_VAREXPR_HPP
 #define ONEJIT_VAREXPR_HPP
 
-#include <onejit/node.hpp>
+#include <onejit/expr.hpp>
 #include <onejit/var.hpp>
 
 #include <iosfwd>
@@ -34,8 +34,8 @@
 namespace onejit {
 
 // an expression containing only a local variable or register.
-class VarExpr : public Node {
-  using Base = Node;
+class VarExpr : public Expr {
+  using Base = Expr;
 
   friend class Func;
 
@@ -63,16 +63,12 @@ public:
     return kind() != Void;
   }
 
-  constexpr bool is_direct() const {
-    return code() == nullptr;
-  }
-
 private:
   constexpr VarExpr(const Node &node) : Base{node} {
   }
 
-  constexpr VarExpr(NodeHeader header, CodeItem offset_or_direct, Code *holder)
-      : Base{header, offset_or_direct, holder} {
+  constexpr VarExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
+      : Base{header, offset_or_direct, code} {
   }
 
   static VarExpr create(Var var, Code *holder);

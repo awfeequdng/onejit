@@ -17,57 +17,36 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * main.cpp
+ * expr.hpp
  *
- *  Created on Jan 08, 2020
+ *  Created on Jan 16, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/code.hpp>
-#include <onejit/const.hpp>
-#include <onejit/func.hpp>
-#include <onejit/kind.hpp>
+#ifndef ONEJIT_EXPR_HPP
+#define ONEJIT_EXPR_HPP
 
-#include <iostream>
+#include <onejit/node.hpp>
 
 namespace onejit {
-class Test {
+
+// base class of BinaryExpr, ConstExpr, UnaryExpr, VarExpr
+class Expr : public Node {
+  using Base = Node;
+
 public:
-  static void run();
+  constexpr Expr() : Base{} {
+  }
+
+protected:
+  constexpr explicit Expr(const Node &node) : Base{node} {
+  }
+
+  constexpr Expr(NodeHeader header, Offset offset_or_direct, Code *code) //
+      : Base{header, offset_or_direct, code} {
+  }
 };
-
-void Test::run() {
-  for (uint8_t i = 0; i < 2 * (1 + ArchFlags.val()); i++) {
-    const Kind k(i);
-    std::cout << "Kind " << k << ", Group " << k.group() << ", bits " << k.bits() << '\n';
-  }
-
-  Code holder;
-  Func func(&holder);
-  for (uint8_t i = 0; i <= ArchFlags.val(); i++) {
-    const VarExpr v = func.new_var(Kind(i));
-    std::cout << "VarExpr " << v << '\n';
-    func.add(v);
-
-    const Var var1 = v.var();
-    const Var var2 = Var::from_direct(var1.direct());
-    CHECK(var1, ==, var2);
-  }
-  Const c1{uint32_t(0x7FFFFF)};
-  Const c2{1.0f};
-  func.add(c1);
-  func.add(c2);
-}
 
 } // namespace onejit
 
-using namespace onejit;
-
-int main(int argc, char *argv[]) {
-  (void)argc;
-  (void)argv;
-
-  onejit::Test::run();
-
-  return 0;
-}
+#endif // ONEJIT_EXPR_HPP
