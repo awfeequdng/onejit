@@ -38,7 +38,8 @@ namespace onejit {
 
 class Code : private Vector<CodeItem> {
   friend class Node;
-  typedef Vector<CodeItem> Base;
+  typedef CodeItem T;
+  typedef Vector<T> Base;
 
 public:
   Code();
@@ -49,8 +50,8 @@ public:
     return good_;
   }
 
-  const CodeItem &at(Offset byte_offset) const {
-    return Base::operator[](byte_offset / sizeof(CodeItem));
+  const T &at(Offset byte_offset) const {
+    return Base::operator[](byte_offset / sizeof(T));
   }
 
   int32_t i32(Offset byte_offset) const {
@@ -66,30 +67,51 @@ public:
   float float32(Offset byte_offset) const;
   double float64(Offset byte_offset) const;
 
+  Code &add(CodeItem item);
   Code &add(CodeView data);
   Code &add(NodeHeader header) {
     return add(header.item());
   }
-  Code &add(int32_t val) {
-    return add(uint32_t(val));
+  Code &add(int32_t i32) {
+    return add(uint32_t(i32));
   }
-  Code &add(uint32_t val);
-  Code &add(int64_t val) {
-    return add(uint64_t(val));
+  // Code &add(uint32_t val); // same as add(CodeItem) above
+  Code &add(float f32) {
+    const union {
+      float f32;
+      uint32_t u32;
+    } x = {f32};
+    return add(x.u32);
   }
-  Code &add(uint64_t val);
-  Code &add(float val);
-  Code &add(double val);
+
+  Code &add(int64_t i64) {
+    return add(uint64_t(i64));
+  }
+  Code &add(uint64_t u64);
+  Code &add(double f64) {
+    const union {
+      double f64;
+      uint64_t u64;
+    } x = {f64};
+    return add(x.u64);
+  }
 
   constexpr Offset offset() const {
-    return Base::size() * sizeof(CodeItem);
+    return Base::size() * sizeof(T);
   }
 
   void truncate(Offset size) {
-    size /= sizeof(CodeItem);
+    size /= sizeof(T);
     if (size_ > size) {
       size_ = size;
     }
+  }
+
+  constexpr const T *begin() const {
+    return Base::begin();
+  }
+  constexpr const T *end() const {
+    return Base::end();
   }
 
 private:

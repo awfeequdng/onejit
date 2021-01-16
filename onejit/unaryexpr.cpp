@@ -17,32 +17,30 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * op1.hpp
+ * unaryexpr.cpp
  *
- *  Created on Jan 09, 2020
+ *  Created on Jan 16, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_OP1_HPP
-#define ONEJIT_OP1_HPP
-
-#include <cstdint> // uint8_t
-#include <iosfwd>  // std::ostream
+#include "onejit/unaryexpr.hpp"
+#include "onejit/code.hpp"
 
 namespace onejit {
 
-enum Op1 : uint8_t {
-  BAD1 = 0,
-  XOR1 = 1,
-  NOT1 = 2,
-  GOTO = 3,
-};
+UnaryExpr UnaryExpr::create(Kind kind, Op1 op, const Expr &child, Code *holder) {
+  const NodeHeader header{UNARY, kind, uint16_t(op)};
+  CodeItem offset = holder->offset();
 
-class Chars;
-const Chars &to_string(Op1 op);
+  if (!holder->add(header) || !holder->add(child)) {
+    holder->truncate(offset);
+    return UnaryExpr{};
+  }
+  return UnaryExpr{header, offset, holder};
+}
 
-std::ostream &operator<<(std::ostream &out, Op1 op);
+std::ostream &operator<<(std::ostream &out, const UnaryExpr &ue) {
+  return out << '(' << ue.op() << ' ' << ue.child(0) << ')';
+}
 
 } // namespace onejit
-
-#endif // ONEJIT_OP1_HPP

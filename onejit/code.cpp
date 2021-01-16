@@ -55,10 +55,11 @@ uint64_t Code::uint64(Offset byte_offset) const {
 }
 
 float Code::float32(Offset byte_offset) const {
-  const uint32_t *addr = &at(byte_offset);
-  float val;
-  std::memcpy(&val, addr, sizeof(val));
-  return val;
+  const union {
+    uint32_t u32;
+    float f32;
+  } x = {at(byte_offset)};
+  return x.f32;
 }
 
 double Code::float64(Offset byte_offset) const {
@@ -73,26 +74,16 @@ Code &ONEJIT_NOINLINE Code::add(const CodeView data) {
   return *this;
 }
 
-Code &Code::add(uint32_t val) {
-  return add(CodeView(&val, 1));
+Code &Code::add(const uint32_t item) {
+  return add(CodeView{&item, 1});
 }
 
-Code &Code::add(uint64_t val) {
-  uint32_t v[2];
-  std::memcpy(v, &val, sizeof(v));
-  return add(CodeView(v, 2));
-}
-
-Code &Code::add(float val) {
-  uint32_t v[1];
-  std::memcpy(v, &val, sizeof(v));
-  return add(CodeView(v, 1));
-}
-
-Code &Code::add(double val) {
-  uint32_t v[2];
-  std::memcpy(v, &val, sizeof(v));
-  return add(CodeView(v, 2));
+Code &Code::add(uint64_t u64) {
+  const union {
+    uint64_t u64;
+    uint32_t u32[2];
+  } x = {u64};
+  return add(CodeView{x.u32, 2});
 }
 
 } // namespace onejit

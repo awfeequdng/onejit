@@ -33,8 +33,12 @@ namespace onejit {
 const Chars op1string[] = {"?", "^", "!", "goto"};
 
 const Chars &to_string(Op1 op) {
-  uint8_t i = 0;
+  uint8_t i;
   switch (op) {
+  case BAD1:
+  default:
+    i = 0;
+    break;
   case XOR1:
     i = 1;
     break;

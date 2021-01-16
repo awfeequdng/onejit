@@ -111,7 +111,8 @@ am_libonejit_a_OBJECTS = archid.$(OBJEXT) chars.$(OBJEXT) \
 	group.$(OBJEXT) kind.$(OBJEXT) logsize.$(OBJEXT) \
 	node.$(OBJEXT) nodeheader.$(OBJEXT) op1.$(OBJEXT) \
 	op2.$(OBJEXT) opn.$(OBJEXT) string.$(OBJEXT) type.$(OBJEXT) \
-	var.$(OBJEXT) varexpr.$(OBJEXT) vector.$(OBJEXT)
+	unaryexpr.$(OBJEXT) var.$(OBJEXT) varexpr.$(OBJEXT) \
+	vector.$(OBJEXT)
 libonejit_a_OBJECTS = $(am_libonejit_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -135,7 +136,8 @@ am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/chars.Po \
 	./$(DEPDIR)/logsize.Po ./$(DEPDIR)/mem.Po ./$(DEPDIR)/node.Po \
 	./$(DEPDIR)/nodeheader.Po ./$(DEPDIR)/op1.Po \
 	./$(DEPDIR)/op2.Po ./$(DEPDIR)/opn.Po ./$(DEPDIR)/string.Po \
-	./$(DEPDIR)/type.Po ./$(DEPDIR)/var.Po ./$(DEPDIR)/varexpr.Po \
+	./$(DEPDIR)/type.Po ./$(DEPDIR)/unaryexpr.Po \
+	./$(DEPDIR)/var.Po ./$(DEPDIR)/varexpr.Po \
 	./$(DEPDIR)/vector.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -319,7 +321,8 @@ noinst_LIBRARIES = libonejit.a
 # libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
 libonejit_a_SOURCES = archid.cpp chars.cpp check.cpp code.cpp const.cpp constexpr.cpp func.cpp \
                          mem.cpp group.cpp kind.cpp logsize.cpp node.cpp nodeheader.cpp \
-                         op1.cpp op2.cpp opn.cpp string.cpp type.cpp var.cpp varexpr.cpp vector.cpp
+                         op1.cpp op2.cpp opn.cpp string.cpp type.cpp unaryexpr.cpp \
+                         var.cpp varexpr.cpp vector.cpp
 
 all: all-recursive
 
@@ -387,6 +390,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opn.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/type.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unaryexpr.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/var.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/varexpr.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vector.Po@am__quote@ # am--include-marker
@@ -628,6 +632,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/opn.Po
 	-rm -f ./$(DEPDIR)/string.Po
 	-rm -f ./$(DEPDIR)/type.Po
+	-rm -f ./$(DEPDIR)/unaryexpr.Po
 	-rm -f ./$(DEPDIR)/var.Po
 	-rm -f ./$(DEPDIR)/varexpr.Po
 	-rm -f ./$(DEPDIR)/vector.Po
@@ -694,6 +699,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/opn.Po
 	-rm -f ./$(DEPDIR)/string.Po
 	-rm -f ./$(DEPDIR)/type.Po
+	-rm -f ./$(DEPDIR)/unaryexpr.Po
 	-rm -f ./$(DEPDIR)/var.Po
 	-rm -f ./$(DEPDIR)/varexpr.Po
 	-rm -f ./$(DEPDIR)/vector.Po

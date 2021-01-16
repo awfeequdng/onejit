@@ -74,7 +74,7 @@ private:
     out = buf.str();
   }
 
-  static void print(std::string &out, nullptr_t) {
+  static void print(std::string &out, std::nullptr_t) {
     out.assign("nullptr", 7);
   }
 

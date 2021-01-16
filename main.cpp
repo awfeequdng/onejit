@@ -23,6 +23,7 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/chars.hpp>
 #include <onejit/code.hpp>
 #include <onejit/const.hpp>
 #include <onejit/func.hpp>
@@ -60,6 +61,12 @@ void Test::run() {
 
   std::cout << "ConstExpr " << ce1 << '\n';
   std::cout << "ConstExpr " << ce2 << '\n';
+
+  std::cout << std::hex;
+  for (const CodeItem item : holder) {
+    std::cout << Chars("0x") << item << ' ';
+  }
+  std::cout << '\n';
 }
 
 } // namespace onejit

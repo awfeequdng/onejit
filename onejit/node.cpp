@@ -24,10 +24,12 @@
  */
 
 #include "onejit/node.hpp"
+#include "onejit/chars.hpp"
 #include "onejit/check.hpp"
 #include "onejit/code.hpp"
-#include "onejit/const.hpp"
-#include "onejit/var.hpp"
+#include "onejit/constexpr.hpp"
+#include "onejit/unaryexpr.hpp"
+#include "onejit/varexpr.hpp"
 
 namespace onejit {
 
@@ -61,6 +63,36 @@ Node Node::child(uint16_t i) const {
     header = NodeHeader{code_->at(offset_or_direct)};
   }
   return Node{header, offset_or_direct, code_};
+}
+
+std::ostream &operator<<(std::ostream &out, const Node &node) {
+  const Type t = node.type();
+  switch (t) {
+  case BAD:
+  case BREAK:
+  case CONTINUE:
+  case FALLTHROUGH:
+  case DEFAULT:
+  default:
+    return out << to_string(t);
+  case VAR:
+    return out << VarExpr{node};
+  case UNARY:
+    return out << UnaryExpr{node};
+  case BINARY:
+  case TUPLE:
+  case MEM:
+    // TODO
+    return out << to_string(t);
+  case CONST:
+    return out << ConstExpr{node};
+  case CASE:
+  case IF:
+  case FOR:
+  case SWITCH:
+    // TODO
+    return out << to_string(t);
+  }
 }
 
 } // namespace onejit

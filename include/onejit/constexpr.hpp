@@ -38,9 +38,10 @@ class ConstExpr : public Expr {
   using Base = Expr;
 
   friend class Func;
+  friend std::ostream &operator<<(std::ostream &out, const Node &node);
 
 public:
-  constexpr ConstExpr() : Base{NodeHeader{CONST, Void, 0}, 0, nullptr} {
+  constexpr ConstExpr() : Base{NodeHeader{BAD, Void, 0}, 0, nullptr} {
   }
 
   constexpr Type type() const {
@@ -55,12 +56,8 @@ public:
 
   Const constant() const;
 
-  constexpr explicit operator bool() const {
-    return kind() != Void;
-  }
-
 private:
-  constexpr ConstExpr(const Node &node) : Base{node} {
+  constexpr explicit ConstExpr(const Node &node) : Base{node} {
   }
 
   constexpr ConstExpr(NodeHeader header, Offset offset_or_direct, Code *code) //

@@ -29,6 +29,8 @@
 #include <onejit/check.hpp>
 #include <onejit/nodeheader.hpp>
 
+#include <iosfwd>
+
 namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,6 +46,10 @@ public:
 
   using Base::kind;
   using Base::type;
+
+  constexpr explicit operator bool() const {
+    return Base::type() != BAD;
+  }
 
   constexpr uint16_t children() const {
     return is_direct() || type_ == VAR || type_ == CONST
@@ -81,6 +87,8 @@ private:
   CodeItem off_or_dir_;
   Code *code_;
 };
+
+std::ostream &operator<<(std::ostream &out, const Node &node);
 
 } // namespace onejit
 

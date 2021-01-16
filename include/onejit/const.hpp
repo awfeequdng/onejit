@@ -226,7 +226,7 @@ private:
     }
 
     constexpr uint64_t rotation_bits() const {
-      return 8 * ((val_ >> 5) & 0x7);
+      return (val_ & 0xE0) >> 2;
     }
 
     constexpr static uint64_t lrot(uint64_t val, uint8_t rotate_bits) {

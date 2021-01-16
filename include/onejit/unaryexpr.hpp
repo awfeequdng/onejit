@@ -17,61 +17,59 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * varexpr.hpp
+ * unaryexpr.hpp
  *
- *  Created on Jan 15, 2020
+ *  Created on Jan 16, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_VAREXPR_HPP
-#define ONEJIT_VAREXPR_HPP
+#ifndef ONEJIT_UNARYEXPR_HPP
+#define ONEJIT_UNARYEXPR_HPP
 
 #include <onejit/expr.hpp>
-#include <onejit/var.hpp>
+#include <onejit/op1.hpp>
 
 #include <iosfwd>
 
 namespace onejit {
 
-// an expression containing only a local variable or register.
-class VarExpr : public Expr {
+// an unary expression: Op and a single argument
+class UnaryExpr : public Expr {
   using Base = Expr;
 
   friend class Func;
   friend std::ostream &operator<<(std::ostream &out, const Node &node);
 
 public:
-  constexpr VarExpr() : Base{NodeHeader{BAD, Void, 0}, 0, nullptr} {
+  constexpr UnaryExpr() : Base{NodeHeader{BAD, Void, 0}, BAD1, nullptr} {
   }
 
   constexpr Type type() const {
-    return VAR;
+    return UNARY;
   }
 
   using Base::kind;
 
   constexpr uint16_t children() const {
-    return 0;
+    return 1;
   }
 
-  Var var() const;
-
-  VarId id() const {
-    return var().id();
+  constexpr Op1 op() const {
+    return Op1(Base::op_or_children());
   }
 
 private:
-  constexpr explicit VarExpr(const Node &node) : Base{node} {
+  constexpr explicit UnaryExpr(const Node &node) : Base{node} {
   }
 
-  constexpr VarExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
+  constexpr UnaryExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
       : Base{header, offset_or_direct, code} {
   }
 
-  static VarExpr create(Var var, Code *holder);
+  static UnaryExpr create(Kind kind, Op1 op, const Expr &child, Code *holder);
 };
 
-std::ostream &operator<<(std::ostream &out, const VarExpr &ve);
+std::ostream &operator<<(std::ostream &out, const UnaryExpr &ue);
 
 } // namespace onejit
 
