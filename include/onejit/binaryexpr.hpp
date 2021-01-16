@@ -17,31 +17,31 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * unaryexpr.hpp
+ * binaryexpr.hpp
  *
  *  Created on Jan 16, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_UNARYEXPR_HPP
-#define ONEJIT_UNARYEXPR_HPP
+#ifndef ONEJIT_BINARYEXPR_HPP
+#define ONEJIT_BINARYEXPR_HPP
 
 #include <onejit/expr.hpp>
-#include <onejit/op1.hpp>
+#include <onejit/op2.hpp>
 
 #include <iosfwd>
 
 namespace onejit {
 
-// an unary expression: Op1 and a single argument
-class UnaryExpr : public Expr {
+// a binary expression: Op2 and two arguments
+class BinaryExpr : public Expr {
   using Base = Expr;
 
   friend class Func;
   friend std::ostream &operator<<(std::ostream &out, const Node &node);
 
 public:
-  constexpr UnaryExpr() : Base{NodeHeader{BAD, Void, 0}, BAD1, nullptr} {
+  constexpr BinaryExpr() : Base{NodeHeader{BAD, Void, 0}, BAD2, nullptr} {
   }
 
   constexpr Type type() const {
@@ -51,26 +51,26 @@ public:
   using Base::kind;
 
   constexpr uint16_t children() const {
-    return 1;
+    return 2;
   }
 
-  constexpr Op1 op() const {
-    return Op1(Base::op_or_children());
+  constexpr Op2 op() const {
+    return Op2(Base::op_or_children());
   }
 
 private:
-  constexpr explicit UnaryExpr(const Node &node) : Base{node} {
+  constexpr explicit BinaryExpr(const Node &node) : Base{node} {
   }
 
-  constexpr UnaryExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
+  constexpr BinaryExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
       : Base{header, offset_or_direct, code} {
   }
 
-  static UnaryExpr create(Kind kind, Op1 op, const Expr &child, Code *holder);
+  static BinaryExpr create(Kind kind, const Expr &left, Op2 op, const Expr &right, Code *holder);
 };
 
-std::ostream &operator<<(std::ostream &out, const UnaryExpr &ue);
+std::ostream &operator<<(std::ostream &out, const BinaryExpr &be);
 
 } // namespace onejit
 
-#endif // ONEJIT_UNARYEXPR_HPP
+#endif // ONEJIT_BINARYEXPR_HPP

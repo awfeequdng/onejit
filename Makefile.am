@@ -4,7 +4,7 @@ pkgdata_DATA           = COPYING README.md
 
 bin_PROGRAMS           = jit
 
-# AM_CPPFLAGS          = -I$(top_srcdir)/include
+AM_CPPFLAGS            = -I$(top_srcdir)/include
 # onejit_CPPFLAGS      = -I$(top_srcdir)/include
 
 jit_SOURCES            = main.cpp

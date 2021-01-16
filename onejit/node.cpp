@@ -24,6 +24,7 @@
  */
 
 #include "onejit/node.hpp"
+#include "onejit/binaryexpr.hpp"
 #include "onejit/chars.hpp"
 #include "onejit/check.hpp"
 #include "onejit/code.hpp"
@@ -80,6 +81,7 @@ std::ostream &operator<<(std::ostream &out, const Node &node) {
   case UNARY:
     return out << UnaryExpr{node};
   case BINARY:
+    return out << BinaryExpr{node};
   case TUPLE:
   case MEM:
     // TODO

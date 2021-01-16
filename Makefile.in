@@ -349,8 +349,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = onejit
 pkgdata_DATA = COPYING README.md
-
-# AM_CPPFLAGS          = -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/include
 # onejit_CPPFLAGS      = -I$(top_srcdir)/include
 jit_SOURCES = main.cpp
 EXTRA_jit_DEPENDENCIES = $(LIBONEJIT)

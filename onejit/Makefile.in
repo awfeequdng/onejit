@@ -105,8 +105,8 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libonejit_a_AR = $(AR) $(ARFLAGS)
 libonejit_a_LIBADD =
-am_libonejit_a_OBJECTS = archid.$(OBJEXT) chars.$(OBJEXT) \
-	check.$(OBJEXT) code.$(OBJEXT) const.$(OBJEXT) \
+am_libonejit_a_OBJECTS = archid.$(OBJEXT) binaryexpr.$(OBJEXT) \
+	chars.$(OBJEXT) check.$(OBJEXT) code.$(OBJEXT) const.$(OBJEXT) \
 	constexpr.$(OBJEXT) func.$(OBJEXT) mem.$(OBJEXT) \
 	group.$(OBJEXT) kind.$(OBJEXT) logsize.$(OBJEXT) \
 	node.$(OBJEXT) nodeheader.$(OBJEXT) op1.$(OBJEXT) \
@@ -129,10 +129,10 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/chars.Po \
-	./$(DEPDIR)/check.Po ./$(DEPDIR)/code.Po ./$(DEPDIR)/const.Po \
-	./$(DEPDIR)/constexpr.Po ./$(DEPDIR)/func.Po \
-	./$(DEPDIR)/group.Po ./$(DEPDIR)/kind.Po \
+am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/binaryexpr.Po \
+	./$(DEPDIR)/chars.Po ./$(DEPDIR)/check.Po ./$(DEPDIR)/code.Po \
+	./$(DEPDIR)/const.Po ./$(DEPDIR)/constexpr.Po \
+	./$(DEPDIR)/func.Po ./$(DEPDIR)/group.Po ./$(DEPDIR)/kind.Po \
 	./$(DEPDIR)/logsize.Po ./$(DEPDIR)/mem.Po ./$(DEPDIR)/node.Po \
 	./$(DEPDIR)/nodeheader.Po ./$(DEPDIR)/op1.Po \
 	./$(DEPDIR)/op2.Po ./$(DEPDIR)/opn.Po ./$(DEPDIR)/string.Po \
@@ -316,12 +316,11 @@ top_srcdir = @top_srcdir@
 SUBDIRS = 
 noinst_LIBRARIES = libonejit.a
 # pkglib_LTLIBRARIES   =
-
-# AM_CPPFLAGS          = -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/include
 # libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
-libonejit_a_SOURCES = archid.cpp chars.cpp check.cpp code.cpp const.cpp constexpr.cpp func.cpp \
-                         mem.cpp group.cpp kind.cpp logsize.cpp node.cpp nodeheader.cpp \
-                         op1.cpp op2.cpp opn.cpp string.cpp type.cpp unaryexpr.cpp \
+libonejit_a_SOURCES = archid.cpp binaryexpr.cpp chars.cpp check.cpp code.cpp const.cpp \
+                         constexpr.cpp func.cpp mem.cpp group.cpp kind.cpp logsize.cpp node.cpp \
+                         nodeheader.cpp op1.cpp op2.cpp opn.cpp string.cpp type.cpp unaryexpr.cpp \
                          var.cpp varexpr.cpp vector.cpp
 
 all: all-recursive
@@ -373,6 +372,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/archid.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/binaryexpr.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chars.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/code.Po@am__quote@ # am--include-marker
@@ -615,6 +615,7 @@ clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/archid.Po
+	-rm -f ./$(DEPDIR)/binaryexpr.Po
 	-rm -f ./$(DEPDIR)/chars.Po
 	-rm -f ./$(DEPDIR)/check.Po
 	-rm -f ./$(DEPDIR)/code.Po
@@ -682,6 +683,7 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/archid.Po
+	-rm -f ./$(DEPDIR)/binaryexpr.Po
 	-rm -f ./$(DEPDIR)/chars.Po
 	-rm -f ./$(DEPDIR)/check.Po
 	-rm -f ./$(DEPDIR)/code.Po

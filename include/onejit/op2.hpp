@@ -33,6 +33,7 @@ namespace onejit {
 
 // intentionally match Go go/token.Token values
 enum Op2 : uint8_t {
+  BAD2 = 0,
   ADD = 12, // +
   SUB,      // -
   MUL,      // *
