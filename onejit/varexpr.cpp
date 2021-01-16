@@ -29,14 +29,14 @@ namespace onejit {
 
 Var VarExpr::var() const {
   if (is_direct()) {
-    return Var{kind(), VarId{offset_or_data()}};
+    return Var{kind(), VarId{offset_or_direct()}};
   } else {
     return Var::from_indirect(at(0));
   }
 }
 
 VarExpr VarExpr::create(Var var, Code *holder) {
-  CodeItem offset_or_data = holder->offset();
+  CodeItem offset_or_direct = holder->offset();
   const bool is_direct = var.is_direct();
 
   if (is_direct || holder->add(var.indirect())) {
@@ -44,18 +44,18 @@ VarExpr VarExpr::create(Var var, Code *holder) {
     NodeHeader header = NodeHeader{VAR, var.kind(), 0};
     if (is_direct) {
       // must match Var::operator Node()
-      offset_or_data = var.id().val();
+      offset_or_direct = var.id().val();
       holder = nullptr;
     }
-    return VarExpr{header, offset_or_data, holder};
+    return VarExpr{header, offset_or_direct, holder};
   }
   return VarExpr{};
 }
 
 void VarExpr::add_to(Code *holder) const {
   holder->add(is_direct() //
-                  ? Var{kind(), VarId{offset_or_data()}}.direct()
-                  : offset_or_data());
+                  ? Var{kind(), VarId{offset_or_direct()}}.direct()
+                  : offset_or_direct());
 }
 
 std::ostream &operator<<(std::ostream &out, VarExpr v) {

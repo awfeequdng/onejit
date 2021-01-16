@@ -33,25 +33,29 @@ namespace onejit {
 
 Node Node::child(uint16_t i) const {
   check(i, <, children());
-  const CodeItem item = code_->uint32(size_t(i) * sizeof(Offset) + data_ + sizeof(NodeHeader));
+  const CodeItem item =
+      code_->uint32(size_t(i) * sizeof(Offset) + off_or_dir_ + sizeof(NodeHeader));
 
   NodeHeader header;
-  uint32_t offset = 0;
+  uint32_t off_or_dir;
 
   if (item <= FALLTHROUGH) {
+    off_or_dir = 0;
     header = NodeHeader(Type(item), Void, 0);
   } else if ((item & 1) == 1) {
     // direct Const
-    return Node(Const::from_direct(item));
+    off_or_dir = item;
+    header = NodeHeader(CONST, Const::from_direct(item).kind(), 0);
   } else if ((item & 3) != 0) {
     // direct Var
-    return Node(Var::from_direct(item));
+    off_or_dir = item;
+    header = NodeHeader(VAR, Var::from_direct(item).kind(), 0);
   } else {
     // indirect Node
-    offset = data_ + item;
-    header = NodeHeader(code_->uint32(offset));
+    off_or_dir = off_or_dir_ + item;
+    header = NodeHeader(code_->uint32(off_or_dir));
   }
-  return Node{header, offset, code_};
+  return Node{header, off_or_dir, code_};
 }
 
 } // namespace onejit

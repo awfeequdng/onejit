@@ -173,12 +173,6 @@ private:
     return Const{Kind((data >> 1) & 0x7F), uint64_t(int32_t(data & ~0xFF) / 256)};
   }
 
-  // usable only if is_direct() returns true
-  constexpr operator Node() const {
-    // implementation must match ConstExpr::create()
-    return Node{NodeHeader{CONST, kind_, 0}, CodeItem(bits_), nullptr};
-  }
-
   Kind kind_;
   uint64_t bits_;
 };

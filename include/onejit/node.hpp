@@ -37,12 +37,10 @@ namespace onejit {
 class Node : protected NodeHeader {
   using Base = NodeHeader;
 
-  friend class Const;
-  friend class Var;
-  friend class Stmt0;
+  friend class Func;
 
 public:
-  constexpr Node() : Base(BAD), data_{0}, code_{nullptr} {
+  constexpr Node() : Base(BAD), off_or_dir_{0}, code_{nullptr} {
   }
 
   using Base::kind;
@@ -51,36 +49,40 @@ public:
   constexpr uint16_t children() const {
     return code_ == nullptr || type_ == VAR || type_ == CONST
                ? 0
-               : type_ == UNARY ? 1 : type_ == BINARY ? 2 : Base::data();
+               : type_ == UNARY ? 1 : type_ == BINARY ? 2 : Base::op_or_children();
   }
 
   Node child(uint16_t i) const;
 
 protected:
-  constexpr Node(NodeHeader header, CodeItem offset_or_data, Code *code)
-      : Base{header}, data_{offset_or_data}, code_{code} {
-  }
-
-  constexpr Code *code() const {
-    return code_;
-  }
-
-  constexpr CodeItem offset_or_data() const {
-    return data_;
+  constexpr Node(NodeHeader header, CodeItem offset_or_direct, Code *code)
+      : Base{header}, off_or_dir_{offset_or_direct}, code_{code} {
   }
 
   constexpr NodeHeader header() const {
     return *this;
   }
 
+  constexpr CodeItem offset_or_direct() const {
+    return off_or_dir_;
+  }
+
+  constexpr Code *code() const {
+    return code_;
+  }
+
+  constexpr bool is_direct() const {
+    return code_ == nullptr;
+  }
+
   // get indirect data
   CodeItem at(Offset byte_offset) const {
     check(code, !=, nullptr);
-    return code_->at(data_ + byte_offset);
+    return code_->at(off_or_dir_ + byte_offset);
   }
 
 private:
-  CodeItem data_;
+  CodeItem off_or_dir_;
   Code *code_;
 };
 

@@ -39,8 +39,8 @@ public:
 
   VarExpr new_var(Kind kind);
 
-  Func &add(const VarExpr &v) {
-    v.add_to(holder_);
+  Func &add(const Node &node) {
+    holder_->add(node.offset_or_direct());
     return *this;
   }
 

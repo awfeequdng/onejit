@@ -68,8 +68,8 @@ public:
   }
 
 private:
-  constexpr VarExpr(NodeHeader header, CodeItem offset_or_data, Code *holder)
-      : Base{header, offset_or_data, holder} {
+  constexpr VarExpr(NodeHeader header, CodeItem offset_or_direct, Code *holder)
+      : Base{header, offset_or_direct, holder} {
   }
 
   static VarExpr create(Var var, Code *holder);

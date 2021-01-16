@@ -122,12 +122,6 @@ private:
     return Var{Kind(data), VarId{data >> 8}};
   }
 
-  // usable only if is_direct() returns true.
-  constexpr operator Node() const {
-    // implementation must match VarExpr::create()
-    return Node{NodeHeader{VAR, kind_, 0}, id_.val(), nullptr};
-  }
-
   Kind kind_;
   VarId id_;
 };
