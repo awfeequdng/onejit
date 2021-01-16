@@ -106,18 +106,18 @@ private:
   constexpr uint32_t direct() const {
     return 0x2 | uint32_t(ekind_ & 0x7F) << 2 | id_.val() << 9;
   }
-  constexpr static Kind kind_from_direct(uint32_t data) {
+  constexpr static Kind parse_direct_kind(uint32_t data) {
     return Kind((data >> 2) & 0x7F);
   }
-  constexpr static Var from_direct(uint32_t data) {
-    return Var{kind_from_direct(data), VarId{data >> 9}};
+  constexpr static Var parse_direct(uint32_t data) {
+    return Var{parse_direct_kind(data), VarId{data >> 9}};
   }
 
   // useful only if is_direct() returns false
   constexpr uint32_t indirect() const {
     return id_.val();
   }
-  constexpr static Var from_indirect(Kind kind, uint32_t data) {
+  constexpr static Var parse_indirect(Kind kind, uint32_t data) {
     return Var{kind, VarId{data}};
   }
 

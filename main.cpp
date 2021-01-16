@@ -45,18 +45,18 @@ void Test::run() {
   Code holder;
   Func func(&holder);
   for (uint8_t i = 0; i <= ArchFlags.val(); i++) {
-    const VarExpr v = func.new_var(Kind(i));
-    std::cout << "VarExpr " << v << '\n';
-    func.add(v);
+    const VarExpr ve = func.new_var(Kind(i));
+    std::cout << "VarExpr " << ve << '\n';
+    func.add(ve);
 
-    const Var var1 = v.var();
-    const Var var2 = Var::from_direct(var1.direct());
+    const Var var1 = ve.var();
+    const Var var2 = Var::parse_direct(var1.direct());
     CHECK(var1, ==, var2);
   }
-  Const c1{uint32_t(0x7FFFFF)};
-  Const c2{1.0f};
-  func.add(c1);
-  func.add(c2);
+  ConstExpr ce1 = func.new_const(Const{uint32_t(0x7FFFFF)});
+  ConstExpr ce2 = func.new_const(Const{1.0f});
+  func.add(ce1);
+  func.add(ce2);
 }
 
 } // namespace onejit

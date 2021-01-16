@@ -23,37 +23,32 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/varexpr.hpp"
+#include "onejit/const.hpp"
 #include "onejit/code.hpp"
 
 namespace onejit {
 
-Var VarExpr::var() const {
-  if (is_direct()) {
-    return Var::parse_direct(offset_or_direct());
+Const Const::parse_indirect(Kind kind, Offset offset, const Code *holder) {
+  uint64_t bits;
+  if (kind.bits().val() <= 32) {
+    bits = holder->uint32(offset);
   } else {
-    return Var::parse_indirect(kind(), at(sizeof(CodeItem)));
+    bits = holder->uint64(offset);
   }
+  return Const{kind, bits};
 }
 
-VarExpr VarExpr::create(Var var, Code *holder) {
-  const NodeHeader header{VAR, var.kind(), 0};
-  CodeItem off_or_dir = holder->offset();
-
-  if (var.is_direct()) {
-    // must match Node::child()
-    off_or_dir = var.direct();
-    holder = nullptr;
-    // must match Node::child()
-  } else if (!holder->add(header) || !holder->add(var.indirect())) {
-    holder->truncate(off_or_dir);
-    return VarExpr{};
+Code &Const::write_indirect(Code *holder) const {
+  if (kind().bits().val() <= 32) {
+    holder->add(uint32());
+  } else {
+    holder->add(uint64());
   }
-  return VarExpr{header, off_or_dir, holder};
+  return *holder;
 }
 
-std::ostream &operator<<(std::ostream &out, const VarExpr &ve) {
-  return out << ve.var();
+std::ostream &operator<<(std::ostream &out, const Const &c) {
+  return out;
 }
 
 } // namespace onejit

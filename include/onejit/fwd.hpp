@@ -43,6 +43,7 @@ class LogSize;
 class Break;
 class Code;
 class Const;
+class ConstExpr;
 class Continue;
 class Chars;
 class Fallthrough;
@@ -57,6 +58,7 @@ class String;
 class Test;
 class Var;
 class VarId;
+class VarExpr;
 template <class T> class Vector;
 template <class T> class View;
 

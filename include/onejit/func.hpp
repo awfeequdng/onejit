@@ -27,6 +27,7 @@
 #define ONEJIT_FUNC_HPP
 
 #include <onejit/code.hpp>
+#include <onejit/constexpr.hpp>
 #include <onejit/fwd.hpp>
 #include <onejit/varexpr.hpp>
 #include <onejit/vector.hpp>
@@ -38,17 +39,21 @@ class Func {
 public:
   explicit Func(Code *holder);
 
+  ConstExpr new_const(const Const &c) {
+    return ConstExpr::create(c, holder_);
+  }
+
   VarExpr new_var(Kind kind);
 
   Func &add(const Node &node) {
-    holder_->add(node.offset_or_direct());
-    return *this;
+    return add(node.offset_or_direct());
   }
 
-  Func &add(Const c);
-
 private:
-  Func &add(CodeItem item);
+  Func &add(CodeItem item) {
+    holder_->add(item);
+    return *this;
+  }
 
   Code *holder_;
   Vector<Var> regs_;

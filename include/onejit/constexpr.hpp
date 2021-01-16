@@ -23,28 +23,28 @@
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_VAREXPR_HPP
-#define ONEJIT_VAREXPR_HPP
+#ifndef ONEJIT_CONSTEXPR_HPP
+#define ONEJIT_CONSTEXPR_HPP
 
+#include <onejit/const.hpp>
 #include <onejit/expr.hpp>
-#include <onejit/var.hpp>
 
 #include <iosfwd>
 
 namespace onejit {
 
-// an expression containing only a local variable or register.
-class VarExpr : public Expr {
+// an expression containing a constant
+class ConstExpr : public Expr {
   using Base = Expr;
 
   friend class Func;
 
 public:
-  constexpr VarExpr() : Base{NodeHeader{VAR, Void, 0}, 0, nullptr} {
+  constexpr ConstExpr() : Base{NodeHeader{CONST, Void, 0}, 0, nullptr} {
   }
 
   constexpr Type type() const {
-    return VAR;
+    return CONST;
   }
 
   using Base::kind;
@@ -53,28 +53,24 @@ public:
     return 0;
   }
 
-  Var var() const;
-
-  VarId id() const {
-    return var().id();
-  }
+  Const constant() const;
 
   constexpr explicit operator bool() const {
     return kind() != Void;
   }
 
 private:
-  constexpr VarExpr(const Node &node) : Base{node} {
+  constexpr ConstExpr(const Node &node) : Base{node} {
   }
 
-  constexpr VarExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
+  constexpr ConstExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
       : Base{header, offset_or_direct, code} {
   }
 
-  static VarExpr create(Var var, Code *holder);
+  static ConstExpr create(const Const &c, Code *holder);
 };
 
-std::ostream &operator<<(std::ostream &out, const VarExpr &ve);
+std::ostream &operator<<(std::ostream &out, const ConstExpr &ce);
 
 } // namespace onejit
 

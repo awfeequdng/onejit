@@ -50,11 +50,11 @@ Node Node::child(uint16_t i) const {
   } else if ((item & 1) == 1) {
     // direct Const
     offset_or_direct = item;
-    header = NodeHeader{CONST, Const::kind_from_direct(item), 0};
+    header = NodeHeader{CONST, Const::parse_direct_kind(item), 0};
   } else if ((item & 3) != 0) {
     // direct Var
     offset_or_direct = item;
-    header = NodeHeader{VAR, Var::kind_from_direct(item), 0};
+    header = NodeHeader{VAR, Var::parse_direct_kind(item), 0};
   } else {
     // indirect Node
     offset_or_direct = off_or_dir_ + item;

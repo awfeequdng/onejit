@@ -83,6 +83,7 @@ private:
 class Const {
   friend class Func;
   friend class Node;
+  friend class ConstExpr;
 
 public:
   constexpr Const() //
@@ -262,9 +263,16 @@ private:
     return direct_;
   }
 
-  constexpr static Kind kind_from_direct(uint32_t data) {
+  constexpr static Kind parse_direct_kind(uint32_t data) {
     return Direct{data}.kind();
   }
+
+  constexpr static Const parse_direct(uint32_t data) {
+    return Direct{data}.to_const();
+  }
+
+  static Const parse_indirect(Kind kind, Offset offset, const Code *holder);
+  Code &write_indirect(Code *holder) const;
 
   uint64_t bits_;
   eKind ekind_;
@@ -279,7 +287,7 @@ constexpr bool operator!=(Const a, Const b) {
   return a.kind() != b.kind() || a.uint64() != b.uint64();
 }
 
-std::ostream &operator<<(std::ostream &out, Const const);
+std::ostream &operator<<(std::ostream &out, const Const &c);
 
 } // namespace onejit
 

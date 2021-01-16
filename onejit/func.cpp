@@ -44,16 +44,4 @@ VarExpr Func::new_var(Kind kind) {
   return VarExpr::create(var, holder_);
 }
 
-Func &Func::add(CodeItem item) {
-  holder_->add(item);
-  return *this;
-}
-
-Func &Func::add(Const c) {
-  if (c.is_direct()) {
-    return add(c.direct());
-  }
-  throw std::runtime_error("unimplemented: Func::add() of large Const");
-}
-
 } // namespace onejit
