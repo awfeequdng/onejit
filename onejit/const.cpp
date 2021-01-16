@@ -24,6 +24,7 @@
  */
 
 #include "onejit/const.hpp"
+#include "onejit/chars.hpp"
 #include "onejit/code.hpp"
 
 namespace onejit {
@@ -48,6 +49,39 @@ Code &Const::write_indirect(Code *holder) const {
 }
 
 std::ostream &operator<<(std::ostream &out, const Const &c) {
+  switch (c.kind().val()) {
+  case kVoid:
+    out << Chars("void");
+    break;
+  case kBool:
+    out << (c.boolean() ? Chars("true") : Chars("false"));
+    break;
+  case kInt8:
+  case kInt16:
+  case kInt32:
+  case kInt64:
+    out << c.int64();
+    break;
+  case kUint8:
+  case kUint16:
+  case kUint32:
+  case kUint64:
+  case kArchFlags:
+    out << c.uint64();
+    break;
+  case kFloat32:
+    out << c.float32();
+    break;
+  case kFloat64:
+    out << c.float64();
+    break;
+  case kPtr:
+    out << c.ptr();
+    break;
+  default:
+    out << '?';
+    break;
+  }
   return out;
 }
 

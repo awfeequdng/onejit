@@ -138,6 +138,10 @@ public:
     return ekind_ != kVoid;
   }
 
+  constexpr bool boolean() const {
+    return bool(bits_);
+  }
+
   constexpr int8_t int8() const {
     return int8_t(bits_);
   }
@@ -169,6 +173,10 @@ public:
   }
   constexpr double float64() const {
     return ConstFloat64{bits_}.val();
+  }
+
+  void *ptr() const {
+    return reinterpret_cast<void *>(size_t(bits_));
   }
 
 private:
@@ -218,7 +226,7 @@ private:
     }
 
     constexpr uint64_t rotation_bits() const {
-      return (val_ >> 8) & 0x7FFFFF;
+      return 8 * ((val_ >> 5) & 0x7);
     }
 
     constexpr static uint64_t lrot(uint64_t val, uint8_t rotate_bits) {

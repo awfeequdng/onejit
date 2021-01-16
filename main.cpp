@@ -54,9 +54,12 @@ void Test::run() {
     CHECK(var1, ==, var2);
   }
   ConstExpr ce1 = func.new_const(Const{uint32_t(0x7FFFFF)});
-  ConstExpr ce2 = func.new_const(Const{1.0f});
+  ConstExpr ce2 = func.new_const(Const{1.5f});
   func.add(ce1);
   func.add(ce2);
+
+  std::cout << "ConstExpr " << ce1 << '\n';
+  std::cout << "ConstExpr " << ce2 << '\n';
 }
 
 } // namespace onejit
