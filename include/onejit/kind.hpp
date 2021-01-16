@@ -36,19 +36,43 @@ namespace onejit {
 
 class Chars;
 
+enum eKind : uint8_t {
+  kVoid = 0,
+  kBool = 1,
+  kInt8 = 2,
+  kInt16 = 3,
+  kInt32 = 4,
+  kInt64 = 5,
+  kUint8 = 6,
+  kUint16 = 7,
+  kUint32 = 8,
+  kUint64 = 9,
+  kFloat32 = 10,
+  kFloat64 = 11,
+  // kComplex64
+  // kComplex128
+  kPtr = 14,
+  kArchFlags = 15,
+
+  kHi = 255,
+};
+
 class Kind {
 public:
-  constexpr Kind() : val_(0 /*Void*/) {
+  constexpr Kind() : val_{kVoid} {
   }
 
-  constexpr explicit Kind(uint8_t kind) : val_(kind) {
+  constexpr explicit Kind(eKind ekind) : val_{ekind} {
   }
 
-  constexpr Kind(uint8_t kind, SimdN simd_n) //
-      : val_((kind & 0xF) | (simd_n.log2() << 4)) {
+  constexpr explicit Kind(uint8_t val) : val_{eKind(val)} {
   }
 
-  constexpr uint8_t val() const {
+  constexpr Kind(eKind kind, SimdN simd_n) //
+      : val_(eKind((kind & 0xF) | (simd_n.log2() << 4))) {
+  }
+
+  constexpr eKind val() const {
     return val_;
   }
 
@@ -99,7 +123,7 @@ public:
   const Chars &stringsuffix() const;
 
 private:
-  uint8_t val_;
+  eKind val_;
 };
 
 constexpr bool operator==(Kind a, Kind b) {
@@ -111,23 +135,26 @@ constexpr bool operator!=(Kind a, Kind b) {
 }
 
 std::ostream &operator<<(std::ostream &out, Kind kind);
+inline std::ostream &operator<<(std::ostream &out, eKind ekind) {
+  return out << Kind{ekind};
+}
 
-constexpr const Kind Void(0);
-constexpr const Kind Bool(1);
-constexpr const Kind Int8(2);
-constexpr const Kind Int16(3);
-constexpr const Kind Int32(4);
-constexpr const Kind Int64(5);
-constexpr const Kind Uint8(6);
-constexpr const Kind Uint16(7);
-constexpr const Kind Uint32(8);
-constexpr const Kind Uint64(9);
-constexpr const Kind Float32(10);
-constexpr const Kind Float64(11);
+constexpr const Kind Void(kVoid);
+constexpr const Kind Bool(kBool);
+constexpr const Kind Int8(kInt8);
+constexpr const Kind Int16(kInt16);
+constexpr const Kind Int32(kInt32);
+constexpr const Kind Int64(kInt64);
+constexpr const Kind Uint8(kUint8);
+constexpr const Kind Uint16(kUint16);
+constexpr const Kind Uint32(kUint32);
+constexpr const Kind Uint64(kUint64);
+constexpr const Kind Float32(kFloat32);
+constexpr const Kind Float64(kFloat64);
 // Complex64
 // Complex128
-constexpr const Kind Ptr(14);
-constexpr const Kind ArchFlags(15);
+constexpr const Kind Ptr(kPtr);
+constexpr const Kind ArchFlags(kArchFlags);
 
 } // namespace onejit
 

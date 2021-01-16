@@ -38,15 +38,15 @@ class NodeHeader {
   friend class Node;
 
 public:
-  constexpr NodeHeader() : type_{BAD}, kind_{Void}, op_or_n_{0} {
+  constexpr NodeHeader() : type_{BAD}, ekind_{kVoid}, op_or_n_{0} {
   }
 
   constexpr explicit NodeHeader(CodeItem item)
-      : type_{Type(item & 0xFF)}, kind_{Kind(item >> 8)}, op_or_n_{uint16_t(item >> 16)} {
+      : type_{Type(item & 0xFF)}, ekind_{eKind(item >> 8)}, op_or_n_{uint16_t(item >> 16)} {
   }
 
   constexpr NodeHeader(Type type, Kind kind, uint16_t op_or_children)
-      : type_{type}, kind_{kind}, op_or_n_{op_or_children} {
+      : type_{type}, ekind_{kind.val()}, op_or_n_{op_or_children} {
   }
 
   constexpr Type type() const {
@@ -54,7 +54,7 @@ public:
   }
 
   constexpr Kind kind() const {
-    return kind_;
+    return Kind{ekind_};
   }
 
   constexpr uint16_t op_or_children() const {
@@ -62,12 +62,12 @@ public:
   }
 
   constexpr CodeItem item() const {
-    return type_ | uint32_t(kind_.val()) << 8 | uint32_t(op_or_n_) << 16;
+    return type_ | uint32_t(ekind_) << 8 | uint32_t(op_or_n_) << 16;
   }
 
 private:
   Type type_;
-  Kind kind_;
+  eKind ekind_;
   uint16_t op_or_n_;
 };
 

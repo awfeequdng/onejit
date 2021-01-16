@@ -75,7 +75,7 @@ class Var {
   friend class Test;
 
 public:
-  constexpr Var() : kind_{Void}, id_{} {
+  constexpr Var() : ekind_{kVoid}, id_{} {
   }
 
   constexpr Type type() const {
@@ -83,7 +83,7 @@ public:
   }
 
   constexpr Kind kind() const {
-    return kind_;
+    return Kind{ekind_};
   }
 
   constexpr VarId id() const {
@@ -91,20 +91,20 @@ public:
   }
 
   constexpr explicit operator bool() const {
-    return kind_ != Void;
+    return ekind_ != kVoid;
   }
 
 private:
-  constexpr Var(Kind kind, VarId id) : kind_{kind}, id_{id} {
+  constexpr Var(Kind kind, VarId id) : ekind_{kind.val()}, id_{id} {
   }
 
   constexpr bool is_direct() const {
-    return (kind_.val() & 0x80) == 0 && (id_.val() & 0x800000) == 0;
+    return (ekind_ & 0x80) == 0 && (id_.val() & 0x800000) == 0;
   }
 
   // useful only if is_direct() returns true
   constexpr uint32_t direct() const {
-    return 0x2 | uint32_t(kind_.val() & 0x7F) << 2 | id_.val() << 9;
+    return 0x2 | uint32_t(ekind_ & 0x7F) << 2 | id_.val() << 9;
   }
   constexpr static Kind kind_from_direct(uint32_t data) {
     return Kind((data >> 2) & 0x7F);
@@ -121,7 +121,7 @@ private:
     return Var{kind, VarId{data}};
   }
 
-  Kind kind_;
+  eKind ekind_;
   VarId id_;
 };
 

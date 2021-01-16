@@ -53,8 +53,10 @@ void Test::run() {
     const Var var2 = Var::from_direct(var1.direct());
     CHECK(var1, ==, var2);
   }
-  Const c(uint32_t(0x7FFFFF));
-  func.add(c);
+  Const c1(uint32_t(0x7FFFFF));
+  Const c2(1.0f);
+  func.add(c1);
+  func.add(c2);
 }
 
 } // namespace onejit
