@@ -47,6 +47,8 @@ void Test::run() {
 
   for (uint8_t i = 0; i <= ArchFlags.val(); i++) {
     const VarExpr ve = func.new_var(Kind(i));
+    std::cout << ve.type() << ' ' << ve.to<Expr>() << '\n';
+
     const Node node = func.new_binary(ve.kind(), ce, ADD, ve);
     std::cout << node.type() << ' ' << node.to<Expr>() << '\n';
 

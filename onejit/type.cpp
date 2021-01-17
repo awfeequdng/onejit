@@ -31,9 +31,9 @@
 namespace onejit {
 
 static const Chars tstring[] = {
-    "bad",     "break", "continue", "fallthrough", //
-    "default", "unary", "binary",   "case",        //
-    "if",      "for",   "switch",   "tuple",       "?",
+    "bad",     "break", "continue", "fallthrough",                    // Stmt0
+    "var",     "unary", "binary",   "tuple",       "mem",    "const", // Expr
+    "default", "case",  "if",       "for",         "switch", "?",     // Stmt[1+]
 };
 
 const Chars &to_string(Type t) {

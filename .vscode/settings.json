@@ -76,7 +76,8 @@
         "__functional_base_03": "cpp",
         "__tuple": "cpp",
         "__atomic_generated": "cpp",
-        "__string": "cpp"
+        "__string": "cpp",
+        "__node_handle": "cpp"
     },
     "files.watcherExclude": {
         "**/.git/**": true
