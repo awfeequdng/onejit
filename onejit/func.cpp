@@ -32,7 +32,7 @@
 namespace onejit {
 
 enum {
-  NO_VARID = 0,
+  BAD_ID = 0,
   FIRST_VARID = 0x1000,
 };
 
@@ -47,7 +47,7 @@ Func::Func(Code *holder) : holder_(holder), vars_() {
 VarExpr Func::new_var(Kind kind) {
   const Var var{
       kind,
-      VarId{uint32_t(kind <= Void ? NO_VARID : vars_.size() + FIRST_VARID)},
+      VarId{uint32_t(kind <= Void ? 0 : vars_.size() + FIRST_VARID)},
   };
   if (kind == BadKind || (kind != Void && !vars_.append(var))) {
     return VarExpr{};

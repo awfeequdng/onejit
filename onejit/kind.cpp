@@ -31,31 +31,31 @@
 namespace onejit {
 
 static const Chars kstring[] = {
-    "void",    "bool",                          //
+    "?",       "void",      "bool",             //
     "int8",    "int16",     "int32",  "int64",  //
     "uint8",   "uint16",    "uint32", "uint64", //
-    "float32", "float64",   "?",      "?",      //
-    "ptr",     "archflags", "?",
+    "float32", "float64",   "?",                //
+    "ptr",     "archflags",     
 };
 
 static const Chars kstringsuffix[] = {
-    "v",  "e",               //
+    "?",  "v",  "e",         //
     "b",  "s",   "i",  "l",  //
     "ub", "us",  "ui", "ul", //
-    "f",  "d",   "?",  "?",  //
-    "p",  "cmp", "?",
+    "f",  "d",   "?",        //
+    "p",  "cmp",
 };
 
 static const Bits kbits[] = {
-    Bits(0),  Bits(1),                      // Void, Bool
+    Bits(),   Bits(0),  Bits(1),            // Void, Bool
     Bits(8),  Bits(16), Bits(32), Bits(64), // Int*
     Bits(8),  Bits(16), Bits(32), Bits(64), // Uint*
-    Bits(32), Bits(64), Bits(),   Bits(),   // Float*
+    Bits(32), Bits(64), Bits(),             // Float*
     Bits(64), Bits(64),                     // Ptr, ArchFlags
 };
 
 static const Group kgroup[] = {
-    gVoid,  gBool,                //
+    gVoid,  gVoid,  gBool,        //
     gInt,   gInt,   gInt,  gInt,  //
     gUint,  gUint,  gUint, gUint, //
     gFloat, gFloat, gVoid, gVoid, //
@@ -66,7 +66,7 @@ const Chars &Kind::string() const {
   enum _ { n = N_OF(kstring) };
   uint8_t i = val_ & 0xF;
   if (i >= n) {
-    i = n - 1;
+    i = 0;
   }
   return kstring[i];
 }
@@ -75,7 +75,7 @@ const Chars &Kind::stringsuffix() const {
   enum _ { n = N_OF(kstringsuffix) };
   uint8_t i = val_ & 0xF;
   if (i >= n) {
-    i = n - 1;
+    i = 0;
   }
   return kstringsuffix[i];
 }

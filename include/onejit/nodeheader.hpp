@@ -37,7 +37,7 @@ namespace onejit {
 class NodeHeader {
 
 public:
-  constexpr NodeHeader() : type_{BAD}, ekind_{kVoid}, op_or_n_{0} {
+  constexpr NodeHeader() : type_{BAD}, ekind_{kBad}, op_or_n_{0} {
   }
 
   constexpr explicit NodeHeader(CodeItem item)

@@ -38,7 +38,7 @@ class VarId {
   friend class VarExpr;
 
 public:
-  constexpr VarId() : val_() {
+  constexpr VarId() : val_{} {
   }
 
   constexpr uint32_t val() const {
