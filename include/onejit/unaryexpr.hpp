@@ -41,7 +41,7 @@ class UnaryExpr : public Expr {
   friend class Node;
 
 public:
-  constexpr UnaryExpr() : Base{NodeHeader{BAD, Void, 0}, BAD1, nullptr} {
+  constexpr UnaryExpr() : Base{NodeHeader{BAD, Void, 0}, BAD_OP1, nullptr} {
   }
 
   static constexpr Type type() {

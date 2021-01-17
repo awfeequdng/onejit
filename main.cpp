@@ -45,7 +45,7 @@ void Test::run() {
 
   ConstExpr ce = func.new_const(Const{1.5f});
 
-  for (uint8_t i = 0; i <= ArchFlags.val(); i++) {
+  for (uint8_t i = kVoid; i <= kArchFlags; i++) {
     const Expr ve = func.new_var(Kind(i));
     std::cout << ve.type() << ' ' << ve.to<Node>() << '\n';
 

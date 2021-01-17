@@ -53,11 +53,11 @@ private:
   uint8_t val_[3];
 };
 
-constexpr bool operator==(VarId a, VarId b) {
+constexpr inline bool operator==(VarId a, VarId b) {
   return a.val() == b.val();
 }
 
-constexpr bool operator!=(VarId a, VarId b) {
+constexpr inline bool operator!=(VarId a, VarId b) {
   return a.val() != b.val();
 }
 
@@ -99,8 +99,7 @@ private:
   }
 
   constexpr bool is_direct() const {
-    return (ekind_ & 0x80) == 0 && (id_.val() & 0x800000) == 0 && //
-           (ekind_ | id_.val()) != 0; // would be confused with type = CONTINUE
+    return (ekind_ & 0x80) == 0 && (id_.val() & 0x800000) == 0;
   }
 
   // useful only if is_direct() returns true
@@ -126,11 +125,11 @@ private:
   VarId id_;
 };
 
-constexpr bool operator==(Var a, Var b) {
+constexpr inline bool operator==(Var a, Var b) {
   return a.kind() == b.kind() && a.id() == b.id();
 }
 
-constexpr bool operator!=(Var a, Var b) {
+constexpr inline bool operator!=(Var a, Var b) {
   return a.kind() != b.kind() || a.id() != b.id();
 }
 

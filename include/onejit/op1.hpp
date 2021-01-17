@@ -32,7 +32,7 @@
 namespace onejit {
 
 enum Op1 : uint8_t {
-  BAD1 = 0,
+  BAD_OP1 = 0,
   XOR1 = 1,
   NOT1 = 2,
   GOTO = 3,

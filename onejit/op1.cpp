@@ -35,7 +35,7 @@ const Chars op1string[] = {"?", "^", "!", "goto"};
 const Chars &to_string(Op1 op) {
   uint8_t i;
   switch (op) {
-  case BAD1:
+  case BAD_OP1:
   default:
     i = 0;
     break;

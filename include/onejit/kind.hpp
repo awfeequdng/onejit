@@ -37,20 +37,20 @@ namespace onejit {
 class Chars;
 
 enum eKind : uint8_t {
-  kVoid = 0,
-  kBool = 1,
-  kInt8 = 2,
-  kInt16 = 3,
-  kInt32 = 4,
-  kInt64 = 5,
-  kUint8 = 6,
-  kUint16 = 7,
-  kUint32 = 8,
-  kUint64 = 9,
-  kFloat32 = 10,
-  kFloat64 = 11,
-  // kComplex64
-  // kComplex128
+  kBad = 0,
+  kVoid = 1,
+  kBool = 2,
+  kInt8 = 3,
+  kInt16 = 4,
+  kInt32 = 5,
+  kInt64 = 6,
+  kUint8 = 7,
+  kUint16 = 8,
+  kUint32 = 9,
+  kUint64 = 10,
+  kFloat32 = 11,
+  kFloat64 = 12,
+  // kComplex*
   kPtr = 14,
   kArchFlags = 15,
 
@@ -126,12 +126,28 @@ private:
   eKind val_;
 };
 
-constexpr bool operator==(Kind a, Kind b) {
+constexpr inline bool operator==(Kind a, Kind b) {
   return a.val() == b.val();
 }
 
-constexpr bool operator!=(Kind a, Kind b) {
+constexpr inline bool operator!=(Kind a, Kind b) {
   return a.val() != b.val();
+}
+
+constexpr inline bool operator<(Kind a, Kind b) {
+  return a.val() < b.val();
+}
+
+constexpr inline bool operator<=(Kind a, Kind b) {
+  return a.val() <= b.val();
+}
+
+constexpr inline bool operator>(Kind a, Kind b) {
+  return a.val() > b.val();
+}
+
+constexpr inline bool operator>=(Kind a, Kind b) {
+  return a.val() >= b.val();
 }
 
 std::ostream &operator<<(std::ostream &out, Kind kind);
@@ -139,6 +155,7 @@ inline std::ostream &operator<<(std::ostream &out, eKind ekind) {
   return out << Kind{ekind};
 }
 
+constexpr const Kind BadKind(kBad);
 constexpr const Kind Void(kVoid);
 constexpr const Kind Bool(kBool);
 constexpr const Kind Int8(kInt8);

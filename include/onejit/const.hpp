@@ -201,12 +201,8 @@ private:
 
     // create direct value if possible, otherwise zero
     constexpr Direct(Const c, int)
-        : val_{// Kind must fit 4 bits
-               (c.ekind_ & 0xF0) != 0
-                       // direct = 1 or 3 would be confused with type = BREAK or FALLTHROUGH
-                       || (c.ekind_ | c.bits_) == 0
-                   ? 0
-                   : recurse(c, 0, 0)} {
+        // Kind must fit 4 bits
+        : val_{(c.ekind_ & 0xF0) != 0 ? 0 : recurse(c, 0, 0)} {
     }
 
     constexpr Kind kind() const {
@@ -293,11 +289,11 @@ private:
   uint32_t direct_;
 };
 
-constexpr bool operator==(Const a, Const b) {
+constexpr inline bool operator==(Const a, Const b) {
   return a.kind() == b.kind() && a.uint64() == b.uint64();
 }
 
-constexpr bool operator!=(Const a, Const b) {
+constexpr inline bool operator!=(Const a, Const b) {
   return a.kind() != b.kind() || a.uint64() != b.uint64();
 }
 

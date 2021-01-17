@@ -37,8 +37,8 @@ enum {
 };
 
 Func::Func(Code *holder) : holder_(holder), vars_() {
-  // skip offset < 4, indirect data stored there would be confused with
-  // one of: BAD, BREAK, CONTINUE, FALLTHROUGH
+  // skip offset < 4, because indirect data stored there
+  // would be confused with one of: BAD, BREAK, CONTINUE, FALLTHROUGH
   if (holder->offset() < sizeof(CodeItem)) {
     holder->add(NodeHeader{});
   }
@@ -47,9 +47,9 @@ Func::Func(Code *holder) : holder_(holder), vars_() {
 VarExpr Func::new_var(Kind kind) {
   const Var var{
       kind,
-      VarId{uint32_t(kind == Void ? NO_VARID : vars_.size() + FIRST_VARID)},
+      VarId{uint32_t(kind <= Void ? NO_VARID : vars_.size() + FIRST_VARID)},
   };
-  if (kind != Void && !vars_.append(var)) {
+  if (kind == BadKind || (kind != Void && !vars_.append(var))) {
     return VarExpr{};
   }
   return VarExpr::create(var, holder_);
