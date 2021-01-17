@@ -31,7 +31,7 @@
 
 namespace onejit {
 
-enum Op1 : uint8_t {
+enum Op1 : uint16_t {
   BAD_OP1 = 0,
   XOR1 = 1,
   NOT1 = 2,

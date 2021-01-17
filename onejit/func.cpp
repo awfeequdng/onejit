@@ -42,6 +42,10 @@ Func::Func(Code *holder) : holder_(holder), vars_() {
   if (holder->offset() < sizeof(CodeItem)) {
     holder->add(NodeHeader{});
   }
+  // add magic signature "1JIT"
+  if (holder->offset() < 2 * sizeof(CodeItem)) {
+    holder->add(uint32_t(0x54494A31));
+  }
 }
 
 VarExpr Func::new_var(Kind kind) {

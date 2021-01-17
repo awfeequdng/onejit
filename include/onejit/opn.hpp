@@ -32,7 +32,7 @@
 namespace onejit {
 
 // intentionally match Go go/token.Token values
-enum OpN : uint8_t {
+enum OpN : uint16_t {
   CALL = 54, // RPAREN
   RETURN = 80,
 };
