@@ -31,15 +31,23 @@
 
 namespace onejit {
 
-enum { FIRST_VARID = 0x1000 };
+enum {
+  NO_VARID = 0,
+  FIRST_VARID = 0x1000,
+};
 
 Func::Func(Code *holder) : holder_(holder), vars_() {
+  // skip offset < 4, indirect data stored there would be confused with
+  // one of: BAD, BREAK, CONTINUE, FALLTHROUGH
+  if (holder->offset() < sizeof(CodeItem)) {
+    holder->add(NodeHeader{});
+  }
 }
 
 VarExpr Func::new_var(Kind kind) {
   const Var var{
       kind,
-      VarId{uint32_t(kind == Void ? 0 : vars_.size() + FIRST_VARID)},
+      VarId{uint32_t(kind == Void ? NO_VARID : vars_.size() + FIRST_VARID)},
   };
   if (kind != Void && !vars_.append(var)) {
     return VarExpr{};

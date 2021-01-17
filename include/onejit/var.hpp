@@ -99,7 +99,8 @@ private:
   }
 
   constexpr bool is_direct() const {
-    return (ekind_ & 0x80) == 0 && (id_.val() & 0x800000) == 0;
+    return (ekind_ & 0x80) == 0 && (id_.val() & 0x800000) == 0 && //
+           (ekind_ | id_.val()) != 0; // would be confused with type = CONTINUE
   }
 
   // useful only if is_direct() returns true

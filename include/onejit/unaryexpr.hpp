@@ -50,12 +50,17 @@ public:
 
   using Base::kind;
 
+  constexpr Op1 op() const {
+    return Op1(header().op_or_children());
+  }
+
   static constexpr uint16_t children() {
     return 1;
   }
 
-  constexpr Op1 op() const {
-    return Op1(header().op_or_children());
+  // shortcut for child(0).is<Expr>()
+  Expr x() const {
+    return child(0).is<Expr>();
   }
 
 private:

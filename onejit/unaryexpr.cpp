@@ -32,7 +32,7 @@ UnaryExpr UnaryExpr::create(Kind kind, Op1 op, const Expr &child, Code *holder) 
   const NodeHeader header{UNARY, kind, uint16_t(op)};
   CodeItem offset = holder->offset();
 
-  if (!holder->add(header) || !holder->add(child)) {
+  if (!holder->add(header) || !holder->add(child, offset)) {
     holder->truncate(offset);
     return UnaryExpr{};
   }

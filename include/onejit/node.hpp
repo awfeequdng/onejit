@@ -87,6 +87,11 @@ protected:
       : header_{header}, off_or_dir_{offset_or_direct}, code_{code} {
   }
 
+  // downcast helper
+  static constexpr bool is_allowed_type(Type) {
+    return true;
+  }
+
   constexpr NodeHeader header() const {
     return header_;
   }

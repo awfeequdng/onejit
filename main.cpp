@@ -46,13 +46,13 @@ void Test::run() {
   ConstExpr ce = func.new_const(Const{1.5f});
 
   for (uint8_t i = 0; i <= ArchFlags.val(); i++) {
-    const VarExpr ve = func.new_var(Kind(i));
-    std::cout << ve.type() << ' ' << ve.to<Expr>() << '\n';
+    const Expr ve = func.new_var(Kind(i));
+    std::cout << ve.type() << ' ' << ve.to<Node>() << '\n';
 
     const Node node = func.new_binary(ve.kind(), ce, ADD, ve);
     std::cout << node.type() << ' ' << node.to<Expr>() << '\n';
 
-    const Var var1 = ve.var();
+    const Var var1 = ve.to<VarExpr>().var();
     const Var var2 = Var::parse_direct(var1.direct());
     CHECK(var1, ==, var2);
   }

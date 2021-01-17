@@ -200,8 +200,13 @@ private:
     }
 
     // create direct value if possible, otherwise zero
-    constexpr Direct(Const c, int) //
-        : val_{(c.ekind_ & 0xF0) != 0 ? 0 : recurse(c, 0, 0)} {
+    constexpr Direct(Const c, int)
+        : val_{// Kind must fit 4 bits
+               (c.ekind_ & 0xF0) != 0
+                       // direct = 1 or 3 would be confused with type = BREAK or FALLTHROUGH
+                       || (c.ekind_ | c.bits_) == 0
+                   ? 0
+                   : recurse(c, 0, 0)} {
     }
 
     constexpr Kind kind() const {
@@ -280,6 +285,7 @@ private:
   }
 
   static Const parse_indirect(Kind kind, Offset offset, const Code *holder);
+
   Code &write_indirect(Code *holder) const;
 
   uint64_t bits_;

@@ -72,8 +72,10 @@ public:
   Code &add(NodeHeader header) {
     return add(header.item());
   }
-  Code &add(const Node &node) {
-    return add(node.offset_or_direct());
+  Code &add(const Node &node, Offset parent_offset) {
+    // we save relative offset between parent and child:
+    // makes it easier to concatenate different Code objects
+    return add(node.offset_or_direct() - (node.is_direct() ? 0 : parent_offset));
   }
   Code &add(int32_t i32) {
     return add(uint32_t(i32));

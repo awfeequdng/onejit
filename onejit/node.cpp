@@ -73,7 +73,6 @@ std::ostream &operator<<(std::ostream &out, const Node &node) {
   case BREAK:
   case CONTINUE:
   case FALLTHROUGH:
-  case DEFAULT:
   default:
     return out << to_string(t);
   case VAR:
@@ -88,6 +87,7 @@ std::ostream &operator<<(std::ostream &out, const Node &node) {
     return out << to_string(t);
   case CONST:
     return out << node.to<ConstExpr>();
+  case DEFAULT:
   case CASE:
   case IF:
   case FOR:

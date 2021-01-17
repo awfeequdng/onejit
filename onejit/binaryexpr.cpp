@@ -33,7 +33,7 @@ BinaryExpr BinaryExpr::create(Kind kind, const Expr &left, Op2 op, const Expr &r
   const NodeHeader header{BINARY, kind, uint16_t(op)};
   CodeItem offset = holder->offset();
 
-  if (!holder->add(header) || !holder->add(left) || !holder->add(right)) {
+  if (!holder->add(header) || !holder->add(left, offset) || !holder->add(right, offset)) {
     holder->truncate(offset);
     return BinaryExpr{};
   }
