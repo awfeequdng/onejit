@@ -35,8 +35,7 @@ namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
 // base class of BinaryExpr, ConstExpr, UnaryExpr, VarExpr, Stmt*
-class Node : protected NodeHeader {
-  using Base = NodeHeader;
+class Node {
 
   friend class Code;
   friend class ConstExpr;
@@ -44,31 +43,52 @@ class Node : protected NodeHeader {
   friend class Func;
 
 public:
-  constexpr Node() : Base(BAD), off_or_dir_{0}, code_{nullptr} {
+  constexpr Node() : header_{}, off_or_dir_{0}, code_{nullptr} {
   }
 
-  using Base::kind;
-  using Base::type;
+  constexpr Kind kind() const {
+    return header_.kind();
+  }
+
+  constexpr Type type() const {
+    return header_.type();
+  }
 
   constexpr explicit operator bool() const {
-    return Base::type() != BAD;
+    return type() != BAD;
   }
 
+  constexpr bool operator!() const {
+    return type() == BAD;
+  }
+
+  // unified tree API: get number of children nodes
   constexpr uint16_t children() const {
-    return is_direct() || type_ == VAR || type_ == CONST
+    return is_direct() || type() == VAR || type() == CONST
                ? 0
-               : type_ == UNARY ? 1 : type_ == BINARY ? 2 : Base::op_or_children();
+               : type() == UNARY ? 1 : type() == BINARY ? 2 : header_.op_or_children();
   }
 
+  // unified tree API: get i-th child node
   Node child(uint16_t i) const;
+
+  // try to downcast Node to T. return T{} if fails.
+  template <class T> constexpr T is() const {
+    return T::is_allowed_type(type()) ? T{*this} : T{};
+  }
+
+  // try to downcast Node to T. throw exception if fails.
+  template <class T> constexpr T to() const {
+    return CHECK(T::is_allowed_type(type()), ==, true), T{*this};
+  }
 
 protected:
   constexpr Node(NodeHeader header, CodeItem offset_or_direct, Code *code)
-      : Base{header}, off_or_dir_{offset_or_direct}, code_{code} {
+      : header_{header}, off_or_dir_{offset_or_direct}, code_{code} {
   }
 
   constexpr NodeHeader header() const {
-    return *this;
+    return header_;
   }
 
   constexpr CodeItem offset_or_direct() const {
@@ -87,6 +107,7 @@ protected:
   CodeItem at(Offset byte_offset) const;
 
 private:
+  NodeHeader header_;
   CodeItem off_or_dir_;
   Code *code_;
 };

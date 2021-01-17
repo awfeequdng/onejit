@@ -64,7 +64,7 @@ private:
   constexpr LogSize(uint8_t log2, Log2Tag) : log2_(log2) {
   }
 
-  constexpr static uint8_t uintlog2(size_t n, uint8_t accum) {
+  static constexpr uint8_t uintlog2(size_t n, uint8_t accum) {
     return n == 0 ? accum : uintlog2(n >> 1, accum + 1);
   }
 

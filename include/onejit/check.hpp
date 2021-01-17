@@ -36,13 +36,10 @@
 #define check(lhs, op, rhs) CHECK(lhs, op, rhs)
 #endif
 
-#define CHECK(lhs, op, rhs)                                                                        \
-  do {                                                                                             \
-    if ((lhs) /**/ op /**/ (rhs)) {                                                                \
-      break;                                                                                       \
-    }                                                                                              \
-    ::onejit::CheckFailed(lhs, rhs, #lhs, #op, #rhs, __FILE__, __LINE__).throw_error();            \
-  } while (false);
+#define CHECK(lhs, op, rhs) (((lhs) /**/ op /**/ (rhs)) ? (void)0 : CHECK_FAILED(lhs, op, rhs))
+
+#define CHECK_FAILED(lhs, op, rhs)                                                                 \
+  ::onejit::CheckFailed(lhs, rhs, #lhs, #op, #rhs, __FILE__, __LINE__).throw_error()
 
 namespace onejit {
 

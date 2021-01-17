@@ -77,17 +77,17 @@ std::ostream &operator<<(std::ostream &out, const Node &node) {
   default:
     return out << to_string(t);
   case VAR:
-    return out << VarExpr{node};
+    return out << node.to<VarExpr>();
   case UNARY:
-    return out << UnaryExpr{node};
+    return out << node.to<UnaryExpr>();
   case BINARY:
-    return out << BinaryExpr{node};
+    return out << node.to<BinaryExpr>();
   case TUPLE:
   case MEM:
     // TODO
     return out << to_string(t);
   case CONST:
-    return out << ConstExpr{node};
+    return out << node.to<ConstExpr>();
   case CASE:
   case IF:
   case FOR:

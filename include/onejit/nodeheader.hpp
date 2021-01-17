@@ -35,7 +35,6 @@ namespace onejit {
 ////////////////////////////////////////////////////////////////////////////////
 // first CodeItem contained in BinaryExpr, UnaryExpr, Stmt*
 class NodeHeader {
-  friend class Node;
 
 public:
   constexpr NodeHeader() : type_{BAD}, ekind_{kVoid}, op_or_n_{0} {

@@ -38,33 +38,38 @@ class ConstExpr : public Expr {
   using Base = Expr;
 
   friend class Func;
-  friend std::ostream &operator<<(std::ostream &out, const Node &node);
+  friend class Node;
 
 public:
   constexpr ConstExpr() : Base{NodeHeader{BAD, Void, 0}, 0, nullptr} {
   }
 
-  constexpr Type type() const {
+  static constexpr Type type() {
     return CONST;
   }
 
   using Base::kind;
 
-  constexpr uint16_t children() const {
+  static constexpr uint16_t children() {
     return 0;
   }
 
   Const constant() const;
 
 private:
+  constexpr ConstExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
+      : Base{header, offset_or_direct, code} {
+  }
+
   // downcast Node to ConstExpr
   constexpr explicit ConstExpr(const Node &node) //
       : Base{node.header(), node.offset_or_direct(),
              node.offset_or_direct() & 1 ? nullptr : node.code()} {
   }
 
-  constexpr ConstExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
-      : Base{header, offset_or_direct, code} {
+  // downcast helper
+  static constexpr bool is_allowed_type(Type t) {
+    return t == CONST;
   }
 
   static ConstExpr create(const Const &c, Code *holder);

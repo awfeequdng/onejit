@@ -38,19 +38,19 @@ class VarExpr : public Expr {
   using Base = Expr;
 
   friend class Func;
-  friend std::ostream &operator<<(std::ostream &out, const Node &node);
+  friend class Node;
 
 public:
   constexpr VarExpr() : Base{NodeHeader{BAD, Void, 0}, 0, nullptr} {
   }
 
-  constexpr Type type() const {
+  static constexpr Type type() {
     return VAR;
   }
 
   using Base::kind;
 
-  constexpr uint16_t children() const {
+  static constexpr uint16_t children() {
     return 0;
   }
 
@@ -61,14 +61,19 @@ public:
   }
 
 private:
+  constexpr VarExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
+      : Base{header, offset_or_direct, code} {
+  }
+
   // downcast Node to ConstExpr
   constexpr explicit VarExpr(const Node &node) //
       : Base{node.header(), node.offset_or_direct(),
              node.offset_or_direct() & 2 ? nullptr : node.code()} {
   }
 
-  constexpr VarExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
-      : Base{header, offset_or_direct, code} {
+  // downcast helper
+  static constexpr bool is_allowed_type(Type t) {
+    return t == VAR;
   }
 
   static VarExpr create(Var var, Code *holder);

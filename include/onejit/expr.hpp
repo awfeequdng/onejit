@@ -34,16 +34,24 @@ namespace onejit {
 class Expr : public Node {
   using Base = Node;
 
+  friend class Node;
+
 public:
   constexpr Expr() : Base{} {
   }
 
 protected:
+  constexpr Expr(NodeHeader header, Offset offset_or_direct, Code *code) //
+      : Base{header, offset_or_direct, code} {
+  }
+
+  // downcast Node to Expr
   constexpr explicit Expr(const Node &node) : Base{node} {
   }
 
-  constexpr Expr(NodeHeader header, Offset offset_or_direct, Code *code) //
-      : Base{header, offset_or_direct, code} {
+  // downcast helper
+  static constexpr bool is_allowed_type(Type t) {
+    return t >= VAR && t <= CONST;
   }
 };
 

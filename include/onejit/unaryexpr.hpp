@@ -38,32 +38,38 @@ class UnaryExpr : public Expr {
   using Base = Expr;
 
   friend class Func;
-  friend std::ostream &operator<<(std::ostream &out, const Node &node);
+  friend class Node;
 
 public:
   constexpr UnaryExpr() : Base{NodeHeader{BAD, Void, 0}, BAD1, nullptr} {
   }
 
-  constexpr Type type() const {
+  static constexpr Type type() {
     return UNARY;
   }
 
   using Base::kind;
 
-  constexpr uint16_t children() const {
+  static constexpr uint16_t children() {
     return 1;
   }
 
   constexpr Op1 op() const {
-    return Op1(Base::op_or_children());
+    return Op1(header().op_or_children());
   }
 
 private:
+  constexpr UnaryExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
+      : Base{header, offset_or_direct, code} {
+  }
+
+  // downcast Node to UnaryExpr
   constexpr explicit UnaryExpr(const Node &node) : Base{node} {
   }
 
-  constexpr UnaryExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
-      : Base{header, offset_or_direct, code} {
+  // downcast helper
+  static constexpr bool is_allowed_type(Type t) {
+    return t == UNARY;
   }
 
   static UnaryExpr create(Kind kind, Op1 op, const Expr &child, Code *holder);

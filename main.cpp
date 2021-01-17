@@ -47,8 +47,8 @@ void Test::run() {
 
   for (uint8_t i = 0; i <= ArchFlags.val(); i++) {
     const VarExpr ve = func.new_var(Kind(i));
-    BinaryExpr be = func.new_binary(ve.kind(), ce, ADD, ve);
-    std::cout << "BinaryExpr " << be << '\n';
+    const Node node = func.new_binary(ve.kind(), ce, ADD, ve);
+    std::cout << node.type() << ' ' << node.to<Expr>() << '\n';
 
     const Var var1 = ve.var();
     const Var var2 = Var::parse_direct(var1.direct());

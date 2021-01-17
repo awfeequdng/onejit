@@ -33,10 +33,12 @@ namespace onejit {
 
 enum Type : uint8_t {
   BAD = 0,
+  // Stmt0
   BREAK = 1,
   CONTINUE = 2,
   FALLTHROUGH = 3,
 
+  // Expr
   VAR = 4,
   UNARY = 5,
   BINARY = 6,
@@ -44,6 +46,7 @@ enum Type : uint8_t {
   MEM = 8,
   CONST = 9,
 
+  // Stmt[1+]
   DEFAULT = 10,
   CASE = 11,
   IF = 12,

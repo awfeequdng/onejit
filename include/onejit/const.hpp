@@ -229,16 +229,16 @@ private:
       return (val_ & 0xE0) >> 2;
     }
 
-    constexpr static uint64_t lrot(uint64_t val, uint8_t rotate_bits) {
+    static constexpr uint64_t lrot(uint64_t val, uint8_t rotate_bits) {
       return rotate_bits == 0 ? val : (val << rotate_bits) | (val >> (64 - rotate_bits));
     }
 
-    constexpr static uint64_t rrot(uint64_t val, uint8_t rotate_bits) {
+    static constexpr uint64_t rrot(uint64_t val, uint8_t rotate_bits) {
       return rotate_bits == 0 ? val : (val >> rotate_bits) | (val << (64 - rotate_bits));
     }
 
     // return direct value if possible, otherwise zero
-    constexpr static uint32_t recurse(Const c, uint8_t rotate_bits, uint64_t xor_mask) {
+    static constexpr uint32_t recurse(Const c, uint8_t rotate_bits, uint64_t xor_mask) {
       return can_direct(c, rotate_bits, xor_mask)                               //
                  ? make_direct(c, rotate_bits, xor_mask)                        //
                  : xor_mask == 0 ? recurse(c, rotate_bits, ~xor_mask)           //
@@ -247,11 +247,11 @@ private:
                                        : 0;
     }
 
-    constexpr static bool can_direct(Const c, uint8_t rotate_bits, uint64_t xor_mask) {
+    static constexpr bool can_direct(Const c, uint8_t rotate_bits, uint64_t xor_mask) {
       return rrot(c.bits_ ^ xor_mask, rotate_bits) <= 0x7FFFFF;
     }
 
-    constexpr static uint32_t make_direct(Const c, uint8_t rotate_bits, uint64_t xor_mask) {
+    static constexpr uint32_t make_direct(Const c, uint8_t rotate_bits, uint64_t xor_mask) {
       return 1 | (c.ekind_ & 0x0F) << 1                             //
              | uint32_t(rotate_bits / 8) << 5                       //
              | uint32_t(rrot(c.bits_ ^ xor_mask, rotate_bits)) << 8 //
@@ -271,11 +271,11 @@ private:
     return direct_;
   }
 
-  constexpr static Kind parse_direct_kind(uint32_t data) {
+  static constexpr Kind parse_direct_kind(uint32_t data) {
     return Direct{data}.kind();
   }
 
-  constexpr static Const parse_direct(uint32_t data) {
+  static constexpr Const parse_direct(uint32_t data) {
     return Direct{data}.to_const();
   }
 

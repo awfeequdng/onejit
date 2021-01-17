@@ -38,32 +38,38 @@ class BinaryExpr : public Expr {
   using Base = Expr;
 
   friend class Func;
-  friend std::ostream &operator<<(std::ostream &out, const Node &node);
+  friend class Node;
 
 public:
   constexpr BinaryExpr() : Base{NodeHeader{BAD, Void, 0}, BAD2, nullptr} {
   }
 
-  constexpr Type type() const {
+  static constexpr Type type() {
     return UNARY;
   }
 
   using Base::kind;
 
-  constexpr uint16_t children() const {
+  static constexpr uint16_t children() {
     return 2;
   }
 
   constexpr Op2 op() const {
-    return Op2(Base::op_or_children());
+    return Op2(header().op_or_children());
   }
 
 private:
+  constexpr BinaryExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
+      : Base{header, offset_or_direct, code} {
+  }
+
+  // downcast Node to UnaryExpr
   constexpr explicit BinaryExpr(const Node &node) : Base{node} {
   }
 
-  constexpr BinaryExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
-      : Base{header, offset_or_direct, code} {
+  // downcast helper
+  static constexpr bool is_allowed_type(Type t) {
+    return t == BINARY;
   }
 
   static BinaryExpr create(Kind kind, const Expr &left, Op2 op, const Expr &right, Code *holder);
