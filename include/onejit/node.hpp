@@ -55,11 +55,11 @@ public:
   }
 
   constexpr explicit operator bool() const {
-    return type() != BAD;
+    return bool(header_);
   }
 
   constexpr bool operator!() const {
-    return type() == BAD;
+    return !header_;
   }
 
   // unified tree API: get number of children nodes

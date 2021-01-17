@@ -64,6 +64,14 @@ public:
     return type_ | uint32_t(ekind_) << 8 | uint32_t(op_or_n_) << 16;
   }
 
+  constexpr explicit operator bool() const {
+    return type_ != BAD && ekind_ != kBad;
+  }
+
+  constexpr bool operator!() const {
+    return type_ == BAD || ekind_ == kBad;
+  }
+
 private:
   Type type_;
   eKind ekind_;
