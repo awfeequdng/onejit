@@ -47,18 +47,26 @@ Node Node::child(uint16_t i) const {
   NodeHeader header;
   uint32_t offset_or_direct;
 
+  // offset low bits can be:
+  // 0b**00 => indirect offset
+  // 0b***1 => direct CONST
+  // 0b*010 => direct VAR
+  // 0b*110 => NodeHeader
+
   if (item <= FALLTHROUGH) {
     offset_or_direct = 0;
     header = NodeHeader{Type(item), Void, 0};
-  } else if ((item & 1) == 1) {
+  } else if ((item & 1) != 0) {
     // direct Const
     offset_or_direct = item;
     header = NodeHeader{CONST, Const::parse_direct_kind(item), 0};
-  } else if ((item & 3) != 0) {
+  } else if ((item & 7) == 2) {
     // direct Var
     offset_or_direct = item;
     header = NodeHeader{VAR, Var::parse_direct_kind(item), 0};
   } else {
+    CHECK((item & 4), ==, 0); // NodeHeader - should not be here
+
     // indirect Node
     offset_or_direct = off_or_dir_ + item;
     header = NodeHeader{code_->at(offset_or_direct)};
@@ -73,6 +81,10 @@ std::ostream &operator<<(std::ostream &out, const Node &node) {
   case BREAK:
   case CONTINUE:
   case FALLTHROUGH:
+  case STMT_2:
+  case STMT_3:
+  case STMT_4:
+  case STMT_N:
   default:
     return out << to_string(t);
   case VAR:
@@ -87,13 +99,6 @@ std::ostream &operator<<(std::ostream &out, const Node &node) {
     return out << to_string(t);
   case CONST:
     return out << node.to<ConstExpr>();
-  case DEFAULT:
-  case CASE:
-  case IF:
-  case FOR:
-  case SWITCH:
-    // TODO
-    return out << to_string(t);
   }
 }
 

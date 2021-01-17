@@ -31,9 +31,10 @@
 namespace onejit {
 
 static const Chars tstring[] = {
-    "bad",     "break", "continue", "fallthrough",                    // Stmt0
-    "var",     "unary", "binary",   "tuple",       "mem",    "const", // Expr
-    "default", "case",  "if",       "for",         "switch", "?",     // Stmt[1+]
+    "bad",    "break",  "continue", "fallthrough",                 // Stmt0
+    "stmt_2", "stmt_3", "stmt_4",   "stmt_n",                      // Stmt[2+]
+    "var",    "unary",  "binary",   "tuple",       "mem", "const", // Expr
+    "?",
 };
 
 const Chars &to_string(Type t) {
@@ -43,7 +44,7 @@ const Chars &to_string(Type t) {
     i = n - 1;
   }
   return tstring[i];
-}
+} // namespace onejit
 
 std::ostream &operator<<(std::ostream &out, Type t) {
   return out << to_string(t);

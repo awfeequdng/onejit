@@ -99,18 +99,18 @@ private:
   }
 
   constexpr bool is_direct() const {
-    return (ekind_ & 0x80) == 0 && (id_.val() & 0x800000) == 0;
+    return (id_.val() & 0xE00000) == 0;
   }
 
   // useful only if is_direct() returns true
   constexpr uint32_t direct() const {
-    return 0x2 | uint32_t(ekind_ & 0x7F) << 2 | id_.val() << 9;
+    return 0x2 | uint32_t(ekind_) << 3 | id_.val() << 11;
   }
   static constexpr Kind parse_direct_kind(uint32_t data) {
-    return Kind((data >> 2) & 0x7F);
+    return Kind(data >> 3);
   }
   static constexpr Var parse_direct(uint32_t data) {
-    return Var{parse_direct_kind(data), VarId{data >> 9}};
+    return Var{parse_direct_kind(data), VarId{data >> 11}};
   }
 
   // useful only if is_direct() returns false

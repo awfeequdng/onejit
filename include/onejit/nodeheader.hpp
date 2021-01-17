@@ -41,7 +41,7 @@ public:
   }
 
   constexpr explicit NodeHeader(CodeItem item)
-      : type_{Type(item & 0xFF)}, ekind_{eKind(item >> 8)}, op_or_n_{uint16_t(item >> 16)} {
+      : type_{Type((item >> 0x4) & 0xF)}, ekind_{eKind(item >> 8)}, op_or_n_{uint16_t(item >> 16)} {
   }
 
   constexpr NodeHeader(Type type, Kind kind, uint16_t op_or_children)
@@ -61,7 +61,7 @@ public:
   }
 
   constexpr CodeItem item() const {
-    return type_ | uint32_t(ekind_) << 8 | uint32_t(op_or_n_) << 16;
+    return 0x6 | uint32_t(type_ & 0xF) << 4 | uint32_t(ekind_) << 8 | uint32_t(op_or_n_) << 16;
   }
 
   constexpr explicit operator bool() const {

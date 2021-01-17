@@ -38,20 +38,19 @@ enum Type : uint8_t {
   CONTINUE = 2,
   FALLTHROUGH = 3,
 
-  // Expr
-  VAR = 4,
-  UNARY = 5,
-  BINARY = 6,
-  TUPLE = 7,
-  MEM = 8,
-  CONST = 9,
-
   // Stmt[1+]
-  DEFAULT = 10,
-  CASE = 11,
-  IF = 12,
-  FOR = 13,
-  SWITCH = 14,
+  STMT_2 = 4, // CASE, DEFAULT: latter has child(0) = Const(Void,0)
+  STMT_3 = 5, // IF
+  STMT_4 = 6, // FOR
+  STMT_N = 7, // BLOCK, COND, SWITCH: child(0) is OpN
+
+  // Expr
+  VAR = 8,
+  UNARY = 9,
+  BINARY = 10,
+  TUPLE = 11, // CALL, RET, TUPLE_ASSIGN: child(0) is OpN
+  MEM = 12,
+  CONST = 13,
 };
 
 class Chars;
