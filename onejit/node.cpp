@@ -28,6 +28,8 @@
 #include "onejit/code.hpp"
 #include "onejit/constexpr.hpp"
 #include "onejit/stmt0.hpp"
+#include "onejit/stmt1.hpp"
+#include "onejit/stmt2.hpp"
 #include "onejit/unaryexpr.hpp"
 #include "onejit/varexpr.hpp"
 #include "onestl/chars.hpp"
@@ -105,26 +107,29 @@ std::ostream &operator<<(std::ostream &out, const Node &node) {
   const Type t = node.type();
   switch (t) {
   case STMT_0: // same as BAD
-    return out << node.to<Stmt0>();
+    return out << node.is<Stmt0>();
   case STMT_1:
+    return out << node.is<Stmt1>();
   case STMT_2:
+    return out << node.is<Stmt2>();
   case STMT_3:
   case STMT_4:
   case STMT_N:
   default:
+    // TODO
     return out << to_string(t);
   case VAR:
-    return out << node.to<VarExpr>();
+    return out << node.is<VarExpr>();
   case UNARY:
-    return out << node.to<UnaryExpr>();
+    return out << node.is<UnaryExpr>();
   case BINARY:
-    return out << node.to<BinaryExpr>();
+    return out << node.is<BinaryExpr>();
   case TUPLE:
   case MEM:
     // TODO
     return out << to_string(t);
   case CONST:
-    return out << node.to<ConstExpr>();
+    return out << node.is<ConstExpr>();
   }
 }
 
