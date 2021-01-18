@@ -27,6 +27,7 @@
 #include "onejit/binaryexpr.hpp"
 #include "onejit/code.hpp"
 #include "onejit/constexpr.hpp"
+#include "onejit/stmt0.hpp"
 #include "onejit/unaryexpr.hpp"
 #include "onejit/varexpr.hpp"
 #include "onestl/chars.hpp"
@@ -104,6 +105,7 @@ std::ostream &operator<<(std::ostream &out, const Node &node) {
   const Type t = node.type();
   switch (t) {
   case STMT_0: // same as BAD
+    return out << node.to<Stmt0>();
   case STMT_1:
   case STMT_2:
   case STMT_3:

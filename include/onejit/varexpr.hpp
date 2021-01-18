@@ -41,6 +41,13 @@ class VarExpr : public Expr {
   friend class Node;
 
 public:
+  /**
+   * construct an invalid VarExpr.
+   * exists only to allow placing VarExpr in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid VarExpr, use Func::new_var()
+   */
   constexpr VarExpr() : Base{NodeHeader{BAD, Void, 0}, 0, nullptr} {
   }
 
@@ -50,7 +57,7 @@ public:
 
   using Base::kind;
 
-  static constexpr uint16_t children() {
+  static constexpr uint32_t children() {
     return 0;
   }
 
@@ -74,11 +81,6 @@ private:
   // downcast helper
   static constexpr bool is_allowed_type(Type t) {
     return t == VAR;
-  }
-
-  // downcast helper
-  static constexpr bool is_allowed_op(uint16_t /*op*/) {
-    return true; // op is currently unused for VarExpr
   }
 
   static VarExpr create(Var var, Code *holder);

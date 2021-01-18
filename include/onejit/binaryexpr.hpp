@@ -41,6 +41,13 @@ class BinaryExpr : public Expr {
   friend class Node;
 
 public:
+  /**
+   * construct an invalid BinaryExpr.
+   * exists only to allow placing BinaryExpr in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid BinaryExpr, use Func::new_binary()
+   */
   constexpr BinaryExpr() : Base{NodeHeader{BAD, Void, 0}, BAD_OP2, nullptr} {
   }
 
@@ -54,7 +61,7 @@ public:
     return Op2(Base::op());
   }
 
-  static constexpr uint16_t children() {
+  static constexpr uint32_t children() {
     return 2;
   }
 
@@ -80,11 +87,6 @@ private:
   // downcast helper
   static constexpr bool is_allowed_type(Type t) {
     return t == BINARY;
-  }
-
-  // downcast helper
-  static constexpr bool is_allowed_op(uint16_t /*op*/) {
-    return true;
   }
 
   static BinaryExpr create(Kind kind, const Expr &left, Op2 op, const Expr &right, Code *holder);

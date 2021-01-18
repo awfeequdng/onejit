@@ -17,51 +17,38 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * stmt.hpp
+ * stmt1.cpp
  *
  *  Created on Jan 18, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_STMT_HPP
-#define ONEJIT_STMT_HPP
-
-#include <onejit/node.hpp>
-#include <onejit/opstmt.hpp>
+#include "onejit/stmt1.hpp"
+#include "onejit/code.hpp"
 
 namespace onejit {
 
-// base class of Stmt0, Stmt1, Stmt2, Stmt3, Stmt4, StmtN
-class Stmt : public Node {
-  using Base = Node;
-  friend class Node;
+// ============================  Stmt1  ========================================
 
-public:
-  constexpr Stmt() : Base{} {
-  }
+Stmt1 Stmt1::create(OpStmt1 op, const Node &child, Code *holder) {
+  const NodeHeader header{STMT_1, Void, uint16_t(op)};
+  CodeItem offset = holder->length();
 
-  static constexpr Kind kind() {
-    return Void;
+  if (!holder->add(header) || !holder->add(child, offset)) {
+    holder->truncate(offset);
+    return Stmt1{};
   }
+  return Stmt1{header, offset, holder};
+}
 
-protected:
-  constexpr Stmt(Type t, uint16_t op) : Base{NodeHeader{t, Void, op}, 0, nullptr} {
-  }
+std::ostream &operator<<(std::ostream &out, const Stmt1 &st1) {
+  return out << '(' << st1.op() << ' ' << st1.child(0) << ')';
+}
 
-  constexpr Stmt(NodeHeader header, Offset offset_or_direct, const Code *code) //
-      : Base{header, offset_or_direct, code} {
-  }
+// ============================  Default  ======================================
 
-  // downcast Node to Stmt
-  constexpr explicit Stmt(const Node &node) : Base{node} {
-  }
-
-  // downcast helper
-  static constexpr bool is_allowed_type(Type t) {
-    return t >= STMT_0 && t <= STMT_N;
-  }
-};
+Default Default::create(const Node &body, Code *holder) {
+  return Stmt1::create(DEFAULT, body, holder).is<Default>();
+}
 
 } // namespace onejit
-
-#endif // ONEJIT_STMT_HPP

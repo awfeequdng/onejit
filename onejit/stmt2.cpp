@@ -17,51 +17,39 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * stmt.hpp
+ * stmt2.cpp
  *
  *  Created on Jan 18, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_STMT_HPP
-#define ONEJIT_STMT_HPP
-
-#include <onejit/node.hpp>
-#include <onejit/opstmt.hpp>
+#include "onejit/stmt2.hpp"
+#include "onejit/code.hpp"
+#include "onejit/expr.hpp"
 
 namespace onejit {
 
-// base class of Stmt0, Stmt1, Stmt2, Stmt3, Stmt4, StmtN
-class Stmt : public Node {
-  using Base = Node;
-  friend class Node;
+// ============================  Stmt2  ========================================
 
-public:
-  constexpr Stmt() : Base{} {
-  }
+Stmt2 Stmt2::create(OpStmt2 op, const Node &child0, const Node &child1, Code *holder) {
+  const NodeHeader header{STMT_2, Void, uint16_t(op)};
+  CodeItem offset = holder->length();
 
-  static constexpr Kind kind() {
-    return Void;
+  if (!holder->add(header) || !holder->add(child0, offset) || !holder->add(child1, offset)) {
+    holder->truncate(offset);
+    return Stmt2{};
   }
+  return Stmt2{header, offset, holder};
+}
 
-protected:
-  constexpr Stmt(Type t, uint16_t op) : Base{NodeHeader{t, Void, op}, 0, nullptr} {
-  }
+std::ostream &operator<<(std::ostream &out, const Stmt2 &st2) {
+  return out << '(' << st2.op() << ' ' << st2.child(0) << ' ' << st2.child(1) << ')';
+}
 
-  constexpr Stmt(NodeHeader header, Offset offset_or_direct, const Code *code) //
-      : Base{header, offset_or_direct, code} {
-  }
+// ============================  Case  ======================================
 
-  // downcast Node to Stmt
-  constexpr explicit Stmt(const Node &node) : Base{node} {
-  }
-
-  // downcast helper
-  static constexpr bool is_allowed_type(Type t) {
-    return t >= STMT_0 && t <= STMT_N;
-  }
-};
+Case Case::create(const Expr &expr, const Node &body, Code *holder) {
+  return Stmt2::create(CASE, expr, body, holder).is<Case>();
+}
 
 } // namespace onejit
-
-#endif // ONEJIT_STMT_HPP

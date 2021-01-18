@@ -41,6 +41,13 @@ class UnaryExpr : public Expr {
   friend class Node;
 
 public:
+  /**
+   * construct an invalid UnaryExpr.
+   * exists only to allow placing UnaryExpr in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid UnaryExpr, use Func::new_unary()
+   */
   constexpr UnaryExpr() : Base{NodeHeader{BAD, Void, 0}, BAD_OP1, nullptr} {
   }
 
@@ -54,7 +61,7 @@ public:
     return Op1(Base::op());
   }
 
-  static constexpr uint16_t children() {
+  static constexpr uint32_t children() {
     return 1;
   }
 
@@ -76,12 +83,6 @@ private:
   static constexpr bool is_allowed_type(Type t) {
     return t == UNARY;
   }
-
-  // downcast helper
-  static constexpr bool is_allowed_op(uint16_t /*op*/) {
-    return true;
-  }
-
   static UnaryExpr create(Kind kind, Op1 op, const Expr &child, Code *holder);
 };
 

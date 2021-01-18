@@ -41,6 +41,13 @@ class ConstExpr : public Expr {
   friend class Node;
 
 public:
+  /**
+   * construct an invalid ConstExpr.
+   * exists only to allow placing ConstExpr in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid ConstExpr, use Func::new_const()
+   */
   constexpr ConstExpr() : Base{NodeHeader{BAD, Void, 0}, 0, nullptr} {
   }
 
@@ -50,7 +57,7 @@ public:
 
   using Base::kind;
 
-  static constexpr uint16_t children() {
+  static constexpr uint32_t children() {
     return 0;
   }
 
@@ -70,11 +77,6 @@ private:
   // downcast helper
   static constexpr bool is_allowed_type(Type t) {
     return t == CONST;
-  }
-
-  // downcast helper
-  static constexpr bool is_allowed_op(uint16_t /*op*/) {
-    return true; // op is currently unused in ConstExpr
   }
 
   static ConstExpr create(const Const &c, Code *holder);

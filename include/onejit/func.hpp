@@ -31,6 +31,9 @@
 #include <onejit/constexpr.hpp>
 #include <onejit/fwd.hpp>
 #include <onejit/op.hpp>
+#include <onejit/stmt0.hpp>
+#include <onejit/stmt1.hpp>
+#include <onejit/stmt2.hpp>
 #include <onejit/unaryexpr.hpp>
 #include <onejit/varexpr.hpp>
 #include <onestl/vector.hpp>
@@ -50,19 +53,51 @@ public:
     return holder_ && *holder_;
   }
 
-  ConstExpr new_const(const Const &c) {
-    return ConstExpr::create(c, holder_);
-  }
-
-  VarExpr new_var(Kind kind);
-
-  UnaryExpr new_unary(Kind kind, Op1 op, const Expr &arg) {
-    return UnaryExpr::create(kind, op, arg, holder_);
+  Break new_break() {
+    return Break{};
   }
 
   BinaryExpr new_binary(Kind kind, const Expr &left, Op2 op, const Expr &right) {
     return BinaryExpr::create(kind, left, op, right, holder_);
   }
+
+  Case new_case(const Expr &expr, const Node &body) {
+    return Case::create(expr, body, holder_);
+  }
+
+  ConstExpr new_const(const Const &c) {
+    return ConstExpr::create(c, holder_);
+  }
+
+  Continue new_continue() {
+    return Continue{};
+  }
+
+  Default new_default(const Node &body) {
+    return Default::create(body, holder_);
+  }
+
+  Fallthrough new_fallthrough() {
+    return Fallthrough{};
+  }
+
+  Stmt0 new_stmt0(OpStmt0 op) {
+    return Stmt0{op};
+  }
+
+  Stmt1 new_stmt1(OpStmt1 op, const Node &child) {
+    return Stmt1::create(op, child, holder_);
+  }
+
+  Stmt2 new_stmt2(OpStmt2 op, const Node &child0, const Node &child1) {
+    return Stmt2::create(op, child0, child1, holder_);
+  }
+
+  UnaryExpr new_unary(Kind kind, Op1 op, const Expr &arg) {
+    return UnaryExpr::create(kind, op, arg, holder_);
+  }
+
+  VarExpr new_var(Kind kind);
 
   Func &add(const Node &node) {
     return add(node.offset_or_direct());
