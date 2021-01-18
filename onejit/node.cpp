@@ -39,9 +39,11 @@ namespace onejit {
 
 CodeItem Node::at(Offset byte_offset) const {
   Offset offset = off_or_dir_ + byte_offset;
-  check(code_, !=, nullptr);
-  check(offset, <, code_->length());
-  return code_->at(offset);
+  if (code_ != nullptr && offset < code_->length()) {
+    return code_->at(offset);
+  } else {
+    return 0; // header of Stmt0 Bad
+  }
 }
 
 Offset Node::size() const {
@@ -83,10 +85,7 @@ Node Node::child(uint32_t i) const {
   // 0b0110 => NodeHeader
   // 0b1110 => currently unused
 
-  if (code == nullptr) {
-    // direct or invalid Node, neither has children
-    // => return an invalid node
-  } else if (item < 4) {
+  if (item < 4) {
     // special case: Stmt0 is always direct,
     // only four values exist: Bad Break Continue Fallthrough
     header = NodeHeader{Type(STMT_0), Void, uint16_t(item)};
@@ -103,7 +102,7 @@ Node Node::child(uint32_t i) const {
     offset_or_direct = off_or_dir_ + item;
     header = NodeHeader{code_->at(offset_or_direct)};
   } else {
-    // NodeHeader or tag 0b1110: invalid here,
+    // NodeHeader or tag 0b1110: should not appear here,
     // => return an invalid node
     code = nullptr;
   }
