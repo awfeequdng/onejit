@@ -49,7 +49,7 @@ void Test::run() {
 
   for (uint8_t i = kVoid; i <= kArchFlags; i++) {
     const Expr ve = func.new_var(Kind(i));
-    const Node node = func.new_binary(ve.kind(), ce, ADD, ve);
+    const Node node = func.new_binary(ve.kind(), ADD, ce, ve);
 
     std::cout << node.type() << ' ' << node.to<Expr>() << '\n';
 

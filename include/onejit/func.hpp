@@ -57,8 +57,8 @@ public:
     return Break{};
   }
 
-  BinaryExpr new_binary(Kind kind, const Expr &left, Op2 op, const Expr &right) {
-    return BinaryExpr::create(kind, left, op, right, holder_);
+  BinaryExpr new_binary(Kind kind, Op2 op, const Expr &left, const Expr &right) {
+    return BinaryExpr::create(kind, op, left, right, holder_);
   }
 
   Case new_case(const Expr &expr, const Node &body) {

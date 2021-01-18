@@ -89,7 +89,7 @@ private:
     return t == BINARY;
   }
 
-  static BinaryExpr create(Kind kind, const Expr &left, Op2 op, const Expr &right, Code *holder);
+  static BinaryExpr create(Kind kind, Op2 op, const Expr &left, const Expr &right, Code *holder);
 };
 
 std::ostream &operator<<(std::ostream &out, const BinaryExpr &be);
