@@ -68,8 +68,8 @@ void Test::run() {
   file.write(reinterpret_cast<const char *>(holder.data()), holder.length());
 
   CodeParser parser(&holder);
-  while (Node node = parser.next()) {
-    std::cout << node << '\n';
+  while (parser) {
+    std::cout << parser.next() << '\n';
   }
 }
 

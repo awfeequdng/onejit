@@ -29,6 +29,7 @@
 
 #include <ostream>
 #include <sstream>
+#include <utility>
 
 #ifdef __OPTIMIZE__
 #define check(lhs, op, rhs)
@@ -39,50 +40,42 @@
 #define CHECK(lhs, op, rhs) (((lhs) /**/ op /**/ (rhs)) ? (void)0 : CHECK_FAILED(lhs, op, rhs))
 
 #define CHECK_FAILED(lhs, op, rhs)                                                                 \
-  ::onestl::CheckFailed(lhs, rhs, #lhs, #op, #rhs, __FILE__, __LINE__).throw_error()
+  ::onestl::CheckFailed(::onestl::to_string(lhs), ::onestl::to_string(rhs), #op, #lhs, #rhs,       \
+                        __FILE__, __LINE__)                                                        \
+      .throw_error()
 
 namespace onestl {
 
 class CheckFailed {
 public:
-  template <class T1, class T2>
-  CheckFailed(const T1 &lhs, const T2 &rhs,                          //
-              const char *lstr, const char *opstr, const char *rstr, //
-              const char *file, int line)
-      : lhs_(lstr), op_(opstr), rhs_(rstr), file_(file), line_(line) {
-
-    print(lval_, lhs);
-    print(rval_, rhs);
-  }
+  CheckFailed(std::string &&lhs, std::string &&rhs,                  //
+              const char *opstr, const char *lstr, const char *rstr, //
+              const char *file, int line);
 
   void ONESTL_NORETURN throw_error() const;
 
 private:
-  template <class T> static void print(std::string &out, const T &val) {
-    std::stringstream buf;
-    buf << val;
-    out = buf.str();
-  }
-
-  template <class T> static void print(std::string &out, const T *val) {
-    std::stringstream buf;
-    buf.write("0x", 2);
-    buf << std::hex << size_t(val);
-    out = buf.str();
-  }
-
-  static void print(std::string &out, std::nullptr_t) {
-    out.assign("nullptr", 7);
-  }
-
-  std::string lval_;
-  std::string rval_;
-  const char *lhs_;
+  std::string lhs_;
+  std::string rhs_;
   const char *op_;
-  const char *rhs_;
+  const char *lstr_;
+  const char *rstr_;
   const char *file_;
   int line_;
 };
+
+std::string to_string(std::nullptr_t);
+std::string to_string(const void *val);
+
+template <class T> std::string to_string(const T *val) {
+  return to_string(static_cast<const void *>(val));
+}
+
+template <class T> std::string to_string(const T &val) {
+  std::stringstream buf;
+  buf << val;
+  return buf.str();
+}
 
 } // namespace onestl
 

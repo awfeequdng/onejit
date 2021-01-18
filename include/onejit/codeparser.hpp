@@ -26,7 +26,7 @@
 #ifndef ONEJIT_CODEPARSER_HPP
 #define ONEJIT_CODEPARSER_HPP
 
-#include <onejit/fwd.hpp>
+#include <onejit/code.hpp>
 
 namespace onejit {
 
@@ -40,6 +40,10 @@ public:
   }
 
   // ~CodeParser() = default;
+
+  constexpr explicit operator bool() const {
+    return code_ != nullptr && offset_ < code_->length();
+  }
 
   constexpr Offset tell() const {
     return offset_;

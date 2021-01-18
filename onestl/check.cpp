@@ -31,12 +31,29 @@
 
 namespace onestl {
 
+std::string to_string(std::nullptr_t) {
+  return "nullptr";
+}
+
+std::string to_string(const void *val) {
+  std::stringstream buf;
+  buf.write("0x", 2);
+  buf << std::hex << size_t(val);
+  return buf.str();
+}
+
+CheckFailed::CheckFailed(std::string &&lhs, std::string &&rhs, const char *opstr, const char *lstr,
+                         const char *rstr, const char *file, int line)
+    : lhs_(std::move(lhs)), rhs_(std::move(rhs)), op_(opstr), lstr_(lstr), rstr_(rstr), file_(file),
+      line_(line) {
+}
+
 void ONESTL_NORETURN CheckFailed::throw_error() const {
   std::stringstream buf;
   buf << Chars("check failed at ") << file_ << ':' << line_ //
-      << '\t' << lhs_ << ' ' << op_ << ' ' << rhs_          //
-      << Chars("\n\t") << lhs_ << Chars("\t= ") << lval_    //
-      << Chars("\n\t") << rhs_ << Chars("\t= ") << rval_;
+      << '\t' << lstr_ << ' ' << op_ << ' ' << rstr_        //
+      << Chars("\n\t") << lstr_ << Chars("\t= ") << lhs_    //
+      << Chars("\n\t") << rstr_ << Chars("\t= ") << rhs_;
 
   throw std::range_error(buf.str());
 }

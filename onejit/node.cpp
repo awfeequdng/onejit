@@ -38,8 +38,10 @@
 namespace onejit {
 
 CodeItem Node::at(Offset byte_offset) const {
-  check(code_, !=, nullptr);
-  return code_->at(off_or_dir_ + byte_offset);
+  Offset offset = off_or_dir_ + byte_offset;
+  CHECK(code_, !=, nullptr);
+  CHECK(offset, <, code_->length());
+  return code_->at(offset);
 }
 
 Offset Node::size() const {
@@ -66,7 +68,7 @@ uint32_t Node::children() const {
 }
 
 Node Node::child(uint32_t i) const {
-  check(i, <, children());
+  CHECK(i, <, children());
   // skip NodeHeader and child count
   const CodeItem item = at(sizeof(CodeItem) * (size_t(i) + (is_list(type()) ? 2 : 1)));
 
