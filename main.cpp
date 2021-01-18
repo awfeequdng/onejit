@@ -69,7 +69,8 @@ void Test::run() {
 
   CodeParser parser(&holder);
   while (parser) {
-    std::cout << parser.next() << '\n';
+    Node node = parser.next();
+    std::cout << node.type() << ' ' << node << '\n';
   }
 }
 
