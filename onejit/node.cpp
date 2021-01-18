@@ -39,8 +39,8 @@ namespace onejit {
 
 CodeItem Node::at(Offset byte_offset) const {
   Offset offset = off_or_dir_ + byte_offset;
-  CHECK(code_, !=, nullptr);
-  CHECK(offset, <, code_->length());
+  check(code_, !=, nullptr);
+  check(offset, <, code_->length());
   return code_->at(offset);
 }
 
@@ -68,12 +68,13 @@ uint32_t Node::children() const {
 }
 
 Node Node::child(uint32_t i) const {
-  CHECK(i, <, children());
+  check(i, <, children());
   // skip NodeHeader and child count
   const CodeItem item = at(sizeof(CodeItem) * (size_t(i) + (is_list(type()) ? 2 : 1)));
 
   NodeHeader header;
-  uint32_t offset_or_direct;
+  uint32_t offset_or_direct = 0;
+  const Code *code = code_;
 
   // item low bits can be:
   // 0b***1 => direct CONST
@@ -82,10 +83,12 @@ Node Node::child(uint32_t i) const {
   // 0b0110 => NodeHeader
   // 0b1110 => currently unused
 
-  if (item < 4) {
+  if (code == nullptr) {
+    // direct or invalid Node, neither has children
+    // => return an invalid node
+  } else if (item < 4) {
     // special case: Stmt0 is always direct,
     // only four values exist: Bad Break Continue Fallthrough
-    offset_or_direct = 0;
     header = NodeHeader{Type(STMT_0), Void, uint16_t(item)};
   } else if ((item & 1) != 0) {
     // direct Const
@@ -95,14 +98,16 @@ Node Node::child(uint32_t i) const {
     // direct Var
     offset_or_direct = item;
     header = NodeHeader{VAR, Var::parse_direct_kind(item), 0};
-  } else {
-    // only indirect Node expected here
-    CHECK((item & 4), ==, 0);
-
+  } else if ((item & 4) == 0) {
+    // indirect Node
     offset_or_direct = off_or_dir_ + item;
     header = NodeHeader{code_->at(offset_or_direct)};
+  } else {
+    // NodeHeader or tag 0b1110: invalid here,
+    // => return an invalid node
+    code = nullptr;
   }
-  return Node{header, offset_or_direct, code_};
+  return Node{header, offset_or_direct, code};
 }
 
 std::ostream &operator<<(std::ostream &out, const Node &node) {
