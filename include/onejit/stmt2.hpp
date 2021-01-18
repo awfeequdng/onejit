@@ -35,6 +35,7 @@ namespace onejit {
 class Stmt2 : public Stmt {
   using Base = Stmt;
   friend class Node;
+  friend class Func;
 
 public:
   constexpr Stmt2() : Base{} {
