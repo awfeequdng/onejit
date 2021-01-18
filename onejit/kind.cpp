@@ -24,7 +24,7 @@
  */
 
 #include "onejit/kind.hpp"
-#include "onejit/chars.hpp"
+#include "onestl/chars.hpp"
 
 #define N_OF(array) (sizeof(array) / sizeof(array[0]))
 
@@ -35,7 +35,7 @@ static const Chars kstring[] = {
     "int8",    "int16",     "int32",  "int64",  //
     "uint8",   "uint16",    "uint32", "uint64", //
     "float32", "float64",   "?",                //
-    "ptr",     "archflags",     
+    "ptr",     "archflags",
 };
 
 static const Chars kstringsuffix[] = {

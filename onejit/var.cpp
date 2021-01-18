@@ -24,7 +24,7 @@
  */
 
 #include "onejit/var.hpp"
-#include "onejit/chars.hpp"
+#include "onestl/chars.hpp"
 
 #include <ios>
 #include <ostream>
@@ -36,7 +36,7 @@ std::ostream &operator<<(std::ostream &out, VarId id) {
 }
 
 std::ostream &operator<<(std::ostream &out, Var v) {
-  return out << Chars(" var") << std::hex << v.id().val() << std::dec << '_'
+  return out << Chars("var") << std::hex << v.id().val() << std::dec << '_'
              << v.kind().stringsuffix();
 }
 

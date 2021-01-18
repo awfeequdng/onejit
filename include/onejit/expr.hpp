@@ -41,7 +41,7 @@ public:
   }
 
 protected:
-  constexpr Expr(NodeHeader header, Offset offset_or_direct, Code *code) //
+  constexpr Expr(NodeHeader header, Offset offset_or_direct, const Code *code) //
       : Base{header, offset_or_direct, code} {
   }
 

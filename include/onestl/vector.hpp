@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - Tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -22,16 +22,16 @@
  *  Created on Jan 11, 2020
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_VECTOR_HPP
-#define ONEJIT_VECTOR_HPP
+#ifndef ONESTL_VECTOR_HPP
+#define ONESTL_VECTOR_HPP
 
-#include <onejit/mem.hpp>
-#include <onejit/span.hpp>
+#include <onestl/mem.hpp>
+#include <onestl/span.hpp>
 
 #include <cstdint>     // uint32_t
 #include <type_traits> // std::is_trivial<T>
 
-namespace onejit {
+namespace onestl {
 
 // dynamically resizeable vector of arbitrary type T, with two constraints:
 // 1. T must have trivial copy constructor, destructor and assignment operator
@@ -78,7 +78,7 @@ protected:
     return reserve(n >= cap2 ? n : cap2);
   }
 
-  bool ONEJIT_NOINLINE resize0(size_t n, bool zerofill) {
+  bool ONESTL_NOINLINE resize0(size_t n, bool zerofill) {
     if (!ensure_capacity(n)) {
       return false;
     }
@@ -138,7 +138,7 @@ public:
   using Base::span;
   using Base::view;
 
-  bool ONEJIT_NOINLINE dup(const T *addr, size_t n) {
+  bool ONESTL_NOINLINE dup(const T *addr, size_t n) {
     if (!ensure_capacity(n)) {
       return false;
     }
@@ -215,11 +215,11 @@ template <class T> void swap(Vector<T> &left, Vector<T> &right) {
   left.swap(right);
 }
 
-extern template class Vector<char>;
-extern template class Vector<uint32_t>;
+extern template class Vector<char>;     // defined in onestl/string.cpp
+extern template class Vector<uint32_t>; // defined in onestl/vector.cpp
 
 typedef Vector<char> CharVec;
 
-} // namespace onejit
+} // namespace onestl
 
-#endif /* ONEJIT_VECTOR_HPP */
+#endif /* ONESTL_VECTOR_HPP */

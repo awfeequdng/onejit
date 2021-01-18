@@ -24,27 +24,43 @@
  */
 
 #include "onejit/type.hpp"
-#include "onejit/chars.hpp"
+#include "onestl/chars.hpp"
 
 #include <ostream>
 
+#define N_OF(array) (sizeof(array) / sizeof(array[0]))
+
 namespace onejit {
 
+static const int8_t tchildren[] = {
+    0,  1, 2, 3, 4,  -1, // Stmt*
+    0,  0, 1, 2, -1, 0,  // Expr
+    -1,
+};
+
 static const Chars tstring[] = {
-    "bad",    "break",  "continue", "fallthrough",                 // Stmt0
-    "stmt_2", "stmt_3", "stmt_4",   "stmt_n",                      // Stmt[2+]
-    "var",    "unary",  "binary",   "tuple",       "mem", "const", // Expr
+    "stmt0", "stmt1", "stmt2", "stmt3",  "stmt4", "stmtn", // Stmt*
+    "var",   "mem",   "unary", "binary", "tuple", "const", // *Expr
     "?",
 };
 
+uint32_t to_children(Type t) {
+  const uint8_t n = N_OF(tchildren);
+  uint8_t i = uint8_t(t);
+  if (i >= n) {
+    i = n - 1;
+  }
+  return (uint32_t)tchildren[i];
+}
+
 const Chars &to_string(Type t) {
-  const uint8_t n = sizeof(tstring) / sizeof(tstring[0]);
+  const uint8_t n = N_OF(tstring);
   uint8_t i = uint8_t(t);
   if (i >= n) {
     i = n - 1;
   }
   return tstring[i];
-} // namespace onejit
+}
 
 std::ostream &operator<<(std::ostream &out, Type t) {
   return out << to_string(t);

@@ -17,32 +17,45 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * op1.hpp
+ * codeparser.hpp
  *
- *  Created on Jan 09, 2020
+ *  Created on Jan 18, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_OP1_HPP
-#define ONEJIT_OP1_HPP
+#ifndef ONEJIT_CODEPARSER_HPP
+#define ONEJIT_CODEPARSER_HPP
 
-#include <cstdint> // uint8_t
-#include <iosfwd>  // std::ostream
+#include <onejit/fwd.hpp>
 
 namespace onejit {
 
-enum Op1 : uint16_t {
-  BAD_OP1 = 0,
-  XOR1 = 1,
-  NOT1 = 2,
-  GOTO = 3,
+class CodeParser {
+
+public:
+  constexpr CodeParser() : code_(nullptr), offset_(0) {
+  }
+
+  constexpr explicit CodeParser(const Code *code) : code_(code), offset_(0) {
+  }
+
+  // ~CodeParser() = default;
+
+  constexpr Offset tell() const {
+    return offset_;
+  }
+
+  void seek(Offset to) {
+    offset_ = to;
+  }
+
+  Node next();
+
+private:
+  const Code *code_;
+  Offset offset_;
 };
-
-class Chars;
-const Chars &to_string(Op1 op);
-
-std::ostream &operator<<(std::ostream &out, Op1 op);
 
 } // namespace onejit
 
-#endif // ONEJIT_OP1_HPP
+#endif // ONEJIT_CODEPARSER_HPP

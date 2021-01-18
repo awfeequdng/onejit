@@ -23,9 +23,11 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/chars.hpp>
+#include <onejit/codeparser.hpp>
 #include <onejit/func.hpp>
+#include <onestl/chars.hpp>
 
+#include <fstream>
 #include <iostream>
 
 namespace onejit {
@@ -47,9 +49,8 @@ void Test::run() {
 
   for (uint8_t i = kVoid; i <= kArchFlags; i++) {
     const Expr ve = func.new_var(Kind(i));
-    std::cout << ve.type() << ' ' << ve.to<Node>() << '\n';
-
     const Node node = func.new_binary(ve.kind(), ce, ADD, ve);
+
     std::cout << node.type() << ' ' << node.to<Expr>() << '\n';
 
     const Var var1 = ve.to<VarExpr>().var();
@@ -61,7 +62,15 @@ void Test::run() {
   for (const CodeItem item : holder) {
     std::cout << Chars("0x") << item << ' ';
   }
-  std::cout << '\n';
+  std::cout << '\n' << std::dec;
+
+  std::ofstream file("dump.1jit", std::ios::out | std::ios::trunc);
+  file.write(reinterpret_cast<const char *>(holder.data()), holder.length());
+
+  CodeParser parser(&holder);
+  while (Node node = parser.next()) {
+    std::cout << node << '\n';
+  }
 }
 
 } // namespace onejit

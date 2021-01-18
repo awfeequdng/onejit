@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - Tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -22,16 +22,16 @@
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_VIEW_HPP
-#define ONEJIT_VIEW_HPP
+#ifndef ONESTL_VIEW_HPP
+#define ONESTL_VIEW_HPP
 
-#include <onejit/check.hpp>
-#include <onejit/fwd.hpp>
+#include <onestl/check.hpp>
+#include <onestl/fwd.hpp>
 
 #include <cstddef> // size_t
 #include <cstring> // memcmp()
 
-namespace onejit {
+namespace onestl {
 
 /** read-only view of T[] */
 template <class T> class View {
@@ -106,8 +106,7 @@ public:
     return data_;
   }
 
-  const T *end() const {
-    check(data_, ||, size_ == 0);
+  constexpr const T *end() const {
     return data_ + size_;
   }
 
@@ -137,7 +136,7 @@ public:
   template <class VEC> bool operator==(const VEC &other) const {
     static_assert(
         sizeof(value_type) == sizeof(typename VEC::value_type),
-        "onejit::View<T>::operator==(VEC) mismatched sizes of value_type and VEC::value_type");
+        "onestl::View<T>::operator==(VEC) mismatched sizes of value_type and VEC::value_type");
 
     return size_ == other.size() && !std::memcmp(data(), other.data(), size_ * sizeof(value_type));
   }
@@ -147,6 +146,6 @@ template <class T> void swap(View<T> &left, View<T> &right) {
   left.swap(right);
 }
 
-} // namespace onejit
+} // namespace onestl
 
-#endif /* ONEJIT_VIEW_HPP */
+#endif /* ONESTL_VIEW_HPP */

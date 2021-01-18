@@ -626,6 +626,7 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+LIBONESTL
 LIBONEJIT
 EGREP
 GREP
@@ -3917,8 +3918,10 @@ done
 
 LIBONEJIT='$(top_builddir)/onejit/libonejit.a'
 
+LIBONESTL='$(top_builddir)/onestl/libonestl.a'
 
-ac_config_files="$ac_config_files Makefile onejit/Makefile"
+
+ac_config_files="$ac_config_files Makefile onejit/Makefile onestl/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -4650,6 +4653,7 @@ do
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "onejit/Makefile") CONFIG_FILES="$CONFIG_FILES onejit/Makefile" ;;
+    "onestl/Makefile") CONFIG_FILES="$CONFIG_FILES onestl/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

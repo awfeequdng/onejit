@@ -51,7 +51,8 @@ done
 # Checks for library functions.
 
 AC_SUBST(LIBONEJIT, '$(top_builddir)/onejit/libonejit.a')
+AC_SUBST(LIBONESTL, '$(top_builddir)/onestl/libonestl.a')
 
-AC_CONFIG_FILES([Makefile onejit/Makefile])
+AC_CONFIG_FILES([Makefile onejit/Makefile onestl/Makefile])
 
 AC_OUTPUT

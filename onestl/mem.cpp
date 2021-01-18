@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - Tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -17,28 +17,35 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * check.cpp
+ * mem.cpp
  *
- *  Created on Jan 14, 2020
+ *  Created on Jan 11, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/check.hpp"
-#include "onejit/chars.hpp"
+#include "onestl/mem.hpp"
 
-#include <stdexcept>
-#include <string>
+#include <cstdlib>
+#include <cstring>
 
-namespace onejit {
+namespace onestl {
+namespace mem {
 
-void ONEJIT_NORETURN CheckFailed::throw_error() const {
-  std::stringstream buf;
-  buf << Chars("check failed at ") << file_ << ':' << line_ //
-      << '\t' << lhs_ << ' ' << op_ << ' ' << rhs_          //
-      << Chars("\n\t") << lhs_ << Chars("\t= ") << lval_    //
-      << Chars("\n\t") << rhs_ << Chars("\t= ") << rval_;
-
-  throw std::range_error(buf.str());
+void *alloc_bytes(size_t n_bytes) throw() {
+  return std::malloc(n_bytes);
 }
 
-} // namespace onejit
+void clear_bytes(void *addr, size_t n_bytes) throw() {
+  std::memset(addr, 0, n_bytes);
+}
+
+void free_bytes(void *addr) throw() {
+  std::free(addr);
+}
+
+void *realloc_bytes(void *addr, size_t n_bytes) throw() {
+  return std::realloc(addr, n_bytes);
+}
+
+} // namespace mem
+} // namespace onestl

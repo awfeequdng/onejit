@@ -38,7 +38,7 @@ Const ConstExpr::constant() const {
 
 ConstExpr ConstExpr::create(const Const &c, Code *holder) {
   const NodeHeader header{CONST, c.kind(), 0};
-  CodeItem off_or_dir = holder->offset();
+  CodeItem off_or_dir = holder->length();
 
   if (c.is_direct()) {
     // must match Node::child()

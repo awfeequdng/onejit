@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - Tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -22,14 +22,14 @@
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_CHARS_HPP
-#define ONEJIT_CHARS_HPP
+#ifndef ONESTL_CHARS_HPP
+#define ONESTL_CHARS_HPP
 
-#include <onejit/view.hpp>
+#include <onestl/view.hpp>
 
 #include <ostream>
 
-namespace onejit {
+namespace onestl {
 
 /** read-only view of char[] */
 class Chars : public View<char> {
@@ -56,6 +56,6 @@ inline std::ostream &operator<<(std::ostream &out, Chars chars) {
   return out.write(chars.data(), chars.size());
 }
 
-} // namespace onejit
+} // namespace onestl
 
-#endif /* ONEJIT_CHARS_HPP */
+#endif /* ONESTL_CHARS_HPP */

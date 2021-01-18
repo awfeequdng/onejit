@@ -17,67 +17,23 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * op2.hpp
+ * bytes.hpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
+#ifndef ONEJIT_BYTES_HPP
+#define ONEJIT_BYTES_HPP
 
-#ifndef ONEJIT_OP2_HPP
-#define ONEJIT_OP2_HPP
+#include <onestl/view.hpp>
 
 #include <cstdint> // uint8_t
-#include <iosfwd>  // std::ostream
 
 namespace onejit {
 
-// intentionally match Go go/token.Token values
-enum Op2 : uint16_t {
-  BAD_OP2 = 0,
-  ADD = 12, // +
-  SUB,      // -
-  MUL,      // *
-  QUO,      // /
-  REM,      // %
-
-  AND,     // &
-  OR,      // |
-  XOR,     // ^
-  SHL,     // <<
-  SHR,     // >>
-  AND_NOT, // &^
-
-  ADD_ASSIGN, // +=
-  SUB_ASSIGN, // -=
-  MUL_ASSIGN, // *=
-  QUO_ASSIGN, // /=
-  REM_ASSIGN, // %=
-
-  AND_ASSIGN,     // &=
-  OR_ASSIGN,      // |=
-  XOR_ASSIGN,     // ^=
-  SHL_ASSIGN,     // <<=
-  SHR_ASSIGN,     // >>=
-  AND_NOT_ASSIGN, // &^=
-
-  LAND, // &&
-  LOR,  // ||
-
-  EQL = LOR + 4, // ==
-  LSS,           // <
-  GTR,           // >
-  ASSIGN,        // =
-
-  NEQ = ASSIGN + 2, // !=
-  LEQ,              // <=
-  GEQ,              // >=
-};
-
-class Chars;
-const Chars &to_string(Op2 op);
-
-std::ostream &operator<<(std::ostream &out, Op2 op);
+/** read-only view of uint8_t[] */
+typedef View<uint8_t> Bytes;
 
 } // namespace onejit
 
-#endif // ONEJIT_OP2_HPP
+#endif /* ONEJIT_BYTES_HPP */

@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -17,37 +17,21 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * op2.hpp
+ * string.cpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/op2.hpp"
-#include "onejit/chars.hpp"
+#include "onestl/string.hpp"
 
 #include <ostream>
 
-namespace onejit {
+namespace onestl {
 
-static const Chars op2string[] = {
-    "+",  "-",  "*",  "/",  "%",  "&",  "|",  "^",  "<<",  ">>",  "&^",  //
-    "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>=", "&^=", //
-    "&&", "||", "?",  "?",  "?",                                         //
-    "==", "<",  ">",  "=",  "?",                                         //
-    "!=", "<=", ">=",                                                    //
-};
+template class Vector<char>;
 
-const Chars &to_string(Op2 op) {
-  uint8_t i = LOR + 1; // "?"
-  if (op >= ADD && op <= GEQ) {
-    i = op - ADD;
-  }
-  return op2string[i];
+String::~String() {
 }
 
-std::ostream &operator<<(std::ostream &out, Op2 op) {
-  return out << to_string(op);
-}
-
-} // namespace onejit
+} // namespace onestl

@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - Tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -17,31 +17,36 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * opn.hpp
+ * fwd.hpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_OPN_HPP
-#define ONEJIT_OPN_HPP
+#ifndef ONESTL_FWD_HPP
+#define ONESTL_FWD_HPP
 
-#include <cstdint> // uint8_t
-#include <iosfwd>  // std::ostream
+#include <cstdint> // uint*_t
 
-namespace onejit {
+#ifdef __GNUC__
+#define ONESTL_NOINLINE __attribute__((noinline))
+#define ONESTL_NORETURN __attribute__((noreturn))
+#else
+#define ONESTL_NOINLINE
+#define ONESTL_NORETURN
+#endif
 
-// intentionally match Go go/token.Token values
-enum OpN : uint16_t {
-  CALL = 54, // RPAREN
-  RETURN = 80,
-};
+namespace onestl {
 
 class Chars;
-const Chars &to_string(OpN op);
+template <class T> class Span;
+class String;
+template <class T> class Vector;
+template <class T> class View;
 
-std::ostream &operator<<(std::ostream &out, OpN op);
+typedef View<uint8_t> Bytes;
+typedef Span<char> CharSpan;
 
-} // namespace onejit
+} // namespace onestl
 
-#endif // ONEJIT_OPN_HPP
+#endif // ONESTL_FWD_HPP

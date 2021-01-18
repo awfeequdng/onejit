@@ -1,4 +1,5 @@
 *~
+*.1jit
 *.a
 *.debug
 *.dll

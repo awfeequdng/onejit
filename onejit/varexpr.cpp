@@ -38,7 +38,7 @@ Var VarExpr::var() const {
 
 VarExpr VarExpr::create(Var var, Code *holder) {
   const NodeHeader header{VAR, var.kind(), 0};
-  CodeItem off_or_dir = holder->offset();
+  CodeItem off_or_dir = holder->length();
 
   if (var.is_direct()) {
     // must match Node::child()

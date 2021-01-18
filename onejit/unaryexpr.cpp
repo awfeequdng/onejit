@@ -30,7 +30,7 @@ namespace onejit {
 
 UnaryExpr UnaryExpr::create(Kind kind, Op1 op, const Expr &child, Code *holder) {
   const NodeHeader header{UNARY, kind, uint16_t(op)};
-  CodeItem offset = holder->offset();
+  CodeItem offset = holder->length();
 
   if (!holder->add(header) || !holder->add(child, offset)) {
     holder->truncate(offset);

@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - Tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -17,40 +17,28 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * opn.hpp
+ * check.cpp
  *
- *  Created on Jan 09, 2020
+ *  Created on Jan 14, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/opn.hpp"
-#include "onejit/chars.hpp"
+#include "onestl/check.hpp"
+#include "onestl/chars.hpp"
 
-#include <ostream>
+#include <stdexcept>
+#include <string>
 
-namespace onejit {
+namespace onestl {
 
-static const Chars opnstring[] = {
-    "?",
-    "call",
-    "return",
-};
+void ONESTL_NORETURN CheckFailed::throw_error() const {
+  std::stringstream buf;
+  buf << Chars("check failed at ") << file_ << ':' << line_ //
+      << '\t' << lhs_ << ' ' << op_ << ' ' << rhs_          //
+      << Chars("\n\t") << lhs_ << Chars("\t= ") << lval_    //
+      << Chars("\n\t") << rhs_ << Chars("\t= ") << rval_;
 
-const Chars &to_string(OpN op) {
-  uint8_t i = 0; // "?"
-  switch (op) {
-  case CALL:
-    i = 1;
-    break;
-  case RETURN:
-    i = 2;
-    break;
-  }
-  return opnstring[i];
+  throw std::range_error(buf.str());
 }
 
-std::ostream &operator<<(std::ostream &out, OpN op) {
-  return out << to_string(op);
-}
-
-} // namespace onejit
+} // namespace onestl

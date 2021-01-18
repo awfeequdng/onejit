@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -17,23 +17,18 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * bytes.hpp
+ * chars.cpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_BYTES_HPP
-#define ONEJIT_BYTES_HPP
 
-#include <onejit/view.hpp>
+#include "onestl/chars.hpp"
 
-#include <cstdint> // uint8_t
+#include <ostream>
 
-namespace onejit {
+namespace onestl {
 
-/** read-only view of uint8_t[] */
-typedef View<uint8_t> Bytes;
+// nothing to do
 
-} // namespace onejit
-
-#endif /* ONEJIT_BYTES_HPP */
+} // namespace onestl

@@ -24,7 +24,7 @@
  */
 
 #include "onejit/archid.hpp"
-#include "onejit/chars.hpp"
+#include "onestl/chars.hpp"
 
 #include <ostream>
 

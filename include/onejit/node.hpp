@@ -26,7 +26,7 @@
 #ifndef ONEJIT_NODE_HPP
 #define ONEJIT_NODE_HPP
 
-#include <onejit/check.hpp>
+#include <onestl/check.hpp>
 #include <onejit/nodeheader.hpp>
 
 #include <iosfwd>
@@ -38,6 +38,7 @@ namespace onejit {
 class Node {
 
   friend class Code;
+  friend class CodeParser;
   friend class ConstExpr;
   friend class VarExpr;
   friend class Func;
@@ -62,15 +63,19 @@ public:
     return !header_;
   }
 
-  // unified tree API: get number of children nodes
-  constexpr uint16_t children() const {
-    return is_direct() || type() == VAR || type() == CONST
-               ? 0
-               : type() == UNARY ? 1 : type() == BINARY ? 2 : header_.op_or_children();
+  // return Node length, in bytes
+  Offset length() const {
+    return size() * sizeof(CodeItem);
   }
 
+  // return Node length, in CodeItems
+  Offset size() const;
+
+  // unified tree API: get number of children nodes
+  uint32_t children() const;
+
   // unified tree API: get i-th child node
-  Node child(uint16_t i) const;
+  Node child(uint32_t i) const;
 
   // try to downcast Node to T. return T{} if fails.
   template <class T> constexpr T is() const {
@@ -83,7 +88,7 @@ public:
   }
 
 protected:
-  constexpr Node(NodeHeader header, CodeItem offset_or_direct, Code *code)
+  constexpr Node(NodeHeader header, CodeItem offset_or_direct, const Code *code)
       : header_{header}, off_or_dir_{offset_or_direct}, code_{code} {
   }
 
@@ -100,7 +105,7 @@ protected:
     return off_or_dir_;
   }
 
-  constexpr Code *code() const {
+  constexpr const Code *code() const {
     return code_;
   }
 
@@ -114,7 +119,7 @@ protected:
 private:
   NodeHeader header_;
   CodeItem off_or_dir_;
-  Code *code_;
+  const Code *code_;
 };
 
 std::ostream &operator<<(std::ostream &out, const Node &node);

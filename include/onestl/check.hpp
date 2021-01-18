@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - Tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -22,10 +22,10 @@
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_CHECK_HPP
-#define ONEJIT_CHECK_HPP
+#ifndef ONESTL_CHECK_HPP
+#define ONESTL_CHECK_HPP
 
-#include <onejit/fwd.hpp>
+#include <onestl/fwd.hpp>
 
 #include <ostream>
 #include <sstream>
@@ -39,9 +39,9 @@
 #define CHECK(lhs, op, rhs) (((lhs) /**/ op /**/ (rhs)) ? (void)0 : CHECK_FAILED(lhs, op, rhs))
 
 #define CHECK_FAILED(lhs, op, rhs)                                                                 \
-  ::onejit::CheckFailed(lhs, rhs, #lhs, #op, #rhs, __FILE__, __LINE__).throw_error()
+  ::onestl::CheckFailed(lhs, rhs, #lhs, #op, #rhs, __FILE__, __LINE__).throw_error()
 
-namespace onejit {
+namespace onestl {
 
 class CheckFailed {
 public:
@@ -55,7 +55,7 @@ public:
     print(rval_, rhs);
   }
 
-  void ONEJIT_NORETURN throw_error() const;
+  void ONESTL_NORETURN throw_error() const;
 
 private:
   template <class T> static void print(std::string &out, const T &val) {
@@ -84,6 +84,6 @@ private:
   int line_;
 };
 
-} // namespace onejit
+} // namespace onestl
 
-#endif /* ONEJIT_CHECK_HPP */
+#endif /* ONESTL_CHECK_HPP */

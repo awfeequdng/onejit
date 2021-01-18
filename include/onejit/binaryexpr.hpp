@@ -27,7 +27,7 @@
 #define ONEJIT_BINARYEXPR_HPP
 
 #include <onejit/expr.hpp>
-#include <onejit/op2.hpp>
+#include <onejit/op.hpp>
 
 #include <iosfwd>
 
@@ -51,7 +51,7 @@ public:
   using Base::kind;
 
   constexpr Op2 op() const {
-    return Op2(header().op_or_children());
+    return Op2(header().op());
   }
 
   static constexpr uint16_t children() {
@@ -69,7 +69,7 @@ public:
   }
 
 private:
-  constexpr BinaryExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
+  constexpr BinaryExpr(NodeHeader header, Offset offset_or_direct, const Code *code) //
       : Base{header, offset_or_direct, code} {
   }
 

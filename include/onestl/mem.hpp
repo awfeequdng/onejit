@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - Tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -22,13 +22,13 @@
  *  Created on Jan 11, 2020
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_MEM_HPP
-#define ONEJIT_MEM_HPP
+#ifndef ONESTL_MEM_HPP
+#define ONESTL_MEM_HPP
 
 #include <cstddef> // size_t
 #include <utility> // std::move()
 
-namespace onejit {
+namespace onestl {
 namespace mem {
 
 void *alloc_bytes(size_t n_bytes) throw();
@@ -52,13 +52,13 @@ template <class T> T *realloc(T *addr, size_t n_elements) throw() {
   return reinterpret_cast<T *>(realloc_bytes(addr, n_elements * sizeof(T)));
 }
 
-template<class T> void swap(T &a, T &b) {
+template <class T> void swap(T &a, T &b) {
   T tmp = std::move(a);
   a = std::move(b);
   b = std::move(tmp);
 }
 
 } // namespace mem
-} // namespace onejit
+} // namespace onestl
 
-#endif /* ONEJIT_MEM_HPP */
+#endif /* ONESTL_MEM_HPP */

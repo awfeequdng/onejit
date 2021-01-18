@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -22,15 +22,15 @@
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_STRING_HPP
-#define ONEJIT_STRING_HPP
+#ifndef ONESTL_STRING_HPP
+#define ONESTL_STRING_HPP
 
-#include <onejit/chars.hpp>
-#include <onejit/vector.hpp>
+#include <onestl/chars.hpp>
+#include <onestl/vector.hpp>
 
 #include <ostream>
 
-namespace onejit {
+namespace onestl {
 
 /** resizeable vector of char */
 class String : public Vector<char> {
@@ -70,6 +70,6 @@ inline std::ostream &operator<<(std::ostream &out, const String &str) {
   return out.write(str.data(), str.size());
 }
 
-} // namespace onejit
+} // namespace onestl
 
-#endif /* ONEJIT_STRING_HPP */
+#endif /* ONESTL_STRING_HPP */

@@ -26,12 +26,12 @@
 #ifndef ONEJIT_ARCHID_HPP
 #define ONEJIT_ARCHID_HPP
 
+#include <onejit/fwd.hpp>
+
 #include <cstdint> // uint8_t
 #include <iosfwd>
 
 namespace onejit {
-
-class Chars;
 
 class ArchId {
 public:

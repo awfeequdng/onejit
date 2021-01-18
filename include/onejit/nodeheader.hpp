@@ -37,15 +37,15 @@ namespace onejit {
 class NodeHeader {
 
 public:
-  constexpr NodeHeader() : type_{BAD}, ekind_{kBad}, op_or_n_{0} {
+  constexpr NodeHeader() : type_{BAD}, ekind_{kBad}, op_{0} {
   }
 
   constexpr explicit NodeHeader(CodeItem item)
-      : type_{Type((item >> 0x4) & 0xF)}, ekind_{eKind(item >> 8)}, op_or_n_{uint16_t(item >> 16)} {
+      : type_{Type((item >> 0x4) & 0xF)}, ekind_{eKind(item >> 8)}, op_{uint16_t(item >> 16)} {
   }
 
-  constexpr NodeHeader(Type type, Kind kind, uint16_t op_or_children)
-      : type_{type}, ekind_{kind.val()}, op_or_n_{op_or_children} {
+  constexpr NodeHeader(Type type, Kind kind, uint16_t op)
+      : type_{type}, ekind_{kind.val()}, op_{op} {
   }
 
   constexpr Type type() const {
@@ -56,12 +56,12 @@ public:
     return Kind{ekind_};
   }
 
-  constexpr uint16_t op_or_children() const {
-    return op_or_n_;
+  constexpr uint16_t op() const {
+    return op_;
   }
 
   constexpr CodeItem item() const {
-    return 0x6 | uint32_t(type_ & 0xF) << 4 | uint32_t(ekind_) << 8 | uint32_t(op_or_n_) << 16;
+    return 0x6 | uint32_t(type_ & 0xF) << 4 | uint32_t(ekind_) << 8 | uint32_t(op_) << 16;
   }
 
   constexpr explicit operator bool() const {
@@ -75,7 +75,7 @@ public:
 private:
   Type type_;
   eKind ekind_;
-  uint16_t op_or_n_;
+  uint16_t op_;
 };
 
 } // namespace onejit

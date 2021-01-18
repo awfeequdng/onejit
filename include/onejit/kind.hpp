@@ -34,8 +34,6 @@
 
 namespace onejit {
 
-class Chars;
-
 enum eKind : uint8_t {
   kBad = 0,
   kVoid = 1,
@@ -80,6 +78,16 @@ public:
 
   constexpr SimdN simdn() const {
     return SimdN::fromlog2(val_ >> 4);
+  }
+
+  // return a new Kind with specified SimdN repetitions
+  constexpr Kind simdn(SimdN simd_n) const {
+    return Kind{val_, simd_n};
+  }
+
+  // return a new Kind without SimdN repetitions
+  constexpr Kind nosimd() const {
+    return Kind{uint8_t(val_ & 0xF)};
   }
 
   Group group() const;

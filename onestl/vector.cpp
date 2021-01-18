@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -17,18 +17,16 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * chars.cpp
+ * vector.cpp
  *
- *  Created on Jan 09, 2020
+ *  Created on Jan 12, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/chars.hpp"
+#include "onestl/vector.hpp"
 
-#include <ostream>
+namespace onestl {
 
-namespace onejit {
+template class Vector<uint32_t>;
 
-// nothing to do
-
-} // namespace onejit
+} // namespace onestl

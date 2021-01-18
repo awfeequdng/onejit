@@ -61,7 +61,7 @@ public:
   }
 
 private:
-  constexpr VarExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
+  constexpr VarExpr(NodeHeader header, Offset offset_or_direct, const Code *code) //
       : Base{header, offset_or_direct, code} {
   }
 

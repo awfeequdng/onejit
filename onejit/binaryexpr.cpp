@@ -31,7 +31,7 @@ namespace onejit {
 BinaryExpr BinaryExpr::create(Kind kind, const Expr &left, Op2 op, const Expr &right,
                               Code *holder) {
   const NodeHeader header{BINARY, kind, uint16_t(op)};
-  CodeItem offset = holder->offset();
+  CodeItem offset = holder->length();
 
   if (!holder->add(header) || !holder->add(left, offset) || !holder->add(right, offset)) {
     holder->truncate(offset);

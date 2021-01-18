@@ -17,16 +17,25 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * vector.cpp
+ * codeparser.cpp
  *
- *  Created on Jan 12, 2020
+ *  Created on Jan 18, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/vector.hpp"
+#include "onejit/codeparser.hpp"
+#include "onejit/code.hpp"
+#include "onejit/node.hpp"
 
 namespace onejit {
 
-template class Vector<uint32_t>;
+Node CodeParser::next() {
+  if (offset_ >= code_->length()) {
+    return Node{};
+  }
+  Node node{NodeHeader{code_->at(offset_)}, offset_, code_};
+  offset_ += node.length();
+  return node;
+}
 
 } // namespace onejit

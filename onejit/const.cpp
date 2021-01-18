@@ -24,8 +24,8 @@
  */
 
 #include "onejit/const.hpp"
-#include "onejit/chars.hpp"
 #include "onejit/code.hpp"
+#include "onestl/chars.hpp"
 
 namespace onejit {
 
@@ -49,7 +49,8 @@ Code &Const::write_indirect(Code *holder) const {
 }
 
 std::ostream &operator<<(std::ostream &out, const Const &c) {
-  switch (c.kind().val()) {
+  /// TODO: pretty-print constants with SimdN > 1
+  switch (c.kind().nosimd().val()) {
   case kVoid:
     out << Chars("void");
     break;

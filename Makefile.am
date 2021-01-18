@@ -1,4 +1,4 @@
-SUBDIRS = onejit
+SUBDIRS = onejit onestl
 
 pkgdata_DATA           = COPYING README.md
 
@@ -9,6 +9,6 @@ AM_CPPFLAGS            = -I$(top_srcdir)/include
 
 jit_SOURCES            = main.cpp
 
-EXTRA_jit_DEPENDENCIES = $(LIBONEJIT)
-jit_LDADD              = $(LIBONEJIT)
+EXTRA_jit_DEPENDENCIES = $(LIBONEJIT) $(LIBONESTL)
+jit_LDADD              = $(LIBONEJIT) $(LIBONESTL)
 # jit_LDFLAGS          = -export-dynamic $(LDFLAGS_BIN_EXPORT_DYNAMIC)

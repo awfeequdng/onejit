@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - Tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -22,12 +22,12 @@
  *  Created on Jan 11, 2020
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_SPAN_HPP
-#define ONEJIT_SPAN_HPP
+#ifndef ONESTL_SPAN_HPP
+#define ONESTL_SPAN_HPP
 
-#include <onejit/view.hpp>
+#include <onestl/view.hpp>
 
-namespace onejit {
+namespace onestl {
 
 /** read-write span of T[] */
 template <class T> class Span : protected View<T> {
@@ -133,6 +133,6 @@ template <class T> void swap(Span<T> &left, Span<T> &right) {
 
 typedef Span<char> CharSpan;
 
-} // namespace onejit
+} // namespace onestl
 
-#endif /* ONEJIT_SPAN_HPP */
+#endif /* ONESTL_SPAN_HPP */

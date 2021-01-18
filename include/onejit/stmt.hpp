@@ -30,78 +30,59 @@
 
 namespace onejit {
 
-class Stmt0 {
+////////////////////////////////////////////////////////////////////////////////
+class Stmt0 : public Node {
+  using Base = Node;
+
+  friend class Node;
+
 public:
-  constexpr Stmt0() : type_(BAD) {
+  constexpr Stmt0() : Base{} {
   }
 
-  constexpr Type type() const {
-    return type_;
-  }
-
-  constexpr Kind kind() const {
-    return Void;
-  }
-
-  constexpr uint16_t children() const {
-    return 0;
-  }
-
-  constexpr operator Node() const {
-    return Node{NodeHeader{type_, Void, 0}, 0, nullptr};
+  constexpr explicit Stmt0(OpStmt0 op) : Base{NodeHeader{STMT_0, VOID, op}, 0, nullptr} {
   }
 
 protected:
-  constexpr explicit Stmt0(Type t) : type_(t) {
+  constexpr Stmt0(NodeHeader header, Offset offset_or_direct, const Code *code) //
+      : Base{header, offset_or_direct, code} {
   }
 
-private:
-  Type type_;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-class Stmt1 : private Node {
-  typedef Node Base;
-
-public:
-  constexpr Stmt1() : Node() {
+  // downcast Node to Stmt0
+  constexpr explicit Stmt0(const Node &node) : Base{node} {
   }
 
-  using Base::kind;
-  using Base::type;
-
-  constexpr uint16_t children() const {
-    return 1;
-  }
-
-  constexpr operator Node() const {
-    return *this;
-  }
-
-protected:
-  constexpr Stmt1(Code *code, Offset offset) //
-      : Node(code, offset) {
+  // downcast helper
+  static constexpr bool is_allowed_type(Type t) {
+    return t == STMT_0;
   }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class Break : Stmt0 {
+class Bad : public Node {
 public:
-  Break() : Stmt0(BREAK) {
+  constexpr Bad() : Stmt0(BAD_OP_STMT_0) {
   }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class Continue : Stmt0 {
+class Break : public Stmt0 {
 public:
-  Continue() : Stmt0(CONTINUE) {
+  constexpr Break() : Stmt0(BREAK) {
   }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class Fallthrough : Stmt0 {
+class Continue : public Stmt0 {
 public:
-  Fallthrough() : Stmt0(FALLTHROUGH) {
+  constexpr Continue() : Stmt0(CONTINUE) {
+  }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+class Fallthrough : public Stmt0 {
+public:
+  constexpr Fallthrough() : Stmt0(FALLTHROUGH) {
   }
 };
 

@@ -37,13 +37,9 @@ enum {
 };
 
 Func::Func(Code *holder) : holder_(holder), vars_() {
-  // skip offset < 4, because indirect data stored there
-  // would be confused with one of: BAD, BREAK, CONTINUE, FALLTHROUGH
-  if (holder->offset() < sizeof(CodeItem)) {
-    holder->add(NodeHeader{});
-  }
-  // add magic signature "1JIT"
-  if (holder->offset() < 2 * sizeof(CodeItem)) {
+  if (holder->length() == 0) {
+    // add magic signature {CONST uint8x4 "1JIT"} in case Code is saved to file
+    holder->add(NodeHeader{CONST, Uint8.simdn(SimdN{4}), 0});
     holder->add(uint32_t(0x54494A31));
   }
 }

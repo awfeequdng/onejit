@@ -26,11 +26,11 @@
 #ifndef ONEJIT_CODE_HPP
 #define ONEJIT_CODE_HPP
 
-#include <onejit/bytes.hpp>
 #include <onejit/fwd.hpp>
 #include <onejit/node.hpp>
 #include <onejit/type.hpp>
-#include <onejit/vector.hpp>
+#include <onestl/bytes.hpp>
+#include <onestl/vector.hpp>
 
 #include <cstdint> // uint32_t
 
@@ -101,17 +101,25 @@ public:
     return add(x.u64);
   }
 
-  constexpr Offset offset() const {
+  /// \return Code length, in bytes
+  constexpr Offset length() const {
     return Base::size() * sizeof(T);
   }
 
-  void truncate(Offset size) {
-    size /= sizeof(T);
-    if (size_ > size) {
-      size_ = size;
+  /// truncate Code to specified number of bytes
+  void truncate(Offset length_bytes) {
+    length_bytes /= sizeof(T);
+    if (size_ > length_bytes) {
+      size_ = length_bytes;
     }
   }
 
+  // return Code length, in CodeItems
+  using Base::size;
+
+  constexpr const T *data() const {
+    return Base::data();
+  }
   constexpr const T *begin() const {
     return Base::begin();
   }

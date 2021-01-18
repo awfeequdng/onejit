@@ -57,7 +57,7 @@ public:
   Const constant() const;
 
 private:
-  constexpr ConstExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
+  constexpr ConstExpr(NodeHeader header, Offset offset_or_direct, const Code *code) //
       : Base{header, offset_or_direct, code} {
   }
 

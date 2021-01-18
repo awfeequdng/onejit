@@ -26,15 +26,12 @@
 #ifndef ONEJIT_FWD_HPP
 #define ONEJIT_FWD_HPP
 
+#include <onestl/fwd.hpp>
+
 #include <cstdint> // uint*_t
 
-#ifdef __GNUC__
-#define ONEJIT_NOINLINE __attribute__((noinline))
-#define ONEJIT_NORETURN __attribute__((noreturn))
-#else
-#define ONEJIT_NOINLINE
-#define ONEJIT_NORETURN
-#endif
+#define ONEJIT_NOINLINE ONESTL_NOINLINE
+#define ONEJIT_NORETURN ONESTL_NORETURN
 
 namespace onejit {
 
@@ -42,35 +39,41 @@ class ArchId;
 class LogSize;
 class BinaryExpr;
 class Break;
+typedef onestl::Bytes Bytes;
+typedef onestl::Chars Chars;
+typedef onestl::CharSpan CharSpan;
 class Code;
+class CodeParser;
 class Const;
 class ConstExpr;
 class Continue;
-class Chars;
+class Expr;
 class Fallthrough;
 class Func;
 class Kind;
+class Mem;
 class Node;
 class NodeHeader;
-template <class T> class Span;
+template <class T> using Span = onestl::Span<T>;
 class Stmt0;
 class Stmt1;
-class String;
+class Stmt2;
+class Stmt3;
+class Stmt4;
+typedef onestl::String String;
 class Test;
 class UnaryExpr;
 class Var;
 class VarId;
 class VarExpr;
-template <class T> class Vector;
-template <class T> class View;
+template <class T> using Vector = onestl::Vector<T>;
+template <class T> using View = onestl::View<T>;
 
 typedef uint32_t CodeItem;
 typedef LogSize Bits;
 typedef LogSize SimdN;
 typedef uint32_t Offset;
 
-typedef View<uint8_t> Bytes;
-typedef Span<char> CharSpan;
 typedef View<CodeItem> CodeView;
 
 } // namespace onejit

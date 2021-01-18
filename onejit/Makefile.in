@@ -106,13 +106,12 @@ am__v_AR_1 =
 libonejit_a_AR = $(AR) $(ARFLAGS)
 libonejit_a_LIBADD =
 am_libonejit_a_OBJECTS = archid.$(OBJEXT) binaryexpr.$(OBJEXT) \
-	chars.$(OBJEXT) check.$(OBJEXT) code.$(OBJEXT) const.$(OBJEXT) \
-	constexpr.$(OBJEXT) func.$(OBJEXT) mem.$(OBJEXT) \
-	group.$(OBJEXT) kind.$(OBJEXT) logsize.$(OBJEXT) \
-	node.$(OBJEXT) nodeheader.$(OBJEXT) op1.$(OBJEXT) \
-	op2.$(OBJEXT) opn.$(OBJEXT) string.$(OBJEXT) type.$(OBJEXT) \
-	unaryexpr.$(OBJEXT) var.$(OBJEXT) varexpr.$(OBJEXT) \
-	vector.$(OBJEXT)
+	code.$(OBJEXT) codeparser.$(OBJEXT) const.$(OBJEXT) \
+	constexpr.$(OBJEXT) func.$(OBJEXT) group.$(OBJEXT) \
+	kind.$(OBJEXT) logsize.$(OBJEXT) node.$(OBJEXT) \
+	nodeheader.$(OBJEXT) op.$(OBJEXT) opstmt.$(OBJEXT) \
+	type.$(OBJEXT) unaryexpr.$(OBJEXT) var.$(OBJEXT) \
+	varexpr.$(OBJEXT)
 libonejit_a_OBJECTS = $(am_libonejit_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -130,15 +129,14 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/binaryexpr.Po \
-	./$(DEPDIR)/chars.Po ./$(DEPDIR)/check.Po ./$(DEPDIR)/code.Po \
+	./$(DEPDIR)/code.Po ./$(DEPDIR)/codeparser.Po \
 	./$(DEPDIR)/const.Po ./$(DEPDIR)/constexpr.Po \
 	./$(DEPDIR)/func.Po ./$(DEPDIR)/group.Po ./$(DEPDIR)/kind.Po \
-	./$(DEPDIR)/logsize.Po ./$(DEPDIR)/mem.Po ./$(DEPDIR)/node.Po \
-	./$(DEPDIR)/nodeheader.Po ./$(DEPDIR)/op1.Po \
-	./$(DEPDIR)/op2.Po ./$(DEPDIR)/opn.Po ./$(DEPDIR)/string.Po \
-	./$(DEPDIR)/type.Po ./$(DEPDIR)/unaryexpr.Po \
-	./$(DEPDIR)/var.Po ./$(DEPDIR)/varexpr.Po \
-	./$(DEPDIR)/vector.Po
+	./$(DEPDIR)/logsize.Po ./$(DEPDIR)/node.Po \
+	./$(DEPDIR)/nodeheader.Po ./$(DEPDIR)/op.Po \
+	./$(DEPDIR)/opstmt.Po ./$(DEPDIR)/type.Po \
+	./$(DEPDIR)/unaryexpr.Po ./$(DEPDIR)/var.Po \
+	./$(DEPDIR)/varexpr.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -252,6 +250,7 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBONEJIT = @LIBONEJIT@
+LIBONESTL = @LIBONESTL@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
@@ -318,10 +317,9 @@ noinst_LIBRARIES = libonejit.a
 # pkglib_LTLIBRARIES   =
 AM_CPPFLAGS = -I$(top_srcdir)/include
 # libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
-libonejit_a_SOURCES = archid.cpp binaryexpr.cpp chars.cpp check.cpp code.cpp const.cpp \
-                         constexpr.cpp func.cpp mem.cpp group.cpp kind.cpp logsize.cpp node.cpp \
-                         nodeheader.cpp op1.cpp op2.cpp opn.cpp string.cpp type.cpp unaryexpr.cpp \
-                         var.cpp varexpr.cpp vector.cpp
+libonejit_a_SOURCES = archid.cpp binaryexpr.cpp code.cpp codeparser.cpp const.cpp constexpr.cpp \
+                         func.cpp group.cpp kind.cpp logsize.cpp node.cpp nodeheader.cpp \
+                         op.cpp opstmt.cpp type.cpp unaryexpr.cpp var.cpp varexpr.cpp
 
 all: all-recursive
 
@@ -373,27 +371,22 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/archid.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/binaryexpr.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chars.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/code.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/codeparser.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/const.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/constexpr.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/func.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/group.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kind.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logsize.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mem.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/node.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nodeheader.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/op1.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/op2.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opn.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/op.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opstmt.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/type.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unaryexpr.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/var.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/varexpr.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vector.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -616,27 +609,22 @@ clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/archid.Po
 	-rm -f ./$(DEPDIR)/binaryexpr.Po
-	-rm -f ./$(DEPDIR)/chars.Po
-	-rm -f ./$(DEPDIR)/check.Po
 	-rm -f ./$(DEPDIR)/code.Po
+	-rm -f ./$(DEPDIR)/codeparser.Po
 	-rm -f ./$(DEPDIR)/const.Po
 	-rm -f ./$(DEPDIR)/constexpr.Po
 	-rm -f ./$(DEPDIR)/func.Po
 	-rm -f ./$(DEPDIR)/group.Po
 	-rm -f ./$(DEPDIR)/kind.Po
 	-rm -f ./$(DEPDIR)/logsize.Po
-	-rm -f ./$(DEPDIR)/mem.Po
 	-rm -f ./$(DEPDIR)/node.Po
 	-rm -f ./$(DEPDIR)/nodeheader.Po
-	-rm -f ./$(DEPDIR)/op1.Po
-	-rm -f ./$(DEPDIR)/op2.Po
-	-rm -f ./$(DEPDIR)/opn.Po
-	-rm -f ./$(DEPDIR)/string.Po
+	-rm -f ./$(DEPDIR)/op.Po
+	-rm -f ./$(DEPDIR)/opstmt.Po
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f ./$(DEPDIR)/unaryexpr.Po
 	-rm -f ./$(DEPDIR)/var.Po
 	-rm -f ./$(DEPDIR)/varexpr.Po
-	-rm -f ./$(DEPDIR)/vector.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -684,27 +672,22 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/archid.Po
 	-rm -f ./$(DEPDIR)/binaryexpr.Po
-	-rm -f ./$(DEPDIR)/chars.Po
-	-rm -f ./$(DEPDIR)/check.Po
 	-rm -f ./$(DEPDIR)/code.Po
+	-rm -f ./$(DEPDIR)/codeparser.Po
 	-rm -f ./$(DEPDIR)/const.Po
 	-rm -f ./$(DEPDIR)/constexpr.Po
 	-rm -f ./$(DEPDIR)/func.Po
 	-rm -f ./$(DEPDIR)/group.Po
 	-rm -f ./$(DEPDIR)/kind.Po
 	-rm -f ./$(DEPDIR)/logsize.Po
-	-rm -f ./$(DEPDIR)/mem.Po
 	-rm -f ./$(DEPDIR)/node.Po
 	-rm -f ./$(DEPDIR)/nodeheader.Po
-	-rm -f ./$(DEPDIR)/op1.Po
-	-rm -f ./$(DEPDIR)/op2.Po
-	-rm -f ./$(DEPDIR)/opn.Po
-	-rm -f ./$(DEPDIR)/string.Po
+	-rm -f ./$(DEPDIR)/op.Po
+	-rm -f ./$(DEPDIR)/opstmt.Po
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f ./$(DEPDIR)/unaryexpr.Po
 	-rm -f ./$(DEPDIR)/var.Po
 	-rm -f ./$(DEPDIR)/varexpr.Po
-	-rm -f ./$(DEPDIR)/vector.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

@@ -27,7 +27,7 @@
 #define ONEJIT_UNARYEXPR_HPP
 
 #include <onejit/expr.hpp>
-#include <onejit/op1.hpp>
+#include <onejit/op.hpp>
 
 #include <iosfwd>
 
@@ -51,7 +51,7 @@ public:
   using Base::kind;
 
   constexpr Op1 op() const {
-    return Op1(header().op_or_children());
+    return Op1(header().op());
   }
 
   static constexpr uint16_t children() {
@@ -64,7 +64,7 @@ public:
   }
 
 private:
-  constexpr UnaryExpr(NodeHeader header, Offset offset_or_direct, Code *code) //
+  constexpr UnaryExpr(NodeHeader header, Offset offset_or_direct, const Code *code) //
       : Base{header, offset_or_direct, code} {
   }
 

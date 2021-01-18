@@ -17,14 +17,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * type.hpp
+ * opstmt.hpp
  *
  *  Created on Jan 09, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_TYPE_HPP
-#define ONEJIT_TYPE_HPP
+#ifndef ONEJIT_OPSTMT_HPP
+#define ONEJIT_OPSTMT_HPP
 
 #include <onejit/fwd.hpp>
 
@@ -33,35 +33,48 @@
 
 namespace onejit {
 
-enum Type : uint8_t {
-  BAD = 0,
-  STMT_0 = 0, // BAD, BREAK, CONTINUE, FALLTHROUGH
-  STMT_1 = 1, // DEFAULT
-  STMT_2 = 2, // CASE
-  STMT_3 = 3, // IF
-  STMT_4 = 4, // FOR
-  STMT_N = 5, // statement list: BLOCK, COND, SWITCH
-
-  // Expr
-  VAR = 6,
-  MEM = 7,
-  UNARY = 8,
-  BINARY = 9,
-  TUPLE = 10, // expression list: CALL, RET, TUPLE_ASSIGN
-  CONST = 11,
+enum OpStmt0 : uint16_t {
+  BAD_OP_STMT_0 = 0,
+  BREAK = 1,
+  CONTINUE = 2,
+  FALLTHROUGH = 3,
 };
 
-// true if Type t indicates an arbitrary number of child Node:s
-constexpr inline bool is_list(Type t) {
-  return t == STMT_N || t == TUPLE;
-}
+enum OpStmt1 : uint16_t {
+  BAD_OP_STMT_1 = 0,
+  DEFAULT = 1,
+};
 
-uint32_t to_children(Type t);
+enum OpStmt2 : uint16_t {
+  BAD_OP_STMT_2 = 0,
+};
 
-const Chars &to_string(Type t);
+enum OpStmt3 : uint16_t {
+  BAD_OP_STMT_3 = 0,
+};
 
-std::ostream &operator<<(std::ostream &out, Type t);
+enum OpStmt4 : uint16_t {
+  BAD_OP_STMT_4 = 0,
+};
+
+enum OpStmtN : uint16_t {
+  BAD_OP_STMT_N = 0,
+};
+
+const Chars &to_string(OpStmt0 op);
+const Chars &to_string(OpStmt1 op);
+const Chars &to_string(OpStmt2 op);
+const Chars &to_string(OpStmt3 op);
+const Chars &to_string(OpStmt4 op);
+const Chars &to_string(OpStmtN op);
+
+std::ostream &operator<<(std::ostream &out, OpStmt0 op);
+std::ostream &operator<<(std::ostream &out, OpStmt1 op);
+std::ostream &operator<<(std::ostream &out, OpStmt2 op);
+std::ostream &operator<<(std::ostream &out, OpStmt3 op);
+std::ostream &operator<<(std::ostream &out, OpStmt4 op);
+std::ostream &operator<<(std::ostream &out, OpStmtN op);
 
 } // namespace onejit
 
-#endif // ONEJIT_TYPE_HPP
+#endif // ONEJIT_OPSTMT_HPP

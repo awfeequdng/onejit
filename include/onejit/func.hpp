@@ -30,11 +30,10 @@
 #include <onejit/code.hpp>
 #include <onejit/constexpr.hpp>
 #include <onejit/fwd.hpp>
-#include <onejit/op1.hpp>
-#include <onejit/op2.hpp>
+#include <onejit/op.hpp>
 #include <onejit/unaryexpr.hpp>
 #include <onejit/varexpr.hpp>
-#include <onejit/vector.hpp>
+#include <onestl/vector.hpp>
 
 namespace onejit {
 
@@ -42,6 +41,14 @@ class Func {
 
 public:
   explicit Func(Code *holder);
+
+  constexpr Code *code() const {
+    return holder_;
+  }
+
+  constexpr explicit operator bool() const {
+    return holder_ && *holder_;
+  }
 
   ConstExpr new_const(const Const &c) {
     return ConstExpr::create(c, holder_);
