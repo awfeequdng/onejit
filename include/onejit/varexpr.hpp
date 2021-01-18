@@ -76,6 +76,11 @@ private:
     return t == VAR;
   }
 
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t /*op*/) {
+    return true; // op is currently unused for VarExpr
+  }
+
   static VarExpr create(Var var, Code *holder);
 };
 

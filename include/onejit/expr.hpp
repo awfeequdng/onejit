@@ -53,6 +53,11 @@ protected:
   static constexpr bool is_allowed_type(Type t) {
     return t >= VAR && t <= CONST;
   }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t /*op*/) {
+    return true;
+  }
 };
 
 } // namespace onejit

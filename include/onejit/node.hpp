@@ -26,8 +26,8 @@
 #ifndef ONEJIT_NODE_HPP
 #define ONEJIT_NODE_HPP
 
-#include <onestl/check.hpp>
 #include <onejit/nodeheader.hpp>
+#include <onestl/check.hpp>
 
 #include <iosfwd>
 
@@ -55,6 +55,10 @@ public:
     return header_.type();
   }
 
+  constexpr uint16_t op() const {
+    return header_.op();
+  }
+
   constexpr explicit operator bool() const {
     return bool(header_);
   }
@@ -79,12 +83,12 @@ public:
 
   // try to downcast Node to T. return T{} if fails.
   template <class T> constexpr T is() const {
-    return T::is_allowed_type(type()) ? T{*this} : T{};
+    return T::is_allowed_type(type()) && T::is_allowed_op(op()) ? T{*this} : T{};
   }
 
   // try to downcast Node to T. throw exception if fails.
   template <class T> constexpr T to() const {
-    return CHECK(T::is_allowed_type(type()), ==, true), T{*this};
+    return CHECK(T::is_allowed_type(type()), &&, T::is_allowed_op(op())), T{*this};
   }
 
 protected:
@@ -93,7 +97,12 @@ protected:
   }
 
   // downcast helper
-  static constexpr bool is_allowed_type(Type) {
+  static constexpr bool is_allowed_type(Type /*t*/) {
+    return true;
+  }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t /*op*/) {
     return true;
   }
 

@@ -33,7 +33,6 @@ namespace onejit {
 ////////////////////////////////////////////////////////////////////////////////
 class Stmt0 : public Node {
   using Base = Node;
-
   friend class Node;
 
 public:
@@ -56,33 +55,106 @@ protected:
   static constexpr bool is_allowed_type(Type t) {
     return t == STMT_0;
   }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t /*op*/) {
+    return true;
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class Bad : public Node {
+class Bad : public Stmt0 {
+  using Base = Stmt0;
+  friend class Node;
+
 public:
-  constexpr Bad() : Stmt0(BAD_OP_STMT_0) {
+  constexpr Bad() : Base(BAD_OP_STMT_0) {
+  }
+
+protected:
+  constexpr Bad(NodeHeader header, Offset offset_or_direct, const Code *code) //
+      : Base{header, offset_or_direct, code} {
+  }
+
+  // downcast Node to Bad
+  constexpr explicit Bad(const Node &node) : Base{node} {
+  }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t op) {
+    return op == BAD_OP_STMT_0;
   }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 class Break : public Stmt0 {
+  using Base = Stmt0;
+  friend class Node;
+
 public:
   constexpr Break() : Stmt0(BREAK) {
+  }
+
+protected:
+  constexpr Break(NodeHeader header, Offset offset_or_direct, const Code *code) //
+      : Base{header, offset_or_direct, code} {
+  }
+
+  // downcast Node to Break
+  constexpr explicit Break(const Node &node) : Base{node} {
+  }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t op) {
+    return op == BREAK;
   }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 class Continue : public Stmt0 {
+  using Base = Stmt0;
+  friend class Node;
+
 public:
-  constexpr Continue() : Stmt0(CONTINUE) {
+  constexpr Continue() : Base(CONTINUE) {
+  }
+
+protected:
+  constexpr Continue(NodeHeader header, Offset offset_or_direct, const Code *code) //
+      : Base{header, offset_or_direct, code} {
+  }
+
+  // downcast Node to Continue
+  constexpr explicit Continue(const Node &node) : Base{node} {
+  }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t op) {
+    return op == CONTINUE;
   }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 class Fallthrough : public Stmt0 {
+  using Base = Stmt0;
+  friend class Node;
+
 public:
-  constexpr Fallthrough() : Stmt0(FALLTHROUGH) {
+  constexpr Fallthrough() : Base(FALLTHROUGH) {
+  }
+
+protected:
+  constexpr Break(NodeHeader header, Offset offset_or_direct, const Code *code) //
+      : Base{header, offset_or_direct, code} {
+  }
+
+  // downcast Node to Fallthrough
+  constexpr explicit Fallthrough(const Node &node) : Base{node} {
+  }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t op) {
+    return op == FALLTHROUGH;
   }
 };
 

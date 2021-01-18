@@ -34,14 +34,14 @@ namespace onejit {
 
 // ============================  OpStmt0  ======================================
 
-static const Chars opstmt0string[] = {"?", "break", "continue", "fallthrough"};
+static const Chars op_stmt_0_string[] = {"bad", "break", "continue", "fallthrough", "?"};
 
 const Chars &to_string(OpStmt0 op) {
   uint8_t i = op;
-  if (i >= N_OF(opstmt0string)) {
-    i = 0;
+  if (i >= N_OF(op_stmt_0_string)) {
+    i = N_OF(op_stmt_0_string) - 1;
   }
-  return opstmt0string[i];
+  return op_stmt_0_string[i];
 }
 
 std::ostream &operator<<(std::ostream &out, OpStmt0 op) {
@@ -50,14 +50,14 @@ std::ostream &operator<<(std::ostream &out, OpStmt0 op) {
 
 // ============================  OpStmt1  ======================================
 
-static const Chars opstmt1string[] = {"?", "default"};
+static const Chars op_stmt_1_string[] = {"?", "default"};
 
 const Chars &to_string(OpStmt1 op) {
   uint8_t i = op;
-  if (i >= N_OF(opstmt1string)) {
+  if (i >= N_OF(op_stmt_1_string)) {
     i = 0;
   }
-  return opstmt1string[i];
+  return op_stmt_1_string[i];
 }
 
 std::ostream &operator<<(std::ostream &out, OpStmt1 op) {
@@ -66,17 +66,65 @@ std::ostream &operator<<(std::ostream &out, OpStmt1 op) {
 
 // ============================  OpStmt2  ======================================
 
-static const Chars opstmt2string[] = {"?", "case"};
+static const Chars op_stmt_2_string[] = {"?", "case"};
 
 const Chars &to_string(OpStmt2 op) {
   uint8_t i = op;
-  if (i >= N_OF(opstmt2string)) {
+  if (i >= N_OF(op_stmt_2_string)) {
     i = 0;
   }
-  return opstmt2string[i];
+  return op_stmt_2_string[i];
 }
 
 std::ostream &operator<<(std::ostream &out, OpStmt2 op) {
+  return out << to_string(op);
+}
+
+// ============================  OpStmt3  ======================================
+
+static const Chars op_stmt_3_string[] = {"?", "if"};
+
+const Chars &to_string(OpStmt3 op) {
+  uint8_t i = op;
+  if (i >= N_OF(op_stmt_3_string)) {
+    i = 0;
+  }
+  return op_stmt_3_string[i];
+}
+
+std::ostream &operator<<(std::ostream &out, OpStmt3 op) {
+  return out << to_string(op);
+}
+
+// ============================  OpStmt4  ======================================
+
+static const Chars op_stmt_4_string[] = {"?", "for"};
+
+const Chars &to_string(OpStmt4 op) {
+  uint8_t i = op;
+  if (i >= N_OF(op_stmt_4_string)) {
+    i = 0;
+  }
+  return op_stmt_4_string[i];
+}
+
+std::ostream &operator<<(std::ostream &out, OpStmt4 op) {
+  return out << to_string(op);
+}
+
+// ============================  OpStmtN  ======================================
+
+static const Chars op_stmt_n_string[] = {"?", "block", "cond", "switch"};
+
+const Chars &to_string(OpStmtN op) {
+  uint8_t i = op;
+  if (i >= N_OF(op_stmt_n_string)) {
+    i = 0;
+  }
+  return op_stmt_n_string[i];
+}
+
+std::ostream &operator<<(std::ostream &out, OpStmtN op) {
   return out << to_string(op);
 }
 

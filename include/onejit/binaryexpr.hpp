@@ -51,7 +51,7 @@ public:
   using Base::kind;
 
   constexpr Op2 op() const {
-    return Op2(header().op());
+    return Op2(Base::op());
   }
 
   static constexpr uint16_t children() {
@@ -80,6 +80,11 @@ private:
   // downcast helper
   static constexpr bool is_allowed_type(Type t) {
     return t == BINARY;
+  }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t /*op*/) {
+    return true;
   }
 
   static BinaryExpr create(Kind kind, const Expr &left, Op2 op, const Expr &right, Code *holder);

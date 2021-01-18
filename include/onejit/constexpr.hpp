@@ -72,6 +72,11 @@ private:
     return t == CONST;
   }
 
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t /*op*/) {
+    return true; // op is currently unused in ConstExpr
+  }
+
   static ConstExpr create(const Const &c, Code *holder);
 };
 

@@ -51,7 +51,7 @@ public:
   using Base::kind;
 
   constexpr Op1 op() const {
-    return Op1(header().op());
+    return Op1(Base::op());
   }
 
   static constexpr uint16_t children() {
@@ -75,6 +75,11 @@ private:
   // downcast helper
   static constexpr bool is_allowed_type(Type t) {
     return t == UNARY;
+  }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t /*op*/) {
+    return true;
   }
 
   static UnaryExpr create(Kind kind, Op1 op, const Expr &child, Code *holder);

@@ -47,18 +47,24 @@ enum OpStmt1 : uint16_t {
 
 enum OpStmt2 : uint16_t {
   BAD_OP_STMT_2 = 0,
+  CASE = 1,
 };
 
 enum OpStmt3 : uint16_t {
   BAD_OP_STMT_3 = 0,
+  IF = 1,
 };
 
 enum OpStmt4 : uint16_t {
   BAD_OP_STMT_4 = 0,
+  FOR = 1,
 };
 
 enum OpStmtN : uint16_t {
   BAD_OP_STMT_N = 0,
+  BLOCK = 1,
+  COND = 2, // n-ary IF ... [ELSEIF* ... [ELSE ...]]
+  SWITCH = 2,
 };
 
 const Chars &to_string(OpStmt0 op);
