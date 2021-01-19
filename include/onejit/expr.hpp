@@ -41,8 +41,8 @@ public:
   }
 
 protected:
-  constexpr Expr(NodeHeader header, Offset offset_or_direct, const Code *code) //
-      : Base{header, offset_or_direct, code} {
+  /* construct and invalid Expr */
+  constexpr explicit Expr(const Type t) : Base{NodeHeader{t, Bad, 0}, 0, nullptr} {
   }
 
   // downcast Node to Expr

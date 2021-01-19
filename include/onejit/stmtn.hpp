@@ -17,14 +17,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * stmt1.hpp
+ * stmtn.hpp
  *
  *  Created on Jan 18, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_STMT1_HPP
-#define ONEJIT_STMT1_HPP
+#ifndef ONEJIT_STMTN_HPP
+#define ONEJIT_STMTN_HPP
 
 #include <onejit/opstmt.hpp>
 #include <onejit/stmt.hpp>
@@ -32,86 +32,77 @@
 namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
-class Stmt1 : public Stmt {
+class StmtN : public Stmt {
   using Base = Stmt;
   friend class Node;
   friend class Func;
 
 public:
   /**
-   * construct an invalid Stmt1
-   * exists only to allow placing Stmt1 in containers
+   * construct an invalid StmtN.
+   * exists only to allow placing StmtN in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Stmt1, use Func::new_stmt1()
+   * to create a valid StmtN, use Func::new_stmtn()
    */
-  constexpr Stmt1() : Base{STMT_1, Bad, BAD_ST1} {
-  }
-
-  static constexpr uint32_t children() {
-    return 1;
-  }
-
-  // shortcut for child(0)
-  Node body() const {
-    return child(0);
+  constexpr StmtN() : Base{STMT_N, Bad, BAD_STN} {
   }
 
 protected:
-  /* construct an invalid Stmt1 */
-  constexpr explicit Stmt1(OpStmt1 op) : Base{STMT_1, Bad, op} {
+  /* construct an invalid StmtN */
+  constexpr explicit StmtN(OpStmtN op) : Base{STMT_N, Bad, op} {
   }
 
-  // downcast Node to Stmt1
-  constexpr explicit Stmt1(const Node &node) : Base{node} {
+  // downcast Node to StmtN
+  constexpr explicit StmtN(const Node &node) : Base{node} {
   }
 
   // downcast helper
   static constexpr bool is_allowed_type(Type t) {
-    return t == STMT_1;
+    return t == STMT_N;
   }
 
-  static Stmt1 create(OpStmt1 op, const Node &body, Code *holder);
+  static StmtN create(OpStmtN op, const Nodes children, Code *holder);
 };
 
-std::ostream &operator<<(std::ostream &out, const Stmt1 &st);
+std::ostream &operator<<(std::ostream &out, const StmtN &st);
 
 ////////////////////////////////////////////////////////////////////////////////
-class DefaultStmt : public Stmt1 {
-  using Base = Stmt1;
+class BlockStmt : public StmtN {
+  using Base = StmtN;
   friend class Node;
   friend class Func;
 
 public:
   /**
-   * construct an invalid DefaultStmt.
-   * exists only to allow placing DefaultStmt in containers
+   * construct an invalid BlockStmt.
+   * exists only to allow placing BlockStmt in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid DefaultStmt, use Func::new_default()
+   * to create a valid BlockStmt, use Func::new_block()
    */
-  constexpr DefaultStmt() : Base{DEFAULT} {
+  constexpr BlockStmt() : Base{BLOCK} {
   }
 
-  static constexpr OpStmt1 op() {
-    return DEFAULT;
+  static constexpr OpStmtN op() {
+    return BLOCK;
   }
 
 private:
-  // downcast Node to DefaultStmt
-  constexpr explicit DefaultStmt(const Node &node) : Base{node} {
+  // downcast Node to BlockStmt
+  constexpr explicit BlockStmt(const Node &node) : Base{node} {
   }
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) {
-    return op == DEFAULT;
+    return op == BLOCK;
   }
 
-  static DefaultStmt create(const Node &body, Code *holder) {
-    return DefaultStmt{Stmt1::create(DEFAULT, body, holder)};
+  static BlockStmt create(const Nodes children, Code *holder) {
+    return BlockStmt{StmtN::create(BLOCK, children, holder)};
   }
 };
 
 } // namespace onejit
 
-#endif // ONEJIT_STMT1_HPP
+#endif // ONEJIT_STMTN_HPP

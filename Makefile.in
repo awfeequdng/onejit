@@ -87,7 +87,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = jit$(EXEEXT)
+bin_PROGRAMS = test_jit$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -103,10 +103,10 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgdatadir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_jit_OBJECTS = main.$(OBJEXT)
-jit_OBJECTS = $(am_jit_OBJECTS)
+am_test_jit_OBJECTS = test_main.$(OBJEXT)
+test_jit_OBJECTS = $(am_test_jit_OBJECTS)
 am__DEPENDENCIES_1 =
-jit_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+test_jit_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -122,7 +122,7 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/main.Po
+am__depfiles_remade = ./$(DEPDIR)/test_main.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -137,8 +137,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(jit_SOURCES)
-DIST_SOURCES = $(jit_SOURCES)
+SOURCES = $(test_jit_SOURCES)
+DIST_SOURCES = $(test_jit_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -352,9 +352,9 @@ SUBDIRS = onejit onestl
 pkgdata_DATA = COPYING README.md
 AM_CPPFLAGS = -I$(top_srcdir)/include
 # onejit_CPPFLAGS      = -I$(top_srcdir)/include
-jit_SOURCES = main.cpp
-EXTRA_jit_DEPENDENCIES = $(LIBONEJIT) $(LIBONESTL)
-jit_LDADD = $(LIBONEJIT) $(LIBONESTL)
+test_jit_SOURCES = test_main.cpp
+EXTRA_test_jit_DEPENDENCIES = $(LIBONEJIT) $(LIBONESTL)
+test_jit_LDADD = $(LIBONEJIT) $(LIBONESTL)
 all: all-recursive
 
 .SUFFIXES:
@@ -450,9 +450,9 @@ uninstall-binPROGRAMS:
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
-jit$(EXEEXT): $(jit_OBJECTS) $(jit_DEPENDENCIES) $(EXTRA_jit_DEPENDENCIES) 
-	@rm -f jit$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(jit_OBJECTS) $(jit_LDADD) $(LIBS)
+test_jit$(EXEEXT): $(test_jit_OBJECTS) $(test_jit_DEPENDENCIES) $(EXTRA_test_jit_DEPENDENCIES) 
+	@rm -f test_jit$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(test_jit_OBJECTS) $(test_jit_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -460,7 +460,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_main.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -852,7 +852,7 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-		-rm -f ./$(DEPDIR)/main.Po
+		-rm -f ./$(DEPDIR)/test_main.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -900,7 +900,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-		-rm -f ./$(DEPDIR)/main.Po
+		-rm -f ./$(DEPDIR)/test_main.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -941,7 +941,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-pkgdataDATA
 
 .PRECIOUS: Makefile
 
-# jit_LDFLAGS          = -export-dynamic $(LDFLAGS_BIN_EXPORT_DYNAMIC)
+# test_jit_LDFLAGS          = -export-dynamic $(LDFLAGS_BIN_EXPORT_DYNAMIC)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

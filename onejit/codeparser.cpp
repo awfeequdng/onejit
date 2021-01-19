@@ -23,9 +23,9 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/codeparser.hpp"
-#include "onejit/code.hpp"
-#include "onejit/node.hpp"
+#include <onejit/code.hpp>
+#include <onejit/codeparser.hpp>
+#include <onejit/node.hpp>
 
 namespace onejit {
 

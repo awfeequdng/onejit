@@ -74,6 +74,14 @@ public:
     return val_;
   }
 
+  constexpr explicit operator bool() const {
+    return val_ != kBad;
+  }
+
+  constexpr bool operator!() const {
+    return val_ == kBad;
+  }
+
   Bits bits() const;
 
   constexpr SimdN simdn() const {
@@ -163,7 +171,7 @@ inline std::ostream &operator<<(std::ostream &out, eKind ekind) {
   return out << Kind{ekind};
 }
 
-constexpr const Kind BadKind(kBad);
+constexpr const Kind Bad(kBad);
 constexpr const Kind Void(kVoid);
 constexpr const Kind Bool(kBool);
 constexpr const Kind Int8(kInt8);

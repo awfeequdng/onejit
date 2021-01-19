@@ -23,15 +23,11 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/stmt0.hpp"
-#include "onejit/code.hpp"
+#include <onejit/stmt0.hpp>
+#include <onejit/code.hpp>
 
 namespace onejit {
 
 // ============================  Stmt0  ========================================
-
-std::ostream &operator<<(std::ostream &out, const Stmt0 &st0) {
-  return out << st0.op();
-}
 
 } // namespace onejit

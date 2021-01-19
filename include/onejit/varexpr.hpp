@@ -48,7 +48,7 @@ public:
    *
    * to create a valid VarExpr, use Func::new_var()
    */
-  constexpr VarExpr() : Base{NodeHeader{BAD, Void, 0}, 0, nullptr} {
+  constexpr VarExpr() : Base{VAR} {
   }
 
   static constexpr Type type() {
@@ -68,14 +68,10 @@ public:
   }
 
 private:
-  constexpr VarExpr(NodeHeader header, Offset offset_or_direct, const Code *code) //
-      : Base{header, offset_or_direct, code} {
-  }
-
   // downcast Node to ConstExpr
   constexpr explicit VarExpr(const Node &node) //
-      : Base{node.header(), node.offset_or_direct(),
-             node.offset_or_direct() & 2 ? nullptr : node.code()} {
+      : Base{Node{node.header(), node.offset_or_direct(),
+                  node.offset_or_direct() & 2 ? nullptr : node.code()}} {
   }
 
   // downcast helper

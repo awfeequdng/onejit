@@ -23,15 +23,15 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/kind.hpp"
-#include "onestl/chars.hpp"
+#include <onejit/kind.hpp>
+#include <onestl/chars.hpp>
 
 #define N_OF(array) (sizeof(array) / sizeof(array[0]))
 
 namespace onejit {
 
 static const Chars kstring[] = {
-    "?",       "void",      "bool",             //
+    "bad",     "void",      "bool",             //
     "int8",    "int16",     "int32",  "int64",  //
     "uint8",   "uint16",    "uint32", "uint64", //
     "float32", "float64",   "?",                //
@@ -39,7 +39,7 @@ static const Chars kstring[] = {
 };
 
 static const Chars kstringsuffix[] = {
-    "?",  "v",  "e",         //
+    "?",  "v",   "e",        //
     "b",  "s",   "i",  "l",  //
     "ub", "us",  "ui", "ul", //
     "f",  "d",   "?",        //
@@ -66,7 +66,7 @@ const Chars &Kind::string() const {
   enum _ { n = N_OF(kstring) };
   uint8_t i = val_ & 0xF;
   if (i >= n) {
-    i = 0;
+    i = kFloat64 + 1; // "?"
   }
   return kstring[i];
 }

@@ -38,7 +38,14 @@ class Stmt2 : public Stmt {
   friend class Func;
 
 public:
-  constexpr Stmt2() : Base{} {
+  /**
+   * construct an invalid Stmt2.
+   * exists only to allow placing Stmt2 in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid Stmt2, use Func::new_stmt2()
+   */
+  constexpr Stmt2() : Base{STMT_2, Bad, BAD_ST2} {
   }
 
   static constexpr uint32_t children() {
@@ -46,11 +53,8 @@ public:
   }
 
 protected:
-  constexpr explicit Stmt2(OpStmt2 op) : Base{STMT_2, op} {
-  }
-
-  constexpr Stmt2(NodeHeader header, Offset offset_or_direct, const Code *code) //
-      : Base{header, offset_or_direct, code} {
+  /* construct an invalid Stmt2 */
+  constexpr explicit Stmt2(OpStmt2 op) : Base{STMT_2, Bad, op} {
   }
 
   // downcast Node to Stmt2
@@ -65,23 +69,23 @@ protected:
   static Stmt2 create(OpStmt2 op, const Node &child0, const Node &child1, Code *holder);
 };
 
-std::ostream &operator<<(std::ostream &out, const Stmt2 &st2);
+std::ostream &operator<<(std::ostream &out, const Stmt2 &st);
 
 ////////////////////////////////////////////////////////////////////////////////
-class Case : public Stmt2 {
+class CaseStmt : public Stmt2 {
   using Base = Stmt2;
   friend class Node;
   friend class Func;
 
 public:
   /**
-   * construct an invalid Case.
-   * exists only to allow placing Case in containers
+   * construct an invalid CaseStmt.
+   * exists only to allow placing CaseStmt in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Case, use Func::new_case()
+   * to create a valid CaseStmt, use Func::new_case()
    */
-  constexpr Case() : Base(BAD_OP_STMT_2) {
+  constexpr CaseStmt() : Base{CASE} {
   }
 
   static constexpr OpStmt2 op() {
@@ -89,12 +93,8 @@ public:
   }
 
 private:
-  constexpr Case(NodeHeader header, Offset offset_or_direct, const Code *code) //
-      : Base{header, offset_or_direct, code} {
-  }
-
-  // downcast Node to Case
-  constexpr explicit Case(const Node &node) : Base{node} {
+  // downcast Node to CaseStmt
+  constexpr explicit CaseStmt(const Node &node) : Base{node} {
   }
 
   // downcast helper
@@ -102,7 +102,9 @@ private:
     return op == CASE;
   }
 
-  static Case create(const Expr &expr, const Node &body, Code *holder);
+  static CaseStmt create(const Expr &expr, const Node &body, Code *holder) {
+    return CaseStmt{Stmt2::create(CASE, expr, body, holder)};
+  }
 };
 
 } // namespace onejit

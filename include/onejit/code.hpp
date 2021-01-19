@@ -26,6 +26,7 @@
 #ifndef ONEJIT_CODE_HPP
 #define ONEJIT_CODE_HPP
 
+#include <onejit/const.hpp>
 #include <onejit/fwd.hpp>
 #include <onejit/node.hpp>
 #include <onejit/type.hpp>
@@ -51,7 +52,7 @@ public:
   }
 
   const T &at(Offset byte_offset) const {
-    return Base::operator[](byte_offset / sizeof(T));
+    return Base::at(byte_offset / sizeof(T));
   }
 
   int32_t i32(Offset byte_offset) const {
@@ -60,33 +61,24 @@ public:
   uint32_t uint32(Offset byte_offset) const {
     return at(byte_offset);
   }
+  float float32(Offset byte_offset) const {
+    return ConstFloat32{uint32(byte_offset)}.val();
+  }
+
   int64_t int64(Offset byte_offset) const {
     return int64_t(uint64(byte_offset));
   }
   uint64_t uint64(Offset byte_offset) const;
-  float float32(Offset byte_offset) const;
-  double float64(Offset byte_offset) const;
+  double float64(Offset byte_offset) const {
+    return ConstFloat64{uint64(byte_offset)}.val();
+  }
 
-  Code &add(CodeItem item);
-  Code &add(CodeView data);
-  Code &add(NodeHeader header) {
-    return add(header.item());
-  }
-  Code &add(const Node &node, Offset parent_offset) {
-    // we save relative offset between parent and child:
-    // makes it easier to concatenate different Code objects
-    return add(node.offset_or_direct() - (node.is_direct() ? 0 : parent_offset));
-  }
   Code &add(int32_t i32) {
     return add(uint32_t(i32));
   }
-  // Code &add(uint32_t val); // same as add(CodeItem) above
+  Code &add(uint32_t u32); // same as add(CodeItem)
   Code &add(float f32) {
-    const union {
-      float f32;
-      uint32_t u32;
-    } x = {f32};
-    return add(x.u32);
+    return add(ConstFloat32{f32}.bits());
   }
 
   Code &add(int64_t i64) {
@@ -94,12 +86,15 @@ public:
   }
   Code &add(uint64_t u64);
   Code &add(double f64) {
-    const union {
-      double f64;
-      uint64_t u64;
-    } x = {f64};
-    return add(x.u64);
+    return add(ConstFloat64{f64}.bits());
   }
+
+  Code &add(CodeItems data);
+  Code &add(NodeHeader header) {
+    return add(header.item());
+  }
+  Code &add(const Node &node, Offset parent_offset);
+  Code &add(Nodes nodes, Offset parent_offset);
 
   /// \return Code length, in bytes
   constexpr Offset length() const {

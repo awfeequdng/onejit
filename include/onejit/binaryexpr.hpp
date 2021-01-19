@@ -48,11 +48,11 @@ public:
    *
    * to create a valid BinaryExpr, use Func::new_binary()
    */
-  constexpr BinaryExpr() : Base{NodeHeader{BAD, Void, 0}, BAD_OP2, nullptr} {
+  constexpr BinaryExpr() : Base{BINARY} {
   }
 
   static constexpr Type type() {
-    return UNARY;
+    return BINARY;
   }
 
   using Base::kind;
@@ -76,10 +76,6 @@ public:
   }
 
 private:
-  constexpr BinaryExpr(NodeHeader header, Offset offset_or_direct, const Code *code) //
-      : Base{header, offset_or_direct, code} {
-  }
-
   // downcast Node to UnaryExpr
   constexpr explicit BinaryExpr(const Node &node) : Base{node} {
   }

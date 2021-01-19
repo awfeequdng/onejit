@@ -23,8 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/binaryexpr.hpp"
-#include "onejit/code.hpp"
+#include <onejit/binaryexpr.hpp>
+#include <onejit/code.hpp>
 
 namespace onejit {
 
@@ -37,7 +37,7 @@ BinaryExpr BinaryExpr::create(Kind kind, Op2 op, const Expr &left, const Expr &r
     holder->truncate(offset);
     return BinaryExpr{};
   }
-  return BinaryExpr{header, offset, holder};
+  return BinaryExpr{Node{header, offset, holder}};
 }
 
 std::ostream &operator<<(std::ostream &out, const BinaryExpr &be) {

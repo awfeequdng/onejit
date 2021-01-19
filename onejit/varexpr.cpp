@@ -23,8 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/varexpr.hpp"
-#include "onejit/code.hpp"
+#include <onejit/code.hpp>
+#include <onejit/varexpr.hpp>
 
 namespace onejit {
 
@@ -49,7 +49,7 @@ VarExpr VarExpr::create(Var var, Code *holder) {
     holder->truncate(off_or_dir);
     return VarExpr{};
   }
-  return VarExpr{header, off_or_dir, holder};
+  return VarExpr{Node{header, off_or_dir, holder}};
 }
 
 std::ostream &operator<<(std::ostream &out, const VarExpr &ve) {

@@ -17,27 +17,18 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * var.cpp
+ * check.hpp
  *
- *  Created on Jan 13, 2020
+ *  Created on Jan 19, 2020
  *      Author Massimiliano Ghilardi
  */
+#ifndef ONEJIT_CHECK_HPP
+#define ONEJIT_CHECK_HPP
 
-#include <onestl/chars.hpp>
-#include <onejit/var.hpp>
+#include <onestl/check.hpp>
 
-#include <ios>
-#include <ostream>
+#define ONEJIT_BOUNDS(lhs, op, rhs) ONESTL_BOUNDS(lhs, op, rhs)
+#define ONEJIT_CHECK(lhs, op, rhs) ONESTL_CHECK(lhs, op, rhs)
+#define ONEJIT_TEST(lhs, op, rhs) ONESTL_TEST(lhs, op, rhs)
 
-namespace onejit {
-
-std::ostream &operator<<(std::ostream &out, VarId id) {
-  return out << Chars("id") << std::hex << id.val() << std::dec;
-}
-
-std::ostream &operator<<(std::ostream &out, Var v) {
-  return out << Chars("var") << std::hex << v.id().val() << std::dec << '_'
-             << v.kind().stringsuffix();
-}
-
-} // namespace onejit
+#endif /* ONEJIT_CHECK_HPP */

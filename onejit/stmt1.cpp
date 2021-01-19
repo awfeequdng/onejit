@@ -23,32 +23,28 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/stmt1.hpp"
-#include "onejit/code.hpp"
+#include <onejit/code.hpp>
+#include <onejit/stmt1.hpp>
 
 namespace onejit {
 
 // ============================  Stmt1  ========================================
 
-Stmt1 Stmt1::create(OpStmt1 op, const Node &child, Code *holder) {
+Stmt1 ONEJIT_NOINLINE Stmt1::create(OpStmt1 op, const Node &child, Code *holder) {
   const NodeHeader header{STMT_1, Void, uint16_t(op)};
   CodeItem offset = holder->length();
 
   if (!holder->add(header) || !holder->add(child, offset)) {
     holder->truncate(offset);
-    return Stmt1{};
+    return Stmt1{op};
   }
-  return Stmt1{header, offset, holder};
+  return Stmt1{Node{header, offset, holder}};
 }
 
-std::ostream &operator<<(std::ostream &out, const Stmt1 &st1) {
-  return out << '(' << st1.op() << ' ' << st1.child(0) << ')';
+std::ostream &operator<<(std::ostream &out, const Stmt1 &st) {
+  return out << '(' << st.op() << ' ' << st.child(0) << ')';
 }
 
-// ============================  Default  ======================================
-
-Default Default::create(const Node &body, Code *holder) {
-  return Stmt1::create(DEFAULT, body, holder).is<Default>();
-}
+// ============================  DefaultStmt  ==================================
 
 } // namespace onejit

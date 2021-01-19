@@ -23,7 +23,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/nodeheader.hpp"
+#include <onejit/nodeheader.hpp>
 
 namespace onejit {
 

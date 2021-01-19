@@ -17,30 +17,38 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * unaryexpr.cpp
+ * stmt4.cpp
  *
- *  Created on Jan 16, 2020
+ *  Created on Jan 18, 2020
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/code.hpp>
-#include <onejit/unaryexpr.hpp>
+#include <onejit/stmt4.hpp>
+#include <onestl/chars.hpp>
 
 namespace onejit {
 
-UnaryExpr UnaryExpr::create(Kind kind, Op1 op, const Expr &child, Code *holder) {
-  const NodeHeader header{UNARY, kind, uint16_t(op)};
+// ============================  Stmt4  ========================================
+
+Stmt4 ONEJIT_NOINLINE Stmt4::create(OpStmt4 op, const Node &child0, const Node &child1,
+                                    const Node &child2, const Node &child3, Code *holder) {
+  const NodeHeader header{STMT_3, Void, uint16_t(op)};
   CodeItem offset = holder->length();
 
-  if (!holder->add(header) || !holder->add(child, offset)) {
+  if (!holder->add(header) || !holder->add(child0, offset) || !holder->add(child1, offset) ||
+      !holder->add(child2, offset) || !holder->add(child3, offset)) {
     holder->truncate(offset);
-    return UnaryExpr{};
+    return Stmt4{op};
   }
-  return UnaryExpr{Node{header, offset, holder}};
+  return Stmt4{Node{header, offset, holder}};
 }
 
-std::ostream &operator<<(std::ostream &out, const UnaryExpr &ue) {
-  return out << '(' << ue.op() << ' ' << ue.child(0) << ')';
+std::ostream &operator<<(std::ostream &out, const Stmt4 &st) {
+  return out << '(' << st.op() << ' ' << st.child(0) << ' ' << st.child(1) << ' ' << st.child(2)
+             << Chars("\n    ") << st.child(3) << ')';
 }
+
+// ============================  ForStmt  =======================================
 
 } // namespace onejit

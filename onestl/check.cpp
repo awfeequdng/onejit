@@ -23,8 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onestl/check.hpp"
-#include "onestl/chars.hpp"
+#include <onestl/chars.hpp>
+#include <onestl/check.hpp>
 
 #include <stdexcept>
 #include <string>
@@ -32,7 +32,11 @@
 namespace onestl {
 
 std::string to_string(std::nullptr_t) {
-  return "nullptr";
+  return std::string("nullptr", 7);
+}
+
+std::string to_string(bool val) {
+  return val ? std::string("true", 4) : std::string("false", 5);
 }
 
 std::string to_string(const void *val) {
@@ -42,20 +46,38 @@ std::string to_string(const void *val) {
   return buf.str();
 }
 
-CheckFailed::CheckFailed(std::string &&lhs, std::string &&rhs, const char *opstr, const char *lstr,
-                         const char *rstr, const char *file, int line)
+Error::Error(std::string &&lhs, std::string &&rhs, const char *opstr, const char *lstr,
+             const char *rstr, const char *file, int line)
     : lhs_(std::move(lhs)), rhs_(std::move(rhs)), op_(opstr), lstr_(lstr), rstr_(rstr), file_(file),
       line_(line) {
 }
 
-void ONESTL_NORETURN CheckFailed::throw_error() const {
+void ONESTL_NORETURN Error::throw_check_failed() const {
   std::stringstream buf;
-  buf << Chars("check failed at ") << file_ << ':' << line_ //
-      << '\t' << lstr_ << ' ' << op_ << ' ' << rstr_        //
-      << Chars("\n\t") << lstr_ << Chars("\t= ") << lhs_    //
-      << Chars("\n\t") << rstr_ << Chars("\t= ") << rhs_;
+  buf << Chars("check failed at ") << file_ << ':' << line_          //
+      << Chars("\n\tcheck: ") << lstr_ << ' ' << op_ << ' ' << rstr_ //
+      << Chars("\n\twhere  ") << lstr_ << Chars("\tis ") << lhs_     //
+      << Chars("\n\tand    ") << rstr_ << Chars("\tis ") << rhs_;
 
   throw std::range_error(buf.str());
+}
+
+void ONESTL_NORETURN Error::throw_bounds_failed() const {
+  std::stringstream buf;
+  buf << Chars("container out-of-bounds access at ") << file_ << ':' << line_ //
+      << Chars("\n\tcheck: ") << lstr_ << ' ' << op_ << ' ' << rstr_          //
+      << Chars("\n\twhere  ") << lstr_ << Chars("\tis ") << lhs_              //
+      << Chars("\n\tand    ") << rstr_ << Chars("\tis ") << rhs_;
+
+  throw std::out_of_range(buf.str());
+}
+
+void ONESTL_NORETURN throw_check_failed() {
+  throw std::range_error("runtime check failed");
+}
+
+void ONESTL_NORETURN throw_bounds_failed() {
+  throw std::out_of_range("container out-of-bounds access");
 }
 
 } // namespace onestl

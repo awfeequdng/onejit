@@ -17,27 +17,39 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * var.cpp
+ * stmtn.cpp
  *
- *  Created on Jan 13, 2020
+ *  Created on Jan 18, 2020
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/code.hpp>
+#include <onejit/stmtn.hpp>
 #include <onestl/chars.hpp>
-#include <onejit/var.hpp>
-
-#include <ios>
-#include <ostream>
 
 namespace onejit {
 
-std::ostream &operator<<(std::ostream &out, VarId id) {
-  return out << Chars("id") << std::hex << id.val() << std::dec;
+// ============================  StmtN  ========================================
+
+StmtN StmtN::create(OpStmtN op, const Nodes children, Code *holder) {
+  const NodeHeader header{STMT_3, Void, uint16_t(op)};
+  CodeItem offset = holder->length();
+
+  if (!holder->add(header) || !holder->add(children, offset)) {
+    holder->truncate(offset);
+    return StmtN{op};
+  }
+  return StmtN{Node{header, offset, holder}};
 }
 
-std::ostream &operator<<(std::ostream &out, Var v) {
-  return out << Chars("var") << std::hex << v.id().val() << std::dec << '_'
-             << v.kind().stringsuffix();
+std::ostream &operator<<(std::ostream &out, const StmtN &st) {
+  out << '(' << st.op();
+  for (size_t i = 0, n = st.children(); i < n; i++) {
+    out << Chars("\n    ") << st.child(i);
+  }
+  return out << Chars("\n)");
 }
+
+// ============================  BlockStmt  =======================================
 
 } // namespace onejit

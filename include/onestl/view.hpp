@@ -85,21 +85,27 @@ public:
     return size_;
   }
 
-  constexpr const T *data() const {
-    return data_;
-  }
-
-  const T &operator[](size_t index) const {
-    check(index, <, size_);
-    return data_[index];
+  constexpr bool empty() const {
+    return size_ == 0;
   }
 
   constexpr explicit operator bool() const {
     return size_ != 0;
   }
 
-  constexpr bool empty() const {
-    return size_ == 0;
+  // unchecked element access
+  const T &operator[](size_t index) const {
+    return data_[index];
+  }
+
+  // checked element access
+  const T &at(size_t index) const {
+    ONESTL_BOUNDS(index, <, size_);
+    return data_[index];
+  }
+
+  constexpr const T *data() const {
+    return data_;
   }
 
   constexpr const T *begin() const {
@@ -111,8 +117,8 @@ public:
   }
 
   View view(size_t start, size_t end) const {
-    check(start, <=, end);
-    check(end, <=, size_);
+    ONESTL_BOUNDS(start, <=, end);
+    ONESTL_BOUNDS(end, <=, size_);
     return View(data_ + start, end - start);
   }
 

@@ -35,46 +35,49 @@
 
 namespace onejit {
 
+using Bytes = ::onestl::Bytes;
+using Chars = ::onestl::Chars;
+using CharSpan = ::onestl::CharSpan;
+template <class T> using Span = ::onestl::Span<T>;
+using String = ::onestl::String;
+template <class T> using Vector = ::onestl::Vector<T>;
+template <class T> using View = ::onestl::View<T>;
+
 class ArchId;
 class LogSize;
 class BinaryExpr;
-class Break;
-typedef onestl::Bytes Bytes;
-typedef onestl::Chars Chars;
-typedef onestl::CharSpan CharSpan;
+class BreakStmt;
 class Code;
 class CodeParser;
 class Const;
 class ConstExpr;
-class Continue;
+class ContinueStmt;
 class Expr;
-class Fallthrough;
+class FallthroughStmt;
 class Func;
 class Kind;
-class Mem;
+class MemExpr;
 class Node;
 class NodeHeader;
-template <class T> using Span = onestl::Span<T>;
 class Stmt0;
 class Stmt1;
 class Stmt2;
 class Stmt3;
 class Stmt4;
-typedef onestl::String String;
+class StmtN;
 class Test;
 class UnaryExpr;
 class Var;
 class VarId;
 class VarExpr;
-template <class T> using Vector = onestl::Vector<T>;
-template <class T> using View = onestl::View<T>;
 
-typedef uint32_t CodeItem;
-typedef LogSize Bits;
-typedef LogSize SimdN;
-typedef uint32_t Offset;
+using Bits = LogSize;
+using CodeItem = uint32_t;
+using Offset = uint32_t;
+using SimdN = LogSize;
 
-typedef View<CodeItem> CodeView;
+using CodeItems = View<CodeItem>;
+using Nodes = View<Node>;
 
 } // namespace onejit
 

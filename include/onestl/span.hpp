@@ -81,7 +81,7 @@ public:
   }
 
   T &operator[](size_t index) {
-    check(index, <, size_);
+    ONESTL_BOUNDS(index, <, size_);
     return data()[index];
   }
 
@@ -90,18 +90,17 @@ public:
   }
 
   T *end() {
-    check(data_, ||, size_ == 0);
     return data() + size_;
   }
 
   Span<T> span(size_t start, size_t end) {
-    check(start, <=, end);
-    check(end, <=, size_);
+    ONESTL_BOUNDS(start, <=, end);
+    ONESTL_BOUNDS(end, <=, size_);
     return Span<T>(data() + start, end - start);
   }
 
   void copy(View<T> src) {
-    check(src.size(), ==, size());
+    ONESTL_BOUNDS(src.size(), ==, size());
     std::memcpy(data(), src.data(), size() * sizeof(T));
   }
 

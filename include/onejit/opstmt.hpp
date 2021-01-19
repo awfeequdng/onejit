@@ -34,34 +34,34 @@
 namespace onejit {
 
 enum OpStmt0 : uint16_t {
-  BAD_OP_STMT_0 = 0,
+  BAD = 0,
   BREAK = 1,
   CONTINUE = 2,
   FALLTHROUGH = 3,
 };
 
 enum OpStmt1 : uint16_t {
-  BAD_OP_STMT_1 = 0,
+  BAD_ST1 = 0,
   DEFAULT = 1,
 };
 
 enum OpStmt2 : uint16_t {
-  BAD_OP_STMT_2 = 0,
+  BAD_ST2 = 0,
   CASE = 1,
 };
 
 enum OpStmt3 : uint16_t {
-  BAD_OP_STMT_3 = 0,
+  BAD_ST3 = 0,
   IF = 1,
 };
 
 enum OpStmt4 : uint16_t {
-  BAD_OP_STMT_4 = 0,
+  BAD_ST4 = 0,
   FOR = 1,
 };
 
 enum OpStmtN : uint16_t {
-  BAD_OP_STMT_N = 0,
+  BAD_STN = 0,
   BLOCK = 1,
   COND = 2, // n-ary IF ... [ELSEIF* ... [ELSE ...]]
   SWITCH = 2,

@@ -37,10 +37,17 @@ class Stmt0 : public Stmt {
   friend class Node;
 
 public:
-  constexpr Stmt0() : Base{} {
+  /**
+   * construct an invalid Stmt0
+   * exists only to allow placing Stmt0 in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid Stmt0, use Stmt0(OpStmt0)
+   */
+  constexpr Stmt0() : Base{STMT_0, Bad, BAD} {
   }
 
-  constexpr explicit Stmt0(OpStmt0 op) : Base{STMT_0, op} {
+  constexpr explicit Stmt0(OpStmt0 op) : Base{STMT_0, Void, op} {
   }
 
   static constexpr uint32_t children() {
@@ -48,10 +55,6 @@ public:
   }
 
 protected:
-  constexpr Stmt0(NodeHeader header, Offset offset_or_direct, const Code *code) //
-      : Base{header, offset_or_direct, code} {
-  }
-
   // downcast Node to Stmt0
   constexpr explicit Stmt0(const Node &node) : Base{node} {
   }
@@ -62,43 +65,41 @@ protected:
   }
 };
 
-std::ostream &operator<<(std::ostream &out, const Stmt0 &st0);
+inline std::ostream &operator<<(std::ostream &out, const Stmt0 &st) {
+  return out << st.op();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-class Bad : public Stmt0 {
+class BadStmt : public Stmt0 {
   using Base = Stmt0;
   friend class Node;
 
 public:
-  constexpr Bad() : Base(BAD_OP_STMT_0) {
+  constexpr BadStmt() : Base{BAD} {
   }
 
   static constexpr OpStmt0 op() {
-    return BAD_OP_STMT_0;
+    return BAD;
   }
 
 private:
-  constexpr Bad(NodeHeader header, Offset offset_or_direct, const Code *code) //
-      : Base{header, offset_or_direct, code} {
-  }
-
-  // downcast Node to Bad
-  constexpr explicit Bad(const Node &node) : Base{node} {
+  // downcast Node to BadStmt
+  constexpr explicit BadStmt(const Node &node) : Base{node} {
   }
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) {
-    return op == BAD_OP_STMT_0;
+    return op == BAD;
   }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class Break : public Stmt0 {
+class BreakStmt : public Stmt0 {
   using Base = Stmt0;
   friend class Node;
 
 public:
-  constexpr Break() : Base(BREAK) {
+  constexpr BreakStmt() : Base{BREAK} {
   }
 
   static constexpr OpStmt0 op() {
@@ -106,12 +107,8 @@ public:
   }
 
 private:
-  constexpr Break(NodeHeader header, Offset offset_or_direct, const Code *code) //
-      : Base{header, offset_or_direct, code} {
-  }
-
-  // downcast Node to Break
-  constexpr explicit Break(const Node &node) : Base{node} {
+  // downcast Node to BreakStmt
+  constexpr explicit BreakStmt(const Node &node) : Base{node} {
   }
 
   // downcast helper
@@ -121,12 +118,12 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class Continue : public Stmt0 {
+class ContinueStmt : public Stmt0 {
   using Base = Stmt0;
   friend class Node;
 
 public:
-  constexpr Continue() : Base(CONTINUE) {
+  constexpr ContinueStmt() : Base{CONTINUE} {
   }
 
   static constexpr OpStmt0 op() {
@@ -134,12 +131,8 @@ public:
   }
 
 private:
-  constexpr Continue(NodeHeader header, Offset offset_or_direct, const Code *code) //
-      : Base{header, offset_or_direct, code} {
-  }
-
-  // downcast Node to Continue
-  constexpr explicit Continue(const Node &node) : Base{node} {
+  // downcast Node to ContinueStmt
+  constexpr explicit ContinueStmt(const Node &node) : Base{node} {
   }
 
   // downcast helper
@@ -149,12 +142,12 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class Fallthrough : public Stmt0 {
+class FallthroughStmt : public Stmt0 {
   using Base = Stmt0;
   friend class Node;
 
 public:
-  constexpr Fallthrough() : Base(FALLTHROUGH) {
+  constexpr FallthroughStmt() : Base{FALLTHROUGH} {
   }
 
   static constexpr OpStmt0 op() {
@@ -162,12 +155,8 @@ public:
   }
 
 private:
-  constexpr Fallthrough(NodeHeader header, Offset offset_or_direct, const Code *code) //
-      : Base{header, offset_or_direct, code} {
-  }
-
-  // downcast Node to Fallthrough
-  constexpr explicit Fallthrough(const Node &node) : Base{node} {
+  // downcast Node to FallthroughStmt
+  constexpr explicit FallthroughStmt(const Node &node) : Base{node} {
   }
 
   // downcast helper

@@ -23,7 +23,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/logsize.hpp"
+#include <onejit/logsize.hpp>
 
 #include <ostream>
 

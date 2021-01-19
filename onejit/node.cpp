@@ -23,27 +23,67 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/node.hpp"
-#include "onejit/binaryexpr.hpp"
-#include "onejit/code.hpp"
-#include "onejit/constexpr.hpp"
-#include "onejit/stmt0.hpp"
-#include "onejit/stmt1.hpp"
-#include "onejit/stmt2.hpp"
-#include "onejit/unaryexpr.hpp"
-#include "onejit/varexpr.hpp"
-#include "onestl/chars.hpp"
-#include "onestl/check.hpp"
+#include <onejit/binaryexpr.hpp>
+#include <onejit/check.hpp>
+#include <onejit/code.hpp>
+#include <onejit/constexpr.hpp>
+#include <onejit/node.hpp>
+#include <onejit/stmt0.hpp>
+#include <onejit/stmt1.hpp>
+#include <onejit/stmt2.hpp>
+#include <onejit/unaryexpr.hpp>
+#include <onejit/varexpr.hpp>
+#include <onestl/chars.hpp>
 
 namespace onejit {
 
-CodeItem Node::at(Offset byte_offset) const {
-  Offset offset = off_or_dir_ + byte_offset;
-  if (code_ != nullptr && offset < code_->length()) {
-    return code_->at(offset);
+CodeItem ONEJIT_NOINLINE Node::at(Offset byte_offset) const {
+  ONEJIT_CHECK(code_, !=, nullptr);
+  return code_->at(off_or_dir_ + byte_offset);
+}
+
+uint32_t ONEJIT_NOINLINE Node::children() const {
+  return is_list(type()) ? at(sizeof(CodeItem)) : to_children(type());
+}
+
+Node Node::child(uint32_t i) const {
+  ONEJIT_BOUNDS(i, <, children());
+  // skip NodeHeader and child count
+  const CodeItem item = at(sizeof(CodeItem) * (size_t(i) + (is_list(type()) ? 2 : 1)));
+
+  NodeHeader header;
+  uint32_t offset_or_direct = 0;
+  const Code *code = nullptr;
+
+  // item low bits can be:
+  // 0b***1 => direct CONST
+  // 0b**00 => relative offset of indirect Node
+  // 0b*010 => direct VAR
+  // 0b0110 => NodeHeader
+  // 0b1110 => currently unused
+
+  if (item < 4) {
+    // special case: Stmt0 is always direct,
+    // only four values exist: BadStmt BreakStmt ContinueStmt FallthroughStmt
+    header = NodeHeader{STMT_0, Void, uint16_t(item)};
+  } else if ((item & 1) != 0) {
+    // direct Const
+    offset_or_direct = item;
+    header = NodeHeader{CONST, Const::parse_direct_kind(item), 0};
+  } else if ((item & 7) == 2) {
+    // direct Var
+    offset_or_direct = item;
+    header = NodeHeader{VAR, Var::parse_direct_kind(item), 0};
+  } else if ((item & 4) == 0) {
+    // indirect Node
+    offset_or_direct = off_or_dir_ + item;
+    header = NodeHeader{code_->at(offset_or_direct)};
+    code = code_; // only indirect Nodes need code
   } else {
-    return 0; // header of Stmt0 Bad
+    // NodeHeader or tag 0b1110: should not appear here,
+    // => return an invalid node
   }
+  return Node{header, offset_or_direct, code};
 }
 
 Offset Node::size() const {
@@ -65,54 +105,10 @@ Offset Node::size() const {
   return len;
 }
 
-uint32_t Node::children() const {
-  return is_list(type()) ? at(sizeof(CodeItem)) : to_children(type());
-}
-
-Node Node::child(uint32_t i) const {
-  check(i, <, children());
-  // skip NodeHeader and child count
-  const CodeItem item = at(sizeof(CodeItem) * (size_t(i) + (is_list(type()) ? 2 : 1)));
-
-  NodeHeader header;
-  uint32_t offset_or_direct = 0;
-  const Code *code = code_;
-
-  // item low bits can be:
-  // 0b***1 => direct CONST
-  // 0b**00 => relative offset of indirect Node
-  // 0b*010 => direct VAR
-  // 0b0110 => NodeHeader
-  // 0b1110 => currently unused
-
-  if (item < 4) {
-    // special case: Stmt0 is always direct,
-    // only four values exist: Bad Break Continue Fallthrough
-    header = NodeHeader{Type(STMT_0), Void, uint16_t(item)};
-  } else if ((item & 1) != 0) {
-    // direct Const
-    offset_or_direct = item;
-    header = NodeHeader{CONST, Const::parse_direct_kind(item), 0};
-  } else if ((item & 7) == 2) {
-    // direct Var
-    offset_or_direct = item;
-    header = NodeHeader{VAR, Var::parse_direct_kind(item), 0};
-  } else if ((item & 4) == 0) {
-    // indirect Node
-    offset_or_direct = off_or_dir_ + item;
-    header = NodeHeader{code_->at(offset_or_direct)};
-  } else {
-    // NodeHeader or tag 0b1110: should not appear here,
-    // => return an invalid node
-    code = nullptr;
-  }
-  return Node{header, offset_or_direct, code};
-}
-
 std::ostream &operator<<(std::ostream &out, const Node &node) {
   const Type t = node.type();
   switch (t) {
-  case STMT_0: // same as BAD
+  case STMT_0:
     return out << node.is<Stmt0>();
   case STMT_1:
     return out << node.is<Stmt1>();

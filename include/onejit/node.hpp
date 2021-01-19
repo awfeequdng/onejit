@@ -26,8 +26,8 @@
 #ifndef ONEJIT_NODE_HPP
 #define ONEJIT_NODE_HPP
 
+#include <onejit/check.hpp>
 #include <onejit/nodeheader.hpp>
-#include <onestl/check.hpp>
 
 #include <iosfwd>
 
@@ -37,11 +37,18 @@ namespace onejit {
 // base class of BinaryExpr, ConstExpr, UnaryExpr, VarExpr, Stmt*
 class Node {
 
+  friend class BinaryExpr;
   friend class Code;
   friend class CodeParser;
   friend class ConstExpr;
-  friend class VarExpr;
   friend class Func;
+  friend class Stmt1;
+  friend class Stmt2;
+  friend class Stmt3;
+  friend class Stmt4;
+  friend class StmtN;
+  friend class UnaryExpr;
+  friend class VarExpr;
 
 public:
   constexpr Node() : header_{}, off_or_dir_{0}, code_{nullptr} {
@@ -59,12 +66,26 @@ public:
     return header_.op();
   }
 
+  constexpr NodeHeader header() const {
+    return header_;
+  }
+
   constexpr explicit operator bool() const {
     return bool(header_);
   }
 
   constexpr bool operator!() const {
     return !header_;
+  }
+
+  // identity test: true if this and other are the same Node.
+  // does not recurse on children.
+  constexpr bool operator==(const Node &other) const {
+    return header_ == other.header_ && off_or_dir_ == other.off_or_dir_ && code_ == other.code_;
+  }
+
+  constexpr bool operator!=(const Node &other) const {
+    return !(*this == other);
   }
 
   // return Node length, in bytes
@@ -88,7 +109,7 @@ public:
 
   // try to downcast Node to T. throw exception if fails.
   template <class T> constexpr T to() const {
-    return CHECK(T::is_allowed_type(type()), &&, T::is_allowed_op(op())), T{*this};
+    return ONEJIT_CHECK(T::is_allowed_type(type()), &&, T::is_allowed_op(op())), T{*this};
   }
 
 protected:
@@ -104,10 +125,6 @@ protected:
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t /*op*/) {
     return true;
-  }
-
-  constexpr NodeHeader header() const {
-    return header_;
   }
 
   constexpr CodeItem offset_or_direct() const {

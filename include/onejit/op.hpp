@@ -34,7 +34,7 @@
 namespace onejit {
 
 enum Op1 : uint16_t {
-  BAD_OP1 = 0,
+  BAD1 = 0,
   XOR1 = 1,
   NOT1 = 2,
   GOTO = 3,
@@ -42,7 +42,7 @@ enum Op1 : uint16_t {
 
 // intentionally match Go go/token.Token values
 enum Op2 : uint16_t {
-  BAD_OP2 = 0,
+  BAD2 = 0,
   ADD = 12, // +
   SUB,      // -
   MUL,      // *

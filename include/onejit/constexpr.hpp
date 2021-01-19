@@ -48,7 +48,7 @@ public:
    *
    * to create a valid ConstExpr, use Func::new_const()
    */
-  constexpr ConstExpr() : Base{NodeHeader{BAD, Void, 0}, 0, nullptr} {
+  constexpr ConstExpr() : Base{CONST} {
   }
 
   static constexpr Type type() {
@@ -64,14 +64,10 @@ public:
   Const constant() const;
 
 private:
-  constexpr ConstExpr(NodeHeader header, Offset offset_or_direct, const Code *code) //
-      : Base{header, offset_or_direct, code} {
-  }
-
   // downcast Node to ConstExpr
   constexpr explicit ConstExpr(const Node &node) //
-      : Base{node.header(), node.offset_or_direct(),
-             node.offset_or_direct() & 1 ? nullptr : node.code()} {
+      : Base{Node{node.header(), node.offset_or_direct(),
+                  node.offset_or_direct() & 1 ? nullptr : node.code()}} {
   }
 
   // downcast helper

@@ -48,7 +48,7 @@ public:
    *
    * to create a valid UnaryExpr, use Func::new_unary()
    */
-  constexpr UnaryExpr() : Base{NodeHeader{BAD, Void, 0}, BAD_OP1, nullptr} {
+  constexpr UnaryExpr() : Base{UNARY} {
   }
 
   static constexpr Type type() {
@@ -71,10 +71,6 @@ public:
   }
 
 private:
-  constexpr UnaryExpr(NodeHeader header, Offset offset_or_direct, const Code *code) //
-      : Base{header, offset_or_direct, code} {
-  }
-
   // downcast Node to UnaryExpr
   constexpr explicit UnaryExpr(const Node &node) : Base{node} {
   }

@@ -45,11 +45,7 @@ public:
   }
 
 protected:
-  constexpr Stmt(Type t, uint16_t op) : Base{NodeHeader{t, Void, op}, 0, nullptr} {
-  }
-
-  constexpr Stmt(NodeHeader header, Offset offset_or_direct, const Code *code) //
-      : Base{header, offset_or_direct, code} {
+  constexpr Stmt(Type t, Kind kind, uint16_t op) : Base{NodeHeader{t, kind, op}, 0, nullptr} {
   }
 
   // downcast Node to Stmt

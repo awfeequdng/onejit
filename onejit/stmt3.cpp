@@ -17,42 +17,38 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * func.cpp
+ * stmt3.cpp
  *
- *  Created on Jan 13, 2020
+ *  Created on Jan 18, 2020
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/code.hpp>
-#include <onejit/const.hpp>
-#include <onejit/func.hpp>
-
-#include <stdexcept>
+#include <onejit/stmt3.hpp>
+#include <onestl/chars.hpp>
 
 namespace onejit {
 
-enum {
-  BAD_ID = 0,
-  FIRST_VARID = 0x1000,
-};
+// ============================  Stmt3  ========================================
 
-Func::Func(Code *holder) : holder_(holder), vars_() {
-  if (holder->length() == 0) {
-    // add magic signature {CONST uint8x4 "1JIT"} in case Code is saved to file
-    holder->add(NodeHeader{CONST, Uint8.simdn(SimdN{4}), 0});
-    holder->add(uint32_t(0x54494A31));
+Stmt3 ONEJIT_NOINLINE Stmt3::create(OpStmt3 op, const Node &child0, const Node &child1,
+                                    const Node &child2, Code *holder) {
+  const NodeHeader header{STMT_3, Void, uint16_t(op)};
+  CodeItem offset = holder->length();
+
+  if (!holder->add(header) || !holder->add(child0, offset) || !holder->add(child1, offset) ||
+      !holder->add(child2, offset)) {
+    holder->truncate(offset);
+    return Stmt3{op};
   }
+  return Stmt3{Node{header, offset, holder}};
 }
 
-VarExpr Func::new_var(Kind kind) {
-  const Var var{
-      kind,
-      VarId{uint32_t(kind <= Void ? 0 : vars_.size() + FIRST_VARID)},
-  };
-  if (kind == Bad || (kind != Void && !vars_.append(var))) {
-    return VarExpr{};
-  }
-  return VarExpr::create(var, holder_);
+std::ostream &operator<<(std::ostream &out, const Stmt3 &st) {
+  return out << '(' << st.op() << ' ' << st.child(0) << Chars("\n    ") << st.child(1)
+             << Chars("\n    ") << st.child(2) << ')';
 }
+
+// ============================  IfStmt  =======================================
 
 } // namespace onejit

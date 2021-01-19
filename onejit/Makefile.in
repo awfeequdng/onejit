@@ -110,7 +110,8 @@ am_libonejit_a_OBJECTS = archid.$(OBJEXT) binaryexpr.$(OBJEXT) \
 	constexpr.$(OBJEXT) func.$(OBJEXT) group.$(OBJEXT) \
 	kind.$(OBJEXT) logsize.$(OBJEXT) node.$(OBJEXT) \
 	nodeheader.$(OBJEXT) op.$(OBJEXT) opstmt.$(OBJEXT) \
-	stmt0.$(OBJEXT) stmt1.$(OBJEXT) stmt2.$(OBJEXT) type.$(OBJEXT) \
+	stmt0.$(OBJEXT) stmt1.$(OBJEXT) stmt2.$(OBJEXT) \
+	stmt3.$(OBJEXT) stmt4.$(OBJEXT) stmtn.$(OBJEXT) type.$(OBJEXT) \
 	unaryexpr.$(OBJEXT) var.$(OBJEXT) varexpr.$(OBJEXT)
 libonejit_a_OBJECTS = $(am_libonejit_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -135,7 +136,8 @@ am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/binaryexpr.Po \
 	./$(DEPDIR)/logsize.Po ./$(DEPDIR)/node.Po \
 	./$(DEPDIR)/nodeheader.Po ./$(DEPDIR)/op.Po \
 	./$(DEPDIR)/opstmt.Po ./$(DEPDIR)/stmt0.Po \
-	./$(DEPDIR)/stmt1.Po ./$(DEPDIR)/stmt2.Po ./$(DEPDIR)/type.Po \
+	./$(DEPDIR)/stmt1.Po ./$(DEPDIR)/stmt2.Po ./$(DEPDIR)/stmt3.Po \
+	./$(DEPDIR)/stmt4.Po ./$(DEPDIR)/stmtn.Po ./$(DEPDIR)/type.Po \
 	./$(DEPDIR)/unaryexpr.Po ./$(DEPDIR)/var.Po \
 	./$(DEPDIR)/varexpr.Po
 am__mv = mv -f
@@ -319,8 +321,8 @@ noinst_LIBRARIES = libonejit.a
 AM_CPPFLAGS = -I$(top_srcdir)/include
 # libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
 libonejit_a_SOURCES = archid.cpp binaryexpr.cpp code.cpp codeparser.cpp const.cpp constexpr.cpp \
-                         func.cpp group.cpp kind.cpp logsize.cpp node.cpp nodeheader.cpp \
-                         op.cpp opstmt.cpp stmt0.cpp stmt1.cpp stmt2.cpp \
+                         func.cpp group.cpp kind.cpp logsize.cpp node.cpp nodeheader.cpp op.cpp \
+                         opstmt.cpp stmt0.cpp stmt1.cpp stmt2.cpp stmt3.cpp stmt4.cpp stmtn.cpp \
                          type.cpp unaryexpr.cpp var.cpp varexpr.cpp
 
 all: all-recursive
@@ -388,6 +390,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt0.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt1.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt2.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt3.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt4.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmtn.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/type.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unaryexpr.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/var.Po@am__quote@ # am--include-marker
@@ -629,6 +634,9 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/stmt0.Po
 	-rm -f ./$(DEPDIR)/stmt1.Po
 	-rm -f ./$(DEPDIR)/stmt2.Po
+	-rm -f ./$(DEPDIR)/stmt3.Po
+	-rm -f ./$(DEPDIR)/stmt4.Po
+	-rm -f ./$(DEPDIR)/stmtn.Po
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f ./$(DEPDIR)/unaryexpr.Po
 	-rm -f ./$(DEPDIR)/var.Po
@@ -695,6 +703,9 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/stmt0.Po
 	-rm -f ./$(DEPDIR)/stmt1.Po
 	-rm -f ./$(DEPDIR)/stmt2.Po
+	-rm -f ./$(DEPDIR)/stmt3.Po
+	-rm -f ./$(DEPDIR)/stmt4.Po
+	-rm -f ./$(DEPDIR)/stmtn.Po
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f ./$(DEPDIR)/unaryexpr.Po
 	-rm -f ./$(DEPDIR)/var.Po

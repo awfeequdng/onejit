@@ -23,8 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/constexpr.hpp"
-#include "onejit/code.hpp"
+#include <onejit/code.hpp>
+#include <onejit/constexpr.hpp>
 
 namespace onejit {
 
@@ -48,7 +48,7 @@ ConstExpr ConstExpr::create(const Const &c, Code *holder) {
     holder->truncate(off_or_dir);
     return ConstExpr{};
   }
-  return ConstExpr{header, off_or_dir, holder};
+  return ConstExpr{Node{header, off_or_dir, holder}};
 }
 
 std::ostream &operator<<(std::ostream &out, const ConstExpr &ce) {

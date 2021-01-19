@@ -31,28 +31,39 @@
 #include <sstream>
 #include <utility>
 
+#define ONESTL_BOUNDS(lhs, op, rhs)                                                                \
+  (((lhs) /**/ op /**/ (rhs)) ? (void)0 : ONESTL_THROW_ERROR(lhs, op, rhs, throw_bounds_failed))
+
+#define ONESTL_CHECK(lhs, op, rhs)                                                                 \
+  (((lhs) /**/ op /**/ (rhs)) ? (void)0 : ONESTL_THROW_ERROR(lhs, op, rhs, throw_check_failed))
+
+#define ONESTL_TEST(lhs, op, rhs)                                                                  \
+  (((lhs) /**/ op /**/ (rhs)) ? (void)0 : ONESTL_THROW_ERROR_FULL(lhs, op, rhs, throw_check_failed))
+
 #ifdef __OPTIMIZE__
-#define check(lhs, op, rhs)
+#define ONESTL_THROW_ERROR(lhs, op, rhs, throw_func)                                               \
+  ONESTL_THROW_ERROR_SHORT(lhs, op, rhs, throw_func)
 #else
-#define check(lhs, op, rhs) CHECK(lhs, op, rhs)
+#define ONESTL_THROW_ERROR(lhs, op, rhs, throw_func)                                               \
+  ONESTL_THROW_ERROR_FULL(lhs, op, rhs, throw_func)
 #endif
 
-#define CHECK(lhs, op, rhs) (((lhs) /**/ op /**/ (rhs)) ? (void)0 : CHECK_FAILED(lhs, op, rhs))
-
-#define CHECK_FAILED(lhs, op, rhs)                                                                 \
-  ::onestl::CheckFailed(::onestl::to_string(lhs), ::onestl::to_string(rhs), #op, #lhs, #rhs,       \
-                        __FILE__, __LINE__)                                                        \
-      .throw_error()
+#define ONESTL_THROW_ERROR_SHORT(lhs, op, rhs, throw_func) (::onestl::throw_func())
+#define ONESTL_THROW_ERROR_FULL(lhs, op, rhs, throw_func)                                          \
+  (::onestl::Error(::onestl::to_string(lhs), ::onestl::to_string(rhs), #op, #lhs, #rhs, __FILE__,  \
+                   __LINE__)                                                                       \
+       .throw_func())
 
 namespace onestl {
 
-class CheckFailed {
+class Error {
 public:
-  CheckFailed(std::string &&lhs, std::string &&rhs,                  //
-              const char *opstr, const char *lstr, const char *rstr, //
-              const char *file, int line);
+  Error(std::string &&lhs, std::string &&rhs,                  //
+        const char *opstr, const char *lstr, const char *rstr, //
+        const char *file, int line);
 
-  void ONESTL_NORETURN throw_error() const;
+  void ONESTL_NORETURN throw_check_failed() const;
+  void ONESTL_NORETURN throw_bounds_failed() const;
 
 private:
   std::string lhs_;
@@ -64,7 +75,11 @@ private:
   int line_;
 };
 
+void ONESTL_NORETURN throw_check_failed();
+void ONESTL_NORETURN throw_bounds_failed();
+
 std::string to_string(std::nullptr_t);
+std::string to_string(bool val);
 std::string to_string(const void *val);
 
 template <class T> std::string to_string(const T *val) {

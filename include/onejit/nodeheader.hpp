@@ -28,6 +28,7 @@
 
 #include <onejit/fwd.hpp>
 #include <onejit/kind.hpp>
+#include <onejit/opstmt.hpp>
 #include <onejit/type.hpp>
 
 namespace onejit {
@@ -37,7 +38,14 @@ namespace onejit {
 class NodeHeader {
 
 public:
-  constexpr NodeHeader() : type_{BAD}, ekind_{kBad}, op_{0} {
+  /**
+   * construct an invalid NodeHeader.
+   * exists only to allow placing NodeHeader in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid NodeHeader, use one of the other constructors.
+   */
+  constexpr NodeHeader() : type_{STMT_0}, ekind_{kBad}, op_{BAD} {
   }
 
   constexpr explicit NodeHeader(CodeItem item)
@@ -65,11 +73,20 @@ public:
   }
 
   constexpr explicit operator bool() const {
-    return type_ != BAD && ekind_ != kBad;
+    return ekind_ != kBad;
   }
 
   constexpr bool operator!() const {
-    return type_ == BAD || ekind_ == kBad;
+    return ekind_ == kBad;
+  }
+
+  // true if this and other NodeHeader have the same type, kind and op.
+  constexpr bool operator==(const NodeHeader &other) const {
+    return type_ == other.type_ && ekind_ == other.ekind_ && op_ == other.op_;
+  }
+
+  constexpr bool operator!=(const NodeHeader &other) const {
+    return !(*this == other);
   }
 
 private:

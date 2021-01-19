@@ -23,9 +23,9 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/const.hpp"
-#include "onejit/code.hpp"
-#include "onestl/chars.hpp"
+#include <onestl/chars.hpp>
+#include <onejit/code.hpp>
+#include <onejit/const.hpp>
 
 namespace onejit {
 

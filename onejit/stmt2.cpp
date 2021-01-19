@@ -23,33 +23,30 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/stmt2.hpp"
-#include "onejit/code.hpp"
-#include "onejit/expr.hpp"
+#include <onejit/code.hpp>
+#include <onejit/expr.hpp>
+#include <onejit/stmt2.hpp>
 
 namespace onejit {
 
 // ============================  Stmt2  ========================================
 
-Stmt2 Stmt2::create(OpStmt2 op, const Node &child0, const Node &child1, Code *holder) {
+Stmt2 ONEJIT_NOINLINE Stmt2::create(OpStmt2 op, const Node &child0, const Node &child1,
+                                    Code *holder) {
   const NodeHeader header{STMT_2, Void, uint16_t(op)};
   CodeItem offset = holder->length();
 
   if (!holder->add(header) || !holder->add(child0, offset) || !holder->add(child1, offset)) {
     holder->truncate(offset);
-    return Stmt2{};
+    return Stmt2{op};
   }
-  return Stmt2{header, offset, holder};
+  return Stmt2{Node{header, offset, holder}};
 }
 
-std::ostream &operator<<(std::ostream &out, const Stmt2 &st2) {
-  return out << '(' << st2.op() << ' ' << st2.child(0) << ' ' << st2.child(1) << ')';
+std::ostream &operator<<(std::ostream &out, const Stmt2 &st) {
+  return out << '(' << st.op() << ' ' << st.child(0) << ' ' << st.child(1) << ')';
 }
 
-// ============================  Case  ======================================
-
-Case Case::create(const Expr &expr, const Node &body, Code *holder) {
-  return Stmt2::create(CASE, expr, body, holder).is<Case>();
-}
+// ============================  CaseStmt  =====================================
 
 } // namespace onejit

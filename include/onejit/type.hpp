@@ -34,7 +34,6 @@
 namespace onejit {
 
 enum Type : uint8_t {
-  BAD = 0,
   STMT_0 = 0, // BAD, BREAK, CONTINUE, FALLTHROUGH
   STMT_1 = 1, // DEFAULT
   STMT_2 = 2, // CASE

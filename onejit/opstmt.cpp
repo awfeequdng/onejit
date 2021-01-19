@@ -23,8 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/opstmt.hpp"
-#include "onestl/chars.hpp"
+#include <onestl/chars.hpp>
+#include <onejit/opstmt.hpp>
 
 #include <ostream>
 

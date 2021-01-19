@@ -23,17 +23,17 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include "onejit/code.hpp"
-#include "onejit/nodeheader.hpp"
+#include <onejit/code.hpp>
+#include <onejit/nodeheader.hpp>
 
 #include <cstring>
 
 namespace onejit {
 
-Code::Code() : Base(), good_(true) {
+Code::Code() : Base{}, good_{true} {
 }
 
-Code::Code(size_t capacity) : Base(), good_(true) {
+Code::Code(size_t capacity) : Base{}, good_{true} {
   good_ &= reserve(capacity);
 }
 
@@ -54,28 +54,8 @@ uint64_t Code::uint64(Offset byte_offset) const {
   return val;
 }
 
-float Code::float32(Offset byte_offset) const {
-  const union {
-    uint32_t u32;
-    float f32;
-  } x = {at(byte_offset)};
-  return x.f32;
-}
-
-double Code::float64(Offset byte_offset) const {
-  const uint32_t *addr = &at(byte_offset + 4) - 1;
-  double val;
-  std::memcpy(&val, addr, sizeof(val));
-  return val;
-}
-
-Code &ONEJIT_NOINLINE Code::add(const CodeView data) {
-  good_ = good_ && Base::append(data);
-  return *this;
-}
-
 Code &Code::add(const uint32_t item) {
-  return add(CodeView{&item, 1});
+  return add(CodeItems{&item, 1});
 }
 
 Code &Code::add(uint64_t u64) {
@@ -83,7 +63,27 @@ Code &Code::add(uint64_t u64) {
     uint64_t u64;
     uint32_t u32[2];
   } x = {u64};
-  return add(CodeView{x.u32, 2});
+  return add(CodeItems{x.u32, 2});
+}
+
+Code &ONEJIT_NOINLINE Code::add(CodeItems data) {
+  good_ = good_ && Base::append(data);
+  return *this;
+}
+
+Code &Code::add(const Node &node, Offset parent_offset) {
+  // save relative offset between parent and child:
+  // makes it easier to concatenate different Code objects
+  return add(node.offset_or_direct() - (node.is_direct() ? 0 : parent_offset));
+}
+
+Code &ONEJIT_NOINLINE Code::add(const Nodes nodes, Offset parent_offset) {
+  for (const Node &node : nodes) {
+    if (!add(node, parent_offset)) {
+      break;
+    }
+  }
+  return *this;
 }
 
 } // namespace onejit

@@ -53,32 +53,32 @@ public:
     return holder_ && *holder_;
   }
 
-  Break new_break() {
-    return Break{};
+  BreakStmt new_break() {
+    return BreakStmt{};
   }
 
   BinaryExpr new_binary(Kind kind, Op2 op, const Expr &left, const Expr &right) {
     return BinaryExpr::create(kind, op, left, right, holder_);
   }
 
-  Case new_case(const Expr &expr, const Node &body) {
-    return Case::create(expr, body, holder_);
+  CaseStmt new_case(const Expr &expr, const Node &body) {
+    return CaseStmt::create(expr, body, holder_);
   }
 
   ConstExpr new_const(const Const &c) {
     return ConstExpr::create(c, holder_);
   }
 
-  Continue new_continue() {
-    return Continue{};
+  ContinueStmt new_continue() {
+    return ContinueStmt{};
   }
 
-  Default new_default(const Node &body) {
-    return Default::create(body, holder_);
+  DefaultStmt new_default(const Node &body) {
+    return DefaultStmt::create(body, holder_);
   }
 
-  Fallthrough new_fallthrough() {
-    return Fallthrough{};
+  FallthroughStmt new_fallthrough() {
+    return FallthroughStmt{};
   }
 
   Stmt0 new_stmt0(OpStmt0 op) {
