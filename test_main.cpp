@@ -174,7 +174,7 @@ void Test::nested_expr() {
     Expr be1 = func.new_binary(ADD, ce1, ve1);
     Expr be2 = func.new_binary(MUL, ce2, ve2);
     Expr be3 = func.new_binary(SHL, be1, be2);
-    Expr ue1 = func.new_unary(k, XOR1, be3);
+    Expr ue1 = func.new_unary(XOR1, be3);
 
     ONEJIT_TEST(be1.kind(), ==, k);
     ONEJIT_TEST(be2.kind(), ==, k);

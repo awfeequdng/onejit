@@ -37,7 +37,8 @@ enum Op1 : uint16_t {
   BAD1 = 0,
   XOR1 = 1,
   NOT1 = 2,
-  GOTO = 3,
+  CAST = 3,
+  GOTO = 4,
 };
 
 enum Op2 : uint16_t {

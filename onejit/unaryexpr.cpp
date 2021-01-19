@@ -28,7 +28,7 @@
 
 namespace onejit {
 
-UnaryExpr UnaryExpr::create(Kind kind, Op1 op, const Expr &child, Code *holder) {
+UnaryExpr ONEJIT_NOINLINE UnaryExpr::create(Kind kind, Op1 op, const Expr &child, Code *holder) {
   const NodeHeader header{UNARY, kind, uint16_t(op)};
   CodeItem offset = holder->length();
 
@@ -39,8 +39,28 @@ UnaryExpr UnaryExpr::create(Kind kind, Op1 op, const Expr &child, Code *holder) 
   return UnaryExpr{Node{header, offset, holder}};
 }
 
+UnaryExpr UnaryExpr::create(Op1 op, const Expr &child, Code *holder) {
+  Kind kind;
+
+  if (op == XOR1 || op == CAST) {
+    // CAST kind should be specified manually
+    kind = child.kind();
+  } else if (op == NOT1) {
+    kind = Bool;
+  } else if (op == GOTO) {
+    kind = Void;
+  } else {
+    kind = Bad;
+  }
+  return create(kind, op, child, holder);
+}
+
 std::ostream &operator<<(std::ostream &out, const UnaryExpr &ue) {
-  return out << '(' << ue.op() << ' ' << ue.child(0) << ')';
+  out << '(' << ue.op();
+  if (ue.op() == CAST) {
+    out << ' ' << ue.kind();
+  }
+  return out << ' ' << ue.child(0) << ')';
 }
 
 } // namespace onejit

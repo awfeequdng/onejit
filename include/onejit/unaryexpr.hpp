@@ -80,6 +80,8 @@ private:
     return t == UNARY;
   }
   static UnaryExpr create(Kind kind, Op1 op, const Expr &child, Code *holder);
+  // also autodetects kind if op != CAST
+  static UnaryExpr create(Op1 op, const Expr &child, Code *holder);
 };
 
 std::ostream &operator<<(std::ostream &out, const UnaryExpr &ue);

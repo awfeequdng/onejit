@@ -98,6 +98,11 @@ public:
     return UnaryExpr::create(kind, op, arg, holder_);
   }
 
+  // also autodetects kind if op != CAST
+  UnaryExpr new_unary(Op1 op, const Expr &arg) {
+    return UnaryExpr::create(op, arg, holder_);
+  }
+
   VarExpr new_var(Kind kind);
 
   Func &add(const Node &node) {
