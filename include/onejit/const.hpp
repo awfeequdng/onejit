@@ -86,11 +86,12 @@ class Const {
   friend class ConstExpr;
 
 public:
+  // construct a Void constant. equivalent to C/C++ source "(void)0"
   constexpr Const() //
-      : bits_{}, ekind_{kVoid}, direct_{Direct{*this}} {
+      : bits_{}, ekind_{kVoid}, direct_{Direct{Void, 0}} {
   }
   constexpr explicit Const(bool val) //
-      : bits_{uint64_t(val)}, ekind_{kBool}, direct_{Direct{*this}} {
+      : bits_{uint64_t(val)}, ekind_{kBool}, direct_{Direct{Bool, uint16_t(val)}} {
   }
   constexpr explicit Const(int8_t val) //
       : bits_{uint64_t(val)}, ekind_{kInt8}, direct_{Direct{*this, 0}} {
@@ -105,10 +106,10 @@ public:
       : bits_{uint64_t(val)}, ekind_{kInt64}, direct_{Direct{*this, 0}} {
   }
   constexpr explicit Const(uint8_t val) //
-      : bits_{uint64_t(val)}, ekind_{kUint8}, direct_{Direct{*this}} {
+      : bits_{uint64_t(val)}, ekind_{kUint8}, direct_{Direct{Uint8, val}} {
   }
   constexpr explicit Const(uint16_t val) //
-      : bits_{uint64_t(val)}, ekind_{kUint16}, direct_{Direct{*this}} {
+      : bits_{uint64_t(val)}, ekind_{kUint16}, direct_{Direct{Uint16, val}} {
   }
   constexpr explicit Const(uint32_t val) //
       : bits_{uint64_t(val)}, ekind_{kUint32}, direct_{Direct{*this, 0}} {
@@ -193,10 +194,10 @@ private:
     constexpr explicit Direct(uint32_t data) : val_(data) {
     }
 
-    // kind_ contains at most 4 bits, and
-    // bits_ contains at most 16 bits => is always direct
-    constexpr explicit Direct(Const c) //
-        : val_{1 | (c.ekind_ & 0x0F) << 1 | uint32_t(c.bits_ & 0x7FFFFF) << 8} {
+    // kind must contain at most 4 bits, and
+    // bits must contain at most 16 bits => is always direct
+    constexpr explicit Direct(Kind kind, uint16_t bits) //
+        : val_{1 | (kind.val() & 0x0F) << 1 | uint32_t(bits) << 8} {
     }
 
     // create direct value if possible, otherwise zero
@@ -240,12 +241,12 @@ private:
 
     // return direct value if possible, otherwise zero
     static constexpr uint32_t recurse(Const c, uint8_t rotate_bits, uint64_t xor_mask) {
-      return can_direct(c, rotate_bits, xor_mask)                               //
-                 ? make_direct(c, rotate_bits, xor_mask)                        //
-                 : xor_mask == 0 ? recurse(c, rotate_bits, ~xor_mask)           //
-                                 : rotate_bits < 64                             //
-                                       ? recurse(c, rotate_bits + 8, ~xor_mask) //
-                                       : 0;
+      return can_direct(c, rotate_bits, xor_mask)                     //
+                 ? make_direct(c, rotate_bits, xor_mask)              //
+                 : xor_mask == 0 ? recurse(c, rotate_bits, ~xor_mask) //
+                   : rotate_bits < 64                                 //
+                       ? recurse(c, rotate_bits + 8, ~xor_mask)       //
+                       : 0;
     }
 
     static constexpr bool can_direct(Const c, uint8_t rotate_bits, uint64_t xor_mask) {
@@ -288,6 +289,9 @@ private:
   eKind ekind_;
   uint32_t direct_;
 };
+
+constexpr const Const True{true};
+constexpr const Const False{false};
 
 constexpr inline bool operator==(Const a, Const b) {
   return a.kind() == b.kind() && a.uint64() == b.uint64();
