@@ -40,15 +40,13 @@ enum Op1 : uint16_t {
   GOTO = 3,
 };
 
-// intentionally match Go go/token.Token values
 enum Op2 : uint16_t {
   BAD2 = 0,
-  ADD = 12, // +
-  SUB,      // -
-  MUL,      // *
-  QUO,      // /
-  REM,      // %
-
+  ADD,     // +
+  SUB,     // -
+  MUL,     // *
+  QUO,     // /
+  REM,     // %
   AND,     // &
   OR,      // |
   XOR,     // ^
@@ -56,12 +54,12 @@ enum Op2 : uint16_t {
   SHR,     // >>
   AND_NOT, // &^
 
-  ADD_ASSIGN, // +=
-  SUB_ASSIGN, // -=
-  MUL_ASSIGN, // *=
-  QUO_ASSIGN, // /=
-  REM_ASSIGN, // %=
-
+  ASSIGN,         // =
+  ADD_ASSIGN,     // +=
+  SUB_ASSIGN,     // -=
+  MUL_ASSIGN,     // *=
+  QUO_ASSIGN,     // /=
+  REM_ASSIGN,     // %=
   AND_ASSIGN,     // &=
   OR_ASSIGN,      // |=
   XOR_ASSIGN,     // ^=
@@ -71,15 +69,12 @@ enum Op2 : uint16_t {
 
   LAND, // &&
   LOR,  // ||
-
-  EQL = LOR + 4, // ==
-  LSS,           // <
-  GTR,           // >
-  ASSIGN,        // =
-
-  NEQ = ASSIGN + 2, // !=
-  LEQ,              // <=
-  GEQ,              // >=
+  LSS,  // <
+  LEQ,  // <=
+  NEQ,  // <> !=
+  EQL,  // ==
+  GTR,  // >
+  GEQ,  // >=
 };
 
 enum OpN : uint16_t {

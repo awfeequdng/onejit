@@ -57,8 +57,9 @@ public:
     return BreakStmt{};
   }
 
-  BinaryExpr new_binary(Kind kind, Op2 op, const Expr &left, const Expr &right) {
-    return BinaryExpr::create(kind, op, left, right, holder_);
+  // also autodetects kind
+  BinaryExpr new_binary(Op2 op, const Expr &left, const Expr &right) {
+    return BinaryExpr::create(op, left, right, holder_);
   }
 
   CaseStmt new_case(const Expr &expr, const Node &body) {

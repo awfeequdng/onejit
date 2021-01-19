@@ -28,8 +28,18 @@
 
 namespace onejit {
 
-BinaryExpr BinaryExpr::create(Kind kind, Op2 op, const Expr &left, const Expr &right,
-                              Code *holder) {
+// autodetect kind
+BinaryExpr BinaryExpr::create(Op2 op, const Expr &left, const Expr &right, Code *holder) {
+  Kind kind = Bad;
+  if (op == BAD2) {
+  } else if (op <= AND_NOT) {
+    kind = left.kind();
+  } else if (op <= AND_NOT_ASSIGN) {
+    kind = Void; // assignment returns void
+  } else if (op <= GEQ) {
+    kind = Bool; // && || comparison
+  }
+
   const NodeHeader header{BINARY, kind, uint16_t(op)};
   CodeItem offset = holder->length();
 

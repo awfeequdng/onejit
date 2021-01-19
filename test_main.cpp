@@ -112,7 +112,7 @@ void Test::simple_expr() {
   for (uint8_t i = kVoid; i <= kArchFlags; i++) {
     Kind k = Kind(i);
     Expr ve = func.new_var(k);
-    Node node = func.new_binary(k, ADD, ce, ve);
+    Node node = func.new_binary(ADD, ve, ce);
 
     ONEJIT_TEST(ve.type(), ==, VAR);
     ONEJIT_TEST(ve.kind(), ==, k);
@@ -138,8 +138,8 @@ void Test::simple_expr() {
     ONEJIT_TEST(node.kind(), ==, k);
     ONEJIT_TEST(node.op(), ==, ADD);
     ONEJIT_TEST(node.children(), ==, 2);
-    ONEJIT_TEST(node.child(0), ==, ce);
-    ONEJIT_TEST(node.child(1), ==, ve);
+    ONEJIT_TEST(node.child(0), ==, ve);
+    ONEJIT_TEST(node.child(1), ==, ce);
     ONEJIT_TEST(node.is<Node>(), ==, node);
     ONEJIT_TEST(node.is<Expr>(), ==, node);
     ONEJIT_TEST(node.is<BinaryExpr>(), ==, node);
@@ -171,10 +171,15 @@ void Test::nested_expr() {
     Expr ve1 = func.new_var(k);
     Expr ve2 = func.new_var(k);
 
-    Expr be1 = func.new_binary(k, ADD, ce1, ve1);
-    Expr be2 = func.new_binary(k, MUL, ce2, ve2);
-    Expr be3 = func.new_binary(k, SHL, be1, be2);
-    Expr ue = func.new_unary(k, XOR1, be3);
+    Expr be1 = func.new_binary(ADD, ce1, ve1);
+    Expr be2 = func.new_binary(MUL, ce2, ve2);
+    Expr be3 = func.new_binary(SHL, be1, be2);
+    Expr ue1 = func.new_unary(k, XOR1, be3);
+
+    ONEJIT_TEST(be1.kind(), ==, k);
+    ONEJIT_TEST(be2.kind(), ==, k);
+    ONEJIT_TEST(be3.kind(), ==, k);
+    ONEJIT_TEST(ue1.kind(), ==, k);
 
     ONEJIT_TEST(be1.child(0), ==, ce1);
     ONEJIT_TEST(be1.child(1), ==, ve1);
@@ -182,7 +187,7 @@ void Test::nested_expr() {
     ONEJIT_TEST(be2.child(1), ==, ve2);
     ONEJIT_TEST(be3.child(0), ==, be1);
     ONEJIT_TEST(be3.child(1), ==, be2);
-    ONEJIT_TEST(ue.child(0), ==, be3);
+    ONEJIT_TEST(ue1.child(0), ==, be3);
   }
 }
 

@@ -23,8 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onestl/chars.hpp>
 #include <onejit/op.hpp>
+#include <onestl/chars.hpp>
 
 #include <ostream>
 
@@ -51,17 +51,15 @@ std::ostream &operator<<(std::ostream &out, Op1 op) {
 // ============================  Op2  ==========================================
 
 static const Chars op2string[] = {
-    "+",  "-",  "*",  "/",  "%",  "&",  "|",  "^",  "<<",  ">>",  "&^",  //
-    "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>=", "&^=", //
-    "&&", "||", "?",  "?",  "?",                                         //
-    "==", "<",  ">",  "=",  "?",                                         //
-    "!=", "<=", ">=",                                                    //
+    "?",  "+",  "-",  "*",  "/",  "%",  "&",  "|",  "^",  "<<",  ">>",  "&^",  //
+    "=",  "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>=", "&^=", //
+    "&&", "||", "<",  "<=", "!=", "==", ">",  ">=",                            //
 };
 
 const Chars &to_string(Op2 op) {
-  uint8_t i = LOR + 1; // "?"
-  if (op >= ADD && op <= GEQ) {
-    i = op - ADD;
+  uint8_t i = 0; // "?"
+  if (op <= GEQ) {
+    i = op;
   }
   return op2string[i];
 }
