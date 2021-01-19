@@ -77,7 +77,8 @@
         "__tuple": "cpp",
         "__atomic_generated": "cpp",
         "__string": "cpp",
-        "__node_handle": "cpp"
+        "__node_handle": "cpp",
+        "ios": "cpp"
     },
     "files.watcherExclude": {
         "**/.git/**": true

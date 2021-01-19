@@ -64,7 +64,7 @@ enum OpStmtN : uint16_t {
   BAD_STN = 0,
   BLOCK = 1,
   COND = 2, // n-ary IF ... [ELSEIF* ... [ELSE ...]]
-  SWITCH = 2,
+  SWITCH = 3,
 };
 
 const Chars &to_string(OpStmt0 op);

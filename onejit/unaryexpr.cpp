@@ -41,7 +41,6 @@ UnaryExpr ONEJIT_NOINLINE UnaryExpr::create(Kind kind, Op1 op, const Expr &child
 
 UnaryExpr UnaryExpr::create(Op1 op, const Expr &child, Code *holder) {
   Kind kind;
-
   if (op == XOR1 || op == CAST) {
     // CAST kind should be specified manually
     kind = child.kind();

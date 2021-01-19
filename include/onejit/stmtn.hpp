@@ -62,7 +62,7 @@ protected:
     return t == STMT_N;
   }
 
-  static StmtN create(OpStmtN op, const Nodes children, Code *holder);
+  static StmtN create(OpStmtN op, const Nodes nodes, Code *holder);
 };
 
 std::ostream &operator<<(std::ostream &out, const StmtN &st);
@@ -98,8 +98,86 @@ private:
     return op == BLOCK;
   }
 
-  static BlockStmt create(const Nodes children, Code *holder) {
-    return BlockStmt{StmtN::create(BLOCK, children, holder)};
+  static BlockStmt create(const Nodes nodes, Code *holder) {
+    return BlockStmt{StmtN::create(BLOCK, nodes, holder)};
+  }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// equivalent to a list of nested if-elseif-...-else
+// i.e.
+// (COND expr1 body1 expr2 body2 ... exprn bodyn)
+// is equivalent to
+// (IF expr1 body1 (IF expr2 body2 (... (IF exprn bodyn void) ...)))
+class CondStmt : public StmtN {
+  using Base = StmtN;
+  friend class Node;
+  friend class Func;
+
+public:
+  /**
+   * construct an invalid CondStmt.
+   * exists only to allow placing CondStmt in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid CondStmt, use Func::new_block()
+   */
+  constexpr CondStmt() : Base{COND} {
+  }
+
+  static constexpr OpStmtN op() {
+    return COND;
+  }
+
+private:
+  // downcast Node to CondStmt
+  constexpr explicit CondStmt(const Node &node) : Base{node} {
+  }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t op) {
+    return op == COND;
+  }
+
+  static CondStmt create(const Nodes nodes, Code *holder) {
+    return CondStmt{StmtN::create(COND, nodes, holder)};
+  }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+class SwitchStmt : public StmtN {
+  using Base = StmtN;
+  friend class Node;
+  friend class Func;
+
+public:
+  /**
+   * construct an invalid SwitchStmt.
+   * exists only to allow placing SwitchStmt in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid SwitchStmt, use Func::new_block()
+   */
+  constexpr SwitchStmt() : Base{SWITCH} {
+  }
+
+  static constexpr OpStmtN op() {
+    return SWITCH;
+  }
+
+private:
+  // downcast Node to SwitchStmt
+  constexpr explicit SwitchStmt(const Node &node) : Base{node} {
+  }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t op) {
+    return op == SWITCH;
+  }
+
+  // node[0] must be Expr. other nodes must be CaseStmt, plus at most one DefaultStmt
+  static SwitchStmt create(const Nodes nodes, Code *holder) {
+    return SwitchStmt{StmtN::create(SWITCH, nodes, holder)};
   }
 };
 
