@@ -72,9 +72,13 @@ Code &ONEJIT_NOINLINE Code::add(CodeItems data) {
 }
 
 Code &Code::add(const Node &node, Offset parent_offset) {
-  // save relative offset between parent and child:
-  // makes it easier to concatenate different Code objects
-  return add(node.offset_or_direct() - (node.is_direct() ? 0 : parent_offset));
+  Offset offset = node.offset_or_direct();
+  if (!node.is_direct()) {
+    // save relative offset between parent and child:
+    // makes it easier to concatenate different Code objects
+    offset = parent_offset - offset;
+  }
+  return add(offset);
 }
 
 Code &ONEJIT_NOINLINE Code::add(const Nodes nodes, Offset parent_offset) {

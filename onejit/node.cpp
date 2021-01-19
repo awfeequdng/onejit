@@ -74,9 +74,9 @@ Node Node::child(uint32_t i) const {
     // direct Var
     offset_or_direct = item;
     header = NodeHeader{VAR, Var::parse_direct_kind(item), 0};
-  } else if ((item & 4) == 0) {
-    // indirect Node
-    offset_or_direct = off_or_dir_ + item;
+  } else if ((item & 3) == 0) {
+    // indirect Node: item is relative offset between parent and child
+    offset_or_direct = off_or_dir_ - item;
     header = NodeHeader{code_->at(offset_or_direct)};
     code = code_; // only indirect Nodes need code
   } else {

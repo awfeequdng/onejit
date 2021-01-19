@@ -62,7 +62,7 @@ void Test::run() {
 
 void Test::kind() {
   for (uint8_t i = 0; i <= kArchFlags; i++) {
-    const Kind k{i};
+    Kind k{i};
     ONEJIT_TEST(bool(k), ==, i != 0);
     ONEJIT_TEST(k.is(k.group()), ==, true);
     ONEJIT_TEST(k.simdn().val(), ==, 1);
@@ -72,7 +72,7 @@ void Test::kind() {
     std::cout << "Kind " << k << ", Group " << k.group() << ", bits " << k.bits() << '\n';
   }
   for (uint8_t i = 0; i <= kArchFlags; i++) {
-    const Kind k{eKind(i), SimdN{2}};
+    Kind k{eKind(i), SimdN{2}};
     ONEJIT_TEST(bool(k), ==, true);
     ONEJIT_TEST(k.is(k.group()), ==, true);
     ONEJIT_TEST(k.simdn().val(), ==, 2);
@@ -82,8 +82,8 @@ void Test::kind() {
 }
 
 void Test::simple_expr() {
-  const Const c{1.5f};
-  const Expr ce = func.new_const(c);
+  Const c{1.5f};
+  Expr ce = func.new_const(c);
 
   ONEJIT_TEST(c.kind(), ==, Float32);
   ONEJIT_TEST(c.float32(), ==, 1.5f);
@@ -110,11 +110,10 @@ void Test::simple_expr() {
   ONEJIT_TEST(bool(ce.is<Stmt>()), ==, false);
 
   for (uint8_t i = kVoid; i <= kArchFlags; i++) {
-    const Kind k = Kind(i);
-    const Expr ve = func.new_var(k);
-    const Node node = func.new_binary(k, ADD, ce, ve);
+    Kind k = Kind(i);
+    Expr ve = func.new_var(k);
+    Node node = func.new_binary(k, ADD, ce, ve);
 
-    std::cout << node.type() << ' ' << node << '\n';
     ONEJIT_TEST(ve.type(), ==, VAR);
     ONEJIT_TEST(ve.kind(), ==, k);
     ONEJIT_TEST(ve.op(), ==, 0);
@@ -153,8 +152,8 @@ void Test::simple_expr() {
     ONEJIT_TEST(bool(node.is<ConstExpr>()), ==, false);
     ONEJIT_TEST(bool(node.is<Stmt>()), ==, false);
 
-    const Var var1 = ve.to<VarExpr>().var();
-    const Var var2 = Var::parse_direct(var1.direct());
+    Var var1 = ve.to<VarExpr>().var();
+    Var var2 = Var::parse_direct(var1.direct());
     ONEJIT_TEST(var1, ==, var2);
     ONEJIT_TEST(var1.kind(), ==, k);
   }
@@ -162,35 +161,34 @@ void Test::simple_expr() {
 
 void Test::nested_expr() {
   for (uint8_t i = kInt8; i <= kInt64; i++) {
-    const Kind k{i};
+    Kind k{i};
 
-    const Const c1{k, 1};
-    const Const c2{k, 2};
-    const Expr ce1 = func.new_const(c1);
-    const Expr ce2 = func.new_const(c2);
+    Const c1{k, 1};
+    Const c2{k, 2};
+    Expr ce1 = func.new_const(c1);
+    Expr ce2 = func.new_const(c2);
 
-    const Expr ve1 = func.new_var(k);
-    const Expr ve2 = func.new_var(k);
+    Expr ve1 = func.new_var(k);
+    Expr ve2 = func.new_var(k);
 
-    const Expr be1 = func.new_binary(k, ADD, ce1, ve1);
-    const Expr be2 = func.new_binary(k, MUL, ce2, ve2);
-    const Expr be3 = func.new_binary(k, SHL, be1, be2);
-    const Expr ue4 = func.new_unary(k, XOR1, be3);
+    Expr be1 = func.new_binary(k, ADD, ce1, ve1);
+    Expr be2 = func.new_binary(k, MUL, ce2, ve2);
+    Expr be3 = func.new_binary(k, SHL, be1, be2);
+    Expr ue = func.new_unary(k, XOR1, be3);
 
     ONEJIT_TEST(be1.child(0), ==, ce1);
     ONEJIT_TEST(be1.child(1), ==, ve1);
     ONEJIT_TEST(be2.child(0), ==, ce2);
     ONEJIT_TEST(be2.child(1), ==, ve2);
     ONEJIT_TEST(be3.child(0), ==, be1);
-    // ONEJIT_TEST(be3.child(1), ==, be2); // currently broken
-
-    std::cout << ue4.type() << ' ' << ue4 << '\n';
+    ONEJIT_TEST(be3.child(1), ==, be2);
+    ONEJIT_TEST(ue.child(0), ==, be3);
   }
 }
 
 void Test::dump_code() const {
   std::cout << std::hex;
-  for (const CodeItem item : holder) {
+  for (CodeItem item : holder) {
     std::cout << Chars("0x") << item << ' ';
   }
   std::cout << '\n' << std::dec;
