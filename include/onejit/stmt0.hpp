@@ -44,23 +44,23 @@ public:
    *
    * to create a valid Stmt0, use Stmt0(OpStmt0)
    */
-  constexpr Stmt0() : Base{STMT_0, Bad, BAD} {
+  constexpr Stmt0() noexcept : Base{STMT_0, Bad, BAD} {
   }
 
-  constexpr explicit Stmt0(OpStmt0 op) : Base{STMT_0, Void, op} {
+  constexpr explicit Stmt0(OpStmt0 op) noexcept : Base{STMT_0, Void, op} {
   }
 
-  static constexpr uint32_t children() {
+  static constexpr uint32_t children() noexcept {
     return 0;
   }
 
 protected:
   // downcast Node to Stmt0
-  constexpr explicit Stmt0(const Node &node) : Base{node} {
+  constexpr explicit Stmt0(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_type(Type t) {
+  static constexpr bool is_allowed_type(Type t) noexcept {
     return t == STMT_0;
   }
 };
@@ -75,20 +75,20 @@ class BadStmt : public Stmt0 {
   friend class Node;
 
 public:
-  constexpr BadStmt() : Base{BAD} {
+  constexpr BadStmt() noexcept : Base{BAD} {
   }
 
-  static constexpr OpStmt0 op() {
+  static constexpr OpStmt0 op() noexcept {
     return BAD;
   }
 
 private:
   // downcast Node to BadStmt
-  constexpr explicit BadStmt(const Node &node) : Base{node} {
+  constexpr explicit BadStmt(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_op(uint16_t op) {
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == BAD;
   }
 };
@@ -99,20 +99,20 @@ class BreakStmt : public Stmt0 {
   friend class Node;
 
 public:
-  constexpr BreakStmt() : Base{BREAK} {
+  constexpr BreakStmt() noexcept : Base{BREAK} {
   }
 
-  static constexpr OpStmt0 op() {
+  static constexpr OpStmt0 op() noexcept {
     return BREAK;
   }
 
 private:
   // downcast Node to BreakStmt
-  constexpr explicit BreakStmt(const Node &node) : Base{node} {
+  constexpr explicit BreakStmt(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_op(uint16_t op) {
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == BREAK;
   }
 };
@@ -123,20 +123,20 @@ class ContinueStmt : public Stmt0 {
   friend class Node;
 
 public:
-  constexpr ContinueStmt() : Base{CONTINUE} {
+  constexpr ContinueStmt() noexcept : Base{CONTINUE} {
   }
 
-  static constexpr OpStmt0 op() {
+  static constexpr OpStmt0 op() noexcept {
     return CONTINUE;
   }
 
 private:
   // downcast Node to ContinueStmt
-  constexpr explicit ContinueStmt(const Node &node) : Base{node} {
+  constexpr explicit ContinueStmt(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_op(uint16_t op) {
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == CONTINUE;
   }
 };
@@ -147,20 +147,20 @@ class FallthroughStmt : public Stmt0 {
   friend class Node;
 
 public:
-  constexpr FallthroughStmt() : Base{FALLTHROUGH} {
+  constexpr FallthroughStmt() noexcept : Base{FALLTHROUGH} {
   }
 
-  static constexpr OpStmt0 op() {
+  static constexpr OpStmt0 op() noexcept {
     return FALLTHROUGH;
   }
 
 private:
   // downcast Node to FallthroughStmt
-  constexpr explicit FallthroughStmt(const Node &node) : Base{node} {
+  constexpr explicit FallthroughStmt(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_op(uint16_t op) {
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == FALLTHROUGH;
   }
 };

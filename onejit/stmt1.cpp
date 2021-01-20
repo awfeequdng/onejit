@@ -30,15 +30,19 @@ namespace onejit {
 
 // ============================  Stmt1  ========================================
 
-Stmt1 ONEJIT_NOINLINE Stmt1::create(OpStmt1 op, const Node &child, Code *holder) {
-  const NodeHeader header{STMT_1, Void, uint16_t(op)};
-  CodeItem offset = holder->length();
+Stmt1 ONEJIT_NOINLINE Stmt1::create(OpStmt1 op, const Node &child, Code *holder) noexcept {
+  while (holder) {
+    const NodeHeader header{STMT_1, Void, uint16_t(op)};
+    CodeItem offset = holder->length();
 
-  if (!holder->add(header) || !holder->add(child, offset)) {
+    if (holder->add(header) && holder->add(child, offset)) {
+      return Stmt1{Node{header, offset, holder}};
+    }
     holder->truncate(offset);
-    return Stmt1{op};
+    break;
   }
-  return Stmt1{Node{header, offset, holder}};
+
+  return Stmt1{op};
 }
 
 std::ostream &operator<<(std::ostream &out, const Stmt1 &st) {

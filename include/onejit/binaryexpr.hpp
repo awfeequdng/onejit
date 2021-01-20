@@ -48,20 +48,20 @@ public:
    *
    * to create a valid BinaryExpr, use Func::new_binary()
    */
-  constexpr BinaryExpr() : Base{BINARY} {
+  constexpr BinaryExpr() noexcept : Base{BINARY} {
   }
 
-  static constexpr Type type() {
+  static constexpr Type type() noexcept {
     return BINARY;
   }
 
   using Base::kind;
 
-  constexpr Op2 op() const {
+  constexpr Op2 op() const noexcept {
     return Op2(Base::op());
   }
 
-  static constexpr uint32_t children() {
+  static constexpr uint32_t children() noexcept {
     return 2;
   }
 
@@ -77,11 +77,11 @@ public:
 
 private:
   // downcast Node to UnaryExpr
-  constexpr explicit BinaryExpr(const Node &node) : Base{node} {
+  constexpr explicit BinaryExpr(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_type(Type t) {
+  static constexpr bool is_allowed_type(Type t) noexcept {
     return t == BINARY;
   }
 

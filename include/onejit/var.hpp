@@ -27,109 +27,120 @@
 #define ONEJIT_VAR_HPP
 
 #include <onejit/node.hpp>
+#include <onejit_config.h> // HAVE_ENDIAN_H
 
 #include <iosfwd>
+#ifdef HAVE_ENDIAN_H
+#include <cstring>
+#include <endian.h>
+#endif
 
 namespace onejit {
 
 class VarId {
   friend class Func;
-  friend class Var;
+  friend union Var;
   friend class VarExpr;
 
 public:
-  constexpr VarId() : val_{} {
+  constexpr VarId() noexcept : val_{} {
   }
 
-  constexpr uint32_t val() const {
-    return val_[0] | uint32_t(val_[1]) << 8 | uint32_t(val_[2]) << 16;
+  constexpr uint32_t val() const noexcept {
+    return val_;
   }
 
 private:
-  constexpr explicit VarId(uint32_t val)
-      : val_{uint8_t(val), uint8_t(val >> 8), uint8_t(val >> 16)} {
+  constexpr explicit VarId(uint32_t val) noexcept : val_{val & 0xFFFFFF} {
   }
 
-  uint8_t val_[3];
+  // at most 24 bits can be used
+  uint32_t val_;
 };
 
-constexpr inline bool operator==(VarId a, VarId b) {
+constexpr inline bool operator==(VarId a, VarId b) noexcept {
   return a.val() == b.val();
 }
 
-constexpr inline bool operator!=(VarId a, VarId b) {
+constexpr inline bool operator!=(VarId a, VarId b) noexcept {
   return a.val() != b.val();
 }
 
-constexpr const VarId NOID = VarId();
+constexpr const VarId NOID = VarId{};
 
 std::ostream &operator<<(std::ostream &out, VarId id);
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // a local variable or register.
-class Var {
+union Var {
   friend class Func;
   friend class Node;
   friend class VarExpr;
   friend class Test;
 
 public:
-  constexpr Var() : ekind_{kVoid}, id_{} {
+  constexpr Var() noexcept : val_{kBad} {
   }
 
-  constexpr Type type() const {
+  constexpr Type type() const noexcept {
     return VAR;
   }
 
-  constexpr Kind kind() const {
-    return Kind{ekind_};
+  constexpr Kind kind() const noexcept {
+    return Kind{uint8_t(val_)};
   }
 
-  constexpr VarId id() const {
-    return id_;
+  constexpr VarId id() const noexcept {
+    return VarId{val_ >> 8};
   }
 
-  constexpr explicit operator bool() const {
-    return ekind_ != kVoid;
+  constexpr explicit operator bool() const noexcept {
+    return uint8_t(val_) != kBad;
   }
 
 private:
-  constexpr Var(Kind kind, VarId id) : ekind_{kind.val()}, id_{id} {
+  constexpr explicit Var(uint32_t val) noexcept : val_{val} {
   }
 
-  constexpr bool is_direct() const {
-    return (id_.val() & 0xE00000) == 0;
+  constexpr Var(Kind kind, VarId id) noexcept : val_{kind.val() | id.val() << 8} {
+  }
+
+  constexpr bool is_direct() const noexcept {
+    return (val_ >> 29) == 0;
   }
 
   // useful only if is_direct() returns true
-  constexpr uint32_t direct() const {
-    return 0x2 | uint32_t(ekind_) << 3 | id_.val() << 11;
+  constexpr uint32_t direct() const noexcept {
+    return 0x2 | val_ << 3;
   }
-  static constexpr Kind parse_direct_kind(uint32_t data) {
+  static constexpr Kind parse_direct_kind(uint32_t data) noexcept {
     return Kind(data >> 3);
   }
-  static constexpr Var parse_direct(uint32_t data) {
-    return Var{parse_direct_kind(data), VarId{data >> 11}};
+  static constexpr Var parse_direct(uint32_t data) noexcept {
+    return Var{data >> 3};
   }
 
   // useful only if is_direct() returns false
-  constexpr uint32_t indirect() const {
-    return id_.val();
+  constexpr uint32_t indirect() const noexcept {
+    return val_ >> 8;
   }
-  static constexpr Var parse_indirect(Kind kind, uint32_t data) {
-    return Var{kind, VarId{data}};
+  static constexpr Var parse_indirect(Kind kind, uint32_t data) noexcept {
+    return Var{kind.val() | data << 8};
   }
 
-  eKind ekind_;
-  VarId id_;
+  uint32_t val_;
+  struct { // for debug purposes
+    eKind ekind;
+    uint8_t id[3];
+  } u_;
 };
 
-constexpr inline bool operator==(Var a, Var b) {
+constexpr inline bool operator==(Var a, Var b) noexcept {
   return a.kind() == b.kind() && a.id() == b.id();
 }
 
-constexpr inline bool operator!=(Var a, Var b) {
+constexpr inline bool operator!=(Var a, Var b) noexcept {
   return a.kind() != b.kind() || a.id() != b.id();
 }
 

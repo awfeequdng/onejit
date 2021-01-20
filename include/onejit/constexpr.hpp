@@ -50,57 +50,70 @@ containers
    * to create a valid ConstExpr, use one of the other constructors
    * or Func::new_const()
    */
-  constexpr ConstExpr() : Base{CONST} {
+  constexpr ConstExpr() noexcept : Base{CONST} {
   }
 
   /* construct a Bool ConstExpr */
-  constexpr explicit ConstExpr(bool val)
+  constexpr explicit ConstExpr(bool val) noexcept
       : Base{Node{
             NodeHeader{CONST, Bool, 0},
-            // must match Const::Direct::Direct(Const)
-            1 | kBool << 1 | uint32_t(val) << 8,
+            Const::Direct{uint16_t(val), kBool},
             nullptr,
         }} {
   }
 
-  /** construct a ConstExpr with specified kind and value */
-  constexpr ConstExpr(Kind kind, uint16_t val)
+  /**
+   * construct a ConstExpr with specified kind and value
+   * only low 4 bits of kind are used, i.e. kind.simdn() is always set to 1
+   */
+  constexpr explicit ConstExpr(Kind kind, uint16_t val = 0) noexcept
       : Base{Node{
             NodeHeader{CONST, kind.nosimd(), 0},
-            1 | (kind.val() & 0xF) << 1 |
-                uint32_t(val) << 8, // must match Const::Direct::Direct(Const)
+            Const::Direct{val, kind.val()},
             nullptr,
         }} {
   }
 
-  static constexpr Type type() {
+  /**
+   * construct a ConstExpr with specified kind and value.
+   * only low 4 bits of kind are used, i.e. kind.simdn() is always set to 1
+   */
+  constexpr ConstExpr(Kind kind, int16_t val) noexcept
+      : Base{Node{
+            NodeHeader{CONST, kind.nosimd(), 0},
+            Const::Direct{val, kind.val()},
+            nullptr,
+        }} {
+  }
+
+  static constexpr Type type() noexcept {
     return CONST;
   }
 
   using Base::kind;
 
-  static constexpr uint32_t children() {
+  static constexpr uint32_t children() noexcept {
     return 0;
   }
 
-  Const constant() const;
+  Const constant() const noexcept;
 
 private:
   // downcast Node to ConstExpr
-  constexpr explicit ConstExpr(const Node &node) //
+  constexpr explicit ConstExpr(const Node &node) noexcept //
       : Base{Node{node.header(), node.offset_or_direct(),
                   node.offset_or_direct() & 1 ? nullptr : node.code()}} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_type(Type t) {
+  static constexpr bool is_allowed_type(Type t) noexcept {
     return t == CONST;
   }
 
-  static ConstExpr create(const Const &c, Code *holder);
+  static ConstExpr create(const Const &c, Code *holder) noexcept;
 };
 
-constexpr const ConstExpr VoidExpr{Void, 0};
+constexpr const ConstExpr VoidExpr{Void};
 constexpr const ConstExpr TrueExpr{true};
 constexpr const ConstExpr FalseExpr{false};
 

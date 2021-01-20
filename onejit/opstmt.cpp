@@ -23,8 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onestl/chars.hpp>
 #include <onejit/opstmt.hpp>
+#include <onestl/chars.hpp>
 
 #include <ostream>
 
@@ -36,7 +36,7 @@ namespace onejit {
 
 static const Chars op_stmt_0_string[] = {"bad", "break", "continue", "fallthrough", "?"};
 
-const Chars &to_string(OpStmt0 op) {
+const Chars &to_string(OpStmt0 op) noexcept {
   uint8_t i = op;
   if (i >= N_OF(op_stmt_0_string)) {
     i = N_OF(op_stmt_0_string) - 1;
@@ -52,7 +52,7 @@ std::ostream &operator<<(std::ostream &out, OpStmt0 op) {
 
 static const Chars op_stmt_1_string[] = {"?", "default"};
 
-const Chars &to_string(OpStmt1 op) {
+const Chars &to_string(OpStmt1 op) noexcept {
   uint8_t i = op;
   if (i >= N_OF(op_stmt_1_string)) {
     i = 0;
@@ -68,7 +68,7 @@ std::ostream &operator<<(std::ostream &out, OpStmt1 op) {
 
 static const Chars op_stmt_2_string[] = {"?", "case"};
 
-const Chars &to_string(OpStmt2 op) {
+const Chars &to_string(OpStmt2 op) noexcept {
   uint8_t i = op;
   if (i >= N_OF(op_stmt_2_string)) {
     i = 0;
@@ -84,7 +84,7 @@ std::ostream &operator<<(std::ostream &out, OpStmt2 op) {
 
 static const Chars op_stmt_3_string[] = {"?", "if"};
 
-const Chars &to_string(OpStmt3 op) {
+const Chars &to_string(OpStmt3 op) noexcept {
   uint8_t i = op;
   if (i >= N_OF(op_stmt_3_string)) {
     i = 0;
@@ -100,7 +100,7 @@ std::ostream &operator<<(std::ostream &out, OpStmt3 op) {
 
 static const Chars op_stmt_4_string[] = {"?", "for"};
 
-const Chars &to_string(OpStmt4 op) {
+const Chars &to_string(OpStmt4 op) noexcept {
   uint8_t i = op;
   if (i >= N_OF(op_stmt_4_string)) {
     i = 0;
@@ -116,7 +116,7 @@ std::ostream &operator<<(std::ostream &out, OpStmt4 op) {
 
 static const Chars op_stmt_n_string[] = {"?", "block", "cond", "switch"};
 
-const Chars &to_string(OpStmtN op) {
+const Chars &to_string(OpStmtN op) noexcept {
   uint8_t i = op;
   if (i >= N_OF(op_stmt_n_string)) {
     i = 0;

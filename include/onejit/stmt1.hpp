@@ -45,33 +45,33 @@ public:
    *
    * to create a valid Stmt1, use Func::new_stmt1()
    */
-  constexpr Stmt1() : Base{STMT_1, Bad, BAD_ST1} {
+  constexpr Stmt1() noexcept : Base{STMT_1, Bad, BAD_ST1} {
   }
 
-  static constexpr uint32_t children() {
+  static constexpr uint32_t children() noexcept {
     return 1;
   }
 
   // shortcut for child(0)
-  Node body() const {
+  Node body() const noexcept {
     return child(0);
   }
 
 protected:
   /* construct an invalid Stmt1 */
-  constexpr explicit Stmt1(OpStmt1 op) : Base{STMT_1, Bad, op} {
+  constexpr explicit Stmt1(OpStmt1 op) noexcept : Base{STMT_1, Bad, op} {
   }
 
   // downcast Node to Stmt1
-  constexpr explicit Stmt1(const Node &node) : Base{node} {
+  constexpr explicit Stmt1(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_type(Type t) {
+  static constexpr bool is_allowed_type(Type t) noexcept {
     return t == STMT_1;
   }
 
-  static Stmt1 create(OpStmt1 op, const Node &body, Code *holder);
+  static Stmt1 create(OpStmt1 op, const Node &body, Code *holder) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Stmt1 &st);
@@ -90,24 +90,24 @@ public:
    *
    * to create a valid DefaultStmt, use Func::new_default()
    */
-  constexpr DefaultStmt() : Base{DEFAULT} {
+  constexpr DefaultStmt() noexcept : Base{DEFAULT} {
   }
 
-  static constexpr OpStmt1 op() {
+  static constexpr OpStmt1 op() noexcept {
     return DEFAULT;
   }
 
 private:
   // downcast Node to DefaultStmt
-  constexpr explicit DefaultStmt(const Node &node) : Base{node} {
+  constexpr explicit DefaultStmt(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_op(uint16_t op) {
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == DEFAULT;
   }
 
-  static DefaultStmt create(const Node &body, Code *holder) {
+  static DefaultStmt create(const Node &body, Code *holder) noexcept {
     return DefaultStmt{Stmt1::create(DEFAULT, body, holder)};
   }
 };

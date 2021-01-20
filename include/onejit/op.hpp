@@ -85,9 +85,9 @@ enum OpN : uint16_t {
   RETURN = 3,
 };
 
-const Chars &to_string(Op1 op);
-const Chars &to_string(Op2 op);
-const Chars &to_string(OpN op);
+const Chars &to_string(Op1 op) noexcept;
+const Chars &to_string(Op2 op) noexcept;
+const Chars &to_string(OpN op) noexcept;
 
 std::ostream &operator<<(std::ostream &out, Op1 op);
 std::ostream &operator<<(std::ostream &out, Op2 op);

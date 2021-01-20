@@ -23,8 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onestl/chars.hpp>
 #include <onejit/type.hpp>
+#include <onestl/chars.hpp>
 
 #include <ostream>
 
@@ -44,7 +44,7 @@ static const Chars tstring[] = {
     "?",
 };
 
-uint32_t to_children(Type t) {
+uint32_t to_children(Type t) noexcept {
   const uint8_t n = N_OF(tchildren);
   uint8_t i = uint8_t(t);
   if (i >= n) {
@@ -53,7 +53,7 @@ uint32_t to_children(Type t) {
   return (uint32_t)tchildren[i];
 }
 
-const Chars &to_string(Type t) {
+const Chars &to_string(Type t) noexcept {
   const uint8_t n = N_OF(tstring);
   uint8_t i = uint8_t(t);
   if (i >= n) {

@@ -42,6 +42,7 @@ class Node {
   friend class CodeParser;
   friend class ConstExpr;
   friend class Func;
+  friend class MemExpr;
   friend class Stmt1;
   friend class Stmt2;
   friend class Stmt3;
@@ -51,59 +52,60 @@ class Node {
   friend class VarExpr;
 
 public:
-  constexpr Node() : header_{}, off_or_dir_{0}, code_{nullptr} {
+  constexpr Node() noexcept : header_{}, off_or_dir_{0}, code_{nullptr} {
   }
 
-  constexpr Kind kind() const {
+  constexpr Kind kind() const noexcept {
     return header_.kind();
   }
 
-  constexpr Type type() const {
+  constexpr Type type() const noexcept {
     return header_.type();
   }
 
-  constexpr uint16_t op() const {
+  constexpr uint16_t op() const noexcept {
     return header_.op();
   }
 
-  constexpr NodeHeader header() const {
+  constexpr NodeHeader header() const noexcept {
     return header_;
   }
 
-  constexpr explicit operator bool() const {
+  constexpr explicit operator bool() const noexcept {
     return bool(header_);
   }
 
-  constexpr bool operator!() const {
+  constexpr bool operator!() const noexcept {
     return !header_;
   }
 
   // identity test: true if this and other are the same Node.
   // does not recurse on children.
-  constexpr bool operator==(const Node &other) const {
+  constexpr bool operator==(const Node &other) const noexcept {
     return header_ == other.header_ && off_or_dir_ == other.off_or_dir_ && code_ == other.code_;
   }
 
-  constexpr bool operator!=(const Node &other) const {
+  constexpr bool operator!=(const Node &other) const noexcept {
     return !(*this == other);
   }
 
   // return Node length, in bytes
-  Offset length() const {
+  Offset length() const noexcept {
     return size() * sizeof(CodeItem);
   }
 
   // return Node length, in CodeItems
-  Offset size() const;
+  Offset size() const noexcept;
 
   // unified tree API: get number of children nodes
-  uint32_t children() const;
+  uint32_t children() const noexcept;
 
-  // unified tree API: get i-th child node
-  Node child(uint32_t i) const;
+  // unified tree API: get i-th child node.
+  // return Node{} if i is out of bounds
+  Node child(uint32_t i) const noexcept;
 
   // try to downcast Node to T. return T{} if fails.
-  template <class T> constexpr T is() const {
+  template <class T> constexpr T is() const noexcept {
     return T::is_allowed_type(type()) && T::is_allowed_op(op()) ? T{*this} : T{};
   }
 
@@ -113,34 +115,35 @@ public:
   }
 
 protected:
-  constexpr Node(NodeHeader header, CodeItem offset_or_direct, const Code *code)
+  constexpr Node(NodeHeader header, CodeItem offset_or_direct, const Code *code) noexcept
       : header_{header}, off_or_dir_{offset_or_direct}, code_{code} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_type(Type /*t*/) {
+  static constexpr bool is_allowed_type(Type /*t*/) noexcept {
     return true;
   }
 
   // downcast helper
-  static constexpr bool is_allowed_op(uint16_t /*op*/) {
+  static constexpr bool is_allowed_op(uint16_t /*op*/) noexcept {
     return true;
   }
 
-  constexpr CodeItem offset_or_direct() const {
+  constexpr CodeItem offset_or_direct() const noexcept {
     return off_or_dir_;
   }
 
-  constexpr const Code *code() const {
+  constexpr const Code *code() const noexcept {
     return code_;
   }
 
-  constexpr bool is_direct() const {
+  constexpr bool is_direct() const noexcept {
     return code_ == nullptr;
   }
 
   // get indirect data
-  CodeItem at(Offset byte_offset) const;
+  // return 0 if byte_offset is out of bounds
+  CodeItem get(Offset byte_offset) const noexcept;
 
 private:
   NodeHeader header_;

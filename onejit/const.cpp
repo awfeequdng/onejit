@@ -29,28 +29,27 @@
 
 namespace onejit {
 
-Const Const::parse_indirect(Kind kind, Offset offset, const Code *holder) {
+Const Const::parse_indirect(Kind kind, Offset offset, const Code *holder) noexcept {
   uint64_t bits;
-  if (kind.bits().val() <= 32) {
-    bits = holder->uint32(offset);
-  } else {
+  if (kind.bits().val() == 64) {
     bits = holder->uint64(offset);
+  } else {
+    bits = holder->uint32(offset);
   }
   return Const{kind, bits};
 }
 
-Code &Const::write_indirect(Code *holder) const {
-  if (kind().bits().val() <= 32) {
-    holder->add(uint32());
+Code &Const::write_indirect(Code *holder) const noexcept {
+  if (kind().bits().val() == 64) {
+    return holder->add(uint64());
   } else {
-    holder->add(uint64());
+    return holder->add(uint32());
   }
-  return *holder;
 }
 
 std::ostream &operator<<(std::ostream &out, const Const &c) {
-  /// TODO: pretty-print constants with SimdN > 1
-  switch (c.kind().nosimd().val()) {
+  const Kind kind = c.kind();
+  switch (kind.nosimd().val()) {
   case kVoid:
     out << Chars("void");
     break;
@@ -82,6 +81,11 @@ std::ostream &operator<<(std::ostream &out, const Const &c) {
   default:
     out << '?';
     break;
+  }
+  out << '_' << kind.stringsuffix();
+  const size_t n = kind.simdn().val();
+  if (n != 1) {
+    out << 'x' << n;
   }
   return out;
 }

@@ -36,15 +36,15 @@ enum {
   FIRST_VARID = 0x1000,
 };
 
-Func::Func(Code *holder) : holder_(holder), vars_() {
+Func::Func(Code *holder) noexcept : holder_(holder), vars_() {
   if (holder->length() == 0) {
     // add magic signature {CONST uint8x4 "1JIT"} in case Code is saved to file
-    holder->add(NodeHeader{CONST, Uint8.simdn(SimdN{4}), 0});
+    holder->add(NodeHeader{CONST, Uint8.simdn(4), 0});
     holder->add(uint32_t(0x54494A31));
   }
 }
 
-VarExpr Func::new_var(Kind kind) {
+VarExpr Func::new_var(Kind kind) noexcept {
   const Var var{
       kind,
       VarId{uint32_t(kind <= Void ? 0 : vars_.size() + FIRST_VARID)},

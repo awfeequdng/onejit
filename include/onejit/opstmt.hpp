@@ -67,12 +67,12 @@ enum OpStmtN : uint16_t {
   SWITCH = 3,
 };
 
-const Chars &to_string(OpStmt0 op);
-const Chars &to_string(OpStmt1 op);
-const Chars &to_string(OpStmt2 op);
-const Chars &to_string(OpStmt3 op);
-const Chars &to_string(OpStmt4 op);
-const Chars &to_string(OpStmtN op);
+const Chars &to_string(OpStmt0 op) noexcept;
+const Chars &to_string(OpStmt1 op) noexcept;
+const Chars &to_string(OpStmt2 op) noexcept;
+const Chars &to_string(OpStmt3 op) noexcept;
+const Chars &to_string(OpStmt4 op) noexcept;
+const Chars &to_string(OpStmtN op) noexcept;
 
 std::ostream &operator<<(std::ostream &out, OpStmt0 op);
 std::ostream &operator<<(std::ostream &out, OpStmt1 op);

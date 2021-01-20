@@ -78,7 +78,8 @@
         "__atomic_generated": "cpp",
         "__string": "cpp",
         "__node_handle": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "__bit_reference": "cpp"
     },
     "files.watcherExclude": {
         "**/.git/**": true

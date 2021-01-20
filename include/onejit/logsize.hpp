@@ -34,26 +34,26 @@ namespace onejit {
 
 class LogSize {
 public:
-  constexpr LogSize() : log2_(-1) {
+  constexpr LogSize() noexcept : log2_{uint8_t(-1)} {
   }
 
-  constexpr explicit LogSize(size_t n) : log2_(uintlog2(n, -1)) {
+  constexpr explicit LogSize(size_t n) noexcept : log2_(uintlog2(n, -1)) {
   }
 
-  static constexpr LogSize fromlog2(uint8_t log2) {
+  static constexpr LogSize fromlog2(uint8_t log2) noexcept {
     return LogSize(log2, Log2Tag{});
   }
 
   // 255 means val() == 0
-  constexpr uint8_t log2() const {
+  constexpr uint8_t log2() const noexcept {
     return log2_;
   }
 
-  constexpr bool is_zero() const {
+  constexpr bool is_zero() const noexcept {
     return log2_ == uint8_t(-1);
   }
 
-  constexpr size_t val() const {
+  constexpr size_t val() const noexcept {
     return is_zero() ? 0 : size_t(1) << log2_;
   }
 
@@ -61,50 +61,62 @@ public:
 
 private:
   struct Log2Tag {};
-  constexpr LogSize(uint8_t log2, Log2Tag) : log2_(log2) {
+  constexpr LogSize(uint8_t log2, Log2Tag) noexcept : log2_{log2} {
   }
 
-  static constexpr uint8_t uintlog2(size_t n, uint8_t accum) {
+  static constexpr uint8_t uintlog2(size_t n, uint8_t accum) noexcept {
     return n == 0 ? accum : uintlog2(n >> 1, accum + 1);
   }
 
   uint8_t log2_;
 };
 
-constexpr inline bool operator==(LogSize a, LogSize b) {
+constexpr inline bool operator==(LogSize a, LogSize b) noexcept {
   return a.log2() == b.log2();
 }
 
-constexpr inline bool operator==(LogSize a, size_t b) {
+constexpr inline bool operator==(LogSize a, size_t b) noexcept {
   return a.val() == b;
 }
 
-constexpr inline bool operator==(size_t a, LogSize b) {
+constexpr inline bool operator==(size_t a, LogSize b) noexcept {
   return a == b.val();
 }
 
-constexpr inline bool operator!=(LogSize a, LogSize b) {
+constexpr inline bool operator!=(LogSize a, LogSize b) noexcept {
   return a.log2() != b.log2();
 }
 
-constexpr inline bool operator!=(LogSize a, size_t b) {
+constexpr inline bool operator!=(LogSize a, size_t b) noexcept {
   return a.val() != b;
 }
 
-constexpr inline bool operator!=(size_t a, LogSize b) {
+constexpr inline bool operator!=(size_t a, LogSize b) noexcept {
   return a != b.val();
 }
 
-constexpr inline bool operator<(LogSize a, LogSize b) {
+constexpr inline bool operator<(LogSize a, LogSize b) noexcept {
   // use overflow to convert log2() == 255 to 0
   return uint8_t(1 + a.log2()) < uint8_t(1 + b.log2());
 }
 
-constexpr inline LogSize operator*(LogSize a, LogSize b) {
+constexpr inline bool operator<=(LogSize a, LogSize b) noexcept {
+  return !(b < a);
+}
+
+constexpr inline bool operator>(LogSize a, LogSize b) noexcept {
+  return b < a;
+}
+
+constexpr inline bool operator>=(LogSize a, LogSize b) noexcept {
+  return !(a < b);
+}
+
+constexpr inline LogSize operator*(LogSize a, LogSize b) noexcept {
   return a.is_zero() || b.is_zero() ? LogSize() : LogSize::fromlog2(a.log2() + b.log2());
 }
 
-constexpr inline LogSize operator/(LogSize a, LogSize b) {
+constexpr inline LogSize operator/(LogSize a, LogSize b) noexcept {
   return a.is_zero() || a < b ? LogSize() : LogSize::fromlog2(a.log2() - b.log2());
 }
 

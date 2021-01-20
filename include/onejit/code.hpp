@@ -43,66 +43,81 @@ class Code : private Vector<CodeItem> {
   typedef Vector<T> Base;
 
 public:
-  Code();
-  explicit Code(size_t capacity);
-  ~Code();
+  Code() noexcept;
+  explicit Code(size_t capacity) noexcept;
+  ~Code() noexcept;
 
-  constexpr explicit operator bool() const {
+  constexpr explicit operator bool() const noexcept {
     return good_;
   }
 
+  // checked element access:
+  // throws if byte_offset is out of bounds
   const T &at(Offset byte_offset) const {
     return Base::at(byte_offset / sizeof(T));
   }
 
-  int32_t i32(Offset byte_offset) const {
-    return int32_t(at(byte_offset));
-  }
-  uint32_t uint32(Offset byte_offset) const {
-    return at(byte_offset);
-  }
-  float float32(Offset byte_offset) const {
-    return ConstFloat32{uint32(byte_offset)}.val();
+  // checked element access:
+  // returns 0 if byte_offset is out of bounds
+  T get(Offset byte_offset) const noexcept {
+    const size_t index = byte_offset / sizeof(T);
+    return index < Base::size() ? Base::operator[](index) : T{};
   }
 
-  int64_t int64(Offset byte_offset) const {
+  // returns 0 if byte_offset is out of bounds
+  int32_t int32(Offset byte_offset) const noexcept {
+    return int32_t(get(byte_offset));
+  }
+  // returns 0 if byte_offset is out of bounds
+  uint32_t uint32(Offset byte_offset) const noexcept {
+    return get(byte_offset);
+  }
+  // returns 0 if byte_offset is out of bounds
+  float float32(Offset byte_offset) const noexcept {
+    return ConstFloat32{get(byte_offset)}.val();
+  }
+
+  // returns 0 if byte_offset is out of bounds
+  int64_t int64(Offset byte_offset) const noexcept {
     return int64_t(uint64(byte_offset));
   }
-  uint64_t uint64(Offset byte_offset) const;
-  double float64(Offset byte_offset) const {
+  // returns 0 if byte_offset is out of bounds
+  uint64_t uint64(Offset byte_offset) const noexcept;
+  // returns 0 if byte_offset is out of bounds
+  double float64(Offset byte_offset) const noexcept {
     return ConstFloat64{uint64(byte_offset)}.val();
   }
 
-  Code &add(int32_t i32) {
+  Code &add(int32_t i32) noexcept {
     return add(uint32_t(i32));
   }
-  Code &add(uint32_t u32); // same as add(CodeItem)
-  Code &add(float f32) {
+  Code &add(uint32_t u32) noexcept; // same as add(CodeItem)
+  Code &add(float f32) noexcept {
     return add(ConstFloat32{f32}.bits());
   }
 
-  Code &add(int64_t i64) {
+  Code &add(int64_t i64) noexcept {
     return add(uint64_t(i64));
   }
-  Code &add(uint64_t u64);
-  Code &add(double f64) {
+  Code &add(uint64_t u64) noexcept;
+  Code &add(double f64) noexcept {
     return add(ConstFloat64{f64}.bits());
   }
 
-  Code &add(CodeItems data);
-  Code &add(NodeHeader header) {
+  Code &add(CodeItems data) noexcept;
+  Code &add(NodeHeader header) noexcept {
     return add(header.item());
   }
-  Code &add(const Node &node, Offset parent_offset);
-  Code &add(Nodes nodes, Offset parent_offset);
+  Code &add(const Node &node, Offset parent_offset) noexcept;
+  Code &add(Nodes nodes, Offset parent_offset) noexcept;
 
   /// \return Code length, in bytes
-  constexpr Offset length() const {
+  constexpr Offset length() const noexcept {
     return Base::size() * sizeof(T);
   }
 
   /// truncate Code to specified number of bytes
-  void truncate(Offset length_bytes) {
+  void truncate(Offset length_bytes) noexcept {
     length_bytes /= sizeof(T);
     if (size_ > length_bytes) {
       size_ = length_bytes;
@@ -112,13 +127,13 @@ public:
   // return Code length, in CodeItems
   using Base::size;
 
-  constexpr const T *data() const {
+  constexpr const T *data() const noexcept {
     return Base::data();
   }
-  constexpr const T *begin() const {
+  constexpr const T *begin() const noexcept {
     return Base::begin();
   }
-  constexpr const T *end() const {
+  constexpr const T *end() const noexcept {
     return Base::end();
   }
 

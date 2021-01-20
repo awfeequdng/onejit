@@ -28,7 +28,7 @@
 
 namespace onejit {
 
-Const ConstExpr::constant() const {
+Const ConstExpr::constant() const noexcept {
   if (is_direct()) {
     return Const::parse_direct(offset_or_direct());
   } else {
@@ -36,19 +36,22 @@ Const ConstExpr::constant() const {
   }
 }
 
-ConstExpr ConstExpr::create(const Const &c, Code *holder) {
+ConstExpr ConstExpr::create(const Const &c, Code *holder) noexcept {
   const NodeHeader header{CONST, c.kind(), 0};
-  CodeItem off_or_dir = holder->length();
 
   if (c.is_direct()) {
-    // must match Node::child()
-    off_or_dir = c.direct();
-    holder = nullptr;
-  } else if (!holder->add(header) || !c.write_indirect(holder)) {
-    holder->truncate(off_or_dir);
-    return ConstExpr{};
+    return ConstExpr{Node{header, c.direct(), nullptr}};
   }
-  return ConstExpr{Node{header, off_or_dir, holder}};
+  while (holder) {
+    CodeItem offset = holder->length();
+
+    if (holder->add(header) && !c.write_indirect(holder)) {
+      return ConstExpr{Node{header, offset, holder}};
+    }
+    holder->truncate(offset);
+    break;
+  }
+  return ConstExpr{};
 }
 
 std::ostream &operator<<(std::ostream &out, const ConstExpr &ce) {

@@ -29,7 +29,7 @@
 #include <onejit/binaryexpr.hpp>
 #include <onejit/code.hpp>
 #include <onejit/constexpr.hpp>
-#include <onejit/fwd.hpp>
+#include <onejit/memexpr.hpp>
 #include <onejit/op.hpp>
 #include <onejit/stmt0.hpp>
 #include <onejit/stmt1.hpp>
@@ -46,108 +46,112 @@ namespace onejit {
 class Func {
 
 public:
-  explicit Func(Code *holder);
+  explicit Func(Code *holder) noexcept;
 
-  constexpr Code *code() const {
+  constexpr Code *code() const noexcept {
     return holder_;
   }
 
-  constexpr explicit operator bool() const {
+  constexpr explicit operator bool() const noexcept {
     return holder_ && *holder_;
   }
 
-  BreakStmt new_break() {
+  BreakStmt new_break() noexcept {
     return BreakStmt{};
   }
 
   // also autodetects kind
-  BinaryExpr new_binary(Op2 op, const Expr &left, const Expr &right) {
+  BinaryExpr new_binary(Op2 op, const Expr &left, const Expr &right) noexcept {
     return BinaryExpr::create(op, left, right, holder_);
   }
 
-  BlockStmt new_block(Nodes nodes) {
+  BlockStmt new_block(Nodes nodes) noexcept {
     return BlockStmt::create(nodes, holder_);
   }
 
-  CaseStmt new_case(const Expr &expr, const Node &body) {
+  CaseStmt new_case(const Expr &expr, const Node &body) noexcept {
     return CaseStmt::create(expr, body, holder_);
   }
 
-  CondStmt new_cond(Nodes nodes) {
+  CondStmt new_cond(Nodes nodes) noexcept {
     return CondStmt::create(nodes, holder_);
   }
 
-  ConstExpr new_const(const Const &c) {
+  ConstExpr new_const(const Const &c) noexcept {
     return ConstExpr::create(c, holder_);
   }
 
-  ContinueStmt new_continue() {
+  ContinueStmt new_continue() noexcept {
     return ContinueStmt{};
   }
 
-  DefaultStmt new_default(const Node &body) {
+  DefaultStmt new_default(const Node &body) noexcept {
     return DefaultStmt::create(body, holder_);
   }
 
-  FallthroughStmt new_fallthrough() {
+  FallthroughStmt new_fallthrough() noexcept {
     return FallthroughStmt{};
   }
 
-  ForStmt new_for(const Node &init, const Expr &cond, const Node &post, const Node &body) {
+  ForStmt new_for(const Node &init, const Expr &cond, const Node &post, const Node &body) noexcept {
     return ForStmt::create(init, cond, post, body, holder_);
   }
 
-  IfStmt new_if(const Expr &cond, const Node &then, const Node &else_) {
+  IfStmt new_if(const Expr &cond, const Node &then, const Node &else_) noexcept {
     return IfStmt::create(cond, then, else_, holder_);
   }
 
-  Stmt0 new_stmt0(OpStmt0 op) {
+  MemExpr new_mem(Kind kind, const Expr &address) noexcept {
+    return MemExpr::create(kind, address, holder_);
+  }
+
+  Stmt0 new_stmt0(OpStmt0 op) noexcept {
     return Stmt0{op};
   }
 
-  Stmt1 new_stmt1(OpStmt1 op, const Node &child) {
+  Stmt1 new_stmt1(OpStmt1 op, const Node &child) noexcept {
     return Stmt1::create(op, child, holder_);
   }
 
-  Stmt2 new_stmt2(OpStmt2 op, const Node &child0, const Node &child1) {
+  Stmt2 new_stmt2(OpStmt2 op, const Node &child0, const Node &child1) noexcept {
     return Stmt2::create(op, child0, child1, holder_);
   }
 
-  Stmt3 new_stmt3(OpStmt3 op, const Node &child0, const Node &child1, const Node &child2) {
+  Stmt3 new_stmt3(OpStmt3 op, const Node &child0, const Node &child1, const Node &child2) noexcept {
     return Stmt3::create(op, child0, child1, child2, holder_);
   }
 
   Stmt4 new_stmt4(OpStmt4 op, const Node &child0, const Node &child1, const Node &child2,
-                  const Node &child3) {
+                  const Node &child3) noexcept {
     return Stmt4::create(op, child0, child1, child2, child3, holder_);
   }
 
-  StmtN new_stmtn(OpStmtN op, Nodes nodes) {
+  StmtN new_stmtn(OpStmtN op, Nodes nodes) noexcept {
     return StmtN::create(op, nodes, holder_);
   }
 
   // node[0] must be Expr. other nodes must be CaseStmt, plus at most one DefaultStmt
-  SwitchStmt new_switch(Nodes nodes) {
+  SwitchStmt new_switch(Nodes nodes) noexcept {
     return SwitchStmt::create(nodes, holder_);
   }
 
-  UnaryExpr new_unary(Kind kind, Op1 op, const Expr &arg) {
+  UnaryExpr new_unary(Kind kind, Op1 op, const Expr &arg) noexcept {
     return UnaryExpr::create(kind, op, arg, holder_);
   }
 
   // also autodetects kind if op != CAST
-  UnaryExpr new_unary(Op1 op, const Expr &arg) {
+  UnaryExpr new_unary(Op1 op, const Expr &arg) noexcept {
     return UnaryExpr::create(op, arg, holder_);
   }
 
-  VarExpr new_var(Kind kind);
+  VarExpr new_var(Kind kind) noexcept;
 
-  Func &add(const Node &node) {
+  Func &add(const Node &node) noexcept {
     return add(node.offset_or_direct());
   }
 
 private:
-  Func &add(CodeItem item) {
+  Func &add(CodeItem item) noexcept {
     holder_->add(item);
     return *this;
   }

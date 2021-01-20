@@ -45,24 +45,24 @@ public:
    *
    * to create a valid StmtN, use Func::new_stmtn()
    */
-  constexpr StmtN() : Base{STMT_N, Bad, BAD_STN} {
+  constexpr StmtN() noexcept : Base{STMT_N, Bad, BAD_STN} {
   }
 
 protected:
   /* construct an invalid StmtN */
-  constexpr explicit StmtN(OpStmtN op) : Base{STMT_N, Bad, op} {
+  constexpr explicit StmtN(OpStmtN op) noexcept : Base{STMT_N, Bad, op} {
   }
 
   // downcast Node to StmtN
-  constexpr explicit StmtN(const Node &node) : Base{node} {
+  constexpr explicit StmtN(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_type(Type t) {
+  static constexpr bool is_allowed_type(Type t) noexcept {
     return t == STMT_N;
   }
 
-  static StmtN create(OpStmtN op, const Nodes nodes, Code *holder);
+  static StmtN create(OpStmtN op, const Nodes nodes, Code *holder) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const StmtN &st);
@@ -81,24 +81,24 @@ public:
    *
    * to create a valid BlockStmt, use Func::new_block()
    */
-  constexpr BlockStmt() : Base{BLOCK} {
+  constexpr BlockStmt() noexcept : Base{BLOCK} {
   }
 
-  static constexpr OpStmtN op() {
+  static constexpr OpStmtN op() noexcept {
     return BLOCK;
   }
 
 private:
   // downcast Node to BlockStmt
-  constexpr explicit BlockStmt(const Node &node) : Base{node} {
+  constexpr explicit BlockStmt(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_op(uint16_t op) {
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == BLOCK;
   }
 
-  static BlockStmt create(const Nodes nodes, Code *holder) {
+  static BlockStmt create(const Nodes nodes, Code *holder) noexcept {
     return BlockStmt{StmtN::create(BLOCK, nodes, holder)};
   }
 };
@@ -122,24 +122,24 @@ public:
    *
    * to create a valid CondStmt, use Func::new_block()
    */
-  constexpr CondStmt() : Base{COND} {
+  constexpr CondStmt() noexcept : Base{COND} {
   }
 
-  static constexpr OpStmtN op() {
+  static constexpr OpStmtN op() noexcept {
     return COND;
   }
 
 private:
   // downcast Node to CondStmt
-  constexpr explicit CondStmt(const Node &node) : Base{node} {
+  constexpr explicit CondStmt(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_op(uint16_t op) {
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == COND;
   }
 
-  static CondStmt create(const Nodes nodes, Code *holder) {
+  static CondStmt create(const Nodes nodes, Code *holder) noexcept {
     return CondStmt{StmtN::create(COND, nodes, holder)};
   }
 };
@@ -158,25 +158,25 @@ public:
    *
    * to create a valid SwitchStmt, use Func::new_block()
    */
-  constexpr SwitchStmt() : Base{SWITCH} {
+  constexpr SwitchStmt() noexcept : Base{SWITCH} {
   }
 
-  static constexpr OpStmtN op() {
+  static constexpr OpStmtN op() noexcept {
     return SWITCH;
   }
 
 private:
   // downcast Node to SwitchStmt
-  constexpr explicit SwitchStmt(const Node &node) : Base{node} {
+  constexpr explicit SwitchStmt(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_op(uint16_t op) {
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == SWITCH;
   }
 
   // node[0] must be Expr. other nodes must be CaseStmt, plus at most one DefaultStmt
-  static SwitchStmt create(const Nodes nodes, Code *holder) {
+  static SwitchStmt create(const Nodes nodes, Code *holder) noexcept {
     return SwitchStmt{StmtN::create(SWITCH, nodes, holder)};
   }
 };

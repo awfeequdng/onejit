@@ -17,14 +17,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * unaryexpr.hpp
+ * memexpr.hpp
  *
  *  Created on Jan 16, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_UNARYEXPR_HPP
-#define ONEJIT_UNARYEXPR_HPP
+#ifndef ONEJIT_MEMEXPR_HPP
+#define ONEJIT_MEMEXPR_HPP
 
 #include <onejit/expr.hpp>
 #include <onejit/op.hpp>
@@ -33,8 +33,9 @@
 
 namespace onejit {
 
-// an unary expression: Op1 and a single argument
-class UnaryExpr : public Expr {
+// an unary expression: a memory dereference, either read or write.
+// the memory address is an expression
+class MemExpr : public Expr {
   using Base = Expr;
 
   friend class Func;
@@ -42,51 +43,45 @@ class UnaryExpr : public Expr {
 
 public:
   /**
-   * construct an invalid UnaryExpr.
-   * exists only to allow placing UnaryExpr in containers
+   * construct an invalid MemExpr.
+   * exists only to allow placing MemExpr in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid UnaryExpr, use Func::new_unary()
+   * to create a valid MemExpr, use Func::new_mem()
    */
-  constexpr UnaryExpr() noexcept : Base{UNARY} {
+  constexpr MemExpr() noexcept : Base{MEM} {
   }
 
   static constexpr Type type() noexcept {
-    return UNARY;
+    return MEM;
   }
 
   using Base::kind;
-
-  constexpr Op1 op() const noexcept {
-    return Op1(Base::op());
-  }
 
   static constexpr uint32_t children() noexcept {
     return 1;
   }
 
   // shortcut for child(0).is<Expr>()
-  Expr x() const noexcept {
+  Expr addr() const noexcept {
     return child(0).is<Expr>();
   }
 
 private:
-  // downcast Node to UnaryExpr
-  constexpr explicit UnaryExpr(const Node &node) noexcept : Base{node} {
+  // downcast Node to MemExpr
+  constexpr explicit MemExpr(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
   static constexpr bool is_allowed_type(Type t) noexcept {
-    return t == UNARY;
+    return t == MEM;
   }
 
-  static UnaryExpr create(Kind kind, Op1 op, const Expr &child, Code *holder) noexcept;
-  // also autodetects kind if op != CAST
-  static UnaryExpr create(Op1 op, const Expr &child, Code *holder) noexcept;
+  static MemExpr create(Kind kind, const Expr &address, Code *holder) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const UnaryExpr &ue);
+std::ostream &operator<<(std::ostream &out, const MemExpr &ue);
 
 } // namespace onejit
 
-#endif // ONEJIT_UNARYEXPR_HPP
+#endif // ONEJIT_MEMEXPR_HPP

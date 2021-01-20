@@ -45,14 +45,14 @@ template <class T> class Vector : protected Span<T> {
   typedef Span<T> Base;
 
   // do not implement. reason: any allocation failure would not be visible
-  Vector<T> &operator=(const Vector<T> &other); // = delete;
+  Vector<T> &operator=(const Vector<T> &other) noexcept = delete;
 
 protected:
   using Base::data_;
   using Base::size_;
   size_t cap_;
 
-  bool init(size_t n) {
+  bool init(size_t n) noexcept {
     data_ = mem::alloc<T>(n);
     if (n && !data_) {
       // mem::alloc() failed
@@ -64,13 +64,13 @@ protected:
     return true;
   }
 
-  void destroy() {
+  void destroy() noexcept {
     if (data_ != NULL) {
       mem::free(data());
     }
   }
 
-  bool ensure_capacity(size_t n) {
+  bool ensure_capacity(size_t n) noexcept {
     if (cap_ >= n) {
       return true;
     }
@@ -78,7 +78,7 @@ protected:
     return reserve(n >= cap2 ? n : cap2);
   }
 
-  bool ONESTL_NOINLINE resize0(size_t n, bool zerofill) {
+  bool ONESTL_NOINLINE resize0(size_t n, bool zerofill) noexcept {
     if (!ensure_capacity(n)) {
       return false;
     }
@@ -100,30 +100,30 @@ public:
   typedef const T *const_pointer;
   typedef const T *const_iterator;
 
-  constexpr Vector() : Base(), cap_(0) {
+  constexpr Vector() noexcept : Base(), cap_(0) {
   }
-  Vector(const T *addr, size_t n) : Base(), cap_(0) {
+  Vector(const T *addr, size_t n) noexcept : Base(), cap_(0) {
     dup(addr, n);
   }
   // all one-argument constructors are explicit because they allocate,
   // thus they mail fail => we require users to explicitly invoke them.
-  explicit Vector(size_t n) : Base(), cap_(0) {
+  explicit Vector(size_t n) noexcept : Base(), cap_(0) {
     init(n);
   }
-  explicit Vector(const View<T> &other) : Base(), cap_(0) {
+  explicit Vector(const View<T> &other) noexcept : Base(), cap_(0) {
     dup(other.data(), other.size());
   }
-  explicit Vector(const Span<T> &other) : Base(), cap_(0) {
+  explicit Vector(const Span<T> &other) noexcept : Base(), cap_(0) {
     dup(other.data(), other.size());
   }
-  explicit Vector(const Vector<T> &other) : Base(), cap_(0) {
+  explicit Vector(const Vector<T> &other) noexcept : Base(), cap_(0) {
     dup(other.data(), other.size());
   }
-  ~Vector() {
+  ~Vector() noexcept {
     destroy();
   }
 
-  constexpr size_t capacity() const {
+  constexpr size_t capacity() const noexcept {
     return cap_;
   }
   using Base::begin;
@@ -138,7 +138,7 @@ public:
   using Base::span;
   using Base::view;
 
-  bool ONESTL_NOINLINE dup(const T *addr, size_t n) {
+  bool ONESTL_NOINLINE dup(const T *addr, size_t n) noexcept {
     if (!ensure_capacity(n)) {
       return false;
     }
@@ -146,25 +146,25 @@ public:
     size_ = n;
     return true;
   }
-  bool dup(View<T> other) {
+  bool dup(View<T> other) noexcept {
     return dup(other.data(), other.size());
   }
-  bool dup(Span<T> other) {
+  bool dup(Span<T> other) noexcept {
     return dup(other.data(), other.size());
   }
-  bool dup(const Vector &other) {
+  bool dup(const Vector &other) noexcept {
     return dup(other.data(), other.size());
   }
 
-  void clear() {
+  void clear() noexcept {
     (void)resize0(0, false);
   }
 
-  bool resize(size_t n) {
+  bool resize(size_t n) noexcept {
     return resize0(n, true);
   }
 
-  bool reserve(size_t newcap) {
+  bool reserve(size_t newcap) noexcept {
     if (newcap > cap_) {
       T *olddata = data();
       T *newdata = mem::realloc(olddata, newcap);
@@ -180,11 +180,11 @@ public:
     return true;
   }
 
-  bool append(const T &src) {
+  bool append(const T &src) noexcept {
     return append(View<T>(&src, 1));
   }
 
-  bool append(View<T> src) {
+  bool append(View<T> src) noexcept {
     const size_t oldn = size_;
     const size_t srcn = src.size();
     if (!resize0(oldn + srcn, false)) {
@@ -194,24 +194,24 @@ public:
     return true;
   }
 
-  void swap(Vector &other) {
+  void swap(Vector &other) noexcept {
     mem::swap(data_, other.data_);
     mem::swap(size_, other.size_);
     mem::swap(cap_, other.cap_);
   }
 };
 
-template <class T> void View<T>::ref(const Vector<T> &other) {
+template <class T> void View<T>::ref(const Vector<T> &other) noexcept {
   data_ = other.data();
   size_ = other.size();
 }
 
-template <class T> void Span<T>::ref(Vector<T> &other) {
+template <class T> void Span<T>::ref(Vector<T> &other) noexcept {
   data_ = other.data();
   size_ = other.size();
 }
 
-template <class T> void swap(Vector<T> &left, Vector<T> &right) {
+template <class T> void swap(Vector<T> &left, Vector<T> &right) noexcept {
   left.swap(right);
 }
 

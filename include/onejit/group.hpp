@@ -44,7 +44,7 @@ enum Group : uint8_t {
   gArch = 7, // arch-specific Kind
 };
 
-const Chars &to_string(Group g);
+const Chars &to_string(Group g) noexcept;
 
 std::ostream &operator<<(std::ostream &out, Group g);
 

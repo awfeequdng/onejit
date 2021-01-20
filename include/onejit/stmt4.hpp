@@ -46,29 +46,29 @@ public:
    *
    * to create a valid Stmt4, use Func::new_stmt4()
    */
-  constexpr Stmt4() : Base{STMT_4, Bad, BAD_ST4} {
+  constexpr Stmt4() noexcept : Base{STMT_4, Bad, BAD_ST4} {
   }
 
-  static constexpr uint32_t children() {
+  static constexpr uint32_t children() noexcept {
     return 4;
   }
 
 protected:
   /* construct an invalid Stmt4 */
-  constexpr explicit Stmt4(OpStmt4 op) : Base{STMT_4, Bad, op} {
+  constexpr explicit Stmt4(OpStmt4 op) noexcept : Base{STMT_4, Bad, op} {
   }
 
   // downcast Node to Stmt4
-  constexpr explicit Stmt4(const Node &node) : Base{node} {
+  constexpr explicit Stmt4(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_type(Type t) {
+  static constexpr bool is_allowed_type(Type t) noexcept {
     return t == STMT_4;
   }
 
   static Stmt4 create(OpStmt4 op, const Node &child0, const Node &child1, const Node &child2,
-                      const Node &child3, Code *holder);
+                      const Node &child3, Code *holder) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Stmt4 &st);
@@ -87,45 +87,45 @@ public:
    *
    * to create a valid ForStmt, use Func::new_for()
    */
-  constexpr ForStmt() : Base{FOR} {
+  constexpr ForStmt() noexcept : Base{FOR} {
   }
 
-  static constexpr OpStmt4 op() {
+  static constexpr OpStmt4 op() noexcept {
     return FOR;
   }
 
   // shortcut for child(0)
-  Node init() const {
+  Node init() const noexcept {
     return child(0);
   }
 
   // shortcut for child(1).is<Expr>()
-  Expr cond() const {
+  Expr cond() const noexcept {
     return child(1).is<Expr>();
   }
 
   // shortcut for child(2)
-  Node post() const {
+  Node post() const noexcept {
     return child(2);
   }
 
   // shortcut for child(3)
-  Node body() const {
+  Node body() const noexcept {
     return child(3);
   }
 
 private:
   // downcast Node to ForStmt
-  constexpr explicit ForStmt(const Node &node) : Base{node} {
+  constexpr explicit ForStmt(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_op(uint16_t op) {
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == FOR;
   }
 
   static ForStmt create(const Node &init, const Expr &cond, const Node &post, const Node &body,
-                        Code *holder) {
+                        Code *holder) noexcept {
     return ForStmt{Stmt4::create(FOR, init, cond, post, body, holder)};
   }
 };

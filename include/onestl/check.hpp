@@ -60,7 +60,7 @@ class Error {
 public:
   Error(std::string &&lhs, std::string &&rhs,                  //
         const char *opstr, const char *lstr, const char *rstr, //
-        const char *file, int line);
+        const char *file, int line) noexcept;
 
   void ONESTL_NORETURN throw_check_failed() const;
   void ONESTL_NORETURN throw_bounds_failed() const;
@@ -80,6 +80,8 @@ void ONESTL_NORETURN throw_bounds_failed();
 
 std::string to_string(std::nullptr_t);
 std::string to_string(bool val);
+std::string to_string(int8_t val);
+std::string to_string(uint8_t val);
 std::string to_string(const void *val);
 
 template <class T> std::string to_string(const T *val) {

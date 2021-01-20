@@ -23,8 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onestl/chars.hpp>
 #include <onejit/group.hpp>
+#include <onestl/chars.hpp>
 
 #include <ostream>
 
@@ -36,7 +36,7 @@ static const Chars gstring[] = {
     "ptr",  "arch", "?",                //
 };
 
-const Chars &to_string(Group g) {
+const Chars &to_string(Group g) noexcept {
   enum _ { n = sizeof(gstring) / sizeof(gstring[0]) };
   uint8_t i = (uint8_t)g;
   if (i >= n) {

@@ -29,11 +29,11 @@
 
 namespace onejit {
 
-Node CodeParser::next() {
+Node CodeParser::next() noexcept {
   if (offset_ >= code_->length()) {
     return Node{};
   }
-  Node node{NodeHeader{code_->at(offset_)}, offset_, code_};
+  Node node{NodeHeader{code_->get(offset_)}, offset_, code_};
   offset_ += node.length();
   return node;
 }

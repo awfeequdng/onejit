@@ -37,19 +37,20 @@
 
 namespace onejit {
 
-CodeItem ONEJIT_NOINLINE Node::at(Offset byte_offset) const {
-  ONEJIT_CHECK(code_, !=, nullptr);
-  return code_->at(off_or_dir_ + byte_offset);
+CodeItem ONEJIT_NOINLINE Node::get(Offset byte_offset) const noexcept {
+  return code_ ? code_->get(off_or_dir_ + byte_offset) : 0;
 }
 
-uint32_t ONEJIT_NOINLINE Node::children() const {
-  return is_list(type()) ? at(sizeof(CodeItem)) : to_children(type());
+uint32_t ONEJIT_NOINLINE Node::children() const noexcept {
+  return is_list(type()) ? get(sizeof(CodeItem)) : to_children(type());
 }
 
-Node Node::child(uint32_t i) const {
-  ONEJIT_BOUNDS(i, <, children());
+Node Node::child(uint32_t i) const noexcept {
+  if (i >= children()) {
+    return Node{};
+  }
   // skip NodeHeader and child count
-  const CodeItem item = at(sizeof(CodeItem) * (size_t(i) + (is_list(type()) ? 2 : 1)));
+  const CodeItem item = get(sizeof(CodeItem) * (size_t(i) + (is_list(type()) ? 2 : 1)));
 
   NodeHeader header;
   uint32_t offset_or_direct = 0;
@@ -76,8 +77,8 @@ Node Node::child(uint32_t i) const {
     header = NodeHeader{VAR, Var::parse_direct_kind(item), 0};
   } else if ((item & 3) == 0) {
     // indirect Node: item is relative offset between parent and child
-    offset_or_direct = off_or_dir_ - item;
-    header = NodeHeader{code_->at(offset_or_direct)};
+    offset_or_direct = off_or_dir_ + item;
+    header = NodeHeader{code_->get(offset_or_direct)};
     code = code_; // only indirect Nodes need code
   } else {
     // NodeHeader or tag 0b1110: should not appear here,
@@ -86,7 +87,7 @@ Node Node::child(uint32_t i) const {
   return Node{header, offset_or_direct, code};
 }
 
-Offset Node::size() const {
+Offset Node::size() const noexcept {
   Offset len = 1 + children();
   switch (type()) {
   case VAR:

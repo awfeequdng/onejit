@@ -45,28 +45,28 @@ public:
    *
    * to create a valid Stmt2, use Func::new_stmt2()
    */
-  constexpr Stmt2() : Base{STMT_2, Bad, BAD_ST2} {
+  constexpr Stmt2() noexcept : Base{STMT_2, Bad, BAD_ST2} {
   }
 
-  static constexpr uint32_t children() {
+  static constexpr uint32_t children() noexcept {
     return 2;
   }
 
 protected:
   /* construct an invalid Stmt2 */
-  constexpr explicit Stmt2(OpStmt2 op) : Base{STMT_2, Bad, op} {
+  constexpr explicit Stmt2(OpStmt2 op) noexcept : Base{STMT_2, Bad, op} {
   }
 
   // downcast Node to Stmt2
-  constexpr explicit Stmt2(const Node &node) : Base{node} {
+  constexpr explicit Stmt2(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_type(Type t) {
+  static constexpr bool is_allowed_type(Type t) noexcept {
     return t == STMT_2;
   }
 
-  static Stmt2 create(OpStmt2 op, const Node &child0, const Node &child1, Code *holder);
+  static Stmt2 create(OpStmt2 op, const Node &child0, const Node &child1, Code *holder) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Stmt2 &st);
@@ -85,24 +85,24 @@ public:
    *
    * to create a valid CaseStmt, use Func::new_case()
    */
-  constexpr CaseStmt() : Base{CASE} {
+  constexpr CaseStmt() noexcept : Base{CASE} {
   }
 
-  static constexpr OpStmt2 op() {
+  static constexpr OpStmt2 op() noexcept {
     return CASE;
   }
 
 private:
   // downcast Node to CaseStmt
-  constexpr explicit CaseStmt(const Node &node) : Base{node} {
+  constexpr explicit CaseStmt(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_op(uint16_t op) {
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == CASE;
   }
 
-  static CaseStmt create(const Expr &expr, const Node &body, Code *holder) {
+  static CaseStmt create(const Expr &expr, const Node &body, Code *holder) noexcept {
     return CaseStmt{Stmt2::create(CASE, expr, body, holder)};
   }
 };

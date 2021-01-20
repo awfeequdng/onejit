@@ -51,15 +51,15 @@ public:
   typedef const T *const_pointer;
   typedef const T *const_iterator;
 
-  constexpr View() : data_(NULL), size_(0) {
+  constexpr View() noexcept : data_(NULL), size_(0) {
   }
-  constexpr View(const T *addr, size_t n) : data_(addr), size_(n) {
+  constexpr View(const T *addr, size_t n) noexcept : data_(addr), size_(n) {
   }
 
-  View(const Span<T> &other) {
+  View(const Span<T> &other) noexcept {
     ref(other);
   }
-  View(const Vector<T> &other) {
+  View(const Vector<T> &other) noexcept {
     ref(other);
   }
 
@@ -67,79 +67,81 @@ public:
   // ~View() = default;
   // operator=(const View&) = default;
 
-  View &operator=(const Span<T> &other) {
+  View &operator=(const Span<T> &other) noexcept {
     ref(other);
     return *this;
   }
 
-  View &operator=(const Vector<T> &other) {
+  View &operator=(const Vector<T> &other) noexcept {
     ref(other);
     return *this;
   }
 
-  constexpr size_t capacity() const {
+  constexpr size_t capacity() const noexcept {
     return size_;
   }
 
-  constexpr size_t size() const {
+  constexpr size_t size() const noexcept {
     return size_;
   }
 
-  constexpr bool empty() const {
+  constexpr bool empty() const noexcept {
     return size_ == 0;
   }
 
-  constexpr explicit operator bool() const {
+  constexpr explicit operator bool() const noexcept {
     return size_ != 0;
   }
 
   // unchecked element access
-  const T &operator[](size_t index) const {
+  const T &operator[](size_t index) const noexcept {
     return data_[index];
   }
 
-  // checked element access
+  // checked element access:
+  // throws if index is out of bounds
   const T &at(size_t index) const {
     ONESTL_BOUNDS(index, <, size_);
     return data_[index];
   }
 
-  constexpr const T *data() const {
+  constexpr const T *data() const noexcept {
     return data_;
   }
 
-  constexpr const T *begin() const {
+  constexpr const T *begin() const noexcept {
     return data_;
   }
 
-  constexpr const T *end() const {
+  constexpr const T *end() const noexcept {
     return data_ + size_;
   }
 
+  // throws if start or end are out of bounds
   View view(size_t start, size_t end) const {
     ONESTL_BOUNDS(start, <=, end);
     ONESTL_BOUNDS(end, <=, size_);
     return View(data_ + start, end - start);
   }
 
-  void swap(View &other) {
+  void swap(View &other) noexcept {
     View temp = *this;
     *this = other;
     other = temp;
   }
 
-  void ref(const T *addr, size_t n) {
+  void ref(const T *addr, size_t n) noexcept {
     data_ = addr;
     size_ = n;
   }
-  void ref(const View<T> &other) {
+  void ref(const View<T> &other) noexcept {
     data_ = other.data_;
     size_ = other.size_;
   }
-  void ref(const Span<T> &other);
-  void ref(const Vector<T> &other);
+  void ref(const Span<T> &other) noexcept;
+  void ref(const Vector<T> &other) noexcept;
 
-  template <class VEC> bool operator==(const VEC &other) const {
+  template <class VEC> bool operator==(const VEC &other) const noexcept {
     static_assert(
         sizeof(value_type) == sizeof(typename VEC::value_type),
         "onestl::View<T>::operator==(VEC) mismatched sizes of value_type and VEC::value_type");
@@ -148,7 +150,7 @@ public:
   }
 };
 
-template <class T> void swap(View<T> &left, View<T> &right) {
+template <class T> void swap(View<T> &left, View<T> &right) noexcept {
   left.swap(right);
 }
 

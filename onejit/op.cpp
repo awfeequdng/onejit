@@ -36,7 +36,7 @@ namespace onejit {
 
 static const Chars op1string[] = {"?", "^", "!", "cast", "goto"};
 
-const Chars &to_string(Op1 op) {
+const Chars &to_string(Op1 op) noexcept {
   uint8_t i = op;
   if (i >= N_OF(op1string)) {
     i = 0;
@@ -56,7 +56,7 @@ static const Chars op2string[] = {
     "&&", "||", "<",  "<=", "!=", "==", ">",  ">=",                            //
 };
 
-const Chars &to_string(Op2 op) {
+const Chars &to_string(Op2 op) noexcept {
   uint8_t i = 0; // "?"
   if (op <= GEQ) {
     i = op;
@@ -72,7 +72,7 @@ std::ostream &operator<<(std::ostream &out, Op2 op) {
 
 static const Chars opnstring[] = {"?", "call", "tuple=", "return"};
 
-const Chars &to_string(OpN op) {
+const Chars &to_string(OpN op) noexcept {
   uint8_t i = op;
   if (i >= N_OF(opnstring)) {
     i = 0;

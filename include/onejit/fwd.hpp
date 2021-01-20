@@ -74,7 +74,7 @@ class StmtN;
 class SwitchStmt;
 class Test;
 class UnaryExpr;
-class Var;
+union Var;
 class VarId;
 class VarExpr;
 

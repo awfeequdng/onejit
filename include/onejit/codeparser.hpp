@@ -33,27 +33,27 @@ namespace onejit {
 class CodeParser {
 
 public:
-  constexpr CodeParser() : code_(nullptr), offset_(0) {
+  constexpr CodeParser() noexcept : code_(nullptr), offset_(0) {
   }
 
-  constexpr explicit CodeParser(const Code *code) : code_(code), offset_(0) {
+  constexpr explicit CodeParser(const Code *code) noexcept : code_(code), offset_(0) {
   }
 
   // ~CodeParser() = default;
 
-  constexpr explicit operator bool() const {
+  constexpr explicit operator bool() const noexcept {
     return code_ != nullptr && offset_ < code_->length();
   }
 
-  constexpr Offset tell() const {
+  constexpr Offset tell() const noexcept {
     return offset_;
   }
 
-  void seek(Offset to) {
+  void seek(Offset to) noexcept {
     offset_ = to;
   }
 
-  Node next();
+  Node next() noexcept;
 
 private:
   const Code *code_;

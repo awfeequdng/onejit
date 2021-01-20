@@ -38,16 +38,16 @@ private:
   typedef View<char> Base;
 
 public:
-  constexpr Chars() : Base() {
+  constexpr Chars() noexcept : Base() {
   }
-  template <size_t N> constexpr Chars(const T (&addr)[N]) : Base(addr, N - 1) {
+  template <size_t N> constexpr Chars(const T (&addr)[N]) noexcept : Base(addr, N - 1) {
   }
-  constexpr Chars(const T *addr, size_t n) : Base(addr, n) {
+  constexpr Chars(const T *addr, size_t n) noexcept : Base(addr, n) {
   }
-  constexpr Chars(const Base &other) : Base(other) {
+  constexpr Chars(const Base &other) noexcept : Base(other) {
   }
 
-  Chars view(size_t start, size_t end) const {
+  Chars view(size_t start, size_t end) const noexcept {
     return Chars(Base::view(start, end));
   }
 };

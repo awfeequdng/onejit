@@ -37,23 +37,24 @@ class Stmt : public Node {
   friend class Node;
 
 public:
-  constexpr Stmt() : Base{} {
+  constexpr Stmt() noexcept : Base{} {
   }
 
-  static constexpr Kind kind() {
+  static constexpr Kind kind() noexcept {
     return Void;
   }
 
 protected:
-  constexpr Stmt(Type t, Kind kind, uint16_t op) : Base{NodeHeader{t, kind, op}, 0, nullptr} {
+  constexpr Stmt(Type t, Kind kind, uint16_t op) noexcept
+      : Base{NodeHeader{t, kind, op}, 0, nullptr} {
   }
 
   // downcast Node to Stmt
-  constexpr explicit Stmt(const Node &node) : Base{node} {
+  constexpr explicit Stmt(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_type(Type t) {
+  static constexpr bool is_allowed_type(Type t) noexcept {
     return t >= STMT_0 && t <= STMT_N;
   }
 };

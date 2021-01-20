@@ -31,15 +31,18 @@ namespace onejit {
 
 // ============================  StmtN  ========================================
 
-StmtN StmtN::create(OpStmtN op, const Nodes children, Code *holder) {
-  const NodeHeader header{STMT_3, Void, uint16_t(op)};
-  CodeItem offset = holder->length();
+StmtN StmtN::create(OpStmtN op, const Nodes nodes, Code *holder) noexcept {
+  while (holder) {
+    const NodeHeader header{STMT_3, Void, uint16_t(op)};
+    CodeItem offset = holder->length();
 
-  if (!holder->add(header) || !holder->add(children, offset)) {
+    if (holder->add(header) && holder->add(nodes, offset)) {
+      return StmtN{Node{header, offset, holder}};
+    }
     holder->truncate(offset);
-    return StmtN{op};
+    break;
   }
-  return StmtN{Node{header, offset, holder}};
+  return StmtN{op};
 }
 
 std::ostream &operator<<(std::ostream &out, const StmtN &st) {

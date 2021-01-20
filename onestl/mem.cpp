@@ -31,19 +31,19 @@
 namespace onestl {
 namespace mem {
 
-void *alloc_bytes(size_t n_bytes) throw() {
+void *alloc_bytes(size_t n_bytes) noexcept {
   return std::malloc(n_bytes);
 }
 
-void clear_bytes(void *addr, size_t n_bytes) throw() {
+void clear_bytes(void *addr, size_t n_bytes) noexcept {
   std::memset(addr, 0, n_bytes);
 }
 
-void free_bytes(void *addr) throw() {
+void free_bytes(void *addr) noexcept {
   std::free(addr);
 }
 
-void *realloc_bytes(void *addr, size_t n_bytes) throw() {
+void *realloc_bytes(void *addr, size_t n_bytes) noexcept {
   return std::realloc(addr, n_bytes);
 }
 

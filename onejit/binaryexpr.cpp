@@ -30,24 +30,26 @@ namespace onejit {
 
 // autodetect kind
 BinaryExpr BinaryExpr::create(Op2 op, const Expr &left, const Expr &right, Code *holder) {
-  Kind kind = Bad;
-  if (op == BAD2) {
-  } else if (op <= AND_NOT) {
-    kind = left.kind();
-  } else if (op <= AND_NOT_ASSIGN) {
-    kind = Void; // assignment returns void
-  } else if (op <= GEQ) {
-    kind = Bool; // && || comparison
-  }
+  while (holder) {
+    Kind kind = Bad;
+    if (op == BAD2) {
+    } else if (op <= AND_NOT) {
+      kind = left.kind();
+    } else if (op <= AND_NOT_ASSIGN) {
+      kind = Void; // assignment returns void
+    } else if (op <= GEQ) {
+      kind = Bool; // && || comparison
+    }
+    const NodeHeader header{BINARY, kind, uint16_t(op)};
+    CodeItem offset = holder->length();
 
-  const NodeHeader header{BINARY, kind, uint16_t(op)};
-  CodeItem offset = holder->length();
-
-  if (!holder->add(header) || !holder->add(left, offset) || !holder->add(right, offset)) {
+    if (holder->add(header) && holder->add(left, offset) && holder->add(right, offset)) {
+      return BinaryExpr{Node{header, offset, holder}};
+    }
     holder->truncate(offset);
-    return BinaryExpr{};
+    break;
   }
-  return BinaryExpr{Node{header, offset, holder}};
+  return BinaryExpr{};
 }
 
 std::ostream &operator<<(std::ostream &out, const BinaryExpr &be) {

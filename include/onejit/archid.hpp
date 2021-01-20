@@ -35,12 +35,12 @@ namespace onejit {
 
 class ArchId {
 public:
-  constexpr explicit ArchId(uint8_t archid) : val_(archid) {
+  constexpr explicit ArchId(uint8_t archid) noexcept : val_(archid) {
   }
 
-  const Chars &string() const;
+  const Chars &string() const noexcept;
 
-  constexpr uint8_t val() const {
+  constexpr uint8_t val() const noexcept {
     return val_;
   }
 

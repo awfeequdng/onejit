@@ -17,41 +17,33 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * stmt3.cpp
+ * memexpr.cpp
  *
- *  Created on Jan 18, 2020
+ *  Created on Jan 20, 2020
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/code.hpp>
-#include <onejit/stmt3.hpp>
-#include <onestl/chars.hpp>
+#include <onejit/memexpr.hpp>
 
 namespace onejit {
 
-// ============================  Stmt3  ========================================
-
-Stmt3 ONEJIT_NOINLINE Stmt3::create(OpStmt3 op, const Node &child0, const Node &child1,
-                                    const Node &child2, Code *holder) noexcept {
+MemExpr ONEJIT_NOINLINE MemExpr::create(Kind kind, const Expr &address, Code *holder) noexcept {
   while (holder) {
-    const NodeHeader header{STMT_3, Void, uint16_t(op)};
+    const NodeHeader header{MEM, kind, 0};
     CodeItem offset = holder->length();
 
-    if (holder->add(header) && holder->add(child0, offset) && //
-        holder->add(child1, offset) && holder->add(child2, offset)) {
-      return Stmt3{Node{header, offset, holder}};
+    if (holder->add(header) && holder->add(address, offset)) {
+      return MemExpr{Node{header, offset, holder}};
     }
     holder->truncate(offset);
     break;
   }
-  return Stmt3{op};
+  return MemExpr{};
 }
 
-std::ostream &operator<<(std::ostream &out, const Stmt3 &st) {
-  return out << '(' << st.op() << ' ' << st.child(0) << Chars("\n    ") << st.child(1)
-             << Chars("\n    ") << st.child(2) << ')';
+std::ostream &operator<<(std::ostream &out, const MemExpr &ue) {
+  return out << '(' << ue.type() << ' ' << ue.child(0) << ')';
 }
-
-// ============================  IfStmt  =======================================
 
 } // namespace onejit

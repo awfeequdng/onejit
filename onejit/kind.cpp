@@ -31,47 +31,47 @@
 namespace onejit {
 
 static const Chars kstring[] = {
-    "bad",     "void",      "bool",             //
-    "int8",    "int16",     "int32",  "int64",  //
-    "uint8",   "uint16",    "uint32", "uint64", //
-    "float32", "float64",   "?",                //
-    "ptr",     "archflags",
+    "bad",     "void",      "bool",              //
+    "int8",    "int16",     "int32",   "int64",  //
+    "uint8",   "uint16",    "uint32",  "uint64", //
+    "float16", "float32",   "float64",           //
+    "ptr",     "archflags", "?",                 //
 };
 
 static const Chars kstringsuffix[] = {
     "?",  "v",   "e",        //
     "b",  "s",   "i",  "l",  //
     "ub", "us",  "ui", "ul", //
-    "f",  "d",   "?",        //
-    "p",  "cmp",
+    "hf", "f",   "lf",       //
+    "p",  "cmp",             //
 };
 
 static const Bits kbits[] = {
-    Bits(),   Bits(0),  Bits(1),            // Void, Bool
+    Bits(0),  Bits(0),  Bits(1),            // Bad, Void, Bool
     Bits(8),  Bits(16), Bits(32), Bits(64), // Int*
     Bits(8),  Bits(16), Bits(32), Bits(64), // Uint*
-    Bits(32), Bits(64), Bits(),             // Float*
+    Bits(16), Bits(32), Bits(64),           // Float*
     Bits(64), Bits(64),                     // Ptr, ArchFlags
 };
 
 static const Group kgroup[] = {
-    gVoid,  gVoid,  gBool,        //
-    gInt,   gInt,   gInt,  gInt,  //
-    gUint,  gUint,  gUint, gUint, //
-    gFloat, gFloat, gVoid, gVoid, //
-    gPtr,   gArch,                //
+    gVoid,  gVoid,  gBool,         // Bad, Void, Bool
+    gInt,   gInt,   gInt,   gInt,  // Int*
+    gUint,  gUint,  gUint,  gUint, // Uint*
+    gFloat, gFloat, gFloat,        // Float*
+    gPtr,   gArch,                 // Ptr, ArchFlags
 };
 
-const Chars &Kind::string() const {
+const Chars &Kind::string() const noexcept {
   enum _ { n = N_OF(kstring) };
   uint8_t i = val_ & 0xF;
   if (i >= n) {
-    i = kFloat64 + 1; // "?"
+    i = n - 1; // "?"
   }
   return kstring[i];
 }
 
-const Chars &Kind::stringsuffix() const {
+const Chars &Kind::stringsuffix() const noexcept {
   enum _ { n = N_OF(kstringsuffix) };
   uint8_t i = val_ & 0xF;
   if (i >= n) {
@@ -80,7 +80,7 @@ const Chars &Kind::stringsuffix() const {
   return kstringsuffix[i];
 }
 
-Bits Kind::bits() const {
+Bits Kind::bits() const noexcept {
   uint8_t i = val_ & 0xF;
   if (i >= N_OF(kbits)) {
     i = 0;
@@ -88,7 +88,7 @@ Bits Kind::bits() const {
   return kbits[i] * simdn();
 }
 
-Group Kind::group() const {
+Group Kind::group() const noexcept {
   uint8_t i = val_ & 0xF;
   if (i >= N_OF(kgroup)) {
     i = 0;

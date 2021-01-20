@@ -32,16 +32,20 @@ namespace onejit {
 // ============================  Stmt4  ========================================
 
 Stmt4 ONEJIT_NOINLINE Stmt4::create(OpStmt4 op, const Node &child0, const Node &child1,
-                                    const Node &child2, const Node &child3, Code *holder) {
-  const NodeHeader header{STMT_3, Void, uint16_t(op)};
-  CodeItem offset = holder->length();
+                                    const Node &child2, const Node &child3, Code *holder) noexcept {
+  while (holder) {
+    const NodeHeader header{STMT_3, Void, uint16_t(op)};
+    CodeItem offset = holder->length();
 
-  if (!holder->add(header) || !holder->add(child0, offset) || !holder->add(child1, offset) ||
-      !holder->add(child2, offset) || !holder->add(child3, offset)) {
+    if (holder->add(header) &&                                        //
+        holder->add(child0, offset) && holder->add(child1, offset) && //
+        holder->add(child2, offset) && holder->add(child3, offset)) {
+      return Stmt4{Node{header, offset, holder}};
+    }
     holder->truncate(offset);
-    return Stmt4{op};
+    break;
   }
-  return Stmt4{Node{header, offset, holder}};
+  return Stmt4{op};
 }
 
 std::ostream &operator<<(std::ostream &out, const Stmt4 &st) {

@@ -28,18 +28,22 @@
 
 namespace onejit {
 
-UnaryExpr ONEJIT_NOINLINE UnaryExpr::create(Kind kind, Op1 op, const Expr &child, Code *holder) {
-  const NodeHeader header{UNARY, kind, uint16_t(op)};
-  CodeItem offset = holder->length();
+UnaryExpr ONEJIT_NOINLINE UnaryExpr::create(Kind kind, Op1 op, const Expr &child,
+                                            Code *holder) noexcept {
+  while (holder) {
+    const NodeHeader header{UNARY, kind, uint16_t(op)};
+    CodeItem offset = holder->length();
 
-  if (!holder->add(header) || !holder->add(child, offset)) {
+    if (holder->add(header) && holder->add(child, offset)) {
+      return UnaryExpr{Node{header, offset, holder}};
+    }
     holder->truncate(offset);
-    return UnaryExpr{};
+    break;
   }
-  return UnaryExpr{Node{header, offset, holder}};
+  return UnaryExpr{};
 }
 
-UnaryExpr UnaryExpr::create(Op1 op, const Expr &child, Code *holder) {
+UnaryExpr UnaryExpr::create(Op1 op, const Expr &child, Code *holder) noexcept {
   Kind kind;
   if (op == XOR1 || op == CAST) {
     // CAST kind should be specified manually

@@ -31,24 +31,24 @@
 namespace onestl {
 namespace mem {
 
-void *alloc_bytes(size_t n_bytes) throw();
-void clear_bytes(void *addr, size_t n_bytes) throw();
-void free_bytes(void *addr) throw();
-void *realloc_bytes(void *addr, size_t new_n_bytes) throw();
+void *alloc_bytes(size_t n_bytes) noexcept;
+void clear_bytes(void *addr, size_t n_bytes) noexcept;
+void free_bytes(void *addr) noexcept;
+void *realloc_bytes(void *addr, size_t new_n_bytes) noexcept;
 
-template <class T> T *alloc(size_t n_elements) throw() {
+template <class T> T *alloc(size_t n_elements) noexcept {
   return reinterpret_cast<T *>(alloc_bytes(n_elements * sizeof(T)));
 }
 
-template <class T> void clear(T *addr, size_t n_elements) throw() {
+template <class T> void clear(T *addr, size_t n_elements) noexcept {
   clear_bytes(addr, n_elements * sizeof(T));
 }
 
-template <class T> void free(T *addr) throw() {
+template <class T> void free(T *addr) noexcept {
   free_bytes(addr);
 }
 
-template <class T> T *realloc(T *addr, size_t n_elements) throw() {
+template <class T> T *realloc(T *addr, size_t n_elements) noexcept {
   return reinterpret_cast<T *>(realloc_bytes(addr, n_elements * sizeof(T)));
 }
 

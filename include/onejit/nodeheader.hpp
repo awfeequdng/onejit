@@ -45,47 +45,47 @@ public:
    *
    * to create a valid NodeHeader, use one of the other constructors.
    */
-  constexpr NodeHeader() : type_{STMT_0}, ekind_{kBad}, op_{BAD} {
+  constexpr NodeHeader() noexcept : type_{STMT_0}, ekind_{kBad}, op_{BAD} {
   }
 
-  constexpr explicit NodeHeader(CodeItem item)
+  constexpr explicit NodeHeader(CodeItem item) noexcept
       : type_{Type((item >> 0x4) & 0xF)}, ekind_{eKind(item >> 8)}, op_{uint16_t(item >> 16)} {
   }
 
-  constexpr NodeHeader(Type type, Kind kind, uint16_t op)
+  constexpr NodeHeader(Type type, Kind kind, uint16_t op) noexcept
       : type_{type}, ekind_{kind.val()}, op_{op} {
   }
 
-  constexpr Type type() const {
+  constexpr Type type() const noexcept {
     return type_;
   }
 
-  constexpr Kind kind() const {
+  constexpr Kind kind() const noexcept {
     return Kind{ekind_};
   }
 
-  constexpr uint16_t op() const {
+  constexpr uint16_t op() const noexcept {
     return op_;
   }
 
-  constexpr CodeItem item() const {
+  constexpr CodeItem item() const noexcept {
     return 0x6 | uint32_t(type_ & 0xF) << 4 | uint32_t(ekind_) << 8 | uint32_t(op_) << 16;
   }
 
-  constexpr explicit operator bool() const {
+  constexpr explicit operator bool() const noexcept {
     return ekind_ != kBad;
   }
 
-  constexpr bool operator!() const {
+  constexpr bool operator!() const noexcept {
     return ekind_ == kBad;
   }
 
   // true if this and other NodeHeader have the same type, kind and op.
-  constexpr bool operator==(const NodeHeader &other) const {
+  constexpr bool operator==(const NodeHeader &other) const noexcept {
     return type_ == other.type_ && ekind_ == other.ekind_ && op_ == other.op_;
   }
 
-  constexpr bool operator!=(const NodeHeader &other) const {
+  constexpr bool operator!=(const NodeHeader &other) const noexcept {
     return !(*this == other);
   }
 

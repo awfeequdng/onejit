@@ -46,29 +46,29 @@ public:
    *
    * to create a valid Stmt3, use Func::new_stmt3()
    */
-  constexpr Stmt3() : Base{STMT_3, Bad, BAD_ST3} {
+  constexpr Stmt3() noexcept : Base{STMT_3, Bad, BAD_ST3} {
   }
 
-  static constexpr uint32_t children() {
+  static constexpr uint32_t children() noexcept {
     return 3;
   }
 
 protected:
   /* construct an invalid Stmt3 */
-  constexpr explicit Stmt3(OpStmt3 op) : Base{STMT_3, Bad, op} {
+  constexpr explicit Stmt3(OpStmt3 op) noexcept : Base{STMT_3, Bad, op} {
   }
 
   // downcast Node to Stmt3
-  constexpr explicit Stmt3(const Node &node) : Base{node} {
+  constexpr explicit Stmt3(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_type(Type t) {
+  static constexpr bool is_allowed_type(Type t) noexcept {
     return t == STMT_3;
   }
 
   static Stmt3 create(OpStmt3 op, const Node &child0, const Node &child1, const Node &child2,
-                      Code *holder);
+                      Code *holder) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Stmt3 &st);
@@ -87,39 +87,40 @@ public:
    *
    * to create a valid IfStmt, use Func::new_if()
    */
-  constexpr IfStmt() : Base{IF} {
+  constexpr IfStmt() noexcept : Base{IF} {
   }
 
-  static constexpr OpStmt3 op() {
+  static constexpr OpStmt3 op() noexcept {
     return IF;
   }
 
   // shortcut for child(0).is<Expr>()
-  Expr cond() const {
+  Expr cond() const noexcept {
     return child(0).is<Expr>();
   }
 
   // shortcut for child(1)
-  Node then() const {
+  Node then() const noexcept {
     return child(1);
   }
 
   // shortcut for child(2)
-  Node else_() const {
+  Node else_() const noexcept {
     return child(2);
   }
 
 private:
   // downcast Node to IfStmt
-  constexpr explicit IfStmt(const Node &node) : Base{node} {
+  constexpr explicit IfStmt(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_op(uint16_t op) {
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == IF;
   }
 
-  static IfStmt create(const Expr &cond, const Node &then, const Node &else_, Code *holder) {
+  static IfStmt create(const Expr &cond, const Node &then, const Node &else_,
+                       Code *holder) noexcept {
     return IfStmt{Stmt3::create(IF, cond, then, else_, holder)};
   }
 };

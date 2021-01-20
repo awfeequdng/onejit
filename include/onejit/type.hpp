@@ -51,13 +51,13 @@ enum Type : uint8_t {
 };
 
 // true if Type t indicates an arbitrary number of child Node:s
-constexpr inline bool is_list(Type t) {
+constexpr inline bool is_list(Type t) noexcept {
   return t == STMT_N || t == TUPLE;
 }
 
-uint32_t to_children(Type t);
+uint32_t to_children(Type t) noexcept;
 
-const Chars &to_string(Type t);
+const Chars &to_string(Type t) noexcept;
 
 std::ostream &operator<<(std::ostream &out, Type t);
 

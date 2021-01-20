@@ -37,20 +37,21 @@ class Expr : public Node {
   friend class Node;
 
 public:
-  constexpr Expr() : Base{} {
+  constexpr Expr() noexcept : Base{} {
   }
 
 protected:
   /* construct and invalid Expr */
-  constexpr explicit Expr(const Type t) : Base{NodeHeader{t, Bad, 0}, 0, nullptr} {
+  constexpr explicit Expr(const Type t) noexcept //
+      : Base{NodeHeader{t, Bad, 0}, 0, nullptr} {
   }
 
   // downcast Node to Expr
-  constexpr explicit Expr(const Node &node) : Base{node} {
+  constexpr explicit Expr(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
-  static constexpr bool is_allowed_type(Type t) {
+  static constexpr bool is_allowed_type(Type t) noexcept {
     return t >= VAR && t <= CONST;
   }
 };

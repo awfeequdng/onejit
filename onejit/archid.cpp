@@ -23,8 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onestl/chars.hpp>
 #include <onejit/archid.hpp>
+#include <onestl/chars.hpp>
 
 #include <ostream>
 
@@ -34,7 +34,7 @@ static const Chars archstring[] = {
     "NOARCH", "AMD64", "ARM64", "ARM", "X86",
 };
 
-const Chars &ArchId::string() const {
+const Chars &ArchId::string() const noexcept {
   uint8_t i = val_;
   if (i >= sizeof(archstring) / sizeof(archstring[0])) {
     i = 0;

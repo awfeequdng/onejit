@@ -98,7 +98,7 @@ DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/include/config.h
+CONFIG_HEADER = $(top_builddir)/include/onejit_config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgdatadir)"
@@ -211,7 +211,7 @@ CSCOPE = cscope
 DIST_SUBDIRS = $(SUBDIRS)
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/admin/depcomp \
 	$(top_srcdir)/admin/install-sh $(top_srcdir)/admin/missing \
-	$(top_srcdir)/include/config.h.in COPYING admin/compile \
+	$(top_srcdir)/include/onejit_config.h.in COPYING admin/compile \
 	admin/depcomp admin/install-sh admin/missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
@@ -393,20 +393,20 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
 
-include/config.h: include/stamp-h1
+include/onejit_config.h: include/stamp-h1
 	@test -f $@ || rm -f include/stamp-h1
 	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) include/stamp-h1
 
-include/stamp-h1: $(top_srcdir)/include/config.h.in $(top_builddir)/config.status
+include/stamp-h1: $(top_srcdir)/include/onejit_config.h.in $(top_builddir)/config.status
 	@rm -f include/stamp-h1
-	cd $(top_builddir) && $(SHELL) ./config.status include/config.h
-$(top_srcdir)/include/config.h.in:  $(am__configure_deps) 
+	cd $(top_builddir) && $(SHELL) ./config.status include/onejit_config.h
+$(top_srcdir)/include/onejit_config.h.in:  $(am__configure_deps) 
 	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
 	rm -f include/stamp-h1
 	touch $@
 
 distclean-hdr:
-	-rm -f include/config.h include/stamp-h1
+	-rm -f include/onejit_config.h include/stamp-h1
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \

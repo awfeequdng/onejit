@@ -2044,7 +2044,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-ac_config_headers="$ac_config_headers include/config.h"
+ac_config_headers="$ac_config_headers include/onejit_config.h"
 
 ac_aux_dir=
 for ac_dir in admin "$srcdir"/admin; do
@@ -3845,7 +3845,7 @@ fi
 done
 
 
-for ac_header in cassert cstddef cstdint cstring
+for ac_header in cassert cstddef cstdint cstring endian.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_cxx_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -4649,7 +4649,7 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "include/config.h") CONFIG_HEADERS="$CONFIG_HEADERS include/config.h" ;;
+    "include/onejit_config.h") CONFIG_HEADERS="$CONFIG_HEADERS include/onejit_config.h" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "onejit/Makefile") CONFIG_FILES="$CONFIG_FILES onejit/Makefile" ;;

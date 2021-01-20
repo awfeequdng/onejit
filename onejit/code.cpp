@@ -30,14 +30,14 @@
 
 namespace onejit {
 
-Code::Code() : Base{}, good_{true} {
+Code::Code() noexcept : Base{}, good_{true} {
 }
 
-Code::Code(size_t capacity) : Base{}, good_{true} {
+Code::Code(size_t capacity) noexcept : Base{}, good_{true} {
   good_ &= reserve(capacity);
 }
 
-Code::~Code() {
+Code::~Code() noexcept {
   static_assert(sizeof(NodeHeader) == 4, "sizeof(NodeHeader) must be 4");
   static_assert(sizeof(CodeItem) == 4, "sizeof(CodeItem) must be 4");
   static_assert(sizeof(Offset) == 4, "sizeof(Offset) must be 4");
@@ -47,18 +47,23 @@ Code::~Code() {
   static_assert(sizeof(double) == 8, "sizeof(double) must be 8");
 }
 
-uint64_t Code::uint64(Offset byte_offset) const {
-  const uint32_t *addr = &at(byte_offset + 4) - 1;
-  uint64_t val;
-  std::memcpy(&val, addr, sizeof(val));
-  return val;
+uint64_t Code::uint64(Offset byte_offset) const noexcept {
+  union {
+    uint64_t u64;
+    uint32_t u32[2];
+  } x = {0};
+  const size_t index = byte_offset / sizeof(T);
+  if (index + 1 < size()) {
+    std::memcpy(&x, data() + index, sizeof(x));
+  }
+  return x.u64;
 }
 
-Code &Code::add(const uint32_t item) {
+Code &Code::add(const uint32_t item) noexcept {
   return add(CodeItems{&item, 1});
 }
 
-Code &Code::add(uint64_t u64) {
+Code &Code::add(uint64_t u64) noexcept {
   const union {
     uint64_t u64;
     uint32_t u32[2];
@@ -66,22 +71,22 @@ Code &Code::add(uint64_t u64) {
   return add(CodeItems{x.u32, 2});
 }
 
-Code &ONEJIT_NOINLINE Code::add(CodeItems data) {
+Code &ONEJIT_NOINLINE Code::add(CodeItems data) noexcept {
   good_ = good_ && Base::append(data);
   return *this;
 }
 
-Code &Code::add(const Node &node, Offset parent_offset) {
+Code &Code::add(const Node &node, Offset parent_offset) noexcept {
   Offset offset = node.offset_or_direct();
   if (!node.is_direct()) {
     // save relative offset between parent and child:
     // makes it easier to concatenate different Code objects
-    offset = parent_offset - offset;
+    offset -= parent_offset;
   }
   return add(offset);
 }
 
-Code &ONEJIT_NOINLINE Code::add(const Nodes nodes, Offset parent_offset) {
+Code &ONEJIT_NOINLINE Code::add(const Nodes nodes, Offset parent_offset) noexcept {
   for (const Node &node : nodes) {
     if (!add(node, parent_offset)) {
       break;

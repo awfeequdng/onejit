@@ -39,6 +39,14 @@ std::string to_string(bool val) {
   return val ? std::string("true", 4) : std::string("false", 5);
 }
 
+std::string to_string(int8_t val) {
+  return to_string(int(val));
+}
+
+std::string to_string(uint8_t val) {
+  return to_string(unsigned(val));
+}
+
 std::string to_string(const void *val) {
   std::stringstream buf;
   buf.write("0x", 2);
@@ -47,7 +55,7 @@ std::string to_string(const void *val) {
 }
 
 Error::Error(std::string &&lhs, std::string &&rhs, const char *opstr, const char *lstr,
-             const char *rstr, const char *file, int line)
+             const char *rstr, const char *file, int line) noexcept
     : lhs_(std::move(lhs)), rhs_(std::move(rhs)), op_(opstr), lstr_(lstr), rstr_(rstr), file_(file),
       line_(line) {
 }

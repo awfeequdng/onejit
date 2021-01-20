@@ -93,7 +93,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/include/config.h
+CONFIG_HEADER = $(top_builddir)/include/onejit_config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 LIBRARIES = $(noinst_LIBRARIES)
@@ -108,11 +108,12 @@ libonejit_a_LIBADD =
 am_libonejit_a_OBJECTS = archid.$(OBJEXT) binaryexpr.$(OBJEXT) \
 	code.$(OBJEXT) codeparser.$(OBJEXT) const.$(OBJEXT) \
 	constexpr.$(OBJEXT) func.$(OBJEXT) group.$(OBJEXT) \
-	kind.$(OBJEXT) logsize.$(OBJEXT) node.$(OBJEXT) \
-	nodeheader.$(OBJEXT) op.$(OBJEXT) opstmt.$(OBJEXT) \
-	stmt0.$(OBJEXT) stmt1.$(OBJEXT) stmt2.$(OBJEXT) \
-	stmt3.$(OBJEXT) stmt4.$(OBJEXT) stmtn.$(OBJEXT) type.$(OBJEXT) \
-	unaryexpr.$(OBJEXT) var.$(OBJEXT) varexpr.$(OBJEXT)
+	kind.$(OBJEXT) logsize.$(OBJEXT) memexpr.$(OBJEXT) \
+	node.$(OBJEXT) nodeheader.$(OBJEXT) op.$(OBJEXT) \
+	opstmt.$(OBJEXT) stmt0.$(OBJEXT) stmt1.$(OBJEXT) \
+	stmt2.$(OBJEXT) stmt3.$(OBJEXT) stmt4.$(OBJEXT) \
+	stmtn.$(OBJEXT) type.$(OBJEXT) unaryexpr.$(OBJEXT) \
+	var.$(OBJEXT) varexpr.$(OBJEXT)
 libonejit_a_OBJECTS = $(am_libonejit_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -133,9 +134,9 @@ am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/binaryexpr.Po \
 	./$(DEPDIR)/code.Po ./$(DEPDIR)/codeparser.Po \
 	./$(DEPDIR)/const.Po ./$(DEPDIR)/constexpr.Po \
 	./$(DEPDIR)/func.Po ./$(DEPDIR)/group.Po ./$(DEPDIR)/kind.Po \
-	./$(DEPDIR)/logsize.Po ./$(DEPDIR)/node.Po \
-	./$(DEPDIR)/nodeheader.Po ./$(DEPDIR)/op.Po \
-	./$(DEPDIR)/opstmt.Po ./$(DEPDIR)/stmt0.Po \
+	./$(DEPDIR)/logsize.Po ./$(DEPDIR)/memexpr.Po \
+	./$(DEPDIR)/node.Po ./$(DEPDIR)/nodeheader.Po \
+	./$(DEPDIR)/op.Po ./$(DEPDIR)/opstmt.Po ./$(DEPDIR)/stmt0.Po \
 	./$(DEPDIR)/stmt1.Po ./$(DEPDIR)/stmt2.Po ./$(DEPDIR)/stmt3.Po \
 	./$(DEPDIR)/stmt4.Po ./$(DEPDIR)/stmtn.Po ./$(DEPDIR)/type.Po \
 	./$(DEPDIR)/unaryexpr.Po ./$(DEPDIR)/var.Po \
@@ -321,8 +322,8 @@ noinst_LIBRARIES = libonejit.a
 AM_CPPFLAGS = -I$(top_srcdir)/include
 # libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
 libonejit_a_SOURCES = archid.cpp binaryexpr.cpp code.cpp codeparser.cpp const.cpp constexpr.cpp \
-                         func.cpp group.cpp kind.cpp logsize.cpp node.cpp nodeheader.cpp op.cpp \
-                         opstmt.cpp stmt0.cpp stmt1.cpp stmt2.cpp stmt3.cpp stmt4.cpp stmtn.cpp \
+                         func.cpp group.cpp kind.cpp logsize.cpp memexpr.cpp node.cpp nodeheader.cpp \
+                         op.cpp opstmt.cpp stmt0.cpp stmt1.cpp stmt2.cpp stmt3.cpp stmt4.cpp stmtn.cpp \
                          type.cpp unaryexpr.cpp var.cpp varexpr.cpp
 
 all: all-recursive
@@ -383,6 +384,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/group.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kind.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logsize.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/memexpr.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/node.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nodeheader.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/op.Po@am__quote@ # am--include-marker
@@ -627,6 +629,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/group.Po
 	-rm -f ./$(DEPDIR)/kind.Po
 	-rm -f ./$(DEPDIR)/logsize.Po
+	-rm -f ./$(DEPDIR)/memexpr.Po
 	-rm -f ./$(DEPDIR)/node.Po
 	-rm -f ./$(DEPDIR)/nodeheader.Po
 	-rm -f ./$(DEPDIR)/op.Po
@@ -696,6 +699,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/group.Po
 	-rm -f ./$(DEPDIR)/kind.Po
 	-rm -f ./$(DEPDIR)/logsize.Po
+	-rm -f ./$(DEPDIR)/memexpr.Po
 	-rm -f ./$(DEPDIR)/node.Po
 	-rm -f ./$(DEPDIR)/nodeheader.Po
 	-rm -f ./$(DEPDIR)/op.Po

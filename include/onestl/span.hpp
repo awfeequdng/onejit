@@ -49,22 +49,23 @@ public:
   typedef const T *const_pointer;
   typedef const T *const_iterator;
 
-  constexpr Span() : Base() {
+  constexpr Span() noexcept : Base() {
   }
-  constexpr Span(T *addr, size_t n) : Base(addr, n) {
+  constexpr Span(T *addr, size_t n) noexcept : Base(addr, n) {
   }
-  Span(Vector<T> &other) : Base(other) {
+  Span(Vector<T> &other) noexcept : Base(other) {
   }
 
   // Span(const Span&) = default;
   // ~Span() = default;
   // operator=(const Span&) = default;
 
-  Span &operator=(Vector<T> &other) {
+  Span &operator=(Vector<T> &other) noexcept {
     ref(other);
     return *this;
   }
 
+  using Base::at;
   using Base::begin;
   using Base::capacity;
   using Base::data;
@@ -76,57 +77,64 @@ public:
   using Base::size;
   using Base::view;
 
-  T *data() {
+  T *data() noexcept {
     return const_cast<T *>(data_);
   }
 
-  T &operator[](size_t index) {
+  T &operator[](size_t index) noexcept {
+    return data()[index];
+  }
+
+  // throws if index is out of bounds
+  T &at(size_t index) {
     ONESTL_BOUNDS(index, <, size_);
     return data()[index];
   }
 
-  T *begin() {
+  T *begin() noexcept {
     return data();
   }
 
-  T *end() {
+  T *end() noexcept {
     return data() + size_;
   }
 
+  // throws if start or end are out of bounds
   Span<T> span(size_t start, size_t end) {
     ONESTL_BOUNDS(start, <=, end);
     ONESTL_BOUNDS(end, <=, size_);
     return Span<T>(data() + start, end - start);
   }
 
+  // throws if this and src have different sizes.
   void copy(View<T> src) {
     ONESTL_BOUNDS(src.size(), ==, size());
     std::memcpy(data(), src.data(), size() * sizeof(T));
   }
 
-  void swap(Span &other) {
+  void swap(Span &other) noexcept {
     Span temp = *this;
     *this = other;
     other = temp;
   }
 
-  void ref(T *addr, size_t n) {
+  void ref(T *addr, size_t n) noexcept {
     data_ = addr;
     size_ = n;
   }
-  void ref(Span<T> &other) {
+  void ref(Span<T> &other) noexcept {
     data_ = other.data_;
     size_ = other.size_;
   }
-  void ref(Vector<T> &other);
+  void ref(Vector<T> &other) noexcept;
 };
 
-template <class T> void View<T>::ref(const Span<T> &other) {
+template <class T> void View<T>::ref(const Span<T> &other) noexcept {
   data_ = other.data();
   size_ = other.size();
 }
 
-template <class T> void swap(Span<T> &left, Span<T> &right) {
+template <class T> void swap(Span<T> &left, Span<T> &right) noexcept {
   left.swap(right);
 }
 

@@ -38,6 +38,7 @@ public:
 
   void run();
   void kind();
+  void const_expr() const;
   void simple_expr();
   void nested_expr();
   void dump_code() const;
@@ -55,6 +56,7 @@ Test::~Test() {
 
 void Test::run() {
   kind();
+  const_expr();
   simple_expr();
   nested_expr();
   dump_code();
@@ -79,6 +81,31 @@ void Test::kind() {
     ONEJIT_TEST((Kind{k.nosimd().val(), k.simdn()}), ==, k);
     ONEJIT_TEST(k.bits().val(), ==, k.nosimd().bits().val() * k.simdn().val());
   }
+}
+
+// test that integer Const can be compiled as 'constexpr'
+extern constexpr const Const one_million{uint64_t(1000000ul)};
+extern constexpr const Const one_billion{uint64_t(1000000000ul)};
+
+void Test::const_expr() const {
+  ONEJIT_TEST(ConstExpr{Void}, ==, VoidExpr);
+  ONEJIT_TEST(ConstExpr{true}, ==, TrueExpr);
+  ONEJIT_TEST(ConstExpr{false}, ==, FalseExpr);
+
+  ConstExpr one{Int8, int16_t(1)};
+  ConstExpr minus_one{Int8, int16_t(-1)};
+  ONEJIT_TEST(one.constant(), ==, Const{int8_t(1)});
+  ONEJIT_TEST(minus_one.constant(), ==, Const{int8_t(-1)});
+
+  ConstExpr plus_10k{Int16, int16_t(10000)};
+  ConstExpr minus_10k{Int16, int16_t(-10000)};
+  ONEJIT_TEST(plus_10k.constant(), ==, Const{int16_t(10000)});
+  ONEJIT_TEST(minus_10k.constant(), ==, Const{int16_t(-10000)});
+
+  ConstExpr plus_32k{Int16, int16_t(32767)};
+  ConstExpr minus_32k{Int16, int16_t(-32768)};
+  ONEJIT_TEST(plus_32k.constant(), ==, Const{int16_t(32767)});
+  ONEJIT_TEST(minus_32k.constant(), ==, Const{int16_t(-32768)});
 }
 
 void Test::simple_expr() {
@@ -160,7 +187,7 @@ void Test::simple_expr() {
 }
 
 void Test::nested_expr() {
-  for (uint8_t i = kInt8; i <= kInt64; i++) {
+  for (uint8_t i = kInt8; i <= kUint64; i++) {
     Kind k{i};
 
     Const c1{k, 1};
