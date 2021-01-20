@@ -29,6 +29,7 @@
 #include <onejit/binaryexpr.hpp>
 #include <onejit/code.hpp>
 #include <onejit/constexpr.hpp>
+#include <onejit/functype.hpp>
 #include <onejit/memexpr.hpp>
 #include <onejit/op.hpp>
 #include <onejit/stmt0.hpp>
@@ -44,7 +45,6 @@
 namespace onejit {
 
 class Func {
-
 public:
   explicit Func(Code *holder) noexcept;
 
@@ -146,18 +146,26 @@ public:
 
   VarExpr new_var(Kind kind) noexcept;
 
-  Func &add(const Node &node) noexcept {
-    return add(node.offset_or_direct());
+  constexpr Node get_body() const noexcept {
+    return body_;
+  }
+
+  Func &set_body(const Node &body) noexcept {
+    body_ = body;
+    return *this;
   }
 
 private:
   Func &add(CodeItem item) noexcept {
-    holder_->add(item);
+    if (holder_) {
+      holder_->add(item);
+    }
     return *this;
   }
 
   Code *holder_;
   Vector<Var> vars_;
+  Node body_;
 };
 
 } // namespace onejit

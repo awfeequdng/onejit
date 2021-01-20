@@ -60,6 +60,7 @@ class Expr;
 class FallthroughStmt;
 class ForStmt;
 class Func;
+class FuncType;
 class IfStmt;
 class Kind;
 class MemExpr;
@@ -84,6 +85,7 @@ using Offset = uint32_t;
 using SimdN = LogSize;
 
 using CodeItems = View<CodeItem>;
+using Kinds = View<Kind>;
 using Nodes = View<Node>;
 
 } // namespace onejit

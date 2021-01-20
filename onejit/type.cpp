@@ -33,15 +33,15 @@
 namespace onejit {
 
 static const int8_t tchildren[] = {
-    0,  1, 2, 3, 4,  -1, // Stmt*
-    0,  0, 1, 2, -1, 0,  // Expr
-    -1,
+    0, 1,  2, 3, 4,  -1, // Stmt*
+    0, 0,  1, 2, -1, 0,  // Expr
+    0, -1,
 };
 
 static const Chars tstring[] = {
     "stmt0", "stmt1", "stmt2", "stmt3",  "stmt4", "stmtn", // Stmt*
     "var",   "mem",   "unary", "binary", "tuple", "const", // *Expr
-    "?",
+    "ftype", "?",
 };
 
 uint32_t to_children(Type t) noexcept {

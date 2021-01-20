@@ -69,7 +69,7 @@ public:
   }
 
   constexpr CodeItem item() const noexcept {
-    return 0x6 | uint32_t(type_ & 0xF) << 4 | uint32_t(ekind_) << 8 | uint32_t(op_) << 16;
+    return 0xE | uint32_t(type_ & 0xF) << 4 | uint32_t(ekind_) << 8 | uint32_t(op_) << 16;
   }
 
   constexpr explicit operator bool() const noexcept {

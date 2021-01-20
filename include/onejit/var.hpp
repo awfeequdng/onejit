@@ -49,7 +49,7 @@ private:
   constexpr explicit VarId(uint32_t val) noexcept : val_{val & 0xFFFFFF} {
   }
 
-  // at most 24 bits can be used
+  // only 24 bits will be used
   uint32_t val_;
 };
 

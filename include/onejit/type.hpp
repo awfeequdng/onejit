@@ -48,6 +48,8 @@ enum Type : uint8_t {
   BINARY = 9,
   TUPLE = 10, // expression list: CALL, RET, TUPLE_ASSIGN
   CONST = 11,
+
+  FTYPE = 12, // function/method type signature
 };
 
 // true if Type t indicates an arbitrary number of child Node:s
