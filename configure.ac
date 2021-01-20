@@ -16,7 +16,7 @@ AC_LANG(C++)
 # Checks for libraries.
 
 # Checks for header files.
-AC_CHECK_HEADERS([cassert cstddef cstdint cstring endian.h])
+AC_CHECK_HEADERS([cassert cstddef cstdint cstring])
 
 # Checks for typedefs, structures, and compiler characteristics.
 

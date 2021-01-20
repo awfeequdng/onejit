@@ -27,13 +27,8 @@
 #define ONEJIT_VAR_HPP
 
 #include <onejit/node.hpp>
-#include <onejit_config.h> // HAVE_ENDIAN_H
 
 #include <iosfwd>
-#ifdef HAVE_ENDIAN_H
-#include <cstring>
-#include <endian.h>
-#endif
 
 namespace onejit {
 
