@@ -42,6 +42,7 @@ class Node {
   friend class CodeParser;
   friend class ConstExpr;
   friend class Func;
+  friend class FuncType;
   friend class MemExpr;
   friend class Stmt1;
   friend class Stmt2;

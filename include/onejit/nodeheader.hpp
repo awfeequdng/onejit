@@ -26,6 +26,7 @@
 #ifndef ONEJIT_NODEHEADER_HPP
 #define ONEJIT_NODEHEADER_HPP
 
+#include <onejit/endian.hpp>
 #include <onejit/fwd.hpp>
 #include <onejit/kind.hpp>
 #include <onejit/opstmt.hpp>
@@ -35,7 +36,7 @@ namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
 // first CodeItem contained in BinaryExpr, UnaryExpr, Stmt*
-class NodeHeader {
+union NodeHeader {
 
 public:
   /**
@@ -45,54 +46,61 @@ public:
    *
    * to create a valid NodeHeader, use one of the other constructors.
    */
-  constexpr NodeHeader() noexcept : type_{STMT_0}, ekind_{kBad}, op_{BAD} {
+  constexpr NodeHeader() noexcept //
+      : NodeHeader{STMT_0, Bad, BAD} {
   }
 
-  constexpr explicit NodeHeader(CodeItem item) noexcept
-      : type_{Type((item >> 0x4) & 0xF)}, ekind_{eKind(item >> 8)}, op_{uint16_t(item >> 16)} {
+  constexpr explicit NodeHeader(CodeItem item) noexcept //
+      : val_{((item >> 4) & 0x0F) | (item & ~0xFF)} {
   }
 
   constexpr NodeHeader(Type type, Kind kind, uint16_t op) noexcept
-      : type_{type}, ekind_{kind.val()}, op_{op} {
+      : val_{(type & 0x0F) | uint32_t(kind.val()) << 8 | uint32_t(op) << 16} {
   }
 
   constexpr Type type() const noexcept {
-    return type_;
+    return Type(val_ & 0x0F);
   }
 
   constexpr Kind kind() const noexcept {
-    return Kind{ekind_};
+    return Kind{uint8_t(val_ >> 8)};
   }
 
   constexpr uint16_t op() const noexcept {
-    return op_;
+    return uint16_t(val_ >> 16);
   }
 
   constexpr CodeItem item() const noexcept {
-    return 0xE | uint32_t(type_ & 0xF) << 4 | uint32_t(ekind_) << 8 | uint32_t(op_) << 16;
+    return 0xE | (val_ & 0x0F) << 4 | (val_ & ~0xFF);
   }
 
   constexpr explicit operator bool() const noexcept {
-    return ekind_ != kBad;
+    return kind() != Bad;
   }
 
   constexpr bool operator!() const noexcept {
-    return ekind_ == kBad;
+    return kind() == Bad;
   }
 
   // true if this and other NodeHeader have the same type, kind and op.
   constexpr bool operator==(const NodeHeader &other) const noexcept {
-    return type_ == other.type_ && ekind_ == other.ekind_ && op_ == other.op_;
+    return val_ == other.val_;
   }
 
   constexpr bool operator!=(const NodeHeader &other) const noexcept {
-    return !(*this == other);
+    return val_ != other.val_;
   }
 
 private:
-  Type type_;
-  eKind ekind_;
-  uint16_t op_;
+  CodeItem val_;
+#ifdef ONEJIT_LITTLE_ENDIAN
+  // only for debug purposes. works only on little-endian machines
+  struct {
+    Type type;
+    eKind ekind;
+    uint16_t op;
+  } u_;
+#endif
 };
 
 } // namespace onejit

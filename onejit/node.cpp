@@ -61,7 +61,7 @@ Node Node::child(uint32_t i) const noexcept {
   // 0b***1 => direct CONST
   // 0b**00 => relative offset of indirect Node
   // 0b*010 => direct VAR
-  // 0b0110 => direct FTYPE
+  // 0b0110 => unused
   // 0b1110 => NodeHeader
 
   if (item < 4) {
@@ -76,17 +76,18 @@ Node Node::child(uint32_t i) const noexcept {
     // direct Var
     offset_or_direct = item;
     header = NodeHeader{VAR, Var::parse_direct_kind(item), 0};
+#if 0 // unused
   } else if ((item & 0xF) == 0xE) {
-    // direct Signature
     offset_or_direct = item;
-    header = NodeHeader{FTYPE, FuncType::parse_direct_kind(item), 0};
+    header = NodeHeader{???, ???::parse_direct_kind(item), 0};
+#endif
   } else if ((item & 3) == 0) {
     // indirect Node: item is relative offset between parent and child
     offset_or_direct = off_or_dir_ + item;
     header = NodeHeader{code_->get(offset_or_direct)};
     code = code_; // only indirect Nodes need code
   } else {
-    // NodeHeader should not appear here,
+    // NodeHeader or tag 0b0110: should not appear here,
     // => return an invalid node
   }
   return Node{header, offset_or_direct, code};
@@ -138,6 +139,8 @@ std::ostream &operator<<(std::ostream &out, const Node &node) {
     return out << to_string(t);
   case CONST:
     return out << node.is<ConstExpr>();
+  case FTYPE:
+    return out << node.is<FuncType>();
   }
 }
 

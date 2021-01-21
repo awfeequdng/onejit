@@ -27,6 +27,7 @@
 #define ONEJIT_FUNCTYPE_HPP
 
 #include <onejit/node.hpp>
+#include <onestl/view.hpp>
 
 namespace onejit {
 
@@ -43,22 +44,29 @@ public:
    * exists only to allow placing FuncType in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid FuncType, use FuncType::create()
+   * to create a valid FuncType, use one of the other constructors
    */
   constexpr FuncType() noexcept : Base{NodeHeader{FTYPE, Bad, 0}, 0, nullptr} {
   }
 
-  static FuncType create(uint8_t in_n, uint8_t out_n, const Kinds kinds, Code *holder) noexcept;
+  /// \pre params.size() must fit uint16_t, and result.size() must fit uint16_t
+  FuncType(Kinds params, Kinds results, Code *holder) noexcept
+      : FuncType{create(params, results, holder)} {
+  }
 
   /// \return number of parameters
-  uint8_t in_n() const noexcept;
+  uint16_t param_n() const noexcept {
+    return children() - result_n();
+  }
   /// \return number of results
-  uint8_t out_n() const noexcept;
+  constexpr uint16_t result_n() const noexcept {
+    return Base::op();
+  }
 
   /// \return kind of i-th parameter, or Bad if out-of-bounds
-  Kind in(uint8_t i) const noexcept;
+  Kind param(uint16_t i) const noexcept;
   /// \return kind of i-th result, or Bad if out-of-bounds
-  Kind out(uint8_t i) const noexcept;
+  Kind result(uint16_t i) const noexcept;
 
 private:
   // downcast Node to FuncType
@@ -70,13 +78,7 @@ private:
     return t == FTYPE;
   }
 
-  constexpr bool is_direct() const noexcept {
-    return (offset_or_direct() & 0x4) != 0;
-  }
-
-  static constexpr Kind parse_direct_kind(uint32_t /*data*/) noexcept {
-    return Void;
-  }
+  static FuncType create(Kinds params, Kinds results, Code *holder) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const FuncType &st);

@@ -107,10 +107,10 @@ libonejit_a_AR = $(AR) $(ARFLAGS)
 libonejit_a_LIBADD =
 am_libonejit_a_OBJECTS = archid.$(OBJEXT) binaryexpr.$(OBJEXT) \
 	code.$(OBJEXT) codeparser.$(OBJEXT) const.$(OBJEXT) \
-	constexpr.$(OBJEXT) func.$(OBJEXT) group.$(OBJEXT) \
-	kind.$(OBJEXT) logsize.$(OBJEXT) memexpr.$(OBJEXT) \
-	node.$(OBJEXT) nodeheader.$(OBJEXT) op.$(OBJEXT) \
-	opstmt.$(OBJEXT) stmt0.$(OBJEXT) stmt1.$(OBJEXT) \
+	constexpr.$(OBJEXT) func.$(OBJEXT) functype.$(OBJEXT) \
+	group.$(OBJEXT) kind.$(OBJEXT) logsize.$(OBJEXT) \
+	memexpr.$(OBJEXT) node.$(OBJEXT) nodeheader.$(OBJEXT) \
+	op.$(OBJEXT) opstmt.$(OBJEXT) stmt0.$(OBJEXT) stmt1.$(OBJEXT) \
 	stmt2.$(OBJEXT) stmt3.$(OBJEXT) stmt4.$(OBJEXT) \
 	stmtn.$(OBJEXT) type.$(OBJEXT) unaryexpr.$(OBJEXT) \
 	var.$(OBJEXT) varexpr.$(OBJEXT)
@@ -133,7 +133,8 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/binaryexpr.Po \
 	./$(DEPDIR)/code.Po ./$(DEPDIR)/codeparser.Po \
 	./$(DEPDIR)/const.Po ./$(DEPDIR)/constexpr.Po \
-	./$(DEPDIR)/func.Po ./$(DEPDIR)/group.Po ./$(DEPDIR)/kind.Po \
+	./$(DEPDIR)/func.Po ./$(DEPDIR)/functype.Po \
+	./$(DEPDIR)/group.Po ./$(DEPDIR)/kind.Po \
 	./$(DEPDIR)/logsize.Po ./$(DEPDIR)/memexpr.Po \
 	./$(DEPDIR)/node.Po ./$(DEPDIR)/nodeheader.Po \
 	./$(DEPDIR)/op.Po ./$(DEPDIR)/opstmt.Po ./$(DEPDIR)/stmt0.Po \
@@ -322,8 +323,9 @@ noinst_LIBRARIES = libonejit.a
 AM_CPPFLAGS = -I$(top_srcdir)/include
 # libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
 libonejit_a_SOURCES = archid.cpp binaryexpr.cpp code.cpp codeparser.cpp const.cpp constexpr.cpp \
-                         func.cpp group.cpp kind.cpp logsize.cpp memexpr.cpp node.cpp nodeheader.cpp \
-                         op.cpp opstmt.cpp stmt0.cpp stmt1.cpp stmt2.cpp stmt3.cpp stmt4.cpp stmtn.cpp \
+                         func.cpp functype.cpp group.cpp kind.cpp logsize.cpp memexpr.cpp \
+                         node.cpp nodeheader.cpp op.cpp opstmt.cpp \
+                         stmt0.cpp stmt1.cpp stmt2.cpp stmt3.cpp stmt4.cpp stmtn.cpp \
                          type.cpp unaryexpr.cpp var.cpp varexpr.cpp
 
 all: all-recursive
@@ -381,6 +383,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/const.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/constexpr.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/func.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/functype.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/group.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kind.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logsize.Po@am__quote@ # am--include-marker
@@ -626,6 +629,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/const.Po
 	-rm -f ./$(DEPDIR)/constexpr.Po
 	-rm -f ./$(DEPDIR)/func.Po
+	-rm -f ./$(DEPDIR)/functype.Po
 	-rm -f ./$(DEPDIR)/group.Po
 	-rm -f ./$(DEPDIR)/kind.Po
 	-rm -f ./$(DEPDIR)/logsize.Po
@@ -696,6 +700,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/const.Po
 	-rm -f ./$(DEPDIR)/constexpr.Po
 	-rm -f ./$(DEPDIR)/func.Po
+	-rm -f ./$(DEPDIR)/functype.Po
 	-rm -f ./$(DEPDIR)/group.Po
 	-rm -f ./$(DEPDIR)/kind.Po
 	-rm -f ./$(DEPDIR)/logsize.Po

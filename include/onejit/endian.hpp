@@ -17,42 +17,29 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * func.cpp
+ * endian.hpp
  *
- *  Created on Jan 13, 2020
+ *  Created on Jan 21, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/code.hpp>
-#include <onejit/const.hpp>
-#include <onejit/func.hpp>
+#ifndef ONEJIT_ENDIAN_HPP
 
-#include <stdexcept>
+/**
+ * this can detect endianness only on some compilers, including gcc/g++ and clang/clang++
+ * not a problem, as it's only used to help debugging, showing more readable values
+ * in debuggers as gdb when printing onejit::NodeHeader and onejit::Var values
+ * on little endian machines.
+ *
+ * thus there is no need to check for <endian.h>, include it if exists, and use its macros.
+ */
+#if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) &&                                 \
+    __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define ONEJIT_LITTLE_ENDIAN
+#else
+#undef ONEJIT_LITTLE_ENDIAN
+#endif
 
-namespace onejit {
+#define ONEJIT_ENDIAN_HPP
 
-enum {
-  BAD_ID = 0,
-  FIRST_VARID = 0x1000,
-};
-
-Func::Func(Code *holder) noexcept : holder_{holder}, vars_{}, body_{} {
-  if (holder->length() == 0) {
-    // add magic signature {CONST uint8x4 "1JIT"} in case Code is saved to file
-    holder->add(NodeHeader{CONST, Uint8.simdn(4), 0});
-    holder->add(uint32_t(0x54494A31));
-  }
-}
-
-VarExpr Func::new_var(Kind kind) noexcept {
-  const Var var{
-      kind,
-      VarId{uint32_t(kind <= Void ? 0 : vars_.size() + FIRST_VARID)},
-  };
-  if (kind == Bad || (kind != Void && !vars_.append(var))) {
-    return VarExpr{};
-  }
-  return VarExpr::create(var, holder_);
-}
-
-} // namespace onejit
+#endif // ONEJIT_ENDIAN_HPP

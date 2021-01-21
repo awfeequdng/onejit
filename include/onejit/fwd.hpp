@@ -65,7 +65,7 @@ class IfStmt;
 class Kind;
 class MemExpr;
 class Node;
-class NodeHeader;
+union NodeHeader;
 class Stmt0;
 class Stmt1;
 class Stmt2;

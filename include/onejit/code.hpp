@@ -108,6 +108,8 @@ public:
   Code &add(NodeHeader header) noexcept {
     return add(header.item());
   }
+  Code &add(const Kind kind) noexcept;
+  Code &add(const Kinds kinds) noexcept;
   Code &add(const Node &node, Offset parent_offset) noexcept;
   Code &add(Nodes nodes, Offset parent_offset) noexcept;
 

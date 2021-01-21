@@ -26,6 +26,7 @@
 #ifndef ONEJIT_VAR_HPP
 #define ONEJIT_VAR_HPP
 
+#include <onejit/endian.hpp>
 #include <onejit/node.hpp>
 
 #include <iosfwd>
@@ -69,10 +70,12 @@ std::ostream &operator<<(std::ostream &out, VarId id);
 
 // a local variable or register.
 union Var {
+  friend class Code;
   friend class Func;
+  friend class FuncType;
   friend class Node;
-  friend class VarExpr;
   friend class Test;
+  friend class VarExpr;
 
 public:
   constexpr Var() noexcept : val_{kBad} {
@@ -125,10 +128,13 @@ private:
   }
 
   uint32_t val_;
-  struct { // for debug purposes
+#ifdef ONEJIT_LITTLE_ENDIAN
+  // only for debug purposes. works only on little-endian machines
+  struct {
     eKind ekind;
     uint8_t id[3];
   } u_;
+#endif
 };
 
 constexpr inline bool operator==(Var a, Var b) noexcept {

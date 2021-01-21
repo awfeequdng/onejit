@@ -25,6 +25,7 @@
 
 #include <onejit/code.hpp>
 #include <onejit/nodeheader.hpp>
+#include <onejit/var.hpp>
 
 #include <cstring>
 
@@ -73,6 +74,21 @@ Code &Code::add(uint64_t u64) noexcept {
 
 Code &ONEJIT_NOINLINE Code::add(CodeItems data) noexcept {
   good_ = good_ && Base::append(data);
+  return *this;
+}
+
+Code &Code::add(const Kind kind) noexcept {
+  // save Kind wrapped in a direct VarExpr:
+  // any generic parser will be able to recognize it
+  return add(Var{kind, VarId{}}.direct());
+}
+
+Code &Code::add(const Kinds kinds) noexcept {
+  for (const Kind kind : kinds) {
+    if (!add(kind)) {
+      break;
+    }
+  }
   return *this;
 }
 

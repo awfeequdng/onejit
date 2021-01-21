@@ -30,7 +30,10 @@
 #include <fstream>
 #include <iostream>
 
+#define N_OF(array) (sizeof(array) / sizeof(array[0]))
+
 namespace onejit {
+
 class Test {
 public:
   Test();
@@ -38,6 +41,7 @@ public:
 
   void run();
   void kind();
+  void ftype();
   void const_expr() const;
   void simple_expr();
   void nested_expr();
@@ -56,6 +60,7 @@ Test::~Test() {
 
 void Test::run() {
   kind();
+  ftype();
   const_expr();
   simple_expr();
   nested_expr();
@@ -81,6 +86,13 @@ void Test::kind() {
     ONEJIT_TEST((Kind{k.nosimd().val(), k.simdn()}), ==, k);
     ONEJIT_TEST(k.bits().val(), ==, k.nosimd().bits().val() * k.simdn().val());
   }
+}
+
+void Test::ftype() {
+  const Kind params[] = {Int64, Ptr, Uint64};
+  const Kind results[] = {Int64};
+  FuncType ftype{Kinds{params, N_OF(params)}, Kinds{results, N_OF(results)}, &holder};
+  std::cout << ftype << '\n';
 }
 
 // test that integer Const can be compiled as 'constexpr'

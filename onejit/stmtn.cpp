@@ -36,7 +36,7 @@ StmtN StmtN::create(OpStmtN op, const Nodes nodes, Code *holder) noexcept {
     const NodeHeader header{STMT_3, Void, uint16_t(op)};
     CodeItem offset = holder->length();
 
-    if (holder->add(header) && holder->add(nodes, offset)) {
+    if (holder->add(header) && holder->add(nodes.size()) && holder->add(nodes, offset)) {
       return StmtN{Node{header, offset, holder}};
     }
     holder->truncate(offset);

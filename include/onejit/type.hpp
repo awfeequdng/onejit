@@ -54,7 +54,7 @@ enum Type : uint8_t {
 
 // true if Type t indicates an arbitrary number of child Node:s
 constexpr inline bool is_list(Type t) noexcept {
-  return t == STMT_N || t == TUPLE;
+  return t == STMT_N || t == TUPLE || t == FTYPE;
 }
 
 uint32_t to_children(Type t) noexcept;
