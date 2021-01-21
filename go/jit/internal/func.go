@@ -113,7 +113,7 @@ func (l Label) IsConst() bool {
 }
 
 func (l Label) IsPure() bool {
-	// Label is a jump target, cannot be optimized away
+	// Label is a jump destination, cannot be optimized away
 	return false
 }
 

@@ -39,9 +39,11 @@ public:
   Test();
   ~Test();
 
+  FuncType ftype();
+
   void run();
+  // called by run()
   void kind();
-  void ftype();
   void const_expr() const;
   void simple_expr();
   void nested_expr();
@@ -52,15 +54,23 @@ private:
   Func func;
 };
 
-Test::Test() : holder{}, func{&holder} {
+Test::Test() : holder{}, func{} {
+  func = Func{ftype(), &holder};
 }
 
 Test::~Test() {
 }
 
+FuncType Test::ftype() {
+  const Kind params[] = {Int64, Ptr, Uint64};
+  const Kind results[] = {Int64};
+  FuncType ftype{Kinds{params, N_OF(params)}, Kinds{results, N_OF(results)}, &holder};
+  std::cout << ftype << '\n';
+  return ftype;
+}
+
 void Test::run() {
   kind();
-  ftype();
   const_expr();
   simple_expr();
   nested_expr();
@@ -86,13 +96,6 @@ void Test::kind() {
     ONEJIT_TEST((Kind{k.nosimd().val(), k.simdn()}), ==, k);
     ONEJIT_TEST(k.bits().val(), ==, k.nosimd().bits().val() * k.simdn().val());
   }
-}
-
-void Test::ftype() {
-  const Kind params[] = {Int64, Ptr, Uint64};
-  const Kind results[] = {Int64};
-  FuncType ftype{Kinds{params, N_OF(params)}, Kinds{results, N_OF(results)}, &holder};
-  std::cout << ftype << '\n';
 }
 
 // test that integer Const can be compiled as 'constexpr'

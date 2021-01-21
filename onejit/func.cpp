@@ -36,12 +36,34 @@ enum {
   FIRST_VARID = 0x1000,
 };
 
-Func::Func(Code *holder) noexcept : holder_{holder}, vars_{}, body_{} {
+Func::Func(const FuncType &ftype, Code *holder) noexcept
+    : holder_{holder}, ftype_{ftype}, labels_{}, vars_{}, body_{} {
   if (holder->length() == 0) {
     // add magic signature {CONST uint8x4 "1JIT"} in case Code is saved to file
     holder->add(NodeHeader{CONST, Uint8.simdn(4), 0});
     holder->add(uint32_t(0x54494A31));
   }
+  // first label points to the function itself
+  if (!new_label()) {
+    holder_ = nullptr;
+  }
+}
+
+// convert Func to Label
+Label Func::label() const noexcept {
+  return labels_.empty() ? Label{} : labels_[0];
+}
+
+Label Func::new_label() noexcept {
+  Label l;
+  const size_t i = labels_.size();
+  if (i <= 0xFFFF) {
+    l = Label::create(i, holder_);
+    if (l && !labels_.append(l)) {
+      l = Label{};
+    }
+  }
+  return l;
 }
 
 VarExpr Func::new_var(Kind kind) noexcept {

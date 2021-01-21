@@ -30,6 +30,7 @@
 #include <onejit/code.hpp>
 #include <onejit/constexpr.hpp>
 #include <onejit/functype.hpp>
+#include <onejit/label.hpp>
 #include <onejit/memexpr.hpp>
 #include <onejit/op.hpp>
 #include <onejit/stmt0.hpp>
@@ -46,7 +47,17 @@ namespace onejit {
 
 class Func {
 public:
-  explicit Func(Code *holder) noexcept;
+  /**
+   * construct an invalid Func.
+   * exists only to allow placing Func in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid Func, use one of the other constructors
+   */
+  constexpr Func() noexcept : holder_{}, ftype_{}, labels_{}, vars_{}, body_{} {
+  }
+
+  Func(const FuncType &ftype, Code *holder) noexcept;
 
   constexpr Code *code() const noexcept {
     return holder_;
@@ -55,6 +66,9 @@ public:
   constexpr explicit operator bool() const noexcept {
     return holder_ && *holder_;
   }
+
+  // convert Func to Label
+  Label label() const noexcept;
 
   BreakStmt new_break() noexcept {
     return BreakStmt{};
@@ -100,6 +114,8 @@ public:
   IfStmt new_if(const Expr &cond, const Node &then, const Node &else_) noexcept {
     return IfStmt::create(cond, then, else_, holder_);
   }
+
+  Label new_label() noexcept;
 
   MemExpr new_mem(Kind kind, const Expr &address) noexcept {
     return MemExpr::create(kind, address, holder_);
@@ -164,6 +180,8 @@ private:
   }
 
   Code *holder_;
+  FuncType ftype_;
+  Vector<Label> labels_;
   Vector<Var> vars_;
   Node body_;
 };

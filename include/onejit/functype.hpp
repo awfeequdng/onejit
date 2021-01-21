@@ -81,7 +81,7 @@ private:
   static FuncType create(Kinds params, Kinds results, Code *holder) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const FuncType &st);
+std::ostream &operator<<(std::ostream &out, const FuncType &ftype);
 
 } // namespace onejit
 

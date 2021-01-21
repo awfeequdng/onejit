@@ -100,25 +100,29 @@ public:
   typedef const T *const_pointer;
   typedef const T *const_iterator;
 
-  constexpr Vector() noexcept : Base(), cap_(0) {
+  constexpr Vector() noexcept : Base{}, cap_{0} {
   }
-  Vector(const T *addr, size_t n) noexcept : Base(), cap_(0) {
+  Vector(const T *addr, size_t n) noexcept : Base{}, cap_{0} {
     dup(addr, n);
   }
   // all one-argument constructors are explicit because they allocate,
   // thus they mail fail => we require users to explicitly invoke them.
-  explicit Vector(size_t n) noexcept : Base(), cap_(0) {
+  explicit Vector(size_t n) noexcept : Base{}, cap_{0} {
     init(n);
   }
-  explicit Vector(const View<T> &other) noexcept : Base(), cap_(0) {
+  explicit Vector(const View<T> &other) noexcept : Base{}, cap_{0} {
     dup(other.data(), other.size());
   }
-  explicit Vector(const Span<T> &other) noexcept : Base(), cap_(0) {
+  explicit Vector(const Span<T> &other) noexcept : Base{}, cap_{0} {
     dup(other.data(), other.size());
   }
-  explicit Vector(const Vector<T> &other) noexcept : Base(), cap_(0) {
+  explicit Vector(const Vector<T> &other) noexcept : Base{}, cap_{0} {
     dup(other.data(), other.size());
   }
+  Vector(Vector<T> &&other) noexcept : Base{}, cap_{} {
+    swap(other);
+  }
+
   ~Vector() noexcept {
     destroy();
   }
@@ -137,6 +141,11 @@ public:
   using Base::size;
   using Base::span;
   using Base::view;
+
+  Vector<T> &operator=(Vector<T> &&other) noexcept {
+    swap(other);
+    return *this;
+  }
 
   bool ONESTL_NOINLINE dup(const T *addr, size_t n) noexcept {
     if (!ensure_capacity(n)) {

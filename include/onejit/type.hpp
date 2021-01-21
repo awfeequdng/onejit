@@ -50,6 +50,7 @@ enum Type : uint8_t {
   CONST = 11,
 
   FTYPE = 12, // function/method type signature
+  LABEL = 13, // jump destination
 };
 
 // true if Type t indicates an arbitrary number of child Node:s

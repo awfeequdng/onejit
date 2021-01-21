@@ -52,7 +52,12 @@ template <class T> T *realloc(T *addr, size_t n_elements) noexcept {
   return reinterpret_cast<T *>(realloc_bytes(addr, n_elements * sizeof(T)));
 }
 
-template <class T> void swap(T &a, T &b) {
+template <class T> void swap(T &a, T &b) noexcept {
+  static_assert(std::is_nothrow_move_constructible<T>::value,
+                "onestl::mem::swap<T>: type T must be nothrow_move_constructible");
+  static_assert(std::is_nothrow_move_assignable<T>::value,
+                "onestl::mem::swap<T>: type T must be nothrow_move_assignable");
+
   T tmp = std::move(a);
   a = std::move(b);
   b = std::move(tmp);

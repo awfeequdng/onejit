@@ -62,6 +62,7 @@ class ForStmt;
 class Func;
 class FuncType;
 class IfStmt;
+class Label;
 class Kind;
 class MemExpr;
 class Node;

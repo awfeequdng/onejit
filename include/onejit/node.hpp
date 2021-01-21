@@ -43,6 +43,7 @@ class Node {
   friend class ConstExpr;
   friend class Func;
   friend class FuncType;
+  friend class Label;
   friend class MemExpr;
   friend class Stmt1;
   friend class Stmt2;

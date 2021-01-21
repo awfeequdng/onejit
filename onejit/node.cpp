@@ -28,6 +28,7 @@
 #include <onejit/code.hpp>
 #include <onejit/constexpr.hpp>
 #include <onejit/functype.hpp>
+#include <onejit/label.hpp>
 #include <onejit/node.hpp>
 #include <onejit/stmt0.hpp>
 #include <onejit/stmt1.hpp>
@@ -102,6 +103,9 @@ Offset Node::size() const noexcept {
   case CONST:
     len += (kind().bits().val() + 31) / 32;
     break;
+  case LABEL:
+    len++;
+    break;
   default:
     if (is_list(type())) {
       // first CodeItem after header is #children
@@ -141,6 +145,8 @@ std::ostream &operator<<(std::ostream &out, const Node &node) {
     return out << node.is<ConstExpr>();
   case FTYPE:
     return out << node.is<FuncType>();
+  case LABEL:
+    return out << node.is<Label>();
   }
 }
 
