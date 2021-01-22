@@ -32,7 +32,7 @@ namespace onejit {
 
 // ============================  Op1  ==========================================
 
-static const Chars op1string[] = {"?", "~", "!", "cast"};
+static const Chars op1string[] = {"?", "^", "!", "cast"};
 
 const Chars &to_string(Op1 op) noexcept {
   uint8_t i = op;
