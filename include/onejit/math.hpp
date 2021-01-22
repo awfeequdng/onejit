@@ -17,38 +17,34 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * stmt0.cpp
+ * math.hpp
  *
- *  Created on Jan 18, 2020
+ *  Created on Jan 22, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/code.hpp>
-#include <onejit/func.hpp>
-#include <onejit/stmt0.hpp>
+#ifndef ONEJIT_MATH_HPP
+#define ONEJIT_MATH_HPP
+
+#include <cstdint> // uint*_t
 
 namespace onejit {
 
-// ============================  Stmt0  ========================================
+// truncate to uint32_t with saturation
+constexpr inline uint32_t saturate_uint32(uint64_t a) noexcept {
+  return uint32_t(a) == a ? uint32_t(a) : uint32_t(-1);
+}
 
-Func &Stmt0::compile(Func &func) const noexcept {
-  switch (op()) {
-  case BREAK:
-    if (Label l = func.label_break()) {
-      return func.compile(func.new_goto(l));
-    }
-    return func.compile_error(*this, "misplaced Break");
-  case CONTINUE:
-    if (Label l = func.label_continue()) {
-      return func.compile(func.new_goto(l));
-    }
-    return func.compile_error(*this, "misplaced Continue");
-  case FALLTHROUGH:
-    return func.compile_error(*this, "misplaced Fallthrough");
-  case BAD:
-  default:
-    return func.compile_error(*this, "bad Stmt0");
-  }
+// add uint32_t a + b with saturation
+constexpr inline uint32_t sum_uint32(uint32_t a, uint32_t b) noexcept {
+  return saturate_uint32(uint64_t(a) + uint64_t(b));
+}
+
+// multiply uint32_t a * b with saturation
+constexpr inline uint32_t mul_uint32(uint32_t a, uint32_t b) noexcept {
+  return saturate_uint32(uint64_t(a) * uint64_t(b));
 }
 
 } // namespace onejit
+
+#endif // ONEJIT_MATH_HPP

@@ -25,7 +25,7 @@
 #ifndef ONESTL_CHARS_HPP
 #define ONESTL_CHARS_HPP
 
-#include <onestl/view.hpp>
+#include <onestl/vector.hpp>
 
 #include <ostream>
 
@@ -35,17 +35,24 @@ namespace onestl {
 class Chars : public View<char> {
 private:
   typedef char T;
-  typedef View<char> Base;
+  typedef View<T> Base;
 
 public:
-  constexpr Chars() noexcept : Base() {
+  constexpr Chars() noexcept : Base{} {
   }
-  template <size_t N> constexpr Chars(const T (&addr)[N]) noexcept : Base(addr, N - 1) {
+  // construct Chars from literal string constant
+  template <size_t N> constexpr Chars(const T (&addr)[N]) noexcept : Base{addr, N - 1} {
   }
-  constexpr Chars(const T *addr, size_t n) noexcept : Base(addr, n) {
+  constexpr Chars(const T *addr, size_t n) noexcept : Base{addr, n} {
   }
-  constexpr Chars(const Base &other) noexcept : Base(other) {
+  constexpr Chars(const View<T> &other) noexcept : Base{other} {
   }
+  constexpr Chars(const Span<T> &other) noexcept : Base{other} {
+  }
+  constexpr Chars(const Vector<T> &other) noexcept : Base{other} {
+  }
+  // defined in string.hpp
+  constexpr Chars(const String &other) noexcept;
 
   Chars view(size_t start, size_t end) const noexcept {
     return Chars(Base::view(start, end));

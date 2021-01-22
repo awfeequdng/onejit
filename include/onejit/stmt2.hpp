@@ -26,8 +26,12 @@
 #ifndef ONEJIT_STMT2_HPP
 #define ONEJIT_STMT2_HPP
 
+#include <onejit/constexpr.hpp> // VoidExpr
 #include <onejit/opstmt.hpp>
 #include <onejit/stmt.hpp>
+#include <onestl/view.hpp>
+
+#include <initializer_list>
 
 namespace onejit {
 
@@ -36,6 +40,7 @@ class Stmt2 : public Stmt {
   using Base = Stmt;
   friend class Node;
   friend class Func;
+  friend class DefaultStmt;
 
 public:
   /**
@@ -46,6 +51,10 @@ public:
    * to create a valid Stmt2, use Func::new_stmt2()
    */
   constexpr Stmt2() noexcept : Base{STMT_2, Bad, BAD_ST2} {
+  }
+
+  constexpr OpStmt2 op() const noexcept {
+    return OpStmt2(Base::op());
   }
 
   static constexpr uint32_t children() noexcept {
@@ -66,7 +75,7 @@ protected:
     return t == STMT_2;
   }
 
-  static Stmt2 create(OpStmt2 op, const Node &child0, const Node &child1, Code *holder) noexcept;
+  static Stmt2 create(OpStmt2 op, Nodes children, Code *holder) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Stmt2 &st);
@@ -88,23 +97,77 @@ public:
   constexpr CaseStmt() noexcept : Base{CASE} {
   }
 
-  static constexpr OpStmt2 op() noexcept {
-    return CASE;
+  // can return either CASE or DEFAULT
+  constexpr OpStmt2 op() const noexcept {
+    return OpStmt2(Base::op());
   }
 
-private:
+  // shortcut for child(0).is<Expr>()
+  Expr expr() noexcept {
+    return child(0).is<Expr>();
+  }
+
+  // shortcut for child(1)
+  Node body() noexcept {
+    return child(1);
+  }
+
+protected:
+  // needed by DefaultStmt{}
+  constexpr CaseStmt(OpStmt2 op) noexcept : Base{op} {
+  }
+
   // downcast Node to CaseStmt
   constexpr explicit CaseStmt(const Node &node) noexcept : Base{node} {
   }
 
+private:
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op == CASE;
+    return op == CASE || op == DEFAULT;
   }
 
-  static CaseStmt create(const Expr &expr, const Node &body, Code *holder) noexcept {
-    return CaseStmt{Stmt2::create(CASE, expr, body, holder)};
+  static CaseStmt create(const Expr &expr, const Node &body, Code *holder) noexcept;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// DefaultStmt is represented as a CaseStmt where child(0) is VoidExpr
+class DefaultStmt : public CaseStmt {
+  using Base = CaseStmt;
+  friend class Node;
+  friend class Func;
+
+public:
+  /**
+   * construct an invalid DefaultStmt.
+   * exists only to allow placing DefaultStmt in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid DefaultStmt, use Func::new_default()
+   */
+  constexpr DefaultStmt() noexcept : Base{DEFAULT} {
   }
+
+  static constexpr OpStmt2 op() noexcept {
+    return DEFAULT;
+  }
+
+  // always returns VoidExpr
+  static constexpr Expr expr() noexcept {
+    return VoidExpr;
+  }
+
+private:
+  // downcast Node to DefaultStmt
+  constexpr explicit DefaultStmt(const Node &node) noexcept : Base{node} {
+  }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
+    return op == DEFAULT;
+  }
+
+  static DefaultStmt create(const Node &body, Code *holder) noexcept;
 };
 
 } // namespace onejit

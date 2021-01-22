@@ -28,24 +28,22 @@
 
 #include <ostream>
 
-#define N_OF(array) (sizeof(array) / sizeof(array[0]))
-
 namespace onejit {
 
 static const int8_t tchildren[] = {
-    0, 1, 2,  3, 4,  -1, // Stmt*
-    0, 0, 1,  2, -1, 0,  // Expr
-    0, 0, -1,            // FuncType, Label
+    0, 1,  2, 3, 4,  -1,    // Stmt*
+    0, 0,  1, 2, -1, 0,  0, // Expr
+    0, -1,                  // FuncType
 };
 
 static const Chars tstring[] = {
-    "stmt0", "stmt1", "stmt2", "stmt3",  "stmt4", "stmtn", // Stmt*
-    "var",   "mem",   "unary", "binary", "tuple", "const", // *Expr
-    "ftype", "label", "?",                                 // FuncType, Label
+    "stmt0", "stmt1", "stmt2", "stmt3",  "stmt4", "stmtn",          // Stmt*
+    "var",   "mem",   "unary", "binary", "tuple", "label", "const", // *Expr
+    "ftype", "?",                                                   // FuncType
 };
 
 uint32_t to_children(Type t) noexcept {
-  const uint8_t n = N_OF(tchildren);
+  const uint8_t n = ONEJIT_N_OF(tchildren);
   uint8_t i = uint8_t(t);
   if (i >= n) {
     i = n - 1;
@@ -54,7 +52,7 @@ uint32_t to_children(Type t) noexcept {
 }
 
 const Chars &to_string(Type t) noexcept {
-  const uint8_t n = N_OF(tstring);
+  const uint8_t n = ONEJIT_N_OF(tstring);
   uint8_t i = uint8_t(t);
   if (i >= n) {
     i = n - 1;

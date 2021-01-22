@@ -55,13 +55,10 @@ public:
   }
   constexpr View(const T *addr, size_t n) noexcept : data_(addr), size_(n) {
   }
-
-  View(const Span<T> &other) noexcept {
-    ref(other);
-  }
-  View(const Vector<T> &other) noexcept {
-    ref(other);
-  }
+  // defined in span.hpp
+  constexpr View(const Span<T> &other) noexcept;
+  // defined in vector.hpp
+  constexpr View(const Vector<T> &other) noexcept;
 
   // View(const View&) = default;
   // ~View() = default;

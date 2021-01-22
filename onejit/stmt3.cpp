@@ -31,14 +31,12 @@ namespace onejit {
 
 // ============================  Stmt3  ========================================
 
-Stmt3 ONEJIT_NOINLINE Stmt3::create(OpStmt3 op, const Node &child0, const Node &child1,
-                                    const Node &child2, Code *holder) noexcept {
-  while (holder) {
+Stmt3 ONEJIT_NOINLINE Stmt3::create(OpStmt3 op, Nodes children, Code *holder) noexcept {
+  while (holder && children.size() == 3) {
     const NodeHeader header{STMT_3, Void, uint16_t(op)};
     CodeItem offset = holder->length();
 
-    if (holder->add(header) && holder->add(child0, offset) && //
-        holder->add(child1, offset) && holder->add(child2, offset)) {
+    if (holder->add(header) && holder->add(children, offset)) {
       return Stmt3{Node{header, offset, holder}};
     }
     holder->truncate(offset);
@@ -53,5 +51,11 @@ std::ostream &operator<<(std::ostream &out, const Stmt3 &st) {
 }
 
 // ============================  IfStmt  =======================================
+
+IfStmt IfStmt::create(const Expr &cond, const Node &then, const Node &else_,
+                      Code *holder) noexcept {
+  const Node buf[] = {cond, then, else_};
+  return IfStmt{Stmt3::create(IF, Nodes{buf, 3}, holder)};
+}
 
 } // namespace onejit

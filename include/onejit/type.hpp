@@ -35,22 +35,22 @@ namespace onejit {
 
 enum Type : uint8_t {
   STMT_0 = 0, // BAD, BREAK, CONTINUE, FALLTHROUGH
-  STMT_1 = 1, // DEFAULT
-  STMT_2 = 2, // CASE
+  STMT_1 = 1, // not currently used
+  STMT_2 = 2, // CASE, DEFAULT
   STMT_3 = 3, // IF
   STMT_4 = 4, // FOR
-  STMT_N = 5, // statement list: BLOCK, COND, SWITCH
+  STMT_N = 5, // statement list: ASSIGN_TUPLE, BLOCK, COND, RETURN, SWITCH
 
   // Expr
   VAR = 6,
   MEM = 7,
   UNARY = 8,
   BINARY = 9,
-  TUPLE = 10, // expression list: CALL, RET, TUPLE_ASSIGN
-  CONST = 11,
+  TUPLE = 10, // expression list: CALL,
+  LABEL = 11, // jump destination
+  CONST = 12,
 
-  FTYPE = 12, // function/method type signature
-  LABEL = 13, // jump destination
+  FTYPE = 13, // function/method type signature
 };
 
 // true if Type t indicates an arbitrary number of child Node:s

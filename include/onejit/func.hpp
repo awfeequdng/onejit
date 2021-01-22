@@ -29,6 +29,7 @@
 #include <onejit/binaryexpr.hpp>
 #include <onejit/code.hpp>
 #include <onejit/constexpr.hpp>
+#include <onejit/error.hpp>
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
 #include <onejit/memexpr.hpp>
@@ -39,8 +40,11 @@
 #include <onejit/stmt3.hpp>
 #include <onejit/stmt4.hpp>
 #include <onejit/stmtn.hpp>
+#include <onejit/tupleexpr.hpp>
 #include <onejit/unaryexpr.hpp>
 #include <onejit/varexpr.hpp>
+#include <onestl/chars.hpp>
+#include <onestl/string.hpp>
 #include <onestl/vector.hpp>
 
 namespace onejit {
@@ -54,10 +58,14 @@ public:
    *
    * to create a valid Func, use one of the other constructors
    */
-  constexpr Func() noexcept : holder_{}, ftype_{}, labels_{}, vars_{}, body_{} {
-  }
+  Func() noexcept;
 
-  Func(const FuncType &ftype, Code *holder) noexcept;
+  Func(String &&name, const FuncType &ftype, Code *holder) noexcept;
+
+  Func(Func &&other) noexcept = default;
+  Func &operator=(Func &&other) noexcept = default;
+
+  ~Func() noexcept;
 
   constexpr Code *code() const noexcept {
     return holder_;
@@ -67,8 +75,42 @@ public:
     return holder_ && *holder_;
   }
 
-  // convert Func to Label
+  // get function name
+  constexpr Chars name() const noexcept {
+    return Chars{name_};
+  }
+
+  // convert Func to Label.
   Label label() const noexcept;
+
+  // get function type
+  constexpr FuncType ftype() const noexcept {
+    return ftype_;
+  }
+
+  // get number of params
+  constexpr uint16_t param_n() const noexcept {
+    return param_n_;
+  }
+  // get number of results
+  constexpr uint16_t result_n() const noexcept {
+    return result_n_;
+  }
+
+  /// \return i-th parameter, or VarExpr{} if out-of-bounds
+  VarExpr param(uint16_t i) const noexcept;
+  /// \return i-th result, or VarExpr{} if out-of-bounds
+  VarExpr result(uint16_t i) const noexcept;
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  AssignStmt new_assign(std::initializer_list<Expr> assign_to, const CallExpr &call) {
+    return new_assign(Exprs{assign_to.begin(), assign_to.size()}, call);
+  }
+
+  AssignStmt new_assign(Exprs assign_to, const CallExpr &call) {
+    return AssignStmt::create(assign_to, call, holder_);
+  }
 
   BreakStmt new_break() noexcept {
     return BreakStmt{};
@@ -79,14 +121,45 @@ public:
     return BinaryExpr::create(op, left, right, holder_);
   }
 
+  BlockStmt new_block(const Node &node) noexcept {
+    return new_block(Nodes{&node, 1});
+  }
+  BlockStmt new_block(std::initializer_list<Node> nodes) noexcept {
+    return new_block(Nodes{nodes.begin(), nodes.size()});
+  }
   BlockStmt new_block(Nodes nodes) noexcept {
     return BlockStmt::create(nodes, holder_);
+  }
+
+  // create a call to specified Func
+  CallExpr new_call(const Func &func) {
+    return new_call(func, Exprs{});
+  }
+  CallExpr new_call(const Func &func, std::initializer_list<Expr> args) {
+    return new_call(func, Exprs{args.begin(), args.size()});
+  }
+  CallExpr new_call(const Func &func, Exprs args) {
+    return CallExpr::create(func.ftype(), func.label(), args, holder_);
+  }
+
+  // create a call to an arbitrary function, for example a Func or an already compiled C function
+  CallExpr new_call(const FuncType &ftype, const Label &flabel) {
+    return new_call(ftype, flabel, Exprs{});
+  }
+  CallExpr new_call(const FuncType &ftype, const Label &flabel, std::initializer_list<Expr> args) {
+    return new_call(ftype, flabel, Exprs{args.begin(), args.size()});
+  }
+  CallExpr new_call(const FuncType &ftype, const Label &flabel, Exprs args) {
+    return CallExpr::create(ftype, flabel, args, holder_);
   }
 
   CaseStmt new_case(const Expr &expr, const Node &body) noexcept {
     return CaseStmt::create(expr, body, holder_);
   }
 
+  CondStmt new_cond(std::initializer_list<Node> nodes) noexcept {
+    return new_cond(Nodes{nodes.begin(), nodes.size()});
+  }
   CondStmt new_cond(Nodes nodes) noexcept {
     return CondStmt::create(nodes, holder_);
   }
@@ -111,46 +184,49 @@ public:
     return ForStmt::create(init, cond, post, body, holder_);
   }
 
+  GotoStmt new_goto(const Label &target) noexcept {
+    return GotoStmt::create(target, holder_);
+  }
+
   IfStmt new_if(const Expr &cond, const Node &then, const Node &else_) noexcept {
     return IfStmt::create(cond, then, else_, holder_);
   }
 
+  // create a new local label, used for jumps within the function
   Label new_label() noexcept;
 
   MemExpr new_mem(Kind kind, const Expr &address) noexcept {
     return MemExpr::create(kind, address, holder_);
   }
 
+  // create a new return expression
+  ReturnStmt new_return() noexcept {
+    return new_return(Exprs{});
+  }
+  ReturnStmt new_return(const Expr &expr) noexcept {
+    return new_return(Exprs{&expr, 1});
+  }
+  ReturnStmt new_return(std::initializer_list<Expr> exprs) noexcept {
+    return new_return(Exprs{exprs.begin(), exprs.size()});
+  }
+  ReturnStmt new_return(Exprs exprs) noexcept {
+    return ReturnStmt::create(exprs, holder_);
+  }
+
   Stmt0 new_stmt0(OpStmt0 op) noexcept {
     return Stmt0{op};
   }
 
-  Stmt1 new_stmt1(OpStmt1 op, const Node &child) noexcept {
-    return Stmt1::create(op, child, holder_);
+  // cases can contain at most one DefaultStmt
+  SwitchStmt new_switch(const Expr &expr, std::initializer_list<CaseStmt> cases) noexcept {
+    return new_switch(expr, CaseStmts{cases.begin(), cases.size()});
+  }
+  SwitchStmt new_switch(const Expr &expr, const CaseStmts cases) noexcept {
+    return SwitchStmt::create(expr, cases, holder_);
   }
 
-  Stmt2 new_stmt2(OpStmt2 op, const Node &child0, const Node &child1) noexcept {
-    return Stmt2::create(op, child0, child1, holder_);
-  }
-
-  Stmt3 new_stmt3(OpStmt3 op, const Node &child0, const Node &child1, const Node &child2) noexcept {
-    return Stmt3::create(op, child0, child1, child2, holder_);
-  }
-
-  Stmt4 new_stmt4(OpStmt4 op, const Node &child0, const Node &child1, const Node &child2,
-                  const Node &child3) noexcept {
-    return Stmt4::create(op, child0, child1, child2, child3, holder_);
-  }
-
-  StmtN new_stmtn(OpStmtN op, Nodes nodes) noexcept {
-    return StmtN::create(op, nodes, holder_);
-  }
-
-  // node[0] must be Expr. other nodes must be CaseStmt, plus at most one DefaultStmt
-  SwitchStmt new_switch(Nodes nodes) noexcept {
-    return SwitchStmt::create(nodes, holder_);
-  }
-
+  // create a new unary expression, overriding Kind autodetection.
+  // needed by op == CAST
   UnaryExpr new_unary(Kind kind, Op1 op, const Expr &arg) noexcept {
     return UnaryExpr::create(kind, op, arg, holder_);
   }
@@ -167,23 +243,40 @@ public:
   }
 
   Func &set_body(const Node &body) noexcept {
+    body_var_n_ = vars_.size();
     body_ = body;
     return *this;
   }
 
-private:
-  Func &add(CodeItem item) noexcept {
-    if (holder_) {
-      holder_->add(item);
-    }
-    return *this;
-  }
+  // get current destination for "break"
+  Label label_break() const noexcept;
 
+  // get current destination for "continue"
+  Label label_continue() const noexcept;
+
+  // add a compiled node
+  Func &compile(const Node &node) noexcept;
+
+  // add a compile error
+  Func &compile_error(const Node &where, Chars msg) noexcept;
+
+private:
   Code *holder_;
+  uint16_t param_n_;
+  uint16_t result_n_;
+  uint32_t body_var_n_; // # local vars used by body_
+
   FuncType ftype_;
+  Vector<VarExpr> vars_;
   Vector<Label> labels_;
-  Vector<Var> vars_;
+  String name_;
   Node body_;
+
+  // buffers needed by compile()
+  Vector<Label> breaks_;    // stack of 'break' destination labels
+  Vector<Label> continues_; // stack of 'continue' destination labels
+  NodeVec compiled_;
+  ErrorVec error_;
 };
 
 } // namespace onejit

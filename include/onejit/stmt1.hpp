@@ -26,6 +26,7 @@
 #ifndef ONEJIT_STMT1_HPP
 #define ONEJIT_STMT1_HPP
 
+#include <onejit/label.hpp>
 #include <onejit/opstmt.hpp>
 #include <onejit/stmt.hpp>
 
@@ -46,6 +47,10 @@ public:
    * to create a valid Stmt1, use Func::new_stmt1()
    */
   constexpr Stmt1() noexcept : Base{STMT_1, Bad, BAD_ST1} {
+  }
+
+  constexpr OpStmt1 op() const noexcept {
+    return OpStmt1(Base::op());
   }
 
   static constexpr uint32_t children() noexcept {
@@ -77,38 +82,31 @@ protected:
 std::ostream &operator<<(std::ostream &out, const Stmt1 &st);
 
 ////////////////////////////////////////////////////////////////////////////////
-class DefaultStmt : public Stmt1 {
+class GotoStmt : public Stmt1 {
   using Base = Stmt1;
   friend class Node;
   friend class Func;
 
 public:
-  /**
-   * construct an invalid DefaultStmt.
-   * exists only to allow placing DefaultStmt in containers
-   * and similar uses that require a default constructor.
-   *
-   * to create a valid DefaultStmt, use Func::new_default()
-   */
-  constexpr DefaultStmt() noexcept : Base{DEFAULT} {
+  constexpr GotoStmt() noexcept : Base{GOTO} {
   }
 
   static constexpr OpStmt1 op() noexcept {
-    return DEFAULT;
+    return GOTO;
   }
 
 private:
-  // downcast Node to DefaultStmt
-  constexpr explicit DefaultStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to GotoStmt
+  constexpr explicit GotoStmt(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op == DEFAULT;
+    return op == GOTO;
   }
 
-  static DefaultStmt create(const Node &body, Code *holder) noexcept {
-    return DefaultStmt{Stmt1::create(DEFAULT, body, holder)};
+  static GotoStmt create(const Label &target, Code *holder) noexcept {
+    return GotoStmt{Stmt1::create(GOTO, target, holder)};
   }
 };
 

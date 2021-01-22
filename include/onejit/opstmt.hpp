@@ -42,12 +42,13 @@ enum OpStmt0 : uint16_t {
 
 enum OpStmt1 : uint16_t {
   BAD_ST1 = 0,
-  DEFAULT = 1,
+  GOTO = 1,
 };
 
 enum OpStmt2 : uint16_t {
   BAD_ST2 = 0,
   CASE = 1,
+  DEFAULT = 2,
 };
 
 enum OpStmt3 : uint16_t {
@@ -62,9 +63,11 @@ enum OpStmt4 : uint16_t {
 
 enum OpStmtN : uint16_t {
   BAD_STN = 0,
-  BLOCK = 1,
-  COND = 2, // n-ary IF ... [ELSEIF* ... [ELSE ...]]
-  SWITCH = 3,
+  ASSIGN_TUPLE = 1,
+  BLOCK = 2,
+  COND = 3, // n-ary IF ... [ELSEIF* ... [ELSE ...]]
+  RETURN = 4,
+  SWITCH = 5,
 };
 
 const Chars &to_string(OpStmt0 op) noexcept;

@@ -50,8 +50,6 @@ UnaryExpr UnaryExpr::create(Op1 op, const Expr &child, Code *holder) noexcept {
     kind = child.kind();
   } else if (op == NOT1) {
     kind = Bool;
-  } else if (op == GOTO) {
-    kind = Void;
   } else {
     kind = Bad;
   }

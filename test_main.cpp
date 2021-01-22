@@ -30,8 +30,6 @@
 #include <fstream>
 #include <iostream>
 
-#define N_OF(array) (sizeof(array) / sizeof(array[0]))
-
 namespace onejit {
 
 class Test {
@@ -47,6 +45,7 @@ public:
   void const_expr() const;
   void simple_expr();
   void nested_expr();
+  void fibonacci();
   void dump_code() const;
 
 private:
@@ -54,8 +53,7 @@ private:
   Func func;
 };
 
-Test::Test() : holder{}, func{} {
-  func = Func{ftype(), &holder};
+Test::Test() : holder{}, func{"test_func", ftype(), &holder} {
 }
 
 Test::~Test() {
@@ -64,7 +62,7 @@ Test::~Test() {
 FuncType Test::ftype() {
   const Kind params[] = {Int64, Ptr, Uint64};
   const Kind results[] = {Int64};
-  FuncType ftype{Kinds{params, N_OF(params)}, Kinds{results, N_OF(results)}, &holder};
+  FuncType ftype{Kinds{params, ONEJIT_N_OF(params)}, Kinds{results, ONEJIT_N_OF(results)}, &holder};
   std::cout << ftype << '\n';
   return ftype;
 }
@@ -74,6 +72,7 @@ void Test::run() {
   const_expr();
   simple_expr();
   nested_expr();
+  fibonacci();
   dump_code();
 }
 
@@ -233,6 +232,26 @@ void Test::nested_expr() {
   }
 }
 
+void Test::fibonacci() {
+  const Kind kind = Uint64;
+  const Kinds kinds{&kind, 1};
+  Func f("fib", FuncType{kinds, kinds, &holder}, &holder);
+  VarExpr param = f.param(0);
+  ConstExpr one = One(Uint64);
+  ConstExpr two = Two(Uint64);
+
+  f.set_body(                                                           //
+      f.new_block(                                                      //
+          f.new_if(                                                     //
+              f.new_binary(GTR, param, two),                            //
+              f.new_return(                                             //
+                  f.new_binary(                                         //
+                      ADD,                                              //
+                      f.new_call(f, {f.new_binary(SUB, param, one)}),   //
+                      f.new_call(f, {f.new_binary(SUB, param, two)}))), //
+              f.new_return(one))));                                     //
+}
+
 void Test::dump_code() const {
   std::cout << std::hex;
   for (CodeItem item : holder) {
@@ -246,7 +265,7 @@ void Test::dump_code() const {
   CodeParser parser(&holder);
   while (parser) {
     Node node = parser.next();
-    std::cout << node.type() << ' ' << node << '\n';
+    std::cout << node << '\n';
   }
 }
 

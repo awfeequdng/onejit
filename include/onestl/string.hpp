@@ -39,28 +39,35 @@ private:
   typedef Vector<char> Base;
 
 public:
-  constexpr String() : Base() {
+  constexpr String() noexcept : Base{} {
   }
-  template <size_t N> String(const T (&addr)[N]) : Base(addr, N - 1) {
+  template <size_t N> String(const T (&addr)[N]) noexcept : Base{addr, N - 1} {
   }
-  String(const T *addr, size_t n) : Base(addr, n) {
+  String(const T *addr, size_t n) noexcept : Base{addr, n} {
   }
-  explicit String(const View<T> &other) : Base(other) {
+  explicit String(const View<T> &other) noexcept : Base{other} {
   }
-  explicit String(const Span<T> &other) : Base(other) {
+  explicit String(const Span<T> &other) noexcept : Base{other} {
   }
-  explicit String(const Vector<T> &other) : Base(other) {
+  explicit String(const Vector<T> &other) noexcept : Base{other} {
   }
-  explicit String(const String &other) : Base(other) {
+  explicit String(const String &other) noexcept : Base{other} {
   }
-  ~String();
+  ~String() noexcept = default;
 
-  Chars view(size_t start, size_t end) const {
+  String(String &&other) noexcept = default;
+
+  String &operator=(String &&other) noexcept {
+    Base::operator=(std::move(other));
+    return *this;
+  }
+
+  Chars view(size_t start, size_t end) const noexcept {
     return Chars(Base::view(start, end));
   }
 
   using Base::dup;
-  bool dup(const Chars &other) {
+  bool dup(const Chars &other) noexcept {
     return Base::dup(other);
   }
 
@@ -68,6 +75,12 @@ public:
 
 inline std::ostream &operator<<(std::ostream &out, const String &str) {
   return out.write(str.data(), str.size());
+}
+
+// -------------- Chars methods requiring complete type String -----------------
+
+constexpr Chars::Chars(const String &other) noexcept //
+    : Base{other} {
 }
 
 } // namespace onestl

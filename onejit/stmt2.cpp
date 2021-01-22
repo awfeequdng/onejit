@@ -31,13 +31,12 @@ namespace onejit {
 
 // ============================  Stmt2  ========================================
 
-Stmt2 ONEJIT_NOINLINE Stmt2::create(OpStmt2 op, const Node &child0, const Node &child1,
-                                    Code *holder) noexcept {
-  while (holder) {
+Stmt2 ONEJIT_NOINLINE Stmt2::create(OpStmt2 op, const Nodes children, Code *holder) noexcept {
+  while (holder && children.size() == 2) {
     const NodeHeader header{STMT_2, Void, uint16_t(op)};
     CodeItem offset = holder->length();
 
-    if (holder->add(header) && holder->add(child0, offset) && holder->add(child1, offset)) {
+    if (holder->add(header) && holder->add(children, offset)) {
       return Stmt2{Node{header, offset, holder}};
     }
     holder->truncate(offset);
@@ -47,9 +46,25 @@ Stmt2 ONEJIT_NOINLINE Stmt2::create(OpStmt2 op, const Node &child0, const Node &
 }
 
 std::ostream &operator<<(std::ostream &out, const Stmt2 &st) {
-  return out << '(' << st.op() << ' ' << st.child(0) << ' ' << st.child(1) << ')';
+  out << '(' << st.op();
+  if (st.op() != DEFAULT) {
+    out << ' ' << st.child(0);
+  }
+  return out << ' ' << st.child(1) << ')';
 }
 
 // ============================  CaseStmt  =====================================
+
+CaseStmt CaseStmt::create(const Expr &expr, const Node &body, Code *holder) noexcept {
+  Node children[] = {expr, body};
+  return CaseStmt{Stmt2::create(CASE, Nodes{children, 2}, holder)};
+}
+
+// ============================  DefaultStmt  ==================================
+
+DefaultStmt DefaultStmt::create(const Node &body, Code *holder) noexcept {
+  Node children[] = {VoidExpr, body};
+  return DefaultStmt{Stmt2::create(DEFAULT, Nodes{children, 2}, holder)};
+}
 
 } // namespace onejit

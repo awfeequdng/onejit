@@ -117,6 +117,21 @@ constexpr const ConstExpr VoidExpr{Void};
 constexpr const ConstExpr TrueExpr{true};
 constexpr const ConstExpr FalseExpr{false};
 
+// return a ConstExpr value = 0 with specified Kind (which must NOT be Bad)
+constexpr inline ConstExpr Zero(Kind kind) noexcept {
+  return ConstExpr{kind, uint16_t(0)};
+}
+
+// return a ConstExpr value = 1 with specified Kind (which must NOT be Bad or float)
+constexpr inline ConstExpr One(Kind kind) noexcept {
+  return ConstExpr{kind, uint16_t(1)};
+}
+
+// return a ConstExpr value = 2 with specified Kind (which must NOT be Bad or float)
+constexpr inline ConstExpr Two(Kind kind) noexcept {
+  return ConstExpr{kind, uint16_t(2)};
+}
+
 std::ostream &operator<<(std::ostream &out, const ConstExpr &ce);
 
 } // namespace onejit

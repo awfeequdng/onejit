@@ -27,6 +27,7 @@
 #define ONEJIT_NODE_HPP
 
 #include <onejit/check.hpp>
+#include <onejit/math.hpp>
 #include <onejit/nodeheader.hpp>
 
 #include <iosfwd>
@@ -38,6 +39,7 @@ namespace onejit {
 class Node {
 
   friend class BinaryExpr;
+  friend class CallExpr;
   friend class Code;
   friend class CodeParser;
   friend class ConstExpr;
@@ -45,11 +47,14 @@ class Node {
   friend class FuncType;
   friend class Label;
   friend class MemExpr;
+  friend class ReturnStmt;
   friend class Stmt1;
   friend class Stmt2;
   friend class Stmt3;
   friend class Stmt4;
   friend class StmtN;
+  friend class SwitchStmt;
+  friend class AssignStmt;
   friend class UnaryExpr;
   friend class VarExpr;
 
@@ -93,7 +98,7 @@ public:
 
   // return Node length, in bytes
   Offset length() const noexcept {
-    return size() * sizeof(CodeItem);
+    return mul_uint32(size(), sizeof(CodeItem));
   }
 
   // return Node length, in CodeItems
@@ -143,15 +148,27 @@ protected:
     return code_ == nullptr;
   }
 
-  // get indirect data
+  // get CodeItem indirect data
   // return 0 if byte_offset is out of bounds
-  CodeItem get(Offset byte_offset) const noexcept;
+  CodeItem get(Offset byte_offset) const noexcept {
+    return uint32(byte_offset);
+  }
+
+  // get uint32_t indirect data
+  // return 0 if byte_offset is out of bounds
+  uint32_t uint32(Offset byte_offset) const noexcept;
+
+  // get uint64_t indirect data
+  // return 0 if byte_offset is out of bounds
+  uint64_t uint64(Offset byte_offset) const noexcept;
 
 private:
+  Func &compile(Func &func) const noexcept;
+
   NodeHeader header_;
   CodeItem off_or_dir_;
   const Code *code_;
-};
+}; // namespace onejit
 
 std::ostream &operator<<(std::ostream &out, const Node &node);
 

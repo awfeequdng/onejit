@@ -32,10 +32,12 @@
 namespace onejit {
 
 Code::Code() noexcept : Base{}, good_{true} {
+  init();
 }
 
 Code::Code(size_t capacity) noexcept : Base{}, good_{true} {
   good_ &= reserve(capacity);
+  init();
 }
 
 Code::~Code() noexcept {
@@ -46,6 +48,12 @@ Code::~Code() noexcept {
   static_assert(sizeof(uint64_t) == 8, "sizeof(uint32_t) must be 8");
   static_assert(sizeof(float) == 4, "sizeof(double) must be 4");
   static_assert(sizeof(double) == 8, "sizeof(double) must be 8");
+}
+
+Code &Code::init() noexcept {
+  // add magic signature {CONST uint8x4 "1JIT"} in case Code is saved to file
+  return add(NodeHeader{CONST, Uint8.simdn(4), 0}) //
+      .add_uint32(0x54494A31);
 }
 
 uint64_t Code::uint64(Offset byte_offset) const noexcept {
@@ -60,11 +68,11 @@ uint64_t Code::uint64(Offset byte_offset) const noexcept {
   return x.u64;
 }
 
-Code &Code::add(const uint32_t item) noexcept {
+Code &Code::add_item(const CodeItem item) noexcept {
   return add(CodeItems{&item, 1});
 }
 
-Code &Code::add(uint64_t u64) noexcept {
+Code &Code::add_uint64(uint64_t u64) noexcept {
   const union {
     uint64_t u64;
     uint32_t u32[2];
@@ -80,7 +88,7 @@ Code &ONEJIT_NOINLINE Code::add(CodeItems data) noexcept {
 Code &Code::add(const Kind kind) noexcept {
   // save Kind wrapped in a direct VarExpr:
   // any generic parser will be able to recognize it
-  return add(Var{kind, VarId{}}.direct());
+  return add_item(Var{kind, VarId{}}.direct());
 }
 
 Code &Code::add(const Kinds kinds) noexcept {
@@ -99,16 +107,7 @@ Code &Code::add(const Node &node, Offset parent_offset) noexcept {
     // makes it easier to concatenate different Code objects
     offset -= parent_offset;
   }
-  return add(offset);
-}
-
-Code &ONEJIT_NOINLINE Code::add(const Nodes nodes, Offset parent_offset) noexcept {
-  for (const Node &node : nodes) {
-    if (!add(node, parent_offset)) {
-      break;
-    }
-  }
-  return *this;
+  return add_item(offset);
 }
 
 } // namespace onejit

@@ -49,6 +49,10 @@ public:
   constexpr Stmt3() noexcept : Base{STMT_3, Bad, BAD_ST3} {
   }
 
+  constexpr OpStmt3 op() const noexcept {
+    return OpStmt3(Base::op());
+  }
+
   static constexpr uint32_t children() noexcept {
     return 3;
   }
@@ -67,8 +71,7 @@ protected:
     return t == STMT_3;
   }
 
-  static Stmt3 create(OpStmt3 op, const Node &child0, const Node &child1, const Node &child2,
-                      Code *holder) noexcept;
+  static Stmt3 create(OpStmt3 op, Nodes children, Code *holder) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Stmt3 &st);
@@ -120,9 +123,7 @@ private:
   }
 
   static IfStmt create(const Expr &cond, const Node &then, const Node &else_,
-                       Code *holder) noexcept {
-    return IfStmt{Stmt3::create(IF, cond, then, else_, holder)};
-  }
+                       Code *holder) noexcept;
 };
 
 } // namespace onejit

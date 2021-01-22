@@ -41,9 +41,9 @@ Const Const::parse_indirect(Kind kind, Offset offset, const Code *holder) noexce
 
 Code &Const::write_indirect(Code *holder) const noexcept {
   if (kind().bits().val() == 64) {
-    return holder->add(uint64());
+    return holder->add_uint64(uint64());
   } else {
-    return holder->add(uint32());
+    return holder->add_uint32(uint32());
   }
 }
 

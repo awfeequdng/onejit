@@ -26,15 +26,15 @@
 #ifndef ONEJIT_LABEL_HPP
 #define ONEJIT_LABEL_HPP
 
-#include <onejit/node.hpp>
+#include <onejit/expr.hpp>
 
 namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
-// jump destination. it contains an uint32_t that linker will set to
-// destination address, relative to Asm base
-class Label : public Node {
-  using Base = Node;
+// jump destination. it contains an uint64_t that linker will set to
+// absolute destination address
+class Label : public Expr {
+  using Base = Expr;
   friend class Node;
   friend class Func;
 
@@ -44,13 +44,23 @@ public:
    * exists only to allow placing Label in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Label, use Func::new_label()
+   * to create a valid Label, use one of the other constructors or Func::new_label()
    */
-  constexpr Label() noexcept : Base{NodeHeader{LABEL, Bad, 0}, 0, nullptr} {
+  constexpr Label() noexcept : Base{LABEL} {
+  }
+
+  /** create a label pointing to an already compiled function */
+  explicit Label(uint64_t func_address, Code *holder) noexcept
+      : Label{create(0, func_address, holder)} {
   }
 
   constexpr uint16_t index() const noexcept {
     return Base::op();
+  }
+
+  // 0 if not resolved yet
+  uint64_t address() const noexcept {
+    return Base::uint64(offset_or_direct() + sizeof(CodeItem));
   }
 
 private:
@@ -63,7 +73,8 @@ private:
     return t == LABEL;
   }
 
-  static Label create(uint16_t index, Code *holder) noexcept;
+  /* create a new label. address == 0 means label is not resolved yet */
+  static Label create(uint16_t index, uint64_t address, Code *holder) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Label &l);

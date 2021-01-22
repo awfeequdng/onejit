@@ -28,17 +28,15 @@
 
 #include <ostream>
 
-#define N_OF(array) (sizeof(array) / sizeof(array[0]))
-
 namespace onejit {
 
 // ============================  Op1  ==========================================
 
-static const Chars op1string[] = {"?", "^", "!", "cast", "goto"};
+static const Chars op1string[] = {"?", "~", "!", "cast"};
 
 const Chars &to_string(Op1 op) noexcept {
   uint8_t i = op;
-  if (i >= N_OF(op1string)) {
+  if (i >= ONEJIT_N_OF(op1string)) {
     i = 0;
   }
   return op1string[i];
@@ -70,11 +68,11 @@ std::ostream &operator<<(std::ostream &out, Op2 op) {
 
 // ============================  OpN  ==========================================
 
-static const Chars opnstring[] = {"?", "call", "tuple=", "return"};
+static const Chars opnstring[] = {"?", "call"};
 
 const Chars &to_string(OpN op) noexcept {
   uint8_t i = op;
-  if (i >= N_OF(opnstring)) {
+  if (i >= ONEJIT_N_OF(opnstring)) {
     i = 0;
   }
   return opnstring[i];

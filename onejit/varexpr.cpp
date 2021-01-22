@@ -44,7 +44,7 @@ VarExpr VarExpr::create(Var var, Code *holder) noexcept {
   while (holder) {
     CodeItem offset = holder->length();
 
-    if (holder->add(header) && holder->add(var.indirect())) {
+    if (holder->add(header) && holder->add_item(var.indirect())) {
       return VarExpr{Node{header, offset, holder}};
     }
     holder->truncate(offset);

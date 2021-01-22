@@ -29,18 +29,27 @@
 #include <onejit/constexpr.hpp>
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
+#include <onejit/memexpr.hpp>
 #include <onejit/node.hpp>
 #include <onejit/stmt0.hpp>
 #include <onejit/stmt1.hpp>
 #include <onejit/stmt2.hpp>
+#include <onejit/stmt3.hpp>
+#include <onejit/stmt4.hpp>
+#include <onejit/stmtn.hpp>
+#include <onejit/tupleexpr.hpp>
 #include <onejit/unaryexpr.hpp>
 #include <onejit/varexpr.hpp>
 #include <onestl/chars.hpp>
 
 namespace onejit {
 
-CodeItem ONEJIT_NOINLINE Node::get(Offset byte_offset) const noexcept {
-  return code_ ? code_->get(off_or_dir_ + byte_offset) : 0;
+uint32_t ONEJIT_NOINLINE Node::uint32(Offset byte_offset) const noexcept {
+  return code_ ? code_->uint32(off_or_dir_ + byte_offset) : 0;
+}
+
+uint64_t ONEJIT_NOINLINE Node::uint64(Offset byte_offset) const noexcept {
+  return code_ ? code_->uint64(off_or_dir_ + byte_offset) : 0;
 }
 
 uint32_t ONEJIT_NOINLINE Node::children() const noexcept {
@@ -95,25 +104,47 @@ Node Node::child(uint32_t i) const noexcept {
 }
 
 Offset Node::size() const noexcept {
-  Offset len = 1 + children();
+  Offset len = sum_uint32(1, children());
   switch (type()) {
   case VAR:
-    len++;
+    len = sum_uint32(len, 1); // for VarId
     break;
   case CONST:
-    len += (kind().bits().val() + 31) / 32;
+    len = sum_uint32(len, (kind().bits().val() + 31) / 32);
     break;
   case LABEL:
-    len++;
+    len = sum_uint32(len, 2); // for uint64_t address
     break;
   default:
     if (is_list(type())) {
       // first CodeItem after header is #children
-      len++;
+      len = sum_uint32(len, 1);
     }
     break;
   }
   return len;
+}
+
+Func &Node::compile(Func &func) const noexcept {
+  const Type t = type();
+  switch (t) {
+  case STMT_0:
+    return is<Stmt0>().compile(func);
+  case STMT_1:
+    return is<Stmt1>().compile(func);
+  case STMT_2:
+    return is<Stmt2>().compile(func);
+  case STMT_3:
+    return is<Stmt3>().compile(func);
+  case STMT_4:
+    return is<Stmt4>().compile(func);
+  case STMT_N:
+    return is<StmtN>().compile(func);
+  case TUPLE:
+    return is<TupleExpr>().compile(func);
+  default:
+    return func;
+  }
 }
 
 std::ostream &operator<<(std::ostream &out, const Node &node) {
@@ -126,27 +157,29 @@ std::ostream &operator<<(std::ostream &out, const Node &node) {
   case STMT_2:
     return out << node.is<Stmt2>();
   case STMT_3:
+    return out << node.is<Stmt3>();
   case STMT_4:
+    return out << node.is<Stmt4>();
   case STMT_N:
-  default:
-    // TODO
-    return out << to_string(t);
+    return out << node.is<StmtN>();
   case VAR:
     return out << node.is<VarExpr>();
+  case MEM:
+    return out << node.is<MemExpr>();
   case UNARY:
     return out << node.is<UnaryExpr>();
   case BINARY:
     return out << node.is<BinaryExpr>();
   case TUPLE:
-  case MEM:
-    // TODO
-    return out << to_string(t);
+    return out << node.is<TupleExpr>();
+  case LABEL:
+    return out << node.is<Label>();
   case CONST:
     return out << node.is<ConstExpr>();
   case FTYPE:
     return out << node.is<FuncType>();
-  case LABEL:
-    return out << node.is<Label>();
+  default:
+    return out << to_string(t);
   }
 }
 

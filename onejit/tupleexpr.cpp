@@ -17,44 +17,48 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * label.cpp
+ * tupleexpr.cpp
  *
- *  Created on Jan 21, 2020
+ *  Created on Jan 22, 2020
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/code.hpp>
+#include <onejit/functype.hpp>
 #include <onejit/label.hpp>
+#include <onejit/tupleexpr.hpp>
 
 namespace onejit {
 
-static constexpr uint16_t trivial_hash(uint32_t val) noexcept {
-  return uint16_t(val ^ (val >> 16)) | 1;
+// ============================  TupleExpr  ====================================
+
+std::ostream &operator<<(std::ostream &out, const TupleExpr &tuple) {
+  out << '(' << tuple.op();
+  // skip child(0) i.e. FuncType
+  for (size_t i = 1, n = tuple.children(); i < n; i++) {
+    out << ' ' << tuple.child(i);
+  }
+  return out << ')';
 }
 
-static constexpr uint16_t trivial_hash(uint64_t val) noexcept {
-  return trivial_hash(uint32_t(val ^ (val >> 32)));
-}
+// ============================  CallExpr  =====================================
 
-Label Label::create(uint16_t index, uint64_t address, Code *holder) noexcept {
-  while (holder) {
-    if (!index && address) {
-      index = trivial_hash(address);
-    }
-    const NodeHeader header{LABEL, Void, index};
+CallExpr CallExpr::create(const FuncType &ftype, const Label &flabel, Exprs args,
+                          Code *holder) noexcept {
+  const size_t n = args.size();
+  while (holder && n == uint32_t(n)) {
+    const NodeHeader header{TUPLE, ftype.param_n() == 0 ? Void : ftype.param(0), CALL};
     CodeItem offset = holder->length();
 
-    if (holder->add(header) && holder->add_uint64(address)) {
-      return Label{Node{header, offset, holder}};
+    if (holder->add(header) && holder->add_uint32(sum_uint32(2, n)) && //
+        holder->add(ftype, offset) && holder->add(flabel, offset) &&   //
+        holder->add(args, offset)) {
+      return CallExpr{Node{header, offset, holder}};
     }
     holder->truncate(offset);
     break;
   }
-  return Label{};
-}
-
-std::ostream &operator<<(std::ostream &out, const Label &l) {
-  return out << l.type() << '_' << l.index();
+  return CallExpr{};
 }
 
 } // namespace onejit

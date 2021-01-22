@@ -54,13 +54,13 @@ std::string to_string(const void *val) {
   return buf.str();
 }
 
-Error::Error(std::string &&lhs, std::string &&rhs, const char *opstr, const char *lstr,
-             const char *rstr, const char *file, int line) noexcept
+Failed::Failed(std::string &&lhs, std::string &&rhs, const char *opstr, const char *lstr,
+           const char *rstr, const char *file, int line) noexcept
     : lhs_(std::move(lhs)), rhs_(std::move(rhs)), op_(opstr), lstr_(lstr), rstr_(rstr), file_(file),
       line_(line) {
 }
 
-void ONESTL_NORETURN Error::throw_check_failed() const {
+void ONESTL_NORETURN Failed::throw_check_failed() const {
   std::stringstream buf;
   buf << Chars("check failed at ") << file_ << ':' << line_          //
       << Chars("\n\tcheck: ") << lstr_ << ' ' << op_ << ' ' << rstr_ //
@@ -70,7 +70,7 @@ void ONESTL_NORETURN Error::throw_check_failed() const {
   throw std::range_error(buf.str());
 }
 
-void ONESTL_NORETURN Error::throw_bounds_failed() const {
+void ONESTL_NORETURN Failed::throw_bounds_failed() const {
   std::stringstream buf;
   buf << Chars("container out-of-bounds access at ") << file_ << ':' << line_ //
       << Chars("\n\tcheck: ") << lstr_ << ' ' << op_ << ' ' << rstr_          //

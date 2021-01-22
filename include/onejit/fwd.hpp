@@ -33,6 +33,8 @@
 #define ONEJIT_NOINLINE ONESTL_NOINLINE
 #define ONEJIT_NORETURN ONESTL_NORETURN
 
+#define ONEJIT_N_OF(array) (sizeof(array) / sizeof(array[0]))
+
 namespace onejit {
 
 using Bytes = ::onestl::Bytes;
@@ -44,10 +46,13 @@ template <class T> using Vector = ::onestl::Vector<T>;
 template <class T> using View = ::onestl::View<T>;
 
 class ArchId;
+class AssignStmt;
 class LogSize;
 class BlockStmt;
 class BinaryExpr;
 class BreakStmt;
+class CallExpr;
+class CaseStmt;
 class Code;
 class CodeParser;
 class CondStmt;
@@ -56,17 +61,21 @@ class ConstExpr;
 union ConstFloat32;
 union ConstFloat64;
 class ContinueStmt;
+class DefaultStmt;
+class Error;
 class Expr;
 class FallthroughStmt;
 class ForStmt;
 class Func;
 class FuncType;
+class GotoStmt;
 class IfStmt;
 class Label;
 class Kind;
 class MemExpr;
 class Node;
 union NodeHeader;
+class ReturnStmt;
 class Stmt0;
 class Stmt1;
 class Stmt2;
@@ -85,9 +94,14 @@ using CodeItem = uint32_t;
 using Offset = uint32_t;
 using SimdN = LogSize;
 
+using CaseStmts = View<CaseStmt>;
 using CodeItems = View<CodeItem>;
+using Exprs = View<Expr>;
 using Kinds = View<Kind>;
 using Nodes = View<Node>;
+
+using ErrorVec = Vector<Error>;
+using NodeVec = Vector<Node>;
 
 } // namespace onejit
 

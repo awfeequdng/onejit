@@ -49,11 +49,11 @@ public:
   typedef const T *const_pointer;
   typedef const T *const_iterator;
 
-  constexpr Span() noexcept : Base() {
+  constexpr Span() noexcept : Base{} {
   }
-  constexpr Span(T *addr, size_t n) noexcept : Base(addr, n) {
+  constexpr Span(T *addr, size_t n) noexcept : Base{addr, n} {
   }
-  Span(Vector<T> &other) noexcept : Base(other) {
+  constexpr Span(Vector<T> &other) noexcept : Base{other} {
   }
 
   // Span(const Span&) = default;
@@ -126,16 +126,25 @@ public:
     data_ = other.data_;
     size_ = other.size_;
   }
-  void ref(Vector<T> &other) noexcept;
+  void ref(Vector<T> &other) noexcept {
+    Base::ref(other);
+  }
 };
+
+template <class T> void swap(Span<T> &left, Span<T> &right) noexcept {
+  left.swap(right);
+}
+
+// ------------- View<T> methods requiring complete type Span<T> ---------------
+
+template <class T>
+constexpr View<T>::View(const Span<T> &other) noexcept //
+    : data_{other.data()}, size_{other.size()} {
+}
 
 template <class T> void View<T>::ref(const Span<T> &other) noexcept {
   data_ = other.data();
   size_ = other.size();
-}
-
-template <class T> void swap(Span<T> &left, Span<T> &right) noexcept {
-  left.swap(right);
 }
 
 typedef Span<char> CharSpan;

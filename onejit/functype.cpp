@@ -47,13 +47,12 @@ static constexpr bool functype_can_represent(size_t param_n, size_t result_n) {
 FuncType FuncType::create(Kinds params, Kinds results, Code *holder) noexcept {
   const size_t param_n = params.size();
   const size_t result_n = results.size();
-  while (holder) {
+  while (holder && functype_can_represent(param_n, result_n)) {
     const NodeHeader header{FTYPE, results.empty() ? Void : results[0], uint16_t(result_n)};
     CodeItem offset = holder->length();
 
     // put results first, as expected by param(uint32_t) and result(uint32_t)
-    if (functype_can_represent(param_n, result_n)                           //
-        && holder->add(header) && holder->add(uint32_t(param_n + result_n)) //
+    if (holder->add(header) && holder->add_uint32(param_n + result_n) //
         && holder->add(results) && holder->add(params)) {
 
       return FuncType{Node{header, offset, holder}};

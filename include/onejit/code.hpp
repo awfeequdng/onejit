@@ -88,30 +88,46 @@ public:
     return ConstFloat64{uint64(byte_offset)}.val();
   }
 
-  Code &add(int32_t i32) noexcept {
-    return add(uint32_t(i32));
+  Code &add_int32(int32_t i32) noexcept {
+    return add_item(uint32_t(i32));
   }
-  Code &add(uint32_t u32) noexcept; // same as add(CodeItem)
-  Code &add(float f32) noexcept {
-    return add(ConstFloat32{f32}.bits());
+  Code &add_uint32(uint32_t u32) noexcept {
+    return add_item(u32);
   }
-
-  Code &add(int64_t i64) noexcept {
-    return add(uint64_t(i64));
-  }
-  Code &add(uint64_t u64) noexcept;
-  Code &add(double f64) noexcept {
-    return add(ConstFloat64{f64}.bits());
+  Code &add_float32(float f32) noexcept {
+    return add_item(ConstFloat32{f32}.bits());
   }
 
+  Code &add_int64(int64_t i64) noexcept {
+    return add_uint64(uint64_t(i64));
+  }
+  Code &add_uint64(uint64_t u64) noexcept;
+  Code &add_float64(double f64) noexcept {
+    return add_uint64(ConstFloat64{f64}.bits());
+  }
+
+  Code &add_item(CodeItem data) noexcept; // same as add_uint32()
   Code &add(CodeItems data) noexcept;
   Code &add(NodeHeader header) noexcept {
-    return add(header.item());
+    return add_item(header.item());
   }
   Code &add(const Kind kind) noexcept;
   Code &add(const Kinds kinds) noexcept;
   Code &add(const Node &node, Offset parent_offset) noexcept;
-  Code &add(Nodes nodes, Offset parent_offset) noexcept;
+
+  // NODE_T must be a subclass of Node
+  template <class NODE_T>
+  Code &ONEJIT_NOINLINE add(const View<NODE_T> nodes, Offset parent_offset) noexcept {
+    for (const Node &node : nodes) {
+      if (!add(node, parent_offset)) {
+        break;
+      }
+    }
+    return *this;
+  }
+
+  // return Code length, in CodeItems
+  using Base::size;
 
   /// \return Code length, in bytes
   constexpr Offset length() const noexcept {
@@ -126,9 +142,6 @@ public:
     }
   }
 
-  // return Code length, in CodeItems
-  using Base::size;
-
   constexpr const T *data() const noexcept {
     return Base::data();
   }
@@ -140,6 +153,8 @@ public:
   }
 
 private:
+  Code &init() noexcept;
+
   bool good_;
 };
 

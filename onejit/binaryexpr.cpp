@@ -53,7 +53,7 @@ BinaryExpr BinaryExpr::create(Op2 op, const Expr &left, const Expr &right, Code 
 }
 
 std::ostream &operator<<(std::ostream &out, const BinaryExpr &be) {
-  return out << '(' << be.child(0) << ' ' << be.op() << ' ' << be.child(1) << ')';
+  return out << '(' << be.op() << ' ' << be.child(0) << ' ' << be.child(1) << ')';
 }
 
 } // namespace onejit

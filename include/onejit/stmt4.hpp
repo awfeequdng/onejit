@@ -49,6 +49,10 @@ public:
   constexpr Stmt4() noexcept : Base{STMT_4, Bad, BAD_ST4} {
   }
 
+  constexpr OpStmt4 op() const noexcept {
+    return OpStmt4(Base::op());
+  }
+
   static constexpr uint32_t children() noexcept {
     return 4;
   }

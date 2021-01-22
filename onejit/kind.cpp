@@ -26,8 +26,6 @@
 #include <onejit/kind.hpp>
 #include <onestl/chars.hpp>
 
-#define N_OF(array) (sizeof(array) / sizeof(array[0]))
-
 namespace onejit {
 
 static const Chars kstring[] = {
@@ -63,7 +61,7 @@ static const Group kgroup[] = {
 };
 
 const Chars &Kind::string() const noexcept {
-  enum _ { n = N_OF(kstring) };
+  enum _ { n = ONEJIT_N_OF(kstring) };
   uint8_t i = val_ & 0xF;
   if (i >= n) {
     i = n - 1; // "?"
@@ -72,7 +70,7 @@ const Chars &Kind::string() const noexcept {
 }
 
 const Chars &Kind::stringsuffix() const noexcept {
-  enum _ { n = N_OF(kstringsuffix) };
+  enum _ { n = ONEJIT_N_OF(kstringsuffix) };
   uint8_t i = val_ & 0xF;
   if (i >= n) {
     i = 0;
@@ -82,7 +80,7 @@ const Chars &Kind::stringsuffix() const noexcept {
 
 Bits Kind::bits() const noexcept {
   uint8_t i = val_ & 0xF;
-  if (i >= N_OF(kbits)) {
+  if (i >= ONEJIT_N_OF(kbits)) {
     i = 0;
   }
   return kbits[i] * simdn();
@@ -90,7 +88,7 @@ Bits Kind::bits() const noexcept {
 
 Group Kind::group() const noexcept {
   uint8_t i = val_ & 0xF;
-  if (i >= N_OF(kgroup)) {
+  if (i >= ONEJIT_N_OF(kgroup)) {
     i = 0;
   }
   return kgroup[i];

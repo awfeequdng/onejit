@@ -17,38 +17,39 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * stmt0.cpp
+ * error.hpp
  *
- *  Created on Jan 18, 2020
+ *  Created on Jan 22, 2020
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/code.hpp>
-#include <onejit/func.hpp>
-#include <onejit/stmt0.hpp>
+#include <onejit/fwd.hpp>
+#include <onejit/node.hpp>
+#include <onestl/chars.hpp>
 
 namespace onejit {
 
-// ============================  Stmt0  ========================================
-
-Func &Stmt0::compile(Func &func) const noexcept {
-  switch (op()) {
-  case BREAK:
-    if (Label l = func.label_break()) {
-      return func.compile(func.new_goto(l));
-    }
-    return func.compile_error(*this, "misplaced Break");
-  case CONTINUE:
-    if (Label l = func.label_continue()) {
-      return func.compile(func.new_goto(l));
-    }
-    return func.compile_error(*this, "misplaced Continue");
-  case FALLTHROUGH:
-    return func.compile_error(*this, "misplaced Fallthrough");
-  case BAD:
-  default:
-    return func.compile_error(*this, "bad Stmt0");
+class Error {
+public:
+  constexpr Error() noexcept : where_{}, msg_{} {
   }
-}
+
+  constexpr Error(const Node &where, Chars msg) noexcept : where_{where}, msg_{msg} {
+  }
+
+  ~Error() noexcept = default;
+
+  constexpr Node where() const noexcept {
+    return where_;
+  }
+
+  constexpr Chars msg() const noexcept {
+    return msg_;
+  }
+
+private:
+  Node where_;
+  Chars msg_;
+};
 
 } // namespace onejit

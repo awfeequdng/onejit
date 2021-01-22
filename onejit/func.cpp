@@ -27,7 +27,7 @@
 #include <onejit/const.hpp>
 #include <onejit/func.hpp>
 
-#include <stdexcept>
+#include <utility> // std::move()
 
 namespace onejit {
 
@@ -36,17 +36,35 @@ enum {
   FIRST_VARID = 0x1000,
 };
 
-Func::Func(const FuncType &ftype, Code *holder) noexcept
-    : holder_{holder}, ftype_{ftype}, labels_{}, vars_{}, body_{} {
-  if (holder->length() == 0) {
-    // add magic signature {CONST uint8x4 "1JIT"} in case Code is saved to file
-    holder->add(NodeHeader{CONST, Uint8.simdn(4), 0});
-    holder->add(uint32_t(0x54494A31));
+Func::Func() noexcept
+    : holder_{}, param_n_{}, result_n_{}, body_var_n_{}, //
+      ftype_{}, vars_{}, labels_{}, name_{}, body_{},    //
+      breaks_{}, continues_{}, compiled_{}, error_{} {
+}
+
+Func::Func(String &&name, const FuncType &ftype, Code *holder) noexcept
+    : holder_{holder}, param_n_{}, result_n_{}, body_var_n_{}, ftype_{ftype}, //
+      vars_{}, labels_{}, name_(std::move(name)), body_{},                    //
+      breaks_{}, continues_{}, compiled_{}, error_{} {
+
+  bool ok = bool(*this);
+  for (size_t i = 0, n = ftype.param_n(); ok && i < n; i++) {
+    ok = bool(new_var(ftype.param(i)));
+  }
+  for (size_t i = 0, n = ftype.result_n(); ok && i < n; i++) {
+    ok = bool(new_var(ftype.result(i)));
   }
   // first label points to the function itself
-  if (!new_label()) {
+  ok = ok && bool(new_label());
+  if (ok) {
+    param_n_ = ftype.param_n();
+    result_n_ = ftype.result_n();
+  } else {
     holder_ = nullptr;
   }
+}
+
+Func::~Func() noexcept {
 }
 
 // convert Func to Label
@@ -54,11 +72,27 @@ Label Func::label() const noexcept {
   return labels_.empty() ? Label{} : labels_[0];
 }
 
+/// \return i-th result, or VarExpr{} if out-of-bounds
+VarExpr Func::param(uint16_t i) const noexcept {
+  if (i < param_n_ && i < vars_.size()) {
+    return vars_[i];
+  }
+  return VarExpr{};
+}
+
+/// \return i-th result, or VarExpr{} if out-of-bounds
+VarExpr Func::result(uint16_t i) const noexcept {
+  if (i < result_n_ && size_t(i) + param_n_ < vars_.size()) {
+    return vars_[i + param_n_];
+  }
+  return VarExpr{};
+}
+
 Label Func::new_label() noexcept {
   Label l;
   const size_t i = labels_.size();
   if (i <= 0xFFFF) {
-    l = Label::create(i, holder_);
+    l = Label::create(i, 0, holder_);
     if (l && !labels_.append(l)) {
       l = Label{};
     }
@@ -67,14 +101,42 @@ Label Func::new_label() noexcept {
 }
 
 VarExpr Func::new_var(Kind kind) noexcept {
-  const Var var{
-      kind,
-      VarId{uint32_t(kind <= Void ? 0 : vars_.size() + FIRST_VARID)},
-  };
-  if (kind == Bad || (kind != Void && !vars_.append(var))) {
-    return VarExpr{};
+  if (kind != Bad) {
+    const size_t n = vars_.size() + FIRST_VARID;
+    const VarId id(n); // VarId is limited to 24 bits
+    if (kind == Void || id.val() == n) {
+      const Var var{kind, kind == Void ? VarId{} : id};
+      VarExpr ve = VarExpr::create(var, holder_);
+      if (ve && vars_.append(ve)) {
+        return ve;
+      }
+    }
   }
-  return VarExpr::create(var, holder_);
+  return VarExpr{};
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Label Func::label_break() const noexcept {
+  return breaks_.empty() ? Label{} : breaks_.end()[-1];
+}
+
+Label Func::label_continue() const noexcept {
+  return continues_.empty() ? Label{} : continues_.end()[-1];
+}
+
+Func &Func::compile(const Node &node) noexcept {
+  if (!compiled_.append(node)) {
+    holder_ = nullptr;
+  }
+  return *this;
+}
+
+Func &Func::compile_error(const Node &where, Chars msg) noexcept {
+  if (!error_.append(Error{where, msg})) {
+    holder_ = nullptr;
+  }
+  return *this;
 }
 
 } // namespace onejit

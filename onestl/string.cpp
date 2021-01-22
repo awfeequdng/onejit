@@ -31,7 +31,4 @@ namespace onestl {
 
 template class Vector<char>;
 
-String::~String() {
-}
-
 } // namespace onestl

@@ -63,6 +63,9 @@ protected:
   static constexpr bool is_allowed_type(Type t) noexcept {
     return t == STMT_0;
   }
+
+private:
+  Func &compile(Func &func) const noexcept;
 };
 
 inline std::ostream &operator<<(std::ostream &out, const Stmt0 &st) {

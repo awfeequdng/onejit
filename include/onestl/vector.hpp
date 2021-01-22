@@ -189,11 +189,17 @@ public:
     return true;
   }
 
+  void truncate(size_t n) noexcept {
+    if (size_ > n) {
+      size_ = n;
+    }
+  }
+
   bool append(const T &src) noexcept {
     return append(View<T>(&src, 1));
   }
 
-  bool append(View<T> src) noexcept {
+  bool ONESTL_NOINLINE append(View<T> src) noexcept {
     const size_t oldn = size_;
     const size_t srcn = src.size();
     if (!resize0(oldn + srcn, false)) {
@@ -210,24 +216,26 @@ public:
   }
 };
 
-template <class T> void View<T>::ref(const Vector<T> &other) noexcept {
-  data_ = other.data();
-  size_ = other.size();
-}
+typedef Vector<char> CharVec;
 
-template <class T> void Span<T>::ref(Vector<T> &other) noexcept {
-  data_ = other.data();
-  size_ = other.size();
-}
+extern template class Vector<char>;     // defined in onestl/string.cpp
+extern template class Vector<uint32_t>; // defined in onestl/vector.cpp
 
 template <class T> void swap(Vector<T> &left, Vector<T> &right) noexcept {
   left.swap(right);
 }
 
-extern template class Vector<char>;     // defined in onestl/string.cpp
-extern template class Vector<uint32_t>; // defined in onestl/vector.cpp
+// ------------- View<T> methods requiring complete type Vector<T> ---------------
 
-typedef Vector<char> CharVec;
+template <class T>
+constexpr View<T>::View(const Vector<T> &other) noexcept //
+    : data_{other.data()}, size_{other.size()} {
+}
+
+template <class T> void View<T>::ref(const Vector<T> &other) noexcept {
+  data_ = other.data();
+  size_ = other.size();
+}
 
 } // namespace onestl
 

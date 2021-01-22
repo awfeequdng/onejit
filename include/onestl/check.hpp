@@ -50,17 +50,17 @@
 
 #define ONESTL_THROW_ERROR_SHORT(lhs, op, rhs, throw_func) (::onestl::throw_func())
 #define ONESTL_THROW_ERROR_FULL(lhs, op, rhs, throw_func)                                          \
-  (::onestl::Error(::onestl::to_string(lhs), ::onestl::to_string(rhs), #op, #lhs, #rhs, __FILE__,  \
-                   __LINE__)                                                                       \
+  (::onestl::Failed(::onestl::to_string(lhs), ::onestl::to_string(rhs), #op, #lhs, #rhs, __FILE__, \
+                    __LINE__)                                                                      \
        .throw_func())
 
 namespace onestl {
 
-class Error {
+class Failed {
 public:
-  Error(std::string &&lhs, std::string &&rhs,                  //
-        const char *opstr, const char *lstr, const char *rstr, //
-        const char *file, int line) noexcept;
+  Failed(std::string &&lhs, std::string &&rhs,                  //
+         const char *opstr, const char *lstr, const char *rstr, //
+         const char *file, int line) noexcept;
 
   void ONESTL_NORETURN throw_check_failed() const;
   void ONESTL_NORETURN throw_bounds_failed() const;

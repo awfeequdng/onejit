@@ -30,7 +30,7 @@
 
 namespace onejit {
 
-// base class of BinaryExpr, ConstExpr, UnaryExpr, VarExpr
+// base class of BinaryExpr, ConstExpr, Label, MemExpr, TupleExpr, UnaryExpr, VarExpr
 class Expr : public Node {
   using Base = Node;
 
@@ -46,6 +46,11 @@ protected:
       : Base{NodeHeader{t, Bad, 0}, 0, nullptr} {
   }
 
+  /* construct and invalid Expr */
+  constexpr Expr(const Type t, uint16_t op) noexcept //
+      : Base{NodeHeader{t, Bad, op}, 0, nullptr} {
+  }
+
   // downcast Node to Expr
   constexpr explicit Expr(const Node &node) noexcept : Base{node} {
   }
@@ -54,6 +59,8 @@ protected:
   static constexpr bool is_allowed_type(Type t) noexcept {
     return t >= VAR && t <= CONST;
   }
+
+  Func &compile(Func &func) const noexcept;
 };
 
 } // namespace onejit

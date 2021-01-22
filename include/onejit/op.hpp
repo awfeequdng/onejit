@@ -35,10 +35,9 @@ namespace onejit {
 
 enum Op1 : uint16_t {
   BAD1 = 0,
-  XOR1 = 1,
-  NOT1 = 2,
+  XOR1 = 1, // invert all bits
+  NOT1 = 2, // boolean negation
   CAST = 3,
-  GOTO = 4,
 };
 
 enum Op2 : uint16_t {
@@ -81,8 +80,6 @@ enum Op2 : uint16_t {
 enum OpN : uint16_t {
   BAD_OPN = 0,
   CALL = 1,
-  TUPLE_ASSIGN = 2,
-  RETURN = 3,
 };
 
 const Chars &to_string(Op1 op) noexcept;
