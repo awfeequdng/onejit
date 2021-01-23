@@ -73,7 +73,6 @@ public:
   using Base::end;
   using Base::operator==;
   using Base::operator[];
-  using Base::operator bool;
   using Base::size;
   using Base::view;
 

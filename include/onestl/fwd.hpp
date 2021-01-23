@@ -38,14 +38,12 @@
 
 namespace onestl {
 
+template <class T> class Buffer;
 class Chars;
 template <class T> class Span;
 class String;
 template <class T> class Vector;
 template <class T> class View;
-
-typedef View<uint8_t> Bytes;
-typedef Span<char> CharSpan;
 
 } // namespace onestl
 

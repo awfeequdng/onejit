@@ -136,7 +136,6 @@ public:
   using Base::empty;
   using Base::end;
   using Base::operator[];
-  using Base::operator bool;
   using Base::operator==;
   using Base::size;
   using Base::span;

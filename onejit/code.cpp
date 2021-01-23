@@ -31,12 +31,12 @@
 
 namespace onejit {
 
-Code::Code() noexcept : Base{}, good_{true} {
+Code::Code() noexcept : Base{} {
   init();
 }
 
-Code::Code(size_t capacity) noexcept : Base{}, good_{true} {
-  good_ &= reserve(capacity);
+Code::Code(size_t capacity) noexcept : Base{} {
+  reserve(capacity);
   init();
 }
 
@@ -81,7 +81,7 @@ Code &Code::add_uint64(uint64_t u64) noexcept {
 }
 
 Code &ONEJIT_NOINLINE Code::add(CodeItems data) noexcept {
-  good_ = good_ && Base::append(data);
+  Base::append(data);
   return *this;
 }
 

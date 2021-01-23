@@ -37,9 +37,8 @@
 
 namespace onejit {
 
-using Bytes = ::onestl::Bytes;
+template <class T> using Buffer = ::onestl::Buffer<T>;
 using Chars = ::onestl::Chars;
-using CharSpan = ::onestl::CharSpan;
 template <class T> using Span = ::onestl::Span<T>;
 using String = ::onestl::String;
 template <class T> using Vector = ::onestl::Vector<T>;

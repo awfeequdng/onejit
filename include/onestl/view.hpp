@@ -86,10 +86,6 @@ public:
     return size_ == 0;
   }
 
-  constexpr explicit operator bool() const noexcept {
-    return size_ != 0;
-  }
-
   // unchecked element access
   const T &operator[](size_t index) const noexcept {
     return data_[index];

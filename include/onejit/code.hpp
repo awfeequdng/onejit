@@ -30,26 +30,23 @@
 #include <onejit/fwd.hpp>
 #include <onejit/node.hpp>
 #include <onejit/type.hpp>
-#include <onestl/bytes.hpp>
-#include <onestl/vector.hpp>
+#include <onestl/buffer.hpp>
 
 #include <cstdint> // uint32_t
 
 namespace onejit {
 
-class Code : private Vector<CodeItem> {
+class Code : private Buffer<CodeItem> {
   friend class Node;
   typedef CodeItem T;
-  typedef Vector<T> Base;
+  typedef Buffer<T> Base;
 
 public:
   Code() noexcept;
   explicit Code(size_t capacity) noexcept;
   ~Code() noexcept;
 
-  constexpr explicit operator bool() const noexcept {
-    return good_;
-  }
+  using Base::operator bool;
 
   // checked element access:
   // throws if byte_offset is out of bounds
@@ -154,8 +151,6 @@ public:
 
 private:
   Code &init() noexcept;
-
-  bool good_;
 };
 
 } // namespace onejit
