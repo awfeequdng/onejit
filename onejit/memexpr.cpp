@@ -25,6 +25,7 @@
 
 #include <onejit/code.hpp>
 #include <onejit/compiler.hpp>
+#include <onejit/func.hpp>
 #include <onejit/memexpr.hpp>
 
 namespace onejit {
@@ -44,8 +45,12 @@ MemExpr ONEJIT_NOINLINE MemExpr::create(Kind kind, const Expr &address, Code *ho
 }
 
 MemExpr MemExpr::compile(Compiler &comp) const noexcept {
-  /// TODO: implement
-  return *this;
+  Expr e = addr();
+  Expr comp_e = e.compile(comp);
+  if (e == comp_e) {
+    return *this;
+  }
+  return comp.func().new_mem(kind(), comp_e);
 }
 
 std::ostream &operator<<(std::ostream &out, const MemExpr &ue) {

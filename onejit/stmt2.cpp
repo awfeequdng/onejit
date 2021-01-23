@@ -26,6 +26,7 @@
 #include <onejit/code.hpp>
 #include <onejit/compiler.hpp>
 #include <onejit/expr.hpp>
+#include <onejit/func.hpp>
 #include <onejit/stmt2.hpp>
 
 namespace onejit {
@@ -47,9 +48,19 @@ Stmt2 ONEJIT_NOINLINE Stmt2::create(OpStmt2 op, const Nodes children, Code *hold
 }
 
 Node Stmt2::compile(Compiler &comp) const noexcept {
-  /// TODO: implement
+  switch (op()) {
+  case CASE:
+    comp.error(*this, "misplaced Case");
+    break;
+  case DEFAULT:
+    comp.error(*this, "misplaced Default");
+    break;
+  case JUMP_IF:
+    return is<JumpIfStmt>().compile(comp);
+  default:
+    break;
+  }
   comp.add(*this);
-  // all Stmt*::compile() must return VoidExpr
   return VoidExpr;
 }
 
@@ -80,6 +91,17 @@ DefaultStmt DefaultStmt::create(const Node &body, Code *holder) noexcept {
 JumpIfStmt JumpIfStmt::create(const Label &to, const Expr &cond, Code *holder) noexcept {
   const Node children[] = {to, cond};
   return JumpIfStmt{Stmt2::create(JUMP_IF, Nodes{children, 2}, holder)};
+}
+
+Node JumpIfStmt::compile(Compiler &comp) const noexcept {
+  Expr e = cond();
+  Expr comp_e = e.compile(comp);
+  if (e == comp_e) {
+    comp.add(*this);
+  } else {
+    comp.add(comp.func().new_jump_if(to(), comp_e));
+  }
+  return VoidExpr;
 }
 
 } // namespace onejit

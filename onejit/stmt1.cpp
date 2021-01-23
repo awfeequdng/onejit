@@ -48,9 +48,7 @@ Stmt1 ONEJIT_NOINLINE Stmt1::create(OpStmt1 op, const Node &child, Code *holder)
 }
 
 Node Stmt1::compile(Compiler &comp) const noexcept {
-  /// TODO: implement
   comp.add(*this);
-  // all Stmt*::compile() must return VoidExpr
   return VoidExpr;
 }
 

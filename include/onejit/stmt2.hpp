@@ -201,9 +201,11 @@ public:
   }
 
   // shortcut for child(1).is<Expr>()
-  Expr cond() noexcept {
+  Expr cond() const noexcept {
     return child(1).is<Expr>();
   }
+
+  Node compile(Compiler &comp) const noexcept;
 
 private:
   // downcast Node to JumpIfStmt
