@@ -26,6 +26,7 @@
 #include <onejit/binaryexpr.hpp>
 #include <onejit/code.hpp>
 #include <onejit/compiler.hpp>
+#include <onejit/func.hpp>
 
 namespace onejit {
 
@@ -53,9 +54,13 @@ BinaryExpr BinaryExpr::create(Op2 op, const Expr &left, const Expr &right, Code 
   return BinaryExpr{};
 }
 
-Compiler &BinaryExpr::compile(Compiler &comp) const noexcept {
-  /// TODO: implement
-  return comp.add(*this);
+BinaryExpr BinaryExpr::compile(Compiler &comp) const noexcept {
+  Expr left = x(), right = y();
+  Expr comp_left = left.compile(comp), comp_right = right.compile(comp);
+  if (left == comp_left && right == comp_right) {
+    return *this;
+  }
+  return comp.func().new_binary(op(), comp_left, comp_right);
 }
 
 std::ostream &operator<<(std::ostream &out, const BinaryExpr &be) {

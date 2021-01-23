@@ -46,9 +46,11 @@ Stmt2 ONEJIT_NOINLINE Stmt2::create(OpStmt2 op, const Nodes children, Code *hold
   return Stmt2{op};
 }
 
-Compiler &Stmt2::compile(Compiler &comp) const noexcept {
-  // TODO
-  return comp.add(*this);
+Node Stmt2::compile(Compiler &comp) const noexcept {
+  /// TODO: implement
+  comp.add(*this);
+  // all Stmt*::compile() must return VoidExpr
+  return VoidExpr;
 }
 
 std::ostream &operator<<(std::ostream &out, const Stmt2 &st) {

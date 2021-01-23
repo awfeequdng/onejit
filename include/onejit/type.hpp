@@ -46,7 +46,7 @@ enum Type : uint8_t {
   MEM = 7,
   UNARY = 8,
   BINARY = 9,
-  TUPLE = 10, // expression list: CALL,
+  TUPLE = 10, // expression list: CALL
   LABEL = 11, // jump destination
   CONST = 12,
 

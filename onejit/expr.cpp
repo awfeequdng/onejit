@@ -23,11 +23,31 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/binaryexpr.hpp>
 #include <onejit/expr.hpp>
+#include <onejit/memexpr.hpp>
 #include <onejit/tupleexpr.hpp>
+#include <onejit/unaryexpr.hpp>
 
 namespace onejit {
 
-//
+Expr Expr::compile(Compiler &comp) const noexcept {
+  const Type t = type();
+  switch (t) {
+  case MEM:
+    return is<MemExpr>().compile(comp);
+  case UNARY:
+    return is<UnaryExpr>().compile(comp);
+  case BINARY:
+    return is<BinaryExpr>().compile(comp);
+  case TUPLE:
+    if (const CallExpr call = is<CallExpr>()) {
+      return call.compile(comp);
+    }
+    // FALLTHROUGH
+  default:
+    return *this;
+  }
+}
 
 } // namespace onejit

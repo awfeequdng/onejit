@@ -25,6 +25,7 @@
 
 #include <onejit/code.hpp>
 #include <onejit/compiler.hpp>
+#include <onejit/constexpr.hpp>
 #include <onejit/expr.hpp>
 #include <onejit/func.hpp>
 #include <onejit/stmt2.hpp> // CaseStmt
@@ -51,7 +52,7 @@ StmtN StmtN::create(OpStmtN op, const Nodes nodes, Code *holder) noexcept {
   return StmtN{op};
 }
 
-Compiler &StmtN::compile(Compiler &comp) const noexcept {
+Node StmtN::compile(Compiler &comp) const noexcept {
   switch (op()) {
   case ASSIGN_TUPLE:
     return is<AssignStmt>().compile(comp);
@@ -64,7 +65,8 @@ Compiler &StmtN::compile(Compiler &comp) const noexcept {
   case SWITCH:
     return is<SwitchStmt>().compile(comp);
   default:
-    return comp.add(*this);
+    comp.add(*this);
+    return VoidExpr;
   }
 }
 
@@ -99,25 +101,27 @@ AssignStmt AssignStmt::create(Exprs assign_to, const CallExpr &call, Code *holde
   return AssignStmt{};
 }
 
-Compiler &AssignStmt::compile(Compiler &comp) const noexcept {
+Node AssignStmt::compile(Compiler &comp) const noexcept {
   /// TODO: implement
-  return comp.add(*this);
+  comp.add(*this);
+  return VoidExpr;
 }
 
 // ============================  BlockStmt  ====================================
 
-Compiler &BlockStmt::compile(Compiler &comp) const noexcept {
+Node BlockStmt::compile(Compiler &comp) const noexcept {
   for (size_t i = 0, n = children(); i < n; i++) {
     child(i).compile(comp);
   }
-  return comp;
+  return VoidExpr;
 }
 
 // ============================  CondStmt  =====================================
 
-Compiler &CondStmt::compile(Compiler &comp) const noexcept {
+Node CondStmt::compile(Compiler &comp) const noexcept {
   /// TODO: implement
-  return comp.add(*this);
+  comp.add(*this);
+  return VoidExpr;
 }
 
 // ============================  ReturnStmt  ===================================
@@ -137,21 +141,21 @@ ReturnStmt ReturnStmt::create(Exprs exprs, Code *holder) noexcept {
   return ReturnStmt{};
 }
 
-Compiler &ReturnStmt::compile(Compiler &comp) const noexcept {
-
+Node ReturnStmt::compile(Compiler &comp) const noexcept {
   const uint32_t n = children();
 
   if (children_are<VarExpr>(0, n)) {
     // all args are already VarExpr, nothing to do
-    return comp.add(*this);
+    comp.add(*this);
+  } else {
+    Vector<Expr> vargs;
+
+    // convert to VarExpr all children
+    comp.to_vars(*this, 0, n, vargs);
+
+    comp.add(comp.func().new_return(vargs));
   }
-  Vector<Expr> vargs;
-
-  // convert to VarExpr all children
-  comp.to_vars(*this, 0, n, vargs);
-
-  // do not call again CallExpr::compile()
-  return comp.add(comp.func().new_return(vargs));
+  return VoidExpr;
 }
 
 // ============================  SwitchStmt  ===================================
@@ -173,9 +177,10 @@ SwitchStmt SwitchStmt::create(const Expr &expr, const CaseStmts cases, Code *hol
   return SwitchStmt{};
 }
 
-Compiler &SwitchStmt::compile(Compiler &comp) const noexcept {
+Node SwitchStmt::compile(Compiler &comp) const noexcept {
   /// TODO: implement
-  return comp.add(*this);
+  comp.add(*this);
+  return VoidExpr;
 }
 
 } // namespace onejit

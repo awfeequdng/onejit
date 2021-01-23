@@ -40,6 +40,8 @@ public:
   constexpr Expr() noexcept : Base{} {
   }
 
+  Expr compile(Compiler &comp) const noexcept;
+
 protected:
   /* construct and invalid Expr */
   constexpr explicit Expr(const Type t) noexcept //

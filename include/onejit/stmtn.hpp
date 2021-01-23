@@ -52,7 +52,7 @@ public:
     return OpStmtN(Base::op());
   }
 
-  Compiler &compile(Compiler &comp) const noexcept;
+  Node compile(Compiler &comp) const noexcept;
 
 protected:
   /* construct an invalid StmtN */
@@ -96,7 +96,7 @@ public:
     return ASSIGN_TUPLE;
   }
 
-  Compiler &compile(Compiler &comp) const noexcept;
+  Node compile(Compiler &comp) const noexcept;
 
 private:
   // downcast Node to AssignStmt
@@ -133,7 +133,7 @@ public:
     return BLOCK;
   }
 
-  Compiler &compile(Compiler &comp) const noexcept;
+  Node compile(Compiler &comp) const noexcept;
 
 private:
   // downcast Node to BlockStmt
@@ -176,7 +176,7 @@ public:
     return COND;
   }
 
-  Compiler &compile(Compiler &comp) const noexcept;
+  Node compile(Compiler &comp) const noexcept;
 
 private:
   // downcast Node to CondStmt
@@ -215,7 +215,7 @@ public:
     return RETURN;
   }
 
-  Compiler &compile(Compiler &comp) const noexcept;
+  Node compile(Compiler &comp) const noexcept;
 
 private:
   // downcast Node to ReturnStmt
@@ -251,7 +251,7 @@ public:
     return SWITCH;
   }
 
-  Compiler &compile(Compiler &comp) const noexcept;
+  Node compile(Compiler &comp) const noexcept;
 
 private:
   // downcast Node to SwitchStmt

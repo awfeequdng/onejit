@@ -57,7 +57,7 @@ public:
     return 4;
   }
 
-  Compiler &compile(Compiler &comp) const noexcept;
+  Node compile(Compiler &comp) const noexcept;
 
 protected:
   /* construct an invalid Stmt4 */

@@ -67,7 +67,7 @@ public:
     return child(0).is<Expr>();
   }
 
-  Compiler &compile(Compiler &comp) const noexcept;
+  MemExpr compile(Compiler &comp) const noexcept;
 
 private:
   // downcast Node to MemExpr

@@ -43,9 +43,9 @@ MemExpr ONEJIT_NOINLINE MemExpr::create(Kind kind, const Expr &address, Code *ho
   return MemExpr{};
 }
 
-Compiler &MemExpr::compile(Compiler &comp) const noexcept {
+MemExpr MemExpr::compile(Compiler &comp) const noexcept {
   /// TODO: implement
-  return comp.add(*this);
+  return *this;
 }
 
 std::ostream &operator<<(std::ostream &out, const MemExpr &ue) {

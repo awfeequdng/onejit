@@ -24,6 +24,7 @@
  */
 
 #include <onejit/compiler.hpp>
+#include <onejit/constexpr.hpp>
 #include <onejit/func.hpp>
 #include <onejit/stmt0.hpp>
 
@@ -31,24 +32,32 @@ namespace onejit {
 
 // ============================  Stmt0  ========================================
 
-Compiler &Stmt0::compile(Compiler &comp) const noexcept {
+Node Stmt0::compile(Compiler &comp) const noexcept {
   switch (op()) {
   case BREAK:
     if (Label l = comp.label_break()) {
-      return comp.add(comp.func().new_goto(l));
+      comp.compile_add(comp.func().new_goto(l));
+    } else {
+      comp.error(*this, "misplaced Break");
     }
-    return comp.error(*this, "misplaced Break");
+    break;
   case CONTINUE:
     if (Label l = comp.label_continue()) {
-      return comp.add(comp.func().new_goto(l));
+      comp.compile_add(comp.func().new_goto(l));
+    } else {
+      comp.error(*this, "misplaced Continue");
     }
-    return comp.error(*this, "misplaced Continue");
+    break;
   case FALLTHROUGH:
-    return comp.error(*this, "misplaced Fallthrough");
+    comp.error(*this, "misplaced Fallthrough");
+    break;
   case BAD:
   default:
-    return comp.error(*this, "bad Stmt0");
+    comp.error(*this, "bad Stmt0");
+    break;
   }
+  // all Stmt*::compile() must return VoidExpr
+  return VoidExpr;
 }
 
 } // namespace onejit

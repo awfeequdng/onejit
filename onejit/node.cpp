@@ -126,7 +126,7 @@ Offset Node::size() const noexcept {
   return len;
 }
 
-Compiler &Node::compile(Compiler &comp) const noexcept {
+Node Node::compile(Compiler &comp) const noexcept {
   const Type t = type();
   switch (t) {
   case STMT_0:
@@ -141,19 +141,12 @@ Compiler &Node::compile(Compiler &comp) const noexcept {
     return is<Stmt4>().compile(comp);
   case STMT_N:
     return is<StmtN>().compile(comp);
-  case MEM:
-    return is<MemExpr>().compile(comp);
-  case UNARY:
-    return is<UnaryExpr>().compile(comp);
-  case BINARY:
-    return is<BinaryExpr>().compile(comp);
-  case TUPLE:
-    if (const CallExpr call = is<CallExpr>()) {
-      return call.compile(comp);
-    }
-    // FALLTHROUGH
   default:
-    return comp.add(*this);
+    if (const Expr e = is<Expr>()) {
+      return e.compile(comp);
+    } else {
+      return *this;
+    }
   }
 }
 

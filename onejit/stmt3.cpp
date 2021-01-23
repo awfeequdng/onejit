@@ -25,6 +25,7 @@
 
 #include <onejit/code.hpp>
 #include <onejit/compiler.hpp>
+#include <onejit/constexpr.hpp>
 #include <onejit/func.hpp>
 #include <onejit/stmt3.hpp>
 #include <onestl/chars.hpp>
@@ -47,11 +48,13 @@ Stmt3 ONEJIT_NOINLINE Stmt3::create(OpStmt3 op, Nodes children, Code *holder) no
   return Stmt3{op};
 }
 
-Compiler &Stmt3::compile(Compiler &comp) const noexcept {
+Node Stmt3::compile(Compiler &comp) const noexcept {
   if (const IfStmt st = is<IfStmt>()) {
     return st.compile(comp);
   }
-  return comp.add(*this);
+  /// TODO: implement
+  comp.add(*this);
+  return VoidExpr;
 }
 
 std::ostream &operator<<(std::ostream &out, const Stmt3 &st) {
@@ -67,7 +70,7 @@ IfStmt IfStmt::create(const Expr &cond, const Node &then, const Node &else_,
   return IfStmt{Stmt3::create(IF, Nodes{buf, 3}, holder)};
 }
 
-Compiler &IfStmt::compile(Compiler &comp) const noexcept {
+Node IfStmt::compile(Compiler &comp) const noexcept {
   Func &func = comp.func();
 
   Node then = this->then();
@@ -77,14 +80,15 @@ Compiler &IfStmt::compile(Compiler &comp) const noexcept {
   Label else_label = have_else ? func.new_label() : Label{};
   Label endif_label = func.new_label();
 
-  func.new_jump_if(have_else ? else_label : endif_label, cond()).compile(comp);
-  then.compile(comp);
+  comp.compile_add(func.new_jump_if(have_else ? else_label : endif_label, cond())) //
+      .compile_add(then);
   if (have_else) {
-    func.new_goto(endif_label).compile(comp);
-    else_label.compile(comp);
-    else_.compile(comp);
+    comp.compile_add(func.new_goto(endif_label)) //
+        .compile_add(else_label)
+        .compile_add(else_);
   }
-  return endif_label.compile(comp);
+  comp.compile_add(endif_label);
+  return VoidExpr;
 }
 
 } // namespace onejit

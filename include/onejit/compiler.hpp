@@ -28,6 +28,7 @@
 
 #include <onejit/error.hpp>
 #include <onejit/label.hpp>
+#include <onejit/node.hpp>
 #include <onestl/vector.hpp>
 
 namespace onejit {
@@ -43,7 +44,7 @@ public:
 
   explicit operator bool() const noexcept;
 
-  constexpr Func &func() noexcept {
+  constexpr Func &func() const noexcept {
     return func_;
   }
 
@@ -72,8 +73,13 @@ public:
   Compiler &to_vars(const Node &node, uint32_t start, uint32_t end, //
                     Vector<Expr> &vars) noexcept;
 
-  // add a compiled node
+  // add an already compiled node to compiled list
   Compiler &add(const Node &node) noexcept;
+
+  // compile a node, then add it to compiled list
+  Compiler &compile_add(const Node &node) noexcept {
+    return add(node.compile(*this));
+  }
 
   // add a compile error
   Compiler &error(const Node &where, Chars msg) noexcept;

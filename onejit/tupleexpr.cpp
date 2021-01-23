@@ -79,12 +79,12 @@ CallExpr CallExpr::create(const FuncType &ftype, const Label &flabel, Exprs args
   return CallExpr{};
 }
 
-Compiler &CallExpr::compile(Compiler &comp) const noexcept {
+CallExpr CallExpr::compile(Compiler &comp) const noexcept {
   const uint32_t n = children();
 
   if (children_are<VarExpr>(2, n)) {
     // all args are already VarExpr, nothing to do
-    return comp.add(*this);
+    return *this;
   }
   Vector<Expr> vargs;
 
@@ -92,7 +92,7 @@ Compiler &CallExpr::compile(Compiler &comp) const noexcept {
   comp.to_vars(*this, 2, n, vargs);
 
   // do not call again CallExpr::compile()
-  return comp.add(comp.func().new_call(ftype(), label(), vargs));
+  return comp.func().new_call(ftype(), label(), vargs);
 }
 
 } // namespace onejit

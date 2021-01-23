@@ -57,7 +57,7 @@ public:
     return 3;
   }
 
-  Compiler &compile(Compiler &comp) const noexcept;
+  Node compile(Compiler &comp) const noexcept;
 
 protected:
   /* construct an invalid Stmt3 */
@@ -115,7 +115,7 @@ public:
     return child(2);
   }
 
-  Compiler &compile(Compiler &comp) const noexcept;
+  Node compile(Compiler &comp) const noexcept;
 
 private:
   // downcast Node to IfStmt

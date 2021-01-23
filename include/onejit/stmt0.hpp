@@ -54,7 +54,7 @@ public:
     return 0;
   }
 
-  Compiler &compile(Compiler &comp) const noexcept;
+  Node compile(Compiler &comp) const noexcept;
 
 protected:
   // downcast Node to Stmt0

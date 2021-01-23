@@ -101,7 +101,7 @@ VarExpr Compiler::to_var(const Node &node) noexcept {
   if (e && !ve) {
     // copy Expr result to a VarExpr
     ve = func_.new_var(e.kind());
-    func_.new_binary(ASSIGN, ve, e).compile(*this);
+    compile_add(func_.new_binary(ASSIGN, ve, e));
   }
   return ve;
 }
@@ -117,7 +117,9 @@ Compiler &Compiler::to_vars(const Node &node, uint32_t start, uint32_t end,
 }
 
 Compiler &Compiler::add(const Node &node) noexcept {
-  good_ = good_ && node_.append(node);
+  if (node != VoidExpr) {
+    good_ = good_ && node_.append(node);
+  }
   return *this;
 }
 
