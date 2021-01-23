@@ -45,7 +45,7 @@ template <class T> using Vector = ::onestl::Vector<T>;
 template <class T> using View = ::onestl::View<T>;
 
 class ArchId;
-class AssignStmt;
+class AssignTupleStmt;
 class LogSize;
 class BlockStmt;
 class BinaryExpr;

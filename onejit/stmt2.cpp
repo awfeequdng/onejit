@@ -72,6 +72,13 @@ std::ostream &operator<<(std::ostream &out, const Stmt2 &st) {
   return out << ' ' << st.child(1) << ')';
 }
 
+// ============================  AssignStmt  ===================================
+
+AssignStmt AssignStmt::create(OpStmt2 op, const Expr &dst, const Expr &src, Code *holder) noexcept {
+  const Node children[] = {dst, src};
+  return AssignStmt{Stmt2::create(op, Nodes{children, 2}, holder)};
+}
+
 // ============================  CaseStmt  =====================================
 
 CaseStmt CaseStmt::create(const Expr &expr, const Node &body, Code *holder) noexcept {

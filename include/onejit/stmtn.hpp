@@ -76,20 +76,20 @@ std::ostream &operator<<(std::ostream &out, const StmtN &st);
 ////////////////////////////////////////////////////////////////////////////////
 // collect multiple results of a function call and assign them to multiple variables
 // or memory locations
-class AssignStmt : public StmtN {
+class AssignTupleStmt : public StmtN {
   using Base = StmtN;
   friend class Node;
   friend class Func;
 
 public:
   /**
-   * construct an invalid AssignStmt.
-   * exists only to allow placing AssignStmt in containers
+   * construct an invalid AssignTupleStmt.
+   * exists only to allow placing AssignTupleStmt in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid AssignStmt, use Func::new_block()
+   * to create a valid AssignTupleStmt, use Func::new_block()
    */
-  constexpr AssignStmt() noexcept : Base{ASSIGN_TUPLE} {
+  constexpr AssignTupleStmt() noexcept : Base{ASSIGN_TUPLE} {
   }
 
   static constexpr OpStmtN op() noexcept {
@@ -99,8 +99,8 @@ public:
   Node compile(Compiler &comp) const noexcept;
 
 private:
-  // downcast Node to AssignStmt
-  constexpr explicit AssignStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to AssignTupleStmt
+  constexpr explicit AssignTupleStmt(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -109,7 +109,7 @@ private:
   }
 
   // each assign_to element must be a VarExpr or a MemExpr
-  static AssignStmt create(Exprs assign_to, const CallExpr &call, Code *holder) noexcept;
+  static AssignTupleStmt create(Exprs assign_to, const CallExpr &call, Code *holder) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

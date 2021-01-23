@@ -54,7 +54,7 @@ class Node {
   friend class Stmt4;
   friend class StmtN;
   friend class SwitchStmt;
-  friend class AssignStmt;
+  friend class AssignTupleStmt;
   friend class UnaryExpr;
   friend class VarExpr;
 

@@ -54,19 +54,6 @@ enum Op2 : uint16_t {
   SHR,     // >>
   AND_NOT, // &^
 
-  ASSIGN,         // =
-  ADD_ASSIGN,     // +=
-  SUB_ASSIGN,     // -=
-  MUL_ASSIGN,     // *=
-  QUO_ASSIGN,     // /=
-  REM_ASSIGN,     // %=
-  AND_ASSIGN,     // &=
-  OR_ASSIGN,      // |=
-  XOR_ASSIGN,     // ^=
-  SHL_ASSIGN,     // <<=
-  SHR_ASSIGN,     // >>=
-  AND_NOT_ASSIGN, // &^=
-
   LAND, // &&
   LOR,  // ||
   LSS,  // <

@@ -37,8 +37,6 @@ BinaryExpr BinaryExpr::create(Op2 op, const Expr &left, const Expr &right, Code 
     if (op == BAD2) {
     } else if (op <= AND_NOT) {
       kind = left.kind();
-    } else if (op <= AND_NOT_ASSIGN) {
-      kind = Void; // assignment returns void
     } else if (op <= GEQ) {
       kind = Bool; // && || comparison
     }

@@ -64,7 +64,11 @@ std::ostream &operator<<(std::ostream &out, OpStmt1 op) {
 
 // ============================  OpStmt2  ======================================
 
-static const Chars op_stmt_2_string[] = {"?", "case", "default", "jump_if"};
+static const Chars op_stmt_2_string[] = {
+    "?",                                                                                  //
+    "+=",   "-=",      "*=",      "/=", "%=", "&=", "|=", "^=", "<<=", ">>=", "&^=", "=", //
+    "case", "default", "jump_if",
+};
 
 const Chars &to_string(OpStmt2 op) noexcept {
   uint8_t i = op;

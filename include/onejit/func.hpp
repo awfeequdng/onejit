@@ -103,12 +103,16 @@ public:
 
   //////////////////////////////////////////////////////////////////////////////
 
-  AssignStmt new_assign(std::initializer_list<Expr> assign_to, const CallExpr &call) {
-    return new_assign(Exprs{assign_to.begin(), assign_to.size()}, call);
+  AssignStmt new_assign(OpStmt2 op, Expr dst, Expr src) {
+    return AssignStmt::create(op, dst, src, holder_);
   }
 
-  AssignStmt new_assign(Exprs assign_to, const CallExpr &call) {
-    return AssignStmt::create(assign_to, call, holder_);
+  AssignTupleStmt new_assign_tuple(std::initializer_list<Expr> assign_to, const CallExpr &call) {
+    return new_assign_tuple(Exprs{assign_to.begin(), assign_to.size()}, call);
+  }
+
+  AssignTupleStmt new_assign_tuple(Exprs assign_to, const CallExpr &call) {
+    return AssignTupleStmt::create(assign_to, call, holder_);
   }
 
   BreakStmt new_break() noexcept {

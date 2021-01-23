@@ -84,6 +84,50 @@ protected:
 std::ostream &operator<<(std::ostream &out, const Stmt2 &st);
 
 ////////////////////////////////////////////////////////////////////////////////
+class AssignStmt : public Stmt2 {
+  using Base = Stmt2;
+  friend class Node;
+  friend class Func;
+
+public:
+  /**
+   * construct an invalid AssignStmt.
+   * exists only to allow placing AssignStmt in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid AssignStmt, use Func::new_assign()
+   */
+  constexpr AssignStmt() noexcept : Base{ASSIGN} {
+  }
+
+  constexpr OpStmt2 op() const noexcept {
+    return OpStmt2(Base::op());
+  }
+
+  // shortcut for child(0).is<Expr>()
+  Expr dst() noexcept {
+    return child(0).is<Expr>();
+  }
+
+  // shortcut for child(1).is<Expr>()
+  Expr src() noexcept {
+    return child(1).is<Expr>();
+  }
+
+private:
+  // downcast Node to AssignStmt
+  constexpr explicit AssignStmt(const Node &node) noexcept : Base{node} {
+  }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
+    return op >= ADD_ASSIGN && op <= ASSIGN;
+  }
+
+  static AssignStmt create(OpStmt2 op, const Expr &dst, const Expr &src, Code *holder) noexcept;
+};
+
+////////////////////////////////////////////////////////////////////////////////
 class CaseStmt : public Stmt2 {
   using Base = Stmt2;
   friend class Node;

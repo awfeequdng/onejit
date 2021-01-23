@@ -55,7 +55,7 @@ StmtN StmtN::create(OpStmtN op, const Nodes nodes, Code *holder) noexcept {
 Node StmtN::compile(Compiler &comp) const noexcept {
   switch (op()) {
   case ASSIGN_TUPLE:
-    return is<AssignStmt>().compile(comp);
+    return is<AssignTupleStmt>().compile(comp);
   case BLOCK:
     return is<BlockStmt>().compile(comp);
   case COND:
@@ -83,9 +83,10 @@ std::ostream &operator<<(std::ostream &out, const StmtN &st) {
   return out << ')';
 }
 
-// ============================  AssignStmt  ===================================
+// ============================  AssignTupleStmt  ===================================
 
-AssignStmt AssignStmt::create(Exprs assign_to, const CallExpr &call, Code *holder) noexcept {
+AssignTupleStmt AssignTupleStmt::create(Exprs assign_to, const CallExpr &call,
+                                        Code *holder) noexcept {
   const size_t n = assign_to.size();
   while (holder && n == uint32_t(n)) {
     const NodeHeader header{STMT_N, Void, ASSIGN_TUPLE};
@@ -93,15 +94,15 @@ AssignStmt AssignStmt::create(Exprs assign_to, const CallExpr &call, Code *holde
 
     if (holder->add(header) && holder->add_uint32(sum_uint32(1, n)) &&
         holder->add(assign_to, offset) && holder->add(call, offset)) {
-      return AssignStmt{Node{header, offset, holder}};
+      return AssignTupleStmt{Node{header, offset, holder}};
     }
     holder->truncate(offset);
     break;
   }
-  return AssignStmt{};
+  return AssignTupleStmt{};
 }
 
-Node AssignStmt::compile(Compiler &comp) const noexcept {
+Node AssignTupleStmt::compile(Compiler &comp) const noexcept {
   /// TODO: implement
   comp.add(*this);
   return VoidExpr;

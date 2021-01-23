@@ -33,7 +33,7 @@
 namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
-// base class of CallExpr, AssignStmt, ReturnStmt
+// base class of CallExpr, AssignTupleStmt, ReturnStmt
 class TupleExpr : public Expr {
   using Base = Expr;
   friend class Node;
@@ -45,7 +45,7 @@ public:
    * exists only to allow placing TupleExpr in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid TupleExpr, use Func::new_call(), Func::new_assign()
+   * to create a valid TupleExpr, use Func::new_call(), Func::new_assign_tuple()
    * or Func::new_return()
    */
   constexpr TupleExpr() noexcept : Base{TUPLE} {
