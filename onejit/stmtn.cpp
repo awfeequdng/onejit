@@ -143,19 +143,38 @@ ReturnStmt ReturnStmt::create(Exprs exprs, Code *holder) noexcept {
 }
 
 Node ReturnStmt::compile(Compiler &comp, bool) const noexcept {
-  const uint32_t n = children();
-
-  if (children_are<VarExpr>(0, n)) {
-    // all args are already VarExpr, nothing to do
+  Func &func = comp.func();
+  const size_t n = children();
+  if (n != func.result_n()) {
+    comp.error(*this, "bad number of return values");
     comp.add(*this);
-  } else {
-    Vector<Expr> vargs;
-
-    // convert to VarExpr all children
-    comp.to_vars(*this, 0, n, vargs);
-
-    comp.add(comp.func().new_return(vargs));
+    return VoidExpr;
   }
+  bool uses_func_result = true;
+  for (size_t i = 0; uses_func_result && i < n; i++) {
+    uses_func_result = child(i) == func.result(i);
+  }
+  if (uses_func_result) {
+    // nothing to do
+    comp.add(*this);
+    return VoidExpr;
+  }
+  Buffer<Expr> vars;
+  for (size_t i = 0; i < n; i++) {
+    VarExpr var = func.result(i);
+    Expr expr = child(i).is<Expr>();
+    if (expr != var) {
+      // compile expression and copy its result
+      // to expected location func.result(i)
+      expr = expr.compile(comp, false);
+      comp.add(func.new_assign(ASSIGN, var, expr));
+    }
+    vars.append(var);
+  }
+  if (!vars) {
+    comp.out_of_memory(*this);
+  }
+  comp.add(func.new_return(vars));
   return VoidExpr;
 }
 
