@@ -73,7 +73,9 @@ IfStmt IfStmt::create(const Expr &cond, const Node &then, const Node &else_,
 Node IfStmt::compile(Compiler &comp, bool) const noexcept {
   Func &func = comp.func();
 
-  Expr cond = this->cond().compile(comp, false);
+  Expr cond = func.new_unary(NOT1, this->cond());
+  cond = cond.compile(comp, false);
+
   Node then = this->then();
   Node else_ = this->else_();
   bool have_else = else_.type() != CONST;
