@@ -79,7 +79,9 @@
         "__string": "cpp",
         "__node_handle": "cpp",
         "ios": "cpp",
-        "__bit_reference": "cpp"
+        "__bit_reference": "cpp",
+        "__config": "cpp",
+        "__errc": "cpp"
     },
     "files.watcherExclude": {
         "**/.git/**": true

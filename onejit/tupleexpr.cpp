@@ -61,4 +61,9 @@ CallExpr CallExpr::create(const FuncType &ftype, const Label &flabel, Exprs args
   return CallExpr{};
 }
 
+Compiler &CallExpr::compile(Compiler &comp) const noexcept {
+  // TODO
+  return comp;
+}
+
 } // namespace onejit

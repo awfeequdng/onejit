@@ -23,31 +23,30 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/code.hpp>
-#include <onejit/func.hpp>
+#include <onejit/compiler.hpp>
 #include <onejit/stmt0.hpp>
 
 namespace onejit {
 
 // ============================  Stmt0  ========================================
 
-Func &Stmt0::compile(Func &func) const noexcept {
+Compiler &Stmt0::compile(Compiler &comp) const noexcept {
   switch (op()) {
   case BREAK:
-    if (Label l = func.label_break()) {
-      return func.compile(func.new_goto(l));
+    if (Label l = comp.label_break()) {
+      return comp.compile(comp.func().new_goto(l));
     }
-    return func.compile_error(*this, "misplaced Break");
+    return comp.error(*this, "misplaced Break");
   case CONTINUE:
-    if (Label l = func.label_continue()) {
-      return func.compile(func.new_goto(l));
+    if (Label l = comp.label_continue()) {
+      return comp.compile(comp.func().new_goto(l));
     }
-    return func.compile_error(*this, "misplaced Continue");
+    return comp.error(*this, "misplaced Continue");
   case FALLTHROUGH:
-    return func.compile_error(*this, "misplaced Fallthrough");
+    return comp.error(*this, "misplaced Fallthrough");
   case BAD:
   default:
-    return func.compile_error(*this, "bad Stmt0");
+    return comp.error(*this, "bad Stmt0");
   }
 }
 

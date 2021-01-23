@@ -65,7 +65,7 @@ protected:
   }
 
 private:
-  Func &compile(Func &func) const noexcept;
+  Compiler &compile(Compiler &comp) const noexcept;
 };
 
 inline std::ostream &operator<<(std::ostream &out, const Stmt0 &st) {

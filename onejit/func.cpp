@@ -38,14 +38,12 @@ enum {
 
 Func::Func() noexcept
     : holder_{}, param_n_{}, result_n_{}, body_var_n_{}, //
-      ftype_{}, vars_{}, labels_{}, name_{}, body_{},    //
-      breaks_{}, continues_{}, compiled_{}, error_{} {
+      ftype_{}, vars_{}, labels_{}, name_{}, body_{} {
 }
 
 Func::Func(String &&name, const FuncType &ftype, Code *holder) noexcept
     : holder_{holder}, param_n_{}, result_n_{}, body_var_n_{}, ftype_{ftype}, //
-      vars_{}, labels_{}, name_(std::move(name)), body_{},                    //
-      breaks_{}, continues_{}, compiled_{}, error_{} {
+      vars_{}, labels_{}, name_(std::move(name)), body_{} {
 
   bool ok = bool(*this);
   for (size_t i = 0, n = ftype.param_n(); ok && i < n; i++) {
@@ -113,30 +111,6 @@ VarExpr Func::new_var(Kind kind) noexcept {
     }
   }
   return VarExpr{};
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Label Func::label_break() const noexcept {
-  return breaks_.empty() ? Label{} : breaks_.end()[-1];
-}
-
-Label Func::label_continue() const noexcept {
-  return continues_.empty() ? Label{} : continues_.end()[-1];
-}
-
-Func &Func::compile(const Node &node) noexcept {
-  if (!compiled_.append(node)) {
-    holder_ = nullptr;
-  }
-  return *this;
-}
-
-Func &Func::compile_error(const Node &where, Chars msg) noexcept {
-  if (!error_.append(Error{where, msg})) {
-    holder_ = nullptr;
-  }
-  return *this;
 }
 
 } // namespace onejit

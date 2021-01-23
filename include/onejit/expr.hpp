@@ -59,8 +59,6 @@ protected:
   static constexpr bool is_allowed_type(Type t) noexcept {
     return t >= VAR && t <= CONST;
   }
-
-  Func &compile(Func &func) const noexcept;
 };
 
 } // namespace onejit

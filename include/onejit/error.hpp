@@ -29,6 +29,7 @@
 
 namespace onejit {
 
+// a compile error, with Node that caused it and error message
 class Error {
 public:
   constexpr Error() noexcept : where_{}, msg_{} {

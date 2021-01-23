@@ -248,18 +248,6 @@ public:
     return *this;
   }
 
-  // get current destination for "break"
-  Label label_break() const noexcept;
-
-  // get current destination for "continue"
-  Label label_continue() const noexcept;
-
-  // add a compiled node
-  Func &compile(const Node &node) noexcept;
-
-  // add a compile error
-  Func &compile_error(const Node &where, Chars msg) noexcept;
-
 private:
   Code *holder_;
   uint16_t param_n_;
@@ -271,12 +259,6 @@ private:
   Vector<Label> labels_;
   String name_;
   Node body_;
-
-  // buffers needed by compile()
-  Vector<Label> breaks_;    // stack of 'break' destination labels
-  Vector<Label> continues_; // stack of 'continue' destination labels
-  NodeVec compiled_;
-  ErrorVec error_;
 };
 
 } // namespace onejit

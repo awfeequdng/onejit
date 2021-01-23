@@ -28,13 +28,6 @@
 
 namespace onejit {
 
-Func &Expr::compile(Func &func) const noexcept {
-  switch (type()) {
-  case TUPLE:
-    return is<TupleExpr>().compile(func);
-  default:
-    return func;
-  }
-}
+//
 
 } // namespace onejit

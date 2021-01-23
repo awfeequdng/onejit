@@ -125,25 +125,25 @@ Offset Node::size() const noexcept {
   return len;
 }
 
-Func &Node::compile(Func &func) const noexcept {
+Compiler &Node::compile(Compiler &comp) const noexcept {
   const Type t = type();
   switch (t) {
   case STMT_0:
-    return is<Stmt0>().compile(func);
+    return is<Stmt0>().compile(comp);
   case STMT_1:
-    return is<Stmt1>().compile(func);
+    return is<Stmt1>().compile(comp);
   case STMT_2:
-    return is<Stmt2>().compile(func);
+    return is<Stmt2>().compile(comp);
   case STMT_3:
-    return is<Stmt3>().compile(func);
+    return is<Stmt3>().compile(comp);
   case STMT_4:
-    return is<Stmt4>().compile(func);
+    return is<Stmt4>().compile(comp);
   case STMT_N:
-    return is<StmtN>().compile(func);
+    return is<StmtN>().compile(comp);
   case TUPLE:
-    return is<TupleExpr>().compile(func);
+    return is<CallExpr>().compile(comp);
   default:
-    return func;
+    return comp;
   }
 }
 

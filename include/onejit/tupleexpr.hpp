@@ -105,6 +105,8 @@ private:
 
   static CallExpr create(const FuncType &ftype, const Label &flabel, Exprs args,
                          Code *holder) noexcept;
+
+  Compiler &compile(Compiler &comp) const noexcept;
 };
 
 } // namespace onejit

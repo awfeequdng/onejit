@@ -163,7 +163,7 @@ protected:
   uint64_t uint64(Offset byte_offset) const noexcept;
 
 private:
-  Func &compile(Func &func) const noexcept;
+  Compiler &compile(Compiler &comp) const noexcept;
 
   NodeHeader header_;
   CodeItem off_or_dir_;

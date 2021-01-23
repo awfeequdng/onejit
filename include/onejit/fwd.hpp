@@ -50,6 +50,7 @@ class LogSize;
 class BlockStmt;
 class BinaryExpr;
 class BreakStmt;
+class Compiler;
 class CallExpr;
 class CaseStmt;
 class Code;
@@ -98,9 +99,6 @@ using CodeItems = View<CodeItem>;
 using Exprs = View<Expr>;
 using Kinds = View<Kind>;
 using Nodes = View<Node>;
-
-using ErrorVec = Vector<Error>;
-using NodeVec = Vector<Node>;
 
 } // namespace onejit
 
