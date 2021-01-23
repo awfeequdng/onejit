@@ -27,6 +27,7 @@
 #define ONEJIT_STMT2_HPP
 
 #include <onejit/constexpr.hpp> // VoidExpr
+#include <onejit/label.hpp>
 #include <onejit/opstmt.hpp>
 #include <onejit/stmt.hpp>
 #include <onestl/view.hpp>
@@ -60,6 +61,8 @@ public:
   static constexpr uint32_t children() noexcept {
     return 2;
   }
+
+  Compiler &compile(Compiler &comp) const noexcept;
 
 protected:
   /* construct an invalid Stmt2 */
@@ -168,6 +171,51 @@ private:
   }
 
   static DefaultStmt create(const Node &body, Code *holder) noexcept;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// conditional jump. usually only found in compiled code
+class JumpIfStmt : public Stmt2 {
+  using Base = Stmt2;
+  friend class Node;
+  friend class Func;
+
+public:
+  /**
+   * construct an invalid JumpIfStmt.
+   * exists only to allow placing JumpIfStmt in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid JumpIfStmt, use Func::new_jump_if()
+   */
+  constexpr JumpIfStmt() noexcept : Base{JUMP_IF} {
+  }
+
+  static constexpr OpStmt2 op() noexcept {
+    return JUMP_IF;
+  }
+
+  // shortcut for child(0).is<Label>()
+  Label to() const noexcept {
+    return child(0).is<Label>();
+  }
+
+  // shortcut for child(1).is<Expr>()
+  Expr cond() noexcept {
+    return child(1).is<Expr>();
+  }
+
+private:
+  // downcast Node to JumpIfStmt
+  constexpr explicit JumpIfStmt(const Node &node) noexcept : Base{node} {
+  }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
+    return op == JUMP_IF;
+  }
+
+  static JumpIfStmt create(const Label &to, const Expr &cond, Code *holder) noexcept;
 };
 
 } // namespace onejit

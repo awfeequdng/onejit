@@ -93,6 +93,8 @@ public:
     return CALL;
   }
 
+  Compiler &compile(Compiler &comp) const noexcept;
+
 private:
   // downcast Node to CallExpr
   constexpr explicit CallExpr(const Node &node) noexcept : Base{node} {
@@ -105,8 +107,6 @@ private:
 
   static CallExpr create(const FuncType &ftype, const Label &flabel, Exprs args,
                          Code *holder) noexcept;
-
-  Compiler &compile(Compiler &comp) const noexcept;
 };
 
 } // namespace onejit

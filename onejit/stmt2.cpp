@@ -24,6 +24,7 @@
  */
 
 #include <onejit/code.hpp>
+#include <onejit/compiler.hpp>
 #include <onejit/expr.hpp>
 #include <onejit/stmt2.hpp>
 
@@ -45,6 +46,11 @@ Stmt2 ONEJIT_NOINLINE Stmt2::create(OpStmt2 op, const Nodes children, Code *hold
   return Stmt2{op};
 }
 
+Compiler &Stmt2::compile(Compiler &comp) const noexcept {
+  // TODO
+  return comp.compile(*this);
+}
+
 std::ostream &operator<<(std::ostream &out, const Stmt2 &st) {
   out << '(' << st.op();
   if (st.op() != DEFAULT) {
@@ -56,15 +62,22 @@ std::ostream &operator<<(std::ostream &out, const Stmt2 &st) {
 // ============================  CaseStmt  =====================================
 
 CaseStmt CaseStmt::create(const Expr &expr, const Node &body, Code *holder) noexcept {
-  Node children[] = {expr, body};
+  const Node children[] = {expr, body};
   return CaseStmt{Stmt2::create(CASE, Nodes{children, 2}, holder)};
 }
 
 // ============================  DefaultStmt  ==================================
 
 DefaultStmt DefaultStmt::create(const Node &body, Code *holder) noexcept {
-  Node children[] = {VoidExpr, body};
+  const Node children[] = {VoidExpr, body};
   return DefaultStmt{Stmt2::create(DEFAULT, Nodes{children, 2}, holder)};
+}
+
+// ============================  JumpIfStmt  ==================================
+
+JumpIfStmt JumpIfStmt::create(const Label &to, const Expr &cond, Code *holder) noexcept {
+  const Node children[] = {to, cond};
+  return JumpIfStmt{Stmt2::create(JUMP_IF, Nodes{children, 2}, holder)};
 }
 
 } // namespace onejit

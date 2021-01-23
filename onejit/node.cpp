@@ -26,6 +26,7 @@
 #include <onejit/binaryexpr.hpp>
 #include <onejit/check.hpp>
 #include <onejit/code.hpp>
+#include <onejit/compiler.hpp>
 #include <onejit/constexpr.hpp>
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
@@ -141,9 +142,12 @@ Compiler &Node::compile(Compiler &comp) const noexcept {
   case STMT_N:
     return is<StmtN>().compile(comp);
   case TUPLE:
-    return is<CallExpr>().compile(comp);
+    if (const CallExpr call = is<CallExpr>()) {
+      return call.compile(comp);
+    }
+    // FALLTHROUGH
   default:
-    return comp;
+    return comp.compile(*this);
   }
 }
 

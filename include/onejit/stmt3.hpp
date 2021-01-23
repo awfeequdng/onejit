@@ -35,8 +35,8 @@ namespace onejit {
 ////////////////////////////////////////////////////////////////////////////////
 class Stmt3 : public Stmt {
   using Base = Stmt;
-  friend class Node;
   friend class Func;
+  friend class Node;
 
 public:
   /**
@@ -56,6 +56,8 @@ public:
   static constexpr uint32_t children() noexcept {
     return 3;
   }
+
+  Compiler &compile(Compiler &comp) const noexcept;
 
 protected:
   /* construct an invalid Stmt3 */
@@ -79,8 +81,9 @@ std::ostream &operator<<(std::ostream &out, const Stmt3 &st);
 ////////////////////////////////////////////////////////////////////////////////
 class IfStmt : public Stmt3 {
   using Base = Stmt3;
-  friend class Node;
   friend class Func;
+  friend class Node;
+  friend class Stmt3;
 
 public:
   /**
@@ -112,6 +115,8 @@ public:
     return child(2);
   }
 
+  Compiler &compile(Compiler &comp) const noexcept;
+
 private:
   // downcast Node to IfStmt
   constexpr explicit IfStmt(const Node &node) noexcept : Base{node} {
@@ -122,6 +127,8 @@ private:
     return op == IF;
   }
 
+  // create a new 'if (cond) { then } else { else_ }'
+  // the 'else' part can be omitted by specifying else_ = VoidExpr
   static IfStmt create(const Expr &cond, const Node &then, const Node &else_,
                        Code *holder) noexcept;
 };

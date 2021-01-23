@@ -188,8 +188,15 @@ public:
     return GotoStmt::create(target, holder_);
   }
 
+  // create a new 'if (cond) { then } else { else_ }'
+  // the 'else' part can be omitted by specifying else_ = VoidExpr
   IfStmt new_if(const Expr &cond, const Node &then, const Node &else_) noexcept {
     return IfStmt::create(cond, then, else_, holder_);
+  }
+
+  // create a new conditional jump. usually only found in compiled code.
+  JumpIfStmt new_jump_if(const Label &to, const Expr &cond) noexcept {
+    return JumpIfStmt::create(to, cond, holder_);
   }
 
   // create a new local label, used for jumps within the function

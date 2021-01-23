@@ -121,6 +121,8 @@ public:
     return ONEJIT_CHECK(T::is_allowed_type(type()), &&, T::is_allowed_op(op())), T{*this};
   }
 
+  Compiler &compile(Compiler &comp) const noexcept;
+
 protected:
   constexpr Node(NodeHeader header, CodeItem offset_or_direct, const Code *code) noexcept
       : header_{header}, off_or_dir_{offset_or_direct}, code_{code} {
@@ -163,8 +165,6 @@ protected:
   uint64_t uint64(Offset byte_offset) const noexcept;
 
 private:
-  Compiler &compile(Compiler &comp) const noexcept;
-
   NodeHeader header_;
   CodeItem off_or_dir_;
   const Code *code_;

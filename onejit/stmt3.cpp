@@ -24,6 +24,7 @@
  */
 
 #include <onejit/code.hpp>
+#include <onejit/compiler.hpp>
 #include <onejit/stmt3.hpp>
 #include <onestl/chars.hpp>
 
@@ -45,6 +46,13 @@ Stmt3 ONEJIT_NOINLINE Stmt3::create(OpStmt3 op, Nodes children, Code *holder) no
   return Stmt3{op};
 }
 
+Compiler &Stmt3::compile(Compiler &comp) const noexcept {
+  if (const IfStmt st = is<IfStmt>()) {
+    return st.compile(comp);
+  }
+  return comp.compile(*this);
+}
+
 std::ostream &operator<<(std::ostream &out, const Stmt3 &st) {
   return out << '(' << st.op() << ' ' << st.child(0) << Chars("\n    ") << st.child(1)
              << Chars("\n    ") << st.child(2) << ')';
@@ -56,6 +64,27 @@ IfStmt IfStmt::create(const Expr &cond, const Node &then, const Node &else_,
                       Code *holder) noexcept {
   const Node buf[] = {cond, then, else_};
   return IfStmt{Stmt3::create(IF, Nodes{buf, 3}, holder)};
+}
+
+Compiler &IfStmt::compile(Compiler &comp) const noexcept {
+  Func &func = comp.func();
+
+  Node then = this->then();
+  Node else_ = this->else_();
+  bool have_else = else_.type() != CONST;
+
+  Label endif_label = func.new_label();
+  Label else_label = have_else ? func.new_label() : endif_label;
+
+  JumpIfStmt jump_if = func.new_jump_if(else_label, cond());
+  jump_if.compile(comp);
+  then.compile(comp);
+  if (have_else) {
+    func.new_goto(endif_label).compile(comp);
+    else_label.compile(comp);
+    else_.compile(comp);
+  }
+  return endif_label.compile(comp);
 }
 
 } // namespace onejit

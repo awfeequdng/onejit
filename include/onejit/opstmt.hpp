@@ -49,6 +49,7 @@ enum OpStmt2 : uint16_t {
   BAD_ST2 = 0,
   CASE = 1,
   DEFAULT = 2,
+  JUMP_IF = 3,
 };
 
 enum OpStmt3 : uint16_t {

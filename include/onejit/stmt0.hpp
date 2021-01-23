@@ -54,6 +54,8 @@ public:
     return 0;
   }
 
+  Compiler &compile(Compiler &comp) const noexcept;
+
 protected:
   // downcast Node to Stmt0
   constexpr explicit Stmt0(const Node &node) noexcept : Base{node} {
@@ -63,9 +65,6 @@ protected:
   static constexpr bool is_allowed_type(Type t) noexcept {
     return t == STMT_0;
   }
-
-private:
-  Compiler &compile(Compiler &comp) const noexcept;
 };
 
 inline std::ostream &operator<<(std::ostream &out, const Stmt0 &st) {

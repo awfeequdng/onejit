@@ -62,6 +62,8 @@ public:
     return child(0);
   }
 
+  Compiler &compile(Compiler &comp) const noexcept;
+
 protected:
   /* construct an invalid Stmt1 */
   constexpr explicit Stmt1(OpStmt1 op) noexcept : Base{STMT_1, Bad, op} {
@@ -95,6 +97,11 @@ public:
     return GOTO;
   }
 
+  // shortcut for child(0).is<Label>()
+  Label to() const noexcept {
+    return child(0).is<Label>();
+  }
+
 private:
   // downcast Node to GotoStmt
   constexpr explicit GotoStmt(const Node &node) noexcept : Base{node} {
@@ -105,8 +112,8 @@ private:
     return op == GOTO;
   }
 
-  static GotoStmt create(const Label &target, Code *holder) noexcept {
-    return GotoStmt{Stmt1::create(GOTO, target, holder)};
+  static GotoStmt create(const Label &to, Code *holder) noexcept {
+    return GotoStmt{Stmt1::create(GOTO, to, holder)};
   }
 };
 
