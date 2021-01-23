@@ -63,11 +63,23 @@ public:
   Compiler &enter_loop(Label l_break, Label l_continue) noexcept;
   Compiler &exit_loop() noexcept;
 
+  // copy expression result to a new local variable.
+  // if node is already a VarExpr, does nothing and returns it
+  VarExpr to_var(const Node &node) noexcept;
+
+  // copy node.child(start ... end-1) to new local variables,
+  // and append such variables to vars.
+  Compiler &to_vars(const Node &node, uint32_t start, uint32_t end, //
+                    Vector<Expr> &vars) noexcept;
+
   // add a compiled node
   Compiler &add(const Node &node) noexcept;
 
   // add a compile error
   Compiler &error(const Node &where, Chars msg) noexcept;
+
+  // add an out-of-memory error
+  Compiler &out_of_memory(const Node &where) noexcept;
 
 private:
   Func &func_;
@@ -76,7 +88,7 @@ private:
   Vector<Label> continue_; // stack of 'continue' destination labels
   Vector<Node> node_;
   Vector<Error> error_;
-  bool good_;
+  bool good_; // good_ = false means out-of-memory
 };
 
 } // namespace onejit

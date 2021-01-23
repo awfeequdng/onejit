@@ -75,6 +75,8 @@ public:
     return child(1).is<Expr>();
   }
 
+  Compiler &compile(Compiler &comp) const noexcept;
+
 private:
   // downcast Node to UnaryExpr
   constexpr explicit BinaryExpr(const Node &node) noexcept : Base{node} {

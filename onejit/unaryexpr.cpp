@@ -24,6 +24,7 @@
  */
 
 #include <onejit/code.hpp>
+#include <onejit/compiler.hpp>
 #include <onejit/unaryexpr.hpp>
 
 namespace onejit {
@@ -54,6 +55,11 @@ UnaryExpr UnaryExpr::create(Op1 op, const Expr &child, Code *holder) noexcept {
     kind = Bad;
   }
   return create(kind, op, child, holder);
+}
+
+Compiler &UnaryExpr::compile(Compiler &comp) const noexcept {
+  /// TODO: implement
+  return comp.add(*this);
 }
 
 std::ostream &operator<<(std::ostream &out, const UnaryExpr &ue) {

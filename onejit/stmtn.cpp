@@ -26,6 +26,7 @@
 #include <onejit/code.hpp>
 #include <onejit/compiler.hpp>
 #include <onejit/expr.hpp>
+#include <onejit/func.hpp>
 #include <onejit/stmt2.hpp> // CaseStmt
 #include <onejit/stmtn.hpp>
 #include <onejit/tupleexpr.hpp> // CallExpr
@@ -137,8 +138,20 @@ ReturnStmt ReturnStmt::create(Exprs exprs, Code *holder) noexcept {
 }
 
 Compiler &ReturnStmt::compile(Compiler &comp) const noexcept {
-  /// TODO: implement
-  return comp.add(*this);
+
+  const uint32_t n = children();
+
+  if (children_are<VarExpr>(0, n)) {
+    // all args are already VarExpr, nothing to do
+    return comp.add(*this);
+  }
+  Vector<Expr> vargs;
+
+  // convert to VarExpr all children
+  comp.to_vars(*this, 0, n, vargs);
+
+  // do not call again CallExpr::compile()
+  return comp.add(comp.func().new_return(vargs));
 }
 
 // ============================  SwitchStmt  ===================================

@@ -70,6 +70,8 @@ public:
     return child(0).is<Expr>();
   }
 
+  Compiler &compile(Compiler &comp) const noexcept;
+
 private:
   // downcast Node to UnaryExpr
   constexpr explicit UnaryExpr(const Node &node) noexcept : Base{node} {

@@ -242,6 +242,7 @@ public:
     return UnaryExpr::create(op, arg, holder_);
   }
 
+  // create a new local variable
   VarExpr new_var(Kind kind) noexcept;
 
   constexpr Node get_body() const noexcept {

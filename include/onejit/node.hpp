@@ -121,6 +121,16 @@ public:
     return ONEJIT_CHECK(T::is_allowed_type(type()), &&, T::is_allowed_op(op())), T{*this};
   }
 
+  // return true if all children between start ... end-1 can be downcasted to T.
+  template <class T> bool children_are(uint32_t start, uint32_t end) const noexcept {
+    for (size_t i = start; i < end; i++) {
+      if (!child(i).is<T>()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   Compiler &compile(Compiler &comp) const noexcept;
 
 protected:

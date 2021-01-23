@@ -24,9 +24,12 @@
  */
 
 #include <onejit/code.hpp>
+#include <onejit/compiler.hpp>
+#include <onejit/func.hpp>
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
 #include <onejit/tupleexpr.hpp>
+#include <onestl/buffer.hpp>
 
 namespace onejit {
 
@@ -42,6 +45,21 @@ std::ostream &operator<<(std::ostream &out, const TupleExpr &tuple) {
 }
 
 // ============================  CallExpr  =====================================
+
+// shortcut for child(0).is<FuncType>()
+FuncType CallExpr::ftype() const noexcept {
+  return child(0).is<FuncType>();
+}
+
+// shortcut for child(1).is<Label>()
+Label CallExpr::label() const noexcept {
+  return child(1).is<Label>();
+}
+
+// shortcut for child(i + 2).is<Expr>()
+Expr CallExpr::arg(uint32_t i) const noexcept {
+  return child(sum_uint32(2, i)).is<Expr>();
+}
 
 CallExpr CallExpr::create(const FuncType &ftype, const Label &flabel, Exprs args,
                           Code *holder) noexcept {
@@ -62,8 +80,19 @@ CallExpr CallExpr::create(const FuncType &ftype, const Label &flabel, Exprs args
 }
 
 Compiler &CallExpr::compile(Compiler &comp) const noexcept {
-  // TODO
-  return comp;
+  const uint32_t n = children();
+
+  if (children_are<VarExpr>(2, n)) {
+    // all args are already VarExpr, nothing to do
+    return comp.add(*this);
+  }
+  Vector<Expr> vargs;
+
+  // convert to VarExpr all children after FuncType and Label
+  comp.to_vars(*this, 2, n, vargs);
+
+  // do not call again CallExpr::compile()
+  return comp.add(comp.func().new_call(ftype(), label(), vargs));
 }
 
 } // namespace onejit

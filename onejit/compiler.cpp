@@ -95,6 +95,27 @@ Compiler &Compiler::exit_loop() noexcept {
   return *this;
 }
 
+VarExpr Compiler::to_var(const Node &node) noexcept {
+  Expr e = node.is<Expr>();
+  VarExpr ve = node.is<VarExpr>();
+  if (e && !ve) {
+    // copy Expr result to a VarExpr
+    ve = func_.new_var(e.kind());
+    func_.new_binary(ASSIGN, ve, e).compile(*this);
+  }
+  return ve;
+}
+
+Compiler &Compiler::to_vars(const Node &node, uint32_t start, uint32_t end,
+                            Vector<Expr> &vars) noexcept {
+  for (size_t i = start; i < end; i++) {
+    if (!vars.append(to_var(node.child(i)))) {
+      return out_of_memory(node);
+    }
+  }
+  return *this;
+}
+
 Compiler &Compiler::add(const Node &node) noexcept {
   good_ = good_ && node_.append(node);
   return *this;
@@ -102,6 +123,12 @@ Compiler &Compiler::add(const Node &node) noexcept {
 
 Compiler &Compiler::error(const Node &where, Chars msg) noexcept {
   good_ = good_ && error_.append(Error{where, msg});
+  return *this;
+}
+
+Compiler &Compiler::out_of_memory(const Node &where) noexcept {
+  // always set good_ to false
+  good_ = error_.append(Error{where, "out of memory"}) && false;
   return *this;
 }
 

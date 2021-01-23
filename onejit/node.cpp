@@ -141,6 +141,12 @@ Compiler &Node::compile(Compiler &comp) const noexcept {
     return is<Stmt4>().compile(comp);
   case STMT_N:
     return is<StmtN>().compile(comp);
+  case MEM:
+    return is<MemExpr>().compile(comp);
+  case UNARY:
+    return is<UnaryExpr>().compile(comp);
+  case BINARY:
+    return is<BinaryExpr>().compile(comp);
   case TUPLE:
     if (const CallExpr call = is<CallExpr>()) {
       return call.compile(comp);
