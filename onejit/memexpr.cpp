@@ -44,9 +44,9 @@ MemExpr ONEJIT_NOINLINE MemExpr::create(Kind kind, const Expr &address, Code *ho
   return MemExpr{};
 }
 
-MemExpr MemExpr::compile(Compiler &comp) const noexcept {
+MemExpr MemExpr::compile(Compiler &comp, bool) const noexcept {
   Expr e = addr();
-  Expr comp_e = e.compile(comp);
+  Expr comp_e = e.compile(comp, true);
   if (e == comp_e) {
     return *this;
   }

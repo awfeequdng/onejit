@@ -79,20 +79,33 @@ CallExpr CallExpr::create(const FuncType &ftype, const Label &flabel, Exprs args
   return CallExpr{};
 }
 
-CallExpr CallExpr::compile(Compiler &comp) const noexcept {
+Expr CallExpr::compile(Compiler &comp, bool parent_is_expr) const noexcept {
   const uint32_t n = children();
 
+  Func &func = comp.func();
+  CallExpr call;
+
   if (children_are<VarExpr>(2, n)) {
-    // all args are already VarExpr, nothing to do
-    return *this;
+    // all args are already VarExpr
+    call = *this;
+  } else {
+    Vector<Expr> vargs;
+    // convert all arguments to VarExpr
+    comp.to_vars(*this, 2, n, vargs);
+    call = func.new_call(ftype(), label(), vargs);
   }
-  Vector<Expr> vargs;
 
-  // convert to VarExpr all children after FuncType and Label
-  comp.to_vars(*this, 2, n, vargs);
-
-  // do not call again CallExpr::compile()
-  return comp.func().new_call(ftype(), label(), vargs);
+  if (!parent_is_expr) {
+    return call;
+  }
+  // avoid calls inside other expressions,
+  // and copy result value to a VarExpr.
+  //
+  // we could also use comp.to_var(call), but it risks
+  // infinite recursion because it invokes call.compile()
+  VarExpr dst = func.new_var(call.kind());
+  comp.add(func.new_assign(ASSIGN, dst, call));
+  return dst;
 }
 
 } // namespace onejit

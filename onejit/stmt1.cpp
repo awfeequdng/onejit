@@ -47,7 +47,7 @@ Stmt1 ONEJIT_NOINLINE Stmt1::create(OpStmt1 op, const Node &child, Code *holder)
   return Stmt1{op};
 }
 
-Node Stmt1::compile(Compiler &comp) const noexcept {
+Node Stmt1::compile(Compiler &comp, bool) const noexcept {
   comp.add(*this);
   return VoidExpr;
 }

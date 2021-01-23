@@ -31,18 +31,18 @@
 
 namespace onejit {
 
-Expr Expr::compile(Compiler &comp) const noexcept {
+Expr Expr::compile(Compiler &comp, bool) const noexcept {
   const Type t = type();
   switch (t) {
   case MEM:
-    return is<MemExpr>().compile(comp);
+    return is<MemExpr>().compile(comp, true);
   case UNARY:
-    return is<UnaryExpr>().compile(comp);
+    return is<UnaryExpr>().compile(comp, true);
   case BINARY:
-    return is<BinaryExpr>().compile(comp);
+    return is<BinaryExpr>().compile(comp, true);
   case TUPLE:
     if (const CallExpr call = is<CallExpr>()) {
-      return call.compile(comp);
+      return call.compile(comp, true);
     }
     // FALLTHROUGH
   default:

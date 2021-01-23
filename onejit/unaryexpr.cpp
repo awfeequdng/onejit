@@ -58,9 +58,9 @@ UnaryExpr UnaryExpr::create(Op1 op, const Expr &child, Code *holder) noexcept {
   return create(kind, op, child, holder);
 }
 
-UnaryExpr UnaryExpr::compile(Compiler &comp) const noexcept {
+UnaryExpr UnaryExpr::compile(Compiler &comp, bool) const noexcept {
   Expr e = x();
-  Expr comp_e = e.compile(comp);
+  Expr comp_e = e.compile(comp, true);
   if (e == comp_e) {
     return *this;
   }

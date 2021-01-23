@@ -62,7 +62,7 @@ public:
     return 2;
   }
 
-  Node compile(Compiler &comp) const noexcept;
+  Node compile(Compiler &comp, bool parent_is_expr) const noexcept;
 
 protected:
   /* construct an invalid Stmt2 */
@@ -105,14 +105,16 @@ public:
   }
 
   // shortcut for child(0).is<Expr>()
-  Expr dst() noexcept {
+  Expr dst() const noexcept {
     return child(0).is<Expr>();
   }
 
   // shortcut for child(1).is<Expr>()
-  Expr src() noexcept {
+  Expr src() const noexcept {
     return child(1).is<Expr>();
   }
+
+  Node compile(Compiler &comp, bool) const noexcept;
 
 private:
   // downcast Node to AssignStmt
@@ -249,7 +251,7 @@ public:
     return child(1).is<Expr>();
   }
 
-  Node compile(Compiler &comp) const noexcept;
+  Node compile(Compiler &comp, bool parent_is_expr) const noexcept;
 
 private:
   // downcast Node to JumpIfStmt

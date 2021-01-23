@@ -48,9 +48,9 @@ Stmt3 ONEJIT_NOINLINE Stmt3::create(OpStmt3 op, Nodes children, Code *holder) no
   return Stmt3{op};
 }
 
-Node Stmt3::compile(Compiler &comp) const noexcept {
+Node Stmt3::compile(Compiler &comp, bool parent_is_expr) const noexcept {
   if (const IfStmt st = is<IfStmt>()) {
-    return st.compile(comp);
+    return st.compile(comp, parent_is_expr);
   }
   /// TODO: implement
   comp.add(*this);
@@ -70,9 +70,10 @@ IfStmt IfStmt::create(const Expr &cond, const Node &then, const Node &else_,
   return IfStmt{Stmt3::create(IF, Nodes{buf, 3}, holder)};
 }
 
-Node IfStmt::compile(Compiler &comp) const noexcept {
+Node IfStmt::compile(Compiler &comp, bool) const noexcept {
   Func &func = comp.func();
 
+  Expr cond = this->cond().compile(comp, false);
   Node then = this->then();
   Node else_ = this->else_();
   bool have_else = else_.type() != CONST;
@@ -80,14 +81,16 @@ Node IfStmt::compile(Compiler &comp) const noexcept {
   Label else_label = have_else ? func.new_label() : Label{};
   Label endif_label = func.new_label();
 
-  comp.compile_add(func.new_jump_if(have_else ? else_label : endif_label, cond())) //
-      .compile_add(then);
+  JumpIfStmt jump_if = func.new_jump_if(have_else ? else_label : endif_label, cond);
+
+  comp.compile_add(jump_if, false) //
+      .compile_add(then, false);
   if (have_else) {
-    comp.compile_add(func.new_goto(endif_label)) //
-        .compile_add(else_label)
-        .compile_add(else_);
+    comp.compile_add(func.new_goto(endif_label), false) //
+        .compile_add(else_label, false)
+        .compile_add(else_, false);
   }
-  comp.compile_add(endif_label);
+  comp.compile_add(endif_label, false);
   return VoidExpr;
 }
 

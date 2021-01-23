@@ -77,8 +77,8 @@ public:
   Compiler &add(const Node &node) noexcept;
 
   // compile a node, then add it to compiled list
-  Compiler &compile_add(const Node &node) noexcept {
-    return add(node.compile(*this));
+  Compiler &compile_add(const Node &node, bool parent_is_expr) noexcept {
+    return add(node.compile(*this, parent_is_expr));
   }
 
   // add a compile error

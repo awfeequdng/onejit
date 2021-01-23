@@ -108,7 +108,7 @@ public:
   // shortcut for child(i + 2).is<Expr>()
   Expr arg(uint32_t i) const noexcept;
 
-  CallExpr compile(Compiler &comp) const noexcept;
+  Expr compile(Compiler &comp, bool parent_is_expr) const noexcept;
 
 private:
   // downcast Node to CallExpr

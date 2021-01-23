@@ -101,7 +101,7 @@ VarExpr Compiler::to_var(const Node &node) noexcept {
   if (e && !ve) {
     // copy Expr result to a VarExpr
     ve = func_.new_var(e.kind());
-    compile_add(func_.new_assign(ASSIGN, ve, e));
+    compile_add(func_.new_assign(ASSIGN, ve, e), false);
   }
   return ve;
 }

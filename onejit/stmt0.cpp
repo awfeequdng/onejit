@@ -32,18 +32,18 @@ namespace onejit {
 
 // ============================  Stmt0  ========================================
 
-Node Stmt0::compile(Compiler &comp) const noexcept {
+Node Stmt0::compile(Compiler &comp, bool) const noexcept {
   switch (op()) {
   case BREAK:
     if (Label l = comp.label_break()) {
-      comp.compile_add(comp.func().new_goto(l));
+      comp.compile_add(comp.func().new_goto(l), false);
     } else {
       comp.error(*this, "misplaced Break");
     }
     break;
   case CONTINUE:
     if (Label l = comp.label_continue()) {
-      comp.compile_add(comp.func().new_goto(l));
+      comp.compile_add(comp.func().new_goto(l), false);
     } else {
       comp.error(*this, "misplaced Continue");
     }

@@ -258,7 +258,7 @@ void Test::fib() {
 
 void Test::compile(Func &f) {
   Compiler comp(f);
-  f.get_body().compile(comp);
+  f.get_body().compile(comp, false);
 
   comp.finish();
 }

@@ -52,18 +52,18 @@ StmtN StmtN::create(OpStmtN op, const Nodes nodes, Code *holder) noexcept {
   return StmtN{op};
 }
 
-Node StmtN::compile(Compiler &comp) const noexcept {
+Node StmtN::compile(Compiler &comp, bool parent_is_expr) const noexcept {
   switch (op()) {
   case ASSIGN_TUPLE:
-    return is<AssignTupleStmt>().compile(comp);
+    return is<AssignTupleStmt>().compile(comp, parent_is_expr);
   case BLOCK:
-    return is<BlockStmt>().compile(comp);
+    return is<BlockStmt>().compile(comp, parent_is_expr);
   case COND:
-    return is<CondStmt>().compile(comp);
+    return is<CondStmt>().compile(comp, parent_is_expr);
   case RETURN:
-    return is<ReturnStmt>().compile(comp);
+    return is<ReturnStmt>().compile(comp, parent_is_expr);
   case SWITCH:
-    return is<SwitchStmt>().compile(comp);
+    return is<SwitchStmt>().compile(comp, parent_is_expr);
   default:
     comp.add(*this);
     return VoidExpr;
@@ -102,7 +102,7 @@ AssignTupleStmt AssignTupleStmt::create(Exprs assign_to, const CallExpr &call,
   return AssignTupleStmt{};
 }
 
-Node AssignTupleStmt::compile(Compiler &comp) const noexcept {
+Node AssignTupleStmt::compile(Compiler &comp, bool) const noexcept {
   /// TODO: implement
   comp.add(*this);
   return VoidExpr;
@@ -110,16 +110,16 @@ Node AssignTupleStmt::compile(Compiler &comp) const noexcept {
 
 // ============================  BlockStmt  ====================================
 
-Node BlockStmt::compile(Compiler &comp) const noexcept {
+Node BlockStmt::compile(Compiler &comp, bool) const noexcept {
   for (size_t i = 0, n = children(); i < n; i++) {
-    child(i).compile(comp);
+    child(i).compile(comp, false);
   }
   return VoidExpr;
 }
 
 // ============================  CondStmt  =====================================
 
-Node CondStmt::compile(Compiler &comp) const noexcept {
+Node CondStmt::compile(Compiler &comp, bool) const noexcept {
   /// TODO: implement
   comp.add(*this);
   return VoidExpr;
@@ -142,7 +142,7 @@ ReturnStmt ReturnStmt::create(Exprs exprs, Code *holder) noexcept {
   return ReturnStmt{};
 }
 
-Node ReturnStmt::compile(Compiler &comp) const noexcept {
+Node ReturnStmt::compile(Compiler &comp, bool) const noexcept {
   const uint32_t n = children();
 
   if (children_are<VarExpr>(0, n)) {
@@ -178,7 +178,7 @@ SwitchStmt SwitchStmt::create(const Expr &expr, const CaseStmts cases, Code *hol
   return SwitchStmt{};
 }
 
-Node SwitchStmt::compile(Compiler &comp) const noexcept {
+Node SwitchStmt::compile(Compiler &comp, bool) const noexcept {
   /// TODO: implement
   comp.add(*this);
   return VoidExpr;

@@ -50,9 +50,9 @@ Stmt4 ONEJIT_NOINLINE Stmt4::create(OpStmt4 op, const Node &child0, const Node &
   return Stmt4{op};
 }
 
-Node Stmt4::compile(Compiler &comp) const noexcept {
+Node Stmt4::compile(Compiler &comp, bool parent_is_expr) const noexcept {
   if (const auto st = is<ForStmt>()) {
-    return st.compile(comp);
+    return st.compile(comp, parent_is_expr);
   }
   /// TODO: implement
   comp.add(*this);

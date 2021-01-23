@@ -126,24 +126,24 @@ Offset Node::size() const noexcept {
   return len;
 }
 
-Node Node::compile(Compiler &comp) const noexcept {
+Node Node::compile(Compiler &comp, bool parent_is_expr) const noexcept {
   const Type t = type();
   switch (t) {
   case STMT_0:
-    return is<Stmt0>().compile(comp);
+    return is<Stmt0>().compile(comp, parent_is_expr);
   case STMT_1:
-    return is<Stmt1>().compile(comp);
+    return is<Stmt1>().compile(comp, parent_is_expr);
   case STMT_2:
-    return is<Stmt2>().compile(comp);
+    return is<Stmt2>().compile(comp, parent_is_expr);
   case STMT_3:
-    return is<Stmt3>().compile(comp);
+    return is<Stmt3>().compile(comp, parent_is_expr);
   case STMT_4:
-    return is<Stmt4>().compile(comp);
+    return is<Stmt4>().compile(comp, parent_is_expr);
   case STMT_N:
-    return is<StmtN>().compile(comp);
+    return is<StmtN>().compile(comp, parent_is_expr);
   default:
     if (const Expr e = is<Expr>()) {
-      return e.compile(comp);
+      return e.compile(comp, parent_is_expr);
     } else {
       return *this;
     }

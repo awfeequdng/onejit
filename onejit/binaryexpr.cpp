@@ -52,9 +52,9 @@ BinaryExpr BinaryExpr::create(Op2 op, const Expr &left, const Expr &right, Code 
   return BinaryExpr{};
 }
 
-BinaryExpr BinaryExpr::compile(Compiler &comp) const noexcept {
+BinaryExpr BinaryExpr::compile(Compiler &comp, bool) const noexcept {
   Expr left = x(), right = y();
-  Expr comp_left = left.compile(comp), comp_right = right.compile(comp);
+  Expr comp_left = left.compile(comp, true), comp_right = right.compile(comp, true);
   if (left == comp_left && right == comp_right) {
     return *this;
   }

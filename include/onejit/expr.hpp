@@ -40,7 +40,7 @@ public:
   constexpr Expr() noexcept : Base{} {
   }
 
-  Expr compile(Compiler &comp) const noexcept;
+  Expr compile(Compiler &comp, bool parent_is_expr) const noexcept;
 
 protected:
   /* construct and invalid Expr */
