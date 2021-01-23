@@ -19,12 +19,13 @@
  *
  * stmt3.cpp
  *
- *  Created on Jan 18, 2020
+ *  Created on Jan 18, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/code.hpp>
 #include <onejit/compiler.hpp>
+#include <onejit/func.hpp>
 #include <onejit/stmt3.hpp>
 #include <onestl/chars.hpp>
 
@@ -50,7 +51,7 @@ Compiler &Stmt3::compile(Compiler &comp) const noexcept {
   if (const IfStmt st = is<IfStmt>()) {
     return st.compile(comp);
   }
-  return comp.compile(*this);
+  return comp.add(*this);
 }
 
 std::ostream &operator<<(std::ostream &out, const Stmt3 &st) {
@@ -73,11 +74,10 @@ Compiler &IfStmt::compile(Compiler &comp) const noexcept {
   Node else_ = this->else_();
   bool have_else = else_.type() != CONST;
 
+  Label else_label = have_else ? func.new_label() : Label{};
   Label endif_label = func.new_label();
-  Label else_label = have_else ? func.new_label() : endif_label;
 
-  JumpIfStmt jump_if = func.new_jump_if(else_label, cond());
-  jump_if.compile(comp);
+  func.new_jump_if(have_else ? else_label : endif_label, cond()).compile(comp);
   then.compile(comp);
   if (have_else) {
     func.new_goto(endif_label).compile(comp);

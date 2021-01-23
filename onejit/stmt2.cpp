@@ -19,7 +19,7 @@
  *
  * stmt2.cpp
  *
- *  Created on Jan 18, 2020
+ *  Created on Jan 18, 2021
  *      Author Massimiliano Ghilardi
  */
 
@@ -48,7 +48,7 @@ Stmt2 ONEJIT_NOINLINE Stmt2::create(OpStmt2 op, const Nodes children, Code *hold
 
 Compiler &Stmt2::compile(Compiler &comp) const noexcept {
   // TODO
-  return comp.compile(*this);
+  return comp.add(*this);
 }
 
 std::ostream &operator<<(std::ostream &out, const Stmt2 &st) {

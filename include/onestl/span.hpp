@@ -19,7 +19,7 @@
  *
  * span.hpp - adapted from twin/include/stl/span.h
  *
- *  Created on Jan 11, 2020
+ *  Created on Jan 11, 2021
  *      Author Massimiliano Ghilardi
  */
 #ifndef ONESTL_SPAN_HPP

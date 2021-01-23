@@ -19,7 +19,7 @@
  *
  * func.hpp
  *
- *  Created on Jan 09, 2020
+ *  Created on Jan 09, 2021
  *      Author Massimiliano Ghilardi
  */
 
@@ -29,7 +29,6 @@
 #include <onejit/binaryexpr.hpp>
 #include <onejit/code.hpp>
 #include <onejit/constexpr.hpp>
-#include <onejit/error.hpp>
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
 #include <onejit/memexpr.hpp>
@@ -255,17 +254,29 @@ public:
     return *this;
   }
 
+  constexpr Node get_compiled() const noexcept {
+    return compiled_;
+  }
+
+  Func &set_compiled(const Node &compiled) noexcept {
+    compiled_var_n_ = vars_.size();
+    compiled_ = compiled;
+    return *this;
+  }
+
 private:
   Code *holder_;
   uint16_t param_n_;
   uint16_t result_n_;
-  uint32_t body_var_n_; // # local vars used by body_
+  uint32_t body_var_n_;     // # local vars used by body_
+  uint32_t compiled_var_n_; // # local vars used by compiled_
 
   FuncType ftype_;
   Vector<VarExpr> vars_;
   Vector<Label> labels_;
   String name_;
   Node body_;
+  Node compiled_;
 };
 
 } // namespace onejit

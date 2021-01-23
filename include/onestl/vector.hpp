@@ -19,7 +19,7 @@
  *
  * vector.hpp - adapted from twin/include/stl/vector.h
  *
- *  Created on Jan 11, 2020
+ *  Created on Jan 11, 2021
  *      Author Massimiliano Ghilardi
  */
 #ifndef ONESTL_VECTOR_HPP

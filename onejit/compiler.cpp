@@ -17,18 +17,47 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * func.cpp
+ * compiler.cpp
  *
- *  Created on Jan 13, 2020
+ *  Created on Jan 22, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/compiler.hpp>
+#include <onejit/func.hpp>
 
 namespace onejit {
 
 Compiler::Compiler(Func &func) noexcept
     : func_{func}, break_{}, continue_{}, node_{}, error_{}, good_{func} {
+}
+
+Compiler::~Compiler() noexcept {
+}
+
+Compiler::operator bool() const noexcept {
+  return good_ && func_;
+}
+
+Node Compiler::finish() noexcept {
+  Node compiled;
+  if (*this) {
+    switch (node_.size()) {
+    case 0:
+      compiled = VoidExpr;
+      break;
+    case 1:
+      compiled = node_[0];
+      break;
+    default:
+      compiled = func_.new_block(node_);
+      break;
+    }
+    if (compiled) {
+      func_.set_compiled(compiled);
+    }
+  }
+  return compiled;
 }
 
 Label Compiler::label_break() const noexcept {
@@ -66,7 +95,7 @@ Compiler &Compiler::exit_loop() noexcept {
   return *this;
 }
 
-Compiler &Compiler::compile(const Node &node) noexcept {
+Compiler &Compiler::add(const Node &node) noexcept {
   good_ = good_ && node_.append(node);
   return *this;
 }

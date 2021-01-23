@@ -19,11 +19,12 @@
  *
  * test_main.cpp
  *
- *  Created on Jan 08, 2020
+ *  Created on Jan 08, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/codeparser.hpp>
+#include <onejit/compiler.hpp>
 #include <onejit/func.hpp>
 #include <onestl/chars.hpp>
 
@@ -45,7 +46,8 @@ public:
   void const_expr() const;
   void simple_expr();
   void nested_expr();
-  void fibonacci();
+  void fib();
+  void compile(Func &func);
   void dump_code() const;
 
 private:
@@ -72,7 +74,7 @@ void Test::run() {
   const_expr();
   simple_expr();
   nested_expr();
-  fibonacci();
+  fib();
   dump_code();
 }
 
@@ -232,7 +234,7 @@ void Test::nested_expr() {
   }
 }
 
-void Test::fibonacci() {
+void Test::fib() {
   const Kind kind = Uint64;
   const Kinds kinds{&kind, 1};
   Func f("fib", FuncType{kinds, kinds, &holder}, &holder);
@@ -250,6 +252,15 @@ void Test::fibonacci() {
                       f.new_call(f, {f.new_binary(SUB, param, one)}),   //
                       f.new_call(f, {f.new_binary(SUB, param, two)}))), //
               f.new_return(one))));                                     //
+
+  compile(f);
+}
+
+void Test::compile(Func &f) {
+  Compiler comp(f);
+  f.get_body().compile(comp);
+
+  comp.finish();
 }
 
 void Test::dump_code() const {

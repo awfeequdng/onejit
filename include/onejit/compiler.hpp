@@ -19,15 +19,16 @@
  *
  * compiler.hpp
  *
- *  Created on Jan 22, 2020
+ *  Created on Jan 22, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #ifndef ONEJIT_COMPILER_HPP
 #define ONEJIT_COMPILER_HPP
 
-#include <onejit/func.hpp>
-#include <onestl/buffer.hpp>
+#include <onejit/error.hpp>
+#include <onejit/label.hpp>
+#include <onestl/vector.hpp>
 
 namespace onejit {
 
@@ -40,13 +41,13 @@ public:
 
   ~Compiler() noexcept;
 
-  constexpr explicit operator bool() const noexcept {
-    return good_ && func_;
-  }
+  explicit operator bool() const noexcept;
 
   constexpr Func &func() noexcept {
     return func_;
   }
+
+  Node finish() noexcept;
 
   //////////////////////////////////////////////////////////////////////////////
 
@@ -63,7 +64,7 @@ public:
   Compiler &exit_loop() noexcept;
 
   // add a compiled node
-  Compiler &compile(const Node &node) noexcept;
+  Compiler &add(const Node &node) noexcept;
 
   // add a compile error
   Compiler &error(const Node &where, Chars msg) noexcept;

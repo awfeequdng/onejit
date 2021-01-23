@@ -19,7 +19,7 @@
  *
  * stmt4.hpp
  *
- *  Created on Jan 19, 2020
+ *  Created on Jan 19, 2021
  *      Author Massimiliano Ghilardi
  */
 
@@ -56,6 +56,8 @@ public:
   static constexpr uint32_t children() noexcept {
     return 4;
   }
+
+  Compiler &compile(Compiler &comp) const noexcept;
 
 protected:
   /* construct an invalid Stmt4 */

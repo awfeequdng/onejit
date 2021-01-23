@@ -19,9 +19,12 @@
  *
  * error.hpp
  *
- *  Created on Jan 22, 2020
+ *  Created on Jan 22, 2021
  *      Author Massimiliano Ghilardi
  */
+
+#ifndef ONEJIT_ERROR_HPP
+#define ONEJIT_ERROR_HPP
 
 #include <onejit/fwd.hpp>
 #include <onejit/node.hpp>
@@ -52,5 +55,7 @@ private:
   Node where_;
   Chars msg_;
 };
+
+#endif // ONEJIT_ERROR_HPP
 
 } // namespace onejit

@@ -19,7 +19,7 @@
  *
  * stmtn.hpp
  *
- *  Created on Jan 18, 2020
+ *  Created on Jan 18, 2021
  *      Author Massimiliano Ghilardi
  */
 
@@ -51,6 +51,8 @@ public:
   constexpr OpStmtN op() const noexcept {
     return OpStmtN(Base::op());
   }
+
+  Compiler &compile(Compiler &comp) const noexcept;
 
 protected:
   /* construct an invalid StmtN */
@@ -94,6 +96,8 @@ public:
     return ASSIGN_TUPLE;
   }
 
+  Compiler &compile(Compiler &comp) const noexcept;
+
 private:
   // downcast Node to AssignStmt
   constexpr explicit AssignStmt(const Node &node) noexcept : Base{node} {
@@ -128,6 +132,8 @@ public:
   static constexpr OpStmtN op() noexcept {
     return BLOCK;
   }
+
+  Compiler &compile(Compiler &comp) const noexcept;
 
 private:
   // downcast Node to BlockStmt
@@ -170,6 +176,8 @@ public:
     return COND;
   }
 
+  Compiler &compile(Compiler &comp) const noexcept;
+
 private:
   // downcast Node to CondStmt
   constexpr explicit CondStmt(const Node &node) noexcept : Base{node} {
@@ -207,6 +215,8 @@ public:
     return RETURN;
   }
 
+  Compiler &compile(Compiler &comp) const noexcept;
+
 private:
   // downcast Node to ReturnStmt
   constexpr explicit ReturnStmt(const Node &node) noexcept : Base{node} {
@@ -240,6 +250,8 @@ public:
   static constexpr OpStmtN op() noexcept {
     return SWITCH;
   }
+
+  Compiler &compile(Compiler &comp) const noexcept;
 
 private:
   // downcast Node to SwitchStmt

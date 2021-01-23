@@ -19,7 +19,7 @@
  *
  * check.cpp
  *
- *  Created on Jan 14, 2020
+ *  Created on Jan 14, 2021
  *      Author Massimiliano Ghilardi
  */
 
@@ -55,7 +55,7 @@ std::string to_string(const void *val) {
 }
 
 Failed::Failed(std::string &&lhs, std::string &&rhs, const char *opstr, const char *lstr,
-           const char *rstr, const char *file, int line) noexcept
+               const char *rstr, const char *file, int line) noexcept
     : lhs_(std::move(lhs)), rhs_(std::move(rhs)), op_(opstr), lstr_(lstr), rstr_(rstr), file_(file),
       line_(line) {
 }

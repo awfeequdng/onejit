@@ -19,11 +19,12 @@
  *
  * stmt4.cpp
  *
- *  Created on Jan 18, 2020
+ *  Created on Jan 18, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/code.hpp>
+#include <onejit/compiler.hpp>
 #include <onejit/stmt4.hpp>
 #include <onestl/chars.hpp>
 
@@ -46,6 +47,13 @@ Stmt4 ONEJIT_NOINLINE Stmt4::create(OpStmt4 op, const Node &child0, const Node &
     break;
   }
   return Stmt4{op};
+}
+
+Compiler &Stmt4::compile(Compiler &comp) const noexcept {
+  if (const auto st = is<ForStmt>()) {
+    return st.compile(comp);
+  }
+  return comp.add(*this);
 }
 
 std::ostream &operator<<(std::ostream &out, const Stmt4 &st) {

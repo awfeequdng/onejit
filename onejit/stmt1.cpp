@@ -19,7 +19,7 @@
  *
  * stmt1.cpp
  *
- *  Created on Jan 18, 2020
+ *  Created on Jan 18, 2021
  *      Author Massimiliano Ghilardi
  */
 
@@ -47,7 +47,7 @@ Stmt1 ONEJIT_NOINLINE Stmt1::create(OpStmt1 op, const Node &child, Code *holder)
 }
 
 Compiler &Stmt1::compile(Compiler &comp) const noexcept {
-  return comp.compile(*this);
+  return comp.add(*this);
 }
 
 std::ostream &operator<<(std::ostream &out, const Stmt1 &st) {

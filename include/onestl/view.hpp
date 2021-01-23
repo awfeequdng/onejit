@@ -19,7 +19,7 @@
  *
  * view.hpp - adapted from twin/include/stl/view.h
  *
- *  Created on Jan 09, 2020
+ *  Created on Jan 09, 2021
  *      Author Massimiliano Ghilardi
  */
 #ifndef ONESTL_VIEW_HPP

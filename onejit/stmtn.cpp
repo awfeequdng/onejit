@@ -19,11 +19,12 @@
  *
  * stmtn.cpp
  *
- *  Created on Jan 18, 2020
+ *  Created on Jan 18, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/code.hpp>
+#include <onejit/compiler.hpp>
 #include <onejit/expr.hpp>
 #include <onejit/stmt2.hpp> // CaseStmt
 #include <onejit/stmtn.hpp>
@@ -47,6 +48,23 @@ StmtN StmtN::create(OpStmtN op, const Nodes nodes, Code *holder) noexcept {
     break;
   }
   return StmtN{op};
+}
+
+Compiler &StmtN::compile(Compiler &comp) const noexcept {
+  switch (op()) {
+  case ASSIGN_TUPLE:
+    return is<AssignStmt>().compile(comp);
+  case BLOCK:
+    return is<BlockStmt>().compile(comp);
+  case COND:
+    return is<CondStmt>().compile(comp);
+  case RETURN:
+    return is<ReturnStmt>().compile(comp);
+  case SWITCH:
+    return is<SwitchStmt>().compile(comp);
+  default:
+    return comp.add(*this);
+  }
 }
 
 std::ostream &operator<<(std::ostream &out, const StmtN &st) {
@@ -80,6 +98,27 @@ AssignStmt AssignStmt::create(Exprs assign_to, const CallExpr &call, Code *holde
   return AssignStmt{};
 }
 
+Compiler &AssignStmt::compile(Compiler &comp) const noexcept {
+  /// TODO: implement
+  return comp.add(*this);
+}
+
+// ============================  BlockStmt  ====================================
+
+Compiler &BlockStmt::compile(Compiler &comp) const noexcept {
+  for (size_t i = 0, n = children(); i < n; i++) {
+    child(i).compile(comp);
+  }
+  return comp;
+}
+
+// ============================  CondStmt  =====================================
+
+Compiler &CondStmt::compile(Compiler &comp) const noexcept {
+  /// TODO: implement
+  return comp.add(*this);
+}
+
 // ============================  ReturnStmt  ===================================
 
 ReturnStmt ReturnStmt::create(Exprs exprs, Code *holder) noexcept {
@@ -95,6 +134,11 @@ ReturnStmt ReturnStmt::create(Exprs exprs, Code *holder) noexcept {
     break;
   }
   return ReturnStmt{};
+}
+
+Compiler &ReturnStmt::compile(Compiler &comp) const noexcept {
+  /// TODO: implement
+  return comp.add(*this);
 }
 
 // ============================  SwitchStmt  ===================================
@@ -114,6 +158,11 @@ SwitchStmt SwitchStmt::create(const Expr &expr, const CaseStmts cases, Code *hol
     break;
   }
   return SwitchStmt{};
+}
+
+Compiler &SwitchStmt::compile(Compiler &comp) const noexcept {
+  /// TODO: implement
+  return comp.add(*this);
 }
 
 } // namespace onejit

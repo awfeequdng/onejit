@@ -19,11 +19,12 @@
  *
  * stmt0.cpp
  *
- *  Created on Jan 18, 2020
+ *  Created on Jan 18, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/compiler.hpp>
+#include <onejit/func.hpp>
 #include <onejit/stmt0.hpp>
 
 namespace onejit {
@@ -34,12 +35,12 @@ Compiler &Stmt0::compile(Compiler &comp) const noexcept {
   switch (op()) {
   case BREAK:
     if (Label l = comp.label_break()) {
-      return comp.compile(comp.func().new_goto(l));
+      return comp.add(comp.func().new_goto(l));
     }
     return comp.error(*this, "misplaced Break");
   case CONTINUE:
     if (Label l = comp.label_continue()) {
-      return comp.compile(comp.func().new_goto(l));
+      return comp.add(comp.func().new_goto(l));
     }
     return comp.error(*this, "misplaced Continue");
   case FALLTHROUGH:

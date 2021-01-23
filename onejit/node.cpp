@@ -19,7 +19,7 @@
  *
  * node.cpp
  *
- *  Created on Jan 09, 2020
+ *  Created on Jan 09, 2021
  *      Author Massimiliano Ghilardi
  */
 
@@ -147,7 +147,7 @@ Compiler &Node::compile(Compiler &comp) const noexcept {
     }
     // FALLTHROUGH
   default:
-    return comp.compile(*this);
+    return comp.add(*this);
   }
 }
 
