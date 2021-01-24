@@ -28,15 +28,15 @@
 
 namespace onejit {
 
-Constant Const::constant() const noexcept {
+Imm Const::constant() const noexcept {
   if (is_direct()) {
-    return Constant::parse_direct(offset_or_direct());
+    return Imm::parse_direct(offset_or_direct());
   } else {
-    return Constant::parse_indirect(kind(), offset_or_direct() + sizeof(CodeItem), code());
+    return Imm::parse_indirect(kind(), offset_or_direct() + sizeof(CodeItem), code());
   }
 }
 
-Const Const::create(const Constant &c, Code *holder) noexcept {
+Const Const::create(const Imm &c, Code *holder) noexcept {
   const NodeHeader header{CONST, c.kind(), 0};
 
   if (c.is_direct()) {

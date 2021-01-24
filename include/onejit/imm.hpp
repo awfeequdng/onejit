@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * constant.hpp
+ * imm.hpp
  *
  *  Created on Jan 09, 2021
  *      Author Massimiliano Ghilardi
@@ -80,50 +80,51 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Constant {
+// immediate constant
+class Imm {
   friend class Func;
   friend class Node;
   friend class Const;
 
 public:
-  // construct a Void constant. equivalent to C/C++ source "(void)0"
-  constexpr Constant() noexcept //
+  // construct a Void imm. equivalent to C/C++ source "(void)0"
+  constexpr Imm() noexcept //
       : bits_{}, ekind_{kVoid}, direct_{Direct{uint16_t(0), ekind_}} {
   }
-  constexpr explicit Constant(bool val) noexcept //
+  constexpr explicit Imm(bool val) noexcept //
       : bits_{uint64_t(val)}, ekind_{kBool}, direct_{Direct{uint16_t(val), ekind_}} {
   }
-  constexpr explicit Constant(int8_t val) noexcept //
+  constexpr explicit Imm(int8_t val) noexcept //
       : bits_{uint64_t(val)}, ekind_{kInt8}, direct_{Direct{int16_t(val), ekind_}} {
   }
-  constexpr explicit Constant(int16_t val) noexcept //
+  constexpr explicit Imm(int16_t val) noexcept //
       : bits_{uint64_t(val)}, ekind_{kInt16}, direct_{Direct{int16_t(val), ekind_}} {
   }
-  constexpr explicit Constant(int32_t val) noexcept //
+  constexpr explicit Imm(int32_t val) noexcept //
       : bits_{uint64_t(val)}, ekind_{kInt32}, direct_{Direct{bits_, ekind_, 0}} {
   }
-  constexpr explicit Constant(int64_t val) noexcept //
+  constexpr explicit Imm(int64_t val) noexcept //
       : bits_{uint64_t(val)}, ekind_{kInt64}, direct_{Direct{bits_, ekind_, 0}} {
   }
-  constexpr explicit Constant(uint8_t val) noexcept //
+  constexpr explicit Imm(uint8_t val) noexcept //
       : bits_{uint64_t(val)}, ekind_{kUint8}, direct_{Direct{uint16_t(val), ekind_}} {
   }
-  constexpr explicit Constant(uint16_t val) noexcept //
+  constexpr explicit Imm(uint16_t val) noexcept //
       : bits_{uint64_t(val)}, ekind_{kUint16}, direct_{Direct{uint16_t(val), ekind_}} {
   }
-  constexpr explicit Constant(uint32_t val) noexcept //
+  constexpr explicit Imm(uint32_t val) noexcept //
       : bits_{uint64_t(val)}, ekind_{kUint32}, direct_{Direct{bits_, ekind_, 0}} {
   }
-  constexpr explicit Constant(uint64_t val) noexcept //
+  constexpr explicit Imm(uint64_t val) noexcept //
       : bits_{uint64_t(val)}, ekind_{kUint64}, direct_{Direct{bits_, ekind_, 0}} {
   }
-  constexpr explicit Constant(float val) noexcept //
+  constexpr explicit Imm(float val) noexcept //
       : bits_{ConstantFloat32{val}.bits()}, ekind_{kFloat32}, direct_{Direct{bits_, ekind_, 0}} {
   }
-  constexpr explicit Constant(double val) noexcept //
+  constexpr explicit Imm(double val) noexcept //
       : bits_{ConstantFloat64{val}.bits()}, ekind_{kFloat64}, direct_{Direct{bits_, ekind_, 0}} {
   }
-  constexpr Constant(Kind kind, uint64_t bits) noexcept //
+  constexpr Imm(Kind kind, uint64_t bits) noexcept //
       : bits_{bits}, ekind_{kind.val()}, direct_{Direct{bits_, ekind_, 0}} {
   }
 
@@ -183,15 +184,15 @@ public:
 private:
   class Direct;
 
-  constexpr Constant(uint64_t bits, Kind kind, Direct direct) noexcept //
+  constexpr Imm(uint64_t bits, Kind kind, Direct direct) noexcept //
       : bits_{bits}, ekind_{kind.val()}, direct_{direct} {
   }
 
   class Direct {
-    friend class Constant;
+    friend class Imm;
 
   public:
-    constexpr explicit Direct(uint32_t data) noexcept : val_(data) {
+    constexpr explicit Direct(uint32_t data) noexcept : val_{data} {
     }
 
     // bits is only 16 bits, and only low 4 bits of ekind are used
@@ -220,8 +221,8 @@ private:
       return val_;
     }
 
-    constexpr Constant to_const() const noexcept {
-      return Constant{xor_mask() ^ lrot(imm(), rotation_bits()), kind(), *this};
+    constexpr Imm to_const() const noexcept {
+      return Imm{xor_mask() ^ lrot(imm(), rotation_bits()), kind(), *this};
     }
 
   private:
@@ -286,11 +287,11 @@ private:
     return Direct{data}.kind();
   }
 
-  static constexpr Constant parse_direct(uint32_t data) noexcept {
+  static constexpr Imm parse_direct(uint32_t data) noexcept {
     return Direct{data}.to_const();
   }
 
-  static Constant parse_indirect(Kind kind, Offset offset, const Code *holder) noexcept;
+  static Imm parse_indirect(Kind kind, Offset offset, const Code *holder) noexcept;
 
   Code &write_indirect(Code *holder) const noexcept;
 
@@ -299,18 +300,19 @@ private:
   uint32_t direct_;
 };
 
-constexpr const Constant True{true};
-constexpr const Constant False{false};
+constexpr const Imm VoidImm{};
+constexpr const Imm TrueImm{true};
+constexpr const Imm FalseImm{false};
 
-constexpr inline bool operator==(Constant a, Constant b) noexcept {
+constexpr inline bool operator==(Imm a, Imm b) noexcept {
   return a.kind() == b.kind() && a.uint64() == b.uint64();
 }
 
-constexpr inline bool operator!=(Constant a, Constant b) noexcept {
+constexpr inline bool operator!=(Imm a, Imm b) noexcept {
   return a.kind() != b.kind() || a.uint64() != b.uint64();
 }
 
-std::ostream &operator<<(std::ostream &out, const Constant &c);
+std::ostream &operator<<(std::ostream &out, const Imm &c);
 
 } // namespace onejit
 

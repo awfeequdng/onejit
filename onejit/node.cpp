@@ -79,9 +79,9 @@ Node Node::child(uint32_t i) const noexcept {
     // only four values exist: BadStmt Break Continue Fallthrough
     header = NodeHeader{STMT_0, Void, uint16_t(item)};
   } else if ((item & 1) != 0) {
-    // direct Constant
+    // direct Imm
     offset_or_direct = item;
-    header = NodeHeader{CONST, Constant::parse_direct_kind(item), 0};
+    header = NodeHeader{CONST, Imm::parse_direct_kind(item), 0};
   } else if ((item & 7) == 2) {
     // direct Variable
     offset_or_direct = item;

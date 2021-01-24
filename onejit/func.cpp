@@ -24,8 +24,8 @@
  */
 
 #include <onejit/code.hpp>
-#include <onejit/constant.hpp>
 #include <onejit/func.hpp>
+#include <onejit/imm.hpp>
 
 #include <utility> // std::move()
 

@@ -7,7 +7,7 @@ AM_CPPFLAGS            = -I$(top_srcdir)/include
 # libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
 
 libonejit_a_SOURCES    = archid.cpp binary.cpp code.cpp codeparser.cpp compiler.cpp \
-                         constant.cpp const.cpp error.cpp expr.cpp func.cpp functype.cpp \
+                         imm.cpp const.cpp error.cpp expr.cpp func.cpp functype.cpp \
                          group.cpp kind.cpp label.cpp logsize.cpp memexpr.cpp \
                          node.cpp nodeheader.cpp op.cpp opstmt.cpp \
                          stmt0.cpp stmt1.cpp stmt2.cpp stmt3.cpp stmt4.cpp stmtn.cpp \

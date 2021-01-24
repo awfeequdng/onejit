@@ -26,8 +26,8 @@
 #ifndef ONEJIT_CONSTEXPR_HPP
 #define ONEJIT_CONSTEXPR_HPP
 
-#include <onejit/constant.hpp>
 #include <onejit/expr.hpp>
+#include <onejit/imm.hpp>
 
 #include <iosfwd>
 
@@ -57,7 +57,7 @@ containers
   constexpr explicit Const(bool val) noexcept
       : Base{Node{
             NodeHeader{CONST, Bool, 0},
-            Constant::Direct{uint16_t(val), kBool},
+            Imm::Direct{uint16_t(val), kBool},
             nullptr,
         }} {
   }
@@ -69,7 +69,7 @@ containers
   constexpr explicit Const(Kind kind, uint16_t val = 0) noexcept
       : Base{Node{
             NodeHeader{CONST, kind.nosimd(), 0},
-            Constant::Direct{val, kind.val()},
+            Imm::Direct{val, kind.val()},
             nullptr,
         }} {
   }
@@ -81,7 +81,7 @@ containers
   constexpr Const(Kind kind, int16_t val) noexcept
       : Base{Node{
             NodeHeader{CONST, kind.nosimd(), 0},
-            Constant::Direct{val, kind.val()},
+            Imm::Direct{val, kind.val()},
             nullptr,
         }} {
   }
@@ -96,7 +96,7 @@ containers
     return 0;
   }
 
-  Constant constant() const noexcept;
+  Imm constant() const noexcept;
 
 private:
   // downcast Node to Const
@@ -110,7 +110,7 @@ private:
     return t == CONST;
   }
 
-  static Const create(const Constant &c, Code *holder) noexcept;
+  static Const create(const Imm &c, Code *holder) noexcept;
 };
 
 constexpr const Const VoidExpr{Void};

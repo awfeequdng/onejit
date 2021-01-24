@@ -26,8 +26,8 @@
 #ifndef ONEJIT_CODE_HPP
 #define ONEJIT_CODE_HPP
 
-#include <onejit/constant.hpp>
 #include <onejit/fwd.hpp>
+#include <onejit/imm.hpp>
 #include <onejit/node.hpp>
 #include <onejit/type.hpp>
 #include <onestl/buffer.hpp>

@@ -17,29 +17,29 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * constant.cpp
+ * imm.cpp
  *
  *  Created on Jan 13, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/code.hpp>
-#include <onejit/constant.hpp>
+#include <onejit/imm.hpp>
 #include <onestl/chars.hpp>
 
 namespace onejit {
 
-Constant Constant::parse_indirect(Kind kind, Offset offset, const Code *holder) noexcept {
+Imm Imm::parse_indirect(Kind kind, Offset offset, const Code *holder) noexcept {
   uint64_t bits;
   if (kind.bits().val() == 64) {
     bits = holder->uint64(offset);
   } else {
     bits = holder->uint32(offset);
   }
-  return Constant{kind, bits};
+  return Imm{kind, bits};
 }
 
-Code &Constant::write_indirect(Code *holder) const noexcept {
+Code &Imm::write_indirect(Code *holder) const noexcept {
   if (kind().bits().val() == 64) {
     return holder->add_uint64(uint64());
   } else {
@@ -47,7 +47,7 @@ Code &Constant::write_indirect(Code *holder) const noexcept {
   }
 }
 
-std::ostream &operator<<(std::ostream &out, const Constant &c) {
+std::ostream &operator<<(std::ostream &out, const Imm &c) {
   const Kind kind = c.kind();
   switch (kind.nosimd().val()) {
   case kVoid:

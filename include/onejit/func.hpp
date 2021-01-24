@@ -161,7 +161,7 @@ public:
     return Cond::create(nodes, holder_);
   }
 
-  Const new_const(const Constant &c) noexcept {
+  Const new_const(const Imm &c) noexcept {
     return Const::create(c, holder_);
   }
 

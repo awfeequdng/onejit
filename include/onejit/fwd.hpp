@@ -58,7 +58,7 @@ class Code;
 class CodeParser;
 class Cond;
 class Const;
-class Constant;
+class Imm;
 union ConstantFloat32;
 union ConstantFloat64;
 class Continue;
