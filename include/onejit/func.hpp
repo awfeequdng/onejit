@@ -27,6 +27,7 @@
 #define ONEJIT_FUNC_HPP
 
 #include <onejit/binaryexpr.hpp>
+#include <onejit/callexpr.hpp>
 #include <onejit/code.hpp>
 #include <onejit/constexpr.hpp>
 #include <onejit/functype.hpp>
@@ -39,7 +40,6 @@
 #include <onejit/stmt3.hpp>
 #include <onejit/stmt4.hpp>
 #include <onejit/stmtn.hpp>
-#include <onejit/callexpr.hpp>
 #include <onejit/unaryexpr.hpp>
 #include <onejit/varexpr.hpp>
 #include <onestl/chars.hpp>
@@ -135,9 +135,6 @@ public:
   }
 
   // create a call to specified Func
-  CallExpr new_call(const Func &func) {
-    return new_call(func, Exprs{});
-  }
   CallExpr new_call(const Func &func, std::initializer_list<Expr> args) {
     return new_call(func, Exprs{args.begin(), args.size()});
   }
@@ -146,9 +143,6 @@ public:
   }
 
   // create a call to an arbitrary function, for example a Func or an already compiled C function
-  CallExpr new_call(const FuncType &ftype, const Label &flabel) {
-    return new_call(ftype, flabel, Exprs{});
-  }
   CallExpr new_call(const FuncType &ftype, const Label &flabel, std::initializer_list<Expr> args) {
     return new_call(ftype, flabel, Exprs{args.begin(), args.size()});
   }
@@ -209,7 +203,7 @@ public:
     return MemExpr::create(kind, address, holder_);
   }
 
-  // create a new return expression
+  // create a new return statement
   ReturnStmt new_return() noexcept {
     return new_return(Exprs{});
   }

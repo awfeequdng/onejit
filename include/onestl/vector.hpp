@@ -142,12 +142,6 @@ public:
   bool dup(View<T> other) noexcept {
     return dup(other.data(), other.size());
   }
-  bool dup(Span<T> other) noexcept {
-    return dup(other.data(), other.size());
-  }
-  bool dup(const Vector &other) noexcept {
-    return dup(other.data(), other.size());
-  }
 
   void clear() noexcept {
     size_ = 0;
@@ -175,14 +169,13 @@ public:
   }
 
   bool append(const T &src) noexcept {
-    return append(View<T>(&src, 1));
+    return append(View<T>{&src, 1});
   }
-
   bool append(View<T> src) noexcept {
     return VectorHelper::cast(*this).append(src.data(), src.size(), sizeof(T));
   }
 
-  void swap(Vector &other) noexcept {
+  void swap(Vector<T> &other) noexcept {
     mem::swap(data_, other.data_);
     mem::swap(size_, other.size_);
     mem::swap(cap_, other.cap_);
