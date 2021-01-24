@@ -107,7 +107,7 @@ Offset Node::size() const noexcept {
   Offset len = sum_uint32(1, children());
   switch (type()) {
   case VAR:
-    len = sum_uint32(len, 1); // for LocalId
+    len = sum_uint32(len, 1); // for Id
     break;
   case CONST:
     len = sum_uint32(len, (kind().bits().val() + 31) / 32);

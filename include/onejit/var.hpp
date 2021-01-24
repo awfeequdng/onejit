@@ -63,7 +63,7 @@ public:
 
   Local local() const noexcept;
 
-  LocalId id() const noexcept {
+  Id id() const noexcept {
     return local().id();
   }
 

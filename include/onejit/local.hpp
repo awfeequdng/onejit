@@ -33,13 +33,14 @@
 
 namespace onejit {
 
-class LocalId {
+// index of a local variable or register.
+class Id {
   friend class Func;
   friend union Local;
   friend class Var;
 
 public:
-  constexpr LocalId() noexcept : val_{} {
+  constexpr Id() noexcept : val_{} {
   }
 
   constexpr uint32_t val() const noexcept {
@@ -47,24 +48,24 @@ public:
   }
 
 private:
-  constexpr explicit LocalId(uint32_t val) noexcept : val_{val & 0xFFFFFF} {
+  constexpr explicit Id(uint32_t val) noexcept : val_{val & 0xFFFFFF} {
   }
 
-  // only 24 bits will be used
+  // only 24 bits are used
   uint32_t val_;
 };
 
-constexpr inline bool operator==(LocalId a, LocalId b) noexcept {
+constexpr inline bool operator==(Id a, Id b) noexcept {
   return a.val() == b.val();
 }
 
-constexpr inline bool operator!=(LocalId a, LocalId b) noexcept {
+constexpr inline bool operator!=(Id a, Id b) noexcept {
   return a.val() != b.val();
 }
 
-constexpr const LocalId NOID = LocalId{};
+constexpr const Id NOID = Id{};
 
-std::ostream &operator<<(std::ostream &out, LocalId id);
+std::ostream &operator<<(std::ostream &out, Id id);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -89,8 +90,8 @@ public:
     return Kind{uint8_t(val_)};
   }
 
-  constexpr LocalId id() const noexcept {
-    return LocalId{val_ >> 8};
+  constexpr Id id() const noexcept {
+    return Id{val_ >> 8};
   }
 
   constexpr explicit operator bool() const noexcept {
@@ -101,7 +102,7 @@ private:
   constexpr explicit Local(uint32_t val) noexcept : val_{val} {
   }
 
-  constexpr Local(Kind kind, LocalId id) noexcept : val_{kind.val() | id.val() << 8} {
+  constexpr Local(Kind kind, Id id) noexcept : val_{kind.val() | id.val() << 8} {
   }
 
   constexpr bool is_direct() const noexcept {

@@ -31,7 +31,7 @@
 
 namespace onejit {
 
-std::ostream &operator<<(std::ostream &out, LocalId id) {
+std::ostream &operator<<(std::ostream &out, Id id) {
   return out << Chars("id") << std::hex << id.val() << std::dec;
 }
 
