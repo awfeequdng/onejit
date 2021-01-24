@@ -24,9 +24,9 @@
  */
 
 #include <onejit/binaryexpr.hpp>
+#include <onejit/callexpr.hpp>
 #include <onejit/check.hpp>
 #include <onejit/code.hpp>
-#include <onejit/compiler.hpp>
 #include <onejit/constexpr.hpp>
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
@@ -38,7 +38,6 @@
 #include <onejit/stmt3.hpp>
 #include <onejit/stmt4.hpp>
 #include <onejit/stmtn.hpp>
-#include <onejit/tupleexpr.hpp>
 #include <onejit/unaryexpr.hpp>
 #include <onejit/varexpr.hpp>
 #include <onestl/chars.hpp>
@@ -126,30 +125,6 @@ Offset Node::size() const noexcept {
   return len;
 }
 
-Node Node::compile(Compiler &comp, bool parent_is_expr) const noexcept {
-  const Type t = type();
-  switch (t) {
-  case STMT_0:
-    return is<Stmt0>().compile(comp, parent_is_expr);
-  case STMT_1:
-    return is<Stmt1>().compile(comp, parent_is_expr);
-  case STMT_2:
-    return is<Stmt2>().compile(comp, parent_is_expr);
-  case STMT_3:
-    return is<Stmt3>().compile(comp, parent_is_expr);
-  case STMT_4:
-    return is<Stmt4>().compile(comp, parent_is_expr);
-  case STMT_N:
-    return is<StmtN>().compile(comp, parent_is_expr);
-  default:
-    if (const Expr e = is<Expr>()) {
-      return e.compile(comp, parent_is_expr);
-    } else {
-      return *this;
-    }
-  }
-}
-
 std::ostream &operator<<(std::ostream &out, const Node &node) {
   const Type t = node.type();
   switch (t) {
@@ -173,8 +148,8 @@ std::ostream &operator<<(std::ostream &out, const Node &node) {
     return out << node.is<UnaryExpr>();
   case BINARY:
     return out << node.is<BinaryExpr>();
-  case TUPLE:
-    return out << node.is<TupleExpr>();
+  case CALL:
+    return out << node.is<CallExpr>();
   case LABEL:
     return out << node.is<Label>();
   case CONST:

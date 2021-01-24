@@ -67,8 +67,6 @@ public:
     return child(0).is<Expr>();
   }
 
-  MemExpr compile(Compiler &comp, bool parent_is_expr) const noexcept;
-
 private:
   // downcast Node to MemExpr
   constexpr explicit MemExpr(const Node &node) noexcept : Base{node} {
@@ -82,7 +80,7 @@ private:
   static MemExpr create(Kind kind, const Expr &address, Code *holder) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const MemExpr &ue);
+std::ostream &operator<<(std::ostream &out, const MemExpr &expr);
 
 } // namespace onejit
 

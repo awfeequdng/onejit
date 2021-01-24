@@ -57,8 +57,6 @@ public:
     return 3;
   }
 
-  Node compile(Compiler &comp, bool parent_is_expr) const noexcept;
-
 protected:
   /* construct an invalid Stmt3 */
   constexpr explicit Stmt3(OpStmt3 op) noexcept : Base{STMT_3, Bad, op} {
@@ -114,8 +112,6 @@ public:
   Node else_() const noexcept {
     return child(2);
   }
-
-  Node compile(Compiler &comp, bool parent_is_expr) const noexcept;
 
 private:
   // downcast Node to IfStmt

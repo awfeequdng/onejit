@@ -38,7 +38,7 @@ static const int8_t tchildren[] = {
 
 static const Chars tstring[] = {
     "stmt0", "stmt1", "stmt2", "stmt3",  "stmt4", "stmtn",          // Stmt*
-    "var",   "mem",   "unary", "binary", "tuple", "label", "const", // *Expr
+    "var",   "mem",   "unary", "binary", "call",  "label", "const", // *Expr
     "ftype", "?",                                                   // FuncType
 };
 

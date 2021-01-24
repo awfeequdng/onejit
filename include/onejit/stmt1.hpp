@@ -62,8 +62,6 @@ public:
     return child(0);
   }
 
-  Node compile(Compiler &comp, bool parent_is_expr) const noexcept;
-
 protected:
   /* construct an invalid Stmt1 */
   constexpr explicit Stmt1(OpStmt1 op) noexcept : Base{STMT_1, Bad, op} {

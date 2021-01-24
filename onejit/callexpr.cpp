@@ -17,29 +17,28 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * tupleexpr.cpp
+ * callexpr.cpp
  *
  *  Created on Jan 22, 2021
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/callexpr.hpp>
 #include <onejit/code.hpp>
-#include <onejit/compiler.hpp>
 #include <onejit/func.hpp>
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
-#include <onejit/tupleexpr.hpp>
 #include <onestl/buffer.hpp>
 
 namespace onejit {
 
-// ============================  TupleExpr  ====================================
+// ============================  CallExpr  ====================================
 
-std::ostream &operator<<(std::ostream &out, const TupleExpr &tuple) {
-  out << '(' << tuple.op();
+std::ostream &operator<<(std::ostream &out, const CallExpr &call) {
+  out << '(' << call.op();
   // skip child(0) i.e. FuncType
-  for (size_t i = 1, n = tuple.children(); i < n; i++) {
-    out << ' ' << tuple.child(i);
+  for (size_t i = 1, n = call.children(); i < n; i++) {
+    out << ' ' << call.child(i);
   }
   return out << ')';
 }
@@ -65,7 +64,7 @@ CallExpr CallExpr::create(const FuncType &ftype, const Label &flabel, Exprs args
                           Code *holder) noexcept {
   const size_t n = args.size();
   while (holder && n == uint32_t(n)) {
-    const NodeHeader header{TUPLE, ftype.param_n() == 0 ? Void : ftype.param(0), CALL};
+    const NodeHeader header{CALL, ftype.param_n() == 0 ? Void : ftype.param(0), CALL_OP};
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add_uint32(sum_uint32(2, n)) && //
@@ -77,35 +76,6 @@ CallExpr CallExpr::create(const FuncType &ftype, const Label &flabel, Exprs args
     break;
   }
   return CallExpr{};
-}
-
-Expr CallExpr::compile(Compiler &comp, bool parent_is_expr) const noexcept {
-  const uint32_t n = children();
-
-  Func &func = comp.func();
-  CallExpr call;
-
-  if (children_are<VarExpr>(2, n)) {
-    // all args are already VarExpr
-    call = *this;
-  } else {
-    Vector<Expr> vargs;
-    // convert all arguments to VarExpr
-    comp.to_vars(*this, 2, n, vargs);
-    call = func.new_call(ftype(), label(), vargs);
-  }
-
-  if (!parent_is_expr) {
-    return call;
-  }
-  // avoid calls inside other expressions,
-  // and copy result value to a VarExpr.
-  //
-  // we could also use comp.to_var(call), but it risks
-  // infinite recursion because it invokes call.compile()
-  VarExpr dst = func.new_var(call.kind());
-  comp.add(func.new_assign(ASSIGN, dst, call));
-  return dst;
 }
 
 } // namespace onejit

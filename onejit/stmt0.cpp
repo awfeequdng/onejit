@@ -23,41 +23,10 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/compiler.hpp>
-#include <onejit/constexpr.hpp>
-#include <onejit/func.hpp>
 #include <onejit/stmt0.hpp>
 
 namespace onejit {
 
 // ============================  Stmt0  ========================================
-
-Node Stmt0::compile(Compiler &comp, bool) const noexcept {
-  switch (op()) {
-  case BREAK:
-    if (Label l = comp.label_break()) {
-      comp.compile_add(comp.func().new_goto(l), false);
-    } else {
-      comp.error(*this, "misplaced Break");
-    }
-    break;
-  case CONTINUE:
-    if (Label l = comp.label_continue()) {
-      comp.compile_add(comp.func().new_goto(l), false);
-    } else {
-      comp.error(*this, "misplaced Continue");
-    }
-    break;
-  case FALLTHROUGH:
-    comp.error(*this, "misplaced Fallthrough");
-    break;
-  case BAD:
-  default:
-    comp.error(*this, "bad Stmt0");
-    break;
-  }
-  // all Stmt*::compile() must return VoidExpr
-  return VoidExpr;
-}
 
 } // namespace onejit

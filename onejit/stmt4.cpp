@@ -24,8 +24,6 @@
  */
 
 #include <onejit/code.hpp>
-#include <onejit/compiler.hpp>
-#include <onejit/constexpr.hpp>
 #include <onejit/stmt4.hpp>
 #include <onestl/chars.hpp>
 
@@ -48,15 +46,6 @@ Stmt4 ONEJIT_NOINLINE Stmt4::create(OpStmt4 op, const Node &child0, const Node &
     break;
   }
   return Stmt4{op};
-}
-
-Node Stmt4::compile(Compiler &comp, bool parent_is_expr) const noexcept {
-  if (const auto st = is<ForStmt>()) {
-    return st.compile(comp, parent_is_expr);
-  }
-  /// TODO: implement
-  comp.add(*this);
-  return VoidExpr;
 }
 
 std::ostream &operator<<(std::ostream &out, const Stmt4 &st) {

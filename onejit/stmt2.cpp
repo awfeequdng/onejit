@@ -24,7 +24,6 @@
  */
 
 #include <onejit/code.hpp>
-#include <onejit/compiler.hpp>
 #include <onejit/expr.hpp>
 #include <onejit/func.hpp>
 #include <onejit/stmt2.hpp>
@@ -47,25 +46,6 @@ Stmt2 ONEJIT_NOINLINE Stmt2::create(OpStmt2 op, const Nodes children, Code *hold
   return Stmt2{op};
 }
 
-Node Stmt2::compile(Compiler &comp, bool parent_is_expr) const noexcept {
-  switch (op()) {
-  case CASE:
-    comp.error(*this, "misplaced Case");
-    break;
-  case DEFAULT:
-    comp.error(*this, "misplaced Default");
-    break;
-  case JUMP_IF:
-    return is<JumpIfStmt>().compile(comp, parent_is_expr);
-  default:
-    if (auto st = is<AssignStmt>()) {
-      return st.compile(comp, parent_is_expr);
-    }
-  }
-  comp.add(*this);
-  return VoidExpr;
-}
-
 std::ostream &operator<<(std::ostream &out, const Stmt2 &st) {
   out << '(' << st.op();
   if (st.op() != DEFAULT) {
@@ -79,20 +59,6 @@ std::ostream &operator<<(std::ostream &out, const Stmt2 &st) {
 AssignStmt AssignStmt::create(OpStmt2 op, const Expr &dst, const Expr &src, Code *holder) noexcept {
   const Node children[] = {dst, src};
   return AssignStmt{Stmt2::create(op, Nodes{children, 2}, holder)};
-}
-
-Node AssignStmt::compile(Compiler &comp, bool) const noexcept {
-  Expr src = this->src();
-  Expr dst = this->dst();
-  // compile src first: its side effects, if any, must be applied before dst
-  Expr comp_src = src.compile(comp, false);
-  Expr comp_dst = dst.compile(comp, false);
-  if (src == comp_src && dst == comp_src) {
-    comp.add(*this);
-  } else {
-    comp.add(comp.func().new_assign(op(), comp_dst, comp_src));
-  }
-  return VoidExpr;
 }
 
 // ============================  CaseStmt  =====================================
@@ -114,17 +80,6 @@ DefaultStmt DefaultStmt::create(const Node &body, Code *holder) noexcept {
 JumpIfStmt JumpIfStmt::create(const Label &to, const Expr &cond, Code *holder) noexcept {
   const Node children[] = {to, cond};
   return JumpIfStmt{Stmt2::create(JUMP_IF, Nodes{children, 2}, holder)};
-}
-
-Node JumpIfStmt::compile(Compiler &comp, bool) const noexcept {
-  Expr e = cond();
-  Expr comp_e = e.compile(comp, false);
-  if (e == comp_e) {
-    comp.add(*this);
-  } else {
-    comp.add(comp.func().new_jump_if(to(), comp_e));
-  }
-  return VoidExpr;
 }
 
 } // namespace onejit

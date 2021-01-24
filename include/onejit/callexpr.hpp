@@ -17,14 +17,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * tupleexpr.hpp
+ * callexpr.hpp
  *
  *  Created on Jan 22, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_TUPLEEXPR_HPP
-#define ONEJIT_TUPLEEXPR_HPP
+#ifndef ONEJIT_CALLEXPR_HPP
+#define ONEJIT_CALLEXPR_HPP
 
 #include <onejit/expr.hpp>
 #include <onejit/op.hpp>
@@ -33,48 +33,8 @@
 namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
-// base class of CallExpr, AssignTupleStmt, ReturnStmt
-class TupleExpr : public Expr {
+class CallExpr : public Expr {
   using Base = Expr;
-  friend class Node;
-  friend class Func;
-
-public:
-  /**
-   * construct an invalid TupleExpr.
-   * exists only to allow placing TupleExpr in containers
-   * and similar uses that require a default constructor.
-   *
-   * to create a valid TupleExpr, use Func::new_call(), Func::new_assign_tuple()
-   * or Func::new_return()
-   */
-  constexpr TupleExpr() noexcept : Base{TUPLE} {
-  }
-
-  constexpr OpN op() const noexcept {
-    return OpN(Base::op());
-  }
-
-protected:
-  /* construct an invalid TupleExpr */
-  constexpr explicit TupleExpr(OpN op) noexcept : Base{TUPLE, op} {
-  }
-
-  // downcast Node to TupleExpr
-  constexpr explicit TupleExpr(const Node &node) noexcept : Base{node} {
-  }
-
-  // downcast helper
-  static constexpr bool is_allowed_type(Type t) noexcept {
-    return t == TUPLE;
-  }
-};
-
-std::ostream &operator<<(std::ostream &out, const TupleExpr &tuple);
-
-////////////////////////////////////////////////////////////////////////////////
-class CallExpr : public TupleExpr {
-  using Base = TupleExpr;
   friend class Node;
   friend class Func;
 
@@ -90,7 +50,7 @@ public:
   }
 
   static constexpr OpN op() noexcept {
-    return CALL;
+    return CALL_OP;
   }
 
   // shortcut for child(0).is<FuncType>()
@@ -99,16 +59,8 @@ public:
   // shortcut for child(1).is<Label>()
   Label label() const noexcept;
 
-  // shortcut for children() - 2
-  uint32_t arg_n() const noexcept {
-    uint32_t n = children();
-    return n >= 2 ? n - 2 : 0;
-  }
-
-  // shortcut for child(i + 2).is<Expr>()
+  // shortcut for child(i+2).is<Expr>()
   Expr arg(uint32_t i) const noexcept;
-
-  Expr compile(Compiler &comp, bool parent_is_expr) const noexcept;
 
 private:
   // downcast Node to CallExpr
@@ -116,14 +68,16 @@ private:
   }
 
   // downcast helper
-  static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op == CALL;
+  static constexpr bool is_allowed_type(Type t) noexcept {
+    return t == CALL;
   }
 
   static CallExpr create(const FuncType &ftype, const Label &flabel, Exprs args,
                          Code *holder) noexcept;
 };
 
+std::ostream &operator<<(std::ostream &out, const CallExpr &expr);
+
 } // namespace onejit
 
-#endif // ONEJIT_TUPLEEXPR_HPP
+#endif // ONEJIT_CALLEXPR_HPP

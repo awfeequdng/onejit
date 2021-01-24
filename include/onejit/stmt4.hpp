@@ -57,8 +57,6 @@ public:
     return 4;
   }
 
-  Node compile(Compiler &comp, bool parent_is_expr) const noexcept;
-
 protected:
   /* construct an invalid Stmt4 */
   constexpr explicit Stmt4(OpStmt4 op) noexcept : Base{STMT_4, Bad, op} {

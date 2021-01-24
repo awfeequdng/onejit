@@ -11,7 +11,7 @@ libonejit_a_SOURCES    = archid.cpp binaryexpr.cpp code.cpp codeparser.cpp compi
                          group.cpp kind.cpp label.cpp logsize.cpp memexpr.cpp \
                          node.cpp nodeheader.cpp op.cpp opstmt.cpp \
                          stmt0.cpp stmt1.cpp stmt2.cpp stmt3.cpp stmt4.cpp stmtn.cpp \
-                         type.cpp tupleexpr.cpp unaryexpr.cpp var.cpp varexpr.cpp
+                         type.cpp callexpr.cpp unaryexpr.cpp var.cpp varexpr.cpp
 
 # libonejit_a_LDFLAGS  =
 # libonejit_a_LDADD    =

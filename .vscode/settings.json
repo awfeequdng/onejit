@@ -81,7 +81,8 @@
         "ios": "cpp",
         "__bit_reference": "cpp",
         "__config": "cpp",
-        "__errc": "cpp"
+        "__errc": "cpp",
+        "__functional_03": "cpp"
     },
     "files.watcherExclude": {
         "**/.git/**": true

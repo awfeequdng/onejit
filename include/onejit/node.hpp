@@ -131,8 +131,6 @@ public:
     return true;
   }
 
-  Node compile(Compiler &comp, bool parent_is_expr) const noexcept;
-
 protected:
   constexpr Node(NodeHeader header, CodeItem offset_or_direct, const Code *code) noexcept
       : header_{header}, off_or_dir_{offset_or_direct}, code_{code} {

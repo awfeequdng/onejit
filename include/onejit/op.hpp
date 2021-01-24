@@ -66,7 +66,7 @@ enum Op2 : uint16_t {
 
 enum OpN : uint16_t {
   BAD_OPN = 0,
-  CALL = 1,
+  CALL_OP = 1,
 };
 
 const Chars &to_string(Op1 op) noexcept;

@@ -75,8 +75,6 @@ public:
     return child(1).is<Expr>();
   }
 
-  BinaryExpr compile(Compiler &comp, bool parent_is_expr) const noexcept;
-
 private:
   // downcast Node to UnaryExpr
   constexpr explicit BinaryExpr(const Node &node) noexcept : Base{node} {
@@ -91,7 +89,7 @@ private:
   static BinaryExpr create(Op2 op, const Expr &left, const Expr &right, Code *holder);
 };
 
-std::ostream &operator<<(std::ostream &out, const BinaryExpr &be);
+std::ostream &operator<<(std::ostream &out, const BinaryExpr &expr);
 
 } // namespace onejit
 

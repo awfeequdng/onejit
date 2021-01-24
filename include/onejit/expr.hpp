@@ -30,7 +30,7 @@
 
 namespace onejit {
 
-// base class of BinaryExpr, ConstExpr, Label, MemExpr, TupleExpr, UnaryExpr, VarExpr
+// base class of BinaryExpr, ConstExpr, Label, MemExpr, CallExpr, UnaryExpr, VarExpr
 class Expr : public Node {
   using Base = Node;
 
@@ -39,8 +39,6 @@ class Expr : public Node {
 public:
   constexpr Expr() noexcept : Base{} {
   }
-
-  Expr compile(Compiler &comp, bool parent_is_expr) const noexcept;
 
 protected:
   /* construct and invalid Expr */

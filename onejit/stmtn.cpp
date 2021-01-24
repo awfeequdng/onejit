@@ -23,14 +23,11 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/callexpr.hpp> // CallExpr
 #include <onejit/code.hpp>
-#include <onejit/compiler.hpp>
-#include <onejit/constexpr.hpp>
 #include <onejit/expr.hpp>
-#include <onejit/func.hpp>
 #include <onejit/stmt2.hpp> // CaseStmt
 #include <onejit/stmtn.hpp>
-#include <onejit/tupleexpr.hpp> // CallExpr
 #include <onestl/chars.hpp>
 
 namespace onejit {
@@ -50,24 +47,6 @@ StmtN StmtN::create(OpStmtN op, const Nodes nodes, Code *holder) noexcept {
     break;
   }
   return StmtN{op};
-}
-
-Node StmtN::compile(Compiler &comp, bool parent_is_expr) const noexcept {
-  switch (op()) {
-  case ASSIGN_TUPLE:
-    return is<AssignTupleStmt>().compile(comp, parent_is_expr);
-  case BLOCK:
-    return is<BlockStmt>().compile(comp, parent_is_expr);
-  case COND:
-    return is<CondStmt>().compile(comp, parent_is_expr);
-  case RETURN:
-    return is<ReturnStmt>().compile(comp, parent_is_expr);
-  case SWITCH:
-    return is<SwitchStmt>().compile(comp, parent_is_expr);
-  default:
-    comp.add(*this);
-    return VoidExpr;
-  }
 }
 
 std::ostream &operator<<(std::ostream &out, const StmtN &st) {
@@ -102,28 +81,9 @@ AssignTupleStmt AssignTupleStmt::create(Exprs assign_to, const CallExpr &call,
   return AssignTupleStmt{};
 }
 
-Node AssignTupleStmt::compile(Compiler &comp, bool) const noexcept {
-  /// TODO: implement
-  comp.add(*this);
-  return VoidExpr;
-}
-
 // ============================  BlockStmt  ====================================
 
-Node BlockStmt::compile(Compiler &comp, bool) const noexcept {
-  for (size_t i = 0, n = children(); i < n; i++) {
-    child(i).compile(comp, false);
-  }
-  return VoidExpr;
-}
-
 // ============================  CondStmt  =====================================
-
-Node CondStmt::compile(Compiler &comp, bool) const noexcept {
-  /// TODO: implement
-  comp.add(*this);
-  return VoidExpr;
-}
 
 // ============================  ReturnStmt  ===================================
 
@@ -140,42 +100,6 @@ ReturnStmt ReturnStmt::create(Exprs exprs, Code *holder) noexcept {
     break;
   }
   return ReturnStmt{};
-}
-
-Node ReturnStmt::compile(Compiler &comp, bool) const noexcept {
-  Func &func = comp.func();
-  const size_t n = children();
-  if (n != func.result_n()) {
-    comp.error(*this, "bad number of return values");
-    comp.add(*this);
-    return VoidExpr;
-  }
-  bool uses_func_result = true;
-  for (size_t i = 0; uses_func_result && i < n; i++) {
-    uses_func_result = child(i) == func.result(i);
-  }
-  if (uses_func_result) {
-    // nothing to do
-    comp.add(*this);
-    return VoidExpr;
-  }
-  Buffer<Expr> vars;
-  for (size_t i = 0; i < n; i++) {
-    VarExpr var = func.result(i);
-    Expr expr = child(i).is<Expr>();
-    if (expr != var) {
-      // compile expression and copy its result
-      // to expected location func.result(i)
-      expr = expr.compile(comp, false);
-      comp.add(func.new_assign(ASSIGN, var, expr));
-    }
-    vars.append(var);
-  }
-  if (!vars) {
-    comp.out_of_memory(*this);
-  }
-  comp.add(func.new_return(vars));
-  return VoidExpr;
 }
 
 // ============================  SwitchStmt  ===================================
@@ -195,12 +119,6 @@ SwitchStmt SwitchStmt::create(const Expr &expr, const CaseStmts cases, Code *hol
     break;
   }
   return SwitchStmt{};
-}
-
-Node SwitchStmt::compile(Compiler &comp, bool) const noexcept {
-  /// TODO: implement
-  comp.add(*this);
-  return VoidExpr;
 }
 
 } // namespace onejit

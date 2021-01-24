@@ -52,8 +52,6 @@ public:
     return OpStmtN(Base::op());
   }
 
-  Node compile(Compiler &comp, bool parent_is_expr) const noexcept;
-
 protected:
   /* construct an invalid StmtN */
   constexpr explicit StmtN(OpStmtN op) noexcept : Base{STMT_N, Bad, op} {
@@ -96,8 +94,6 @@ public:
     return ASSIGN_TUPLE;
   }
 
-  Node compile(Compiler &comp, bool parent_is_expr) const noexcept;
-
 private:
   // downcast Node to AssignTupleStmt
   constexpr explicit AssignTupleStmt(const Node &node) noexcept : Base{node} {
@@ -132,8 +128,6 @@ public:
   static constexpr OpStmtN op() noexcept {
     return BLOCK;
   }
-
-  Node compile(Compiler &comp, bool parent_is_expr) const noexcept;
 
 private:
   // downcast Node to BlockStmt
@@ -176,8 +170,6 @@ public:
     return COND;
   }
 
-  Node compile(Compiler &comp, bool parent_is_expr) const noexcept;
-
 private:
   // downcast Node to CondStmt
   constexpr explicit CondStmt(const Node &node) noexcept : Base{node} {
@@ -215,8 +207,6 @@ public:
     return RETURN;
   }
 
-  Node compile(Compiler &comp, bool parent_is_expr) const noexcept;
-
 private:
   // downcast Node to ReturnStmt
   constexpr explicit ReturnStmt(const Node &node) noexcept : Base{node} {
@@ -250,8 +240,6 @@ public:
   static constexpr OpStmtN op() noexcept {
     return SWITCH;
   }
-
-  Node compile(Compiler &comp, bool parent_is_expr) const noexcept;
 
 private:
   // downcast Node to SwitchStmt

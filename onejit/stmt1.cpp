@@ -24,8 +24,6 @@
  */
 
 #include <onejit/code.hpp>
-#include <onejit/compiler.hpp>
-#include <onejit/constexpr.hpp>
 #include <onejit/stmt1.hpp>
 
 namespace onejit {
@@ -45,11 +43,6 @@ Stmt1 ONEJIT_NOINLINE Stmt1::create(OpStmt1 op, const Node &child, Code *holder)
   }
 
   return Stmt1{op};
-}
-
-Node Stmt1::compile(Compiler &comp, bool) const noexcept {
-  comp.add(*this);
-  return VoidExpr;
 }
 
 std::ostream &operator<<(std::ostream &out, const Stmt1 &st) {

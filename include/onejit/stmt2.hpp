@@ -62,8 +62,6 @@ public:
     return 2;
   }
 
-  Node compile(Compiler &comp, bool parent_is_expr) const noexcept;
-
 protected:
   /* construct an invalid Stmt2 */
   constexpr explicit Stmt2(OpStmt2 op) noexcept : Base{STMT_2, Bad, op} {
@@ -113,8 +111,6 @@ public:
   Expr src() const noexcept {
     return child(1).is<Expr>();
   }
-
-  Node compile(Compiler &comp, bool) const noexcept;
 
 private:
   // downcast Node to AssignStmt
@@ -250,8 +246,6 @@ public:
   Expr cond() const noexcept {
     return child(1).is<Expr>();
   }
-
-  Node compile(Compiler &comp, bool parent_is_expr) const noexcept;
 
 private:
   // downcast Node to JumpIfStmt

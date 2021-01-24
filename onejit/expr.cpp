@@ -24,30 +24,13 @@
  */
 
 #include <onejit/binaryexpr.hpp>
+#include <onejit/callexpr.hpp>
 #include <onejit/expr.hpp>
 #include <onejit/memexpr.hpp>
-#include <onejit/tupleexpr.hpp>
 #include <onejit/unaryexpr.hpp>
 
 namespace onejit {
 
-Expr Expr::compile(Compiler &comp, bool) const noexcept {
-  const Type t = type();
-  switch (t) {
-  case MEM:
-    return is<MemExpr>().compile(comp, true);
-  case UNARY:
-    return is<UnaryExpr>().compile(comp, true);
-  case BINARY:
-    return is<BinaryExpr>().compile(comp, true);
-  case TUPLE:
-    if (const CallExpr call = is<CallExpr>()) {
-      return call.compile(comp, true);
-    }
-    // FALLTHROUGH
-  default:
-    return *this;
-  }
-}
+//
 
 } // namespace onejit

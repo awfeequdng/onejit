@@ -46,7 +46,7 @@ enum Type : uint8_t {
   MEM = 7,
   UNARY = 8,
   BINARY = 9,
-  TUPLE = 10, // expression list: CALL
+  CALL = 10,
   LABEL = 11, // jump destination
   CONST = 12,
 
@@ -55,7 +55,7 @@ enum Type : uint8_t {
 
 // true if Type t indicates an arbitrary number of child Node:s
 constexpr inline bool is_list(Type t) noexcept {
-  return t == STMT_N || t == TUPLE || t == FTYPE;
+  return t == STMT_N || t == CALL || t == FTYPE;
 }
 
 uint32_t to_children(Type t) noexcept;
