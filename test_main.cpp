@@ -110,18 +110,18 @@ void Test::const_expr() const {
 
   Const one{Int8, int16_t(1)};
   Const minus_one{Int8, int16_t(-1)};
-  ONEJIT_TEST(one.constant(), ==, Imm{int8_t(1)});
-  ONEJIT_TEST(minus_one.constant(), ==, Imm{int8_t(-1)});
+  ONEJIT_TEST(one.imm(), ==, Imm{int8_t(1)});
+  ONEJIT_TEST(minus_one.imm(), ==, Imm{int8_t(-1)});
 
   Const plus_10k{Int16, int16_t(10000)};
   Const minus_10k{Int16, int16_t(-10000)};
-  ONEJIT_TEST(plus_10k.constant(), ==, Imm{int16_t(10000)});
-  ONEJIT_TEST(minus_10k.constant(), ==, Imm{int16_t(-10000)});
+  ONEJIT_TEST(plus_10k.imm(), ==, Imm{int16_t(10000)});
+  ONEJIT_TEST(minus_10k.imm(), ==, Imm{int16_t(-10000)});
 
   Const plus_32k{Int16, int16_t(32767)};
   Const minus_32k{Int16, int16_t(-32768)};
-  ONEJIT_TEST(plus_32k.constant(), ==, Imm{int16_t(32767)});
-  ONEJIT_TEST(minus_32k.constant(), ==, Imm{int16_t(-32768)});
+  ONEJIT_TEST(plus_32k.imm(), ==, Imm{int16_t(32767)});
+  ONEJIT_TEST(minus_32k.imm(), ==, Imm{int16_t(-32768)});
 }
 
 void Test::simple_expr() {
@@ -130,7 +130,7 @@ void Test::simple_expr() {
 
   ONEJIT_TEST(c.kind(), ==, Float32);
   ONEJIT_TEST(c.float32(), ==, 1.5f);
-  ONEJIT_TEST(ce.is<Const>().constant(), ==, c);
+  ONEJIT_TEST(ce.is<Const>().imm(), ==, c);
 
   ONEJIT_TEST(ce.type(), ==, CONST);
   ONEJIT_TEST(ce.kind(), ==, Float32);
@@ -195,10 +195,10 @@ void Test::simple_expr() {
     ONEJIT_TEST(bool(node.is<Const>()), ==, false);
     ONEJIT_TEST(bool(node.is<Stmt>()), ==, false);
 
-    Variable var1 = ve.to<Var>().var();
-    Variable var2 = Variable::parse_direct(var1.direct());
-    ONEJIT_TEST(var1, ==, var2);
-    ONEJIT_TEST(var1.kind(), ==, k);
+    Local local1 = ve.to<Var>().local();
+    Local local2 = Local::parse_direct(local1.direct());
+    ONEJIT_TEST(local1, ==, local2);
+    ONEJIT_TEST(local1.kind(), ==, k);
   }
 }
 

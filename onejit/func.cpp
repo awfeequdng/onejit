@@ -101,9 +101,9 @@ Label Func::new_label() noexcept {
 Var Func::new_var(Kind kind) noexcept {
   if (kind != Bad) {
     const size_t n = vars_.size() + FIRST_VARID;
-    const VarId id(n); // VarId is limited to 24 bits
+    const LocalId id(n); // LocalId is limited to 24 bits
     if (kind == Void || id.val() == n) {
-      const Variable var{kind, kind == Void ? VarId{} : id};
+      const Local var{kind, kind == Void ? LocalId{} : id};
       Var ve = Var::create(var, holder_);
       if (ve && vars_.append(ve)) {
         return ve;

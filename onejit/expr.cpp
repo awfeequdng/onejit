@@ -24,10 +24,10 @@
  */
 
 #include <onejit/binary.hpp>
-#include <onejit/callexpr.hpp>
+#include <onejit/call.hpp>
 #include <onejit/expr.hpp>
-#include <onejit/memexpr.hpp>
-#include <onejit/unaryexpr.hpp>
+#include <onejit/mem.hpp>
+#include <onejit/unary.hpp>
 
 namespace onejit {
 

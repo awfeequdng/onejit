@@ -17,24 +17,24 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * varexpr.hpp
+ * unary.hpp
  *
- *  Created on Jan 15, 2021
+ *  Created on Jan 16, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_VAREXPR_HPP
-#define ONEJIT_VAREXPR_HPP
+#ifndef ONEJIT_UNARYEXPR_HPP
+#define ONEJIT_UNARYEXPR_HPP
 
 #include <onejit/expr.hpp>
-#include <onejit/var.hpp>
+#include <onejit/op.hpp>
 
 #include <iosfwd>
 
 namespace onejit {
 
-// an expression containing only a local variable or register.
-class Var : public Expr {
+// an unary expression: Op1 and a single argument
+class Unary : public Expr {
   using Base = Expr;
 
   friend class Func;
@@ -42,48 +42,51 @@ class Var : public Expr {
 
 public:
   /**
-   * construct an invalid Var.
-   * exists only to allow placing Var in containers
+   * construct an invalid Unary.
+   * exists only to allow placing Unary in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Var, use Func::new_var()
+   * to create a valid Unary, use Func::new_unary()
    */
-  constexpr Var() noexcept : Base{VAR} {
+  constexpr Unary() noexcept : Base{UNARY} {
   }
 
   static constexpr Type type() noexcept {
-    return VAR;
+    return UNARY;
   }
 
   using Base::kind;
 
-  static constexpr uint32_t children() noexcept {
-    return 0;
+  constexpr Op1 op() const noexcept {
+    return Op1(Base::op());
   }
 
-  Variable var() const noexcept;
+  static constexpr uint32_t children() noexcept {
+    return 1;
+  }
 
-  VarId id() const noexcept {
-    return var().id();
+  // shortcut for child(0).is<Expr>()
+  Expr x() const noexcept {
+    return child(0).is<Expr>();
   }
 
 private:
-  // downcast Node to Const
-  constexpr explicit Var(const Node &node) noexcept //
-      : Base{Node{node.header(), node.offset_or_direct(),
-                  node.offset_or_direct() & 2 ? nullptr : node.code()}} {
+  // downcast Node to Unary
+  constexpr explicit Unary(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
   static constexpr bool is_allowed_type(Type t) noexcept {
-    return t == VAR;
+    return t == UNARY;
   }
 
-  static Var create(Variable var, Code *holder) noexcept;
+  static Unary create(Kind kind, Op1 op, const Expr &child, Code *holder) noexcept;
+  // also autodetects kind if op != CAST
+  static Unary create(Op1 op, const Expr &child, Code *holder) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const Var &ve);
+std::ostream &operator<<(std::ostream &out, const Unary &expr);
 
 } // namespace onejit
 
-#endif // ONEJIT_VAR_HPP
+#endif // ONEJIT_UNARYEXPR_HPP

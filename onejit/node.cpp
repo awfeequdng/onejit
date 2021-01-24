@@ -24,13 +24,13 @@
  */
 
 #include <onejit/binary.hpp>
-#include <onejit/callexpr.hpp>
+#include <onejit/call.hpp>
 #include <onejit/check.hpp>
 #include <onejit/code.hpp>
 #include <onejit/const.hpp>
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
-#include <onejit/memexpr.hpp>
+#include <onejit/mem.hpp>
 #include <onejit/node.hpp>
 #include <onejit/stmt0.hpp>
 #include <onejit/stmt1.hpp>
@@ -38,8 +38,8 @@
 #include <onejit/stmt3.hpp>
 #include <onejit/stmt4.hpp>
 #include <onejit/stmtn.hpp>
-#include <onejit/unaryexpr.hpp>
-#include <onejit/varexpr.hpp>
+#include <onejit/unary.hpp>
+#include <onejit/var.hpp>
 #include <onestl/chars.hpp>
 
 namespace onejit {
@@ -83,9 +83,9 @@ Node Node::child(uint32_t i) const noexcept {
     offset_or_direct = item;
     header = NodeHeader{CONST, Imm::parse_direct_kind(item), 0};
   } else if ((item & 7) == 2) {
-    // direct Variable
+    // direct Local
     offset_or_direct = item;
-    header = NodeHeader{VAR, Variable::parse_direct_kind(item), 0};
+    header = NodeHeader{VAR, Local::parse_direct_kind(item), 0};
 #if 0 // unused
   } else if ((item & 0xF) == 0xE) {
     offset_or_direct = item;
@@ -107,7 +107,7 @@ Offset Node::size() const noexcept {
   Offset len = sum_uint32(1, children());
   switch (type()) {
   case VAR:
-    len = sum_uint32(len, 1); // for VarId
+    len = sum_uint32(len, 1); // for LocalId
     break;
   case CONST:
     len = sum_uint32(len, (kind().bits().val() + 31) / 32);

@@ -88,8 +88,8 @@ class Switch;
 class Test;
 class Unary;
 class Var;
-union Variable;
-class VarId;
+union Local;
+class LocalId;
 
 using Bits = LogSize;
 using CodeItem = uint32_t;

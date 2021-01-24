@@ -96,7 +96,7 @@ containers
     return 0;
   }
 
-  Imm constant() const noexcept;
+  Imm imm() const noexcept;
 
 private:
   // downcast Node to Const
@@ -136,4 +136,4 @@ std::ostream &operator<<(std::ostream &out, const Const &ce);
 
 } // namespace onejit
 
-#endif // ONEJIT_VAR_HPP
+#endif // ONEJIT_LOCAL_HPP

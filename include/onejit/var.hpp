@@ -19,133 +19,70 @@
  *
  * var.hpp
  *
- *  Created on Jan 09, 2021
+ *  Created on Jan 15, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #ifndef ONEJIT_VAR_HPP
 #define ONEJIT_VAR_HPP
 
-#include <onejit/endian.hpp>
-#include <onejit/node.hpp>
+#include <onejit/expr.hpp>
+#include <onejit/local.hpp>
 
 #include <iosfwd>
 
 namespace onejit {
 
-class VarId {
+// an expression containing only a local variable or register.
+class Var : public Expr {
+  using Base = Expr;
+
   friend class Func;
-  friend union Variable;
-  friend class Var;
-
-public:
-  constexpr VarId() noexcept : val_{} {
-  }
-
-  constexpr uint32_t val() const noexcept {
-    return val_;
-  }
-
-private:
-  constexpr explicit VarId(uint32_t val) noexcept : val_{val & 0xFFFFFF} {
-  }
-
-  // only 24 bits will be used
-  uint32_t val_;
-};
-
-constexpr inline bool operator==(VarId a, VarId b) noexcept {
-  return a.val() == b.val();
-}
-
-constexpr inline bool operator!=(VarId a, VarId b) noexcept {
-  return a.val() != b.val();
-}
-
-constexpr const VarId NOID = VarId{};
-
-std::ostream &operator<<(std::ostream &out, VarId id);
-
-////////////////////////////////////////////////////////////////////////////////
-
-// a local variable or register.
-union Variable {
-  friend class Code;
-  friend class Func;
-  friend class FuncType;
   friend class Node;
-  friend class Test;
-  friend class Var;
 
 public:
-  constexpr Variable() noexcept : val_{kBad} {
+  /**
+   * construct an invalid Var.
+   * exists only to allow placing Var in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid Var, use Func::new_var()
+   */
+  constexpr Var() noexcept : Base{VAR} {
   }
 
-  constexpr Type type() const noexcept {
+  static constexpr Type type() noexcept {
     return VAR;
   }
 
-  constexpr Kind kind() const noexcept {
-    return Kind{uint8_t(val_)};
+  using Base::kind;
+
+  static constexpr uint32_t children() noexcept {
+    return 0;
   }
 
-  constexpr VarId id() const noexcept {
-    return VarId{val_ >> 8};
-  }
+  Local local() const noexcept;
 
-  constexpr explicit operator bool() const noexcept {
-    return uint8_t(val_) != kBad;
+  LocalId id() const noexcept {
+    return local().id();
   }
 
 private:
-  constexpr explicit Variable(uint32_t val) noexcept : val_{val} {
+  // downcast Node to Const
+  constexpr explicit Var(const Node &node) noexcept //
+      : Base{Node{node.header(), node.offset_or_direct(),
+                  node.offset_or_direct() & 2 ? nullptr : node.code()}} {
   }
 
-  constexpr Variable(Kind kind, VarId id) noexcept : val_{kind.val() | id.val() << 8} {
+  // downcast helper
+  static constexpr bool is_allowed_type(Type t) noexcept {
+    return t == VAR;
   }
 
-  constexpr bool is_direct() const noexcept {
-    return (val_ >> 29) == 0;
-  }
-
-  // useful only if is_direct() returns true
-  constexpr uint32_t direct() const noexcept {
-    return 0x2 | val_ << 3;
-  }
-  static constexpr Kind parse_direct_kind(uint32_t data) noexcept {
-    return Kind(data >> 3);
-  }
-  static constexpr Variable parse_direct(uint32_t data) noexcept {
-    return Variable{data >> 3};
-  }
-
-  // useful only if is_direct() returns false
-  constexpr uint32_t indirect() const noexcept {
-    return val_ >> 8;
-  }
-  static constexpr Variable parse_indirect(Kind kind, uint32_t data) noexcept {
-    return Variable{kind.val() | data << 8};
-  }
-
-  uint32_t val_;
-#ifdef ONEJIT_LITTLE_ENDIAN
-  // only for debug purposes. works only on little-endian machines
-  struct {
-    eKind ekind;
-    uint8_t id[3];
-  } u_;
-#endif
+  static Var create(Local var, Code *holder) noexcept;
 };
 
-constexpr inline bool operator==(Variable a, Variable b) noexcept {
-  return a.kind() == b.kind() && a.id() == b.id();
-}
-
-constexpr inline bool operator!=(Variable a, Variable b) noexcept {
-  return a.kind() != b.kind() || a.id() != b.id();
-}
-
-std::ostream &operator<<(std::ostream &out, Variable var);
+std::ostream &operator<<(std::ostream &out, const Var &ve);
 
 } // namespace onejit
 

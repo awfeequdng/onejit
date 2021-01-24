@@ -17,14 +17,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * unaryexpr.cpp
+ * unary.cpp
  *
  *  Created on Jan 16, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/code.hpp>
-#include <onejit/unaryexpr.hpp>
+#include <onejit/unary.hpp>
 
 namespace onejit {
 

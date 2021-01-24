@@ -28,7 +28,7 @@
 
 namespace onejit {
 
-Imm Const::constant() const noexcept {
+Imm Const::imm() const noexcept {
   if (is_direct()) {
     return Imm::parse_direct(offset_or_direct());
   } else {
@@ -55,7 +55,7 @@ Const Const::create(const Imm &c, Code *holder) noexcept {
 }
 
 std::ostream &operator<<(std::ostream &out, const Const &ce) {
-  return out << ce.constant();
+  return out << ce.imm();
 }
 
 } // namespace onejit

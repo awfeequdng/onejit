@@ -27,12 +27,12 @@
 #define ONEJIT_FUNC_HPP
 
 #include <onejit/binary.hpp>
-#include <onejit/callexpr.hpp>
+#include <onejit/call.hpp>
 #include <onejit/code.hpp>
 #include <onejit/const.hpp>
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
-#include <onejit/memexpr.hpp>
+#include <onejit/mem.hpp>
 #include <onejit/op.hpp>
 #include <onejit/stmt0.hpp>
 #include <onejit/stmt1.hpp>
@@ -40,8 +40,8 @@
 #include <onejit/stmt3.hpp>
 #include <onejit/stmt4.hpp>
 #include <onejit/stmtn.hpp>
-#include <onejit/unaryexpr.hpp>
-#include <onejit/varexpr.hpp>
+#include <onejit/unary.hpp>
+#include <onejit/var.hpp>
 #include <onestl/chars.hpp>
 #include <onestl/string.hpp>
 #include <onestl/vector.hpp>

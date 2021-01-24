@@ -17,14 +17,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * memexpr.cpp
+ * mem.cpp
  *
  *  Created on Jan 20, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/code.hpp>
-#include <onejit/memexpr.hpp>
+#include <onejit/mem.hpp>
 
 namespace onejit {
 

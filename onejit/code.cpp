@@ -24,8 +24,8 @@
  */
 
 #include <onejit/code.hpp>
+#include <onejit/local.hpp>
 #include <onejit/nodeheader.hpp>
-#include <onejit/var.hpp>
 
 #include <cstring>
 
@@ -88,7 +88,7 @@ Code &ONEJIT_NOINLINE Code::add(CodeItems data) noexcept {
 Code &Code::add(const Kind kind) noexcept {
   // save Kind wrapped in a direct Var:
   // any generic parser will be able to recognize it
-  return add_item(Variable{kind, VarId{}}.direct());
+  return add_item(Local{kind, LocalId{}}.direct());
 }
 
 Code &Code::add(const Kinds kinds) noexcept {

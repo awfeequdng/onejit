@@ -23,21 +23,38 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/code.hpp>
 #include <onejit/var.hpp>
-#include <onestl/chars.hpp>
-
-#include <ios>
-#include <ostream>
 
 namespace onejit {
 
-std::ostream &operator<<(std::ostream &out, VarId id) {
-  return out << Chars("id") << std::hex << id.val() << std::dec;
+Local Var::local() const noexcept {
+  if (is_direct()) {
+    return Local::parse_direct(offset_or_direct());
+  } else {
+    return Local::parse_indirect(kind(), get(sizeof(CodeItem)));
+  }
 }
 
-std::ostream &operator<<(std::ostream &out, Variable v) {
-  return out << Chars("var") << std::hex << v.id().val() << std::dec << '_'
-             << v.kind().stringsuffix();
+Var Var::create(Local var, Code *holder) noexcept {
+  const NodeHeader header{VAR, var.kind(), 0};
+  if (var.is_direct()) {
+    return Var{Node{header, var.direct(), nullptr}};
+  }
+  while (holder) {
+    CodeItem offset = holder->length();
+
+    if (holder->add(header) && holder->add_item(var.indirect())) {
+      return Var{Node{header, offset, holder}};
+    }
+    holder->truncate(offset);
+    break;
+  }
+  return Var{};
+}
+
+std::ostream &operator<<(std::ostream &out, const Var &ve) {
+  return out << ve.local();
 }
 
 } // namespace onejit
