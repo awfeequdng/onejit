@@ -66,4 +66,4 @@ template <class T> void swap(T &a, T &b) noexcept {
 } // namespace mem
 } // namespace onestl
 
-#endif /* ONESTL_MEM_HPP */
+#endif // ONESTL_MEM_HPP

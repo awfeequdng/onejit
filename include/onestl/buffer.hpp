@@ -102,4 +102,4 @@ template <class T> void swap(Buffer<T> &left, Buffer<T> &right) noexcept {
 
 } // namespace onestl
 
-#endif /* ONESTL_BUFFER_HPP */
+#endif // ONESTL_BUFFER_HPP

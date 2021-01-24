@@ -150,4 +150,4 @@ typedef Span<char> CharSpan;
 
 } // namespace onestl
 
-#endif /* ONESTL_SPAN_HPP */
+#endif // ONESTL_SPAN_HPP

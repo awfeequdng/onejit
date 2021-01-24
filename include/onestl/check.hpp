@@ -96,4 +96,4 @@ template <class T> std::string to_string(const T &val) {
 
 } // namespace onestl
 
-#endif /* ONESTL_CHECK_HPP */
+#endif // ONESTL_CHECK_HPP

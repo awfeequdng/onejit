@@ -149,4 +149,4 @@ template <class T> void swap(View<T> &left, View<T> &right) noexcept {
 
 } // namespace onestl
 
-#endif /* ONESTL_VIEW_HPP */
+#endif // ONESTL_VIEW_HPP

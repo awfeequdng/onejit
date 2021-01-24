@@ -31,4 +31,4 @@
 #define ONEJIT_CHECK(lhs, op, rhs) ONESTL_CHECK(lhs, op, rhs)
 #define ONEJIT_TEST(lhs, op, rhs) ONESTL_TEST(lhs, op, rhs)
 
-#endif /* ONEJIT_CHECK_HPP */
+#endif // ONEJIT_CHECK_HPP

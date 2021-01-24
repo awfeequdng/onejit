@@ -65,4 +65,4 @@ inline std::ostream &operator<<(std::ostream &out, Chars chars) {
 
 } // namespace onestl
 
-#endif /* ONESTL_CHARS_HPP */
+#endif // ONESTL_CHARS_HPP

@@ -27,6 +27,7 @@
 
 #include <onestl/mem.hpp>
 #include <onestl/span.hpp>
+#include <onestl/vectorhelper.hpp>
 
 #include <cstdint>     // uint32_t
 #include <type_traits> // std::is_trivial<T>
@@ -43,6 +44,7 @@ template <class T> class Vector : protected Span<T> {
                 "Vector<T>: element type T must be trivially destructible");
 
   typedef Span<T> Base;
+  friend class VectorHelper;
 
   // do not implement. reason: any allocation failure would not be visible
   Vector<T> &operator=(const Vector<T> &other) noexcept = delete;
@@ -53,15 +55,7 @@ protected:
   size_t cap_;
 
   bool init(size_t n) noexcept {
-    data_ = mem::alloc<T>(n);
-    if (n && !data_) {
-      // mem::alloc() failed
-      data_ = NULL;
-      cap_ = size_ = 0;
-      return false;
-    }
-    cap_ = size_ = n;
-    return true;
+    return VectorHelper::cast(*this).init(n, sizeof(T));
   }
 
   void destroy() noexcept {
@@ -74,19 +68,11 @@ protected:
     if (cap_ >= n) {
       return true;
     }
-    const size_t cap2 = cap_ >= 10 ? cap_ * 2 : 10;
-    return reserve(n >= cap2 ? n : cap2);
+    return VectorHelper::cast(*this).ensure_capacity(n, sizeof(T));
   }
 
-  bool ONESTL_NOINLINE resize0(size_t n, bool zerofill) noexcept {
-    if (!ensure_capacity(n)) {
-      return false;
-    }
-    if (zerofill && n > size_) {
-      mem::clear(data() + size_, n - size_);
-    }
-    size_ = n;
-    return true;
+  bool grow(size_t n, bool zerofill) noexcept {
+    return VectorHelper::cast(*this).grow(n, sizeof(T), zerofill);
   }
 
 public:
@@ -146,13 +132,12 @@ public:
     return *this;
   }
 
-  bool ONESTL_NOINLINE dup(const T *addr, size_t n) noexcept {
-    if (!ensure_capacity(n)) {
-      return false;
+  bool dup(const T *addr, size_t n) noexcept {
+    if (n == 0) {
+      size_ = 0;
+      return true;
     }
-    std::memcpy(data(), addr, n * sizeof(T));
-    size_ = n;
-    return true;
+    return VectorHelper::cast(*this).dup(addr, n, sizeof(T));
   }
   bool dup(View<T> other) noexcept {
     return dup(other.data(), other.size());
@@ -165,27 +150,22 @@ public:
   }
 
   void clear() noexcept {
-    (void)resize0(0, false);
+    size_ = 0;
   }
 
   bool resize(size_t n) noexcept {
-    return resize0(n, true);
+    if (size_ >= n) {
+      size_ = n;
+      return true;
+    }
+    return grow(n, true);
   }
 
   bool reserve(size_t newcap) noexcept {
-    if (newcap > cap_) {
-      T *olddata = data();
-      T *newdata = mem::realloc(olddata, newcap);
-      if (!newdata) {
-        if (cap_ == 0) {
-          data_ = NULL;
-        }
-        return false;
-      }
-      data_ = newdata;
-      cap_ = newcap;
+    if (newcap <= cap_) {
+      return true;
     }
-    return true;
+    return VectorHelper::cast(*this).reserve(newcap, sizeof(T));
   }
 
   void truncate(size_t n) noexcept {
@@ -198,14 +178,8 @@ public:
     return append(View<T>(&src, 1));
   }
 
-  bool ONESTL_NOINLINE append(View<T> src) noexcept {
-    const size_t oldn = size_;
-    const size_t srcn = src.size();
-    if (!resize0(oldn + srcn, false)) {
-      return false;
-    }
-    span(oldn, size()).copy(src);
-    return true;
+  bool append(View<T> src) noexcept {
+    return VectorHelper::cast(*this).append(src.data(), src.size(), sizeof(T));
   }
 
   void swap(Vector &other) noexcept {
@@ -238,4 +212,4 @@ template <class T> void View<T>::ref(const Vector<T> &other) noexcept {
 
 } // namespace onestl
 
-#endif /* ONESTL_VECTOR_HPP */
+#endif // ONESTL_VECTOR_HPP

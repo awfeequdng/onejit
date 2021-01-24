@@ -106,7 +106,7 @@ am__v_AR_1 =
 libonestl_a_AR = $(AR) $(ARFLAGS)
 libonestl_a_LIBADD =
 am_libonestl_a_OBJECTS = chars.$(OBJEXT) check.$(OBJEXT) mem.$(OBJEXT) \
-	string.$(OBJEXT) vector.$(OBJEXT)
+	string.$(OBJEXT) vector.$(OBJEXT) vectorhelper.$(OBJEXT)
 libonestl_a_OBJECTS = $(am_libonestl_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -124,7 +124,8 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/chars.Po ./$(DEPDIR)/check.Po \
-	./$(DEPDIR)/mem.Po ./$(DEPDIR)/string.Po ./$(DEPDIR)/vector.Po
+	./$(DEPDIR)/mem.Po ./$(DEPDIR)/string.Po ./$(DEPDIR)/vector.Po \
+	./$(DEPDIR)/vectorhelper.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -305,7 +306,7 @@ noinst_LIBRARIES = libonestl.a
 # pkglib_LTLIBRARIES   =
 AM_CPPFLAGS = -I$(top_srcdir)/include
 # libonestl_a_CPPFLAGS = -I$(top_srcdir)/include
-libonestl_a_SOURCES = chars.cpp check.cpp mem.cpp string.cpp vector.cpp
+libonestl_a_SOURCES = chars.cpp check.cpp mem.cpp string.cpp vector.cpp vectorhelper.cpp
 all: all-recursive
 
 .SUFFIXES:
@@ -359,6 +360,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mem.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vector.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vectorhelper.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -584,6 +586,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/mem.Po
 	-rm -f ./$(DEPDIR)/string.Po
 	-rm -f ./$(DEPDIR)/vector.Po
+	-rm -f ./$(DEPDIR)/vectorhelper.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -634,6 +637,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/mem.Po
 	-rm -f ./$(DEPDIR)/string.Po
 	-rm -f ./$(DEPDIR)/vector.Po
+	-rm -f ./$(DEPDIR)/vectorhelper.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

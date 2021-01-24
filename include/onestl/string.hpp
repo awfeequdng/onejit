@@ -85,4 +85,4 @@ constexpr Chars::Chars(const String &other) noexcept //
 
 } // namespace onestl
 
-#endif /* ONESTL_STRING_HPP */
+#endif // ONESTL_STRING_HPP
