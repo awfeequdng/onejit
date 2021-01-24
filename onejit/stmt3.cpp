@@ -50,12 +50,11 @@ std::ostream &operator<<(std::ostream &out, const Stmt3 &st) {
              << Chars("\n    ") << st.child(2) << ')';
 }
 
-// ============================  IfStmt  =======================================
+// ============================  If  =======================================
 
-IfStmt IfStmt::create(const Expr &cond, const Node &then, const Node &else_,
-                      Code *holder) noexcept {
+If If::create(const Expr &cond, const Node &then, const Node &else_, Code *holder) noexcept {
   const Node buf[] = {cond, then, else_};
-  return IfStmt{Stmt3::create(IF, Nodes{buf, 3}, holder)};
+  return If{Stmt3::create(IF, Nodes{buf, 3}, holder)};
 }
 
 } // namespace onejit

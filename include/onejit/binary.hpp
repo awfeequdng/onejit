@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * binaryexpr.hpp
+ * binary.hpp
  *
  *  Created on Jan 16, 2021
  *      Author Massimiliano Ghilardi
@@ -34,7 +34,7 @@
 namespace onejit {
 
 // a binary expression: Op2 and two arguments
-class BinaryExpr : public Expr {
+class Binary : public Expr {
   using Base = Expr;
 
   friend class Func;
@@ -42,13 +42,13 @@ class BinaryExpr : public Expr {
 
 public:
   /**
-   * construct an invalid BinaryExpr.
-   * exists only to allow placing BinaryExpr in containers
+   * construct an invalid Binary.
+   * exists only to allow placing Binary in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid BinaryExpr, use Func::new_binary()
+   * to create a valid Binary, use Func::new_binary()
    */
-  constexpr BinaryExpr() noexcept : Base{BINARY} {
+  constexpr Binary() noexcept : Base{BINARY} {
   }
 
   static constexpr Type type() noexcept {
@@ -76,8 +76,8 @@ public:
   }
 
 private:
-  // downcast Node to UnaryExpr
-  constexpr explicit BinaryExpr(const Node &node) noexcept : Base{node} {
+  // downcast Node to Unary
+  constexpr explicit Binary(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -86,10 +86,10 @@ private:
   }
 
   // also autodetects kind
-  static BinaryExpr create(Op2 op, const Expr &left, const Expr &right, Code *holder);
+  static Binary create(Op2 op, const Expr &left, const Expr &right, Code *holder);
 };
 
-std::ostream &operator<<(std::ostream &out, const BinaryExpr &expr);
+std::ostream &operator<<(std::ostream &out, const Binary &expr);
 
 } // namespace onejit
 

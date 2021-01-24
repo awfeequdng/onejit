@@ -77,7 +77,7 @@ protected:
 std::ostream &operator<<(std::ostream &out, const Stmt3 &st);
 
 ////////////////////////////////////////////////////////////////////////////////
-class IfStmt : public Stmt3 {
+class If : public Stmt3 {
   using Base = Stmt3;
   friend class Func;
   friend class Node;
@@ -85,13 +85,13 @@ class IfStmt : public Stmt3 {
 
 public:
   /**
-   * construct an invalid IfStmt.
-   * exists only to allow placing IfStmt in containers
+   * construct an invalid If.
+   * exists only to allow placing If in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid IfStmt, use Func::new_if()
+   * to create a valid If, use Func::new_if()
    */
-  constexpr IfStmt() noexcept : Base{IF} {
+  constexpr If() noexcept : Base{IF} {
   }
 
   static constexpr OpStmt3 op() noexcept {
@@ -114,8 +114,8 @@ public:
   }
 
 private:
-  // downcast Node to IfStmt
-  constexpr explicit IfStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to If
+  constexpr explicit If(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -125,8 +125,7 @@ private:
 
   // create a new 'if (cond) { then } else { else_ }'
   // the 'else' part can be omitted by specifying else_ = VoidExpr
-  static IfStmt create(const Expr &cond, const Node &then, const Node &else_,
-                       Code *holder) noexcept;
+  static If create(const Expr &cond, const Node &then, const Node &else_, Code *holder) noexcept;
 };
 
 } // namespace onejit

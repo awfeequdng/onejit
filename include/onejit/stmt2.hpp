@@ -26,7 +26,7 @@
 #ifndef ONEJIT_STMT2_HPP
 #define ONEJIT_STMT2_HPP
 
-#include <onejit/constexpr.hpp> // VoidExpr
+#include <onejit/const.hpp> // VoidExpr
 #include <onejit/label.hpp>
 #include <onejit/opstmt.hpp>
 #include <onejit/stmt.hpp>
@@ -41,7 +41,7 @@ class Stmt2 : public Stmt {
   using Base = Stmt;
   friend class Node;
   friend class Func;
-  friend class DefaultStmt;
+  friend class Default;
 
 public:
   /**
@@ -82,20 +82,20 @@ protected:
 std::ostream &operator<<(std::ostream &out, const Stmt2 &st);
 
 ////////////////////////////////////////////////////////////////////////////////
-class AssignStmt : public Stmt2 {
+class Assign : public Stmt2 {
   using Base = Stmt2;
   friend class Node;
   friend class Func;
 
 public:
   /**
-   * construct an invalid AssignStmt.
-   * exists only to allow placing AssignStmt in containers
+   * construct an invalid Assign.
+   * exists only to allow placing Assign in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid AssignStmt, use Func::new_assign()
+   * to create a valid Assign, use Func::new_assign()
    */
-  constexpr AssignStmt() noexcept : Base{ASSIGN} {
+  constexpr Assign() noexcept : Base{ASSIGN} {
   }
 
   constexpr OpStmt2 op() const noexcept {
@@ -113,8 +113,8 @@ public:
   }
 
 private:
-  // downcast Node to AssignStmt
-  constexpr explicit AssignStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to Assign
+  constexpr explicit Assign(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -122,24 +122,24 @@ private:
     return op >= ADD_ASSIGN && op <= ASSIGN;
   }
 
-  static AssignStmt create(OpStmt2 op, const Expr &dst, const Expr &src, Code *holder) noexcept;
+  static Assign create(OpStmt2 op, const Expr &dst, const Expr &src, Code *holder) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class CaseStmt : public Stmt2 {
+class Case : public Stmt2 {
   using Base = Stmt2;
   friend class Node;
   friend class Func;
 
 public:
   /**
-   * construct an invalid CaseStmt.
-   * exists only to allow placing CaseStmt in containers
+   * construct an invalid Case.
+   * exists only to allow placing Case in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid CaseStmt, use Func::new_case()
+   * to create a valid Case, use Func::new_case()
    */
-  constexpr CaseStmt() noexcept : Base{CASE} {
+  constexpr Case() noexcept : Base{CASE} {
   }
 
   // can return either CASE or DEFAULT
@@ -158,12 +158,12 @@ public:
   }
 
 protected:
-  // needed by DefaultStmt{}
-  constexpr CaseStmt(OpStmt2 op) noexcept : Base{op} {
+  // needed by Default{}
+  constexpr Case(OpStmt2 op) noexcept : Base{op} {
   }
 
-  // downcast Node to CaseStmt
-  constexpr explicit CaseStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to Case
+  constexpr explicit Case(const Node &node) noexcept : Base{node} {
   }
 
 private:
@@ -172,25 +172,25 @@ private:
     return op == CASE || op == DEFAULT;
   }
 
-  static CaseStmt create(const Expr &expr, const Node &body, Code *holder) noexcept;
+  static Case create(const Expr &expr, const Node &body, Code *holder) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// DefaultStmt is represented as a CaseStmt where child(0) is VoidExpr
-class DefaultStmt : public CaseStmt {
-  using Base = CaseStmt;
+// Default is represented as a Case where child(0) is VoidExpr
+class Default : public Case {
+  using Base = Case;
   friend class Node;
   friend class Func;
 
 public:
   /**
-   * construct an invalid DefaultStmt.
-   * exists only to allow placing DefaultStmt in containers
+   * construct an invalid Default.
+   * exists only to allow placing Default in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid DefaultStmt, use Func::new_default()
+   * to create a valid Default, use Func::new_default()
    */
-  constexpr DefaultStmt() noexcept : Base{DEFAULT} {
+  constexpr Default() noexcept : Base{DEFAULT} {
   }
 
   static constexpr OpStmt2 op() noexcept {
@@ -203,8 +203,8 @@ public:
   }
 
 private:
-  // downcast Node to DefaultStmt
-  constexpr explicit DefaultStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to Default
+  constexpr explicit Default(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -212,25 +212,25 @@ private:
     return op == DEFAULT;
   }
 
-  static DefaultStmt create(const Node &body, Code *holder) noexcept;
+  static Default create(const Node &body, Code *holder) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // conditional jump. usually only found in compiled code
-class JumpIfStmt : public Stmt2 {
+class JumpIf : public Stmt2 {
   using Base = Stmt2;
   friend class Node;
   friend class Func;
 
 public:
   /**
-   * construct an invalid JumpIfStmt.
-   * exists only to allow placing JumpIfStmt in containers
+   * construct an invalid JumpIf.
+   * exists only to allow placing JumpIf in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid JumpIfStmt, use Func::new_jump_if()
+   * to create a valid JumpIf, use Func::new_jump_if()
    */
-  constexpr JumpIfStmt() noexcept : Base{JUMP_IF} {
+  constexpr JumpIf() noexcept : Base{JUMP_IF} {
   }
 
   static constexpr OpStmt2 op() noexcept {
@@ -248,8 +248,8 @@ public:
   }
 
 private:
-  // downcast Node to JumpIfStmt
-  constexpr explicit JumpIfStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to JumpIf
+  constexpr explicit JumpIf(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -257,7 +257,7 @@ private:
     return op == JUMP_IF;
   }
 
-  static JumpIfStmt create(const Label &to, const Expr &cond, Code *holder) noexcept;
+  static JumpIf create(const Label &to, const Expr &cond, Code *holder) noexcept;
 };
 
 } // namespace onejit

@@ -17,19 +17,19 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * binaryexpr.cpp
+ * binary.cpp
  *
  *  Created on Jan 16, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/binaryexpr.hpp>
+#include <onejit/binary.hpp>
 #include <onejit/code.hpp>
 
 namespace onejit {
 
 // autodetect kind
-BinaryExpr BinaryExpr::create(Op2 op, const Expr &left, const Expr &right, Code *holder) {
+Binary Binary::create(Op2 op, const Expr &left, const Expr &right, Code *holder) {
   while (holder) {
     Kind kind = Bad;
     if (op == BAD2) {
@@ -42,15 +42,15 @@ BinaryExpr BinaryExpr::create(Op2 op, const Expr &left, const Expr &right, Code 
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add(left, offset) && holder->add(right, offset)) {
-      return BinaryExpr{Node{header, offset, holder}};
+      return Binary{Node{header, offset, holder}};
     }
     holder->truncate(offset);
     break;
   }
-  return BinaryExpr{};
+  return Binary{};
 }
 
-std::ostream &operator<<(std::ostream &out, const BinaryExpr &expr) {
+std::ostream &operator<<(std::ostream &out, const Binary &expr) {
   return out << '(' << expr.op() << ' ' << expr.x() << ' ' << expr.y() << ')';
 }
 

@@ -23,10 +23,10 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/callexpr.hpp> // CallExpr
+#include <onejit/callexpr.hpp> // Call
 #include <onejit/code.hpp>
 #include <onejit/expr.hpp>
-#include <onejit/stmt2.hpp> // CaseStmt
+#include <onejit/stmt2.hpp> // Case
 #include <onejit/stmtn.hpp>
 #include <onestl/chars.hpp>
 
@@ -62,10 +62,9 @@ std::ostream &operator<<(std::ostream &out, const StmtN &st) {
   return out << ')';
 }
 
-// ============================  AssignTupleStmt  ===================================
+// ============================  AssignCall  ===================================
 
-AssignTupleStmt AssignTupleStmt::create(Exprs assign_to, const CallExpr &call,
-                                        Code *holder) noexcept {
+AssignCall AssignCall::create(Exprs assign_to, const Call &call, Code *holder) noexcept {
   const size_t n = assign_to.size();
   while (holder && n == uint32_t(n)) {
     const NodeHeader header{STMT_N, Void, ASSIGN_TUPLE};
@@ -73,39 +72,39 @@ AssignTupleStmt AssignTupleStmt::create(Exprs assign_to, const CallExpr &call,
 
     if (holder->add(header) && holder->add_uint32(sum_uint32(1, n)) &&
         holder->add(assign_to, offset) && holder->add(call, offset)) {
-      return AssignTupleStmt{Node{header, offset, holder}};
+      return AssignCall{Node{header, offset, holder}};
     }
     holder->truncate(offset);
     break;
   }
-  return AssignTupleStmt{};
+  return AssignCall{};
 }
 
-// ============================  BlockStmt  ====================================
+// ============================  Block  ====================================
 
-// ============================  CondStmt  =====================================
+// ============================  Cond  =====================================
 
-// ============================  ReturnStmt  ===================================
+// ============================  Return  ===================================
 
-ReturnStmt ReturnStmt::create(Exprs exprs, Code *holder) noexcept {
+Return Return::create(Exprs exprs, Code *holder) noexcept {
   const size_t n = exprs.size();
   while (holder && n == uint32_t(n)) {
     const NodeHeader header{STMT_N, Void, RETURN};
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add_uint32(n) && holder->add(exprs, offset)) {
-      return ReturnStmt{Node{header, offset, holder}};
+      return Return{Node{header, offset, holder}};
     }
     holder->truncate(offset);
     break;
   }
-  return ReturnStmt{};
+  return Return{};
 }
 
-// ============================  SwitchStmt  ===================================
+// ============================  Switch  ===================================
 
-// cases can contain at most one DefaultStmt
-SwitchStmt SwitchStmt::create(const Expr &expr, const CaseStmts cases, Code *holder) noexcept {
+// cases can contain at most one Default
+Switch Switch::create(const Expr &expr, const Cases cases, Code *holder) noexcept {
   const size_t n = cases.size();
   while (holder && n == uint32_t(n)) {
     const NodeHeader header{STMT_3, Void, SWITCH};
@@ -113,12 +112,12 @@ SwitchStmt SwitchStmt::create(const Expr &expr, const CaseStmts cases, Code *hol
 
     if (holder->add(header) && holder->add_uint32(sum_uint32(1, n)) && //
         holder->add(expr, offset) && holder->add(cases, offset)) {
-      return SwitchStmt{Node{header, offset, holder}};
+      return Switch{Node{header, offset, holder}};
     }
     holder->truncate(offset);
     break;
   }
-  return SwitchStmt{};
+  return Switch{};
 }
 
 } // namespace onejit

@@ -35,8 +35,8 @@ namespace onejit {
 
 class VarId {
   friend class Func;
-  friend union Var;
-  friend class VarExpr;
+  friend union Variable;
+  friend class Var;
 
 public:
   constexpr VarId() noexcept : val_{} {
@@ -69,16 +69,16 @@ std::ostream &operator<<(std::ostream &out, VarId id);
 ////////////////////////////////////////////////////////////////////////////////
 
 // a local variable or register.
-union Var {
+union Variable {
   friend class Code;
   friend class Func;
   friend class FuncType;
   friend class Node;
   friend class Test;
-  friend class VarExpr;
+  friend class Var;
 
 public:
-  constexpr Var() noexcept : val_{kBad} {
+  constexpr Variable() noexcept : val_{kBad} {
   }
 
   constexpr Type type() const noexcept {
@@ -98,10 +98,10 @@ public:
   }
 
 private:
-  constexpr explicit Var(uint32_t val) noexcept : val_{val} {
+  constexpr explicit Variable(uint32_t val) noexcept : val_{val} {
   }
 
-  constexpr Var(Kind kind, VarId id) noexcept : val_{kind.val() | id.val() << 8} {
+  constexpr Variable(Kind kind, VarId id) noexcept : val_{kind.val() | id.val() << 8} {
   }
 
   constexpr bool is_direct() const noexcept {
@@ -115,16 +115,16 @@ private:
   static constexpr Kind parse_direct_kind(uint32_t data) noexcept {
     return Kind(data >> 3);
   }
-  static constexpr Var parse_direct(uint32_t data) noexcept {
-    return Var{data >> 3};
+  static constexpr Variable parse_direct(uint32_t data) noexcept {
+    return Variable{data >> 3};
   }
 
   // useful only if is_direct() returns false
   constexpr uint32_t indirect() const noexcept {
     return val_ >> 8;
   }
-  static constexpr Var parse_indirect(Kind kind, uint32_t data) noexcept {
-    return Var{kind.val() | data << 8};
+  static constexpr Variable parse_indirect(Kind kind, uint32_t data) noexcept {
+    return Variable{kind.val() | data << 8};
   }
 
   uint32_t val_;
@@ -137,15 +137,15 @@ private:
 #endif
 };
 
-constexpr inline bool operator==(Var a, Var b) noexcept {
+constexpr inline bool operator==(Variable a, Variable b) noexcept {
   return a.kind() == b.kind() && a.id() == b.id();
 }
 
-constexpr inline bool operator!=(Var a, Var b) noexcept {
+constexpr inline bool operator!=(Variable a, Variable b) noexcept {
   return a.kind() != b.kind() || a.id() != b.id();
 }
 
-std::ostream &operator<<(std::ostream &out, Var var);
+std::ostream &operator<<(std::ostream &out, Variable var);
 
 } // namespace onejit
 

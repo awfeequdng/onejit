@@ -35,7 +35,7 @@
 namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
-// first CodeItem contained in BinaryExpr, UnaryExpr, Stmt*
+// first CodeItem contained in Binary, Unary, Stmt*
 union NodeHeader {
 
 public:

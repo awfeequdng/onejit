@@ -32,9 +32,9 @@
 
 namespace onejit {
 
-// ============================  CallExpr  ====================================
+// ============================  Call  ====================================
 
-std::ostream &operator<<(std::ostream &out, const CallExpr &call) {
+std::ostream &operator<<(std::ostream &out, const Call &call) {
   out << '(' << call.op();
   // skip child(0) i.e. FuncType
   for (size_t i = 1, n = call.children(); i < n; i++) {
@@ -43,25 +43,24 @@ std::ostream &operator<<(std::ostream &out, const CallExpr &call) {
   return out << ')';
 }
 
-// ============================  CallExpr  =====================================
+// ============================  Call  =====================================
 
 // shortcut for child(0).is<FuncType>()
-FuncType CallExpr::ftype() const noexcept {
+FuncType Call::ftype() const noexcept {
   return child(0).is<FuncType>();
 }
 
 // shortcut for child(1).is<Label>()
-Label CallExpr::label() const noexcept {
+Label Call::label() const noexcept {
   return child(1).is<Label>();
 }
 
 // shortcut for child(i + 2).is<Expr>()
-Expr CallExpr::arg(uint32_t i) const noexcept {
+Expr Call::arg(uint32_t i) const noexcept {
   return child(sum_uint32(2, i)).is<Expr>();
 }
 
-CallExpr CallExpr::create(const FuncType &ftype, const Label &flabel, Exprs args,
-                          Code *holder) noexcept {
+Call Call::create(const FuncType &ftype, const Label &flabel, Exprs args, Code *holder) noexcept {
   const size_t n = args.size();
   while (holder && n == uint32_t(n)) {
     const NodeHeader header{CALL, ftype.param_n() == 0 ? Void : ftype.param(0), CALL_OP};
@@ -70,12 +69,12 @@ CallExpr CallExpr::create(const FuncType &ftype, const Label &flabel, Exprs args
     if (holder->add(header) && holder->add_uint32(sum_uint32(2, n)) && //
         holder->add(ftype, offset) && holder->add(flabel, offset) &&   //
         holder->add(args, offset)) {
-      return CallExpr{Node{header, offset, holder}};
+      return Call{Node{header, offset, holder}};
     }
     holder->truncate(offset);
     break;
   }
-  return CallExpr{};
+  return Call{};
 }
 
 } // namespace onejit

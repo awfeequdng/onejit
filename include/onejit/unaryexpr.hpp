@@ -34,7 +34,7 @@
 namespace onejit {
 
 // an unary expression: Op1 and a single argument
-class UnaryExpr : public Expr {
+class Unary : public Expr {
   using Base = Expr;
 
   friend class Func;
@@ -42,13 +42,13 @@ class UnaryExpr : public Expr {
 
 public:
   /**
-   * construct an invalid UnaryExpr.
-   * exists only to allow placing UnaryExpr in containers
+   * construct an invalid Unary.
+   * exists only to allow placing Unary in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid UnaryExpr, use Func::new_unary()
+   * to create a valid Unary, use Func::new_unary()
    */
-  constexpr UnaryExpr() noexcept : Base{UNARY} {
+  constexpr Unary() noexcept : Base{UNARY} {
   }
 
   static constexpr Type type() noexcept {
@@ -71,8 +71,8 @@ public:
   }
 
 private:
-  // downcast Node to UnaryExpr
-  constexpr explicit UnaryExpr(const Node &node) noexcept : Base{node} {
+  // downcast Node to Unary
+  constexpr explicit Unary(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -80,12 +80,12 @@ private:
     return t == UNARY;
   }
 
-  static UnaryExpr create(Kind kind, Op1 op, const Expr &child, Code *holder) noexcept;
+  static Unary create(Kind kind, Op1 op, const Expr &child, Code *holder) noexcept;
   // also autodetects kind if op != CAST
-  static UnaryExpr create(Op1 op, const Expr &child, Code *holder) noexcept;
+  static Unary create(Op1 op, const Expr &child, Code *holder) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const UnaryExpr &expr);
+std::ostream &operator<<(std::ostream &out, const Unary &expr);
 
 } // namespace onejit
 

@@ -28,21 +28,21 @@
 
 namespace onejit {
 
-MemExpr ONEJIT_NOINLINE MemExpr::create(Kind kind, const Expr &address, Code *holder) noexcept {
+Mem ONEJIT_NOINLINE Mem::create(Kind kind, const Expr &address, Code *holder) noexcept {
   while (holder) {
     const NodeHeader header{MEM, kind, 0};
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add(address, offset)) {
-      return MemExpr{Node{header, offset, holder}};
+      return Mem{Node{header, offset, holder}};
     }
     holder->truncate(offset);
     break;
   }
-  return MemExpr{};
+  return Mem{};
 }
 
-std::ostream &operator<<(std::ostream &out, const MemExpr &expr) {
+std::ostream &operator<<(std::ostream &out, const Mem &expr) {
   return out << '(' << expr.type() << ' ' << expr.child(0) << ')';
 }
 

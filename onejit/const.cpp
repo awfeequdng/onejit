@@ -25,69 +25,37 @@
 
 #include <onejit/code.hpp>
 #include <onejit/const.hpp>
-#include <onestl/chars.hpp>
 
 namespace onejit {
 
-Const Const::parse_indirect(Kind kind, Offset offset, const Code *holder) noexcept {
-  uint64_t bits;
-  if (kind.bits().val() == 64) {
-    bits = holder->uint64(offset);
+Constant Const::constant() const noexcept {
+  if (is_direct()) {
+    return Constant::parse_direct(offset_or_direct());
   } else {
-    bits = holder->uint32(offset);
-  }
-  return Const{kind, bits};
-}
-
-Code &Const::write_indirect(Code *holder) const noexcept {
-  if (kind().bits().val() == 64) {
-    return holder->add_uint64(uint64());
-  } else {
-    return holder->add_uint32(uint32());
+    return Constant::parse_indirect(kind(), offset_or_direct() + sizeof(CodeItem), code());
   }
 }
 
-std::ostream &operator<<(std::ostream &out, const Const &c) {
-  const Kind kind = c.kind();
-  switch (kind.nosimd().val()) {
-  case kVoid:
-    out << Chars("void");
-    break;
-  case kBool:
-    out << (c.boolean() ? Chars("true") : Chars("false"));
-    break;
-  case kInt8:
-  case kInt16:
-  case kInt32:
-  case kInt64:
-    out << c.int64();
-    break;
-  case kUint8:
-  case kUint16:
-  case kUint32:
-  case kUint64:
-  case kArchFlags:
-    out << c.uint64();
-    break;
-  case kFloat32:
-    out << c.float32();
-    break;
-  case kFloat64:
-    out << c.float64();
-    break;
-  case kPtr:
-    out << c.ptr();
-    break;
-  default:
-    out << '?';
+Const Const::create(const Constant &c, Code *holder) noexcept {
+  const NodeHeader header{CONST, c.kind(), 0};
+
+  if (c.is_direct()) {
+    return Const{Node{header, c.direct(), nullptr}};
+  }
+  while (holder) {
+    CodeItem offset = holder->length();
+
+    if (holder->add(header) && !c.write_indirect(holder)) {
+      return Const{Node{header, offset, holder}};
+    }
+    holder->truncate(offset);
     break;
   }
-  out << '_' << kind.stringsuffix();
-  const size_t n = kind.simdn().val();
-  if (n != 1) {
-    out << 'x' << n;
-  }
-  return out;
+  return Const{};
+}
+
+std::ostream &operator<<(std::ostream &out, const Const &ce) {
+  return out << ce.constant();
 }
 
 } // namespace onejit

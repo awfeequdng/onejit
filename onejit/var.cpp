@@ -23,8 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onestl/chars.hpp>
 #include <onejit/var.hpp>
+#include <onestl/chars.hpp>
 
 #include <ios>
 #include <ostream>
@@ -35,7 +35,7 @@ std::ostream &operator<<(std::ostream &out, VarId id) {
   return out << Chars("id") << std::hex << id.val() << std::dec;
 }
 
-std::ostream &operator<<(std::ostream &out, Var v) {
+std::ostream &operator<<(std::ostream &out, Variable v) {
   return out << Chars("var") << std::hex << v.id().val() << std::dec << '_'
              << v.kind().stringsuffix();
 }

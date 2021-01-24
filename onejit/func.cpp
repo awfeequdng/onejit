@@ -24,7 +24,7 @@
  */
 
 #include <onejit/code.hpp>
-#include <onejit/const.hpp>
+#include <onejit/constant.hpp>
 #include <onejit/func.hpp>
 
 #include <utility> // std::move()
@@ -70,20 +70,20 @@ Label Func::label() const noexcept {
   return labels_.empty() ? Label{} : labels_[0];
 }
 
-/// \return i-th result, or VarExpr{} if out-of-bounds
-VarExpr Func::param(uint16_t i) const noexcept {
+/// \return i-th result, or Var{} if out-of-bounds
+Var Func::param(uint16_t i) const noexcept {
   if (i < param_n_ && i < vars_.size()) {
     return vars_[i];
   }
-  return VarExpr{};
+  return Var{};
 }
 
-/// \return i-th result, or VarExpr{} if out-of-bounds
-VarExpr Func::result(uint16_t i) const noexcept {
+/// \return i-th result, or Var{} if out-of-bounds
+Var Func::result(uint16_t i) const noexcept {
   if (i < result_n_ && size_t(i) + param_n_ < vars_.size()) {
     return vars_[i + param_n_];
   }
-  return VarExpr{};
+  return Var{};
 }
 
 Label Func::new_label() noexcept {
@@ -98,19 +98,19 @@ Label Func::new_label() noexcept {
   return l;
 }
 
-VarExpr Func::new_var(Kind kind) noexcept {
+Var Func::new_var(Kind kind) noexcept {
   if (kind != Bad) {
     const size_t n = vars_.size() + FIRST_VARID;
     const VarId id(n); // VarId is limited to 24 bits
     if (kind == Void || id.val() == n) {
-      const Var var{kind, kind == Void ? VarId{} : id};
-      VarExpr ve = VarExpr::create(var, holder_);
+      const Variable var{kind, kind == Void ? VarId{} : id};
+      Var ve = Var::create(var, holder_);
       if (ve && vars_.append(ve)) {
         return ve;
       }
     }
   }
-  return VarExpr{};
+  return Var{};
 }
 
 } // namespace onejit

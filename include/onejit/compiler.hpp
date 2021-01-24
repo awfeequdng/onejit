@@ -68,8 +68,8 @@ private:
   Compiler &exit_loop() noexcept;
 
   // copy expression result to a new local variable.
-  // if node is already a VarExpr, does nothing and returns it
-  VarExpr to_var(const Node &node) noexcept;
+  // if node is already a Var, does nothing and returns it
+  Var to_var(const Node &node) noexcept;
 
   // copy node.child(start ... end-1) to new local variables,
   // and append such variables to vars.
@@ -91,27 +91,27 @@ private:
   Compiler &out_of_memory(const Node &where) noexcept;
 
 private:
-  Node compile(AssignStmt stmt, bool simplify_call) noexcept;
-  Node compile(AssignTupleStmt stmt, bool simplify_call) noexcept;
-  Expr compile(BinaryExpr expr, bool simplify_call) noexcept;
-  Node compile(BlockStmt stmt, bool simplify_call) noexcept;
-  Expr compile(CallExpr expr, bool simplify_call) noexcept;
-  Node compile(CondStmt stmt, bool simplify_call) noexcept;
+  Node compile(Assign stmt, bool simplify_call) noexcept;
+  Node compile(AssignCall stmt, bool simplify_call) noexcept;
+  Expr compile(Binary expr, bool simplify_call) noexcept;
+  Node compile(Block stmt, bool simplify_call) noexcept;
+  Expr compile(Call expr, bool simplify_call) noexcept;
+  Node compile(Cond stmt, bool simplify_call) noexcept;
   Expr compile(Expr expr, bool simplify_call) noexcept;
-  Node compile(ForStmt stmt, bool simplify_call) noexcept;
-  Node compile(IfStmt stmt, bool simplify_call) noexcept;
-  Node compile(JumpIfStmt stmt, bool simplify_call) noexcept;
-  Expr compile(MemExpr expr, bool simplify_call) noexcept;
+  Node compile(For stmt, bool simplify_call) noexcept;
+  Node compile(If stmt, bool simplify_call) noexcept;
+  Node compile(JumpIf stmt, bool simplify_call) noexcept;
+  Expr compile(Mem expr, bool simplify_call) noexcept;
   Node compile(Node node, bool simplify_call) noexcept;
-  Node compile(ReturnStmt stmt, bool simplify_call) noexcept;
+  Node compile(Return stmt, bool simplify_call) noexcept;
   Node compile(Stmt0 stmt, bool simplify_call) noexcept;
   Node compile(Stmt1 stmt, bool simplify_call) noexcept;
   Node compile(Stmt2 stmt, bool simplify_call) noexcept;
   Node compile(Stmt3 stmt, bool simplify_call) noexcept;
   Node compile(Stmt4 stmt, bool simplify_call) noexcept;
   Node compile(StmtN stmt, bool simplify_call) noexcept;
-  Node compile(SwitchStmt stmt, bool simplify_call) noexcept;
-  Expr compile(UnaryExpr expr, bool simplify_call) noexcept;
+  Node compile(Switch stmt, bool simplify_call) noexcept;
+  Expr compile(Unary expr, bool simplify_call) noexcept;
 
 private:
   Func &func_;

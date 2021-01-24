@@ -99,38 +99,38 @@ void Test::kind() {
   }
 }
 
-// test that integer Const can be compiled as 'constexpr'
-extern constexpr const Const one_million{uint64_t(1000000ul)};
-extern constexpr const Const one_billion{uint64_t(1000000000ul)};
+// test that integer Constant can be compiled as 'constexpr'
+extern constexpr const Constant one_million{uint64_t(1000000ul)};
+extern constexpr const Constant one_billion{uint64_t(1000000000ul)};
 
 void Test::const_expr() const {
-  ONEJIT_TEST(ConstExpr{Void}, ==, VoidExpr);
-  ONEJIT_TEST(ConstExpr{true}, ==, TrueExpr);
-  ONEJIT_TEST(ConstExpr{false}, ==, FalseExpr);
+  ONEJIT_TEST(Const{Void}, ==, VoidExpr);
+  ONEJIT_TEST(Const{true}, ==, TrueExpr);
+  ONEJIT_TEST(Const{false}, ==, FalseExpr);
 
-  ConstExpr one{Int8, int16_t(1)};
-  ConstExpr minus_one{Int8, int16_t(-1)};
-  ONEJIT_TEST(one.constant(), ==, Const{int8_t(1)});
-  ONEJIT_TEST(minus_one.constant(), ==, Const{int8_t(-1)});
+  Const one{Int8, int16_t(1)};
+  Const minus_one{Int8, int16_t(-1)};
+  ONEJIT_TEST(one.constant(), ==, Constant{int8_t(1)});
+  ONEJIT_TEST(minus_one.constant(), ==, Constant{int8_t(-1)});
 
-  ConstExpr plus_10k{Int16, int16_t(10000)};
-  ConstExpr minus_10k{Int16, int16_t(-10000)};
-  ONEJIT_TEST(plus_10k.constant(), ==, Const{int16_t(10000)});
-  ONEJIT_TEST(minus_10k.constant(), ==, Const{int16_t(-10000)});
+  Const plus_10k{Int16, int16_t(10000)};
+  Const minus_10k{Int16, int16_t(-10000)};
+  ONEJIT_TEST(plus_10k.constant(), ==, Constant{int16_t(10000)});
+  ONEJIT_TEST(minus_10k.constant(), ==, Constant{int16_t(-10000)});
 
-  ConstExpr plus_32k{Int16, int16_t(32767)};
-  ConstExpr minus_32k{Int16, int16_t(-32768)};
-  ONEJIT_TEST(plus_32k.constant(), ==, Const{int16_t(32767)});
-  ONEJIT_TEST(minus_32k.constant(), ==, Const{int16_t(-32768)});
+  Const plus_32k{Int16, int16_t(32767)};
+  Const minus_32k{Int16, int16_t(-32768)};
+  ONEJIT_TEST(plus_32k.constant(), ==, Constant{int16_t(32767)});
+  ONEJIT_TEST(minus_32k.constant(), ==, Constant{int16_t(-32768)});
 }
 
 void Test::simple_expr() {
-  Const c{1.5f};
+  Constant c{1.5f};
   Expr ce = func.new_const(c);
 
   ONEJIT_TEST(c.kind(), ==, Float32);
   ONEJIT_TEST(c.float32(), ==, 1.5f);
-  ONEJIT_TEST(ce.is<ConstExpr>().constant(), ==, c);
+  ONEJIT_TEST(ce.is<Const>().constant(), ==, c);
 
   ONEJIT_TEST(ce.type(), ==, CONST);
   ONEJIT_TEST(ce.kind(), ==, Float32);
@@ -138,18 +138,18 @@ void Test::simple_expr() {
   ONEJIT_TEST(ce.children(), ==, 0);
   ONEJIT_TEST(ce.is<Node>(), ==, ce);
   ONEJIT_TEST(ce.is<Expr>(), ==, ce);
-  ONEJIT_TEST(ce.is<BinaryExpr>(), ==, BinaryExpr{});
-  ONEJIT_TEST(ce.is<ConstExpr>(), ==, ce);
-  ONEJIT_TEST(ce.is<UnaryExpr>(), ==, UnaryExpr{});
-  ONEJIT_TEST(ce.is<VarExpr>(), ==, VarExpr{});
+  ONEJIT_TEST(ce.is<Binary>(), ==, Binary{});
+  ONEJIT_TEST(ce.is<Const>(), ==, ce);
+  ONEJIT_TEST(ce.is<Unary>(), ==, Unary{});
+  ONEJIT_TEST(ce.is<Var>(), ==, Var{});
   ONEJIT_TEST(ce.is<Stmt>(), ==, Stmt{});
   ONEJIT_TEST(bool(ce), ==, true);
   ONEJIT_TEST(bool(ce.is<Node>()), ==, true);
   ONEJIT_TEST(bool(ce.is<Expr>()), ==, true);
-  ONEJIT_TEST(bool(ce.is<BinaryExpr>()), ==, false);
-  ONEJIT_TEST(bool(ce.is<ConstExpr>()), ==, true);
-  ONEJIT_TEST(bool(ce.is<UnaryExpr>()), ==, false);
-  ONEJIT_TEST(bool(ce.is<VarExpr>()), ==, false);
+  ONEJIT_TEST(bool(ce.is<Binary>()), ==, false);
+  ONEJIT_TEST(bool(ce.is<Const>()), ==, true);
+  ONEJIT_TEST(bool(ce.is<Unary>()), ==, false);
+  ONEJIT_TEST(bool(ce.is<Var>()), ==, false);
   ONEJIT_TEST(bool(ce.is<Stmt>()), ==, false);
 
   for (uint8_t i = kVoid; i <= kArchFlags; i++) {
@@ -163,18 +163,18 @@ void Test::simple_expr() {
     ONEJIT_TEST(ve.children(), ==, 0);
     ONEJIT_TEST(ve.is<Node>(), ==, ve);
     ONEJIT_TEST(ve.is<Expr>(), ==, ve);
-    ONEJIT_TEST(ve.is<BinaryExpr>(), ==, BinaryExpr{});
-    ONEJIT_TEST(ve.is<ConstExpr>(), ==, ConstExpr{});
-    ONEJIT_TEST(ve.is<UnaryExpr>(), ==, UnaryExpr{});
-    ONEJIT_TEST(ve.is<VarExpr>(), ==, ve);
+    ONEJIT_TEST(ve.is<Binary>(), ==, Binary{});
+    ONEJIT_TEST(ve.is<Const>(), ==, Const{});
+    ONEJIT_TEST(ve.is<Unary>(), ==, Unary{});
+    ONEJIT_TEST(ve.is<Var>(), ==, ve);
     ONEJIT_TEST(ve.is<Stmt>(), ==, Stmt{});
     ONEJIT_TEST(bool(ve), ==, true);
     ONEJIT_TEST(bool(ve.is<Node>()), ==, true);
     ONEJIT_TEST(bool(ve.is<Expr>()), ==, true);
-    ONEJIT_TEST(bool(ve.is<BinaryExpr>()), ==, false);
-    ONEJIT_TEST(bool(ve.is<ConstExpr>()), ==, false);
-    ONEJIT_TEST(bool(ve.is<UnaryExpr>()), ==, false);
-    ONEJIT_TEST(bool(ve.is<VarExpr>()), ==, true);
+    ONEJIT_TEST(bool(ve.is<Binary>()), ==, false);
+    ONEJIT_TEST(bool(ve.is<Const>()), ==, false);
+    ONEJIT_TEST(bool(ve.is<Unary>()), ==, false);
+    ONEJIT_TEST(bool(ve.is<Var>()), ==, true);
     ONEJIT_TEST(bool(ve.is<Stmt>()), ==, false);
 
     ONEJIT_TEST(node.type(), ==, BINARY);
@@ -185,18 +185,18 @@ void Test::simple_expr() {
     ONEJIT_TEST(node.child(1), ==, ce);
     ONEJIT_TEST(node.is<Node>(), ==, node);
     ONEJIT_TEST(node.is<Expr>(), ==, node);
-    ONEJIT_TEST(node.is<BinaryExpr>(), ==, node);
-    ONEJIT_TEST(node.is<ConstExpr>(), ==, ConstExpr{});
+    ONEJIT_TEST(node.is<Binary>(), ==, node);
+    ONEJIT_TEST(node.is<Const>(), ==, Const{});
     ONEJIT_TEST(node.is<Stmt>(), ==, Stmt{});
     ONEJIT_TEST(bool(node), ==, true);
     ONEJIT_TEST(bool(node.is<Node>()), ==, true);
     ONEJIT_TEST(bool(node.is<Expr>()), ==, true);
-    ONEJIT_TEST(bool(node.is<BinaryExpr>()), ==, true);
-    ONEJIT_TEST(bool(node.is<ConstExpr>()), ==, false);
+    ONEJIT_TEST(bool(node.is<Binary>()), ==, true);
+    ONEJIT_TEST(bool(node.is<Const>()), ==, false);
     ONEJIT_TEST(bool(node.is<Stmt>()), ==, false);
 
-    Var var1 = ve.to<VarExpr>().var();
-    Var var2 = Var::parse_direct(var1.direct());
+    Variable var1 = ve.to<Var>().var();
+    Variable var2 = Variable::parse_direct(var1.direct());
     ONEJIT_TEST(var1, ==, var2);
     ONEJIT_TEST(var1.kind(), ==, k);
   }
@@ -206,8 +206,8 @@ void Test::nested_expr() {
   for (uint8_t i = kInt8; i <= kUint64; i++) {
     Kind k{i};
 
-    Const c1{k, 1};
-    Const c2{k, 2};
+    Constant c1{k, 1};
+    Constant c2{k, 2};
     Expr ce1 = func.new_const(c1);
     Expr ce2 = func.new_const(c2);
 
@@ -238,9 +238,9 @@ void Test::fib() {
   const Kind kind = Uint64;
   const Kinds kinds{&kind, 1};
   Func f("fib", FuncType{kinds, kinds, &holder}, &holder);
-  VarExpr param = f.param(0);
-  ConstExpr one = One(Uint64);
-  ConstExpr two = Two(Uint64);
+  Var param = f.param(0);
+  Const one = One(Uint64);
+  Const two = Two(Uint64);
 
   f.set_body(                                                           //
       f.new_block(                                                      //

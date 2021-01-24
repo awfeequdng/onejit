@@ -93,11 +93,11 @@ Compiler &Compiler::exit_loop() noexcept {
   return *this;
 }
 
-VarExpr Compiler::to_var(const Node &node) noexcept {
+Var Compiler::to_var(const Node &node) noexcept {
   Expr e = node.is<Expr>();
-  VarExpr ve = node.is<VarExpr>();
+  Var ve = node.is<Var>();
   if (e && !ve) {
-    // copy Expr result to a VarExpr
+    // copy Expr result to a Var
     ve = func_.new_var(e.kind());
     compile_add(func_.new_assign(ASSIGN, ve, e), false);
   }
@@ -169,13 +169,13 @@ Expr Compiler::compile(Expr expr, bool) noexcept {
   const Type t = expr.type();
   switch (t) {
   case MEM:
-    return compile(expr.is<MemExpr>(), true);
+    return compile(expr.is<Mem>(), true);
   case UNARY:
-    return compile(expr.is<UnaryExpr>(), true);
+    return compile(expr.is<Unary>(), true);
   case BINARY:
-    return compile(expr.is<BinaryExpr>(), true);
+    return compile(expr.is<Binary>(), true);
   case CALL:
-    return compile(expr.is<CallExpr>(), true);
+    return compile(expr.is<Call>(), true);
   case VAR:
   case LABEL:
   case CONST:
@@ -184,7 +184,7 @@ Expr Compiler::compile(Expr expr, bool) noexcept {
   }
 }
 
-Expr Compiler::compile(MemExpr expr, bool) noexcept {
+Expr Compiler::compile(Mem expr, bool) noexcept {
   Expr addr = expr.addr();
   Expr comp_addr = compile(addr, true);
   if (addr != comp_addr) {
@@ -193,7 +193,7 @@ Expr Compiler::compile(MemExpr expr, bool) noexcept {
   return expr;
 }
 
-Expr Compiler::compile(UnaryExpr expr, bool) noexcept {
+Expr Compiler::compile(Unary expr, bool) noexcept {
   Expr x = expr.x();
   Expr comp_x = compile(x, true);
   if (x != comp_x) {
@@ -202,7 +202,7 @@ Expr Compiler::compile(UnaryExpr expr, bool) noexcept {
   return expr;
 }
 
-Expr Compiler::compile(BinaryExpr expr, bool) noexcept {
+Expr Compiler::compile(Binary expr, bool) noexcept {
   Expr x = expr.x(), y = expr.y();
   Expr comp_x = compile(x, true), comp_y = compile(y, true);
   if (x != comp_x || y != comp_y) {
@@ -211,12 +211,12 @@ Expr Compiler::compile(BinaryExpr expr, bool) noexcept {
   return expr;
 }
 
-Expr Compiler::compile(CallExpr call, bool simplify_call) noexcept {
+Expr Compiler::compile(Call call, bool simplify_call) noexcept {
   const uint32_t n = call.children();
 
-  if (!call.children_are<VarExpr>(2, n)) {
+  if (!call.children_are<Var>(2, n)) {
     Vector<Expr> vargs;
-    // convert all arguments to VarExpr
+    // convert all arguments to Var
     to_vars(call, 2, n, vargs);
     call = func_.new_call(call.ftype(), call.label(), vargs);
   }
@@ -225,11 +225,11 @@ Expr Compiler::compile(CallExpr call, bool simplify_call) noexcept {
     return call;
   }
   // avoid calls inside other expressions,
-  // and copy result value to a VarExpr.
+  // and copy result value to a Var.
   //
   // we could also use to_var(call), but it risks
   // infinite recursion because it invokes compile(call)
-  VarExpr dst = func_.new_var(call.kind());
+  Var dst = func_.new_var(call.kind());
   add(func_.new_assign(ASSIGN, dst, call));
   return dst;
 }
@@ -283,9 +283,9 @@ Node Compiler::compile(Stmt2 st, bool simplify_call) noexcept {
     error(st, "misplaced Default");
     break;
   case JUMP_IF:
-    return compile(st.is<JumpIfStmt>(), simplify_call);
+    return compile(st.is<JumpIf>(), simplify_call);
   default:
-    if (auto assign = st.is<AssignStmt>()) {
+    if (auto assign = st.is<Assign>()) {
       return compile(assign, simplify_call);
     }
     break;
@@ -295,7 +295,7 @@ Node Compiler::compile(Stmt2 st, bool simplify_call) noexcept {
   return VoidExpr;
 }
 
-Node Compiler::compile(AssignStmt assign, bool) noexcept {
+Node Compiler::compile(Assign assign, bool) noexcept {
   Expr src = assign.src();
   Expr dst = assign.dst();
   // compile src first: its side effects, if any, must be applied before dst
@@ -309,7 +309,7 @@ Node Compiler::compile(AssignStmt assign, bool) noexcept {
   return VoidExpr;
 }
 
-Node Compiler::compile(JumpIfStmt jump_if, bool) noexcept {
+Node Compiler::compile(JumpIf jump_if, bool) noexcept {
   Expr cond = jump_if.cond();
   Expr comp_cond = compile(cond, true);
   if (cond != comp_cond) {
@@ -325,14 +325,14 @@ Node Compiler::compile(JumpIfStmt jump_if, bool) noexcept {
 Node Compiler::compile(Stmt3 st, bool) noexcept {
   switch (st.op()) {
   case IF:
-    return compile(st.is<IfStmt>(), false);
+    return compile(st.is<If>(), false);
   default:
     add(st);
     return VoidExpr;
   }
 }
 
-Node Compiler::compile(IfStmt st, bool) noexcept {
+Node Compiler::compile(If st, bool) noexcept {
   Expr cond = func_.new_unary(NOT1, st.cond());
   cond = compile(cond, false);
 
@@ -343,7 +343,7 @@ Node Compiler::compile(IfStmt st, bool) noexcept {
   Label else_label = have_else ? func_.new_label() : Label{};
   Label endif_label = func_.new_label();
 
-  JumpIfStmt jump_if = func_.new_jump_if(have_else ? else_label : endif_label, cond);
+  JumpIf jump_if = func_.new_jump_if(have_else ? else_label : endif_label, cond);
 
   compile_add(jump_if, false) //
       .compile_add(then, false);
@@ -361,14 +361,14 @@ Node Compiler::compile(IfStmt st, bool) noexcept {
 Node Compiler::compile(Stmt4 st, bool) noexcept {
   switch (st.op()) {
   case FOR:
-    return compile(st.is<ForStmt>(), false);
+    return compile(st.is<For>(), false);
   default:
     add(st);
     return VoidExpr;
   }
 }
 
-Node Compiler::compile(ForStmt st, bool) noexcept {
+Node Compiler::compile(For st, bool) noexcept {
   /// TODO: implement
   add(st);
   return VoidExpr;
@@ -379,41 +379,41 @@ Node Compiler::compile(ForStmt st, bool) noexcept {
 Node Compiler::compile(StmtN st, bool simplify_call) noexcept {
   switch (st.op()) {
   case ASSIGN_TUPLE:
-    return compile(st.is<AssignTupleStmt>(), simplify_call);
+    return compile(st.is<AssignCall>(), simplify_call);
   case BLOCK:
-    return compile(st.is<BlockStmt>(), simplify_call);
+    return compile(st.is<Block>(), simplify_call);
   case COND:
-    return compile(st.is<CondStmt>(), simplify_call);
+    return compile(st.is<Cond>(), simplify_call);
   case RETURN:
-    return compile(st.is<ReturnStmt>(), simplify_call);
+    return compile(st.is<Return>(), simplify_call);
   case SWITCH:
-    return compile(st.is<SwitchStmt>(), simplify_call);
+    return compile(st.is<Switch>(), simplify_call);
   default:
     add(st);
     return VoidExpr;
   }
 }
 
-Node Compiler::compile(AssignTupleStmt st, bool) noexcept {
+Node Compiler::compile(AssignCall st, bool) noexcept {
   /// TODO: implement
   add(st);
   return VoidExpr;
 }
 
-Node Compiler::compile(BlockStmt st, bool) noexcept {
+Node Compiler::compile(Block st, bool) noexcept {
   for (size_t i = 0, n = st.children(); i < n; i++) {
     compile(st.child(i), false);
   }
   return VoidExpr;
 }
 
-Node Compiler::compile(CondStmt st, bool) noexcept {
+Node Compiler::compile(Cond st, bool) noexcept {
   /// TODO: implement
   add(st);
   return VoidExpr;
 }
 
-Node Compiler::compile(ReturnStmt st, bool) noexcept {
+Node Compiler::compile(Return st, bool) noexcept {
   const size_t n = st.children();
   if (n != func_.result_n()) {
     error(st, "bad number of return values");
@@ -431,7 +431,7 @@ Node Compiler::compile(ReturnStmt st, bool) noexcept {
   }
   Buffer<Expr> vars;
   for (size_t i = 0; i < n; i++) {
-    VarExpr var = func_.result(i);
+    Var var = func_.result(i);
     Expr expr = st.child(i).is<Expr>();
     if (expr != var) {
       // compile expression and copy its result
@@ -448,7 +448,7 @@ Node Compiler::compile(ReturnStmt st, bool) noexcept {
   return VoidExpr;
 }
 
-Node Compiler::compile(SwitchStmt st, bool) noexcept {
+Node Compiler::compile(Switch st, bool) noexcept {
   /// TODO: implement
   add(st);
   return VoidExpr;

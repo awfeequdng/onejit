@@ -74,20 +74,20 @@ std::ostream &operator<<(std::ostream &out, const StmtN &st);
 ////////////////////////////////////////////////////////////////////////////////
 // collect multiple results of a function call and assign them to multiple variables
 // or memory locations
-class AssignTupleStmt : public StmtN {
+class AssignCall : public StmtN {
   using Base = StmtN;
   friend class Node;
   friend class Func;
 
 public:
   /**
-   * construct an invalid AssignTupleStmt.
-   * exists only to allow placing AssignTupleStmt in containers
+   * construct an invalid AssignCall.
+   * exists only to allow placing AssignCall in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid AssignTupleStmt, use Func::new_block()
+   * to create a valid AssignCall, use Func::new_block()
    */
-  constexpr AssignTupleStmt() noexcept : Base{ASSIGN_TUPLE} {
+  constexpr AssignCall() noexcept : Base{ASSIGN_TUPLE} {
   }
 
   static constexpr OpStmtN op() noexcept {
@@ -95,8 +95,8 @@ public:
   }
 
 private:
-  // downcast Node to AssignTupleStmt
-  constexpr explicit AssignTupleStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to AssignCall
+  constexpr explicit AssignCall(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -104,25 +104,25 @@ private:
     return op == ASSIGN_TUPLE;
   }
 
-  // each assign_to element must be a VarExpr or a MemExpr
-  static AssignTupleStmt create(Exprs assign_to, const CallExpr &call, Code *holder) noexcept;
+  // each assign_to element must be a Var or a Mem
+  static AssignCall create(Exprs assign_to, const Call &call, Code *holder) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class BlockStmt : public StmtN {
+class Block : public StmtN {
   using Base = StmtN;
   friend class Node;
   friend class Func;
 
 public:
   /**
-   * construct an invalid BlockStmt.
-   * exists only to allow placing BlockStmt in containers
+   * construct an invalid Block.
+   * exists only to allow placing Block in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid BlockStmt, use Func::new_block()
+   * to create a valid Block, use Func::new_block()
    */
-  constexpr BlockStmt() noexcept : Base{BLOCK} {
+  constexpr Block() noexcept : Base{BLOCK} {
   }
 
   static constexpr OpStmtN op() noexcept {
@@ -130,8 +130,8 @@ public:
   }
 
 private:
-  // downcast Node to BlockStmt
-  constexpr explicit BlockStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to Block
+  constexpr explicit Block(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -139,8 +139,8 @@ private:
     return op == BLOCK;
   }
 
-  static BlockStmt create(const Nodes nodes, Code *holder) noexcept {
-    return BlockStmt{StmtN::create(BLOCK, nodes, holder)};
+  static Block create(const Nodes nodes, Code *holder) noexcept {
+    return Block{StmtN::create(BLOCK, nodes, holder)};
   }
 };
 
@@ -150,20 +150,20 @@ private:
 // (COND expr1 body1 expr2 body2 ... exprn bodyn)
 // is equivalent to
 // (IF expr1 body1 (IF expr2 body2 (... (IF exprn bodyn void) ...)))
-class CondStmt : public StmtN {
+class Cond : public StmtN {
   using Base = StmtN;
   friend class Node;
   friend class Func;
 
 public:
   /**
-   * construct an invalid CondStmt.
-   * exists only to allow placing CondStmt in containers
+   * construct an invalid Cond.
+   * exists only to allow placing Cond in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid CondStmt, use Func::new_block()
+   * to create a valid Cond, use Func::new_block()
    */
-  constexpr CondStmt() noexcept : Base{COND} {
+  constexpr Cond() noexcept : Base{COND} {
   }
 
   static constexpr OpStmtN op() noexcept {
@@ -171,8 +171,8 @@ public:
   }
 
 private:
-  // downcast Node to CondStmt
-  constexpr explicit CondStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to Cond
+  constexpr explicit Cond(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -180,27 +180,27 @@ private:
     return op == COND;
   }
 
-  static CondStmt create(const Nodes nodes, Code *holder) noexcept {
-    return CondStmt{StmtN::create(COND, nodes, holder)};
+  static Cond create(const Nodes nodes, Code *holder) noexcept {
+    return Cond{StmtN::create(COND, nodes, holder)};
   }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // return 0, 1 or multiple values
-class ReturnStmt : public StmtN {
+class Return : public StmtN {
   using Base = StmtN;
   friend class Node;
   friend class Func;
 
 public:
   /**
-   * construct an invalid ReturnStmt.
-   * exists only to allow placing ReturnStmt in containers
+   * construct an invalid Return.
+   * exists only to allow placing Return in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid ReturnStmt, use Func::new_return()
+   * to create a valid Return, use Func::new_return()
    */
-  constexpr ReturnStmt() noexcept : Base{RETURN} {
+  constexpr Return() noexcept : Base{RETURN} {
   }
 
   static constexpr OpStmtN op() noexcept {
@@ -208,8 +208,8 @@ public:
   }
 
 private:
-  // downcast Node to ReturnStmt
-  constexpr explicit ReturnStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to Return
+  constexpr explicit Return(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -217,24 +217,24 @@ private:
     return op == RETURN;
   }
 
-  static ReturnStmt create(Exprs exprs, Code *holder) noexcept;
+  static Return create(Exprs exprs, Code *holder) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class SwitchStmt : public StmtN {
+class Switch : public StmtN {
   using Base = StmtN;
   friend class Node;
   friend class Func;
 
 public:
   /**
-   * construct an invalid SwitchStmt.
-   * exists only to allow placing SwitchStmt in containers
+   * construct an invalid Switch.
+   * exists only to allow placing Switch in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid SwitchStmt, use Func::new_switch()
+   * to create a valid Switch, use Func::new_switch()
    */
-  constexpr SwitchStmt() noexcept : Base{SWITCH} {
+  constexpr Switch() noexcept : Base{SWITCH} {
   }
 
   static constexpr OpStmtN op() noexcept {
@@ -242,8 +242,8 @@ public:
   }
 
 private:
-  // downcast Node to SwitchStmt
-  constexpr explicit SwitchStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to Switch
+  constexpr explicit Switch(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -251,8 +251,8 @@ private:
     return op == SWITCH;
   }
 
-  // cases can contain at most one DefaultStmt
-  static SwitchStmt create(const Expr &expr, const CaseStmts cases, Code *holder) noexcept;
+  // cases can contain at most one Default
+  static Switch create(const Expr &expr, const Cases cases, Code *holder) noexcept;
 };
 
 } // namespace onejit

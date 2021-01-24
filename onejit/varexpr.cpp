@@ -28,32 +28,32 @@
 
 namespace onejit {
 
-Var VarExpr::var() const noexcept {
+Variable Var::var() const noexcept {
   if (is_direct()) {
-    return Var::parse_direct(offset_or_direct());
+    return Variable::parse_direct(offset_or_direct());
   } else {
-    return Var::parse_indirect(kind(), get(sizeof(CodeItem)));
+    return Variable::parse_indirect(kind(), get(sizeof(CodeItem)));
   }
 }
 
-VarExpr VarExpr::create(Var var, Code *holder) noexcept {
+Var Var::create(Variable var, Code *holder) noexcept {
   const NodeHeader header{VAR, var.kind(), 0};
   if (var.is_direct()) {
-    return VarExpr{Node{header, var.direct(), nullptr}};
+    return Var{Node{header, var.direct(), nullptr}};
   }
   while (holder) {
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add_item(var.indirect())) {
-      return VarExpr{Node{header, offset, holder}};
+      return Var{Node{header, offset, holder}};
     }
     holder->truncate(offset);
     break;
   }
-  return VarExpr{};
+  return Var{};
 }
 
-std::ostream &operator<<(std::ostream &out, const VarExpr &ve) {
+std::ostream &operator<<(std::ostream &out, const Var &ve) {
   return out << ve.var();
 }
 

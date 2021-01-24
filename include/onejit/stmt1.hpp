@@ -82,13 +82,13 @@ protected:
 std::ostream &operator<<(std::ostream &out, const Stmt1 &st);
 
 ////////////////////////////////////////////////////////////////////////////////
-class GotoStmt : public Stmt1 {
+class Goto : public Stmt1 {
   using Base = Stmt1;
   friend class Node;
   friend class Func;
 
 public:
-  constexpr GotoStmt() noexcept : Base{GOTO} {
+  constexpr Goto() noexcept : Base{GOTO} {
   }
 
   static constexpr OpStmt1 op() noexcept {
@@ -101,8 +101,8 @@ public:
   }
 
 private:
-  // downcast Node to GotoStmt
-  constexpr explicit GotoStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to Goto
+  constexpr explicit Goto(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -110,8 +110,8 @@ private:
     return op == GOTO;
   }
 
-  static GotoStmt create(const Label &to, Code *holder) noexcept {
-    return GotoStmt{Stmt1::create(GOTO, to, holder)};
+  static Goto create(const Label &to, Code *holder) noexcept {
+    return Goto{Stmt1::create(GOTO, to, holder)};
   }
 };
 

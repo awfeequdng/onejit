@@ -26,7 +26,7 @@
 #ifndef ONEJIT_CODE_HPP
 #define ONEJIT_CODE_HPP
 
-#include <onejit/const.hpp>
+#include <onejit/constant.hpp>
 #include <onejit/fwd.hpp>
 #include <onejit/node.hpp>
 #include <onejit/type.hpp>
@@ -71,7 +71,7 @@ public:
   }
   // returns 0 if byte_offset is out of bounds
   float float32(Offset byte_offset) const noexcept {
-    return ConstFloat32{get(byte_offset)}.val();
+    return ConstantFloat32{get(byte_offset)}.val();
   }
 
   // returns 0 if byte_offset is out of bounds
@@ -82,7 +82,7 @@ public:
   uint64_t uint64(Offset byte_offset) const noexcept;
   // returns 0 if byte_offset is out of bounds
   double float64(Offset byte_offset) const noexcept {
-    return ConstFloat64{uint64(byte_offset)}.val();
+    return ConstantFloat64{uint64(byte_offset)}.val();
   }
 
   Code &add_int32(int32_t i32) noexcept {
@@ -92,7 +92,7 @@ public:
     return add_item(u32);
   }
   Code &add_float32(float f32) noexcept {
-    return add_item(ConstFloat32{f32}.bits());
+    return add_item(ConstantFloat32{f32}.bits());
   }
 
   Code &add_int64(int64_t i64) noexcept {
@@ -100,7 +100,7 @@ public:
   }
   Code &add_uint64(uint64_t u64) noexcept;
   Code &add_float64(double f64) noexcept {
-    return add_uint64(ConstFloat64{f64}.bits());
+    return add_uint64(ConstantFloat64{f64}.bits());
   }
 
   Code &add_item(CodeItem data) noexcept; // same as add_uint32()

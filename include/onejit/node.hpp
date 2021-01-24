@@ -35,28 +35,28 @@
 namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
-// base class of BinaryExpr, ConstExpr, UnaryExpr, VarExpr, Stmt*
+// base class of Binary, Const, Unary, Var, Stmt*
 class Node {
 
-  friend class BinaryExpr;
-  friend class CallExpr;
+  friend class Binary;
+  friend class Call;
   friend class Code;
   friend class CodeParser;
-  friend class ConstExpr;
+  friend class Const;
   friend class Func;
   friend class FuncType;
   friend class Label;
-  friend class MemExpr;
-  friend class ReturnStmt;
+  friend class Mem;
+  friend class Return;
   friend class Stmt1;
   friend class Stmt2;
   friend class Stmt3;
   friend class Stmt4;
   friend class StmtN;
-  friend class SwitchStmt;
-  friend class AssignTupleStmt;
-  friend class UnaryExpr;
-  friend class VarExpr;
+  friend class Switch;
+  friend class AssignCall;
+  friend class Unary;
+  friend class Var;
 
 public:
   constexpr Node() noexcept : header_{}, off_or_dir_{0}, code_{nullptr} {

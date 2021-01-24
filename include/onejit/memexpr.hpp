@@ -35,7 +35,7 @@ namespace onejit {
 
 // an unary expression: a memory dereference, either read or write.
 // the memory address is an expression
-class MemExpr : public Expr {
+class Mem : public Expr {
   using Base = Expr;
 
   friend class Func;
@@ -43,13 +43,13 @@ class MemExpr : public Expr {
 
 public:
   /**
-   * construct an invalid MemExpr.
-   * exists only to allow placing MemExpr in containers
+   * construct an invalid Mem.
+   * exists only to allow placing Mem in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid MemExpr, use Func::new_mem()
+   * to create a valid Mem, use Func::new_mem()
    */
-  constexpr MemExpr() noexcept : Base{MEM} {
+  constexpr Mem() noexcept : Base{MEM} {
   }
 
   static constexpr Type type() noexcept {
@@ -68,8 +68,8 @@ public:
   }
 
 private:
-  // downcast Node to MemExpr
-  constexpr explicit MemExpr(const Node &node) noexcept : Base{node} {
+  // downcast Node to Mem
+  constexpr explicit Mem(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -77,10 +77,10 @@ private:
     return t == MEM;
   }
 
-  static MemExpr create(Kind kind, const Expr &address, Code *holder) noexcept;
+  static Mem create(Kind kind, const Expr &address, Code *holder) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const MemExpr &expr);
+std::ostream &operator<<(std::ostream &out, const Mem &expr);
 
 } // namespace onejit
 

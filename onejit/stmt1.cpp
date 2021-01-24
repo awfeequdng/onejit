@@ -49,6 +49,6 @@ std::ostream &operator<<(std::ostream &out, const Stmt1 &st) {
   return out << '(' << st.op() << ' ' << st.child(0) << ')';
 }
 
-// ============================  GotoStmt  ==================================
+// ============================  Goto  ==================================
 
 } // namespace onejit

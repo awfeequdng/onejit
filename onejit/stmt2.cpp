@@ -54,32 +54,32 @@ std::ostream &operator<<(std::ostream &out, const Stmt2 &st) {
   return out << ' ' << st.child(1) << ')';
 }
 
-// ============================  AssignStmt  ===================================
+// ============================  Assign  ===================================
 
-AssignStmt AssignStmt::create(OpStmt2 op, const Expr &dst, const Expr &src, Code *holder) noexcept {
+Assign Assign::create(OpStmt2 op, const Expr &dst, const Expr &src, Code *holder) noexcept {
   const Node children[] = {dst, src};
-  return AssignStmt{Stmt2::create(op, Nodes{children, 2}, holder)};
+  return Assign{Stmt2::create(op, Nodes{children, 2}, holder)};
 }
 
-// ============================  CaseStmt  =====================================
+// ============================  Case  =====================================
 
-CaseStmt CaseStmt::create(const Expr &expr, const Node &body, Code *holder) noexcept {
+Case Case::create(const Expr &expr, const Node &body, Code *holder) noexcept {
   const Node children[] = {expr, body};
-  return CaseStmt{Stmt2::create(CASE, Nodes{children, 2}, holder)};
+  return Case{Stmt2::create(CASE, Nodes{children, 2}, holder)};
 }
 
-// ============================  DefaultStmt  ==================================
+// ============================  Default  ==================================
 
-DefaultStmt DefaultStmt::create(const Node &body, Code *holder) noexcept {
+Default Default::create(const Node &body, Code *holder) noexcept {
   const Node children[] = {VoidExpr, body};
-  return DefaultStmt{Stmt2::create(DEFAULT, Nodes{children, 2}, holder)};
+  return Default{Stmt2::create(DEFAULT, Nodes{children, 2}, holder)};
 }
 
-// ============================  JumpIfStmt  ==================================
+// ============================  JumpIf  ==================================
 
-JumpIfStmt JumpIfStmt::create(const Label &to, const Expr &cond, Code *holder) noexcept {
+JumpIf JumpIf::create(const Label &to, const Expr &cond, Code *holder) noexcept {
   const Node children[] = {to, cond};
-  return JumpIfStmt{Stmt2::create(JUMP_IF, Nodes{children, 2}, holder)};
+  return JumpIf{Stmt2::create(JUMP_IF, Nodes{children, 2}, holder)};
 }
 
 } // namespace onejit

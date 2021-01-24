@@ -23,11 +23,11 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/binaryexpr.hpp>
+#include <onejit/binary.hpp>
 #include <onejit/callexpr.hpp>
 #include <onejit/check.hpp>
 #include <onejit/code.hpp>
-#include <onejit/constexpr.hpp>
+#include <onejit/const.hpp>
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
 #include <onejit/memexpr.hpp>
@@ -76,16 +76,16 @@ Node Node::child(uint32_t i) const noexcept {
 
   if (item < 4) {
     // special case: Stmt0 is always direct,
-    // only four values exist: BadStmt BreakStmt ContinueStmt FallthroughStmt
+    // only four values exist: BadStmt Break Continue Fallthrough
     header = NodeHeader{STMT_0, Void, uint16_t(item)};
   } else if ((item & 1) != 0) {
-    // direct Const
+    // direct Constant
     offset_or_direct = item;
-    header = NodeHeader{CONST, Const::parse_direct_kind(item), 0};
+    header = NodeHeader{CONST, Constant::parse_direct_kind(item), 0};
   } else if ((item & 7) == 2) {
-    // direct Var
+    // direct Variable
     offset_or_direct = item;
-    header = NodeHeader{VAR, Var::parse_direct_kind(item), 0};
+    header = NodeHeader{VAR, Variable::parse_direct_kind(item), 0};
 #if 0 // unused
   } else if ((item & 0xF) == 0xE) {
     offset_or_direct = item;
@@ -141,19 +141,19 @@ std::ostream &operator<<(std::ostream &out, const Node &node) {
   case STMT_N:
     return out << node.is<StmtN>();
   case VAR:
-    return out << node.is<VarExpr>();
+    return out << node.is<Var>();
   case MEM:
-    return out << node.is<MemExpr>();
+    return out << node.is<Mem>();
   case UNARY:
-    return out << node.is<UnaryExpr>();
+    return out << node.is<Unary>();
   case BINARY:
-    return out << node.is<BinaryExpr>();
+    return out << node.is<Binary>();
   case CALL:
-    return out << node.is<CallExpr>();
+    return out << node.is<Call>();
   case LABEL:
     return out << node.is<Label>();
   case CONST:
-    return out << node.is<ConstExpr>();
+    return out << node.is<Const>();
   case FTYPE:
     return out << node.is<FuncType>();
   default:

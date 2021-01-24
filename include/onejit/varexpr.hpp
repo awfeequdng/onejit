@@ -34,7 +34,7 @@
 namespace onejit {
 
 // an expression containing only a local variable or register.
-class VarExpr : public Expr {
+class Var : public Expr {
   using Base = Expr;
 
   friend class Func;
@@ -42,13 +42,13 @@ class VarExpr : public Expr {
 
 public:
   /**
-   * construct an invalid VarExpr.
-   * exists only to allow placing VarExpr in containers
+   * construct an invalid Var.
+   * exists only to allow placing Var in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid VarExpr, use Func::new_var()
+   * to create a valid Var, use Func::new_var()
    */
-  constexpr VarExpr() noexcept : Base{VAR} {
+  constexpr Var() noexcept : Base{VAR} {
   }
 
   static constexpr Type type() noexcept {
@@ -61,15 +61,15 @@ public:
     return 0;
   }
 
-  Var var() const noexcept;
+  Variable var() const noexcept;
 
   VarId id() const noexcept {
     return var().id();
   }
 
 private:
-  // downcast Node to ConstExpr
-  constexpr explicit VarExpr(const Node &node) noexcept //
+  // downcast Node to Const
+  constexpr explicit Var(const Node &node) noexcept //
       : Base{Node{node.header(), node.offset_or_direct(),
                   node.offset_or_direct() & 2 ? nullptr : node.code()}} {
   }
@@ -79,10 +79,10 @@ private:
     return t == VAR;
   }
 
-  static VarExpr create(Var var, Code *holder) noexcept;
+  static Var create(Variable var, Code *holder) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const VarExpr &ve);
+std::ostream &operator<<(std::ostream &out, const Var &ve);
 
 } // namespace onejit
 

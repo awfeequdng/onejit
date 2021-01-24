@@ -23,7 +23,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/binaryexpr.hpp>
+#include <onejit/binary.hpp>
 #include <onejit/callexpr.hpp>
 #include <onejit/expr.hpp>
 #include <onejit/memexpr.hpp>

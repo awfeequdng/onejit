@@ -94,12 +94,12 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class BreakStmt : public Stmt0 {
+class Break : public Stmt0 {
   using Base = Stmt0;
   friend class Node;
 
 public:
-  constexpr BreakStmt() noexcept : Base{BREAK} {
+  constexpr Break() noexcept : Base{BREAK} {
   }
 
   static constexpr OpStmt0 op() noexcept {
@@ -107,8 +107,8 @@ public:
   }
 
 private:
-  // downcast Node to BreakStmt
-  constexpr explicit BreakStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to Break
+  constexpr explicit Break(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -118,12 +118,12 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class ContinueStmt : public Stmt0 {
+class Continue : public Stmt0 {
   using Base = Stmt0;
   friend class Node;
 
 public:
-  constexpr ContinueStmt() noexcept : Base{CONTINUE} {
+  constexpr Continue() noexcept : Base{CONTINUE} {
   }
 
   static constexpr OpStmt0 op() noexcept {
@@ -131,8 +131,8 @@ public:
   }
 
 private:
-  // downcast Node to ContinueStmt
-  constexpr explicit ContinueStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to Continue
+  constexpr explicit Continue(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -142,12 +142,12 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class FallthroughStmt : public Stmt0 {
+class Fallthrough : public Stmt0 {
   using Base = Stmt0;
   friend class Node;
 
 public:
-  constexpr FallthroughStmt() noexcept : Base{FALLTHROUGH} {
+  constexpr Fallthrough() noexcept : Base{FALLTHROUGH} {
   }
 
   static constexpr OpStmt0 op() noexcept {
@@ -155,8 +155,8 @@ public:
   }
 
 private:
-  // downcast Node to FallthroughStmt
-  constexpr explicit FallthroughStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to Fallthrough
+  constexpr explicit Fallthrough(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper

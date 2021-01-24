@@ -33,20 +33,20 @@
 namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
-class CallExpr : public Expr {
+class Call : public Expr {
   using Base = Expr;
   friend class Node;
   friend class Func;
 
 public:
   /**
-   * construct an invalid CallExpr.
-   * exists only to allow placing CallExpr in containers
+   * construct an invalid Call.
+   * exists only to allow placing Call in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid CallExpr, use Func::new_call()
+   * to create a valid Call, use Func::new_call()
    */
-  constexpr CallExpr() noexcept : Base{CALL} {
+  constexpr Call() noexcept : Base{CALL} {
   }
 
   static constexpr OpN op() noexcept {
@@ -63,8 +63,8 @@ public:
   Expr arg(uint32_t i) const noexcept;
 
 private:
-  // downcast Node to CallExpr
-  constexpr explicit CallExpr(const Node &node) noexcept : Base{node} {
+  // downcast Node to Call
+  constexpr explicit Call(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -72,11 +72,10 @@ private:
     return t == CALL;
   }
 
-  static CallExpr create(const FuncType &ftype, const Label &flabel, Exprs args,
-                         Code *holder) noexcept;
+  static Call create(const FuncType &ftype, const Label &flabel, Exprs args, Code *holder) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const CallExpr &expr);
+std::ostream &operator<<(std::ostream &out, const Call &expr);
 
 } // namespace onejit
 

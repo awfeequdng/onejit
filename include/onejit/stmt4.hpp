@@ -78,20 +78,20 @@ protected:
 std::ostream &operator<<(std::ostream &out, const Stmt4 &st);
 
 ////////////////////////////////////////////////////////////////////////////////
-class ForStmt : public Stmt4 {
+class For : public Stmt4 {
   using Base = Stmt4;
   friend class Node;
   friend class Func;
 
 public:
   /**
-   * construct an invalid ForStmt.
-   * exists only to allow placing ForStmt in containers
+   * construct an invalid For.
+   * exists only to allow placing For in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid ForStmt, use Func::new_for()
+   * to create a valid For, use Func::new_for()
    */
-  constexpr ForStmt() noexcept : Base{FOR} {
+  constexpr For() noexcept : Base{FOR} {
   }
 
   static constexpr OpStmt4 op() noexcept {
@@ -119,8 +119,8 @@ public:
   }
 
 private:
-  // downcast Node to ForStmt
-  constexpr explicit ForStmt(const Node &node) noexcept : Base{node} {
+  // downcast Node to For
+  constexpr explicit For(const Node &node) noexcept : Base{node} {
   }
 
   // downcast helper
@@ -128,9 +128,9 @@ private:
     return op == FOR;
   }
 
-  static ForStmt create(const Node &init, const Expr &cond, const Node &post, const Node &body,
-                        Code *holder) noexcept {
-    return ForStmt{Stmt4::create(FOR, init, cond, post, body, holder)};
+  static For create(const Node &init, const Expr &cond, const Node &post, const Node &body,
+                    Code *holder) noexcept {
+    return For{Stmt4::create(FOR, init, cond, post, body, holder)};
   }
 };
 
