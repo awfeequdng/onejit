@@ -32,13 +32,13 @@ namespace onejit {
 
 // ============================  Stmt2  ========================================
 
-Stmt2 ONEJIT_NOINLINE Stmt2::create(OpStmt2 op, const Nodes children, Code *holder) noexcept {
+Node ONEJIT_NOINLINE Stmt2::create(Code *holder, const Nodes children, OpStmt2 op) noexcept {
   while (holder && children.size() == 2) {
     const NodeHeader header{STMT_2, Void, uint16_t(op)};
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add(children, offset)) {
-      return Stmt2{Node{header, offset, holder}};
+      return Node{header, offset, holder};
     }
     holder->truncate(offset);
     break;
@@ -56,30 +56,30 @@ std::ostream &operator<<(std::ostream &out, const Stmt2 &st) {
 
 // ============================  Assign  ===================================
 
-Assign Assign::create(Code *holder, OpStmt2 op, Expr dst, Expr src) noexcept {
+Node Assign::create(Code *holder, OpStmt2 op, Expr dst, Expr src) noexcept {
   const Node children[] = {dst, src};
-  return Assign{Stmt2::create(op, Nodes{children, 2}, holder)};
+  return Stmt2::create(holder, Nodes{children, 2}, op);
 }
 
 // ============================  Case  =====================================
 
-Case Case::create(Code *holder, Expr expr, Node body) noexcept {
+Node Case::create(Code *holder, Expr expr, Node body) noexcept {
   const Node children[] = {expr, body};
-  return Case{Stmt2::create(CASE, Nodes{children, 2}, holder)};
+  return Stmt2::create(holder, Nodes{children, 2}, CASE);
 }
 
 // ============================  Default  ==================================
 
-Default Default::create(const Node &body, Code *holder) noexcept {
+Node Default::create(Code *holder, Node body) noexcept {
   const Node children[] = {VoidExpr, body};
-  return Default{Stmt2::create(DEFAULT, Nodes{children, 2}, holder)};
+  return Stmt2::create(holder, Nodes{children, 2}, DEFAULT);
 }
 
 // ============================  JumpIf  ==================================
 
-JumpIf JumpIf::create(const Label &to, const Expr &cond, Code *holder) noexcept {
+Node JumpIf::create(Code *holder, Label to, Expr cond) noexcept {
   const Node children[] = {to, cond};
-  return JumpIf{Stmt2::create(JUMP_IF, Nodes{children, 2}, holder)};
+  return Stmt2::create(holder, Nodes{children, 2}, JUMP_IF);
 }
 
 } // namespace onejit

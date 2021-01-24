@@ -76,7 +76,7 @@ protected:
     return t == STMT_2;
   }
 
-  static Stmt2 create(OpStmt2 op, Nodes children, Code *holder) noexcept;
+  static Node create(Code *holder, Nodes children, OpStmt2 op) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Stmt2 &st);
@@ -99,7 +99,7 @@ public:
   }
 
   Assign(Code *holder, OpStmt2 op, Expr dst, Expr src) noexcept
-      : Assign{create(holder, op, dst, src)} {
+      : Base{create(holder, op, dst, src)} {
   }
 
   constexpr OpStmt2 op() const noexcept {
@@ -126,7 +126,7 @@ private:
     return op >= ADD_ASSIGN && op <= ASSIGN;
   }
 
-  static Assign create(Code *holder, OpStmt2 op, Expr dst, Expr src) noexcept;
+  static Node create(Code *holder, OpStmt2 op, Expr dst, Expr src) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -146,7 +146,8 @@ public:
   constexpr Case() noexcept : Base{CASE} {
   }
 
-  Case(Code *holder, Expr expr, Node body) noexcept : Case{create(holder, expr, body)} {
+  Case(Code *holder, Expr expr, Node body) noexcept //
+      : Base{create(holder, expr, body)} {
   }
 
   // can return either CASE or DEFAULT
@@ -179,7 +180,7 @@ private:
     return op == CASE || op == DEFAULT;
   }
 
-  static Case create(Code *holder, Expr expr, Node body) noexcept;
+  static Node create(Code *holder, Expr expr, Node body) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -195,9 +196,13 @@ public:
    * exists only to allow placing Default in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Default, use Func::new_default()
+   * to create a valid Default, use one of the other constructors
    */
   constexpr Default() noexcept : Base{DEFAULT} {
+  }
+
+  Default(Code *holder, Node body) noexcept //
+      : Base{create(holder, body)} {
   }
 
   static constexpr OpStmt2 op() noexcept {
@@ -219,7 +224,7 @@ private:
     return op == DEFAULT;
   }
 
-  static Default create(const Node &body, Code *holder) noexcept;
+  static Node create(Code *holder, Node body) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -235,9 +240,12 @@ public:
    * exists only to allow placing JumpIf in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid JumpIf, use Func::new_jump_if()
+   * to create a valid JumpIf, use one of the other constructors
    */
   constexpr JumpIf() noexcept : Base{JUMP_IF} {
+  }
+
+  JumpIf(Code *holder, Label to, Expr cond) noexcept : Base{create(holder, to, cond)} {
   }
 
   static constexpr OpStmt2 op() noexcept {
@@ -264,7 +272,7 @@ private:
     return op == JUMP_IF;
   }
 
-  static JumpIf create(const Label &to, const Expr &cond, Code *holder) noexcept;
+  static Node create(Code *holder, Label to, Expr cond) noexcept;
 };
 
 } // namespace onejit

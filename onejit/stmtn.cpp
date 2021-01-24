@@ -34,7 +34,7 @@ namespace onejit {
 
 // ============================  StmtN  ========================================
 
-StmtN StmtN::create(OpStmtN op, const Nodes nodes, Code *holder) noexcept {
+StmtN StmtN::create(Code *holder, const Nodes nodes, OpStmtN op) noexcept {
   const size_t n = nodes.size();
   while (holder && n == uint32_t(n)) {
     const NodeHeader header{STMT_N, Void, uint16_t(op)};
@@ -64,7 +64,7 @@ std::ostream &operator<<(std::ostream &out, const StmtN &st) {
 
 // ============================  AssignCall  ===================================
 
-AssignCall AssignCall::create(Exprs assign_to, const Call &call, Code *holder) noexcept {
+AssignCall AssignCall::create(Code *holder, Exprs assign_to, const Call &call) noexcept {
   const size_t n = assign_to.size();
   while (holder && n == uint32_t(n)) {
     const NodeHeader header{STMT_N, Void, ASSIGN_TUPLE};
@@ -86,14 +86,14 @@ AssignCall AssignCall::create(Exprs assign_to, const Call &call, Code *holder) n
 
 // ============================  Return  ===================================
 
-Return Return::create(Exprs exprs, Code *holder) noexcept {
+Node Return::create(Code *holder, Exprs exprs) noexcept {
   const size_t n = exprs.size();
   while (holder && n == uint32_t(n)) {
     const NodeHeader header{STMT_N, Void, RETURN};
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add_uint32(n) && holder->add(exprs, offset)) {
-      return Return{Node{header, offset, holder}};
+      return Node{header, offset, holder};
     }
     holder->truncate(offset);
     break;

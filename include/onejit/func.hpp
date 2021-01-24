@@ -48,6 +48,7 @@
 namespace onejit {
 
 class Func {
+  friend class Label;
   friend class Var;
 
 public:
@@ -104,27 +105,9 @@ public:
 
   //////////////////////////////////////////////////////////////////////////////
 
-  AssignCall new_assign_tuple(std::initializer_list<Expr> assign_to, const Call &call) {
-    return new_assign_tuple(Exprs{assign_to.begin(), assign_to.size()}, call);
-  }
-
-  AssignCall new_assign_tuple(Exprs assign_to, const Call &call) {
-    return AssignCall::create(assign_to, call, holder_);
-  }
-
   // also autodetects kind
   Binary new_binary(Op2 op, const Expr &left, const Expr &right) noexcept {
     return Binary::create(op, left, right, holder_);
-  }
-
-  Block new_block(const Node &node) noexcept {
-    return new_block(Nodes{&node, 1});
-  }
-  Block new_block(std::initializer_list<Node> nodes) noexcept {
-    return new_block(Nodes{nodes.begin(), nodes.size()});
-  }
-  Block new_block(Nodes nodes) noexcept {
-    return Block::create(nodes, holder_);
   }
 
   // create a call to specified Func
@@ -143,55 +126,12 @@ public:
     return Call::create(ftype, flabel, args, holder_);
   }
 
-  Cond new_cond(std::initializer_list<Node> nodes) noexcept {
-    return new_cond(Nodes{nodes.begin(), nodes.size()});
-  }
-  Cond new_cond(Nodes nodes) noexcept {
-    return Cond::create(nodes, holder_);
-  }
-
-  Default new_default(const Node &body) noexcept {
-    return Default::create(body, holder_);
-  }
-
   For new_for(const Node &init, const Expr &cond, const Node &post, const Node &body) noexcept {
     return For::create(init, cond, post, body, holder_);
   }
 
-  Goto new_goto(const Label &target) noexcept {
-    return Goto::create(target, holder_);
-  }
-
-  // create a new 'if (cond) { then } else { else_ }'
-  // the 'else' part can be omitted by specifying else_ = VoidExpr
-  If new_if(const Expr &cond, const Node &then, const Node &else_) noexcept {
-    return If::create(cond, then, else_, holder_);
-  }
-
-  // create a new conditional jump. usually only found in compiled code.
-  JumpIf new_jump_if(const Label &to, const Expr &cond) noexcept {
-    return JumpIf::create(to, cond, holder_);
-  }
-
-  // create a new local label, used for jumps within the function
-  Label new_label() noexcept;
-
   Mem new_mem(Kind kind, const Expr &address) noexcept {
     return Mem::create(kind, address, holder_);
-  }
-
-  // create a new return statement
-  Return new_return() noexcept {
-    return new_return(Exprs{});
-  }
-  Return new_return(const Expr &expr) noexcept {
-    return new_return(Exprs{&expr, 1});
-  }
-  Return new_return(std::initializer_list<Expr> exprs) noexcept {
-    return new_return(Exprs{exprs.begin(), exprs.size()});
-  }
-  Return new_return(Exprs exprs) noexcept {
-    return Return::create(exprs, holder_);
   }
 
   Stmt0 new_stmt0(OpStmt0 op) noexcept {
@@ -238,6 +178,9 @@ public:
   }
 
 private:
+  // create a new local label, used for jumps within the function
+  Label new_label() noexcept;
+
   // create a new local variable. called by Var{Func&, Kind}
   // and internally calls Var::create()
   Var new_var(Kind kind) noexcept;

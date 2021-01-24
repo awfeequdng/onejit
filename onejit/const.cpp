@@ -36,11 +36,11 @@ Imm Const::imm() const noexcept {
   }
 }
 
-Const Const::create(Code *holder, const Imm &imm) noexcept {
+Node Const::create(Code *holder, const Imm &imm) noexcept {
   const NodeHeader header{CONST, imm.kind(), 0};
 
   if (imm.is_direct()) {
-    return Const{Node{header, imm.direct(), nullptr}};
+    return Node{header, imm.direct(), nullptr};
   }
   while (holder) {
     CodeItem offset = holder->length();

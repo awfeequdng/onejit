@@ -66,7 +66,7 @@ protected:
     return t == STMT_N;
   }
 
-  static StmtN create(OpStmtN op, const Nodes nodes, Code *holder) noexcept;
+  static StmtN create(Code *holder, const Nodes nodes, OpStmtN op) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const StmtN &st);
@@ -85,9 +85,21 @@ public:
    * exists only to allow placing AssignCall in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid AssignCall, use Func::new_block()
+   * to create a valid AssignCall, use one of the other constructors
    */
   constexpr AssignCall() noexcept : Base{ASSIGN_TUPLE} {
+  }
+
+  // assign multiple values returned by a Call.
+  // each assign_to element must be a Var or a Mem.
+  AssignCall(Code *holder, std::initializer_list<Expr> assign_to, const Call &call) noexcept
+      : AssignCall{create(holder, Exprs{assign_to.begin(), assign_to.size()}, call)} {
+  }
+
+  // assign multiple values returned by a Call.
+  // each assign_to element must be a Var or a Mem.
+  AssignCall(Code *holder, Exprs assign_to, const Call &call) noexcept
+      : AssignCall{create(holder, assign_to, call)} {
   }
 
   static constexpr OpStmtN op() noexcept {
@@ -104,8 +116,7 @@ private:
     return op == ASSIGN_TUPLE;
   }
 
-  // each assign_to element must be a Var or a Mem
-  static AssignCall create(Exprs assign_to, const Call &call, Code *holder) noexcept;
+  static AssignCall create(Code *holder, Exprs assign_to, const Call &call) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -120,9 +131,21 @@ public:
    * exists only to allow placing Block in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Block, use Func::new_block()
+   * to create a valid Block, use one of the other constructors
    */
   constexpr Block() noexcept : Base{BLOCK} {
+  }
+
+  Block(Code *holder, const Node &node) noexcept //
+      : Block{holder, Nodes{&node, 1}} {
+  }
+
+  Block(Code *holder, std::initializer_list<Node> nodes) noexcept
+      : Block(holder, Nodes{nodes.begin(), nodes.size()}) {
+  }
+
+  Block(Code *holder, const Nodes nodes) noexcept //
+      : Block{StmtN::create(holder, nodes, BLOCK)} {
   }
 
   static constexpr OpStmtN op() noexcept {
@@ -137,10 +160,6 @@ private:
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == BLOCK;
-  }
-
-  static Block create(const Nodes nodes, Code *holder) noexcept {
-    return Block{StmtN::create(BLOCK, nodes, holder)};
   }
 };
 
@@ -161,9 +180,17 @@ public:
    * exists only to allow placing Cond in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Cond, use Func::new_block()
+   * to create a valid Cond, use one of the other constructors
    */
   constexpr Cond() noexcept : Base{COND} {
+  }
+
+  Cond(Code *holder, std::initializer_list<Node> nodes) noexcept
+      : Cond{StmtN::create(holder, Nodes{nodes.begin(), nodes.size()}, COND)} {
+  }
+
+  Cond(Code *holder, Nodes nodes) noexcept //
+      : Cond{StmtN::create(holder, nodes, COND)} {
   }
 
   static constexpr OpStmtN op() noexcept {
@@ -180,10 +207,7 @@ private:
     return op == COND;
   }
 
-  static Cond create(const Nodes nodes, Code *holder) noexcept {
-    return Cond{StmtN::create(COND, nodes, holder)};
-  }
-};
+}; // namespace onejit
 
 ////////////////////////////////////////////////////////////////////////////////
 // return 0, 1 or multiple values
@@ -198,9 +222,25 @@ public:
    * exists only to allow placing Return in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Return, use Func::new_return()
+   * to create a valid Return, use one of the other constructors
    */
   constexpr Return() noexcept : Base{RETURN} {
+  }
+
+  explicit Return(Code *holder) noexcept //
+      : Return{create(holder, Exprs{})} {
+  }
+
+  Return(Code *holder, Expr expr) noexcept //
+      : Return{create(holder, Exprs{&expr, 1})} {
+  }
+
+  Return(Code *holder, std::initializer_list<Expr> exprs) noexcept
+      : Return{create(holder, Exprs{exprs.begin(), exprs.size()})} {
+  }
+
+  Return(Code *holder, Exprs exprs) noexcept //
+      : Return{create(holder, exprs)} {
   }
 
   static constexpr OpStmtN op() noexcept {
@@ -217,7 +257,7 @@ private:
     return op == RETURN;
   }
 
-  static Return create(Exprs exprs, Code *holder) noexcept;
+  static Node create(Code *holder, Exprs exprs) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

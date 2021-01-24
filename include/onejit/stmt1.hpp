@@ -44,7 +44,7 @@ public:
    * exists only to allow placing Stmt1 in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Stmt1, use Func::new_stmt1()
+   * to create a valid Stmt1, construct one of the derived classes
    */
   constexpr Stmt1() noexcept : Base{STMT_1, Bad, BAD_ST1} {
   }
@@ -76,7 +76,7 @@ protected:
     return t == STMT_1;
   }
 
-  static Stmt1 create(OpStmt1 op, const Node &body, Code *holder) noexcept;
+  static Node create(Code *holder, Node body, OpStmt1 op) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Stmt1 &st);
@@ -88,7 +88,18 @@ class Goto : public Stmt1 {
   friend class Func;
 
 public:
+  /**
+   * construct an invalid Goto
+   * exists only to allow placing Goto in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid Goto, use one of the other constructors.
+   */
   constexpr Goto() noexcept : Base{GOTO} {
+  }
+
+  Goto(Code *holder, Label target) noexcept //
+      : Base{Stmt1::create(holder, target, GOTO)} {
   }
 
   static constexpr OpStmt1 op() noexcept {
@@ -108,10 +119,6 @@ private:
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == GOTO;
-  }
-
-  static Goto create(const Label &to, Code *holder) noexcept {
-    return Goto{Stmt1::create(GOTO, to, holder)};
   }
 };
 

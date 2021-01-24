@@ -26,6 +26,7 @@
 #ifndef ONEJIT_STMT3_HPP
 #define ONEJIT_STMT3_HPP
 
+#include <onejit/const.hpp> // VoidExpr
 #include <onejit/expr.hpp>
 #include <onejit/opstmt.hpp>
 #include <onejit/stmt.hpp>
@@ -71,7 +72,7 @@ protected:
     return t == STMT_3;
   }
 
-  static Stmt3 create(OpStmt3 op, Nodes children, Code *holder) noexcept;
+  static Node create(Code *holder, Nodes children, OpStmt3 op) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Stmt3 &st);
@@ -89,9 +90,15 @@ public:
    * exists only to allow placing If in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid If, use Func::new_if()
+   * to create a valid If, use one of the other constructors
    */
   constexpr If() noexcept : Base{IF} {
+  }
+
+  // create a new 'if (cond) { then } else { else_ }'
+  // the 'else' part can be omitted also by specifying else_ = VoidExpr
+  If(Code *holder, Expr cond, Node then, Node else_ = VoidExpr) noexcept //
+      : Base{create(holder, cond, then, else_)} {
   }
 
   static constexpr OpStmt3 op() noexcept {
@@ -123,9 +130,8 @@ private:
     return op == IF;
   }
 
-  // create a new 'if (cond) { then } else { else_ }'
-  // the 'else' part can be omitted by specifying else_ = VoidExpr
-  static If create(const Expr &cond, const Node &then, const Node &else_, Code *holder) noexcept;
+  // create a new If
+  static Node create(Code *holder, Expr cond, Node then, Node else_) noexcept;
 };
 
 } // namespace onejit

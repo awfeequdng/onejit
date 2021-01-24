@@ -24,6 +24,7 @@
  */
 
 #include <onejit/code.hpp>
+#include <onejit/func.hpp>
 #include <onejit/label.hpp>
 
 namespace onejit {
@@ -36,7 +37,11 @@ static constexpr uint16_t trivial_hash(uint64_t val) noexcept {
   return trivial_hash(uint32_t(val ^ (val >> 32)));
 }
 
-Label Label::create(uint16_t index, uint64_t address, Code *holder) noexcept {
+Label::Label(Func &func) noexcept //
+    : Base{func.new_label()} {
+}
+
+Label Label::create(Code *holder, uint64_t address, uint16_t index) noexcept {
   while (holder) {
     if (!index && address) {
       index = trivial_hash(address);

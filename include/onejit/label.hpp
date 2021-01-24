@@ -44,14 +44,17 @@ public:
    * exists only to allow placing Label in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Label, use one of the other constructors or Func::new_label()
+   * to create a valid Label, use one of the other constructors
    */
   constexpr Label() noexcept : Base{LABEL} {
   }
 
+  /** create a new label for local jumps within a Func */
+  explicit Label(Func &func) noexcept;
+
   /** create a label pointing to an already compiled function */
-  explicit Label(uint64_t func_address, Code *holder) noexcept
-      : Label{create(0, func_address, holder)} {
+  Label(Code *holder, uint64_t func_address) noexcept //
+      : Base{create(holder, func_address, 0)} {
   }
 
   constexpr uint16_t index() const noexcept {
@@ -74,7 +77,7 @@ private:
   }
 
   /* create a new label. address == 0 means label is not resolved yet */
-  static Label create(uint16_t index, uint64_t address, Code *holder) noexcept;
+  static Label create(Code *holder, uint64_t address, uint16_t index) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Label &l);

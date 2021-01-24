@@ -90,7 +90,7 @@ Label Func::new_label() noexcept {
   Label l;
   const size_t i = labels_.size();
   if (i <= 0xFFFF) {
-    l = Label::create(i, 0, holder_);
+    l = Label::create(holder_, 0, i);
     if (l && !labels_.append(l)) {
       l = Label{};
     }

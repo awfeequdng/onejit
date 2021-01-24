@@ -50,7 +50,7 @@ Compiler &Compiler::finish() noexcept {
       compiled = node_[0];
       break;
     default:
-      compiled = func_.new_block(node_);
+      compiled = Block{code_, node_};
       break;
     }
     func_.set_compiled(compiled);
@@ -240,14 +240,14 @@ Node Compiler::compile(Stmt0 st, bool) noexcept {
   switch (st.op()) {
   case BREAK:
     if (Label l = label_break()) {
-      compile_add(func_.new_goto(l), false);
+      compile_add(Goto{code_, l}, false);
     } else {
       error(st, "misplaced Break");
     }
     break;
   case CONTINUE:
     if (Label l = label_continue()) {
-      compile_add(func_.new_goto(l), false);
+      compile_add(Goto{code_, l}, false);
     } else {
       error(st, "misplaced Continue");
     }
@@ -313,7 +313,7 @@ Node Compiler::compile(JumpIf jump_if, bool) noexcept {
   Expr cond = jump_if.cond();
   Expr comp_cond = compile(cond, true);
   if (cond != comp_cond) {
-    jump_if = func_.new_jump_if(jump_if.to(), comp_cond);
+    jump_if = JumpIf{code_, jump_if.to(), comp_cond};
   }
   add(jump_if);
   // all compile(Stmt*) must return VoidExpr
@@ -340,15 +340,15 @@ Node Compiler::compile(If st, bool) noexcept {
   Node else_ = st.else_();
   bool have_else = else_.type() != CONST;
 
-  Label else_label = have_else ? func_.new_label() : Label{};
-  Label endif_label = func_.new_label();
+  Label else_label = have_else ? Label{func_} : Label{};
+  Label endif_label{func_};
 
-  JumpIf jump_if = func_.new_jump_if(have_else ? else_label : endif_label, cond);
+  JumpIf jump_if{code_, have_else ? else_label : endif_label, cond};
 
   compile_add(jump_if, false) //
       .compile_add(then, false);
   if (have_else) {
-    compile_add(func_.new_goto(endif_label), false) //
+    compile_add(Goto{code_, endif_label}, false) //
         .compile_add(else_label, false)
         .compile_add(else_, false);
   }
@@ -444,7 +444,7 @@ Node Compiler::compile(Return st, bool) noexcept {
   if (!vars) {
     out_of_memory(st);
   }
-  add(func_.new_return(vars));
+  add(Return{code_, vars});
   return VoidExpr;
 }
 

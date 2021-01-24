@@ -240,16 +240,16 @@ void Test::fib() {
   Const one = One(Uint64);
   Const two = Two(Uint64);
 
-  f.set_body(                                                           //
-      f.new_block(                                                      //
-          f.new_if(                                                     //
-              f.new_binary(GTR, param, two),                            //
-              f.new_return(                                             //
-                  f.new_binary(                                         //
-                      ADD,                                              //
-                      f.new_call(f, {f.new_binary(SUB, param, one)}),   //
-                      f.new_call(f, {f.new_binary(SUB, param, two)}))), //
-              f.new_return(one))));                                     //
+  f.set_body( //
+      Block{&holder,
+            If{&holder,                                                     //
+               f.new_binary(GTR, param, two),                               //
+               Return{&holder,                                              //
+                      f.new_binary(                                         //
+                          ADD,                                              //
+                          f.new_call(f, {f.new_binary(SUB, param, one)}),   //
+                          f.new_call(f, {f.new_binary(SUB, param, two)}))}, //
+               Return{&holder, one}}});                                     //
 
   compile(f);
 }
@@ -276,8 +276,6 @@ void Test::dump_code() const {
 }
 
 } // namespace onejit
-
-using namespace onejit;
 
 int main(int argc, char *argv[]) {
   (void)argc;

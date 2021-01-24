@@ -87,12 +87,12 @@ public:
   /** construct a Const containing Imm{val} */
   template <class T>
   Const(Code *holder, T val) noexcept //
-      : Const{create(holder, Imm{val})} {
+      : Base{create(holder, Imm{val})} {
   }
 
   /** construct a Const containing specified immediate value */
   Const(Code *holder, const Imm &imm) noexcept //
-      : Const{create(holder, imm)} {
+      : Base{create(holder, imm)} {
   }
 
   static constexpr Type type() noexcept {
@@ -119,7 +119,7 @@ private:
     return t == CONST;
   }
 
-  static Const create(Code *holder, const Imm &imm) noexcept;
+  static Node create(Code *holder, const Imm &imm) noexcept;
 };
 
 constexpr const Const VoidExpr{Void};
