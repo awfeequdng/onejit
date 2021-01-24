@@ -95,13 +95,13 @@ Compiler &Compiler::exit_loop() noexcept {
 
 Var Compiler::to_var(const Node &node) noexcept {
   Expr e = node.is<Expr>();
-  Var ve = node.is<Var>();
-  if (e && !ve) {
+  Var v = node.is<Var>();
+  if (e && !v) {
     // copy Expr result to a Var
-    ve = func_.new_var(e.kind());
-    compile_add(func_.new_assign(ASSIGN, ve, e), false);
+    v = Var{func_, e.kind()};
+    compile_add(func_.new_assign(ASSIGN, v, e), false);
   }
-  return ve;
+  return v;
 }
 
 Compiler &Compiler::to_vars(const Node &node, uint32_t start, uint32_t end,
@@ -229,7 +229,7 @@ Expr Compiler::compile(Call call, bool simplify_call) noexcept {
   //
   // we could also use to_var(call), but it risks
   // infinite recursion because it invokes compile(call)
-  Var dst = func_.new_var(call.kind());
+  Var dst{func_, call.kind()};
   add(func_.new_assign(ASSIGN, dst, call));
   return dst;
 }

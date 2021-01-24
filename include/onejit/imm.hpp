@@ -312,7 +312,7 @@ constexpr inline bool operator!=(Imm a, Imm b) noexcept {
   return a.kind() != b.kind() || a.uint64() != b.uint64();
 }
 
-std::ostream &operator<<(std::ostream &out, const Imm &c);
+std::ostream &operator<<(std::ostream &out, const Imm &imm);
 
 } // namespace onejit
 

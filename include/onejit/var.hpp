@@ -46,10 +46,13 @@ public:
    * exists only to allow placing Var in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Var, use Func::new_var()
+   * to create a valid Var, use one of the other constructors
    */
   constexpr Var() noexcept : Base{VAR} {
   }
+
+  /* create a new local variable with specified kind */
+  Var(Func &func, Kind kind) noexcept;
 
   static constexpr Type type() noexcept {
     return VAR;
@@ -79,10 +82,11 @@ private:
     return t == VAR;
   }
 
-  static Var create(Local var, Code *holder) noexcept;
+  // called by Var{Func} -> Func::new_var()
+  static Var create(Code *holder, Local local) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const Var &ve);
+std::ostream &operator<<(std::ostream &out, const Var &v);
 
 } // namespace onejit
 

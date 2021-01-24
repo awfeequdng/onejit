@@ -103,10 +103,10 @@ Var Func::new_var(Kind kind) noexcept {
     const size_t n = vars_.size() + FIRST_VARID;
     const Id id(n); // Id is limited to 24 bits
     if (kind == Void || id.val() == n) {
-      const Local var{kind, kind == Void ? Id{} : id};
-      Var ve = Var::create(var, holder_);
-      if (ve && vars_.append(ve)) {
-        return ve;
+      const Local local{kind, kind == Void ? Id{} : id};
+      Var v = Var::create(holder_, local);
+      if (v && vars_.append(v)) {
+        return v;
       }
     }
   }

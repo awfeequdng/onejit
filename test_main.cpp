@@ -125,64 +125,64 @@ void Test::const_expr() const {
 }
 
 void Test::simple_expr() {
-  Imm c{1.5f};
-  Expr ce = func.new_const(c);
+  Imm imm{1.5f};
+  Expr c = Const{&holder, imm};
 
+  ONEJIT_TEST(imm.kind(), ==, Float32);
+  ONEJIT_TEST(imm.float32(), ==, 1.5f);
+  ONEJIT_TEST(c.is<Const>().imm(), ==, imm);
+
+  ONEJIT_TEST(c.type(), ==, CONST);
   ONEJIT_TEST(c.kind(), ==, Float32);
-  ONEJIT_TEST(c.float32(), ==, 1.5f);
-  ONEJIT_TEST(ce.is<Const>().imm(), ==, c);
-
-  ONEJIT_TEST(ce.type(), ==, CONST);
-  ONEJIT_TEST(ce.kind(), ==, Float32);
-  ONEJIT_TEST(ce.op(), ==, 0);
-  ONEJIT_TEST(ce.children(), ==, 0);
-  ONEJIT_TEST(ce.is<Node>(), ==, ce);
-  ONEJIT_TEST(ce.is<Expr>(), ==, ce);
-  ONEJIT_TEST(ce.is<Binary>(), ==, Binary{});
-  ONEJIT_TEST(ce.is<Const>(), ==, ce);
-  ONEJIT_TEST(ce.is<Unary>(), ==, Unary{});
-  ONEJIT_TEST(ce.is<Var>(), ==, Var{});
-  ONEJIT_TEST(ce.is<Stmt>(), ==, Stmt{});
-  ONEJIT_TEST(bool(ce), ==, true);
-  ONEJIT_TEST(bool(ce.is<Node>()), ==, true);
-  ONEJIT_TEST(bool(ce.is<Expr>()), ==, true);
-  ONEJIT_TEST(bool(ce.is<Binary>()), ==, false);
-  ONEJIT_TEST(bool(ce.is<Const>()), ==, true);
-  ONEJIT_TEST(bool(ce.is<Unary>()), ==, false);
-  ONEJIT_TEST(bool(ce.is<Var>()), ==, false);
-  ONEJIT_TEST(bool(ce.is<Stmt>()), ==, false);
+  ONEJIT_TEST(c.op(), ==, 0);
+  ONEJIT_TEST(c.children(), ==, 0);
+  ONEJIT_TEST(c.is<Node>(), ==, c);
+  ONEJIT_TEST(c.is<Expr>(), ==, c);
+  ONEJIT_TEST(c.is<Binary>(), ==, Binary{});
+  ONEJIT_TEST(c.is<Const>(), ==, c);
+  ONEJIT_TEST(c.is<Unary>(), ==, Unary{});
+  ONEJIT_TEST(c.is<Var>(), ==, Var{});
+  ONEJIT_TEST(c.is<Stmt>(), ==, Stmt{});
+  ONEJIT_TEST(bool(c), ==, true);
+  ONEJIT_TEST(bool(c.is<Node>()), ==, true);
+  ONEJIT_TEST(bool(c.is<Expr>()), ==, true);
+  ONEJIT_TEST(bool(c.is<Binary>()), ==, false);
+  ONEJIT_TEST(bool(c.is<Const>()), ==, true);
+  ONEJIT_TEST(bool(c.is<Unary>()), ==, false);
+  ONEJIT_TEST(bool(c.is<Var>()), ==, false);
+  ONEJIT_TEST(bool(c.is<Stmt>()), ==, false);
 
   for (uint8_t i = kVoid; i <= kArchFlags; i++) {
     Kind k = Kind(i);
-    Expr ve = func.new_var(k);
-    Node node = func.new_binary(ADD, ve, ce);
+    Expr v = Var{func, k};
+    Node node = func.new_binary(ADD, v, c);
 
-    ONEJIT_TEST(ve.type(), ==, VAR);
-    ONEJIT_TEST(ve.kind(), ==, k);
-    ONEJIT_TEST(ve.op(), ==, 0);
-    ONEJIT_TEST(ve.children(), ==, 0);
-    ONEJIT_TEST(ve.is<Node>(), ==, ve);
-    ONEJIT_TEST(ve.is<Expr>(), ==, ve);
-    ONEJIT_TEST(ve.is<Binary>(), ==, Binary{});
-    ONEJIT_TEST(ve.is<Const>(), ==, Const{});
-    ONEJIT_TEST(ve.is<Unary>(), ==, Unary{});
-    ONEJIT_TEST(ve.is<Var>(), ==, ve);
-    ONEJIT_TEST(ve.is<Stmt>(), ==, Stmt{});
-    ONEJIT_TEST(bool(ve), ==, true);
-    ONEJIT_TEST(bool(ve.is<Node>()), ==, true);
-    ONEJIT_TEST(bool(ve.is<Expr>()), ==, true);
-    ONEJIT_TEST(bool(ve.is<Binary>()), ==, false);
-    ONEJIT_TEST(bool(ve.is<Const>()), ==, false);
-    ONEJIT_TEST(bool(ve.is<Unary>()), ==, false);
-    ONEJIT_TEST(bool(ve.is<Var>()), ==, true);
-    ONEJIT_TEST(bool(ve.is<Stmt>()), ==, false);
+    ONEJIT_TEST(v.type(), ==, VAR);
+    ONEJIT_TEST(v.kind(), ==, k);
+    ONEJIT_TEST(v.op(), ==, 0);
+    ONEJIT_TEST(v.children(), ==, 0);
+    ONEJIT_TEST(v.is<Node>(), ==, v);
+    ONEJIT_TEST(v.is<Expr>(), ==, v);
+    ONEJIT_TEST(v.is<Binary>(), ==, Binary{});
+    ONEJIT_TEST(v.is<Const>(), ==, Const{});
+    ONEJIT_TEST(v.is<Unary>(), ==, Unary{});
+    ONEJIT_TEST(v.is<Var>(), ==, v);
+    ONEJIT_TEST(v.is<Stmt>(), ==, Stmt{});
+    ONEJIT_TEST(bool(v), ==, true);
+    ONEJIT_TEST(bool(v.is<Node>()), ==, true);
+    ONEJIT_TEST(bool(v.is<Expr>()), ==, true);
+    ONEJIT_TEST(bool(v.is<Binary>()), ==, false);
+    ONEJIT_TEST(bool(v.is<Const>()), ==, false);
+    ONEJIT_TEST(bool(v.is<Unary>()), ==, false);
+    ONEJIT_TEST(bool(v.is<Var>()), ==, true);
+    ONEJIT_TEST(bool(v.is<Stmt>()), ==, false);
 
     ONEJIT_TEST(node.type(), ==, BINARY);
     ONEJIT_TEST(node.kind(), ==, k);
     ONEJIT_TEST(node.op(), ==, ADD);
     ONEJIT_TEST(node.children(), ==, 2);
-    ONEJIT_TEST(node.child(0), ==, ve);
-    ONEJIT_TEST(node.child(1), ==, ce);
+    ONEJIT_TEST(node.child(0), ==, v);
+    ONEJIT_TEST(node.child(1), ==, c);
     ONEJIT_TEST(node.is<Node>(), ==, node);
     ONEJIT_TEST(node.is<Expr>(), ==, node);
     ONEJIT_TEST(node.is<Binary>(), ==, node);
@@ -195,7 +195,7 @@ void Test::simple_expr() {
     ONEJIT_TEST(bool(node.is<Const>()), ==, false);
     ONEJIT_TEST(bool(node.is<Stmt>()), ==, false);
 
-    Local local1 = ve.to<Var>().local();
+    Local local1 = v.to<Var>().local();
     Local local2 = Local::parse_direct(local1.direct());
     ONEJIT_TEST(local1, ==, local2);
     ONEJIT_TEST(local1.kind(), ==, k);
@@ -206,31 +206,29 @@ void Test::nested_expr() {
   for (uint8_t i = kInt8; i <= kUint64; i++) {
     Kind k{i};
 
-    Imm c1{k, 1};
-    Imm c2{k, 2};
-    Expr ce1 = func.new_const(c1);
-    Expr ce2 = func.new_const(c2);
+    Expr c1 = Const{&holder, Imm{k, 1}};
+    Expr c2 = Const{&holder, Imm{k, 2}};
 
-    Expr ve1 = func.new_var(k);
-    Expr ve2 = func.new_var(k);
+    Expr v1 = Var{func, k};
+    Expr v2 = Var{func, k};
 
-    Expr be1 = func.new_binary(ADD, ce1, ve1);
-    Expr be2 = func.new_binary(MUL, ce2, ve2);
-    Expr be3 = func.new_binary(SHL, be1, be2);
-    Expr ue1 = func.new_unary(XOR1, be3);
+    Expr b1 = func.new_binary(ADD, c1, v1);
+    Expr b2 = func.new_binary(MUL, c2, v2);
+    Expr b3 = func.new_binary(SHL, b1, b2);
+    Expr u1 = func.new_unary(XOR1, b3);
 
-    ONEJIT_TEST(be1.kind(), ==, k);
-    ONEJIT_TEST(be2.kind(), ==, k);
-    ONEJIT_TEST(be3.kind(), ==, k);
-    ONEJIT_TEST(ue1.kind(), ==, k);
+    ONEJIT_TEST(b1.kind(), ==, k);
+    ONEJIT_TEST(b2.kind(), ==, k);
+    ONEJIT_TEST(b3.kind(), ==, k);
+    ONEJIT_TEST(u1.kind(), ==, k);
 
-    ONEJIT_TEST(be1.child(0), ==, ce1);
-    ONEJIT_TEST(be1.child(1), ==, ve1);
-    ONEJIT_TEST(be2.child(0), ==, ce2);
-    ONEJIT_TEST(be2.child(1), ==, ve2);
-    ONEJIT_TEST(be3.child(0), ==, be1);
-    ONEJIT_TEST(be3.child(1), ==, be2);
-    ONEJIT_TEST(ue1.child(0), ==, be3);
+    ONEJIT_TEST(b1.child(0), ==, c1);
+    ONEJIT_TEST(b1.child(1), ==, v1);
+    ONEJIT_TEST(b2.child(0), ==, c2);
+    ONEJIT_TEST(b2.child(1), ==, v2);
+    ONEJIT_TEST(b3.child(0), ==, b1);
+    ONEJIT_TEST(b3.child(1), ==, b2);
+    ONEJIT_TEST(u1.child(0), ==, b3);
   }
 }
 

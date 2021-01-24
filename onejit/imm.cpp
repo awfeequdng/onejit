@@ -47,36 +47,36 @@ Code &Imm::write_indirect(Code *holder) const noexcept {
   }
 }
 
-std::ostream &operator<<(std::ostream &out, const Imm &c) {
-  const Kind kind = c.kind();
+std::ostream &operator<<(std::ostream &out, const Imm &imm) {
+  const Kind kind = imm.kind();
   switch (kind.nosimd().val()) {
   case kVoid:
     out << Chars("void");
     break;
   case kBool:
-    out << (c.boolean() ? Chars("true") : Chars("false"));
+    out << (imm.boolean() ? Chars("true") : Chars("false"));
     break;
   case kInt8:
   case kInt16:
   case kInt32:
   case kInt64:
-    out << c.int64();
+    out << imm.int64();
     break;
   case kUint8:
   case kUint16:
   case kUint32:
   case kUint64:
   case kArchFlags:
-    out << c.uint64();
+    out << imm.uint64();
     break;
   case kFloat32:
-    out << c.float32();
+    out << imm.float32();
     break;
   case kFloat64:
-    out << c.float64();
+    out << imm.float64();
     break;
   case kPtr:
-    out << c.ptr();
+    out << imm.ptr();
     break;
   default:
     out << '?';

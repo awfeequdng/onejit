@@ -36,16 +36,16 @@ Imm Const::imm() const noexcept {
   }
 }
 
-Const Const::create(const Imm &c, Code *holder) noexcept {
-  const NodeHeader header{CONST, c.kind(), 0};
+Const Const::create(Code *holder, const Imm &imm) noexcept {
+  const NodeHeader header{CONST, imm.kind(), 0};
 
-  if (c.is_direct()) {
-    return Const{Node{header, c.direct(), nullptr}};
+  if (imm.is_direct()) {
+    return Const{Node{header, imm.direct(), nullptr}};
   }
   while (holder) {
     CodeItem offset = holder->length();
 
-    if (holder->add(header) && !c.write_indirect(holder)) {
+    if (holder->add(header) && !imm.write_indirect(holder)) {
       return Const{Node{header, offset, holder}};
     }
     holder->truncate(offset);
@@ -54,8 +54,8 @@ Const Const::create(const Imm &c, Code *holder) noexcept {
   return Const{};
 }
 
-std::ostream &operator<<(std::ostream &out, const Const &ce) {
-  return out << ce.imm();
+std::ostream &operator<<(std::ostream &out, const Const &c) {
+  return out << c.imm();
 }
 
 } // namespace onejit

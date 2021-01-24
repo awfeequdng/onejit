@@ -24,9 +24,30 @@
  */
 
 #include <onejit/code.hpp>
+#include <onejit/func.hpp>
 #include <onejit/var.hpp>
 
 namespace onejit {
+
+Var::Var(Func &func, Kind kind) noexcept : Var{func.new_var(kind)} {
+}
+
+Var Var::create(Code *holder, Local local) noexcept {
+  const NodeHeader header{VAR, local.kind(), 0};
+  if (local.is_direct()) {
+    return Var{Node{header, local.direct(), nullptr}};
+  }
+  while (holder) {
+    CodeItem offset = holder->length();
+
+    if (holder->add(header) && holder->add_item(local.indirect())) {
+      return Var{Node{header, offset, holder}};
+    }
+    holder->truncate(offset);
+    break;
+  }
+  return Var{};
+}
 
 Local Var::local() const noexcept {
   if (is_direct()) {
@@ -36,25 +57,8 @@ Local Var::local() const noexcept {
   }
 }
 
-Var Var::create(Local var, Code *holder) noexcept {
-  const NodeHeader header{VAR, var.kind(), 0};
-  if (var.is_direct()) {
-    return Var{Node{header, var.direct(), nullptr}};
-  }
-  while (holder) {
-    CodeItem offset = holder->length();
-
-    if (holder->add(header) && holder->add_item(var.indirect())) {
-      return Var{Node{header, offset, holder}};
-    }
-    holder->truncate(offset);
-    break;
-  }
-  return Var{};
-}
-
-std::ostream &operator<<(std::ostream &out, const Var &ve) {
-  return out << ve.local();
+std::ostream &operator<<(std::ostream &out, const Var &v) {
+  return out << v.local();
 }
 
 } // namespace onejit

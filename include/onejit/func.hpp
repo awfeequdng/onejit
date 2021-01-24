@@ -49,6 +49,8 @@
 namespace onejit {
 
 class Func {
+  friend class Var;
+
 public:
   /**
    * construct an invalid Func.
@@ -115,10 +117,6 @@ public:
     return AssignCall::create(assign_to, call, holder_);
   }
 
-  Break new_break() noexcept {
-    return Break{};
-  }
-
   // also autodetects kind
   Binary new_binary(Op2 op, const Expr &left, const Expr &right) noexcept {
     return Binary::create(op, left, right, holder_);
@@ -161,20 +159,8 @@ public:
     return Cond::create(nodes, holder_);
   }
 
-  Const new_const(const Imm &c) noexcept {
-    return Const::create(c, holder_);
-  }
-
-  Continue new_continue() noexcept {
-    return Continue{};
-  }
-
   Default new_default(const Node &body) noexcept {
     return Default::create(body, holder_);
-  }
-
-  Fallthrough new_fallthrough() noexcept {
-    return Fallthrough{};
   }
 
   For new_for(const Node &init, const Expr &cond, const Node &post, const Node &body) noexcept {
@@ -240,9 +226,6 @@ public:
     return Unary::create(op, arg, holder_);
   }
 
-  // create a new local variable
-  Var new_var(Kind kind) noexcept;
-
   constexpr Node get_body() const noexcept {
     return body_;
   }
@@ -262,6 +245,10 @@ public:
     compiled_ = compiled;
     return *this;
   }
+
+private:
+  // create a new local variable. called by Var::create()
+  Var new_var(Kind kind) noexcept;
 
 private:
   Code *holder_;

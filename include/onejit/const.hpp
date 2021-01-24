@@ -43,12 +43,10 @@ class Const : public Expr {
 public:
   /**
    * construct an invalid Const.
-   * exists only to allow placing Const in
-containers
+   * exists only to allow placing Const in containers
    * and similar uses that require a default constructor.
    *
    * to create a valid Const, use one of the other constructors
-   * or Func::new_const()
    */
   constexpr Const() noexcept : Base{CONST} {
   }
@@ -86,6 +84,17 @@ containers
         }} {
   }
 
+  /** construct a Const containing Imm{val} */
+  template <class T>
+  Const(Code *holder, T val) noexcept //
+      : Const{create(holder, Imm{val})} {
+  }
+
+  /** construct a Const containing specified immediate value */
+  Const(Code *holder, const Imm &imm) noexcept //
+      : Const{create(holder, imm)} {
+  }
+
   static constexpr Type type() noexcept {
     return CONST;
   }
@@ -110,7 +119,7 @@ private:
     return t == CONST;
   }
 
-  static Const create(const Imm &c, Code *holder) noexcept;
+  static Const create(Code *holder, const Imm &imm) noexcept;
 };
 
 constexpr const Const VoidExpr{Void};
@@ -132,7 +141,7 @@ constexpr inline Const Two(Kind kind) noexcept {
   return Const{kind, uint16_t(2)};
 }
 
-std::ostream &operator<<(std::ostream &out, const Const &ce);
+std::ostream &operator<<(std::ostream &out, const Const &c);
 
 } // namespace onejit
 
