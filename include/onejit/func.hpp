@@ -29,7 +29,6 @@
 #include <onejit/binary.hpp>
 #include <onejit/call.hpp>
 #include <onejit/code.hpp>
-#include <onejit/const.hpp>
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
 #include <onejit/mem.hpp>
@@ -105,10 +104,6 @@ public:
 
   //////////////////////////////////////////////////////////////////////////////
 
-  Assign new_assign(OpStmt2 op, Expr dst, Expr src) {
-    return Assign::create(op, dst, src, holder_);
-  }
-
   AssignCall new_assign_tuple(std::initializer_list<Expr> assign_to, const Call &call) {
     return new_assign_tuple(Exprs{assign_to.begin(), assign_to.size()}, call);
   }
@@ -146,10 +141,6 @@ public:
   }
   Call new_call(const FuncType &ftype, const Label &flabel, Exprs args) {
     return Call::create(ftype, flabel, args, holder_);
-  }
-
-  Case new_case(const Expr &expr, const Node &body) noexcept {
-    return Case::create(expr, body, holder_);
   }
 
   Cond new_cond(std::initializer_list<Node> nodes) noexcept {
@@ -247,7 +238,8 @@ public:
   }
 
 private:
-  // create a new local variable. called by Var::create()
+  // create a new local variable. called by Var{Func&, Kind}
+  // and internally calls Var::create()
   Var new_var(Kind kind) noexcept;
 
 private:

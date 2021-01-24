@@ -56,14 +56,14 @@ std::ostream &operator<<(std::ostream &out, const Stmt2 &st) {
 
 // ============================  Assign  ===================================
 
-Assign Assign::create(OpStmt2 op, const Expr &dst, const Expr &src, Code *holder) noexcept {
+Assign Assign::create(Code *holder, OpStmt2 op, Expr dst, Expr src) noexcept {
   const Node children[] = {dst, src};
   return Assign{Stmt2::create(op, Nodes{children, 2}, holder)};
 }
 
 // ============================  Case  =====================================
 
-Case Case::create(const Expr &expr, const Node &body, Code *holder) noexcept {
+Case Case::create(Code *holder, Expr expr, Node body) noexcept {
   const Node children[] = {expr, body};
   return Case{Stmt2::create(CASE, Nodes{children, 2}, holder)};
 }

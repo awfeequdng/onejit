@@ -115,6 +115,7 @@ private:
 
 private:
   Func &func_;
+  Code *code_;
 
   Vector<Label> break_;    // stack of 'break' destination labels
   Vector<Label> continue_; // stack of 'continue' destination labels

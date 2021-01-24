@@ -29,7 +29,7 @@
 namespace onejit {
 
 Compiler::Compiler(Func &func) noexcept
-    : func_{func}, break_{}, continue_{}, node_{}, error_{}, good_{func} {
+    : func_{func}, code_{func.code()}, break_{}, continue_{}, node_{}, error_{}, good_{func} {
 }
 
 Compiler::~Compiler() noexcept {
@@ -99,7 +99,7 @@ Var Compiler::to_var(const Node &node) noexcept {
   if (e && !v) {
     // copy Expr result to a Var
     v = Var{func_, e.kind()};
-    compile_add(func_.new_assign(ASSIGN, v, e), false);
+    compile_add(Assign{code_, ASSIGN, v, e}, false);
   }
   return v;
 }
@@ -230,7 +230,7 @@ Expr Compiler::compile(Call call, bool simplify_call) noexcept {
   // we could also use to_var(call), but it risks
   // infinite recursion because it invokes compile(call)
   Var dst{func_, call.kind()};
-  add(func_.new_assign(ASSIGN, dst, call));
+  add(Assign{code_, ASSIGN, dst, call});
   return dst;
 }
 
@@ -302,7 +302,7 @@ Node Compiler::compile(Assign assign, bool) noexcept {
   Expr comp_src = compile(src, false);
   Expr comp_dst = compile(dst, false);
   if (src != comp_src || dst != comp_src) {
-    assign = func_.new_assign(assign.op(), comp_dst, comp_src);
+    assign = Assign{code_, assign.op(), comp_dst, comp_src};
   }
   add(assign);
   // all compile(Stmt*) must return VoidExpr
@@ -437,7 +437,7 @@ Node Compiler::compile(Return st, bool) noexcept {
       // compile expression and copy its result
       // to expected location func_.result(i)
       expr = compile(expr, false);
-      add(func_.new_assign(ASSIGN, var, expr));
+      add(Assign{code_, ASSIGN, var, expr});
     }
     vars.append(var);
   }

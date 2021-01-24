@@ -93,9 +93,13 @@ public:
    * exists only to allow placing Assign in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Assign, use Func::new_assign()
+   * to create a valid Assign, use one of the other constructors
    */
   constexpr Assign() noexcept : Base{ASSIGN} {
+  }
+
+  Assign(Code *holder, OpStmt2 op, Expr dst, Expr src) noexcept
+      : Assign{create(holder, op, dst, src)} {
   }
 
   constexpr OpStmt2 op() const noexcept {
@@ -122,7 +126,7 @@ private:
     return op >= ADD_ASSIGN && op <= ASSIGN;
   }
 
-  static Assign create(OpStmt2 op, const Expr &dst, const Expr &src, Code *holder) noexcept;
+  static Assign create(Code *holder, OpStmt2 op, Expr dst, Expr src) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -137,9 +141,12 @@ public:
    * exists only to allow placing Case in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Case, use Func::new_case()
+   * to create a valid Case, use one of the other constructors
    */
   constexpr Case() noexcept : Base{CASE} {
+  }
+
+  Case(Code *holder, Expr expr, Node body) noexcept : Case{create(holder, expr, body)} {
   }
 
   // can return either CASE or DEFAULT
@@ -172,7 +179,7 @@ private:
     return op == CASE || op == DEFAULT;
   }
 
-  static Case create(const Expr &expr, const Node &body, Code *holder) noexcept;
+  static Case create(Code *holder, Expr expr, Node body) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
