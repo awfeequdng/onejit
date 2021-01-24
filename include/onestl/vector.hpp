@@ -64,11 +64,11 @@ protected:
     }
   }
 
-  bool ensure_capacity(size_t n) noexcept {
+  bool grow_capacity(size_t n) noexcept {
     if (cap_ >= n) {
       return true;
     }
-    return VectorHelper::cast(*this).ensure_capacity(n, sizeof(T));
+    return VectorHelper::cast(*this).grow_capacity(n, sizeof(T));
   }
 
   bool grow(size_t n, bool zerofill) noexcept {

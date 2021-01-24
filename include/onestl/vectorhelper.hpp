@@ -37,18 +37,21 @@ class VectorHelper {
 
 private:
   template <class T> static VectorHelper &cast(Vector<T> &v) noexcept {
+    static_assert(sizeof(Vector<T>) == sizeof(VectorHelper),
+                  "Vector<T> and VectorHelper must have the same sizeof()");
+
     return reinterpret_cast<VectorHelper &>(v);
   }
 
   bool init(size_t n, size_t sizeofT) noexcept;
 
-  bool ensure_capacity(size_t n, size_t sizeofT) noexcept;
+  bool grow_capacity(size_t mincap, size_t sizeofT) noexcept;
+
+  bool reserve(size_t newcap, size_t sizeofT) noexcept;
 
   bool grow(size_t n, size_t sizeofT, bool zerofill) noexcept;
 
   bool dup(const void *addr, size_t n, size_t sizeofT) noexcept;
-
-  bool reserve(size_t newcap, size_t sizeofT) noexcept;
 
   bool append(const void *addr, size_t n, size_t sizeofT) noexcept;
 
