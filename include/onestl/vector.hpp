@@ -176,9 +176,11 @@ public:
   }
 
   void swap(Vector<T> &other) noexcept {
-    mem::swap(data_, other.data_);
-    mem::swap(size_, other.size_);
-    mem::swap(cap_, other.cap_);
+    VectorHelper &h_this = VectorHelper::cast(*this);
+    VectorHelper &h_other = VectorHelper::cast(other);
+    VectorHelper h_tmp = h_this;
+    h_this = h_other;
+    h_other = h_tmp;
   }
 };
 
