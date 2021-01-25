@@ -72,7 +72,7 @@ protected:
     return t == STMT_3;
   }
 
-  static Node create(Code *holder, Nodes children, OpStmt3 op) noexcept;
+  static Node create(Func &func, Nodes children, OpStmt3 op) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Stmt3 &st);
@@ -95,10 +95,10 @@ public:
   constexpr If() noexcept : Base{IF} {
   }
 
-  // create a new 'if (cond) { then } else { else_ }'
+  // create a new 'if (test) { then } else { else_ }'
   // the 'else' part can be omitted also by specifying else_ = VoidExpr
-  If(Code *holder, Expr cond, Node then, Node else_ = VoidExpr) noexcept //
-      : Base{create(holder, cond, then, else_)} {
+  If(Func &func, const Expr &test, const Node &then, const Node &else_ = VoidExpr) noexcept //
+      : Base{create(func, test, then, else_)} {
   }
 
   static constexpr OpStmt3 op() noexcept {
@@ -106,7 +106,7 @@ public:
   }
 
   // shortcut for child(0).is<Expr>()
-  Expr cond() const noexcept {
+  Expr test() const noexcept {
     return child(0).is<Expr>();
   }
 
@@ -131,7 +131,7 @@ private:
   }
 
   // create a new If
-  static Node create(Code *holder, Expr cond, Node then, Node else_) noexcept;
+  static Node create(Func &func, const Expr &test, const Node &then, const Node &else_) noexcept;
 };
 
 } // namespace onejit

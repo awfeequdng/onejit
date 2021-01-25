@@ -25,6 +25,7 @@
 
 #include <onejit/code.hpp>
 #include <onejit/const.hpp>
+#include <onejit/func.hpp>
 
 namespace onejit {
 
@@ -36,17 +37,17 @@ Imm Const::imm() const noexcept {
   }
 }
 
-Node Const::create(Code *holder, const Imm &imm) noexcept {
+Node Const::create(Func &func, const Imm &imm) noexcept {
   const NodeHeader header{CONST, imm.kind(), 0};
 
   if (imm.is_direct()) {
     return Node{header, imm.direct(), nullptr};
   }
-  while (holder) {
+  while (Code *holder = func.code()) {
     CodeItem offset = holder->length();
 
     if (holder->add(header) && !imm.write_indirect(holder)) {
-      return Const{Node{header, offset, holder}};
+      return Node{header, offset, holder};
     }
     holder->truncate(offset);
     break;

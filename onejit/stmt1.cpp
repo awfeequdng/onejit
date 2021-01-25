@@ -24,14 +24,15 @@
  */
 
 #include <onejit/code.hpp>
+#include <onejit/func.hpp>
 #include <onejit/stmt1.hpp>
 
 namespace onejit {
 
 // ============================  Stmt1  ========================================
 
-Node ONEJIT_NOINLINE Stmt1::create(Code *holder, Node body, OpStmt1 op) noexcept {
-  while (holder) {
+Node ONEJIT_NOINLINE Stmt1::create(Func &func, Node body, OpStmt1 op) noexcept {
+  while (Code *holder = func.code()) {
     const NodeHeader header{STMT_1, Void, uint16_t(op)};
     CodeItem offset = holder->length();
 

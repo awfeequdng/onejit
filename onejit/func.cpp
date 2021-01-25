@@ -41,9 +41,10 @@ Func::Func() noexcept
       ftype_{}, vars_{}, labels_{}, name_{}, body_{} {
 }
 
-Func::Func(String &&name, const FuncType &ftype, Code *holder) noexcept
-    : holder_{holder}, param_n_{}, result_n_{}, body_var_n_{}, ftype_{ftype}, //
-      vars_{}, labels_{}, name_(std::move(name)), body_{} {
+void Func::init(Code *holder, String &&name, FuncType ftype) noexcept {
+  holder_ = holder;
+  ftype_ = ftype;
+  name_ = std::move(name);
 
   bool ok = bool(*this);
   for (size_t i = 0, n = ftype.param_n(); ok && i < n; i++) {

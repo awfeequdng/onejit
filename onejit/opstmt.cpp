@@ -48,7 +48,7 @@ std::ostream &operator<<(std::ostream &out, OpStmt0 op) {
 
 // ============================  OpStmt1  ======================================
 
-static const Chars op_stmt_1_string[] = {"?", "goto"};
+static const Chars op_stmt_1_string[] = {"?", "goto", "++", "--"};
 
 const Chars &to_string(OpStmt1 op) noexcept {
   uint8_t i = op;
@@ -65,8 +65,9 @@ std::ostream &operator<<(std::ostream &out, OpStmt1 op) {
 // ============================  OpStmt2  ======================================
 
 static const Chars op_stmt_2_string[] = {
-    "?",                                                                                  //
-    "+=",   "-=",      "*=",      "/=", "%=", "&=", "|=", "^=", "<<=", ">>=", "&^=", "=", //
+    "?",                                                    //
+    "+=",   "-=",      "*=",      "/=",  "%=",              //
+    "&=",   "|=",      "^=",      "<<=", ">>=", "&^=", "=", //
     "case", "default", "jump_if",
 };
 

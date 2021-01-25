@@ -47,9 +47,13 @@ public:
    * exists only to allow placing Mem in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Mem, use Func::new_mem()
+   * to create a valid Mem, use one of the other constructors
    */
   constexpr Mem() noexcept : Base{MEM} {
+  }
+
+  Mem(Func &func, Kind kind, Expr address) noexcept //
+      : Base{create(func, kind, address)} {
   }
 
   static constexpr Type type() noexcept {
@@ -77,7 +81,7 @@ private:
     return t == MEM;
   }
 
-  static Mem create(Kind kind, const Expr &address, Code *holder) noexcept;
+  static Node create(Func &func, Kind kind, Expr address) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Mem &expr);

@@ -44,7 +44,7 @@ static constexpr bool functype_can_represent(size_t param_n, size_t result_n) {
   return (param_n | result_n) <= 0xFFFF;
 }
 
-FuncType FuncType::create(Kinds params, Kinds results, Code *holder) noexcept {
+Node FuncType::create(Code *holder, Kinds params, Kinds results) noexcept {
   const size_t param_n = params.size();
   const size_t result_n = results.size();
   while (holder && functype_can_represent(param_n, result_n)) {
@@ -55,7 +55,7 @@ FuncType FuncType::create(Kinds params, Kinds results, Code *holder) noexcept {
     if (holder->add(header) && holder->add_uint32(param_n + result_n) //
         && holder->add(results) && holder->add(params)) {
 
-      return FuncType{Node{header, offset, holder}};
+      return Node{header, offset, holder};
     }
     holder->truncate(offset);
     break;

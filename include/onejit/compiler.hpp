@@ -61,7 +61,10 @@ private:
   // get current destination for "continue"
   Label label_continue() const noexcept;
 
-  Compiler &enter_case(Label l_break) noexcept;
+  // get current destination for "fallthrough"
+  Label label_fallthrough() const noexcept;
+
+  Compiler &enter_case(Label l_break, Label l_fallthrough) noexcept;
   Compiler &exit_case() noexcept;
 
   Compiler &enter_loop(Label l_break, Label l_continue) noexcept;
@@ -115,10 +118,10 @@ private:
 
 private:
   Func &func_;
-  Code *code_;
 
-  Vector<Label> break_;    // stack of 'break' destination labels
-  Vector<Label> continue_; // stack of 'continue' destination labels
+  Vector<Label> break_;       // stack of 'break' destination labels
+  Vector<Label> continue_;    // stack of 'continue' destination labels
+  Vector<Label> fallthrough_; // stack of 'fallthrough' destination labels
   Vector<Node> node_;
   Vector<Error> error_;
   bool good_; // good_ = false means out-of-memory

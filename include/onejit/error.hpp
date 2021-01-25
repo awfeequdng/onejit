@@ -56,6 +56,6 @@ private:
   Chars msg_;
 };
 
-#endif // ONEJIT_ERROR_HPP
-
 } // namespace onejit
+
+#endif // ONEJIT_ERROR_HPP

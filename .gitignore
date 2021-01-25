@@ -7,7 +7,9 @@
 *.exe
 *.la
 *.o
+*.orig
 *.out
+*.rej
 *.so
 *.test
 .deps
@@ -19,7 +21,7 @@ config.status
 Makefile
 /autom4te.cache
 /go/go
-/include/config.h
+/include/onejit_config.h
 /include/stamp-h1
 /jit
 /test_jit

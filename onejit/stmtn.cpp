@@ -26,6 +26,7 @@
 #include <onejit/call.hpp> // Call
 #include <onejit/code.hpp>
 #include <onejit/expr.hpp>
+#include <onejit/func.hpp>
 #include <onejit/stmt2.hpp> // Case
 #include <onejit/stmtn.hpp>
 #include <onestl/chars.hpp>
@@ -34,14 +35,15 @@ namespace onejit {
 
 // ============================  StmtN  ========================================
 
-StmtN StmtN::create(Code *holder, const Nodes nodes, OpStmtN op) noexcept {
+Node StmtN::create(Func &func, const Nodes nodes, OpStmtN op) noexcept {
+  Code *holder = func.code();
   const size_t n = nodes.size();
   while (holder && n == uint32_t(n)) {
     const NodeHeader header{STMT_N, Void, uint16_t(op)};
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add_uint32(n) && holder->add(nodes, offset)) {
-      return StmtN{Node{header, offset, holder}};
+      return Node{header, offset, holder};
     }
     holder->truncate(offset);
     break;
@@ -64,15 +66,16 @@ std::ostream &operator<<(std::ostream &out, const StmtN &st) {
 
 // ============================  AssignCall  ===================================
 
-AssignCall AssignCall::create(Code *holder, Exprs assign_to, const Call &call) noexcept {
+Node AssignCall::create(Func &func, Exprs assign_to, const Call &call) noexcept {
   const size_t n = assign_to.size();
+  Code *holder = func.code();
   while (holder && n == uint32_t(n)) {
-    const NodeHeader header{STMT_N, Void, ASSIGN_TUPLE};
+    const NodeHeader header{STMT_N, Void, ASSIGN_CALL};
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add_uint32(sum_uint32(1, n)) &&
         holder->add(assign_to, offset) && holder->add(call, offset)) {
-      return AssignCall{Node{header, offset, holder}};
+      return Node{header, offset, holder};
     }
     holder->truncate(offset);
     break;
@@ -86,8 +89,9 @@ AssignCall AssignCall::create(Code *holder, Exprs assign_to, const Call &call) n
 
 // ============================  Return  ===================================
 
-Node Return::create(Code *holder, Exprs exprs) noexcept {
+Node Return::create(Func &func, Exprs exprs) noexcept {
   const size_t n = exprs.size();
+  Code *holder = func.code();
   while (holder && n == uint32_t(n)) {
     const NodeHeader header{STMT_N, Void, RETURN};
     CodeItem offset = holder->length();
@@ -104,15 +108,16 @@ Node Return::create(Code *holder, Exprs exprs) noexcept {
 // ============================  Switch  ===================================
 
 // cases can contain at most one Default
-Switch Switch::create(const Expr &expr, const Cases cases, Code *holder) noexcept {
+Node Switch::create(Func &func, const Expr &expr, const Cases cases) noexcept {
   const size_t n = cases.size();
+  Code *holder = func.code();
   while (holder && n == uint32_t(n)) {
-    const NodeHeader header{STMT_3, Void, SWITCH};
+    const NodeHeader header{STMT_N, Void, SWITCH};
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add_uint32(sum_uint32(1, n)) && //
         holder->add(expr, offset) && holder->add(cases, offset)) {
-      return Switch{Node{header, offset, holder}};
+      return Node{header, offset, holder};
     }
     holder->truncate(offset);
     break;

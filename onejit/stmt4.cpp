@@ -24,6 +24,7 @@
  */
 
 #include <onejit/code.hpp>
+#include <onejit/func.hpp>
 #include <onejit/stmt4.hpp>
 #include <onestl/chars.hpp>
 
@@ -31,16 +32,16 @@ namespace onejit {
 
 // ============================  Stmt4  ========================================
 
-Stmt4 ONEJIT_NOINLINE Stmt4::create(OpStmt4 op, const Node &child0, const Node &child1,
-                                    const Node &child2, const Node &child3, Code *holder) noexcept {
-  while (holder) {
-    const NodeHeader header{STMT_3, Void, uint16_t(op)};
+Node ONEJIT_NOINLINE Stmt4::create(Func &func, const Node &child0, const Node &child1,
+                                   const Node &child2, const Node &child3, OpStmt4 op) noexcept {
+  while (Code *holder = func.code()) {
+    const NodeHeader header{STMT_4, Void, uint16_t(op)};
     CodeItem offset = holder->length();
 
     if (holder->add(header) &&                                        //
         holder->add(child0, offset) && holder->add(child1, offset) && //
         holder->add(child2, offset) && holder->add(child3, offset)) {
-      return Stmt4{Node{header, offset, holder}};
+      return Node{header, offset, holder};
     }
     holder->truncate(offset);
     break;

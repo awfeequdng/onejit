@@ -43,7 +43,7 @@ public:
    * exists only to allow placing StmtN in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid StmtN, use Func::new_stmtn()
+   * to create a valid StmtN, use one of the other constructors
    */
   constexpr StmtN() noexcept : Base{STMT_N, Bad, BAD_STN} {
   }
@@ -66,7 +66,12 @@ protected:
     return t == STMT_N;
   }
 
-  static StmtN create(Code *holder, const Nodes nodes, OpStmtN op) noexcept;
+  // used by subclasses
+  StmtN(Func &func, const Nodes nodes, OpStmtN op) noexcept : Base{create(func, nodes, op)} {
+  }
+
+private:
+  static Node create(Func &func, const Nodes nodes, OpStmtN op) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const StmtN &st);
@@ -87,23 +92,23 @@ public:
    *
    * to create a valid AssignCall, use one of the other constructors
    */
-  constexpr AssignCall() noexcept : Base{ASSIGN_TUPLE} {
+  constexpr AssignCall() noexcept : Base{ASSIGN_CALL} {
   }
 
   // assign multiple values returned by a Call.
   // each assign_to element must be a Var or a Mem.
-  AssignCall(Code *holder, std::initializer_list<Expr> assign_to, const Call &call) noexcept
-      : AssignCall{create(holder, Exprs{assign_to.begin(), assign_to.size()}, call)} {
+  AssignCall(Func &func, std::initializer_list<Expr> assign_to, const Call &call) noexcept
+      : Base{create(func, Exprs{assign_to.begin(), assign_to.size()}, call)} {
   }
 
   // assign multiple values returned by a Call.
   // each assign_to element must be a Var or a Mem.
-  AssignCall(Code *holder, Exprs assign_to, const Call &call) noexcept
-      : AssignCall{create(holder, assign_to, call)} {
+  AssignCall(Func &func, Exprs assign_to, const Call &call) noexcept
+      : Base{create(func, assign_to, call)} {
   }
 
   static constexpr OpStmtN op() noexcept {
-    return ASSIGN_TUPLE;
+    return ASSIGN_CALL;
   }
 
 private:
@@ -113,10 +118,10 @@ private:
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op == ASSIGN_TUPLE;
+    return op == ASSIGN_CALL;
   }
 
-  static AssignCall create(Code *holder, Exprs assign_to, const Call &call) noexcept;
+  static Node create(Func &func, Exprs assign_to, const Call &call) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -136,16 +141,16 @@ public:
   constexpr Block() noexcept : Base{BLOCK} {
   }
 
-  Block(Code *holder, const Node &node) noexcept //
-      : Block{holder, Nodes{&node, 1}} {
+  Block(Func &func, const Node &node) noexcept //
+      : Base{func, Nodes{&node, 1}, BLOCK} {
   }
 
-  Block(Code *holder, std::initializer_list<Node> nodes) noexcept
-      : Block(holder, Nodes{nodes.begin(), nodes.size()}) {
+  Block(Func &func, std::initializer_list<Node> nodes) noexcept
+      : Base{func, Nodes{nodes.begin(), nodes.size()}, BLOCK} {
   }
 
-  Block(Code *holder, const Nodes nodes) noexcept //
-      : Block{StmtN::create(holder, nodes, BLOCK)} {
+  Block(Func &func, const Nodes nodes) noexcept //
+      : Base{func, nodes, BLOCK} {
   }
 
   static constexpr OpStmtN op() noexcept {
@@ -185,12 +190,12 @@ public:
   constexpr Cond() noexcept : Base{COND} {
   }
 
-  Cond(Code *holder, std::initializer_list<Node> nodes) noexcept
-      : Cond{StmtN::create(holder, Nodes{nodes.begin(), nodes.size()}, COND)} {
+  Cond(Func &func, std::initializer_list<Node> nodes) noexcept
+      : Base{func, Nodes{nodes.begin(), nodes.size()}, COND} {
   }
 
-  Cond(Code *holder, Nodes nodes) noexcept //
-      : Cond{StmtN::create(holder, nodes, COND)} {
+  Cond(Func &func, Nodes nodes) noexcept //
+      : Base{func, nodes, COND} {
   }
 
   static constexpr OpStmtN op() noexcept {
@@ -227,20 +232,20 @@ public:
   constexpr Return() noexcept : Base{RETURN} {
   }
 
-  explicit Return(Code *holder) noexcept //
-      : Return{create(holder, Exprs{})} {
+  explicit Return(Func &func) noexcept //
+      : Base{create(func, Exprs{})} {
   }
 
-  Return(Code *holder, Expr expr) noexcept //
-      : Return{create(holder, Exprs{&expr, 1})} {
+  Return(Func &func, Expr expr) noexcept //
+      : Base{create(func, Exprs{&expr, 1})} {
   }
 
-  Return(Code *holder, std::initializer_list<Expr> exprs) noexcept
-      : Return{create(holder, Exprs{exprs.begin(), exprs.size()})} {
+  Return(Func &func, std::initializer_list<Expr> exprs) noexcept
+      : Base{create(func, Exprs{exprs.begin(), exprs.size()})} {
   }
 
-  Return(Code *holder, Exprs exprs) noexcept //
-      : Return{create(holder, exprs)} {
+  Return(Func &func, Exprs exprs) noexcept //
+      : Base{create(func, exprs)} {
   }
 
   static constexpr OpStmtN op() noexcept {
@@ -257,7 +262,7 @@ private:
     return op == RETURN;
   }
 
-  static Node create(Code *holder, Exprs exprs) noexcept;
+  static Node create(Func &func, Exprs exprs) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -272,13 +277,33 @@ public:
    * exists only to allow placing Switch in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Switch, use Func::new_switch()
+   * to create a valid Switch, use one of the other constructors
    */
   constexpr Switch() noexcept : Base{SWITCH} {
   }
 
+  // cases can contain at most one Default
+  Switch(Func &func, const Expr &expr, std::initializer_list<Case> cases) noexcept //
+      : Base{create(func, expr, Cases{cases.begin(), cases.size()})} {
+  }
+
+  // cases can contain at most one Default
+  Switch(Func &func, const Expr &expr, const Cases cases) noexcept //
+      : Base{create(func, expr, cases)} {
+  }
+
   static constexpr OpStmtN op() noexcept {
     return SWITCH;
+  }
+
+  // shortcut for child(0).is<Expr>()
+  Expr expr() const noexcept {
+    return child(0).is<Expr>();
+  }
+
+  // shortcut for child(i+1).is<Case>()
+  Case case_(uint32_t i) const noexcept {
+    return child(sum_uint32(1, i)).is<Case>();
   }
 
 private:
@@ -292,7 +317,7 @@ private:
   }
 
   // cases can contain at most one Default
-  static Switch create(const Expr &expr, const Cases cases, Code *holder) noexcept;
+  static Node create(Func &func, const Expr &expr, const Cases cases) noexcept;
 };
 
 } // namespace onejit

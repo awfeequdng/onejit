@@ -43,6 +43,8 @@ enum OpStmt0 : uint16_t {
 enum OpStmt1 : uint16_t {
   BAD_ST1 = 0,
   GOTO = 1,
+  INC = 2, // ++
+  DEC = 3, // --
 };
 
 enum OpStmt2 : uint16_t {
@@ -78,7 +80,7 @@ enum OpStmt4 : uint16_t {
 
 enum OpStmtN : uint16_t {
   BAD_STN = 0,
-  ASSIGN_TUPLE = 1,
+  ASSIGN_CALL = 1,
   BLOCK = 2,
   COND = 3, // n-ary IF ... [ELSEIF* ... [ELSE ...]]
   RETURN = 4,

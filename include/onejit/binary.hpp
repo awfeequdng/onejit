@@ -46,9 +46,14 @@ public:
    * exists only to allow placing Binary in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Binary, use Func::new_binary()
+   * to create a valid Binary, use one of the other constructors
    */
   constexpr Binary() noexcept : Base{BINARY} {
+  }
+
+  // also autodetects kind
+  Binary(Func &func, Op2 op, const Expr &left, const Expr &right) noexcept
+      : Base{create(func, op, left, right)} {
   }
 
   static constexpr Type type() noexcept {
@@ -86,7 +91,7 @@ private:
   }
 
   // also autodetects kind
-  static Binary create(Op2 op, const Expr &left, const Expr &right, Code *holder);
+  static Node create(Func &func, Op2 op, const Expr &left, const Expr &right);
 };
 
 std::ostream &operator<<(std::ostream &out, const Binary &expr);

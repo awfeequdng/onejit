@@ -50,8 +50,16 @@ public:
   }
 
   /// \pre params.size() must fit uint16_t, and result.size() must fit uint16_t
-  FuncType(Kinds params, Kinds results, Code *holder) noexcept
-      : FuncType{create(params, results, holder)} {
+  FuncType(Code *holder, Kinds params, Kinds results) noexcept
+      : Base{create(holder, params, results)} {
+  }
+
+  /// \pre params.size() must fit uint16_t, and result.size() must fit uint16_t
+  FuncType(Code *holder, //
+           std::initializer_list<Kind> params,
+           std::initializer_list<Kind> results) noexcept
+      : Base{create(holder, //
+                    Kinds{params.begin(), params.size()}, Kinds{results.begin(), results.size()})} {
   }
 
   /// \return number of parameters
@@ -78,7 +86,7 @@ private:
     return t == FTYPE;
   }
 
-  static FuncType create(Kinds params, Kinds results, Code *holder) noexcept;
+  static Node create(Code *holder, Kinds params, Kinds results) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const FuncType &ftype);

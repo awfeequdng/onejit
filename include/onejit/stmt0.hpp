@@ -42,7 +42,7 @@ public:
    * exists only to allow placing Stmt0 in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Stmt0, use Stmt0(OpStmt0)
+   * to create a valid Stmt0, use Stmt0(OpStmt0) or a derived class constructor
    */
   constexpr Stmt0() noexcept : Base{STMT_0, Bad, BAD} {
   }

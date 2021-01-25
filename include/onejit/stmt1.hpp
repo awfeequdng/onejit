@@ -35,8 +35,9 @@ namespace onejit {
 ////////////////////////////////////////////////////////////////////////////////
 class Stmt1 : public Stmt {
   using Base = Stmt;
-  friend class Node;
+  friend class Compiler;
   friend class Func;
+  friend class Node;
 
 public:
   /**
@@ -76,7 +77,12 @@ protected:
     return t == STMT_1;
   }
 
-  static Node create(Code *holder, Node body, OpStmt1 op) noexcept;
+  // used by subclasses
+  Stmt1(Func &func, Node body, OpStmt1 op) noexcept : Base{create(func, body, op)} {
+  }
+
+private:
+  static Node create(Func &func, Node body, OpStmt1 op) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Stmt1 &st);
@@ -98,8 +104,8 @@ public:
   constexpr Goto() noexcept : Base{GOTO} {
   }
 
-  Goto(Code *holder, Label target) noexcept //
-      : Base{Stmt1::create(holder, target, GOTO)} {
+  Goto(Func &func, Label target) noexcept //
+      : Base{func, target, GOTO} {
   }
 
   static constexpr OpStmt1 op() noexcept {
@@ -122,6 +128,91 @@ private:
   }
 };
 
+////////////////////////////////////////////////////////////////////////////////
+// statement to increment an expression by one, i.e. expr++
+class Inc : public Stmt1 {
+  using Base = Stmt1;
+  friend class Node;
+  friend class Func;
+
+public:
+  /**
+   * construct an invalid Inc
+   * exists only to allow placing Inc in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid Inc, use one of the other constructors.
+   */
+  constexpr Inc() noexcept : Base{INC} {
+  }
+
+  // expr must be Var or Mem
+  Inc(Func &func, Expr expr) noexcept //
+      : Base{func, expr, INC} {
+  }
+
+  static constexpr OpStmt1 op() noexcept {
+    return INC;
+  }
+
+  // shortcut for child(0).is<Expr>()
+  Expr expr() const noexcept {
+    return child(0).is<Expr>();
+  }
+
+private:
+  // downcast Node to Inc
+  constexpr explicit Inc(const Node &node) noexcept : Base{node} {
+  }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
+    return op == INC;
+  }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// statement to decrement an expression by one, i.e. expr--
+class Dec : public Stmt1 {
+  using Base = Stmt1;
+  friend class Node;
+  friend class Func;
+
+public:
+  /**
+   * construct an invalid Dec
+   * exists only to allow placing Dec in containers
+   * and similar uses that require a default constructor.
+   *
+   * to create a valid Dec, use one of the other constructors.
+   */
+  constexpr Dec() noexcept : Base{DEC} {
+  }
+
+  // expr must be Var or Mem
+  Dec(Func &func, Expr expr) noexcept //
+      : Base{func, expr, DEC} {
+  }
+
+  static constexpr OpStmt1 op() noexcept {
+    return DEC;
+  }
+
+  // shortcut for child(0).is<Expr>()
+  Expr expr() const noexcept {
+    return child(0).is<Expr>();
+  }
+
+private:
+  // downcast Node to Dec
+  constexpr explicit Dec(const Node &node) noexcept : Base{node} {
+  }
+
+  // downcast helper
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
+    return op == DEC;
+  }
+};
 } // namespace onejit
 
 #endif // ONEJIT_STMT1_HPP

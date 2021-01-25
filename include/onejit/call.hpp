@@ -27,6 +27,7 @@
 #define ONEJIT_CALLEXPR_HPP
 
 #include <onejit/expr.hpp>
+#include <onejit/func.hpp>
 #include <onejit/op.hpp>
 #include <onestl/view.hpp>
 
@@ -44,9 +45,30 @@ public:
    * exists only to allow placing Call in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Call, use Func::new_call()
+   * to create a valid Call, use one of the other constructors
    */
   constexpr Call() noexcept : Base{CALL} {
+  }
+
+  // create a call to Func 'called'
+  Call(Func &caller, const Func &called, std::initializer_list<Expr> args) noexcept
+      : Base{create(caller, called.ftype(), called.label(), Exprs{args.begin(), args.size()})} {
+  }
+
+  // create a call to Func 'called'
+  Call(Func &caller, const Func &called, Exprs args) noexcept
+      : Base{create(caller, called.ftype(), called.label(), args)} {
+  }
+
+  // create a call to an arbitrary function, for example a Func or an already compiled C function
+  Call(Func &caller, const FuncType &ftype, const Label &flabel,
+       std::initializer_list<Expr> args) noexcept
+      : Base{create(caller, ftype, flabel, Exprs{args.begin(), args.size()})} {
+  }
+
+  // create a call to an arbitrary function, for example a Func or an already compiled C function
+  Call(Func &caller, const FuncType &ftype, const Label &flabel, Exprs args) noexcept
+      : Base{create(caller, ftype, flabel, args)} {
   }
 
   static constexpr OpN op() noexcept {
@@ -72,7 +94,7 @@ private:
     return t == CALL;
   }
 
-  static Call create(const FuncType &ftype, const Label &flabel, Exprs args, Code *holder) noexcept;
+  static Node create(Func &caller, const FuncType &ftype, const Label &flabel, Exprs args) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Call &expr);

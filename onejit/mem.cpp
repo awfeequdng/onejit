@@ -24,17 +24,18 @@
  */
 
 #include <onejit/code.hpp>
+#include <onejit/func.hpp>
 #include <onejit/mem.hpp>
 
 namespace onejit {
 
-Mem ONEJIT_NOINLINE Mem::create(Kind kind, const Expr &address, Code *holder) noexcept {
-  while (holder) {
+Node ONEJIT_NOINLINE Mem::create(Func &func, Kind kind, Expr address) noexcept {
+  while (Code *holder = func.code()) {
     const NodeHeader header{MEM, kind, 0};
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add(address, offset)) {
-      return Mem{Node{header, offset, holder}};
+      return Node{header, offset, holder};
     }
     holder->truncate(offset);
     break;

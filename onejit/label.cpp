@@ -37,8 +37,7 @@ static constexpr uint16_t trivial_hash(uint64_t val) noexcept {
   return trivial_hash(uint32_t(val ^ (val >> 32)));
 }
 
-Label::Label(Func &func) noexcept //
-    : Base{func.new_label()} {
+Label::Label(Func &func) noexcept : Base{func.new_label()} {
 }
 
 Label Label::create(Code *holder, uint64_t address, uint16_t index) noexcept {

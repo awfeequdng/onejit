@@ -39,7 +39,7 @@ enum Type : uint8_t {
   STMT_2 = 2, // CASE, DEFAULT
   STMT_3 = 3, // IF
   STMT_4 = 4, // FOR
-  STMT_N = 5, // statement list: ASSIGN_TUPLE, BLOCK, COND, RETURN, SWITCH
+  STMT_N = 5, // statement list: ASSIGN_CALL, BLOCK, COND, RETURN, SWITCH
 
   // Expr
   VAR = 6,

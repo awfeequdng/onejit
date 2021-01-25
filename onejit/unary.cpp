@@ -24,12 +24,13 @@
  */
 
 #include <onejit/code.hpp>
+#include <onejit/func.hpp>
 #include <onejit/unary.hpp>
 
 namespace onejit {
 
-Unary ONEJIT_NOINLINE Unary::create(Kind kind, Op1 op, const Expr &child, Code *holder) noexcept {
-  while (holder) {
+Node ONEJIT_NOINLINE Unary::create(Func &func, Kind kind, Op1 op, Expr child) noexcept {
+  while (Code *holder = func.code()) {
     const NodeHeader header{UNARY, kind, uint16_t(op)};
     CodeItem offset = holder->length();
 
@@ -42,7 +43,7 @@ Unary ONEJIT_NOINLINE Unary::create(Kind kind, Op1 op, const Expr &child, Code *
   return Unary{};
 }
 
-Unary Unary::create(Op1 op, const Expr &child, Code *holder) noexcept {
+Node ONEJIT_NOINLINE Unary::create(Func &func, Op1 op, Expr child) noexcept {
   Kind kind;
   if (op == XOR1 || op == CAST) {
     // CAST kind should be specified manually
@@ -52,7 +53,7 @@ Unary Unary::create(Op1 op, const Expr &child, Code *holder) noexcept {
   } else {
     kind = Bad;
   }
-  return create(kind, op, child, holder);
+  return create(func, kind, op, child);
 }
 
 std::ostream &operator<<(std::ostream &out, const Unary &expr) {

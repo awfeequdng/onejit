@@ -23,13 +23,24 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/binary.hpp>
+#include <onejit/call.hpp>
 #include <onejit/compiler.hpp>
+#include <onejit/const.hpp>
 #include <onejit/func.hpp>
+#include <onejit/mem.hpp>
+#include <onejit/stmt0.hpp>
+#include <onejit/stmt1.hpp>
+#include <onejit/stmt2.hpp>
+#include <onejit/stmt3.hpp>
+#include <onejit/stmt4.hpp>
+#include <onejit/stmtn.hpp>
+#include <onejit/unary.hpp>
 
 namespace onejit {
 
 Compiler::Compiler(Func &func) noexcept
-    : func_{func}, code_{func.code()}, break_{}, continue_{}, node_{}, error_{}, good_{func} {
+    : func_{func}, break_{}, continue_{}, fallthrough_{}, node_{}, error_{}, good_{func} {
 }
 
 Compiler::~Compiler() noexcept {
@@ -50,7 +61,7 @@ Compiler &Compiler::finish() noexcept {
       compiled = node_[0];
       break;
     default:
-      compiled = Block{code_, node_};
+      compiled = Block{func_, node_};
       break;
     }
     func_.set_compiled(compiled);
@@ -66,15 +77,20 @@ Label Compiler::label_continue() const noexcept {
   return continue_.empty() ? Label{} : continue_.end()[-1];
 }
 
-Compiler &Compiler::enter_case(Label l_break) noexcept {
-  good_ = good_ && break_.append(l_break);
+Label Compiler::label_fallthrough() const noexcept {
+  return fallthrough_.empty() ? Label{} : fallthrough_.end()[-1];
+}
+
+Compiler &Compiler::enter_case(Label l_break, Label l_fallthrough) noexcept {
+  good_ = good_ && break_.append(l_break) && fallthrough_.append(l_fallthrough);
   return *this;
 }
 
 Compiler &Compiler::exit_case() noexcept {
-  good_ = good_ && !break_.empty();
+  good_ = good_ && !break_.empty() && !fallthrough_.empty();
   if (good_) {
     break_.truncate(break_.size() - 1);
+    fallthrough_.truncate(fallthrough_.size() - 1);
   }
   return *this;
 }
@@ -99,7 +115,7 @@ Var Compiler::to_var(const Node &node) noexcept {
   if (e && !v) {
     // copy Expr result to a Var
     v = Var{func_, e.kind()};
-    compile_add(Assign{code_, ASSIGN, v, e}, false);
+    compile_add(Assign{func_, ASSIGN, v, e}, false);
   }
   return v;
 }
@@ -128,7 +144,7 @@ Compiler &Compiler::error(const Node &where, Chars msg) noexcept {
 
 Compiler &Compiler::out_of_memory(const Node &where) noexcept {
   // always set good_ to false
-  good_ = error_.append(Error{where, "out of memory"}) && false;
+  good_ = good_ && error_.append(Error{where, "out of memory"}) && false;
   return *this;
 }
 
@@ -188,7 +204,7 @@ Expr Compiler::compile(Mem expr, bool) noexcept {
   Expr addr = expr.addr();
   Expr comp_addr = compile(addr, true);
   if (addr != comp_addr) {
-    expr = func_.new_mem(expr.kind(), comp_addr);
+    expr = Mem{func_, expr.kind(), comp_addr};
   }
   return expr;
 }
@@ -197,7 +213,7 @@ Expr Compiler::compile(Unary expr, bool) noexcept {
   Expr x = expr.x();
   Expr comp_x = compile(x, true);
   if (x != comp_x) {
-    expr = func_.new_unary(expr.op(), comp_x);
+    expr = Unary{func_, expr.op(), comp_x};
   }
   return expr;
 }
@@ -206,7 +222,7 @@ Expr Compiler::compile(Binary expr, bool) noexcept {
   Expr x = expr.x(), y = expr.y();
   Expr comp_x = compile(x, true), comp_y = compile(y, true);
   if (x != comp_x || y != comp_y) {
-    expr = func_.new_binary(expr.op(), comp_x, comp_y);
+    expr = Binary{func_, expr.op(), comp_x, comp_y};
   }
   return expr;
 }
@@ -216,9 +232,9 @@ Expr Compiler::compile(Call call, bool simplify_call) noexcept {
 
   if (!call.children_are<Var>(2, n)) {
     Vector<Expr> vargs;
-    // convert all arguments to Var
+    // convert all call arguments to Var
     to_vars(call, 2, n, vargs);
-    call = func_.new_call(call.ftype(), call.label(), vargs);
+    call = Call{func_, call.ftype(), call.label(), vargs};
   }
 
   if (!simplify_call) {
@@ -230,7 +246,7 @@ Expr Compiler::compile(Call call, bool simplify_call) noexcept {
   // we could also use to_var(call), but it risks
   // infinite recursion because it invokes compile(call)
   Var dst{func_, call.kind()};
-  add(Assign{code_, ASSIGN, dst, call});
+  add(Assign{func_, ASSIGN, dst, call});
   return dst;
 }
 
@@ -240,20 +256,24 @@ Node Compiler::compile(Stmt0 st, bool) noexcept {
   switch (st.op()) {
   case BREAK:
     if (Label l = label_break()) {
-      compile_add(Goto{code_, l}, false);
+      compile_add(Goto{func_, l}, false);
     } else {
       error(st, "misplaced Break");
     }
     break;
   case CONTINUE:
     if (Label l = label_continue()) {
-      compile_add(Goto{code_, l}, false);
+      compile_add(Goto{func_, l}, false);
     } else {
       error(st, "misplaced Continue");
     }
     break;
   case FALLTHROUGH:
-    error(st, "misplaced Fallthrough");
+    if (Label l = label_fallthrough()) {
+      compile_add(Goto{func_, l}, false);
+    } else {
+      error(st, "misplaced Fallthrough");
+    }
     break;
   case BAD:
   default:
@@ -267,6 +287,11 @@ Node Compiler::compile(Stmt0 st, bool) noexcept {
 // ===============================  compile(Stmt1)  ============================
 
 Node Compiler::compile(Stmt1 st, bool) noexcept {
+  Node body = st.body();
+  Node comp_body = compile(body, false);
+  if (body != comp_body) {
+    st = Stmt1{func_, comp_body, st.op()};
+  }
   add(st);
   // all compile(Stmt*) must return VoidExpr
   return VoidExpr;
@@ -302,7 +327,7 @@ Node Compiler::compile(Assign assign, bool) noexcept {
   Expr comp_src = compile(src, false);
   Expr comp_dst = compile(dst, false);
   if (src != comp_src || dst != comp_src) {
-    assign = Assign{code_, assign.op(), comp_dst, comp_src};
+    assign = Assign{func_, assign.op(), comp_dst, comp_src};
   }
   add(assign);
   // all compile(Stmt*) must return VoidExpr
@@ -310,10 +335,10 @@ Node Compiler::compile(Assign assign, bool) noexcept {
 }
 
 Node Compiler::compile(JumpIf jump_if, bool) noexcept {
-  Expr cond = jump_if.cond();
-  Expr comp_cond = compile(cond, true);
-  if (cond != comp_cond) {
-    jump_if = JumpIf{code_, jump_if.to(), comp_cond};
+  Expr test = jump_if.test();
+  Expr comp_test = compile(test, true);
+  if (test != comp_test) {
+    jump_if = JumpIf{func_, jump_if.to(), comp_test};
   }
   add(jump_if);
   // all compile(Stmt*) must return VoidExpr
@@ -333,22 +358,21 @@ Node Compiler::compile(Stmt3 st, bool) noexcept {
 }
 
 Node Compiler::compile(If st, bool) noexcept {
-  Expr cond = func_.new_unary(NOT1, st.cond());
-  cond = compile(cond, false);
-
   Node then = st.then();
   Node else_ = st.else_();
   bool have_else = else_.type() != CONST;
 
-  Label else_label = have_else ? Label{func_} : Label{};
-  Label endif_label{func_};
+  Label else_label{func_};
+  Label endif_label = have_else ? Label{func_} : else_label;
 
-  JumpIf jump_if{code_, have_else ? else_label : endif_label, cond};
+  Expr test = Unary{func_, NOT1, st.test()};
+  test = compile(test, false);
+  JumpIf jump_if{func_, else_label, test};
 
   compile_add(jump_if, false) //
       .compile_add(then, false);
   if (have_else) {
-    compile_add(Goto{code_, endif_label}, false) //
+    compile_add(Goto{func_, endif_label}, false) //
         .compile_add(else_label, false)
         .compile_add(else_, false);
   }
@@ -369,8 +393,31 @@ Node Compiler::compile(Stmt4 st, bool) noexcept {
 }
 
 Node Compiler::compile(For st, bool) noexcept {
-  /// TODO: implement
-  add(st);
+  compile_add(st.init(), false);
+
+  Expr test = st.test();
+  bool have_test = test != VoidExpr;
+
+  Label l_loop{func_};
+  Label l_continue = have_test ? Label{func_} : l_loop;
+  Label l_break{func_};
+
+  if (have_test) {
+    add(Goto{func_, l_continue});
+  }
+  add(l_loop);
+  enter_loop(l_break, l_continue);
+  compile_add(st.body(), false);
+  compile_add(st.post(), false);
+  exit_loop();
+
+  if (have_test) {
+    add(l_continue);
+    compile_add(JumpIf{func_, l_loop, test}, false);
+  } else {
+    compile_add(Goto{func_, l_loop}, false);
+  }
+  add(l_break);
   return VoidExpr;
 }
 
@@ -378,7 +425,7 @@ Node Compiler::compile(For st, bool) noexcept {
 
 Node Compiler::compile(StmtN st, bool simplify_call) noexcept {
   switch (st.op()) {
-  case ASSIGN_TUPLE:
+  case ASSIGN_CALL:
     return compile(st.is<AssignCall>(), simplify_call);
   case BLOCK:
     return compile(st.is<Block>(), simplify_call);
@@ -437,20 +484,96 @@ Node Compiler::compile(Return st, bool) noexcept {
       // compile expression and copy its result
       // to expected location func_.result(i)
       expr = compile(expr, false);
-      add(Assign{code_, ASSIGN, var, expr});
+      add(Assign{func_, ASSIGN, var, expr});
     }
     vars.append(var);
   }
   if (!vars) {
     out_of_memory(st);
   }
-  add(Return{code_, vars});
+  add(Return{func_, vars});
   return VoidExpr;
 }
 
 Node Compiler::compile(Switch st, bool) noexcept {
-  /// TODO: implement
-  add(st);
+  Expr expr = to_var(st.expr());
+
+  Label l_break{func_};
+  Label l_this_case;
+  Label l_next_case;
+  Label l_this_fallthrough;
+  Label l_next_fallthrough;
+  Label l_default;
+
+  Goto goto_break{func_, l_break};
+
+  const size_t n = st.children();
+  const size_t no_default = -1;
+  size_t default_i = no_default;
+
+  for (size_t i = 1; i < n; i++) {
+    Node node_i = st.child(i);
+    Case case_i = node_i.is<Case>();
+    if (!case_i) {
+      error(node_i, "unexpected node in Switch, expecting Case or Default");
+      return VoidExpr;
+    }
+    if (case_i.op() == DEFAULT) {
+      if (default_i != no_default) {
+        error(node_i, "unexpected duplicate Default in Switch, expecting at most one");
+        return VoidExpr;
+      }
+      default_i = i;
+    }
+  }
+
+  // skip child(0) = expr
+  for (size_t i = 1; i < n; i++) {
+    Case case_i = st.child(i).is<Case>();
+    if (i + 1 < n || default_i != no_default) {
+      l_next_case = Label{func_};
+      l_next_fallthrough = Label{func_};
+    } else {
+      l_next_case = l_break;
+      l_next_fallthrough = l_break;
+    }
+    if (l_this_case) {
+      add(l_this_case);
+    }
+    if (i == default_i) {
+      // Default can be entered only with 'fallthrough' from previous Case
+      // or if end of Switch is reached without any matching Case
+      if (i + 1 != n) {
+        add(Goto{func_, l_next_case});
+        if (!l_this_fallthrough) {
+          l_this_fallthrough = Label{func_};
+        }
+        l_default = l_this_fallthrough;
+      }
+    } else {
+      compile_add(JumpIf{func_, l_next_case, Binary{func_, NEQ, expr, case_i.expr()}}, false);
+    }
+    if (l_this_fallthrough) {
+      add(l_this_fallthrough);
+    }
+    enter_case(l_break, l_next_fallthrough);
+    compile_add(case_i.body(), false);
+    exit_case();
+    // automatically add 'break' at the end of each case.
+    // can be overridden, by adding 'fallthrough' as last statement in Case{...}
+    // to restore C/C++ behavior
+    if (i + 1 < n) {
+      compile_add(goto_break, false);
+    }
+    l_this_case = l_next_case;
+    l_this_fallthrough = l_next_fallthrough;
+  }
+  if (l_default) {
+    // compile a jump to Default body, executed if no Case matches
+    add(Goto{func_, l_default});
+  }
+
+  add(l_break);
   return VoidExpr;
 }
 

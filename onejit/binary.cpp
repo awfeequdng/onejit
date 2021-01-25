@@ -25,12 +25,13 @@
 
 #include <onejit/binary.hpp>
 #include <onejit/code.hpp>
+#include <onejit/func.hpp>
 
 namespace onejit {
 
 // autodetect kind
-Binary Binary::create(Op2 op, const Expr &left, const Expr &right, Code *holder) {
-  while (holder) {
+Node Binary::create(Func &func, Op2 op, const Expr &left, const Expr &right) {
+  while (Code *holder = func.code()) {
     Kind kind = Bad;
     if (op == BAD2) {
     } else if (op <= AND_NOT) {
@@ -42,7 +43,7 @@ Binary Binary::create(Op2 op, const Expr &left, const Expr &right, Code *holder)
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add(left, offset) && holder->add(right, offset)) {
-      return Binary{Node{header, offset, holder}};
+      return Node{header, offset, holder};
     }
     holder->truncate(offset);
     break;

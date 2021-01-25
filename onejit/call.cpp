@@ -34,17 +34,6 @@ namespace onejit {
 
 // ============================  Call  ====================================
 
-std::ostream &operator<<(std::ostream &out, const Call &call) {
-  out << '(' << call.op();
-  // skip child(0) i.e. FuncType
-  for (size_t i = 1, n = call.children(); i < n; i++) {
-    out << ' ' << call.child(i);
-  }
-  return out << ')';
-}
-
-// ============================  Call  =====================================
-
 // shortcut for child(0).is<FuncType>()
 FuncType Call::ftype() const noexcept {
   return child(0).is<FuncType>();
@@ -60,8 +49,9 @@ Expr Call::arg(uint32_t i) const noexcept {
   return child(sum_uint32(2, i)).is<Expr>();
 }
 
-Call Call::create(const FuncType &ftype, const Label &flabel, Exprs args, Code *holder) noexcept {
+Node Call::create(Func &caller, const FuncType &ftype, const Label &flabel, Exprs args) noexcept {
   const size_t n = args.size();
+  Code *holder = caller.code();
   while (holder && n == uint32_t(n)) {
     const NodeHeader header{CALL, ftype.param_n() == 0 ? Void : ftype.param(0), CALL_OP};
     CodeItem offset = holder->length();
@@ -69,12 +59,21 @@ Call Call::create(const FuncType &ftype, const Label &flabel, Exprs args, Code *
     if (holder->add(header) && holder->add_uint32(sum_uint32(2, n)) && //
         holder->add(ftype, offset) && holder->add(flabel, offset) &&   //
         holder->add(args, offset)) {
-      return Call{Node{header, offset, holder}};
+      return Node{header, offset, holder};
     }
     holder->truncate(offset);
     break;
   }
   return Call{};
+}
+
+std::ostream &operator<<(std::ostream &out, const Call &call) {
+  out << '(' << call.op();
+  // skip child(0) i.e. FuncType
+  for (size_t i = 1, n = call.children(); i < n; i++) {
+    out << ' ' << call.child(i);
+  }
+  return out << ')';
 }
 
 } // namespace onejit

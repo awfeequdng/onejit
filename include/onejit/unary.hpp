@@ -46,9 +46,19 @@ public:
    * exists only to allow placing Unary in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid Unary, use Func::new_unary()
+   * to create a valid Unary, use one of the other constructors
    */
   constexpr Unary() noexcept : Base{UNARY} {
+  }
+
+  // also autodetects kind if op != CAST
+  Unary(Func &func, Op1 op, Expr child) noexcept //
+      : Base{create(func, op, child)} {
+  }
+
+  // overrides Kind autodetection. needed by CAST
+  Unary(Func &func, Kind kind, Op1 op, Expr child) noexcept //
+      : Base{create(func, kind, op, child)} {
   }
 
   static constexpr Type type() noexcept {
@@ -80,9 +90,10 @@ private:
     return t == UNARY;
   }
 
-  static Unary create(Kind kind, Op1 op, const Expr &child, Code *holder) noexcept;
   // also autodetects kind if op != CAST
-  static Unary create(Op1 op, const Expr &child, Code *holder) noexcept;
+  static Node create(Func &func, Op1 op, Expr child) noexcept;
+  // overrides Kind autodetection. needed by CAST
+  static Node create(Func &func, Kind kind, Op1 op, Expr child) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Unary &expr);

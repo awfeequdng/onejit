@@ -71,8 +71,15 @@ protected:
     return t == STMT_4;
   }
 
-  static Stmt4 create(OpStmt4 op, const Node &child0, const Node &child1, const Node &child2,
-                      const Node &child3, Code *holder) noexcept;
+  // used by subclasses
+  Stmt4(Func &func, const Node &child0, const Node &child1, //
+        const Node &child2, const Node &child3, OpStmt4 op) noexcept
+      : Base{create(func, child0, child1, child2, child3, op)} {
+  }
+
+private:
+  static Node create(Func &func, const Node &child0, const Node &child1, //
+                     const Node &child2, const Node &child3, OpStmt4 op) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Stmt4 &st);
@@ -89,9 +96,13 @@ public:
    * exists only to allow placing For in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid For, use Func::new_for()
+   * to create a valid For, use one of the other constructors
    */
   constexpr For() noexcept : Base{FOR} {
+  }
+
+  For(Func &func, const Node &init, const Expr &test, const Node &post, const Node &body) noexcept
+      : Base{func, init, test, post, body, FOR} {
   }
 
   static constexpr OpStmt4 op() noexcept {
@@ -104,7 +115,7 @@ public:
   }
 
   // shortcut for child(1).is<Expr>()
-  Expr cond() const noexcept {
+  Expr test() const noexcept {
     return child(1).is<Expr>();
   }
 
@@ -126,11 +137,6 @@ private:
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == FOR;
-  }
-
-  static For create(const Node &init, const Expr &cond, const Node &post, const Node &body,
-                    Code *holder) noexcept {
-    return For{Stmt4::create(FOR, init, cond, post, body, holder)};
   }
 };
 

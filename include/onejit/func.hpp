@@ -26,20 +26,10 @@
 #ifndef ONEJIT_FUNC_HPP
 #define ONEJIT_FUNC_HPP
 
-#include <onejit/binary.hpp>
-#include <onejit/call.hpp>
 #include <onejit/code.hpp>
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
-#include <onejit/mem.hpp>
 #include <onejit/op.hpp>
-#include <onejit/stmt0.hpp>
-#include <onejit/stmt1.hpp>
-#include <onejit/stmt2.hpp>
-#include <onejit/stmt3.hpp>
-#include <onejit/stmt4.hpp>
-#include <onejit/stmtn.hpp>
-#include <onejit/unary.hpp>
 #include <onejit/var.hpp>
 #include <onestl/chars.hpp>
 #include <onestl/string.hpp>
@@ -61,7 +51,9 @@ public:
    */
   Func() noexcept;
 
-  Func(String &&name, const FuncType &ftype, Code *holder) noexcept;
+  Func(Code *holder, String &&name, FuncType ftype) noexcept : Func{} {
+    init(holder, std::move(name), ftype);
+  }
 
   Func(Func &&other) noexcept = default;
   Func &operator=(Func &&other) noexcept = default;
@@ -105,58 +97,6 @@ public:
 
   //////////////////////////////////////////////////////////////////////////////
 
-  // also autodetects kind
-  Binary new_binary(Op2 op, const Expr &left, const Expr &right) noexcept {
-    return Binary::create(op, left, right, holder_);
-  }
-
-  // create a call to specified Func
-  Call new_call(const Func &func, std::initializer_list<Expr> args) {
-    return new_call(func, Exprs{args.begin(), args.size()});
-  }
-  Call new_call(const Func &func, Exprs args) {
-    return Call::create(func.ftype(), func.label(), args, holder_);
-  }
-
-  // create a call to an arbitrary function, for example a Func or an already compiled C function
-  Call new_call(const FuncType &ftype, const Label &flabel, std::initializer_list<Expr> args) {
-    return new_call(ftype, flabel, Exprs{args.begin(), args.size()});
-  }
-  Call new_call(const FuncType &ftype, const Label &flabel, Exprs args) {
-    return Call::create(ftype, flabel, args, holder_);
-  }
-
-  For new_for(const Node &init, const Expr &cond, const Node &post, const Node &body) noexcept {
-    return For::create(init, cond, post, body, holder_);
-  }
-
-  Mem new_mem(Kind kind, const Expr &address) noexcept {
-    return Mem::create(kind, address, holder_);
-  }
-
-  Stmt0 new_stmt0(OpStmt0 op) noexcept {
-    return Stmt0{op};
-  }
-
-  // cases can contain at most one Default
-  Switch new_switch(const Expr &expr, std::initializer_list<Case> cases) noexcept {
-    return new_switch(expr, Cases{cases.begin(), cases.size()});
-  }
-  Switch new_switch(const Expr &expr, const Cases cases) noexcept {
-    return Switch::create(expr, cases, holder_);
-  }
-
-  // create a new unary expression, overriding Kind autodetection.
-  // needed by op == CAST
-  Unary new_unary(Kind kind, Op1 op, const Expr &arg) noexcept {
-    return Unary::create(kind, op, arg, holder_);
-  }
-
-  // also autodetects kind if op != CAST
-  Unary new_unary(Op1 op, const Expr &arg) noexcept {
-    return Unary::create(op, arg, holder_);
-  }
-
   constexpr Node get_body() const noexcept {
     return body_;
   }
@@ -178,6 +118,8 @@ public:
   }
 
 private:
+  void init(Code *holder, String &&name, FuncType ftype) noexcept;
+
   // create a new local label, used for jumps within the function
   Label new_label() noexcept;
 

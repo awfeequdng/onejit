@@ -76,7 +76,13 @@ protected:
     return t == STMT_2;
   }
 
-  static Node create(Code *holder, Nodes children, OpStmt2 op) noexcept;
+  // needed by subclasses
+  Stmt2(Func &func, Node child0, Node child1, OpStmt2 op) noexcept
+      : Base{create(func, child0, child1, op)} {
+  }
+
+private:
+  static Node create(Func &func, Node child0, Node child1, OpStmt2 op) noexcept;
 };
 
 std::ostream &operator<<(std::ostream &out, const Stmt2 &st);
@@ -98,8 +104,8 @@ public:
   constexpr Assign() noexcept : Base{ASSIGN} {
   }
 
-  Assign(Code *holder, OpStmt2 op, Expr dst, Expr src) noexcept
-      : Base{create(holder, op, dst, src)} {
+  Assign(Func &func, OpStmt2 op, Expr dst, Expr src) noexcept //
+      : Base{func, dst, src, op} {
   }
 
   constexpr OpStmt2 op() const noexcept {
@@ -125,8 +131,6 @@ private:
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op >= ADD_ASSIGN && op <= ASSIGN;
   }
-
-  static Node create(Code *holder, OpStmt2 op, Expr dst, Expr src) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -146,8 +150,8 @@ public:
   constexpr Case() noexcept : Base{CASE} {
   }
 
-  Case(Code *holder, Expr expr, Node body) noexcept //
-      : Base{create(holder, expr, body)} {
+  Case(Func &func, Expr expr, Node body) noexcept //
+      : Base{func, expr, body, CASE} {
   }
 
   // can return either CASE or DEFAULT
@@ -174,17 +178,20 @@ protected:
   constexpr explicit Case(const Node &node) noexcept : Base{node} {
   }
 
+  // needed by subclasses
+  Case(Func &func, Expr expr, Node body, OpStmt2 op) noexcept //
+      : Base{func, expr, body, op} {
+  }
+
 private:
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == CASE || op == DEFAULT;
   }
-
-  static Node create(Code *holder, Expr expr, Node body) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// Default is represented as a Case where child(0) is VoidExpr
+// Default is represented as a Case where op == DEFAULT and child(0) == VoidExpr
 class Default : public Case {
   using Base = Case;
   friend class Node;
@@ -201,8 +208,8 @@ public:
   constexpr Default() noexcept : Base{DEFAULT} {
   }
 
-  Default(Code *holder, Node body) noexcept //
-      : Base{create(holder, body)} {
+  Default(Func &func, Node body) noexcept //
+      : Base{func, VoidExpr, body, DEFAULT} {
   }
 
   static constexpr OpStmt2 op() noexcept {
@@ -223,8 +230,6 @@ private:
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == DEFAULT;
   }
-
-  static Node create(Code *holder, Node body) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -245,7 +250,8 @@ public:
   constexpr JumpIf() noexcept : Base{JUMP_IF} {
   }
 
-  JumpIf(Code *holder, Label to, Expr cond) noexcept : Base{create(holder, to, cond)} {
+  JumpIf(Func &func, Label to, Expr test) noexcept //
+      : Base{func, to, test, JUMP_IF} {
   }
 
   static constexpr OpStmt2 op() noexcept {
@@ -258,7 +264,7 @@ public:
   }
 
   // shortcut for child(1).is<Expr>()
-  Expr cond() const noexcept {
+  Expr test() const noexcept {
     return child(1).is<Expr>();
   }
 
@@ -271,8 +277,6 @@ private:
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == JUMP_IF;
   }
-
-  static Node create(Code *holder, Label to, Expr cond) noexcept;
 };
 
 } // namespace onejit

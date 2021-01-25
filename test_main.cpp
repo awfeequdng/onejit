@@ -23,13 +23,11 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/codeparser.hpp>
-#include <onejit/compiler.hpp>
-#include <onejit/func.hpp>
-#include <onestl/chars.hpp>
+#include <onejit/onejit.hpp>
 
 #include <fstream>
 #include <iostream>
+#include <string>
 
 namespace onejit {
 
@@ -38,35 +36,44 @@ public:
   Test();
   ~Test();
 
-  FuncType ftype();
-
   void run();
+
+private:
+  FuncType ftype();
+  static String to_string(Node node);
+
   // called by run()
   void kind();
   void const_expr() const;
   void simple_expr();
   void nested_expr();
-  void fib();
+  void func_fib();
+  void func_loop();
+  void func_switch();
   void compile(Func &func);
   void dump_code() const;
 
-private:
   Code holder;
   Func func;
 };
 
-Test::Test() : holder{}, func{"test_func", ftype(), &holder} {
+Test::Test() : holder{}, func{&holder, "test_func", ftype()} {
 }
 
 Test::~Test() {
 }
 
 FuncType Test::ftype() {
-  const Kind params[] = {Int64, Ptr, Uint64};
-  const Kind results[] = {Int64};
-  FuncType ftype{Kinds{params, ONEJIT_N_OF(params)}, Kinds{results, ONEJIT_N_OF(results)}, &holder};
+  FuncType ftype{&holder, {Int64, Ptr, Uint64}, {Int64}};
   std::cout << ftype << '\n';
   return ftype;
+}
+
+String Test::to_string(Node node) {
+  std::stringstream buf;
+  buf << node;
+  std::string str = buf.str();
+  return String(str.data(), str.size());
 }
 
 void Test::run() {
@@ -74,7 +81,9 @@ void Test::run() {
   const_expr();
   simple_expr();
   nested_expr();
-  fib();
+  func_fib();
+  func_loop();
+  func_switch();
   dump_code();
 }
 
@@ -126,7 +135,7 @@ void Test::const_expr() const {
 
 void Test::simple_expr() {
   Imm imm{1.5f};
-  Expr c = Const{&holder, imm};
+  Expr c = Const{func, imm};
 
   ONEJIT_TEST(imm.kind(), ==, Float32);
   ONEJIT_TEST(imm.float32(), ==, 1.5f);
@@ -155,7 +164,7 @@ void Test::simple_expr() {
   for (uint8_t i = kVoid; i <= kArchFlags; i++) {
     Kind k = Kind(i);
     Expr v = Var{func, k};
-    Node node = func.new_binary(ADD, v, c);
+    Node node = Binary{func, ADD, v, c};
 
     ONEJIT_TEST(v.type(), ==, VAR);
     ONEJIT_TEST(v.kind(), ==, k);
@@ -206,16 +215,16 @@ void Test::nested_expr() {
   for (uint8_t i = kInt8; i <= kUint64; i++) {
     Kind k{i};
 
-    Expr c1 = Const{&holder, Imm{k, 1}};
-    Expr c2 = Const{&holder, Imm{k, 2}};
+    Expr c1 = Const{func, Imm{k, 1}};
+    Expr c2 = Const{func, Imm{k, 2}};
 
     Expr v1 = Var{func, k};
     Expr v2 = Var{func, k};
 
-    Expr b1 = func.new_binary(ADD, c1, v1);
-    Expr b2 = func.new_binary(MUL, c2, v2);
-    Expr b3 = func.new_binary(SHL, b1, b2);
-    Expr u1 = func.new_unary(XOR1, b3);
+    Expr b1 = Binary{func, ADD, c1, v1};
+    Expr b2 = Binary{func, MUL, c2, v2};
+    Expr b3 = Binary{func, SHL, b1, b2};
+    Expr u1 = Unary{func, XOR1, b3};
 
     ONEJIT_TEST(b1.kind(), ==, k);
     ONEJIT_TEST(b2.kind(), ==, k);
@@ -232,26 +241,188 @@ void Test::nested_expr() {
   }
 }
 
-void Test::fib() {
-  const Kind kind = Uint64;
-  const Kinds kinds{&kind, 1};
-  Func f("fib", FuncType{kinds, kinds, &holder}, &holder);
-  Var param = f.param(0);
-  Const one = One(Uint64);
-  Const two = Two(Uint64);
+void Test::func_fib() {
+  Offset orig = holder.length();
+  Kind kind = Uint64;
+  Func f{&holder, "fib", FuncType{&holder, {kind}, {kind}}};
+  Var n = f.param(0);
+  Const one = One(kind);
+  Const two = Two(kind);
 
-  f.set_body( //
-      Block{&holder,
-            If{&holder,                                                     //
-               f.new_binary(GTR, param, two),                               //
-               Return{&holder,                                              //
-                      f.new_binary(                                         //
-                          ADD,                                              //
-                          f.new_call(f, {f.new_binary(SUB, param, one)}),   //
-                          f.new_call(f, {f.new_binary(SUB, param, two)}))}, //
-               Return{&holder, one}}});                                     //
+  /**
+   * jit equivalent of C/C++ source code
+   *
+   * uint64_t fib(uint64_n) {
+   *   if (n > 2) {
+   *     return f(n-1) + f(n-2);
+   *   } else {
+   *     return 1;
+   *   }
+   * }
+   */
+
+  f.set_body(                                                  //
+      If{f, Binary{f, GTR, n, two},                            //
+         Return{f,                                             //
+                Binary{f,                                      //
+                       ADD,                                    //
+                       Call{f, f, {Binary{f, SUB, n, one}}},   //
+                       Call{f, f, {Binary{f, SUB, n, two}}}}}, //
+         Return{f, one}});                                     //
+
+  Chars expected = "(if (> var1000_ul 2_ul)\n\
+    (return (+ (call label_0 (- var1000_ul 1_ul)) (call label_0 (- var1000_ul 2_ul))))\n\
+    (return 1_ul))";
+  ONEJIT_TEST(to_string(f.get_body()), ==, expected);
 
   compile(f);
+
+  expected = "(block\n\
+    (jump_if label_1 (! (> var1000_ul 2_ul)))\n\
+    (= var1002_ul (- var1000_ul 1_ul))\n\
+    (= var1003_ul (call label_0 var1002_ul))\n\
+    (= var1004_ul (- var1000_ul 2_ul))\n\
+    (= var1005_ul (call label_0 var1004_ul))\n\
+    (= var1001_ul (+ var1003_ul var1005_ul))\n\
+    (return var1001_ul)\n\
+    (goto label_2)\n\
+    label_1\n\
+    (= var1001_ul 1_ul)\n\
+    (return var1001_ul)\n\
+    label_2)";
+  ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
+
+  holder.truncate(orig);
+}
+
+void Test::func_loop() {
+  Offset orig = holder.length();
+  Kind kind = Uint64;
+  Func f{&holder, "loop", FuncType{&holder, {kind}, {kind}}};
+  Var n = f.param(0);
+  Var total = f.result(0);
+  Var i{f, kind};
+  Const zero = Zero(kind);
+
+  /**
+   * jit equivalent of C/C++ source code
+   *
+   * uint64_t loop(uint64_n) {
+   *   uint64_t total = 0, i;
+   *   for (i = 0; i < n; i++) {
+   *     total += i;
+   *   }
+   *   return total;
+   * }
+   */
+
+  f.set_body( //
+      Block{f,
+            {Assign{f, ASSIGN, total, zero},
+             For{
+                 f,                              //
+                 Assign{f, ASSIGN, i, zero},     // init
+                 Binary{f, LSS, i, n},           // test
+                 Inc{f, i},                      // post
+                 Assign{f, ADD_ASSIGN, total, i} // body
+             },
+             Return{f, total}}});
+
+  Chars expected = "(block\n\
+    (= var1001_ul 0_ul)\n\
+    (for (= var1002_ul 0_ul) (< var1002_ul var1000_ul) (++ var1002_ul)\n\
+    (+= var1001_ul var1002_ul))\n\
+    (return var1001_ul))";
+  ONEJIT_TEST(to_string(f.get_body()), ==, expected);
+
+  compile(f);
+
+  expected = "(block\n\
+    (= var1001_ul 0_ul)\n\
+    (= var1002_ul 0_ul)\n\
+    (goto label_2)\n\
+    label_1\n\
+    (+= var1001_ul var1002_ul)\n\
+    (++ var1002_ul)\n\
+    label_2\n\
+    (jump_if label_1 (< var1002_ul var1000_ul))\n\
+    label_3\n\
+    (return var1001_ul))";
+  ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
+
+  holder.truncate(orig);
+}
+
+void Test::func_switch() {
+  Offset orig = holder.length();
+  Kind kind = Uint64;
+  Func f{&holder, "fswitch", FuncType{&holder, {kind}, {kind}}};
+  Var n = f.param(0);
+  Var ret = f.result(0);
+  Const zero = Zero(kind);
+  Const one = One(kind);
+  Const two = Two(kind);
+
+  /**
+   * jit equivalent of C/C++ source code
+   *
+   * uint64_t fswitch(uint64_n) {
+   *   uint64_t ret;
+   *   switch (n) {
+   *     default:
+   *       ret = n + 1;
+   *       break;
+   *     case 0:
+   *       ret = 1;
+   *       break;
+   *     case 1:
+   *       ret = 2;
+   *       break;
+   *   }
+   *   return ret;
+   * }
+   */
+
+  f.set_body( //
+      Block{f,
+            {Switch{f,
+                    n,
+                    {Default{f, Assign{f, ASSIGN, ret, Binary{f, ADD, n, one}}},
+                     Case{f, zero, Assign{f, ASSIGN, ret, one}}, //
+                     Case{f, one, Assign{f, ASSIGN, ret, two}}}},
+             Return{f, ret}}});
+
+  Chars expected = "(block\n\
+    (switch\n\
+    var1000_ul\n\
+    (default (= var1001_ul (+ var1000_ul 1_ul)))\n\
+    (case 0_ul (= var1001_ul 1_ul))\n\
+    (case 1_ul (= var1001_ul 2_ul)))\n\
+    (return var1001_ul))";
+  ONEJIT_TEST(to_string(f.get_body()), ==, expected);
+
+  compile(f);
+
+  expected = "(block\n\
+    (goto label_2)\n\
+    label_4\n\
+    (= var1001_ul (+ var1000_ul 1_ul))\n\
+    (goto label_1)\n\
+    label_2\n\
+    (jump_if label_5 (!= var1000_ul 0_ul))\n\
+    label_3\n\
+    (= var1001_ul 1_ul)\n\
+    (goto label_1)\n\
+    label_5\n\
+    (jump_if label_7 (!= var1000_ul 1_ul))\n\
+    label_6\n\
+    (= var1001_ul 2_ul)\n\
+    (goto label_4)\n\
+    label_1\n\
+    (return var1001_ul))";
+  ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
+
+  holder.truncate(orig);
 }
 
 void Test::compile(Func &f) {

@@ -128,7 +128,7 @@ public:
       : bits_{bits}, ekind_{kind.val()}, direct_{Direct{bits_, ekind_, 0}} {
   }
 
-  constexpr Type type() const noexcept {
+  static constexpr Type type() noexcept {
     return CONST;
   }
 
@@ -137,7 +137,7 @@ public:
   }
 
   constexpr explicit operator bool() const noexcept {
-    return ekind_ != kVoid;
+    return ekind_ != kBad;
   }
 
   constexpr bool boolean() const noexcept {
