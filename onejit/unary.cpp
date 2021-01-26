@@ -29,7 +29,7 @@
 
 namespace onejit {
 
-Node ONEJIT_NOINLINE Unary::create(Func &func, Kind kind, Op1 op, Expr child) noexcept {
+ONEJIT_NOINLINE Node Unary::create(Func &func, Kind kind, Op1 op, Expr child) noexcept {
   while (Code *holder = func.code()) {
     const NodeHeader header{UNARY, kind, uint16_t(op)};
     CodeItem offset = holder->length();
@@ -43,7 +43,7 @@ Node ONEJIT_NOINLINE Unary::create(Func &func, Kind kind, Op1 op, Expr child) no
   return Unary{};
 }
 
-Node ONEJIT_NOINLINE Unary::create(Func &func, Op1 op, Expr child) noexcept {
+ONEJIT_NOINLINE Node Unary::create(Func &func, Op1 op, Expr child) noexcept {
   Kind kind;
   if (op == XOR1 || op == CAST) {
     // CAST kind should be specified manually
@@ -56,7 +56,7 @@ Node ONEJIT_NOINLINE Unary::create(Func &func, Op1 op, Expr child) noexcept {
   return create(func, kind, op, child);
 }
 
-std::ostream &operator<<(std::ostream &out, const Unary &expr) {
+const Fmt &operator<<(const Fmt &out, const Unary &expr) {
   out << '(' << expr.op();
   if (expr.op() == CAST) {
     out << ' ' << expr.kind();

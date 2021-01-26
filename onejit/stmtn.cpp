@@ -51,7 +51,7 @@ Node StmtN::create(Func &func, const Nodes nodes, OpStmtN op) noexcept {
   return StmtN{op};
 }
 
-std::ostream &operator<<(std::ostream &out, const StmtN &st) {
+const Fmt &operator<<(const Fmt &out, const StmtN &st) {
   const OpStmtN op = st.op();
   out << '(' << op;
   Chars separator = " ";

@@ -26,9 +26,8 @@
 #ifndef ONEJIT_CONST_HPP
 #define ONEJIT_CONST_HPP
 
+#include <onejit/fmt.hpp>
 #include <onejit/node.hpp>
-
-#include <iosfwd>
 
 namespace onejit {
 
@@ -312,7 +311,7 @@ constexpr inline bool operator!=(Imm a, Imm b) noexcept {
   return a.kind() != b.kind() || a.uint64() != b.uint64();
 }
 
-std::ostream &operator<<(std::ostream &out, const Imm &imm);
+const Fmt &operator<<(const Fmt &out, const Imm &imm);
 
 } // namespace onejit
 

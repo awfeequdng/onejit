@@ -27,9 +27,8 @@
 #define ONEJIT_CONSTEXPR_HPP
 
 #include <onejit/expr.hpp>
+#include <onejit/fmt.hpp>
 #include <onejit/imm.hpp>
-
-#include <iosfwd>
 
 namespace onejit {
 
@@ -141,7 +140,7 @@ constexpr inline Const Two(Kind kind) noexcept {
   return Const{kind, uint16_t(2)};
 }
 
-std::ostream &operator<<(std::ostream &out, const Const &c);
+const Fmt &operator<<(const Fmt &out, const Const &c);
 
 } // namespace onejit
 

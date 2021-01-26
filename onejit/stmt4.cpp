@@ -32,7 +32,7 @@ namespace onejit {
 
 // ============================  Stmt4  ========================================
 
-Node ONEJIT_NOINLINE Stmt4::create(Func &func, const Node &child0, const Node &child1,
+ONEJIT_NOINLINE Node Stmt4::create(Func &func, const Node &child0, const Node &child1,
                                    const Node &child2, const Node &child3, OpStmt4 op) noexcept {
   while (Code *holder = func.code()) {
     const NodeHeader header{STMT_4, Void, uint16_t(op)};
@@ -49,7 +49,7 @@ Node ONEJIT_NOINLINE Stmt4::create(Func &func, const Node &child0, const Node &c
   return Stmt4{op};
 }
 
-std::ostream &operator<<(std::ostream &out, const Stmt4 &st) {
+const Fmt &operator<<(const Fmt &out, const Stmt4 &st) {
   return out << '(' << st.op() << ' ' << st.child(0) << ' ' << st.child(1) << ' ' << st.child(2)
              << Chars("\n    ") << st.child(3) << ')';
 }

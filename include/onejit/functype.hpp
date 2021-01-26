@@ -26,6 +26,7 @@
 #ifndef ONEJIT_FUNCTYPE_HPP
 #define ONEJIT_FUNCTYPE_HPP
 
+#include <onejit/fmt.hpp>
 #include <onejit/node.hpp>
 #include <onestl/view.hpp>
 
@@ -89,7 +90,7 @@ private:
   static Node create(Code *holder, Kinds params, Kinds results) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const FuncType &ftype);
+const Fmt &operator<<(const Fmt &out, const FuncType &ftype);
 
 } // namespace onejit
 

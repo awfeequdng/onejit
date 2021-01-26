@@ -37,6 +37,7 @@
 #include <onejit/endian.hpp>
 #include <onejit/error.hpp>
 // #include <onejit/expr.hpp>     // redundant
+#include <onejit/fmt.hpp>
 #include <onejit/func.hpp>
 // #include <onejit/functype.hpp> // redundant
 // #include <onejit/group.hpp>    // redundant

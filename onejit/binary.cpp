@@ -51,7 +51,7 @@ Node Binary::create(Func &func, Op2 op, const Expr &left, const Expr &right) {
   return Binary{};
 }
 
-std::ostream &operator<<(std::ostream &out, const Binary &expr) {
+const Fmt &operator<<(const Fmt &out, const Binary &expr) {
   return out << '(' << expr.op() << ' ' << expr.x() << ' ' << expr.y() << ')';
 }
 

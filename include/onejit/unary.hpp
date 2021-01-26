@@ -27,9 +27,8 @@
 #define ONEJIT_UNARYEXPR_HPP
 
 #include <onejit/expr.hpp>
+#include <onejit/fmt.hpp>
 #include <onejit/op.hpp>
-
-#include <iosfwd>
 
 namespace onejit {
 
@@ -96,7 +95,7 @@ private:
   static Node create(Func &func, Kind kind, Op1 op, Expr child) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const Unary &expr);
+const Fmt &operator<<(const Fmt &out, const Unary &expr);
 
 } // namespace onejit
 

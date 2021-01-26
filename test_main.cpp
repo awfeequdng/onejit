@@ -26,8 +26,6 @@
 #include <onejit/onejit.hpp>
 
 #include <fstream>
-#include <iostream>
-#include <string>
 
 namespace onejit {
 
@@ -65,15 +63,14 @@ Test::~Test() {
 
 FuncType Test::ftype() {
   FuncType ftype{&holder, {Int64, Ptr, Uint64}, {Int64}};
-  std::cout << ftype << '\n';
+  Fmt{stdout} << ftype << '\n';
   return ftype;
 }
 
 String Test::to_string(Node node) {
-  std::stringstream buf;
-  buf << node;
-  std::string str = buf.str();
-  return String(str.data(), str.size());
+  String buf;
+  Fmt{&buf} << node;
+  return buf;
 }
 
 void Test::run() {
@@ -96,7 +93,7 @@ void Test::kind() {
     ONEJIT_TEST(k.nosimd(), ==, k);
     ONEJIT_TEST(k.bits().val(), ==, k.nosimd().bits().val());
 
-    std::cout << "Kind " << k << ", Group " << k.group() << ", bits " << k.bits() << '\n';
+    Fmt{stdout} << "Kind " << k << ", Group " << k.group() << ", bits " << k.bits() << '\n';
   }
   for (uint8_t i = 0; i <= kArchFlags; i++) {
     Kind k{eKind(i), SimdN{2}};
@@ -430,11 +427,11 @@ void Test::compile(Func &f) {
 }
 
 void Test::dump_code() const {
-  std::cout << std::hex;
+  Fmt out{stdout};
   for (CodeItem item : holder) {
-    std::cout << Chars("0x") << item << ' ';
+    out << "0x" << item << ' ';
   }
-  std::cout << '\n' << std::dec;
+  out << '\n';
 
   std::ofstream file("dump.1jit", std::ios::out | std::ios::trunc);
   file.write(reinterpret_cast<const char *>(holder.data()), holder.length());
@@ -442,7 +439,7 @@ void Test::dump_code() const {
   CodeParser parser(&holder);
   while (parser) {
     Node node = parser.next();
-    std::cout << node << '\n';
+    out << node << '\n';
   }
 }
 

@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -17,25 +17,32 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * local.cpp
+ * fmt_string.cpp
  *
- *  Created on Jan 13, 2021
+ *  Created on Jan 26, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/local.hpp>
-#include <onestl/chars.hpp>
 #include <onestl/fmt.hpp>
 
-namespace onejit {
+#include <cerrno>
+#include <cstdio>
 
-const Fmt &operator<<(const Fmt &out, Id id) {
-  return out << "id" << Hex(id.val());
+namespace onestl {
+
+static int write_to_file(void *handle, const char *chars, size_t n) noexcept {
+  FILE *dst = reinterpret_cast<FILE *>(handle);
+  int err = 0;
+  if (!dst) {
+    err = EINVAL;
+  } else if (std::fwrite(chars, 1, n, dst) != n) {
+    err = errno;
+  }
+  return err;
 }
 
-const Fmt &operator<<(const Fmt &out, Local l) {
-  return out << "var" << Hex(l.id().val()) //
-             << '_' << l.kind().stringsuffix();
+fmt_write_func to_fmt_write_func(FILE *) noexcept {
+  return write_to_file;
 }
 
-} // namespace onejit
+} // namespace onestl

@@ -29,7 +29,7 @@
 
 namespace onejit {
 
-Node ONEJIT_NOINLINE Mem::create(Func &func, Kind kind, Expr address) noexcept {
+ONEJIT_NOINLINE Node Mem::create(Func &func, Kind kind, Expr address) noexcept {
   while (Code *holder = func.code()) {
     const NodeHeader header{MEM, kind, 0};
     CodeItem offset = holder->length();
@@ -43,7 +43,7 @@ Node ONEJIT_NOINLINE Mem::create(Func &func, Kind kind, Expr address) noexcept {
   return Mem{};
 }
 
-std::ostream &operator<<(std::ostream &out, const Mem &expr) {
+const Fmt &operator<<(const Fmt &out, const Mem &expr) {
   return out << '(' << expr.type() << ' ' << expr.child(0) << ')';
 }
 

@@ -86,7 +86,7 @@ public:
 
   // throws if index is out of bounds
   T &at(size_t index) {
-    ONESTL_BOUNDS(index, <, size_);
+    ONESTL_BOUNDS_TINY(index, <, size_);
     return data()[index];
   }
 
@@ -100,14 +100,14 @@ public:
 
   // throws if start or end are out of bounds
   Span<T> span(size_t start, size_t end) {
-    ONESTL_BOUNDS(start, <=, end);
-    ONESTL_BOUNDS(end, <=, size_);
+    ONESTL_BOUNDS_TINY(start, <=, end);
+    ONESTL_BOUNDS_TINY(end, <=, size_);
     return Span<T>(data() + start, end - start);
   }
 
   // throws if this and src have different sizes.
   void copy(View<T> src) {
-    ONESTL_BOUNDS(src.size(), ==, size());
+    ONESTL_BOUNDS_TINY(src.size(), ==, size());
     std::memcpy(data(), src.data(), size() * sizeof(T));
   }
 

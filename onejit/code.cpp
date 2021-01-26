@@ -80,7 +80,7 @@ Code &Code::add_uint64(uint64_t u64) noexcept {
   return add(CodeItems{x.u32, 2});
 }
 
-Code &ONEJIT_NOINLINE Code::add(CodeItems data) noexcept {
+ONEJIT_NOINLINE Code &Code::add(CodeItems data) noexcept {
   Base::append(data);
   return *this;
 }

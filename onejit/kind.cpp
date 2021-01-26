@@ -23,8 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/fmt.hpp>
 #include <onejit/kind.hpp>
-#include <onestl/chars.hpp>
 
 namespace onejit {
 
@@ -94,7 +94,7 @@ Group Kind::group() const noexcept {
   return kgroup[i];
 }
 
-std::ostream &operator<<(std::ostream &out, Kind kind) {
+const Fmt &operator<<(const Fmt &out, Kind kind) {
   out << kind.string();
   const size_t n = kind.simdn().val();
   if (n != 1) {

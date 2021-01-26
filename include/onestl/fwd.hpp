@@ -26,6 +26,7 @@
 #ifndef ONESTL_FWD_HPP
 #define ONESTL_FWD_HPP
 
+#include <cstddef> // size_t
 #include <cstdint> // uint*_t
 
 #ifdef __GNUC__

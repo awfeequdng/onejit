@@ -57,7 +57,7 @@ Local Var::local() const noexcept {
   }
 }
 
-std::ostream &operator<<(std::ostream &out, const Var &v) {
+const Fmt &operator<<(const Fmt &out, const Var &v) {
   return out << v.local();
 }
 

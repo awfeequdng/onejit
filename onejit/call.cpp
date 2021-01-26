@@ -67,7 +67,7 @@ Node Call::create(Func &caller, const FuncType &ftype, const Label &flabel, Expr
   return Call{};
 }
 
-std::ostream &operator<<(std::ostream &out, const Call &call) {
+const Fmt &operator<<(const Fmt &out, const Call &call) {
   out << '(' << call.op();
   // skip child(0) i.e. FuncType
   for (size_t i = 1, n = call.children(); i < n; i++) {

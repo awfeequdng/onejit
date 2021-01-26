@@ -27,9 +27,8 @@
 #define ONEJIT_MEMEXPR_HPP
 
 #include <onejit/expr.hpp>
+#include <onejit/fmt.hpp>
 #include <onejit/op.hpp>
-
-#include <iosfwd>
 
 namespace onejit {
 
@@ -84,7 +83,7 @@ private:
   static Node create(Func &func, Kind kind, Expr address) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const Mem &expr);
+const Fmt &operator<<(const Fmt &out, const Mem &expr);
 
 } // namespace onejit
 

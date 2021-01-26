@@ -42,7 +42,7 @@ const Chars &to_string(Op1 op) noexcept {
   return op1string[i];
 }
 
-std::ostream &operator<<(std::ostream &out, Op1 op) {
+const Fmt &operator<<(const Fmt &out, Op1 op) {
   return out << to_string(op);
 }
 
@@ -61,7 +61,7 @@ const Chars &to_string(Op2 op) noexcept {
   return op2string[i];
 }
 
-std::ostream &operator<<(std::ostream &out, Op2 op) {
+const Fmt &operator<<(const Fmt &out, Op2 op) {
   return out << to_string(op);
 }
 
@@ -77,7 +77,7 @@ const Chars &to_string(OpN op) noexcept {
   return opnstring[i];
 }
 
-std::ostream &operator<<(std::ostream &out, OpN op) {
+const Fmt &operator<<(const Fmt &out, OpN op) {
   return out << to_string(op);
 }
 

@@ -63,7 +63,7 @@ Node FuncType::create(Code *holder, Kinds params, Kinds results) noexcept {
   return FuncType{};
 }
 
-std::ostream &operator<<(std::ostream &out, const FuncType &ftype) {
+const Fmt &operator<<(const Fmt &out, const FuncType &ftype) {
   out << '(' << ftype.type() << Chars(" (");
   for (size_t i = 0, n = ftype.param_n(); i < n; i++) {
     if (i) {

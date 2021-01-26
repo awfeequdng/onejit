@@ -26,11 +26,11 @@
 #ifndef ONEJIT_KIND_HPP
 #define ONEJIT_KIND_HPP
 
+#include <onejit/fmt.hpp>
 #include <onejit/group.hpp>
 #include <onejit/logsize.hpp>
 
 #include <cstdint> // uint8_t
-#include <iosfwd>  // std::ostream
 
 namespace onejit {
 
@@ -171,8 +171,8 @@ constexpr inline bool operator>=(Kind a, Kind b) noexcept {
   return a.val() >= b.val();
 }
 
-std::ostream &operator<<(std::ostream &out, Kind kind);
-inline std::ostream &operator<<(std::ostream &out, eKind ekind) {
+const Fmt &operator<<(const Fmt &out, Kind kind);
+inline const Fmt &operator<<(const Fmt &out, eKind ekind) {
   return out << Kind{ekind};
 }
 

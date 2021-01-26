@@ -25,11 +25,12 @@
 #ifndef ONESTL_CHECK_HPP
 #define ONESTL_CHECK_HPP
 
+#include <onestl/check_tiny.hpp>
+#include <onestl/fmt.hpp>
 #include <onestl/fwd.hpp>
+#include <onestl/string.hpp>
 
-#include <ostream>
-#include <sstream>
-#include <utility>
+#include <utility> // std::move()
 
 #define ONESTL_BOUNDS(lhs, op, rhs)                                                                \
   (((lhs) /**/ op /**/ (rhs)) ? (void)0 : ONESTL_THROW_ERROR(lhs, op, rhs, throw_bounds_failed))
@@ -42,13 +43,12 @@
 
 #ifdef __OPTIMIZE__
 #define ONESTL_THROW_ERROR(lhs, op, rhs, throw_func)                                               \
-  ONESTL_THROW_ERROR_SHORT(lhs, op, rhs, throw_func)
+  ONESTL_THROW_ERROR_TINY(lhs, op, rhs, throw_func)
 #else
 #define ONESTL_THROW_ERROR(lhs, op, rhs, throw_func)                                               \
   ONESTL_THROW_ERROR_FULL(lhs, op, rhs, throw_func)
 #endif
 
-#define ONESTL_THROW_ERROR_SHORT(lhs, op, rhs, throw_func) (::onestl::throw_func())
 #define ONESTL_THROW_ERROR_FULL(lhs, op, rhs, throw_func)                                          \
   (::onestl::Failed(::onestl::to_string(lhs), ::onestl::to_string(rhs), #op, #lhs, #rhs, __FILE__, \
                     __LINE__)                                                                      \
@@ -58,7 +58,7 @@ namespace onestl {
 
 class Failed {
 public:
-  Failed(std::string &&lhs, std::string &&rhs,                  //
+  Failed(String &&lhs, String &&rhs,                            //
          const char *opstr, const char *lstr, const char *rstr, //
          const char *file, int line) noexcept;
 
@@ -66,8 +66,8 @@ public:
   void ONESTL_NORETURN throw_bounds_failed() const;
 
 private:
-  std::string lhs_;
-  std::string rhs_;
+  String lhs_;
+  String rhs_;
   const char *op_;
   const char *lstr_;
   const char *rstr_;
@@ -75,23 +75,10 @@ private:
   int line_;
 };
 
-void ONESTL_NORETURN throw_check_failed();
-void ONESTL_NORETURN throw_bounds_failed();
-
-std::string to_string(std::nullptr_t);
-std::string to_string(bool val);
-std::string to_string(int8_t val);
-std::string to_string(uint8_t val);
-std::string to_string(const void *val);
-
-template <class T> std::string to_string(const T *val) {
-  return to_string(static_cast<const void *>(val));
-}
-
-template <class T> std::string to_string(const T &val) {
-  std::stringstream buf;
-  buf << val;
-  return buf.str();
+template <class T> String to_string(const T &val) {
+  String str;
+  Fmt{&str} << val;
+  return str;
 }
 
 } // namespace onestl

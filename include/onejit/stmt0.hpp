@@ -26,6 +26,7 @@
 #ifndef ONEJIT_STMT0_HPP
 #define ONEJIT_STMT0_HPP
 
+#include <onejit/fmt.hpp>
 #include <onejit/opstmt.hpp>
 #include <onejit/stmt.hpp>
 
@@ -65,7 +66,7 @@ protected:
   }
 };
 
-inline std::ostream &operator<<(std::ostream &out, const Stmt0 &st) {
+inline const Fmt &operator<<(const Fmt &out, const Stmt0 &st) {
   return out << st.op();
 }
 

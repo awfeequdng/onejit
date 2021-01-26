@@ -114,7 +114,7 @@ public:
 
   // NODE_T must be a subclass of Node
   template <class NODE_T>
-  Code &ONEJIT_NOINLINE add(const View<NODE_T> nodes, Offset parent_offset) noexcept {
+  ONEJIT_NOINLINE Code &add(const View<NODE_T> nodes, Offset parent_offset) noexcept {
     for (const Node &node : nodes) {
       if (!add(node, parent_offset)) {
         break;

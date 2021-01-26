@@ -27,9 +27,8 @@
 #define ONEJIT_LOCAL_HPP
 
 #include <onejit/endian.hpp>
+#include <onejit/fmt.hpp>
 #include <onejit/node.hpp>
-
-#include <iosfwd>
 
 namespace onejit {
 
@@ -65,7 +64,7 @@ constexpr inline bool operator!=(Id a, Id b) noexcept {
 
 constexpr const Id NOID = Id{};
 
-std::ostream &operator<<(std::ostream &out, Id id);
+const Fmt &operator<<(const Fmt &out, Id id);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -146,7 +145,7 @@ constexpr inline bool operator!=(Local a, Local b) noexcept {
   return a.kind() != b.kind() || a.id() != b.id();
 }
 
-std::ostream &operator<<(std::ostream &out, Local var);
+const Fmt &operator<<(const Fmt &out, Local var);
 
 } // namespace onejit
 

@@ -26,6 +26,7 @@
 #ifndef ONEJIT_STMTN_HPP
 #define ONEJIT_STMTN_HPP
 
+#include <onejit/fmt.hpp>
 #include <onejit/opstmt.hpp>
 #include <onejit/stmt.hpp>
 
@@ -74,7 +75,7 @@ private:
   static Node create(Func &func, const Nodes nodes, OpStmtN op) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const StmtN &st);
+const Fmt &operator<<(const Fmt &out, const StmtN &st);
 
 ////////////////////////////////////////////////////////////////////////////////
 // collect multiple results of a function call and assign them to multiple variables

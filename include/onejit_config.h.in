@@ -1,7 +1,7 @@
 /* include/onejit_config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define to 1 if you have the <cassert> header file. */
-#undef HAVE_CASSERT
+/* Define to 1 if you have the <cerrno> header file. */
+#undef HAVE_CERRNO
 
 /* Define to 1 if you have the <cstddef> header file. */
 #undef HAVE_CSTDDEF

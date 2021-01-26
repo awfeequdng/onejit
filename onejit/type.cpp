@@ -60,7 +60,7 @@ const Chars &to_string(Type t) noexcept {
   return tstring[i];
 }
 
-std::ostream &operator<<(std::ostream &out, Type t) {
+const Fmt &operator<<(const Fmt &out, Type t) {
   return out << to_string(t);
 }
 

@@ -27,6 +27,7 @@
 #define ONEJIT_STMT2_HPP
 
 #include <onejit/const.hpp> // VoidExpr
+#include <onejit/fmt.hpp>
 #include <onejit/label.hpp>
 #include <onejit/opstmt.hpp>
 #include <onejit/stmt.hpp>
@@ -85,7 +86,7 @@ private:
   static Node create(Func &func, Node child0, Node child1, OpStmt2 op) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const Stmt2 &st);
+const Fmt &operator<<(const Fmt &out, const Stmt2 &st);
 
 ////////////////////////////////////////////////////////////////////////////////
 class Assign : public Stmt2 {

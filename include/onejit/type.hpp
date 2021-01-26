@@ -26,10 +26,10 @@
 #ifndef ONEJIT_TYPE_HPP
 #define ONEJIT_TYPE_HPP
 
+#include <onejit/fmt.hpp>
 #include <onejit/fwd.hpp>
 
 #include <cstdint> // uint8_t
-#include <iosfwd>  // std::ostream
 
 namespace onejit {
 
@@ -62,7 +62,7 @@ uint32_t to_children(Type t) noexcept;
 
 const Chars &to_string(Type t) noexcept;
 
-std::ostream &operator<<(std::ostream &out, Type t);
+const Fmt &operator<<(const Fmt &out, Type t);
 
 } // namespace onejit
 

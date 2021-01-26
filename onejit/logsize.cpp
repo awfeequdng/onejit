@@ -29,7 +29,7 @@
 
 namespace onejit {
 
-std::ostream &operator<<(std::ostream &out, LogSize size) {
+const Fmt &operator<<(const Fmt &out, LogSize size) {
   return out << size.val();
 }
 

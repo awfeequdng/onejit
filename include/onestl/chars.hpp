@@ -27,8 +27,6 @@
 
 #include <onestl/vector.hpp>
 
-#include <ostream>
-
 namespace onestl {
 
 /** read-only view of char[] */
@@ -58,10 +56,6 @@ public:
     return Chars(Base::view(start, end));
   }
 };
-
-inline std::ostream &operator<<(std::ostream &out, Chars chars) {
-  return out.write(chars.data(), chars.size());
-}
 
 } // namespace onestl
 

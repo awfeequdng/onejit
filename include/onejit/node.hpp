@@ -27,10 +27,9 @@
 #define ONEJIT_NODE_HPP
 
 #include <onejit/check.hpp>
+#include <onejit/fmt.hpp>
 #include <onejit/math.hpp>
 #include <onejit/nodeheader.hpp>
-
-#include <iosfwd>
 
 namespace onejit {
 
@@ -178,7 +177,7 @@ private:
   const Code *code_;
 }; // namespace onejit
 
-std::ostream &operator<<(std::ostream &out, const Node &node);
+const Fmt &operator<<(const Fmt &out, const Node &node);
 
 } // namespace onejit
 

@@ -26,10 +26,10 @@
 #ifndef ONEJIT_GROUP_HPP
 #define ONEJIT_GROUP_HPP
 
+#include <onejit/fmt.hpp>
 #include <onejit/fwd.hpp>
 
 #include <cstdint> // uint8_t
-#include <iosfwd>  // std::ostream
 
 namespace onejit {
 
@@ -46,7 +46,7 @@ enum Group : uint8_t {
 
 const Chars &to_string(Group g) noexcept;
 
-std::ostream &operator<<(std::ostream &out, Group g);
+const Fmt &operator<<(const Fmt &out, Group g);
 
 } // namespace onejit
 

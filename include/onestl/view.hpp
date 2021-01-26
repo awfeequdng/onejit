@@ -25,7 +25,7 @@
 #ifndef ONESTL_VIEW_HPP
 #define ONESTL_VIEW_HPP
 
-#include <onestl/check.hpp>
+#include <onestl/check_tiny.hpp>
 #include <onestl/fwd.hpp>
 
 #include <cstddef> // size_t
@@ -94,7 +94,7 @@ public:
   // checked element access:
   // throws if index is out of bounds
   const T &at(size_t index) const {
-    ONESTL_BOUNDS(index, <, size_);
+    ONESTL_BOUNDS_TINY(index, <, size_);
     return data_[index];
   }
 
@@ -112,8 +112,8 @@ public:
 
   // throws if start or end are out of bounds
   View view(size_t start, size_t end) const {
-    ONESTL_BOUNDS(start, <=, end);
-    ONESTL_BOUNDS(end, <=, size_);
+    ONESTL_BOUNDS_TINY(start, <=, end);
+    ONESTL_BOUNDS_TINY(end, <=, size_);
     return View(data_ + start, end - start);
   }
 

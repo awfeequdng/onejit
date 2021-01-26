@@ -28,6 +28,7 @@
 
 #include <onejit/const.hpp> // VoidExpr
 #include <onejit/expr.hpp>
+#include <onejit/fmt.hpp>
 #include <onejit/opstmt.hpp>
 #include <onejit/stmt.hpp>
 
@@ -75,7 +76,7 @@ protected:
   static Node create(Func &func, Nodes children, OpStmt3 op) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const Stmt3 &st);
+const Fmt &operator<<(const Fmt &out, const Stmt3 &st);
 
 ////////////////////////////////////////////////////////////////////////////////
 class If : public Stmt3 {

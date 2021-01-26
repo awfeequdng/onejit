@@ -44,15 +44,15 @@
 
 namespace onejit {
 
-uint32_t ONEJIT_NOINLINE Node::uint32(Offset byte_offset) const noexcept {
+ONEJIT_NOINLINE uint32_t Node::uint32(Offset byte_offset) const noexcept {
   return code_ ? code_->uint32(off_or_dir_ + byte_offset) : 0;
 }
 
-uint64_t ONEJIT_NOINLINE Node::uint64(Offset byte_offset) const noexcept {
+ONEJIT_NOINLINE uint64_t Node::uint64(Offset byte_offset) const noexcept {
   return code_ ? code_->uint64(off_or_dir_ + byte_offset) : 0;
 }
 
-uint32_t ONEJIT_NOINLINE Node::children() const noexcept {
+ONEJIT_NOINLINE uint32_t Node::children() const noexcept {
   return is_list(type()) ? get(sizeof(CodeItem)) : to_children(type());
 }
 
@@ -125,7 +125,7 @@ Offset Node::size() const noexcept {
   return len;
 }
 
-std::ostream &operator<<(std::ostream &out, const Node &node) {
+const Fmt &operator<<(const Fmt &out, const Node &node) {
   const Type t = node.type();
   switch (t) {
   case STMT_0:

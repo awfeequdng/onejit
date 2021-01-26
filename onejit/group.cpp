@@ -25,8 +25,7 @@
 
 #include <onejit/group.hpp>
 #include <onestl/chars.hpp>
-
-#include <ostream>
+#include <onestl/fmt.hpp>
 
 namespace onejit {
 
@@ -45,7 +44,7 @@ const Chars &to_string(Group g) noexcept {
   return gstring[i];
 }
 
-std::ostream &operator<<(std::ostream &out, Group g) {
+const Fmt &operator<<(const Fmt &out, Group g) {
   return out << to_string(g);
 }
 

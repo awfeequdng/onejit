@@ -23,61 +23,38 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onestl/chars.hpp>
 #include <onestl/check.hpp>
+#include <onestl/fmt.hpp>
+#include <onestl/string.hpp>
 
 #include <stdexcept>
-#include <string>
 
 namespace onestl {
 
-std::string to_string(std::nullptr_t) {
-  return std::string("nullptr", 7);
-}
-
-std::string to_string(bool val) {
-  return val ? std::string("true", 4) : std::string("false", 5);
-}
-
-std::string to_string(int8_t val) {
-  return to_string(int(val));
-}
-
-std::string to_string(uint8_t val) {
-  return to_string(unsigned(val));
-}
-
-std::string to_string(const void *val) {
-  std::stringstream buf;
-  buf.write("0x", 2);
-  buf << std::hex << size_t(val);
-  return buf.str();
-}
-
-Failed::Failed(std::string &&lhs, std::string &&rhs, const char *opstr, const char *lstr,
-               const char *rstr, const char *file, int line) noexcept
+Failed::Failed(String &&lhs, String &&rhs, const char *opstr, const char *lstr, const char *rstr,
+               const char *file, int line) noexcept
     : lhs_(std::move(lhs)), rhs_(std::move(rhs)), op_(opstr), lstr_(lstr), rstr_(rstr), file_(file),
       line_(line) {
 }
 
 void ONESTL_NORETURN Failed::throw_check_failed() const {
-  std::stringstream buf;
-  buf << Chars("check failed at ") << file_ << ':' << line_          //
-      << Chars("\n\tcheck: ") << lstr_ << ' ' << op_ << ' ' << rstr_ //
-      << Chars("\n\twhere  ") << lstr_ << Chars("\tis ") << lhs_     //
-      << Chars("\n\tand    ") << rstr_ << Chars("\tis ") << rhs_;
+  String buf;
+  Fmt{&buf} << Chars("check failed at ") << file_ << ':' << line_          //
+            << Chars("\n\tcheck: ") << lstr_ << ' ' << op_ << ' ' << rstr_ //
+            << Chars("\n\twhere  ") << lstr_ << Chars("\tis ") << lhs_     //
+            << Chars("\n\tand    ") << rstr_ << Chars("\tis ") << rhs_;
 
-  throw std::range_error(buf.str());
+  throw std::range_error(buf.c_str());
 }
 
 void ONESTL_NORETURN Failed::throw_bounds_failed() const {
-  std::stringstream buf;
-  buf << Chars("container out-of-bounds access at ") << file_ << ':' << line_ //
-      << Chars("\n\tcheck: ") << lstr_ << ' ' << op_ << ' ' << rstr_          //
-      << Chars("\n\twhere  ") << lstr_ << Chars("\tis ") << lhs_              //
-      << Chars("\n\tand    ") << rstr_ << Chars("\tis ") << rhs_;
+  String buf;
+  Fmt{&buf} << Chars("container out-of-bounds access at ") << file_ << ':' << line_ //
+            << Chars("\n\tcheck: ") << lstr_ << ' ' << op_ << ' ' << rstr_          //
+            << Chars("\n\twhere  ") << lstr_ << Chars("\tis ") << lhs_              //
+            << Chars("\n\tand    ") << rstr_ << Chars("\tis ") << rhs_;
 
-  throw std::out_of_range(buf.str());
+  throw std::out_of_range(buf.c_str());
 }
 
 void ONESTL_NORETURN throw_check_failed() {

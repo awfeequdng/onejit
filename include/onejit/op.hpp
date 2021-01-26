@@ -26,10 +26,10 @@
 #ifndef ONEJIT_OP_HPP
 #define ONEJIT_OP_HPP
 
+#include <onejit/fmt.hpp>
 #include <onejit/fwd.hpp>
 
 #include <cstdint> // uint16_t
-#include <iosfwd>  // std::ostream
 
 namespace onejit {
 
@@ -73,9 +73,9 @@ const Chars &to_string(Op1 op) noexcept;
 const Chars &to_string(Op2 op) noexcept;
 const Chars &to_string(OpN op) noexcept;
 
-std::ostream &operator<<(std::ostream &out, Op1 op);
-std::ostream &operator<<(std::ostream &out, Op2 op);
-std::ostream &operator<<(std::ostream &out, OpN op);
+const Fmt &operator<<(const Fmt &out, Op1 op);
+const Fmt &operator<<(const Fmt &out, Op2 op);
+const Fmt &operator<<(const Fmt &out, OpN op);
 
 } // namespace onejit
 

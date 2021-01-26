@@ -27,6 +27,7 @@
 #define ONEJIT_STMT4_HPP
 
 #include <onejit/expr.hpp>
+#include <onejit/fmt.hpp>
 #include <onejit/opstmt.hpp>
 #include <onejit/stmt.hpp>
 
@@ -82,7 +83,7 @@ private:
                      const Node &child2, const Node &child3, OpStmt4 op) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const Stmt4 &st);
+const Fmt &operator<<(const Fmt &out, const Stmt4 &st);
 
 ////////////////////////////////////////////////////////////////////////////////
 class For : public Stmt4 {

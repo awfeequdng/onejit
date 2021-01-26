@@ -57,7 +57,7 @@ Label Label::create(Code *holder, uint64_t address, uint16_t index) noexcept {
   return Label{};
 }
 
-std::ostream &operator<<(std::ostream &out, const Label &l) {
+const Fmt &operator<<(const Fmt &out, const Label &l) {
   return out << l.type() << '_' << l.index();
 }
 

@@ -55,7 +55,7 @@ Node Const::create(Func &func, const Imm &imm) noexcept {
   return Const{};
 }
 
-std::ostream &operator<<(std::ostream &out, const Const &c) {
+const Fmt &operator<<(const Fmt &out, const Const &c) {
   return out << c.imm();
 }
 

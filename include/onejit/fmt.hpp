@@ -17,25 +17,23 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * local.cpp
+ * fmt.hpp
  *
- *  Created on Jan 13, 2021
+ *  Created on Jan 09, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/local.hpp>
-#include <onestl/chars.hpp>
+#ifndef ONEJIT_FMT_HPP
+#define ONEJIT_FMT_HPP
+
 #include <onestl/fmt.hpp>
 
 namespace onejit {
 
-const Fmt &operator<<(const Fmt &out, Id id) {
-  return out << "id" << Hex(id.val());
-}
-
-const Fmt &operator<<(const Fmt &out, Local l) {
-  return out << "var" << Hex(l.id().val()) //
-             << '_' << l.kind().stringsuffix();
-}
+using Fmt = ::onestl::Fmt;
+using Hex = ::onestl::Hex;
+using fmt_write_func = ::onestl::fmt_write_func;
 
 } // namespace onejit
+
+#endif // ONEJIT_FMT_HPP

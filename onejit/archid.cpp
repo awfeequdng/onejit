@@ -24,9 +24,7 @@
  */
 
 #include <onejit/archid.hpp>
-#include <onestl/chars.hpp>
-
-#include <ostream>
+#include <onejit/fmt.hpp>
 
 namespace onejit {
 
@@ -42,7 +40,7 @@ const Chars &ArchId::string() const noexcept {
   return archstring[i];
 }
 
-std::ostream &operator<<(std::ostream &out, ArchId archid) {
+const Fmt &operator<<(const Fmt &out, ArchId archid) {
   return out << archid.string();
 }
 

@@ -30,7 +30,7 @@
 
 namespace onestl {
 
-bool ONESTL_NOINLINE VectorHelper::init(size_t n, size_t sizeofT) noexcept {
+ONESTL_NOINLINE bool VectorHelper::init(size_t n, size_t sizeofT) noexcept {
   n *= sizeofT;
   data_ = mem::alloc<char>(n);
   if (n && !data_) {
@@ -43,7 +43,7 @@ bool ONESTL_NOINLINE VectorHelper::init(size_t n, size_t sizeofT) noexcept {
   return true;
 }
 
-bool ONESTL_NOINLINE VectorHelper::reserve(size_t newcap, size_t sizeofT) noexcept {
+ONESTL_NOINLINE bool VectorHelper::reserve(size_t newcap, size_t sizeofT) noexcept {
   if (newcap > cap_) {
     char *olddata = data_;
     char *newdata = mem::realloc<char>(olddata, newcap * sizeofT);
@@ -59,7 +59,7 @@ bool ONESTL_NOINLINE VectorHelper::reserve(size_t newcap, size_t sizeofT) noexce
   return true;
 }
 
-bool ONESTL_NOINLINE VectorHelper::grow_capacity(size_t mincap, size_t sizeofT) noexcept {
+ONESTL_NOINLINE bool VectorHelper::grow_capacity(size_t mincap, size_t sizeofT) noexcept {
   if (cap_ >= mincap) {
     return true;
   }
@@ -67,7 +67,7 @@ bool ONESTL_NOINLINE VectorHelper::grow_capacity(size_t mincap, size_t sizeofT) 
   return reserve(mincap >= cap2 ? mincap : cap2, sizeofT);
 }
 
-bool ONESTL_NOINLINE VectorHelper::grow(size_t n, size_t sizeofT, bool zerofill) noexcept {
+ONESTL_NOINLINE bool VectorHelper::grow(size_t n, size_t sizeofT, bool zerofill) noexcept {
   if (!grow_capacity(n, sizeofT)) {
     return false;
   }
@@ -78,7 +78,7 @@ bool ONESTL_NOINLINE VectorHelper::grow(size_t n, size_t sizeofT, bool zerofill)
   return true;
 }
 
-bool ONESTL_NOINLINE VectorHelper::dup(const void *addr, size_t n, size_t sizeofT) noexcept {
+ONESTL_NOINLINE bool VectorHelper::dup(const void *addr, size_t n, size_t sizeofT) noexcept {
   if (n != 0) {
     if (!grow_capacity(n, sizeofT)) {
       return false;
@@ -89,7 +89,7 @@ bool ONESTL_NOINLINE VectorHelper::dup(const void *addr, size_t n, size_t sizeof
   return true;
 }
 
-bool ONESTL_NOINLINE VectorHelper::append(const void *addr, size_t n, size_t sizeofT) noexcept {
+ONESTL_NOINLINE bool VectorHelper::append(const void *addr, size_t n, size_t sizeofT) noexcept {
   if (n != 0) {
     const size_t oldn = size_;
     if (!grow(oldn + n, sizeofT, false)) {

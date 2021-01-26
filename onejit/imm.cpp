@@ -47,7 +47,7 @@ Code &Imm::write_indirect(Code *holder) const noexcept {
   }
 }
 
-std::ostream &operator<<(std::ostream &out, const Imm &imm) {
+const Fmt &operator<<(const Fmt &out, const Imm &imm) {
   const Kind kind = imm.kind();
   switch (kind.nosimd().val()) {
   case kVoid:

@@ -27,6 +27,7 @@
 #define ONEJIT_CALLEXPR_HPP
 
 #include <onejit/expr.hpp>
+#include <onejit/fmt.hpp>
 #include <onejit/func.hpp>
 #include <onejit/op.hpp>
 #include <onestl/view.hpp>
@@ -97,7 +98,7 @@ private:
   static Node create(Func &caller, const FuncType &ftype, const Label &flabel, Exprs args) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const Call &expr);
+const Fmt &operator<<(const Fmt &out, const Call &expr);
 
 } // namespace onejit
 

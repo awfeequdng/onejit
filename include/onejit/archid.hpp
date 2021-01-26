@@ -26,10 +26,10 @@
 #ifndef ONEJIT_ARCHID_HPP
 #define ONEJIT_ARCHID_HPP
 
+#include <onejit/fmt.hpp>
 #include <onejit/fwd.hpp>
 
 #include <cstdint> // uint8_t
-#include <iosfwd>
 
 namespace onejit {
 
@@ -48,7 +48,7 @@ private:
   uint8_t val_;
 };
 
-std::ostream &operator<<(std::ostream &out, ArchId archid);
+const Fmt &operator<<(const Fmt &out, ArchId archid);
 
 constexpr const ArchId NOARCH(0);
 constexpr const ArchId AMD64(1);

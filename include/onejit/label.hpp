@@ -27,6 +27,7 @@
 #define ONEJIT_LABEL_HPP
 
 #include <onejit/expr.hpp>
+#include <onejit/fmt.hpp>
 
 namespace onejit {
 
@@ -80,7 +81,7 @@ private:
   static Label create(Code *holder, uint64_t address, uint16_t index) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const Label &l);
+const Fmt &operator<<(const Fmt &out, const Label &l);
 
 } // namespace onejit
 

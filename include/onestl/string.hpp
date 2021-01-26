@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * chars.hpp
+ * string.hpp
  *
  *  Created on Jan 09, 2021
  *      Author Massimiliano Ghilardi
@@ -27,8 +27,6 @@
 
 #include <onestl/chars.hpp>
 #include <onestl/vector.hpp>
-
-#include <ostream>
 
 namespace onestl {
 
@@ -66,16 +64,14 @@ public:
     return Chars(Base::view(start, end));
   }
 
+  // ensure data() is terminated by '\0' then return it
+  const char *c_str() noexcept;
+
   using Base::dup;
   bool dup(const Chars &other) noexcept {
     return Base::dup(other);
   }
-
 }; // class String
-
-inline std::ostream &operator<<(std::ostream &out, const String &str) {
-  return out.write(str.data(), str.size());
-}
 
 // -------------- Chars methods requiring complete type String -----------------
 

@@ -26,6 +26,7 @@
 #ifndef ONEJIT_STMT1_HPP
 #define ONEJIT_STMT1_HPP
 
+#include <onejit/fmt.hpp>
 #include <onejit/label.hpp>
 #include <onejit/opstmt.hpp>
 #include <onejit/stmt.hpp>
@@ -85,7 +86,7 @@ private:
   static Node create(Func &func, Node body, OpStmt1 op) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const Stmt1 &st);
+const Fmt &operator<<(const Fmt &out, const Stmt1 &st);
 
 ////////////////////////////////////////////////////////////////////////////////
 class Goto : public Stmt1 {

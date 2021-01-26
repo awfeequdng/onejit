@@ -27,9 +27,8 @@
 #define ONEJIT_BINARYEXPR_HPP
 
 #include <onejit/expr.hpp>
+#include <onejit/fmt.hpp>
 #include <onejit/op.hpp>
-
-#include <iosfwd>
 
 namespace onejit {
 
@@ -94,7 +93,7 @@ private:
   static Node create(Func &func, Op2 op, const Expr &left, const Expr &right);
 };
 
-std::ostream &operator<<(std::ostream &out, const Binary &expr);
+const Fmt &operator<<(const Fmt &out, const Binary &expr);
 
 } // namespace onejit
 

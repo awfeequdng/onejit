@@ -27,9 +27,8 @@
 #define ONEJIT_VAR_HPP
 
 #include <onejit/expr.hpp>
+#include <onejit/fmt.hpp>
 #include <onejit/local.hpp>
-
-#include <iosfwd>
 
 namespace onejit {
 
@@ -86,7 +85,7 @@ private:
   static Var create(Code *holder, Local local) noexcept;
 };
 
-std::ostream &operator<<(std::ostream &out, const Var &v);
+const Fmt &operator<<(const Fmt &out, const Var &v);
 
 } // namespace onejit
 

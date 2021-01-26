@@ -32,7 +32,7 @@ namespace onejit {
 
 // ============================  Stmt3  ========================================
 
-Node ONEJIT_NOINLINE Stmt3::create(Func &func, Nodes children, OpStmt3 op) noexcept {
+ONEJIT_NOINLINE Node Stmt3::create(Func &func, Nodes children, OpStmt3 op) noexcept {
   Code *holder = func.code();
   while (holder && children.size() == 3) {
     const NodeHeader header{STMT_3, Void, uint16_t(op)};
@@ -47,7 +47,7 @@ Node ONEJIT_NOINLINE Stmt3::create(Func &func, Nodes children, OpStmt3 op) noexc
   return Stmt3{op};
 }
 
-std::ostream &operator<<(std::ostream &out, const Stmt3 &st) {
+const Fmt &operator<<(const Fmt &out, const Stmt3 &st) {
   return out << '(' << st.op() << ' ' << st.child(0) << Chars("\n    ") << st.child(1)
              << Chars("\n    ") << st.child(2) << ')';
 }
