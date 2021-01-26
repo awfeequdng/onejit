@@ -27,7 +27,6 @@
 #define ONEJIT_BINARYEXPR_HPP
 
 #include <onejit/expr.hpp>
-#include <onejit/fmt.hpp>
 #include <onejit/op.hpp>
 
 namespace onejit {

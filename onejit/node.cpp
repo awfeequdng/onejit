@@ -31,6 +31,7 @@
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
 #include <onejit/mem.hpp>
+#include <onejit/name.hpp>
 #include <onejit/node.hpp>
 #include <onejit/stmt0.hpp>
 #include <onejit/stmt1.hpp>
@@ -103,26 +104,30 @@ Node Node::child(uint32_t i) const noexcept {
   return Node{header, offset_or_direct, code};
 }
 
-Offset Node::size() const noexcept {
+Offset Node::length_items() const noexcept {
   Offset len = sum_uint32(1, children());
+  Offset plus = 0;
   switch (type()) {
   case VAR:
-    len = sum_uint32(len, 1); // for Id
+    plus = 1; // for Id
     break;
   case CONST:
-    len = sum_uint32(len, (kind().bits().val() + 31) / 32);
+    plus = (kind().bits().val() + 31) / 32;
     break;
   case LABEL:
-    len = sum_uint32(len, 2); // for uint64_t address
+    plus = 2; // for uint64_t address
+    break;
+  case NAME:
+    plus = (op() + 3) / 4; // for char[] array
     break;
   default:
     if (is_list(type())) {
       // first CodeItem after header is #children
-      len = sum_uint32(len, 1);
+      plus = 1;
     }
     break;
   }
-  return len;
+  return sum_uint32(len, plus);
 }
 
 const Fmt &operator<<(const Fmt &out, const Node &node) {
@@ -156,6 +161,8 @@ const Fmt &operator<<(const Fmt &out, const Node &node) {
     return out << node.is<Const>();
   case FTYPE:
     return out << node.is<FuncType>();
+  case NAME:
+    return out << node.is<Name>();
   default:
     return out << to_string(t);
   }

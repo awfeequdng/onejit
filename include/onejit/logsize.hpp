@@ -26,7 +26,6 @@
 #ifndef ONEJIT_SIZE_HPP
 #define ONEJIT_SIZE_HPP
 
-#include <onejit/fmt.hpp>
 #include <onejit/fwd.hpp>
 
 #include <cstddef> // size_t

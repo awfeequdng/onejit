@@ -27,7 +27,6 @@
 #define ONEJIT_LOCAL_HPP
 
 #include <onejit/endian.hpp>
-#include <onejit/fmt.hpp>
 #include <onejit/node.hpp>
 
 namespace onejit {

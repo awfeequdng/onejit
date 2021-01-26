@@ -17,16 +17,22 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * chars.cpp
+ * writer_cstdio.hpp
  *
- *  Created on Jan 09, 2021
+ *  Created on Jan 26, 2021
  *      Author Massimiliano Ghilardi
  */
+#ifndef ONESTL_WRITER_CSTDIO_HPP
+#define ONESTL_WRITER_CSTDIO_HPP
 
-#include <onestl/chars.hpp>
+#include <onestl/writer.hpp>
+
+#include <cstdio>
 
 namespace onestl {
 
-// nothing to do
+template <> Writer Writer::make<FILE *>(FILE *out) noexcept;
 
 } // namespace onestl
+
+#endif // ONESTL_WRITER_CSTDIO_HPP

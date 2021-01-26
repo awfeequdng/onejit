@@ -23,10 +23,9 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/fmt.hpp>
 #include <onejit/opstmt.hpp>
 #include <onestl/chars.hpp>
-
-#include <ostream>
 
 namespace onejit {
 

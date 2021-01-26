@@ -50,12 +50,12 @@ public:
   constexpr Unary() noexcept : Base{UNARY} {
   }
 
-  // also autodetects kind if op != CAST
+  // also autodetects kind if op != CONVERT && op != BITCOPY
   Unary(Func &func, Op1 op, Expr child) noexcept //
       : Base{create(func, op, child)} {
   }
 
-  // overrides Kind autodetection. needed by CAST
+  // overrides Kind autodetection. needed by CONVERT and BITCOPY
   Unary(Func &func, Kind kind, Op1 op, Expr child) noexcept //
       : Base{create(func, kind, op, child)} {
   }
@@ -89,9 +89,9 @@ private:
     return t == UNARY;
   }
 
-  // also autodetects kind if op != CAST
+  // also autodetects kind if op != CONVERT && op != BITCOPY
   static Node create(Func &func, Op1 op, Expr child) noexcept;
-  // overrides Kind autodetection. needed by CAST
+  // overrides Kind autodetection. needed by CONVERT and BITCOPY
   static Node create(Func &func, Kind kind, Op1 op, Expr child) noexcept;
 };
 

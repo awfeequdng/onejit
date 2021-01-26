@@ -27,7 +27,6 @@
 #define ONEJIT_CALLEXPR_HPP
 
 #include <onejit/expr.hpp>
-#include <onejit/fmt.hpp>
 #include <onejit/func.hpp>
 #include <onejit/op.hpp>
 #include <onestl/view.hpp>

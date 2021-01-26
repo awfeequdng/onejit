@@ -23,16 +23,15 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/fmt.hpp>
 #include <onejit/op.hpp>
 #include <onestl/chars.hpp>
-
-#include <ostream>
 
 namespace onejit {
 
 // ============================  Op1  ==========================================
 
-static const Chars op1string[] = {"?", "^", "!", "cast"};
+static const Chars op1string[] = {"?", "^", "!", "-", "convert", "bitcopy"};
 
 const Chars &to_string(Op1 op) noexcept {
   uint8_t i = op;

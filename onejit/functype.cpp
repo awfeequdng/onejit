@@ -64,21 +64,21 @@ Node FuncType::create(Code *holder, Kinds params, Kinds results) noexcept {
 }
 
 const Fmt &operator<<(const Fmt &out, const FuncType &ftype) {
-  out << '(' << ftype.type() << Chars(" (");
+  out << '(' << ftype.type() << " (";
   for (size_t i = 0, n = ftype.param_n(); i < n; i++) {
     if (i) {
       out << ' ';
     }
     out << ftype.param(i);
   }
-  out << Chars(") -> (");
+  out << ") -> (";
   for (size_t i = 0, n = ftype.result_n(); i < n; i++) {
     if (i) {
       out << ' ';
     }
     out << ftype.result(i);
   }
-  return out << Chars("))");
+  return out << "))";
 }
 
 } // namespace onejit

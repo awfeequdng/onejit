@@ -110,8 +110,8 @@ am_libonejit_a_OBJECTS = archid.$(OBJEXT) binary.$(OBJEXT) \
 	imm.$(OBJEXT) const.$(OBJEXT) error.$(OBJEXT) expr.$(OBJEXT) \
 	func.$(OBJEXT) functype.$(OBJEXT) group.$(OBJEXT) \
 	kind.$(OBJEXT) label.$(OBJEXT) logsize.$(OBJEXT) mem.$(OBJEXT) \
-	node.$(OBJEXT) nodeheader.$(OBJEXT) op.$(OBJEXT) \
-	opstmt.$(OBJEXT) stmt0.$(OBJEXT) stmt1.$(OBJEXT) \
+	name.$(OBJEXT) node.$(OBJEXT) nodeheader.$(OBJEXT) \
+	op.$(OBJEXT) opstmt.$(OBJEXT) stmt0.$(OBJEXT) stmt1.$(OBJEXT) \
 	stmt2.$(OBJEXT) stmt3.$(OBJEXT) stmt4.$(OBJEXT) \
 	stmtn.$(OBJEXT) type.$(OBJEXT) call.$(OBJEXT) unary.$(OBJEXT) \
 	local.$(OBJEXT) var.$(OBJEXT)
@@ -138,9 +138,9 @@ am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/binary.Po \
 	./$(DEPDIR)/func.Po ./$(DEPDIR)/functype.Po \
 	./$(DEPDIR)/group.Po ./$(DEPDIR)/imm.Po ./$(DEPDIR)/kind.Po \
 	./$(DEPDIR)/label.Po ./$(DEPDIR)/local.Po \
-	./$(DEPDIR)/logsize.Po ./$(DEPDIR)/mem.Po ./$(DEPDIR)/node.Po \
-	./$(DEPDIR)/nodeheader.Po ./$(DEPDIR)/op.Po \
-	./$(DEPDIR)/opstmt.Po ./$(DEPDIR)/stmt0.Po \
+	./$(DEPDIR)/logsize.Po ./$(DEPDIR)/mem.Po ./$(DEPDIR)/name.Po \
+	./$(DEPDIR)/node.Po ./$(DEPDIR)/nodeheader.Po \
+	./$(DEPDIR)/op.Po ./$(DEPDIR)/opstmt.Po ./$(DEPDIR)/stmt0.Po \
 	./$(DEPDIR)/stmt1.Po ./$(DEPDIR)/stmt2.Po ./$(DEPDIR)/stmt3.Po \
 	./$(DEPDIR)/stmt4.Po ./$(DEPDIR)/stmtn.Po ./$(DEPDIR)/type.Po \
 	./$(DEPDIR)/unary.Po ./$(DEPDIR)/var.Po
@@ -326,7 +326,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/include
 # libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
 libonejit_a_SOURCES = archid.cpp binary.cpp code.cpp codeparser.cpp compiler.cpp \
                          imm.cpp const.cpp error.cpp expr.cpp func.cpp functype.cpp \
-                         group.cpp kind.cpp label.cpp logsize.cpp mem.cpp \
+                         group.cpp kind.cpp label.cpp logsize.cpp mem.cpp name.cpp \
                          node.cpp nodeheader.cpp op.cpp opstmt.cpp \
                          stmt0.cpp stmt1.cpp stmt2.cpp stmt3.cpp stmt4.cpp stmtn.cpp \
                          type.cpp call.cpp unary.cpp local.cpp var.cpp
@@ -397,6 +397,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/local.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logsize.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mem.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/name.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/node.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nodeheader.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/op.Po@am__quote@ # am--include-marker
@@ -648,6 +649,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/local.Po
 	-rm -f ./$(DEPDIR)/logsize.Po
 	-rm -f ./$(DEPDIR)/mem.Po
+	-rm -f ./$(DEPDIR)/name.Po
 	-rm -f ./$(DEPDIR)/node.Po
 	-rm -f ./$(DEPDIR)/nodeheader.Po
 	-rm -f ./$(DEPDIR)/op.Po
@@ -724,6 +726,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/local.Po
 	-rm -f ./$(DEPDIR)/logsize.Po
 	-rm -f ./$(DEPDIR)/mem.Po
+	-rm -f ./$(DEPDIR)/name.Po
 	-rm -f ./$(DEPDIR)/node.Po
 	-rm -f ./$(DEPDIR)/nodeheader.Po
 	-rm -f ./$(DEPDIR)/op.Po

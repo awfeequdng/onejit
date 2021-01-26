@@ -32,7 +32,7 @@ namespace onejit {
 
 using Fmt = ::onestl::Fmt;
 using Hex = ::onestl::Hex;
-using fmt_write_func = ::onestl::fmt_write_func;
+using Writer = ::onestl::Writer;
 
 } // namespace onejit
 

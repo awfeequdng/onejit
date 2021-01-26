@@ -51,7 +51,7 @@ const Fmt &operator<<(const Fmt &out, const Imm &imm) {
   const Kind kind = imm.kind();
   switch (kind.nosimd().val()) {
   case kVoid:
-    out << Chars("void");
+    out << "void";
     break;
   case kBool:
     out << (imm.boolean() ? Chars("true") : Chars("false"));

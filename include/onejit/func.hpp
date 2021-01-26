@@ -29,6 +29,7 @@
 #include <onejit/code.hpp>
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
+#include <onejit/name.hpp>
 #include <onejit/op.hpp>
 #include <onejit/var.hpp>
 #include <onestl/chars.hpp>
@@ -51,8 +52,8 @@ public:
    */
   Func() noexcept;
 
-  Func(Code *holder, String &&name, FuncType ftype) noexcept : Func{} {
-    init(holder, std::move(name), ftype);
+  Func(Code *holder, Name name, FuncType ftype) noexcept : Func{} {
+    reset(holder, name, ftype);
   }
 
   Func(Func &&other) noexcept = default;
@@ -69,9 +70,12 @@ public:
   }
 
   // get function name
-  constexpr Chars name() const noexcept {
-    return Chars{name_};
+  constexpr Name name() const noexcept {
+    return name_;
   }
+
+  // reinitialize Func
+  Func &reset(Code *holder, Name name, FuncType ftype) noexcept;
 
   // convert Func to Label.
   Label label() const noexcept;
@@ -118,8 +122,6 @@ public:
   }
 
 private:
-  void init(Code *holder, String &&name, FuncType ftype) noexcept;
-
   // create a new local label, used for jumps within the function
   Label new_label() noexcept;
 
@@ -137,7 +139,7 @@ private:
   FuncType ftype_;
   Vector<Var> vars_;
   Vector<Label> labels_;
-  String name_;
+  Name name_;
   Node body_;
   Node compiled_;
 };

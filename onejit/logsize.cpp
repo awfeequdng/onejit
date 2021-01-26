@@ -23,9 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/fmt.hpp>
 #include <onejit/logsize.hpp>
-
-#include <ostream>
 
 namespace onejit {
 

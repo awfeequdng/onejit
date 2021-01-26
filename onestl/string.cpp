@@ -25,8 +25,6 @@
 
 #include <onestl/string.hpp>
 
-#include <ostream>
-
 namespace onestl {
 
 template class Vector<char>;

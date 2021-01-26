@@ -39,10 +39,13 @@ namespace onejit {
 
 template <class T> using Buffer = ::onestl::Buffer<T>;
 using Chars = ::onestl::Chars;
+using Fmt = ::onestl::Fmt;
+using Hex = ::onestl::Hex;
 template <class T> using Span = ::onestl::Span<T>;
 using String = ::onestl::String;
 template <class T> using Vector = ::onestl::Vector<T>;
 template <class T> using View = ::onestl::View<T>;
+using Writer = ::onestl::Writer;
 
 class ArchId;
 class Assign;

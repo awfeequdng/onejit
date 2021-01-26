@@ -35,9 +35,11 @@ namespace onejit {
 
 enum Op1 : uint16_t {
   BAD1 = 0,
-  XOR1 = 1, // invert all bits
-  NOT1 = 2, // boolean negation
-  CAST = 3,
+  XOR1 = 1,    // invert all bits
+  NOT1 = 2,    // boolean negation
+  NEG1 = 3,    // arithmetic negative i.e. -x
+  CONVERT = 4, // truncate, zero-extend, sign-extend, float2int, int2float
+  BITCOPY = 5, // copy float bits to integer or viceversa
 };
 
 enum Op2 : uint16_t {

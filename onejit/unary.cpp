@@ -45,11 +45,11 @@ ONEJIT_NOINLINE Node Unary::create(Func &func, Kind kind, Op1 op, Expr child) no
 
 ONEJIT_NOINLINE Node Unary::create(Func &func, Op1 op, Expr child) noexcept {
   Kind kind;
-  if (op == XOR1 || op == CAST) {
-    // CAST kind should be specified manually
-    kind = child.kind();
-  } else if (op == NOT1) {
+  if (op == NOT1) {
     kind = Bool;
+  } else if (op <= BITCOPY) {
+    // CONVERT and BITCOPY kind should be specified manually
+    kind = child.kind();
   } else {
     kind = Bad;
   }
@@ -57,8 +57,9 @@ ONEJIT_NOINLINE Node Unary::create(Func &func, Op1 op, Expr child) noexcept {
 }
 
 const Fmt &operator<<(const Fmt &out, const Unary &expr) {
-  out << '(' << expr.op();
-  if (expr.op() == CAST) {
+  Op1 op = expr.op();
+  out << '(' << op;
+  if (op == CONVERT || op == BITCOPY) {
     out << ' ' << expr.kind();
   }
   return out << ' ' << expr.x() << ')';

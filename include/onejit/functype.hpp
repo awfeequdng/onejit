@@ -26,7 +26,6 @@
 #ifndef ONEJIT_FUNCTYPE_HPP
 #define ONEJIT_FUNCTYPE_HPP
 
-#include <onejit/fmt.hpp>
 #include <onejit/node.hpp>
 #include <onestl/view.hpp>
 

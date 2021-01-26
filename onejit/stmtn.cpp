@@ -55,7 +55,7 @@ const Fmt &operator<<(const Fmt &out, const StmtN &st) {
   const OpStmtN op = st.op();
   out << '(' << op;
   Chars separator = " ";
-  if (op == BLOCK || op == SWITCH) {
+  if (op == BLOCK || op == COND || op == SWITCH) {
     separator = "\n    ";
   }
   for (size_t i = 0, n = st.children(); i < n; i++) {

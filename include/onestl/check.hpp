@@ -81,6 +81,10 @@ template <class T> String to_string(const T &val) {
   return str;
 }
 
+inline String to_string(const String &val) {
+  return String{val};
+}
+
 } // namespace onestl
 
 #endif // ONESTL_CHECK_HPP

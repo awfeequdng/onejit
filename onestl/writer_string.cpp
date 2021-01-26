@@ -17,32 +17,33 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * fmt_string.cpp
+ * writer_string.cpp
  *
  *  Created on Jan 26, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onestl/fmt.hpp>
+#include <onestl/string.hpp>
+#include <onestl/writer.hpp>
+#include <onestl/writer_string.hpp>
 
-#include <cerrno>
-#include <cstdio>
+#include <cerrno> // ENOMEM
 
 namespace onestl {
 
-static int write_to_file(void *handle, const char *chars, size_t n) noexcept {
-  FILE *dst = reinterpret_cast<FILE *>(handle);
+static int write_to_string(void *handle, const char *chars, size_t n) noexcept {
+  String *dst = reinterpret_cast<String *>(handle);
   int err = 0;
   if (!dst) {
     err = EINVAL;
-  } else if (std::fwrite(chars, 1, n, dst) != n) {
-    err = errno;
+  } else if (!dst->append(View<char>{chars, n})) {
+    err = ENOMEM;
   }
   return err;
 }
 
-fmt_write_func to_fmt_write_func(FILE *) noexcept {
-  return write_to_file;
+template <> Writer Writer::make<String *>(String *dst) noexcept {
+  return Writer{dst, write_to_string};
 }
 
 } // namespace onestl

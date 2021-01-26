@@ -46,6 +46,7 @@ class Node {
   friend class FuncType;
   friend class Label;
   friend class Mem;
+  friend class Name;
   friend class Return;
   friend class Stmt1;
   friend class Stmt2;
@@ -96,12 +97,12 @@ public:
   }
 
   // return Node length, in bytes
-  Offset length() const noexcept {
-    return mul_uint32(size(), sizeof(CodeItem));
+  Offset length_bytes() const noexcept {
+    return mul_uint32(length_items(), sizeof(CodeItem));
   }
 
   // return Node length, in CodeItems
-  Offset size() const noexcept;
+  Offset length_items() const noexcept;
 
   // unified tree API: get number of children nodes
   uint32_t children() const noexcept;

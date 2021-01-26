@@ -26,7 +26,6 @@
 #ifndef ONEJIT_KIND_HPP
 #define ONEJIT_KIND_HPP
 
-#include <onejit/fmt.hpp>
 #include <onejit/group.hpp>
 #include <onejit/logsize.hpp>
 

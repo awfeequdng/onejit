@@ -48,8 +48,8 @@ ONEJIT_NOINLINE Node Stmt3::create(Func &func, Nodes children, OpStmt3 op) noexc
 }
 
 const Fmt &operator<<(const Fmt &out, const Stmt3 &st) {
-  return out << '(' << st.op() << ' ' << st.child(0) << Chars("\n    ") << st.child(1)
-             << Chars("\n    ") << st.child(2) << ')';
+  return out << '(' << st.op() << ' ' << st.child(0) << "\n    " //
+             << st.child(1) << "\n    " << st.child(2) << ')';
 }
 
 // ============================  If  =======================================

@@ -26,19 +26,53 @@
 #define ONESTL_FMT_HPP
 
 #include <onestl/chars.hpp>
-
-#include <cstddef>
-#include <cstdio>
+#include <onestl/writer.hpp>
 
 namespace onestl {
 
-using fmt_write_func = int (*)(void *handle, const char *chars, size_t n);
+////////////////////////////////////////////////////////////////////////////////
+class Fmt {
+  typedef char T;
 
-inline fmt_write_func to_fmt_write_func(std::nullptr_t) noexcept {
-  return nullptr;
-}
-fmt_write_func to_fmt_write_func(String *dst) noexcept;
-fmt_write_func to_fmt_write_func(FILE *dst) noexcept;
+public:
+  using func_type = Writer::func_type;
+
+  // construct null Fmt, that will ignore all chars passed to write() or operator<<(Fmt, /**/)
+  constexpr Fmt() noexcept : writer_{}, err_{} {
+  }
+
+  constexpr Fmt(void *handle, func_type write_func) noexcept //
+      : writer_{handle, write_func}, err_{} {
+  }
+
+  // calls Writer::make(obj)
+  template <class T>
+  explicit Fmt(T obj) noexcept //
+      : writer_{obj}, err_{} {
+  }
+
+  Writer &writer() noexcept {
+    return writer_;
+  }
+
+  constexpr const Writer &writer() const noexcept {
+    return writer_;
+  }
+
+  constexpr int err() const noexcept {
+    return err_;
+  }
+
+  constexpr explicit operator bool() const noexcept {
+    return err_ == 0;
+  }
+
+  const Fmt &write(const char *chars, size_t n) const noexcept;
+
+private:
+  Writer writer_;
+  mutable int err_;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 class Hex {
@@ -55,93 +89,39 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class Fmt {
-  typedef char T;
-
-public:
-  constexpr Fmt() noexcept : handle_{}, write_{}, err_{} {
-  }
-
-  constexpr Fmt(void *handle, fmt_write_func func) noexcept
-      : handle_{handle}, write_{func}, err_{} {
-  }
-
-  template <class T>
-  explicit Fmt(T *obj) noexcept(noexcept(to_fmt_write_func(obj))) //
-      : handle_{obj}, write_{to_fmt_write_func(obj)}, err_{} {
-  }
-
-  constexpr void *handle() const noexcept {
-    return handle_;
-  }
-
-  constexpr int err() const noexcept {
-    return err_;
-  }
-
-  constexpr explicit operator bool() const noexcept {
-    return err_ == 0;
-  }
-
-  const Fmt &write(const char *chars, size_t n) const noexcept;
-
-  const Fmt &append(char ch) const noexcept;
-  const Fmt &append(int64_t val) const noexcept;
-  const Fmt &append(uint64_t val) const noexcept;
-  const Fmt &append(float val) const noexcept {
-    return append(double(val));
-  }
-  const Fmt &append(double val) const noexcept;
-  const Fmt &append(View<T> chars) const noexcept {
-    return write(chars.data(), chars.size());
-  }
-
-private:
-  void *handle_;
-  fmt_write_func write_;
-  mutable int err_;
-};
-
 const Fmt &operator<<(const Fmt &fmt, bool arg) noexcept;
+const Fmt &operator<<(const Fmt &fmt, char arg) noexcept;
+const Fmt &operator<<(const Fmt &fmt, int64_t arg) noexcept;
+const Fmt &operator<<(const Fmt &fmt, uint64_t arg) noexcept;
+const Fmt &operator<<(const Fmt &fmt, double arg) noexcept;
 
-inline const Fmt &operator<<(const Fmt &fmt, char arg) noexcept {
-  return fmt.append(arg);
-}
 inline const Fmt &operator<<(const Fmt &fmt, int8_t arg) noexcept {
-  return fmt.append(int64_t(arg));
+  return fmt << int64_t(arg);
 }
 inline const Fmt &operator<<(const Fmt &fmt, int16_t arg) noexcept {
-  return fmt.append(int64_t(arg));
+  return fmt << int64_t(arg);
 }
 inline const Fmt &operator<<(const Fmt &fmt, int32_t arg) noexcept {
-  return fmt.append(int64_t(arg));
-}
-inline const Fmt &operator<<(const Fmt &fmt, int64_t arg) noexcept {
-  return fmt.append(arg);
+  return fmt << int64_t(arg);
 }
 inline const Fmt &operator<<(const Fmt &fmt, uint8_t arg) noexcept {
-  return fmt.append(uint64_t(arg));
+  return fmt << uint64_t(arg);
 }
 inline const Fmt &operator<<(const Fmt &fmt, uint16_t arg) noexcept {
-  return fmt.append(uint64_t(arg));
+  return fmt << uint64_t(arg);
 }
 inline const Fmt &operator<<(const Fmt &fmt, uint32_t arg) noexcept {
-  return fmt.append(uint64_t(arg));
-}
-inline const Fmt &operator<<(const Fmt &fmt, uint64_t arg) noexcept {
-  return fmt.append(arg);
+  return fmt << uint64_t(arg);
 }
 inline const Fmt &operator<<(const Fmt &fmt, float arg) noexcept {
-  return fmt.append(arg);
-}
-inline const Fmt &operator<<(const Fmt &fmt, double arg) noexcept {
-  return fmt.append(arg);
+  return fmt << double(arg);
 }
 inline const Fmt &operator<<(const Fmt &fmt, View<char> arg) noexcept {
-  return fmt.append(arg);
+  return fmt.write(arg.data(), arg.size());
 }
 const Fmt &operator<<(const Fmt &fmt, const void *arg) noexcept;
 const Fmt &operator<<(const Fmt &fmt, std::nullptr_t) noexcept;
+const Fmt &operator<<(const Fmt &fmt, const char *c_str) noexcept; /// c_str must be '\0' terminated
 const Fmt &operator<<(const Fmt &fmt, Hex arg) noexcept;
 
 template <size_t N> const Fmt &operator<<(const Fmt &fmt, const char (&addr)[N]) noexcept {

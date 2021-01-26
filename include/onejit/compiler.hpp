@@ -35,24 +35,20 @@ namespace onejit {
 
 class Compiler {
 public:
-  Compiler(Func &func) noexcept;
-
-  Compiler(Compiler &&other) noexcept = delete;
-  Compiler &operator=(Compiler &&other) noexcept = delete;
+  Compiler() noexcept;
+  Compiler(Compiler &&other) noexcept = default;
+  Compiler &operator=(Compiler &&other) noexcept = default;
 
   ~Compiler() noexcept;
 
   explicit operator bool() const noexcept;
 
-  constexpr Func &func() const noexcept {
+  constexpr Func *func() const noexcept {
     return func_;
   }
 
   // compile function
-  Compiler &compile() noexcept;
-
-  // store compiled code into function.compiled()
-  Compiler &finish() noexcept;
+  Compiler &compile(Func &func) noexcept;
 
 private:
   // get current destination for "break"
@@ -87,6 +83,10 @@ private:
     return add(compile(node, simplify_call));
   }
 
+  // store compiled code into function.compiled()
+  // invoked by compile(Func)
+  Compiler &finish() noexcept;
+
   // add a compile error
   Compiler &error(const Node &where, Chars msg) noexcept;
 
@@ -117,7 +117,7 @@ private:
   Expr compile(Unary expr, bool simplify_call) noexcept;
 
 private:
-  Func &func_;
+  Func *func_;
 
   Vector<Label> break_;       // stack of 'break' destination labels
   Vector<Label> continue_;    // stack of 'continue' destination labels

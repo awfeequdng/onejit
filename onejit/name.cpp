@@ -17,50 +17,47 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * type.hpp
+ * name.cpp
  *
- *  Created on Jan 09, 2021
+ *  Created on Jan 21, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/fmt.hpp>
-#include <onejit/type.hpp>
+#include <onejit/code.hpp>
+#include <onejit/name.hpp>
 #include <onestl/chars.hpp>
 
 namespace onejit {
 
-static const int8_t tchildren[] = {
-    0, 1, 2,  3, 4,  -1,    // Stmt*
-    0, 0, 1,  2, -1, 0,  0, // Expr
-    0, 0, -1,               // FuncType, Name
-};
+Node Name::create(Code *holder, Chars str) noexcept {
+  const size_t n = str.size();
+  while (holder && n <= 0xFFFF) {
+    const NodeHeader header{NAME, Void, uint16_t(n)};
+    CodeItem offset = holder->length();
 
-static const Chars tstring[] = {
-    "stmt0", "stmt1", "stmt2", "stmt3",  "stmt4", "stmtn",          // Stmt*
-    "var",   "mem",   "unary", "binary", "call",  "label", "const", // *Expr
-    "ftype", "name",  "?",                                          // FuncType, Name
-};
-
-uint32_t to_children(Type t) noexcept {
-  const uint8_t n = ONEJIT_N_OF(tchildren);
-  uint8_t i = uint8_t(t);
-  if (i >= n) {
-    i = n - 1;
+    if (holder->add(header) && holder->add(str)) {
+      return Node{header, offset, holder};
+    }
+    holder->truncate(offset);
+    break;
   }
-  return (uint32_t)tchildren[i];
+  return Name{};
 }
 
-const Chars &to_string(Type t) noexcept {
-  const uint8_t n = ONEJIT_N_OF(tstring);
-  uint8_t i = uint8_t(t);
-  if (i >= n) {
-    i = n - 1;
+Chars Name::chars() const noexcept {
+  if (const Code *code = Base::code()) {
+    const Offset start = sum_uint32(Base::offset_or_direct(), 4);
+    const Offset end = code->length();
+    const Offset len = size();
+    if (end >= start && end - start >= (len + 3) / 4) {
+      return Chars{reinterpret_cast<const char *>(code->data()) + start, len};
+    }
   }
-  return tstring[i];
+  return Chars{};
 }
 
-const Fmt &operator<<(const Fmt &out, Type t) {
-  return out << to_string(t);
+const Fmt &operator<<(const Fmt &out, const Name &name) {
+  return out << '"' << name.chars() << '"';
 }
 
 } // namespace onejit

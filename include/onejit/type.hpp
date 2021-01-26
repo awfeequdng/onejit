@@ -26,7 +26,6 @@
 #ifndef ONEJIT_TYPE_HPP
 #define ONEJIT_TYPE_HPP
 
-#include <onejit/fmt.hpp>
 #include <onejit/fwd.hpp>
 
 #include <cstdint> // uint8_t
@@ -35,11 +34,11 @@ namespace onejit {
 
 enum Type : uint8_t {
   STMT_0 = 0, // BAD, BREAK, CONTINUE, FALLTHROUGH
-  STMT_1 = 1, // not currently used
-  STMT_2 = 2, // CASE, DEFAULT
+  STMT_1 = 1, // GOTO, INC, DEC
+  STMT_2 = 2, // *ASSIGN, CASE, DEFAULT, JUMP_IF
   STMT_3 = 3, // IF
   STMT_4 = 4, // FOR
-  STMT_N = 5, // statement list: ASSIGN_CALL, BLOCK, COND, RETURN, SWITCH
+  STMT_N = 5, // ASSIGN_CALL, BLOCK, COND, RETURN, SWITCH
 
   // Expr
   VAR = 6,
@@ -51,6 +50,7 @@ enum Type : uint8_t {
   CONST = 12,
 
   FTYPE = 13, // function/method type signature
+  NAME = 14,  // name of function/globalvar/globalconst
 };
 
 // true if Type t indicates an arbitrary number of child Node:s

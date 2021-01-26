@@ -27,7 +27,6 @@
 #define ONEJIT_CONSTEXPR_HPP
 
 #include <onejit/expr.hpp>
-#include <onejit/fmt.hpp>
 #include <onejit/imm.hpp>
 
 namespace onejit {

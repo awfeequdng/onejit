@@ -41,11 +41,14 @@ namespace onestl {
 
 template <class T> class Buffer;
 class Chars;
+class Fmt;
+class Hex;
 template <class T> class Span;
 class String;
 template <class T> class Vector;
 class VectorHelper;
 template <class T> class View;
+class Writer;
 
 } // namespace onestl
 

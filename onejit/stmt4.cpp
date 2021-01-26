@@ -50,8 +50,8 @@ ONEJIT_NOINLINE Node Stmt4::create(Func &func, const Node &child0, const Node &c
 }
 
 const Fmt &operator<<(const Fmt &out, const Stmt4 &st) {
-  return out << '(' << st.op() << ' ' << st.child(0) << ' ' << st.child(1) << ' ' << st.child(2)
-             << Chars("\n    ") << st.child(3) << ')';
+  return out << '(' << st.op() << ' ' << st.child(0) << ' ' << st.child(1) //
+             << ' ' << st.child(2) << "\n    " << st.child(3) << ')';
 }
 
 // ============================  For  =======================================

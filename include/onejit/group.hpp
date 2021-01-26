@@ -26,7 +26,6 @@
 #ifndef ONEJIT_GROUP_HPP
 #define ONEJIT_GROUP_HPP
 
-#include <onejit/fmt.hpp>
 #include <onejit/fwd.hpp>
 
 #include <cstdint> // uint8_t

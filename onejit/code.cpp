@@ -32,12 +32,15 @@
 namespace onejit {
 
 Code::Code() noexcept : Base{} {
-  init();
+  if (reserve(64)) {
+    init();
+  }
 }
 
 Code::Code(size_t capacity) noexcept : Base{} {
-  reserve(capacity);
-  init();
+  if (reserve(capacity)) {
+    init();
+  }
 }
 
 Code::~Code() noexcept {
@@ -98,6 +101,29 @@ Code &Code::add(const Kinds kinds) noexcept {
     }
   }
   return *this;
+}
+
+Code &Code::add(View<char> chars) noexcept {
+  const char *addr = chars.data();
+  size_t n = chars.size();
+  if (n >= sizeof(CodeItem)) {
+    if (!add(CodeItems{reinterpret_cast<const CodeItem *>(addr), n / sizeof(CodeItem)})) {
+      return *this;
+    }
+    const size_t left = n % sizeof(CodeItem);
+    addr += n - left;
+    n = left;
+  }
+  if (n == 0) {
+    return *this;
+  }
+  // pad to a whole CodeItem adding one or more '\0'
+  union {
+    CodeItem item;
+    char ch[sizeof(CodeItem)];
+  } u = {0};
+  std::memcpy(u.ch, addr, n);
+  return add_item(u.item);
 }
 
 Code &Code::add(const Node &node, Offset parent_offset) noexcept {

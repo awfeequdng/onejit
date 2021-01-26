@@ -26,7 +26,6 @@
 #ifndef ONEJIT_CONST_HPP
 #define ONEJIT_CONST_HPP
 
-#include <onejit/fmt.hpp>
 #include <onejit/node.hpp>
 
 namespace onejit {

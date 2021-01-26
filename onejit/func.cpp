@@ -27,8 +27,6 @@
 #include <onejit/func.hpp>
 #include <onejit/imm.hpp>
 
-#include <utility> // std::move()
-
 namespace onejit {
 
 enum {
@@ -41,10 +39,14 @@ Func::Func() noexcept
       ftype_{}, vars_{}, labels_{}, name_{}, body_{} {
 }
 
-void Func::init(Code *holder, String &&name, FuncType ftype) noexcept {
+Func &Func::reset(Code *holder, Name name, FuncType ftype) noexcept {
   holder_ = holder;
+  body_var_n_ = 0;
   ftype_ = ftype;
-  name_ = std::move(name);
+  vars_.clear();
+  labels_.clear();
+  name_ = name;
+  compiled_ = body_ = Node{};
 
   bool ok = bool(*this);
   for (size_t i = 0, n = ftype.param_n(); ok && i < n; i++) {
@@ -59,8 +61,10 @@ void Func::init(Code *holder, String &&name, FuncType ftype) noexcept {
     param_n_ = ftype.param_n();
     result_n_ = ftype.result_n();
   } else {
+    result_n_ = param_n_ = 0;
     holder_ = nullptr;
   }
+  return *this;
 }
 
 Func::~Func() noexcept {

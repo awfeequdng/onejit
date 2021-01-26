@@ -25,7 +25,14 @@
 
 #include <onejit/onejit.hpp>
 
-#include <fstream>
+#include <cstdio> // stdout
+
+#ifdef __unix__
+#include <fcntl.h>     // open()
+#include <sys/stat.h>  //
+#include <sys/types.h> //
+#include <unistd.h>    // close(), write()
+#endif
 
 namespace onejit {
 
@@ -39,6 +46,7 @@ public:
 private:
   FuncType ftype();
   static String to_string(Node node);
+  void dump_and_clear_code();
 
   // called by run()
   void kind();
@@ -47,15 +55,17 @@ private:
   void nested_expr();
   void func_fib();
   void func_loop();
-  void func_switch();
+  void func_switch1();
+  void func_switch2();
+  void func_cond();
   void compile(Func &func);
-  void dump_code() const;
 
   Code holder;
   Func func;
+  Compiler comp;
 };
 
-Test::Test() : holder{}, func{&holder, "test_func", ftype()} {
+Test::Test() : holder{}, func{&holder, Name{&holder, "test_func"}, ftype()} {
 }
 
 Test::~Test() {
@@ -68,9 +78,7 @@ FuncType Test::ftype() {
 }
 
 String Test::to_string(Node node) {
-  String buf;
-  Fmt{&buf} << node;
-  return buf;
+  return onestl::to_string(node);
 }
 
 void Test::run() {
@@ -80,11 +88,13 @@ void Test::run() {
   nested_expr();
   func_fib();
   func_loop();
-  func_switch();
-  dump_code();
+  func_switch1();
+  func_switch2();
+  // func_cond();
 }
 
 void Test::kind() {
+  Fmt out{stdout};
   for (uint8_t i = 0; i <= kArchFlags; i++) {
     Kind k{i};
     ONEJIT_TEST(bool(k), ==, i != 0);
@@ -93,7 +103,7 @@ void Test::kind() {
     ONEJIT_TEST(k.nosimd(), ==, k);
     ONEJIT_TEST(k.bits().val(), ==, k.nosimd().bits().val());
 
-    Fmt{stdout} << "Kind " << k << ", Group " << k.group() << ", bits " << k.bits() << '\n';
+    out << "Kind " << k << ", Group " << k.group() << ", bits " << k.bits() << '\n';
   }
   for (uint8_t i = 0; i <= kArchFlags; i++) {
     Kind k{eKind(i), SimdN{2}};
@@ -103,6 +113,7 @@ void Test::kind() {
     ONEJIT_TEST((Kind{k.nosimd().val(), k.simdn()}), ==, k);
     ONEJIT_TEST(k.bits().val(), ==, k.nosimd().bits().val() * k.simdn().val());
   }
+  dump_and_clear_code();
 }
 
 // test that integer Imm can be compiled as 'constexpr'
@@ -206,6 +217,8 @@ void Test::simple_expr() {
     ONEJIT_TEST(local1, ==, local2);
     ONEJIT_TEST(local1.kind(), ==, k);
   }
+  // dump_and_clear_code();
+  holder.clear();
 }
 
 void Test::nested_expr() {
@@ -236,12 +249,13 @@ void Test::nested_expr() {
     ONEJIT_TEST(b3.child(1), ==, b2);
     ONEJIT_TEST(u1.child(0), ==, b3);
   }
+  // dump_and_clear_code();
+  holder.clear();
 }
 
 void Test::func_fib() {
-  Offset orig = holder.length();
   Kind kind = Uint64;
-  Func f{&holder, "fib", FuncType{&holder, {kind}, {kind}}};
+  Func &f = func.reset(&holder, Name{&holder, "fib"}, FuncType{&holder, {kind}, {kind}});
   Var n = f.param(0);
   Const one = One(kind);
   Const two = Two(kind);
@@ -289,13 +303,13 @@ void Test::func_fib() {
     label_2)";
   ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
 
-  holder.truncate(orig);
+  // dump_and_clear_code();
+  holder.clear();
 }
 
 void Test::func_loop() {
-  Offset orig = holder.length();
   Kind kind = Uint64;
-  Func f{&holder, "loop", FuncType{&holder, {kind}, {kind}}};
+  Func &f = func.reset(&holder, Name{&holder, "loop"}, FuncType{&holder, {kind}, {kind}});
   Var n = f.param(0);
   Var total = f.result(0);
   Var i{f, kind};
@@ -347,13 +361,13 @@ void Test::func_loop() {
     (return var1001_ul))";
   ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
 
-  holder.truncate(orig);
+  // dump_and_clear_code();
+  holder.clear();
 }
 
-void Test::func_switch() {
-  Offset orig = holder.length();
+void Test::func_switch1() {
   Kind kind = Uint64;
-  Func f{&holder, "fswitch", FuncType{&holder, {kind}, {kind}}};
+  Func &f = func.reset(&holder, Name{&holder, "fswitch1"}, FuncType{&holder, {kind}, {kind}});
   Var n = f.param(0);
   Var ret = f.result(0);
   Const zero = Zero(kind);
@@ -363,14 +377,83 @@ void Test::func_switch() {
   /**
    * jit equivalent of C/C++ source code
    *
-   * uint64_t fswitch(uint64_n) {
+   * uint64_t fswitch1(uint64_n) {
    *   uint64_t ret;
    *   switch (n) {
+   *     case 0:
+   *       ret = 1;
+   *       break;
+   *     case 1:
+   *       ret = 2;
+   *       break;
    *     default:
    *       ret = n + 1;
    *       break;
+   *   }
+   *   return ret;
+   * }
+   */
+
+  f.set_body( //
+      Block{f,
+            {Switch{f,
+                    n,
+                    {Case{f, zero, Assign{f, ASSIGN, ret, one}}, //
+                     Case{f, one, Assign{f, ASSIGN, ret, two}},  //
+                     Default{f, Assign{f, ASSIGN, ret, Binary{f, ADD, n, one}}}}},
+             Return{f, ret}}});
+
+  Chars expected = "(block\n\
+    (switch\n\
+    var1000_ul\n\
+    (case 0_ul (= var1001_ul 1_ul))\n\
+    (case 1_ul (= var1001_ul 2_ul))\n\
+    (default (= var1001_ul (+ var1000_ul 1_ul))))\n\
+    (return var1001_ul))";
+  ONEJIT_TEST(to_string(f.get_body()), ==, expected);
+
+  compile(f);
+
+  expected = "(block\n\
+    (jump_if label_2 (!= var1000_ul 0_ul))\n\
+    (= var1001_ul 1_ul)\n\
+    (goto label_1)\n\
+    label_2\n\
+    (jump_if label_4 (!= var1000_ul 1_ul))\n\
+    label_3\n\
+    (= var1001_ul 2_ul)\n\
+    (goto label_1)\n\
+    label_4\n\
+    label_5\n\
+    (= var1001_ul (+ var1000_ul 1_ul))\n\
+    label_1\n\
+    (return var1001_ul))";
+  ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
+
+  // dump_and_clear_code();
+  holder.clear();
+}
+
+void Test::func_switch2() {
+  Kind kind = Uint64;
+  Func &f = func.reset(&holder, Name{&holder, "fswitch2"}, FuncType{&holder, {kind}, {kind}});
+  Var n = f.param(0);
+  Var ret = f.result(0);
+  Const zero = Zero(kind);
+  Const one = One(kind);
+  Const two = Two(kind);
+
+  /**
+   * jit equivalent of C/C++ source code
+   *
+   * uint64_t fswitch2(uint64_n) {
+   *   uint64_t ret;
+   *   switch (n) {
    *     case 0:
    *       ret = 1;
+   *       break;
+   *     default:
+   *       ret = n + 1;
    *       break;
    *     case 1:
    *       ret = 2;
@@ -384,16 +467,16 @@ void Test::func_switch() {
       Block{f,
             {Switch{f,
                     n,
-                    {Default{f, Assign{f, ASSIGN, ret, Binary{f, ADD, n, one}}},
-                     Case{f, zero, Assign{f, ASSIGN, ret, one}}, //
-                     Case{f, one, Assign{f, ASSIGN, ret, two}}}},
+                    {Case{f, zero, Assign{f, ASSIGN, ret, one}},                 //
+                     Default{f, Assign{f, ASSIGN, ret, Binary{f, ADD, n, one}}}, //
+                     Case{f, one, Assign{f, ASSIGN, ret, two}}}},                //
              Return{f, ret}}});
 
   Chars expected = "(block\n\
     (switch\n\
     var1000_ul\n\
-    (default (= var1001_ul (+ var1000_ul 1_ul)))\n\
     (case 0_ul (= var1001_ul 1_ul))\n\
+    (default (= var1001_ul (+ var1000_ul 1_ul)))\n\
     (case 1_ul (= var1001_ul 2_ul)))\n\
     (return var1001_ul))";
   ONEJIT_TEST(to_string(f.get_body()), ==, expected);
@@ -401,46 +484,118 @@ void Test::func_switch() {
   compile(f);
 
   expected = "(block\n\
-    (goto label_2)\n\
-    label_4\n\
-    (= var1001_ul (+ var1000_ul 1_ul))\n\
-    (goto label_1)\n\
-    label_2\n\
-    (jump_if label_5 (!= var1000_ul 0_ul))\n\
-    label_3\n\
+    (jump_if label_2 (!= var1000_ul 0_ul))\n\
     (= var1001_ul 1_ul)\n\
     (goto label_1)\n\
-    label_5\n\
-    (jump_if label_7 (!= var1000_ul 1_ul))\n\
-    label_6\n\
-    (= var1001_ul 2_ul)\n\
+    label_2\n\
     (goto label_4)\n\
+    label_3\n\
+    (= var1001_ul (+ var1000_ul 1_ul))\n\
+    (goto label_1)\n\
+    label_4\n\
+    (jump_if label_3 (!= var1000_ul 1_ul))\n\
+    label_5\n\
+    (= var1001_ul 2_ul)\n\
     label_1\n\
     (return var1001_ul))";
   ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
 
-  holder.truncate(orig);
+  // dump_and_clear_code();
+  holder.clear();
 }
 
+void Test::func_cond() {
+  Kind kind = Uint64;
+  Func &f = func.reset(&holder, Name{&holder, "fcond"}, FuncType{&holder, {kind}, {kind}});
+  Var n = f.param(0);
+  Var ret = f.result(0);
+  Const zero = Zero(kind);
+  Const one = One(kind);
+  Const two = Two(kind);
+
+  /**
+   * jit equivalent of C/C++ source code
+   *
+   * uint64_t fswitch(uint64_n) {
+   *   uint64_t ret;
+   *   if (n == 0) {
+   *     ret = 1;
+   *   } else if (n == 1) {
+   *     ret = 2;
+   *   } else if (true) {
+   *     ret = n + 1;
+   *   }
+   *   return ret;
+   * }
+   */
+
+  f.set_body( //
+      Block{f,
+            {Cond{f,
+                  {Binary{f, EQL, n, zero}, Assign{f, ASSIGN, ret, one},       //
+                   Binary{f, EQL, n, one}, Assign{f, ASSIGN, ret, two},        //
+                   TrueExpr, Assign{f, ASSIGN, ret, Binary{f, ADD, n, one}}}}, //
+             Return{f, ret}}});
+
+  Chars expected = "(block\n\
+    (cond\n\
+    (== var1000_ul 0_ul)\n\
+    (= var1001_ul 1_ul)\n\
+    (== var1000_ul 1_ul)\n\
+    (= var1001_ul 2_ul)\n\
+    true_e\n\
+    (= var1001_ul (+ var1000_ul 1_ul)))\n\
+    (return var1001_ul))";
+  ONEJIT_TEST(to_string(f.get_body()), ==, expected);
+
+  compile(f);
+
+  expected = "(block\n\
+    (jump_if label_2 (! (== var1000_ul 0_ul)))\n\
+    (= var1001_ul 1_ul)\n\
+    (goto label_1)\n\
+    label_2\n\
+    (jump_if label_3 (! (== var1000_ul 1_ul)))\n\
+    (= var1001_ul 2_ul)\n\
+    (goto label_1)\n\
+    label_3\n\
+    (jump_if label_1 (! true_e))\n\
+    (= var1001_ul (+ var1000_ul 1_ul))\n\
+    label_1\n\
+    (return var1001_ul))";
+  ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
+
+  // dump_and_clear_code();
+  holder.clear();
+}
 void Test::compile(Func &f) {
-  Compiler{f}.compile().finish();
+  comp.compile(f);
 }
 
-void Test::dump_code() const {
+void Test::dump_and_clear_code() {
   Fmt out{stdout};
   for (CodeItem item : holder) {
-    out << "0x" << item << ' ';
+    out << "0x" << Hex{item} << ' ';
   }
   out << '\n';
 
-  std::ofstream file("dump.1jit", std::ios::out | std::ios::trunc);
-  file.write(reinterpret_cast<const char *>(holder.data()), holder.length());
+#ifdef __unix__
+  {
+    int fd = ::open("dump.1jit", O_WRONLY | O_CREAT | O_TRUNC);
+    if (fd >= 0) {
+      (void)::write(fd, holder.data(), holder.length());
+      (void)::close(fd);
+    }
+  }
+#endif // __unix__
 
-  CodeParser parser(&holder);
+  CodeParser parser{&holder};
   while (parser) {
     Node node = parser.next();
     out << node << '\n';
   }
+
+  holder.clear();
 }
 
 } // namespace onejit
