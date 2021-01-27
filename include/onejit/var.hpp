@@ -38,6 +38,7 @@ class Var : public Expr {
 
   friend class Func;
   friend class Node;
+  friend class VarHelper;
 
 public:
   /**
@@ -70,6 +71,11 @@ public:
   }
 
 private:
+  // create a Var for an existing local variable, which MUST be direct.
+  constexpr explicit Var(Local local) noexcept
+      : Base{Node{NodeHeader{VAR, local.kind(), 0}, local.direct(), nullptr}} {
+  }
+
   // downcast Node to Const
   constexpr explicit Var(const Node &node) noexcept //
       : Base{Node{node.header(), node.offset_or_direct(),
@@ -84,6 +90,15 @@ private:
   // called by Var{Func} -> Func::new_var()
   static Var create(Code *holder, Local local) noexcept;
 };
+
+class VarHelper {
+public:
+  // Var representing architectural flags register: EFLAGS on x86/amd64, APSR on arm/arm64 ...
+  static constexpr const Var Flags{Local{ArchFlags, Id{1}}};
+};
+
+// Var representing architectural flags register: EFLAGS on x86/amd64, APSR on arm/arm64 ...
+constexpr const Var FlagsVar = VarHelper::Flags;
 
 const Fmt &operator<<(const Fmt &out, const Var &v);
 

@@ -36,6 +36,7 @@ class Id {
   friend class Func;
   friend union Local;
   friend class Var;
+  friend class VarHelper;
 
 public:
   constexpr Id() noexcept : val_{} {
@@ -75,8 +76,10 @@ union Local {
   friend class Node;
   friend class Test;
   friend class Var;
+  friend class VarHelper;
 
 public:
+  // create an invalid Local.
   constexpr Local() noexcept : val_{kBad} {
   }
 
@@ -100,6 +103,7 @@ private:
   constexpr explicit Local(uint32_t val) noexcept : val_{val} {
   }
 
+  /* create a Local for an existing Id. */
   constexpr Local(Kind kind, Id id) noexcept : val_{kind.val() | id.val() << 8} {
   }
 

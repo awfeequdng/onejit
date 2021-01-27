@@ -74,6 +74,8 @@ class Func;
 class FuncType;
 class Goto;
 class If;
+class Id;
+union Local;
 class JumpIf;
 class Label;
 class Kind;
@@ -91,8 +93,7 @@ class Switch;
 class Test;
 class Unary;
 class Var;
-union Local;
-class Id;
+class VarHelper;
 
 using Bits = LogSize;
 using CodeItem = uint32_t;
