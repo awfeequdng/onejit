@@ -28,7 +28,7 @@
 namespace oneasm {
 namespace x86 {
 
-// describe x86/x86_64 EFLAGS
+// describe x86/amd64 EFLAGS
 enum Eflags : uint16_t {
   CF = 1 << 0, // carry flag
   PF = 1 << 2, // parity flag
@@ -41,42 +41,48 @@ enum Eflags : uint16_t {
   OF = 1 << 11, // overflow flag
 };
 
-// describe x86/x86_64 unary instruction operands
+// describe allowed immediate constants widths in x86/amd64 instructions
+enum class ImmBits : uint8_t {
+  I0 = 1 << 0,  // no immediate
+  I8 = 1 << 1,  // 8 bit immediate
+  I16 = 1 << 2, // 16 bit immediate
+  I32 = 1 << 3, // 32 bit immediate
+  I64 = 1 << 4, // 64 bit immediate
+};
+
+// describe x86/amd64 unary instruction operands
 enum class Arg1 : uint8_t {
-  AX = 1 << 0,  // %rax register
-  R = 1 << 1,   // register
-  M = 1 << 2,   // memory
-  I8 = 1 << 3,  // 8-bit immediate
-  I16 = 1 << 4, // 16-bit immediate
-  I32 = 1 << 5, // 32-bit immediate
+  AX = 1 << 0, // %rax register
+  R = 1 << 1,  // register
+  M = 1 << 2,  // memory
+  I = 1 << 3,  // immediate. width is stored in ImmWidth
 };
 
-// describe x86/x86_64 binary instruction operands.
-// last operand is result, as per AT&T / GNU syntax
+// describe x86/amd64 binary instruction operands.
+// result is first operand, as per Intel syntax
+// (instead in AT&T / GNU syntax, result is last operand)
 enum class Arg2 : uint16_t {
-  RtoAX = 1 << 0,
-  RtoR = 1 << 1,
-  RtoM = 1 << 2,
+  AX_R = 1 << 0, // %rax OP= register
+  AX_M = 1 << 1, // %rax OP= memory
+  AX_I = 1 << 2, // %rax OP= immediate
 
-  MtoAX = 1 << 3,
-  MtoR = 1 << 4,
+  R_CX = 1 << 3, // register OP= %rcx. currently only used by shifts and rotations
+  R_R = 1 << 4,
+  R_M = 1 << 5,
+  R_I = 1 << 6,
 
-  ItoAX = 1 << 5,
-  ItoR = 1 << 6,
-  ItoM = 1 << 7,
-
-  AXtoM = 1 << 8, // currently only used by MOV
-  CXtoR = 1 << 9, // currently only used by shifts and rotations
+  M_AX = 1 << 7, // currently only used by MOV
+  M_R = 1 << 8,
+  M_I = 1 << 9,
 };
 
-// describe x86/x86_64 ternary instruction operands
+// describe x86/amd64 ternary instruction operands
 enum class Arg3 : uint8_t {
-  R_ItoR, // register, immediate to register
-  M_ItoR, // memory, immediate to register
-
+  R_RI, // register = register OP immediate
+  R_MI, // register = memory OP immediate
 };
 
-// describe x86/x86_64 instruction constraints and side effects
+// describe x86/amd64 instruction constraints and side effects
 class Inst {
 public:
 };
