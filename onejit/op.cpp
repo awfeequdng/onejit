@@ -34,7 +34,7 @@ namespace onejit {
 static const Chars op1string[] = {"?", "^", "!", "-", "convert", "bitcopy"};
 
 const Chars &to_string(Op1 op) noexcept {
-  uint8_t i = op;
+  size_t i = op;
   if (i >= ONEJIT_N_OF(op1string)) {
     i = 0;
   }
@@ -47,17 +47,19 @@ const Fmt &operator<<(const Fmt &out, Op1 op) {
 
 // ============================  Op2  ==========================================
 
-static const Chars op2string[] = {
-    "?",  "+",  "-", "*",  "/",  "%",  "&", "|",  "^", "<<", ">>", "&^", //
-    "&&", "||", "<", "<=", "!=", "==", ">", ">=",                        //
-};
+static const char op2string[] = //
+  "\1? \1+ \1- \1* \1/ \1% \1& \1| \1^ " //
+  "\2<<\2>>\2&^\2&&\2||" //
+  "\1< \2<=\2!=\2==\1> \2>=";
 
-const Chars &to_string(Op2 op) noexcept {
-  uint8_t i = 0; // "?"
+
+const Chars to_string(Op2 op) noexcept {
+  size_t i = 0; // "?"
   if (op <= GEQ) {
-    i = op;
+    i = op * 3;
   }
-  return op2string[i];
+  const char * addr = op2string + i;
+  return Chars{addr + 1, uint8_t(addr[0])};
 }
 
 const Fmt &operator<<(const Fmt &out, Op2 op) {
@@ -68,8 +70,8 @@ const Fmt &operator<<(const Fmt &out, Op2 op) {
 
 static const Chars opnstring[] = {"?", "call"};
 
-const Chars &to_string(OpN op) noexcept {
-  uint8_t i = op;
+const Chars to_string(OpN op) noexcept {
+  size_t i = op;
   if (i >= ONEJIT_N_OF(opnstring)) {
     i = 0;
   }
