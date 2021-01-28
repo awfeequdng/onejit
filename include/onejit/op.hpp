@@ -38,7 +38,7 @@ enum Op1 : uint16_t {
   XOR1 = 1,    // invert all bits
   NOT1 = 2,    // boolean negation
   NEG1 = 3,    // arithmetic negative i.e. -x
-  CONVERT = 4, // truncate, zero-extend, sign-extend, float2int, int2float
+  CAST = 4, // truncate, zero-extend, sign-extend, float2int, int2float
   BITCOPY = 5, // copy float bits to integer or viceversa
 };
 
@@ -71,7 +71,7 @@ enum OpN : uint16_t {
   CALL_OP = 1,
 };
 
-const Chars &to_string(Op1 op) noexcept;
+const Chars to_string(Op1 op) noexcept;
 const Chars to_string(Op2 op) noexcept;
 const Chars to_string(OpN op) noexcept;
 
