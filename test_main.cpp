@@ -23,6 +23,7 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <oneasm/x86/inst.hpp>
 #include <onejit/onejit.hpp>
 
 #include <cstdio> // stdout

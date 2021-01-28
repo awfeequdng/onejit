@@ -31,7 +31,16 @@ namespace onejit {
 
 // ============================  OpStmt0  ======================================
 
-static const Chars op_stmt_0_string[] = {"bad", "break", "continue", "fallthrough", "?"};
+static const Chars op_stmt_0_string[] = {
+    //
+    "bad", "break", "continue", "fallthrough",
+
+#define ONEJIT_X(NAME, name) "x86_" #name,
+    ONEJIT_OPSTMT0_X86(ONEJIT_X)
+#undef ONEJIT_X
+
+        "?" //
+};
 
 const Chars &to_string(OpStmt0 op) noexcept {
   uint8_t i = op;
@@ -47,7 +56,18 @@ const Fmt &operator<<(const Fmt &out, OpStmt0 op) {
 
 // ============================  OpStmt1  ======================================
 
-static const Chars op_stmt_1_string[] = {"?", "goto", "++", "--"};
+static const Chars op_stmt_1_string[] = { //
+    "?", "goto", "++", "--",
+
+#define ONEJIT_X(NAME, name) "asm_" #name,
+    ONEJIT_OPSTMT1_ASM(ONEJIT_X)
+#undef ONEJIT_X
+
+#define ONEJIT_X(NAME, name) "x86_" #name,
+        ONEJIT_OPSTMT1_X86(ONEJIT_X)
+#undef ONEJIT_X
+
+};
 
 const Chars &to_string(OpStmt1 op) noexcept {
   uint8_t i = op;

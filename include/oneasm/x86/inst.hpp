@@ -19,72 +19,133 @@
  *
  * inst.hpp
  *
- *  Created on Jan 09, 2021
+ *  Created on Jan 26, 2021
  *      Author Massimiliano Ghilardi
  */
 #ifndef ONEASM_X86_INST_HPP
 #define ONEASM_X86_INST_HPP
 
+#include <oneasm/x86/arg.hpp>
+#include <oneasm/x86/reg.hpp>
+#include <onejit/opstmt.hpp>
+#include <onestl/chars.hpp>
+
 namespace oneasm {
 namespace x86 {
 
-// describe x86/amd64 EFLAGS
-enum Eflags : uint16_t {
-  CF = 1 << 0, // carry flag
-  PF = 1 << 2, // parity flag
-  // AF = 1 << 4, // auxiliary carry flag
-  ZF = 1 << 6, // zero flag
-  SF = 1 << 7, // sign flag
-  // TF = 1 << 8, // trap flag
-  // IF = 1 << 9, / interrupt enable flag
-  DF = 1 << 10, // direction flag
-  OF = 1 << 11, // overflow flag
-};
-
-// describe allowed immediate constants widths in x86/amd64 instructions
-enum class ImmBits : uint8_t {
-  I0 = 1 << 0,  // no immediate
-  I8 = 1 << 1,  // 8 bit immediate
-  I16 = 1 << 2, // 16 bit immediate
-  I32 = 1 << 3, // 32 bit immediate
-  I64 = 1 << 4, // 64 bit immediate
-};
-
-// describe x86/amd64 unary instruction operands
-enum class Arg1 : uint8_t {
-  AX = 1 << 0, // %rax register
-  R = 1 << 1,  // register
-  M = 1 << 2,  // memory
-  I = 1 << 3,  // immediate. width is stored in ImmWidth
-};
-
-// describe x86/amd64 binary instruction operands.
-// result is first operand, as per Intel syntax
-// (instead in AT&T / GNU syntax, result is last operand)
-enum class Arg2 : uint16_t {
-  AX_R = 1 << 0, // %rax OP= register
-  AX_M = 1 << 1, // %rax OP= memory
-  AX_I = 1 << 2, // %rax OP= immediate
-
-  R_CX = 1 << 3, // register OP= %rcx. currently only used by shifts and rotations
-  R_R = 1 << 4,
-  R_M = 1 << 5,
-  R_I = 1 << 6,
-
-  M_AX = 1 << 7, // currently only used by MOV
-  M_R = 1 << 8,
-  M_I = 1 << 9,
-};
-
-// describe x86/amd64 ternary instruction operands
-enum class Arg3 : uint8_t {
-  R_RI, // register = register OP immediate
-  R_MI, // register = memory OP immediate
-};
-
+////////////////////////////////////////////////////////////////////////////////
 // describe x86/amd64 instruction constraints and side effects
 class Inst {
 public:
+  constexpr explicit Inst(BitSize val_size = B0, Eflags eflags = EFnone) noexcept
+      : val_size_{val_size}, eflags_{eflags} {
+  }
+
+  constexpr Eflags eflags() const {
+    return eflags_;
+  }
+
+  constexpr BitSize val_size() const noexcept {
+    return val_size_;
+  }
+
+private:
+  BitSize val_size_; // allowed immediate sizes
+  Eflags eflags_;    // reads or writes eflags?
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// no-argument x86 instruction
+class Inst0 : public Inst {
+  using Base = Inst;
+  using Chars = onestl::Chars;
+
+public:
+  template <uint8_t N>
+  constexpr explicit Inst0(const char (&chars)[N],
+                           Eflags eflags = EFnone) noexcept //
+      : Base{B0, eflags},                                   //
+        chars_len_{uint8_t(N - 1)},                         //
+        chars_{
+            chars[0],
+            N >= 2 ? chars[1] : '\0',
+            N >= 3 ? chars[2] : '\0',
+        } {
+  }
+
+  constexpr const Chars chars() const noexcept {
+    return Chars{chars_, chars_len_};
+  }
+
+private:
+  uint8_t chars_len_;
+  char chars_[3];
+};
+
+const Inst0 &to_inst(onejit::OpStmt0 op);
+bool emit(onestl::CharBuf &dst, const Inst0 &inst0);
+
+////////////////////////////////////////////////////////////////////////////////
+// one-argument x86 instruction
+class Inst1 : public Inst {
+  using Base = Inst;
+
+public:
+  constexpr explicit Inst1(Arg1 arg, BitSize arg_size, BitSize val_size = B0,
+                           Eflags eflags = EFnone) noexcept
+      : Base{val_size, eflags}, arg_{arg}, arg_size_{arg_size} {
+  }
+
+  constexpr Arg1 arg() const noexcept {
+    return arg_;
+  }
+
+  constexpr BitSize arg_size() const noexcept {
+    return arg_size_;
+  }
+
+private:
+  Arg1 arg_;         // allowed argument combinations
+  BitSize arg_size_; // allowed argument sizes
+};
+
+const Inst1 &to_inst(onejit::OpStmt1 op);
+bool emit(onestl::CharBuf &dst, const Inst1 &inst1);
+
+////////////////////////////////////////////////////////////////////////////////
+// two-arguments x86 instruction
+class Inst2 : public Inst {
+  using Base = Inst;
+
+public:
+  constexpr explicit Inst2(Arg2 arg, BitSize val_size = B0, Eflags eflags = EFnone) noexcept
+      : Base{val_size, eflags}, arg_{arg} {
+  }
+
+  constexpr Arg2 arg() const noexcept {
+    return arg_;
+  }
+
+private:
+  Arg2 arg_; // allowed argument combinations
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// three-arguments x86 instruction
+class Inst3 : public Inst {
+  using Base = Inst;
+
+public:
+  constexpr explicit Inst3(Arg3 arg, BitSize val_size = B0, Eflags eflags = EFnone) noexcept
+      : Base{val_size, eflags}, arg_{arg} {
+  }
+
+  constexpr Arg3 arg() const noexcept {
+    return arg_;
+  }
+
+private:
+  Arg3 arg_; // allowed argument combinations
 };
 
 } // namespace x86

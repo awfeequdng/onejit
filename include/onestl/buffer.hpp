@@ -96,6 +96,8 @@ private:
   bool good_;
 };
 
+typedef Buffer<char> CharBuf;
+
 template <class T> void swap(Buffer<T> &left, Buffer<T> &right) noexcept {
   left.swap(right);
 }

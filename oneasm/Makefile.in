@@ -86,7 +86,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-subdir = onejit
+subdir = oneasm
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -102,19 +102,10 @@ AM_V_AR = $(am__v_AR_@AM_V@)
 am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
 am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
-libonejit_a_AR = $(AR) $(ARFLAGS)
-libonejit_a_LIBADD =
-am_libonejit_a_OBJECTS = archid.$(OBJEXT) binary.$(OBJEXT) \
-	code.$(OBJEXT) codeparser.$(OBJEXT) compiler.$(OBJEXT) \
-	imm.$(OBJEXT) const.$(OBJEXT) error.$(OBJEXT) expr.$(OBJEXT) \
-	func.$(OBJEXT) functype.$(OBJEXT) group.$(OBJEXT) \
-	kind.$(OBJEXT) label.$(OBJEXT) logsize.$(OBJEXT) mem.$(OBJEXT) \
-	name.$(OBJEXT) node.$(OBJEXT) nodeheader.$(OBJEXT) \
-	op.$(OBJEXT) opstmt.$(OBJEXT) stmt0.$(OBJEXT) stmt1.$(OBJEXT) \
-	stmt2.$(OBJEXT) stmt3.$(OBJEXT) stmt4.$(OBJEXT) \
-	stmtn.$(OBJEXT) type.$(OBJEXT) call.$(OBJEXT) unary.$(OBJEXT) \
-	local.$(OBJEXT) var.$(OBJEXT)
-libonejit_a_OBJECTS = $(am_libonejit_a_OBJECTS)
+liboneasm_a_AR = $(AR) $(ARFLAGS)
+liboneasm_a_DEPENDENCIES = x86/inst0.o x86/inst1.o
+am_liboneasm_a_OBJECTS =
+liboneasm_a_OBJECTS = $(am_liboneasm_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -128,37 +119,20 @@ am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 = 
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
-depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
-am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/binary.Po \
-	./$(DEPDIR)/call.Po ./$(DEPDIR)/code.Po \
-	./$(DEPDIR)/codeparser.Po ./$(DEPDIR)/compiler.Po \
-	./$(DEPDIR)/const.Po ./$(DEPDIR)/error.Po ./$(DEPDIR)/expr.Po \
-	./$(DEPDIR)/func.Po ./$(DEPDIR)/functype.Po \
-	./$(DEPDIR)/group.Po ./$(DEPDIR)/imm.Po ./$(DEPDIR)/kind.Po \
-	./$(DEPDIR)/label.Po ./$(DEPDIR)/local.Po \
-	./$(DEPDIR)/logsize.Po ./$(DEPDIR)/mem.Po ./$(DEPDIR)/name.Po \
-	./$(DEPDIR)/node.Po ./$(DEPDIR)/nodeheader.Po \
-	./$(DEPDIR)/op.Po ./$(DEPDIR)/opstmt.Po ./$(DEPDIR)/stmt0.Po \
-	./$(DEPDIR)/stmt1.Po ./$(DEPDIR)/stmt2.Po ./$(DEPDIR)/stmt3.Po \
-	./$(DEPDIR)/stmt4.Po ./$(DEPDIR)/stmtn.Po ./$(DEPDIR)/type.Po \
-	./$(DEPDIR)/unary.Po ./$(DEPDIR)/var.Po
-am__mv = mv -f
-CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-AM_V_CXX = $(am__v_CXX_@AM_V@)
-am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
-am__v_CXX_0 = @echo "  CXX     " $@;
-am__v_CXX_1 = 
-CXXLD = $(CXX)
-CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
-	-o $@
-AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
-am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
-am__v_CXXLD_0 = @echo "  CXXLD   " $@;
-am__v_CXXLD_1 = 
-SOURCES = $(libonejit_a_SOURCES)
-DIST_SOURCES = $(libonejit_a_SOURCES)
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+AM_V_CC = $(am__v_CC_@AM_V@)
+am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
+am__v_CC_0 = @echo "  CC      " $@;
+am__v_CC_1 = 
+CCLD = $(CC)
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+AM_V_CCLD = $(am__v_CCLD_@AM_V@)
+am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
+am__v_CCLD_0 = @echo "  CCLD    " $@;
+am__v_CCLD_1 = 
+SOURCES = $(liboneasm_a_SOURCES)
+DIST_SOURCES = $(liboneasm_a_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -200,7 +174,7 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = $(SUBDIRS)
-am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/admin/depcomp
+am__DIST_COMMON = $(srcdir)/Makefile.in
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 am__relativize = \
   dir0=`pwd`; \
@@ -326,22 +300,18 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = 
-noinst_LIBRARIES = libonejit.a
+SUBDIRS = x86
+noinst_LIBRARIES = liboneasm.a
 # pkglib_LTLIBRARIES   =
 AM_CPPFLAGS = -I$(top_srcdir)/include
-# libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
-libonejit_a_SOURCES = archid.cpp binary.cpp code.cpp codeparser.cpp compiler.cpp \
-                         imm.cpp const.cpp error.cpp expr.cpp func.cpp functype.cpp \
-                         group.cpp kind.cpp label.cpp logsize.cpp mem.cpp name.cpp \
-                         node.cpp nodeheader.cpp op.cpp opstmt.cpp \
-                         stmt0.cpp stmt1.cpp stmt2.cpp stmt3.cpp stmt4.cpp stmtn.cpp \
-                         type.cpp call.cpp unary.cpp local.cpp var.cpp
-
+# liboneasm_a_CPPFLAGS = -I$(top_srcdir)/include
+liboneasm_a_SOURCES = 
+EXTRA_liboneasm_a_DEPENDENCIES = $(LIBONEASM_X86)
+# liboneasm_a_LDFLAGS  =
+liboneasm_a_LIBADD = x86/inst0.o x86/inst1.o
 all: all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .cpp .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -351,9 +321,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign onejit/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign oneasm/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign onejit/Makefile
+	  $(AUTOMAKE) --foreign oneasm/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -375,71 +345,16 @@ $(am__aclocal_m4_deps):
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
 
-libonejit.a: $(libonejit_a_OBJECTS) $(libonejit_a_DEPENDENCIES) $(EXTRA_libonejit_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libonejit.a
-	$(AM_V_AR)$(libonejit_a_AR) libonejit.a $(libonejit_a_OBJECTS) $(libonejit_a_LIBADD)
-	$(AM_V_at)$(RANLIB) libonejit.a
+liboneasm.a: $(liboneasm_a_OBJECTS) $(liboneasm_a_DEPENDENCIES) $(EXTRA_liboneasm_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f liboneasm.a
+	$(AM_V_AR)$(liboneasm_a_AR) liboneasm.a $(liboneasm_a_OBJECTS) $(liboneasm_a_LIBADD)
+	$(AM_V_at)$(RANLIB) liboneasm.a
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
-
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/archid.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/call.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/code.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/codeparser.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/compiler.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/const.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/error.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/expr.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/func.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/functype.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/group.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imm.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kind.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/label.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/local.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logsize.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mem.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/name.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/node.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nodeheader.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/op.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opstmt.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt0.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt1.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt2.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt3.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt4.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmtn.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/type.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unary.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/var.Po@am__quote@ # am--include-marker
-
-$(am__depfiles_remade):
-	@$(MKDIR_P) $(@D)
-	@echo '# dummy' >$@-t && $(am__mv) $@-t $@
-
-am--depfiles: $(am__depfiles_remade)
-
-.cpp.o:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
-
-.cpp.obj:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
-@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
@@ -638,38 +553,6 @@ clean: clean-recursive
 clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-recursive
-		-rm -f ./$(DEPDIR)/archid.Po
-	-rm -f ./$(DEPDIR)/binary.Po
-	-rm -f ./$(DEPDIR)/call.Po
-	-rm -f ./$(DEPDIR)/code.Po
-	-rm -f ./$(DEPDIR)/codeparser.Po
-	-rm -f ./$(DEPDIR)/compiler.Po
-	-rm -f ./$(DEPDIR)/const.Po
-	-rm -f ./$(DEPDIR)/error.Po
-	-rm -f ./$(DEPDIR)/expr.Po
-	-rm -f ./$(DEPDIR)/func.Po
-	-rm -f ./$(DEPDIR)/functype.Po
-	-rm -f ./$(DEPDIR)/group.Po
-	-rm -f ./$(DEPDIR)/imm.Po
-	-rm -f ./$(DEPDIR)/kind.Po
-	-rm -f ./$(DEPDIR)/label.Po
-	-rm -f ./$(DEPDIR)/local.Po
-	-rm -f ./$(DEPDIR)/logsize.Po
-	-rm -f ./$(DEPDIR)/mem.Po
-	-rm -f ./$(DEPDIR)/name.Po
-	-rm -f ./$(DEPDIR)/node.Po
-	-rm -f ./$(DEPDIR)/nodeheader.Po
-	-rm -f ./$(DEPDIR)/op.Po
-	-rm -f ./$(DEPDIR)/opstmt.Po
-	-rm -f ./$(DEPDIR)/stmt0.Po
-	-rm -f ./$(DEPDIR)/stmt1.Po
-	-rm -f ./$(DEPDIR)/stmt2.Po
-	-rm -f ./$(DEPDIR)/stmt3.Po
-	-rm -f ./$(DEPDIR)/stmt4.Po
-	-rm -f ./$(DEPDIR)/stmtn.Po
-	-rm -f ./$(DEPDIR)/type.Po
-	-rm -f ./$(DEPDIR)/unary.Po
-	-rm -f ./$(DEPDIR)/var.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -715,38 +598,6 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
-		-rm -f ./$(DEPDIR)/archid.Po
-	-rm -f ./$(DEPDIR)/binary.Po
-	-rm -f ./$(DEPDIR)/call.Po
-	-rm -f ./$(DEPDIR)/code.Po
-	-rm -f ./$(DEPDIR)/codeparser.Po
-	-rm -f ./$(DEPDIR)/compiler.Po
-	-rm -f ./$(DEPDIR)/const.Po
-	-rm -f ./$(DEPDIR)/error.Po
-	-rm -f ./$(DEPDIR)/expr.Po
-	-rm -f ./$(DEPDIR)/func.Po
-	-rm -f ./$(DEPDIR)/functype.Po
-	-rm -f ./$(DEPDIR)/group.Po
-	-rm -f ./$(DEPDIR)/imm.Po
-	-rm -f ./$(DEPDIR)/kind.Po
-	-rm -f ./$(DEPDIR)/label.Po
-	-rm -f ./$(DEPDIR)/local.Po
-	-rm -f ./$(DEPDIR)/logsize.Po
-	-rm -f ./$(DEPDIR)/mem.Po
-	-rm -f ./$(DEPDIR)/name.Po
-	-rm -f ./$(DEPDIR)/node.Po
-	-rm -f ./$(DEPDIR)/nodeheader.Po
-	-rm -f ./$(DEPDIR)/op.Po
-	-rm -f ./$(DEPDIR)/opstmt.Po
-	-rm -f ./$(DEPDIR)/stmt0.Po
-	-rm -f ./$(DEPDIR)/stmt1.Po
-	-rm -f ./$(DEPDIR)/stmt2.Po
-	-rm -f ./$(DEPDIR)/stmt3.Po
-	-rm -f ./$(DEPDIR)/stmt4.Po
-	-rm -f ./$(DEPDIR)/stmtn.Po
-	-rm -f ./$(DEPDIR)/type.Po
-	-rm -f ./$(DEPDIR)/unary.Po
-	-rm -f ./$(DEPDIR)/var.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -766,25 +617,22 @@ uninstall-am:
 
 .MAKE: $(am__recursive_targets) install-am install-strip
 
-.PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am \
-	am--depfiles check check-am clean clean-generic \
-	clean-noinstLIBRARIES cscopelist-am ctags ctags-am distclean \
-	distclean-compile distclean-generic distclean-tags distdir dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am
+.PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am check \
+	check-am clean clean-generic clean-noinstLIBRARIES \
+	cscopelist-am ctags ctags-am distclean distclean-compile \
+	distclean-generic distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic pdf pdf-am ps ps-am tags tags-am uninstall \
+	uninstall-am
 
 .PRECIOUS: Makefile
 
-
-# libonejit_a_LDFLAGS  =
-# libonejit_a_LDADD    =
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -38,8 +38,8 @@ namespace onejit {
 
 class Code : private Buffer<CodeItem> {
   friend class Node;
-  typedef CodeItem T;
-  typedef Buffer<T> Base;
+  using T = CodeItem;
+  using Base = Buffer<T>;
 
 public:
   Code() noexcept;

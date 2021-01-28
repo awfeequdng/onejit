@@ -33,34 +33,54 @@
 
 namespace onejit {
 
+#define ONEJIT_COMMENT(...)
+
 enum OpStmt0 : uint16_t {
   BAD = 0,
   BREAK = 1,
   CONTINUE = 2,
   FALLTHROUGH = 3,
 
-  X86_CLC,      // clear carry flag
-  X86_CLD,      // clear direction flag
-  X86_CMC,      // complement carry flag
-  X86_INT3,     // generate a breakpoint trap
-  X86_LFENCE,   // serialize memory load operations
-  X86_LOCK,     // lock prefix for following instruction
-  X86_MFENCE,   // serialize all memory operations
-  X86_NOP,      // no operation
-  X86_PAUSE,    // spin loop hint
-  X86_SFENCE,   // serialize memory store operations
-  X86_SYSCALL,  // fast system call
-  X86_SYSENTER, // fast system call
-  X86_SYSEXIT,  // fast system call return
-  X86_SYSRET,   // fast system call return
-  X86_UD2,      // undefined instruction, intentionally causes SIGILL
+// numeric values of the OpStmt0 enum constants below this line MAY CHANGE WITHOUT WARNING
 
-  X86_XACQUIRE, // lock elision hint
-  X86_XRELEASE, // lock elision hint
+#define ONEJIT_OPSTMT0_X86(x)                                                                      \
+  x(CLC, clc)               /* clear carry flag           */                                       \
+      x(CLD, cld)           /* clear direction flag       */                                       \
+      x(CMC, cmc)           /* complement carry flag      */                                       \
+      x(INT3, int3)         /* generate a breakpoint trap */                                       \
+      x(LOCK, lock)         /* lock prefix for following instruction */                            \
+      x(NOP, nop)           /* no operation               */                                       \
+      x(PAUSE, pause)       /* spin loop hint             */                                       \
+      x(POPF, popf)         /* pop 8 bytes (4 on 32bit) from stack into EFLAGS */                  \
+      x(PUSHF, pushf)       /* push 8 bytes (4 on 32bit) to stack from EFLAGS */                   \
+      x(REP, rep)           /* repeat prefix for following instruction */                          \
+      x(REPNE, repne)       /* repeat prefix for following instruction */                          \
+      x(RET, ret)           /* return from function call  */                                       \
+      x(STC, stc)           /* set carry flag             */                                       \
+      x(STD, std)           /* set direction flag         */                                       \
+      x(SYSCALL, syscall)   /* fast system call           */                                       \
+      x(SYSENTER, sysenter) /* fast system call           */                                       \
+      x(SYSEXIT, sysexit)   /* fast system call return    */                                       \
+      x(SYSRET, sysret)     /* fast system call return    */                                       \
+      x(UD2, ud2)           /* undefined instruction, intentionally causes SIGILL */               \
+      x(XACQUIRE, xacquire) /* lock elision hint          */                                       \
+      x(XRELEASE, xrelease) /* lock elision hint          */                                       \
+      ONEJIT_COMMENT() /* --------------------------------------------------------------------- */ \
+      ONEJIT_COMMENT() /* [CPUID SSE2] is required by the following instructions -------------- */ \
+      ONEJIT_COMMENT() /* --------------------------------------------------------------------- */ \
+      x(LFENCE, lfence) /* serialize memory load operations  */                                    \
+      x(MFENCE, mfence) /* serialize all memory operations   */                                    \
+      x(SFENCE, sfence) /* serialize memory store operations */                                    \
+      ONEJIT_COMMENT() /* --------------------------------------------------------------------- */ \
+      ONEJIT_COMMENT() /* [CPUID RTM] is required by the following instructions --------------- */ \
+      ONEJIT_COMMENT() /* --------------------------------------------------------------------- */ \
+      x(XEND, xend)    /* end TSX transaction */                                                   \
+      x(XTEST, xtest)  /* if TSX transaction or lock elision is in progress, clear ZF flag.        \
+                          otherwise set ZF */
 
-  // the following instructions require [CPUID RTM]
-  X86_XEND,  // end TSX transaction
-  X86_XTEST, // if TSX transaction or lock elision is in progress, clear ZF flag. otherwise set ZF
+#define ONEJIT_X(NAME, name) X86_##NAME,
+  ONEJIT_OPSTMT0_X86(ONEJIT_X)
+#undef ONEJIT_X
 };
 
 enum OpStmt1 : uint16_t {
@@ -69,76 +89,82 @@ enum OpStmt1 : uint16_t {
   INC = 2, // ++
   DEC = 3, // --
 
-  ASM_JA = 32, // jump if above
-  ASM_JAE,     // jump if above or equal
-  ASM_JB,      // jump if below
-  ASM_JBE,     // jump if below or equal
-  ASM_JE,      // jump if equal (if zero)
-  ASM_JG,      // jump if greater
-  ASM_JGE,     // jump if greater or equal
-  ASM_JL,      // jump if less
-  ASM_JLE,     // jump if less or equal
-  ASM_JNE,     // jump if not equal (if not zero)
+// numeric values of the OpStmt1 enum constants below this line MAY CHANGE WITHOUT WARNING
 
-  X86_BSWAP = 256,    // x = byteswap(x) - invert endianity of 32bit or 64bit register
-  X86_CALL,           // call function. argument is relative offset, register or memory
-  X86_CBW,            // sign-extend  %al ->  %ax
-  X86_CWDE = X86_CBW, // sign-extend  %ax -> %eax
-  X86_CDQE = X86_CBW, // sign-extend %eax -> %rax
-  X86_INT,            // generate a call to interrupt procedure. argument is immediate
-  X86_JA,             // jump if above
-  X86_JAE,            // jump if above or equal (if not carry)
-  X86_JB,             // jump if below (if carry)
-  X86_JBE,            // jump if below or equal
-  X86_JE,             // jump if equal (if zero)
-  X86_JG,             // jump if greater
-  X86_JGE,            // jump if greater or equal
-  X86_JL,             // jump if less
-  X86_JLE,            // jump if less or equal
-  X86_JNE,            // jump if not equal (if not zero)
-  X86_JNO,            // jump if not overflow
-  X86_JNP,            // jump if not parity (if odd)
-  X86_JNS,            // jump if not sign
-  X86_JO,             // jump if overflow
-  X86_JP,             // jump if parity (if even)
-  X86_JS,             // jump if sign
-  X86_JMP,            // unconditional jump. argument is relative offset, register or memory
-  X86_NEG,            // negate (i.e. -x) register or memory
-  X86_NOT,            // invert (i.e. ^x) register or memory
-  X86_POP,            // pop 1,2,4 or 8 bytes from stack into register or memory
-  X86_POPF,           // pop 2 or 4 bytes from stack into EFLAGS
-  X86_PUSH,           // push 1,2,4 or 8 bytes to stack from register or memory
-  X86_PUSHF,          // push 2 or 4 bytes to stack from EFLAGS
-  X86_RDTSC,          // read timestamp counter into %rdx:%rax
-  X86_RET,            // return from function call
-  X86_SETA,           // set 1 byte register or memory if above
-  X86_SETAE,          // set 1 byte register or memory if above or equal (if not carry)
-  X86_SETB,           // set 1 byte register or memory if below (if carry)
-  X86_SETBE,          // set 1 byte register or memory if below or equal
-  X86_SETE,           // set 1 byte register or memory if equal (if zero)
-  X86_SETG,           // set 1 byte register or memory if greater
-  X86_SETGE,          // set 1 byte register or memory if greater or equal
-  X86_SETL,           // set 1 byte register or memory if less
-  X86_SETLE,          // set 1 byte register or memory if less or equal
-  X86_SETNE,          // set 1 byte register or memory if not equal (if not zero)
-  X86_SETNO,          // set 1 byte register or memory if not overflow
-  X86_SETNP,          // set 1 byte register or memory if not parity (if odd)
-  X86_SETNS,          // set 1 byte register or memory if not sign
-  X86_SETO,           // set 1 byte register or memory if overflow
-  X86_SETP,           // set 1 byte register or memory if parity (if even)
-  X86_SETS,           // set 1 byte register or memory if sign
-  X86_STC,            // set carry flag
-  X86_STD,            // set direction flag
-  X86_XADD,           // exchange and add register or memory
-  X86_XCHG,           // exchange register or memory
+#define ONEJIT_OPSTMT1_ASM(x)                                                                      \
+  x(JA, ja)       /* jump if above */                                                              \
+      x(JAE, jae) /* jump if above or equal */                                                     \
+      x(JB, jb)   /* jump if below */                                                              \
+      x(JBE, jbe) /* jump if below or equal */                                                     \
+      x(JE, je)   /* jump if equal (if zero) */                                                    \
+      x(JG, jg)   /* jump if greater */                                                            \
+      x(JGE, jge) /* jump if greater or equal */                                                   \
+      x(JL, jl)   /* jump if less */                                                               \
+      x(JLE, jle) /* jump if less or equal */                                                      \
+      x(JNE, jne) /* jump if not equal (if not zero) */
 
-  X86_CLFLUSH,    // clear all L1/L2... caches containing memory address. [CPUID CLFSH]
-  X86_CLFLUSHOPT, // clear all L1/L2... caches containing memory address. [CPUID CLFLUSHOPT]
-  X86_CLWB,       // write-back cache line containing memory address. [CPUID CLWB]
+#define ONEJIT_OPSTMT1_X86(x)                                                                      \
+  x(BSWAP, bswap)      /* x = byteswap(x) - invert endianity of 32bit or 64bit register */         \
+      x(CALL, call)    /* call function. argument is relative offset, register or memory */        \
+      x(CBW, cbw)      /* sign-extend %al -> %ax or %ax -> %eax or  %eax -> %rax */                \
+      x(INT, int)      /* generate a call to interrupt procedure. argument is immediate */         \
+      x(JA, ja)        /* jump if above */                                                         \
+      x(JAE, jae)      /* jump if above or equal (if not carry) */                                 \
+      x(JB, jb)        /* jump if below (if carry) */                                              \
+      x(JBE, jbe)      /* jump if below or equal */                                                \
+      x(JE, je)        /* jump if equal (if zero) */                                               \
+      x(JG, jg)        /* jump if greater */                                                       \
+      x(JGE, jge)      /* jump if greater or equal */                                              \
+      x(JL, jl)        /* jump if less */                                                          \
+      x(JLE, jle)      /* jump if less or equal */                                                 \
+      x(JNE, jne)      /* jump if not equal (if not zero) */                                       \
+      x(JNO, jno)      /* jump if not overflow */                                                  \
+      x(JNP, jnp)      /* jump if not parity (if odd) */                                           \
+      x(JNS, jns)      /* jump if not sign */                                                      \
+      x(JO, jo)        /* jump if overflow */                                                      \
+      x(JP, jp)        /* jump if parity (if even) */                                              \
+      x(JS, js)        /* jump if sign */                                                          \
+      x(JMP, jmp)      /* unconditional jump. argument is relative offset, register or memory */   \
+      x(NEG, neg)      /* negate (i.e. -x) register or memory */                                   \
+      x(NOT, not)      /* invert (i.e. ^x) register or memory */                                   \
+      x(POP, pop)      /* pop 1,2,4 or 8 bytes from stack into register or memory */               \
+      x(PUSH, push)    /* push 1,2,4 or 8 bytes to stack from register or memory */                \
+      x(RDTSC, rdtsc)  /* read timestamp counter into %rdx:%rax */                                 \
+      x(SETA, seta)    /* set 1 byte register or memory if above */                                \
+      x(SETAE, setae)  /* set 1 byte register or memory if above or equal (if not carry) */        \
+      x(SETB, setb)    /* set 1 byte register or memory if below (if carry) */                     \
+      x(SETBE, setbe)  /* set 1 byte register or memory if below or equal */                       \
+      x(SETE, sete)    /* set 1 byte register or memory if equal (if zero) */                      \
+      x(SETG, setg)    /* set 1 byte register or memory if greater */                              \
+      x(SETGE, setge)  /* set 1 byte register or memory if greater or equal */                     \
+      x(SETL, setl)    /* set 1 byte register or memory if less */                                 \
+      x(SETLE, setle)  /* set 1 byte register or memory if less or equal */                        \
+      x(SETNE, setne)  /* set 1 byte register or memory if not equal (if not zero) */              \
+      x(SETNO, setno)  /* set 1 byte register or memory if not overflow */                         \
+      x(SETNP, setnp)  /* set 1 byte register or memory if not parity (if odd) */                  \
+      x(SETNS, setns)  /* set 1 byte register or memory if not sign */                             \
+      x(SETO, seto)    /* set 1 byte register or memory if overflow */                             \
+      x(SETP, setp)    /* set 1 byte register or memory if parity (if even) */                     \
+      x(SETS, sets)    /* set 1 byte register or memory if sign */                                 \
+      ONEJIT_COMMENT() /* [CPUID CLFSH] is required by the following instructions ------------- */ \
+      x(CLFLUSH, clflush) /* clear all caches containing memory address. */                        \
+      ONEJIT_COMMENT() /* [CPUID CLFLUSHOPT] is required by the following instructions -------- */ \
+      x(CLFLUSHOPT, clflushopt) /* clear all caches containing memory address. */                  \
+      ONEJIT_COMMENT()  /* [CPUID CLWB] is required by the following instructions ------------- */ \
+      x(CLWB, clwb)     /* write-back cache line containing memory address. */                     \
+      ONEJIT_COMMENT()  /* [CPUID RTM] is required by the following instructions -------------- */ \
+      x(XABORT, xabort) /* abort TSX transaction with 1 byte immediate value */
 
-  // the following instructions require [CPUID RTM]
-  X86_XABORT, // abort TSX transaction with 1 byte immediate value
-  X86_XBEGIN, // start TSX transaction, with relative address of code to run on abort
+#define ONEJIT_X(NAME, name) ASM_##NAME,
+  ONEJIT_OPSTMT1_ASM(ONEJIT_X)
+#undef ONEJIT_X
+
+#define ONEJIT_X(NAME, name) X86_##NAME,
+      ONEJIT_OPSTMT1_X86(ONEJIT_X)
+#undef ONEJIT_X
+
+          X86_CWDE = X86_CBW, /* sign-extend  %ax -> %eax */
+  X86_CDQE = X86_CBW,         /* sign-extend %eax -> %rax */
 
 };
 
@@ -162,135 +188,161 @@ enum OpStmt2 : uint16_t {
   DEFAULT,
   JUMP_IF,
 
-  ASM_MOV = 32, // copy register to register
-  ASM_LOAD,     // load register from memory
-  ASM_STOR,     // store register to memory
+// numeric values of the OpStmt2 enum constants below this line MAY CHANGE WITHOUT WARNING
 
-  X86_ADD = 256,  // x += y on register or memory
-  X86_ADC,        // x += y + carry on register or memory
-  X86_AND,        // bitwise AND (i.e. x&y) register or memory
-  X86_BSF,        // x = bitscan_forward(y)
-  X86_BSR,        // x = bitscan_reverse(y)
-  X86_BT,         // bit test
-  X86_BTC,        // bit test and complement
-  X86_BTR,        // bit test and reset
-  X86_BTS,        // bit test and set
-  X86_CMOVA,      // conditional move if above
-  X86_CMOVAE,     // conditional move if above or equal (if not carry)
-  X86_CMOVB,      // conditional move if below (if carry)
-  X86_CMOVBE,     // conditional move if below or equal
-  X86_CMOVE,      // conditional move if equal (if zero)
-  X86_CMOVG,      // conditional move if greater
-  X86_CMOVGE,     // conditional move if greater or equal
-  X86_CMOVL,      // conditional move if less
-  X86_CMOVLE,     // conditional move if less or equal
-  X86_CMOVNE,     // conditional move if not equal (if not zero)
-  X86_CMOVNO,     // conditional move if not overflow
-  X86_CMOVNP,     // conditional move if not parity (if odd)
-  X86_CMOVNS,     // conditional move if not sign
-  X86_CMOVO,      // conditional move if overflow
-  X86_CMOVP,      // conditional move if parity (if even)
-  X86_CMOVS,      // conditional move if sign
-  X86_CMP,        // compare two arguments, set EFLAGS
-  X86_CMPXCHG,    // compare and exchange 1, 2, 4 or 8 bytes
-  X86_CMPXCHG8B,  // compare and exchange 8 bytes
-  X86_CMPXCHG16B, // compare and exchange 16 bytes
-  X86_IMUL2,      // signed multiply
-  X86_LEA,        // load effective address
-  X86_LODS,       // load string from ds:%rsi into %al/%ax/%eax/%rax
-  X86_MOV,        // general purpose move register, memory or immediate
-  X86_MOVNTI,     // store 4 or 8 bytes register to memory, with non-temporal hint
-  X86_MOVS,       // move 1,2,4 or 8 bytes from mem at ds:%rsi to mem at es:%rdi, and update both
-  X86_MOVSX,      // sign-extend register or memory
-  X86_MOVZX,      // zero-extend register or memory
-  X86_OR,         // bitwise OR (i.e. x|y) register or memory
-  X86_RCL,        // rotate left 1,2,4 or 8 bytes + carry by specified # bits
-  X86_RCR,        // rotate right 1,2,4 or 8 bytes + carry by specified # bits
-  X86_ROL,        // rotate left 1,2,4 or 8 bytes by specified # bits
-  X86_ROR,        // rotate right 1,2,4 or 8 bytes by specified # bits
-  X86_SAR,        // right shift register or memory by specified # bits, sign fill
-  X86_SHL,        // left shift register or memory by specified # bits
-  X86_SHR,        // right shift register or memory by specified # bits, zero fill
-  X86_SBB,        // subtract with borrow, register or memory
-  X86_SUB,        // subtract register or memory
-  X86_TEST,       // bitwise AND register or memory, discard result, set EFLAGS
-  X86_XOR,        // bitwise OR (i.e. x^y) register or memory
+#define ONEJIT_OPSTMT2_ASM(x)                                                                      \
+  x(/**/ MOVE, move) /* copy register or immediate to register */                                  \
+      x(LOAD, load)  /* load register from memory */                                               \
+      x(STOR, stor)  /* store register to memory */
 
-  // the following instructions require [CPUID SSE]
-  X86_MOVHLPD, // move high 8 bytes to low 8 bytes of packed float
-  X86_MOVHPD,  // move high 8 bytes to high 8 bytes of packed double
-  X86_MOVLHPD, // move low 8 bytes to high 8 bytes of packed double
-  X86_MOVLPD,  // move low 8 bytes to low 8 bytes of packed double
-  X86_MOVHLPS, // move high 8 bytes to low 8 bytes of packed float
-  X86_MOVHPS,  // move high 8 bytes to high 8 bytes of packed float
-  X86_MOVLHPS, // move low 8 bytes to high 8 bytes of packed float
-  X86_MOVLPS,  // move low 8 bytes to low 8 bytes of packed float
+#define ONEJIT_OPSTMT2_X86(x)                                                                      \
+  x(/**/ ADD, add)              /* x += y on register or memory */                                 \
+      x(ADC, adc)               /* x += y + carry on register or memory */                         \
+      x(AND, and)               /* bitwise AND (i.e. x&y) register or memory */                    \
+      x(BSF, bsf)               /* x = bitscan_forward(y) */                                       \
+      x(BSR, bsr)               /* x = bitscan_reverse(y) */                                       \
+      x(BT, bt)                 /* bit test */                                                     \
+      x(BTC, btc)               /* bit test and complement */                                      \
+      x(BTR, btr)               /* bit test and reset */                                           \
+      x(BTS, bts)               /* bit test and set */                                             \
+      x(CMOVA, cmova)           /* conditional move if above */                                    \
+      x(CMOVAE, cmovae)         /* conditional move if above or equal (if not carry) */            \
+      x(CMOVB, cmovb)           /* conditional move if below (if carry) */                         \
+      x(CMOVBE, cmovbe)         /* conditional move if below or equal */                           \
+      x(CMOVE, cmove)           /* conditional move if equal (if zero) */                          \
+      x(CMOVG, cmovg)           /* conditional move if greater */                                  \
+      x(CMOVGE, cmovge)         /* conditional move if greater or equal */                         \
+      x(CMOVL, cmovl)           /* conditional move if less */                                     \
+      x(CMOVLE, cmovle)         /* conditional move if less or equal */                            \
+      x(CMOVNE, cmovne)         /* conditional move if not equal (if not zero) */                  \
+      x(CMOVNO, cmovno)         /* conditional move if not overflow */                             \
+      x(CMOVNP, cmovnp)         /* conditional move if not parity (if odd) */                      \
+      x(CMOVNS, cmovns)         /* conditional move if not sign */                                 \
+      x(CMOVO, cmovo)           /* conditional move if overflow */                                 \
+      x(CMOVP, cmovp)           /* conditional move if parity (if even) */                         \
+      x(CMOVS, cmovs)           /* conditional move if sign */                                     \
+      x(CMP, cmp)               /* compare two arguments, set EFLAGS */                            \
+      x(CMPXCHG, cmpxchg)       /* compare and exchange 1, 2, 4 or 8 bytes */                      \
+      x(CMPXCHG8B, cmpxchg8b)   /* compare and exchange 8 bytes */                                 \
+      x(CMPXCHG16B, cmpxchg16b) /* compare and exchange 16 bytes */                                \
+      x(IMUL2, imul2)           /* signed multiply */                                              \
+      x(LEA, lea)               /* load effective address */                                       \
+      x(LODS, lods)             /* load string from %rsi into %al/%ax/%eax/%rax */                 \
+      x(MOV, move)              /* general purpose move register, memory or immediate */           \
+      x(MOVNTI, movnti) /* store 4 or 8 bytes register to memory, with non-temporal hint */        \
+      x(MOVS, movs)   /* move 1,2,4 or 8 bytes from mem at %rsi to mem at %rdi, and update both */ \
+      x(MOVSX, movsx) /* sign-extend register or memory */                                         \
+      x(MOVZX, movzx) /* zero-extend register or memory */                                         \
+      x(OR, or)       /* bitwise OR (i.e. x|y) register or memory */                               \
+      x(RCL, rcl)     /* rotate left 1,2,4 or 8 bytes + carry by specified # bits */               \
+      x(RCR, rcr)     /* rotate right 1,2,4 or 8 bytes + carry by specified # bits */              \
+      x(ROL, rol)     /* rotate left 1,2,4 or 8 bytes by specified # bits */                       \
+      x(ROR, ror)     /* rotate right 1,2,4 or 8 bytes by specified # bits */                      \
+      x(SAR, sar)     /* right shift register or memory by specified # bits, sign fill */          \
+      x(SHL, shl)     /* left shift register or memory by specified # bits */                      \
+      x(SHR, shr)     /* right shift register or memory by specified # bits, zero fill */          \
+      x(SBB, sbb)     /* subtract with borrow, register or memory */                               \
+      x(SUB, sub)     /* subtract register or memory */                                            \
+      x(TEST, test)   /* bitwise AND register or memory, discard result, set EFLAGS */             \
+      x(XADD, xadd)   /* exchange and add register or memory */                                    \
+      x(XCHG, xchg)   /* exchange register or memory */                                            \
+      x(XOR, xor)     /* bitwise OR (i.e. x^y) register or memory */                               \
+      ONEJIT_COMMENT()    /* ------------------------------------------------------------------ */ \
+      ONEJIT_COMMENT()    /* [CPUID SSE] is required by the following instructions ------------ */ \
+      ONEJIT_COMMENT()    /* ------------------------------------------------------------------ */ \
+      x(MOVHLPD, movhlpd) /* move high 8 bytes to low 8 bytes of packed float */                   \
+      x(MOVHPD, movhpd)   /* move high 8 bytes to high 8 bytes of packed double */                 \
+      x(MOVLHPD, movlhpd) /* move low 8 bytes to high 8 bytes of packed double */                  \
+      x(MOVLPD, movlpd)   /* move low 8 bytes to low 8 bytes of packed double */                   \
+      x(MOVHLPS, movhlps) /* move high 8 bytes to low 8 bytes of packed float */                   \
+      x(MOVHPS, movhps)   /* move high 8 bytes to high 8 bytes of packed float */                  \
+      x(MOVLHPS, movlhps) /* move low 8 bytes to high 8 bytes of packed float */                   \
+      x(MOVLPS, movlps)   /* move low 8 bytes to low 8 bytes of packed float */                    \
+      ONEJIT_COMMENT()    /* ------------------------------------------------------------------ */ \
+      ONEJIT_COMMENT()    /* [CPUID SSE2] is required by the following instructions ----------- */ \
+      ONEJIT_COMMENT()    /* ------------------------------------------------------------------ */ \
+      x(CVTSD2SI, cvtsd2si) /* convert double to int */                                            \
+      x(CVTSD2SS, cvtsd2ss) /* convert double to float */                                          \
+      x(CVTSI2SD, cvtsi2sd) /* convert int to double */                                            \
+      x(CVTSI2SS, cvtsi2ss) /* convert int to float */                                             \
+      x(CVTSS2SD, cvtss2sd) /* convert double to float */                                          \
+      x(CVTSS2SI, cvtss2si) /* convert float to int */                                             \
+      x(DIVSD, divsd)       /* divide double */                                                    \
+      x(DIVSS, divss)       /* divide float */                                                     \
+      x(MAXPD, maxpd)       /* maximum of two %xmm packed double */                                \
+      x(MAXPS, maxps)       /* maximum of two %xmm packed float */                                 \
+      x(MAXSD, maxsd)       /* maximum double */                                                   \
+      x(MAXSS, maxss)       /* maximum float */                                                    \
+      x(MINPD, minpd)       /* minimum of two %xmm packed double */                                \
+      x(MINPS, minps)       /* minimum of two %xmm packed float */                                 \
+      x(MINSD, minsd)       /* minimum double */                                                   \
+      x(MINSS, minss)       /* minimum float */                                                    \
+      x(MOVAPD, movapd)     /* move packed double from %xmm or aligned memory to %xmm */           \
+      x(MOVAPS, movaps)     /* move packed float from %xmm or aligned memory to %xmm */            \
+      x(MOVD, movd)         /* move 4 bytes between %xmm, register or memory */                    \
+      x(MOVDQA, movdqa)     /* move packed int between %xmm and %xmm or aligned memory */          \
+      x(MOVDQU, movdqu)     /* move packed int between %xmm and %xmm or unaligned memory */        \
+      x(MOVMKSPD, movmkspd) /* extract the two sign bits from packed double */                     \
+      x(MOVMKSPS, movmksps) /* extract the four sign bits from packed float */                     \
+      x(MOVNTDQ, movntdq)   /* store packed int to aligned memory, with non-temporal hint */       \
+      x(MOVNTPD, movntpd)   /* store packed double to aligned memory, with non-temporal hint */    \
+      x(MOVNTPS, movntps)   /* store packed float to aligned memory, with non-temporal hint */     \
+      x(MOVQ, movq)         /* move 8 bytes between between %xmm, register or memory */            \
+      x(MOVSD, movsd)       /* move low double from %xmm to %xmm or memory */                      \
+      x(MOVSS, movss)       /* move low float from %xmm to %xmm or memory */                       \
+      x(MOVUPD, movupd)     /* move packed double from %xmm to %xmm or unaligned memory */         \
+      x(MOVUPS, movups)     /* move packed float from %xmm to %xmm or unaligned memory */          \
+      x(MULPD, mulpd)       /* multiply packed double from %xmm to %xmm or memory */               \
+      x(MULPS, mulps)       /* multiply packed float from %xmm to %xmm or memory */                \
+      x(PAND, pand)         /* bitwise AND of %xmm and %xmm or memory */                           \
+      x(PANDN, pandn)       /* bitwise AND-NOT of %xmm and %xmm or memory */                       \
+      x(POR, por)           /* bitwise OR of %xmm and %xmm or memory */                            \
+      x(PXOR, pxor)         /* bitwise XOR of %xmm and %xmm or memory */                           \
+      ONEJIT_COMMENT() /* --------------------------------------------------------------------- */ \
+      ONEJIT_COMMENT() /* [CPUID SSE3] is required by the following instructions -------------- */ \
+      x(LDDQU, lddqu)  /* load unaligned 128 bits into %xmm */                                     \
+      ONEJIT_COMMENT() /* --------------------------------------------------------------------- */ \
+      ONEJIT_COMMENT() /* [CPUID SSE4.1] is required by the following instructions ------------ */ \
+      x(MOVNTDQA, movntdqa) /* load packed double from aligned memory, with non-temporal hint */   \
+      ONEJIT_COMMENT() /* --------------------------------------------------------------------- */ \
+      ONEJIT_COMMENT() /* [CPUID SSE4.2] is required by the following instructions ------------ */ \
+      x(CRC32, crc32)  /* accumulate CRC32c of 1, 2, 4 or 8 bytes into register */                 \
+      ONEJIT_COMMENT() /* --------------------------------------------------------------------- */ \
+      ONEJIT_COMMENT() /* [CPUID LZCNT] is required by the following instructions ------------- */ \
+      x(LZCNT, lzcnt)  /* count most significant zero bits */                                      \
+      ONEJIT_COMMENT() /* --------------------------------------------------------------------- */ \
+      ONEJIT_COMMENT() /* [CPUID MOVBE] is required by the following instructions ------------- */ \
+      x(MOVBE, movbe)  /* move and byte-swap register */                                           \
+      ONEJIT_COMMENT() /* --------------------------------------------------------------------- */ \
+      ONEJIT_COMMENT() /* [CPUID POPCNT] is required by the following instructions ------------ */ \
+      x(POPCNT, popcnt) /* count bits = 1 */                                                       \
+      ONEJIT_COMMENT()  /* [CPUID RTM] is required by the following instructions ------------ */   \
+      x(XBEGIN, xbegin) /* start TSX transaction. arg is displacement of code to run on abort.     \
+                           writes %rax */
 
-  // the following instructions require [CPUID SSE2]
-  X86_CVTSD2SI, // convert double to int
-  X86_CVTSD2SS, // convert double to float
-  X86_CVTSI2SD, // convert int to double
-  X86_CVTSI2SS, // convert int to float
-  X86_CVTSS2SD, // convert double to float
-  X86_CVTSS2SI, // convert float to int
-  X86_DIVSD,    // divide double
-  X86_DIVSS,    // divide float
-  X86_MAXPD,    // maximum of two %xmm packed double
-  X86_MAXPS,    // maximum of two %xmm packed float
-  X86_MAXSD,    // maximum double
-  X86_MAXSS,    // maximum float
-  X86_MINPD,    // minimum of two %xmm packed double
-  X86_MINPS,    // minimum of two %xmm packed float
-  X86_MINSD,    // minimum double
-  X86_MINSS,    // minimum float
-  X86_MOVAPD,   // move packed double
-  X86_MOVAPS,   // move packed float
-  X86_MOVD,     // move 4 bytes between %xmm and register or memory
-  X86_MOVDQA,   // move packed int between %xmm and %xmm or aligned memory
-  X86_MOVDQU,   // move packed int between %xmm and %xmm or unaligned memory
-  X86_MOVMKSPD, // extract the two sign bits from packed double
-  X86_MOVMKSPS, // extract the four sign bits from packed float
-  X86_MOVNTDQ,  // store packed int to aligned memory, with non-temporal hint
-  X86_MOVNTPD,  // store packed double to aligned memory, with non-temporal hint
-  X86_MOVNTPS,  // store packed float to aligned memory, with non-temporal hint
-  X86_MOVQ,     // move 8 bytes between %xmm and %xmm or memory
-  X86_MOVSD,    // move low double from %xmm to %xmm or memory
-  X86_PAND,     // bitwise AND of %xmm and %xmm or memory
-  X86_PANDN,    // bitwise AND-NOT of %xmm and %xmm or memory
-  X86_POR,      // bitwise OR of %xmm and %xmm or memory
-  X86_PXOR,     // bitwise XOR of %xmm and %xmm or memory
+#define ONEJIT_X(NAME, name) ASM_##NAME,
+  ONEJIT_OPSTMT2_ASM(ONEJIT_X)
+#undef ONEJIT_X
 
-  // the following instructions require [CPUID SSE3]
-  X86_LDDQU, // load unaligned 128 bits into xmm
-
-  // the following instructions require [CPUID SSE4.1]
-  X86_MOVNTDQA, // load packed double from aligned memory, with non-temporal hint
-
-  // the following instructions require [CPUID SSE4.2]
-  X86_CRC32, // accumulate CRC32c of 1, 2, 4 or 8 bytes
-
-  // the following instructions require [CPUID LZCNT]
-  X86_LZCNT, // count most significant zero bits
-
-  // the following instructions require [CPUID MOVBE]
-  X86_MOVBE, // move and byte-swap register
-
-  // the following instructions require [CPUID POPCNT]
-  X86_POPCNT, // count bits = 1
+#define ONEJIT_X(NAME, name) X86_##NAME,
+      ONEJIT_OPSTMT2_X86(ONEJIT_X)
+#undef ONEJIT_X
 };
 
 enum OpStmt3 : uint16_t {
   BAD_ST3 = 0,
   IF = 1,
 
-  ASM_CMP = 32, // compare two arguments, set architectural flags
+  // numeric values of the OpStmt3 enum constants below this line MAY CHANGE WITHOUT WARNING
 
-  X86_DIV = 256, // unsigned divide %rdx:%rax by argument
-  X86_IDIV,      // signed divide %rdx:%rax by argument
-  X86_IMUL3,     // signed multiply by constant
-  X86_MUL,       // unsigned multiply %rdx:%rax by argument
-  X86_SHLD, // left shift register or memory by specified # bits, with fill from another register
-  X86_SHRD, // right shift register or memory by specified # bits, with fill from another register
+  ASM_CMP, // compare two arguments, set architectural flags
+
+  X86_DIV,   // unsigned divide %rdx:%rax by argument
+  X86_IDIV,  // signed divide %rdx:%rax by argument
+  X86_IMUL3, // signed multiply by constant
+  X86_MUL,   // unsigned multiply %rdx:%rax by argument
+  X86_SHLD,  // left shift register or memory by specified # bits, with fill from another register
+  X86_SHRD,  // right shift register or memory by specified # bits, with fill from another register
 
   // the following instructions require [CPUID SSE2]
   X86_PEXTRW, // extract 4 bytes from %xmm to register

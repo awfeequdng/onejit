@@ -121,8 +121,8 @@ constexpr inline LogSize operator/(LogSize a, LogSize b) noexcept {
   return a.is_zero() || a < b ? LogSize() : LogSize::fromlog2(a.log2() - b.log2());
 }
 
-typedef LogSize Bits;
-typedef LogSize SimdN;
+using Bits = LogSize;
+using SimdN = LogSize;
 
 const Fmt &operator<<(const Fmt &out, LogSize size);
 
