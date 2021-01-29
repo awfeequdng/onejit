@@ -33,7 +33,7 @@ namespace onejit {
 
 static const Chars op_stmt_0_string[] = {
     //
-    "bad", "break", "continue", "fallthrough",
+    "_", "break", "continue", "fallthrough",
 
 #define ONEJIT_X(NAME, name) "x86_" #name,
     ONEJIT_OPSTMT0_X86(ONEJIT_X)
@@ -42,8 +42,8 @@ static const Chars op_stmt_0_string[] = {
         "?" //
 };
 
-const Chars &to_string(OpStmt0 op) noexcept {
-  uint8_t i = op;
+const Chars to_string(OpStmt0 op) noexcept {
+  size_t i = op;
   if (i >= ONEJIT_N_OF(op_stmt_0_string)) {
     i = ONEJIT_N_OF(op_stmt_0_string) - 1;
   }
@@ -69,10 +69,10 @@ static const Chars op_stmt_1_string[] = { //
 
 };
 
-const Chars &to_string(OpStmt1 op) noexcept {
-  uint8_t i = op;
-  if (i >= ONEJIT_N_OF(op_stmt_1_string)) {
-    i = 0;
+const Chars to_string(OpStmt1 op) noexcept {
+  size_t i = 0;
+  if (op < ONEJIT_N_OF(op_stmt_1_string)) {
+    i = op;
   }
   return op_stmt_1_string[i];
 }
@@ -83,17 +83,37 @@ const Fmt &operator<<(const Fmt &out, OpStmt1 op) {
 
 // ============================  OpStmt2  ======================================
 
-static const Chars op_stmt_2_string[] = {
-    "?",                                                    //
-    "+=",   "-=",      "*=",      "/=",  "%=",              //
-    "&=",   "|=",      "^=",      "<<=", ">>=", "&^=", "=", //
-    "case", "default", "jump_if",
+static const Chars op_stmt_2_string[] = { //
+    "?",
+    "+=",
+    "-=",
+    "*=",
+    "/=",
+    "%=",
+    "&=",
+    "|=",
+    "^=",
+    "<<=",
+    ">>=",
+    "&^=",
+    "=",
+    "case",
+    "default",
+    "jump_if",
+
+#define ONEJIT_X(NAME, name) "asm_" #name,
+    ONEJIT_OPSTMT2_ASM(ONEJIT_X)
+#undef ONEJIT_X
+
+#define ONEJIT_X(NAME, name) "x86_" #name,
+        ONEJIT_OPSTMT2_X86(ONEJIT_X)
+#undef ONEJIT_X
 };
 
-const Chars &to_string(OpStmt2 op) noexcept {
-  uint8_t i = op;
-  if (i >= ONEJIT_N_OF(op_stmt_2_string)) {
-    i = 0;
+const Chars to_string(OpStmt2 op) noexcept {
+  size_t i = 0;
+  if (op < ONEJIT_N_OF(op_stmt_2_string)) {
+    i = op;
   }
   return op_stmt_2_string[i];
 }
@@ -104,12 +124,18 @@ const Fmt &operator<<(const Fmt &out, OpStmt2 op) {
 
 // ============================  OpStmt3  ======================================
 
-static const Chars op_stmt_3_string[] = {"?", "if"};
+static const Chars op_stmt_3_string[] = { //
+    "?", "if",
 
-const Chars &to_string(OpStmt3 op) noexcept {
-  uint8_t i = op;
-  if (i >= ONEJIT_N_OF(op_stmt_3_string)) {
-    i = 0;
+#define ONEJIT_X(NAME, name) "x86_" #name,
+    ONEJIT_OPSTMT3_X86(ONEJIT_X)
+#undef ONEJIT_X
+};
+
+const Chars to_string(OpStmt3 op) noexcept {
+  size_t i = 0;
+  if (op < ONEJIT_N_OF(op_stmt_3_string)) {
+    i = op;
   }
   return op_stmt_3_string[i];
 }
@@ -122,10 +148,10 @@ const Fmt &operator<<(const Fmt &out, OpStmt3 op) {
 
 static const Chars op_stmt_4_string[] = {"?", "for"};
 
-const Chars &to_string(OpStmt4 op) noexcept {
-  uint8_t i = op;
-  if (i >= ONEJIT_N_OF(op_stmt_4_string)) {
-    i = 0;
+const Chars to_string(OpStmt4 op) noexcept {
+  size_t i = 0;
+  if (op < ONEJIT_N_OF(op_stmt_4_string)) {
+    i = op;
   }
   return op_stmt_4_string[i];
 }
@@ -138,8 +164,8 @@ const Fmt &operator<<(const Fmt &out, OpStmt4 op) {
 
 static const Chars op_stmt_n_string[] = {"?", "=tuple", "block", "cond", "return", "switch"};
 
-const Chars &to_string(OpStmtN op) noexcept {
-  uint8_t i = op;
+const Chars to_string(OpStmtN op) noexcept {
+  size_t i = op;
   if (i >= ONEJIT_N_OF(op_stmt_n_string)) {
     i = 0;
   }

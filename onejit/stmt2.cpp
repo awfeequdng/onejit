@@ -43,7 +43,7 @@ ONEJIT_NOINLINE Node Stmt2::create(Func &func, Node child0, Node child1, OpStmt2
     holder->truncate(offset);
     break;
   }
-  return Stmt2{op};
+  return Stmt2{};
 }
 
 const Fmt &operator<<(const Fmt &out, const Stmt2 &st) {

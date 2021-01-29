@@ -23,19 +23,18 @@
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_CALLEXPR_HPP
-#define ONEJIT_CALLEXPR_HPP
+#ifndef ONEJIT_CALL_HPP
+#define ONEJIT_CALL_HPP
 
-#include <onejit/expr.hpp>
 #include <onejit/func.hpp>
-#include <onejit/op.hpp>
+#include <onejit/tuple.hpp>
 #include <onestl/view.hpp>
 
 namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
-class Call : public Expr {
-  using Base = Expr;
+class Call : public Tuple {
+  using Base = Tuple;
   friend class Node;
   friend class Func;
 
@@ -47,7 +46,7 @@ public:
    *
    * to create a valid Call, use one of the other constructors
    */
-  constexpr Call() noexcept : Base{CALL} {
+  constexpr Call() noexcept : Base{} {
   }
 
   // create a call to Func 'called'
@@ -90,15 +89,13 @@ private:
   }
 
   // downcast helper
-  static constexpr bool is_allowed_type(Type t) noexcept {
-    return t == CALL;
+  static constexpr bool is_allowed_op(uint16_t op) noexcept {
+    return op == CALL_OP;
   }
 
   static Node create(Func &caller, const FuncType &ftype, const Label &flabel, Exprs args) noexcept;
 };
 
-const Fmt &operator<<(const Fmt &out, const Call &expr);
-
 } // namespace onejit
 
-#endif // ONEJIT_CALLEXPR_HPP
+#endif // ONEJIT_CALL_HPP

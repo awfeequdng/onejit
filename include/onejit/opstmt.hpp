@@ -193,7 +193,8 @@ enum OpStmt2 : uint16_t {
 #define ONEJIT_OPSTMT2_ASM(x)                                                                      \
   x(/**/ MOVE, move) /* copy register or immediate to register */                                  \
       x(LOAD, load)  /* load register from memory */                                               \
-      x(STOR, stor)  /* store register to memory */
+      x(STOR, stor)  /* store register to memory */                                                \
+      x(CMP, cmp)    /* compare arguments, set architectural flags */
 
 #define ONEJIT_OPSTMT2_X86(x)                                                                      \
   x(/**/ ADD, add)              /* x += y on register or memory */                                 \
@@ -225,7 +226,9 @@ enum OpStmt2 : uint16_t {
       x(CMPXCHG, cmpxchg)       /* compare and exchange 1, 2, 4 or 8 bytes */                      \
       x(CMPXCHG8B, cmpxchg8b)   /* compare and exchange 8 bytes */                                 \
       x(CMPXCHG16B, cmpxchg16b) /* compare and exchange 16 bytes */                                \
-      x(IMUL2, imul2)           /* signed multiply */                                              \
+      x(DIV, div)               /* unsigned divide %rdx:%rax by argument */                        \
+      x(IDIV, idiv)             /* signed divide %rdx:%rax by argument */                          \
+      x(IMUL, imul)             /* signed multiply %rdx:%rax by argument */                        \
       x(LEA, lea)               /* load effective address */                                       \
       x(LODS, lods)             /* load string from %rsi into %al/%ax/%eax/%rax */                 \
       x(MOV, move)              /* general purpose move register, memory or immediate */           \
@@ -233,6 +236,7 @@ enum OpStmt2 : uint16_t {
       x(MOVS, movs)   /* move 1,2,4 or 8 bytes from mem at %rsi to mem at %rdi, and update both */ \
       x(MOVSX, movsx) /* sign-extend register or memory */                                         \
       x(MOVZX, movzx) /* zero-extend register or memory */                                         \
+      x(MUL, mul)     /* unsigned multiply %rdx:%rax by argument */                                \
       x(OR, or)       /* bitwise OR (i.e. x|y) register or memory */                               \
       x(RCL, rcl)     /* rotate left 1,2,4 or 8 bytes + carry by specified # bits */               \
       x(RCR, rcr)     /* rotate right 1,2,4 or 8 bytes + carry by specified # bits */              \
@@ -333,24 +337,18 @@ enum OpStmt3 : uint16_t {
   BAD_ST3 = 0,
   IF = 1,
 
-  // numeric values of the OpStmt3 enum constants below this line MAY CHANGE WITHOUT WARNING
+// numeric values of the OpStmt3 enum constants below this line MAY CHANGE WITHOUT WARNING
 
-  ASM_CMP, // compare two arguments, set architectural flags
-
-  X86_DIV,   // unsigned divide %rdx:%rax by argument
-  X86_IDIV,  // signed divide %rdx:%rax by argument
-  X86_IMUL3, // signed multiply by constant
-  X86_MUL,   // unsigned multiply %rdx:%rax by argument
-  X86_SHLD,  // left shift register or memory by specified # bits, with fill from another register
-  X86_SHRD,  // right shift register or memory by specified # bits, with fill from another register
-
-  // the following instructions require [CPUID SSE2]
-  X86_PEXTRW, // extract 4 bytes from %xmm to register
-
-  // the following instructions require [CPUID SSE4.1]
-  X86_EXTRACTPS, // extract one float from packed floats
-  X86_INSERTPS,  // insert one float into packed floats
-  X86_PINSR,     // insert 1,2,4 or 8 bytes from register or memory to %xmm
+#define ONEJIT_OPSTMT3_X86(x)                                                                      \
+  x(/**/ IMUL3, imul3)  /* signed multiply by constant */                                          \
+      x(SHLD, shld)     /* left shift register or memory, fill with another register */            \
+      x(SHRD, shrd)     /* right shift register or memory, fill with another register */           \
+      ONEJIT_COMMENT()  /* [CPUID SSE2] is required by the following instructions ------------- */ \
+      x(PEXTRW, pextrw) /* extract 4 bytes from %xmm to register */                                \
+      ONEJIT_COMMENT()  /* [CPUID SSE4.1] is required by the following instructions ----------- */ \
+      x(EXTRACTPS, extractps) /* extract one float from packed floats */                           \
+      x(INSERTPS, insertps)   /* insert one float into packed floats */                            \
+      x(PINSR, pinsr)         /* insert 1,2,4 or 8 bytes from register or memory to %xmm */
 };
 
 enum OpStmt4 : uint16_t {
@@ -367,12 +365,12 @@ enum OpStmtN : uint16_t {
   SWITCH = 5,
 };
 
-const Chars &to_string(OpStmt0 op) noexcept;
-const Chars &to_string(OpStmt1 op) noexcept;
-const Chars &to_string(OpStmt2 op) noexcept;
-const Chars &to_string(OpStmt3 op) noexcept;
-const Chars &to_string(OpStmt4 op) noexcept;
-const Chars &to_string(OpStmtN op) noexcept;
+const Chars to_string(OpStmt0 op) noexcept;
+const Chars to_string(OpStmt1 op) noexcept;
+const Chars to_string(OpStmt2 op) noexcept;
+const Chars to_string(OpStmt3 op) noexcept;
+const Chars to_string(OpStmt4 op) noexcept;
+const Chars to_string(OpStmtN op) noexcept;
 
 const Fmt &operator<<(const Fmt &out, OpStmt0 op);
 const Fmt &operator<<(const Fmt &out, OpStmt1 op);

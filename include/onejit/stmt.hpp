@@ -35,6 +35,7 @@ namespace onejit {
 class Stmt : public Node {
   using Base = Node;
   friend class Node;
+  friend class Stmt0;
 
 public:
   constexpr Stmt() noexcept : Base{} {
@@ -45,10 +46,6 @@ public:
   }
 
 protected:
-  constexpr Stmt(Type t, Kind kind, uint16_t op) noexcept
-      : Base{NodeHeader{t, kind, op}, 0, nullptr} {
-  }
-
   // downcast Node to Stmt
   constexpr explicit Stmt(const Node &node) noexcept : Base{node} {
   }
@@ -56,6 +53,12 @@ protected:
   // downcast helper
   static constexpr bool is_allowed_type(Type t) noexcept {
     return t >= STMT_0 && t <= STMT_N;
+  }
+
+private:
+  // needed by Stmt0{op} constructor
+  constexpr Stmt(Type t, Kind kind, uint16_t op) noexcept
+      : Base{NodeHeader{t, kind, op}, 0, nullptr} {
   }
 };
 

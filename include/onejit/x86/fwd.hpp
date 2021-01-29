@@ -1,7 +1,7 @@
 /*
- * oneasm - in-memory assembler
+ * onejit - JIT compiler in C++
  *
- * Copyright (C) 2021 Massimiliano Ghilardi
+ * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,74 +17,26 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * reg.hpp
+ * fwd.hpp
  *
- *  Created on Jan 28, 2021
+ *  Created on Jan 22, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEASM_X86_REG_HPP
-#define ONEASM_X86_REG_HPP
 
-#include <cstdint> // uint*_t
+#ifndef ONEJIT_X86_FWD_HPP
+#define ONEJIT_X86_FWD_HPP
 
-namespace oneasm {
+namespace onejit {
 namespace x86 {
 
-enum Reg : uint16_t {
-  // use interval 256..511 of onejit::Id{}
-  // 0 is reserved for onejit::NOID
-  RAX = 0x100,
-  RCX,
-  RDX,
-  RBX,
-  RSP,
-  RBP,
-  RSI,
-  RDI,
-  R8,
-  R9,
-  R10,
-  R11,
-  R12,
-  R13,
-  R14,
-  R15,
-  RIP = 0x110,
-  XMM0 = 0x120,
-  XMM1,
-  XMM2,
-  XMM3,
-  XMM4,
-  XMM5,
-  XMM6,
-  XMM7,
-  XMM8,
-  XMM9,
-  XMM10,
-  XMM11,
-  XMM12,
-  XMM13,
-  XMM14,
-  XMM15,
-  ZMM16,
-  ZMM17,
-  ZMM18,
-  ZMM19,
-  ZMM20,
-  ZMM21,
-  ZMM22,
-  ZMM23,
-  ZMM24,
-  ZMM25,
-  ZMM26,
-  ZMM27,
-  ZMM28,
-  ZMM29,
-  ZMM30,
-  ZMM31,
-};
+class Addr;
+class Inst;
+class Inst0;
+class Inst1;
+class Inst2;
+class Inst3;
 
 } // namespace x86
-} // namespace oneasm
+} // namespace onejit
 
-#endif // ONEASM_X86_REG_HPP
+#endif // ONEJIT_X86_FWD_HPP

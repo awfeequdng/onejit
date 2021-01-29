@@ -24,7 +24,6 @@
  */
 
 #include <onejit/binary.hpp>
-#include <onejit/call.hpp>
 #include <onejit/check.hpp>
 #include <onejit/code.hpp>
 #include <onejit/const.hpp>
@@ -39,6 +38,7 @@
 #include <onejit/stmt3.hpp>
 #include <onejit/stmt4.hpp>
 #include <onejit/stmtn.hpp>
+#include <onejit/tuple.hpp>
 #include <onejit/unary.hpp>
 #include <onejit/var.hpp>
 #include <onestl/chars.hpp>
@@ -153,8 +153,8 @@ const Fmt &operator<<(const Fmt &out, const Node &node) {
     return out << node.is<Unary>();
   case BINARY:
     return out << node.is<Binary>();
-  case CALL:
-    return out << node.is<Call>();
+  case TUPLE:
+    return out << node.is<Tuple>();
   case LABEL:
     return out << node.is<Label>();
   case CONST:

@@ -45,10 +45,22 @@ public:
    *
    * to create a valid Stmt0, use Stmt0(OpStmt0) or a derived class constructor
    */
-  constexpr Stmt0() noexcept : Base{STMT_0, Bad, BAD} {
+  constexpr Stmt0() noexcept : Base{} {
   }
 
   constexpr explicit Stmt0(OpStmt0 op) noexcept : Base{STMT_0, Void, op} {
+  }
+
+  static constexpr Type type() noexcept {
+    return STMT_0;
+  }
+
+  static constexpr Kind kind() noexcept {
+    return Void;
+  }
+
+  constexpr OpStmt0 op() const noexcept {
+    return OpStmt0(Base::op());
   }
 
   static constexpr uint32_t children() noexcept {

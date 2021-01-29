@@ -106,8 +106,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am_test_jit_OBJECTS = test_main.$(OBJEXT)
 test_jit_OBJECTS = $(am_test_jit_OBJECTS)
 am__DEPENDENCIES_1 =
-test_jit_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+test_jit_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -291,9 +290,8 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
-LIBONEASM = @LIBONEASM@
-LIBONEASM_X86 = @LIBONEASM_X86@
 LIBONEJIT = @LIBONEJIT@
+LIBONEJIT_X86 = @LIBONEJIT_X86@
 LIBONESTL = @LIBONESTL@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
@@ -358,13 +356,13 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = oneasm onejit onestl
+SUBDIRS = onejit onestl
 pkgdata_DATA = COPYING README.md
 AM_CPPFLAGS = -I$(top_srcdir)/include
 # onejit_CPPFLAGS      = -I$(top_srcdir)/include
 test_jit_SOURCES = test_main.cpp
-EXTRA_test_jit_DEPENDENCIES = $(LIBONEASM) $(LIBONEJIT) $(LIBONESTL)
-test_jit_LDADD = $(LIBONEASM) $(LIBONEJIT) $(LIBONESTL)
+EXTRA_test_jit_DEPENDENCIES = $(LIBONEJIT) $(LIBONESTL)
+test_jit_LDADD = $(LIBONEJIT) $(LIBONESTL)
 all: all-recursive
 
 .SUFFIXES:

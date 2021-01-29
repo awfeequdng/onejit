@@ -31,7 +31,7 @@ namespace onejit {
 
 static const int8_t tchildren[] = {
     0, 1, 2,  3, 4,  -1,    // Stmt*
-    0, 0, 1,  2, -1, 0,  0, // Expr
+    0, 1, 1,  2, -1, 0,  0, // Expr
     0, 0, -1,               // FuncType, Name
 };
 

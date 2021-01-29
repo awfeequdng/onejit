@@ -206,7 +206,7 @@ private:
     }
 
     // create direct value if possible, otherwise zero
-    constexpr ONEJIT_NOINLINE Direct(uint64_t bits, eKind ekind, int) noexcept
+    constexpr Direct(uint64_t bits, eKind ekind, int) noexcept
         // Kind must fit 4 bits
         : val_{(ekind & 0xF0) != 0 ? 0 : recurse(ekind, bits, 0, 0)} {
     }
@@ -245,8 +245,9 @@ private:
     }
 
     // return direct value if possible, otherwise zero
-    static constexpr uint32_t recurse(eKind ekind, uint64_t bits, //
-                                      uint8_t rotate_bits, uint64_t xor_mask) noexcept {
+    static constexpr ONEJIT_NOINLINE uint32_t recurse(eKind ekind, uint64_t bits, //
+                                                      uint8_t rotate_bits,
+                                                      uint64_t xor_mask) noexcept {
       return can_direct(ekind, bits, rotate_bits, xor_mask)                               //
                  ? make_direct(ekind, bits, rotate_bits, xor_mask)                        //
                  : xor_mask == 0 ? recurse(ekind, bits, rotate_bits, ~xor_mask)           //

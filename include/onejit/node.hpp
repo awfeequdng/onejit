@@ -37,6 +37,7 @@ namespace onejit {
 // base class of Binary, Const, Unary, Var, Stmt*
 class Node {
 
+  friend class AssignCall;
   friend class Binary;
   friend class Call;
   friend class Code;
@@ -54,7 +55,7 @@ class Node {
   friend class Stmt4;
   friend class StmtN;
   friend class Switch;
-  friend class AssignCall;
+  friend class Tuple;
   friend class Unary;
   friend class Var;
 

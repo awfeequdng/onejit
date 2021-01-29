@@ -1,5 +1,5 @@
 /*
- * oneasm - in-memory assembler
+ * onejit - in-memory assembler
  *
  * Copyright (C) 2021 Massimiliano Ghilardi
  *
@@ -22,12 +22,12 @@
  *  Created on Jan 28, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEASM_X86_ARG_HPP
-#define ONEASM_X86_ARG_HPP
+#ifndef ONEJIT_X86_ARG_HPP
+#define ONEJIT_X86_ARG_HPP
 
 #include <cstdint> // uint*_t
 
-namespace oneasm {
+namespace onejit {
 namespace x86 {
 
 // describe x86/amd64 EFLAGS
@@ -143,6 +143,6 @@ constexpr inline Arg3 operator|(Arg3 a, Arg3 b) noexcept {
 }
 
 } // namespace x86
-} // namespace oneasm
+} // namespace onejit
 
-#endif // ONEASM_X86_ARG_HPP
+#endif // ONEJIT_X86_ARG_HPP

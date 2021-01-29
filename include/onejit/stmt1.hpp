@@ -48,11 +48,15 @@ public:
    *
    * to create a valid Stmt1, construct one of the derived classes
    */
-  constexpr Stmt1() noexcept : Base{STMT_1, Bad, BAD_ST1} {
+  constexpr Stmt1() noexcept : Base{} {
   }
 
   constexpr OpStmt1 op() const noexcept {
     return OpStmt1(Base::op());
+  }
+
+  static constexpr Type type() noexcept {
+    return STMT_1;
   }
 
   static constexpr uint32_t children() noexcept {
@@ -65,10 +69,6 @@ public:
   }
 
 protected:
-  /* construct an invalid Stmt1 */
-  constexpr explicit Stmt1(OpStmt1 op) noexcept : Base{STMT_1, Bad, op} {
-  }
-
   // downcast Node to Stmt1
   constexpr explicit Stmt1(const Node &node) noexcept : Base{node} {
   }
@@ -102,7 +102,7 @@ public:
    *
    * to create a valid Goto, use one of the other constructors.
    */
-  constexpr Goto() noexcept : Base{GOTO} {
+  constexpr Goto() noexcept : Base{} {
   }
 
   Goto(Func &func, Label target) noexcept //
@@ -144,7 +144,7 @@ public:
    *
    * to create a valid Inc, use one of the other constructors.
    */
-  constexpr Inc() noexcept : Base{INC} {
+  constexpr Inc() noexcept : Base{} {
   }
 
   // expr must be Var or Mem
@@ -187,7 +187,7 @@ public:
    *
    * to create a valid Dec, use one of the other constructors.
    */
-  constexpr Dec() noexcept : Base{DEC} {
+  constexpr Dec() noexcept : Base{} {
   }
 
   // expr must be Var or Mem

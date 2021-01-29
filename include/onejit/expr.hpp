@@ -30,7 +30,7 @@
 
 namespace onejit {
 
-// base class of Binary, Const, Label, Mem, Call, Unary, Var
+// base class of Binary, Const, Label, Mem, Tuple, Unary, Var
 class Expr : public Node {
   using Base = Node;
 

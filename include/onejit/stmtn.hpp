@@ -46,7 +46,11 @@ public:
    *
    * to create a valid StmtN, use one of the other constructors
    */
-  constexpr StmtN() noexcept : Base{STMT_N, Bad, BAD_STN} {
+  constexpr StmtN() noexcept : Base{} {
+  }
+
+  static constexpr Type type() noexcept {
+    return STMT_N;
   }
 
   constexpr OpStmtN op() const noexcept {
@@ -54,10 +58,6 @@ public:
   }
 
 protected:
-  /* construct an invalid StmtN */
-  constexpr explicit StmtN(OpStmtN op) noexcept : Base{STMT_N, Bad, op} {
-  }
-
   // downcast Node to StmtN
   constexpr explicit StmtN(const Node &node) noexcept : Base{node} {
   }
@@ -93,7 +93,7 @@ public:
    *
    * to create a valid AssignCall, use one of the other constructors
    */
-  constexpr AssignCall() noexcept : Base{ASSIGN_CALL} {
+  constexpr AssignCall() noexcept : Base{} {
   }
 
   // assign multiple values returned by a Call.
@@ -139,7 +139,7 @@ public:
    *
    * to create a valid Block, use one of the other constructors
    */
-  constexpr Block() noexcept : Base{BLOCK} {
+  constexpr Block() noexcept : Base{} {
   }
 
   Block(Func &func, const Node &node) noexcept //
@@ -188,7 +188,7 @@ public:
    *
    * to create a valid Cond, use one of the other constructors
    */
-  constexpr Cond() noexcept : Base{COND} {
+  constexpr Cond() noexcept : Base{} {
   }
 
   Cond(Func &func, std::initializer_list<Node> nodes) noexcept
@@ -230,7 +230,7 @@ public:
    *
    * to create a valid Return, use one of the other constructors
    */
-  constexpr Return() noexcept : Base{RETURN} {
+  constexpr Return() noexcept : Base{} {
   }
 
   explicit Return(Func &func) noexcept //
@@ -280,7 +280,7 @@ public:
    *
    * to create a valid Switch, use one of the other constructors
    */
-  constexpr Switch() noexcept : Base{SWITCH} {
+  constexpr Switch() noexcept : Base{} {
   }
 
   // cases can contain at most one Default

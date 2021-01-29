@@ -80,10 +80,12 @@ public:
     return const_cast<T *>(data_);
   }
 
+  // unchecked element access
   T &operator[](size_t index) noexcept {
     return data()[index];
   }
 
+  // checked element access:
   // throws if index is out of bounds
   T &at(size_t index) {
     ONESTL_BOUNDS_TINY(index, <, size_);

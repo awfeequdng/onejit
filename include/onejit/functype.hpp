@@ -46,7 +46,7 @@ public:
    *
    * to create a valid FuncType, use one of the other constructors
    */
-  constexpr FuncType() noexcept : Base{NodeHeader{FTYPE, Bad, 0}, 0, nullptr} {
+  constexpr FuncType() noexcept : Base{} {
   }
 
   /// \pre params.size() must fit uint16_t, and result.size() must fit uint16_t
@@ -60,6 +60,10 @@ public:
            std::initializer_list<Kind> results) noexcept
       : Base{create(holder, //
                     Kinds{params.begin(), params.size()}, Kinds{results.begin(), results.size()})} {
+  }
+
+  static constexpr Type type() noexcept {
+    return FTYPE;
   }
 
   /// \return number of parameters

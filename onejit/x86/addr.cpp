@@ -1,5 +1,5 @@
 /*
- * onestl - Tiny STL C++ library
+ * onejit - JIT compiler in C++
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -17,43 +17,31 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * fwd.hpp
+ * addr.cpp
  *
- *  Created on Jan 09, 2021
+ *  Created on Jan 28, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONESTL_FWD_HPP
-#define ONESTL_FWD_HPP
+#include <onejit/const.hpp>
+#include <onejit/x86/addr.hpp>
 
-#include <cstddef> // size_t
-#include <cstdint> // uint*_t
+namespace onejit {
+namespace x86 {
 
-#ifdef __GNUC__
-#define ONESTL_NOINLINE __attribute__((noinline))
-#define ONESTL_NORETURN __attribute__((noreturn))
-#else
-#define ONESTL_NOINLINE
-#define ONESTL_NORETURN
-#endif
+// ============================  Addr  ====================================
 
-namespace onestl {
+Node Addr::create(Func &func, Kind kind, const Label &label, const int32_t offset, const Var &base,
+                  const Var &index, Scale scale) noexcept {
+  Const coffset{func, offset};
+  if (coffset) {
+    const Node nodes[] = {label, coffset, base, index, Const{Uint8, uint16_t(scale)}};
+    const size_t len = index && scale != Scale::None ? 5 : 3;
 
-template <class T> class Buffer;
-class Chars;
-class Fmt;
-class Hex;
-template <class T> class Span;
-class String;
-template <class T> class Vector;
-class VectorHelper;
-template <class T> class View;
-class Writer;
+    return Tuple::create(func, kind, X86_ADDR, Nodes{nodes, len});
+  }
+  return Addr{};
+}
 
-typedef Span<char> CharSpan;
-typedef Buffer<uint8_t> ByteBuf;
-typedef View<uint8_t> Bytes;
-
-} // namespace onestl
-
-#endif // ONESTL_FWD_HPP
+} // namespace x86
+} // namespace onejit

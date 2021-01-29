@@ -82,7 +82,8 @@
         "__bit_reference": "cpp",
         "__config": "cpp",
         "__errc": "cpp",
-        "__functional_03": "cpp"
+        "__functional_03": "cpp",
+        "__memory": "cpp"
     },
     "files.watcherExclude": {
         "**/.git/**": true

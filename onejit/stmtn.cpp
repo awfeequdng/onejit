@@ -48,7 +48,7 @@ Node StmtN::create(Func &func, const Nodes nodes, OpStmtN op) noexcept {
     holder->truncate(offset);
     break;
   }
-  return StmtN{op};
+  return StmtN{};
 }
 
 const Fmt &operator<<(const Fmt &out, const StmtN &st) {

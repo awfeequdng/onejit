@@ -46,7 +46,7 @@ public:
    *
    * to create a valid Const, use one of the other constructors
    */
-  constexpr Const() noexcept : Base{CONST} {
+  constexpr Const() noexcept : Base{} {
   }
 
   /* construct a Bool Const */

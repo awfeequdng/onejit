@@ -48,7 +48,11 @@ public:
    *
    * to create a valid Stmt3, use Func::new_stmt3()
    */
-  constexpr Stmt3() noexcept : Base{STMT_3, Bad, BAD_ST3} {
+  constexpr Stmt3() noexcept : Base{} {
+  }
+
+  static constexpr Type type() noexcept {
+    return STMT_3;
   }
 
   constexpr OpStmt3 op() const noexcept {
@@ -60,10 +64,6 @@ public:
   }
 
 protected:
-  /* construct an invalid Stmt3 */
-  constexpr explicit Stmt3(OpStmt3 op) noexcept : Base{STMT_3, Bad, op} {
-  }
-
   // downcast Node to Stmt3
   constexpr explicit Stmt3(const Node &node) noexcept : Base{node} {
   }
@@ -93,7 +93,7 @@ public:
    *
    * to create a valid If, use one of the other constructors
    */
-  constexpr If() noexcept : Base{IF} {
+  constexpr If() noexcept : Base{} {
   }
 
   // create a new 'if (test) { then } else { else_ }'

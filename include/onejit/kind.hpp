@@ -83,6 +83,10 @@ public:
 
   Bits bits() const noexcept;
 
+  size_t bitsize() const noexcept {
+    return bits().val();
+  }
+
   constexpr SimdN simdn() const noexcept {
     return SimdN::fromlog2(val_ >> 4);
   }

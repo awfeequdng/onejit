@@ -48,7 +48,7 @@ public:
    *
    * to create a valid Var, use one of the other constructors
    */
-  constexpr Var() noexcept : Base{VAR} {
+  constexpr Var() noexcept : Base{} {
   }
 
   /* create a new local variable with specified kind */

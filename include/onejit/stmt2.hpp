@@ -52,7 +52,11 @@ public:
    *
    * to create a valid Stmt2, use Func::new_stmt2()
    */
-  constexpr Stmt2() noexcept : Base{STMT_2, Bad, BAD_ST2} {
+  constexpr Stmt2() noexcept : Base{} {
+  }
+
+  static constexpr Type type() noexcept {
+    return STMT_2;
   }
 
   constexpr OpStmt2 op() const noexcept {
@@ -64,10 +68,6 @@ public:
   }
 
 protected:
-  /* construct an invalid Stmt2 */
-  constexpr explicit Stmt2(OpStmt2 op) noexcept : Base{STMT_2, Bad, op} {
-  }
-
   // downcast Node to Stmt2
   constexpr explicit Stmt2(const Node &node) noexcept : Base{node} {
   }
@@ -102,7 +102,7 @@ public:
    *
    * to create a valid Assign, use one of the other constructors
    */
-  constexpr Assign() noexcept : Base{ASSIGN} {
+  constexpr Assign() noexcept : Base{} {
   }
 
   Assign(Func &func, OpStmt2 op, Expr dst, Expr src) noexcept //
@@ -148,7 +148,7 @@ public:
    *
    * to create a valid Case, use one of the other constructors
    */
-  constexpr Case() noexcept : Base{CASE} {
+  constexpr Case() noexcept : Base{} {
   }
 
   Case(Func &func, Expr expr, Node body) noexcept //
@@ -171,10 +171,6 @@ public:
   }
 
 protected:
-  // needed by Default{}
-  constexpr Case(OpStmt2 op) noexcept : Base{op} {
-  }
-
   // downcast Node to Case
   constexpr explicit Case(const Node &node) noexcept : Base{node} {
   }
@@ -206,7 +202,7 @@ public:
    *
    * to create a valid Default, use one of the other constructors
    */
-  constexpr Default() noexcept : Base{DEFAULT} {
+  constexpr Default() noexcept : Base{} {
   }
 
   Default(Func &func, Node body) noexcept //
@@ -248,7 +244,7 @@ public:
    *
    * to create a valid JumpIf, use one of the other constructors
    */
-  constexpr JumpIf() noexcept : Base{JUMP_IF} {
+  constexpr JumpIf() noexcept : Base{} {
   }
 
   JumpIf(Func &func, Label to, Expr test) noexcept //

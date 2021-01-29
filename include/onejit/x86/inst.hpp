@@ -1,5 +1,5 @@
 /*
- * oneasm - in-memory assembler
+ * onejit - in-memory assembler
  *
  * Copyright (C) 2021 Massimiliano Ghilardi
  *
@@ -22,15 +22,15 @@
  *  Created on Jan 26, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEASM_X86_INST_HPP
-#define ONEASM_X86_INST_HPP
+#ifndef ONEJIT_X86_INST_HPP
+#define ONEJIT_X86_INST_HPP
 
-#include <oneasm/x86/arg.hpp>
-#include <oneasm/x86/reg.hpp>
 #include <onejit/opstmt.hpp>
+#include <onejit/x86/arg.hpp>
+#include <onejit/x86/reg.hpp>
 #include <onestl/chars.hpp>
 
-namespace oneasm {
+namespace onejit {
 namespace x86 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,32 +58,33 @@ private:
 // no-argument x86 instruction
 class Inst0 : public Inst {
   using Base = Inst;
-  using Chars = onestl::Chars;
+  using Bytes = onestl::Bytes;
 
 public:
   template <uint8_t N>
   constexpr explicit Inst0(const char (&chars)[N],
                            Eflags eflags = EFnone) noexcept //
       : Base{B0, eflags},                                   //
-        chars_len_{uint8_t(N - 1)},                         //
-        chars_{
-            chars[0],
-            N >= 2 ? chars[1] : '\0',
-            N >= 3 ? chars[2] : '\0',
+        bytes_len_{uint8_t(N - 1)},                         //
+        bytes_{
+            uint8_t(chars[0]),
+            uint8_t(N >= 2 ? chars[1] : '\0'),
+            uint8_t(N >= 3 ? chars[2] : '\0'),
         } {
   }
 
-  constexpr const Chars chars() const noexcept {
-    return Chars{chars_, chars_len_};
+  static const Inst0 &find(onejit::OpStmt0 op) noexcept;
+
+  constexpr const Bytes bytes() const noexcept {
+    return Bytes{bytes_, bytes_len_};
   }
 
-private:
-  uint8_t chars_len_;
-  char chars_[3];
-};
+  onestl::ByteBuf &emit(onestl::ByteBuf &dst) const noexcept;
 
-const Inst0 &to_inst(onejit::OpStmt0 op);
-bool emit(onestl::CharBuf &dst, const Inst0 &inst0);
+private:
+  uint8_t bytes_len_;
+  uint8_t bytes_[3];
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // one-argument x86 instruction
@@ -95,6 +96,8 @@ public:
                            Eflags eflags = EFnone) noexcept
       : Base{val_size, eflags}, arg_{arg}, arg_size_{arg_size} {
   }
+
+  static const Inst1 &find(onejit::OpStmt1 op) noexcept;
 
   constexpr Arg1 arg() const noexcept {
     return arg_;
@@ -109,9 +112,6 @@ private:
   BitSize arg_size_; // allowed argument sizes
 };
 
-const Inst1 &to_inst(onejit::OpStmt1 op);
-bool emit(onestl::CharBuf &dst, const Inst1 &inst1);
-
 ////////////////////////////////////////////////////////////////////////////////
 // two-arguments x86 instruction
 class Inst2 : public Inst {
@@ -121,6 +121,8 @@ public:
   constexpr explicit Inst2(Arg2 arg, BitSize val_size = B0, Eflags eflags = EFnone) noexcept
       : Base{val_size, eflags}, arg_{arg} {
   }
+
+  static const Inst2 &find(onejit::OpStmt2 op) noexcept;
 
   constexpr Arg2 arg() const noexcept {
     return arg_;
@@ -140,6 +142,8 @@ public:
       : Base{val_size, eflags}, arg_{arg} {
   }
 
+  static const Inst3 &find(onejit::OpStmt2 op) noexcept;
+
   constexpr Arg3 arg() const noexcept {
     return arg_;
   }
@@ -149,6 +153,6 @@ private:
 };
 
 } // namespace x86
-} // namespace oneasm
+} // namespace onejit
 
-#endif // ONEASM_X86_INST_HPP
+#endif // ONEJIT_X86_INST_HPP

@@ -45,11 +45,15 @@ public:
    *
    * to create a valid Name, use one of the other constructors
    */
-  constexpr Name() noexcept : Base{NodeHeader{NAME, Bad, 0}, 0, nullptr} {
+  constexpr Name() noexcept : Base{} {
   }
 
   /// \pre str.size() must fit uint16_t
   Name(Code *holder, Chars str) noexcept : Base{create(holder, str)} {
+  }
+
+  static constexpr Type type() noexcept {
+    return NAME;
   }
 
   /// \return string size, in bytes

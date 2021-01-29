@@ -46,7 +46,7 @@ ONEJIT_NOINLINE Node Stmt4::create(Func &func, const Node &child0, const Node &c
     holder->truncate(offset);
     break;
   }
-  return Stmt4{op};
+  return Stmt4{};
 }
 
 const Fmt &operator<<(const Fmt &out, const Stmt4 &st) {

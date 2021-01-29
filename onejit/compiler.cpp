@@ -199,8 +199,8 @@ Expr Compiler::compile(Expr expr, bool) noexcept {
     return compile(expr.is<Unary>(), true);
   case BINARY:
     return compile(expr.is<Binary>(), true);
-  case CALL:
-    return compile(expr.is<Call>(), true);
+  case TUPLE:
+    return compile(expr.is<Tuple>(), true);
   case VAR:
   case LABEL:
   case CONST:
@@ -232,6 +232,28 @@ Expr Compiler::compile(Binary expr, bool) noexcept {
   Expr comp_x = compile(x, true), comp_y = compile(y, true);
   if (x != comp_x || y != comp_y) {
     expr = Binary{*func_, expr.op(), comp_x, comp_y};
+  }
+  return expr;
+}
+
+Expr Compiler::compile(Tuple expr, bool simplify_call) noexcept {
+  if (Call call = expr.is<Call>()) {
+    return compile(call, simplify_call);
+  }
+  Vector<Node> nodes;
+  const size_t n = expr.children();
+  if (!nodes.resize(n)) {
+    out_of_memory(expr);
+    return expr;
+  }
+  bool changed = false;
+  for (size_t i = 0; i < n; i++) {
+    Node child = expr.child(i);
+    Node comp_child = nodes[i] = compile(child, simplify_call);
+    changed = changed || child != comp_child;
+  }
+  if (changed) {
+    return Tuple{*func_, expr.kind(), expr.op(), nodes};
   }
   return expr;
 }

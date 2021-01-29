@@ -47,7 +47,11 @@ public:
    *
    * to create a valid Stmt4, use Func::new_stmt4()
    */
-  constexpr Stmt4() noexcept : Base{STMT_4, Bad, BAD_ST4} {
+  constexpr Stmt4() noexcept : Base{} {
+  }
+
+  static constexpr Type type() noexcept {
+    return STMT_4;
   }
 
   constexpr OpStmt4 op() const noexcept {
@@ -59,10 +63,6 @@ public:
   }
 
 protected:
-  /* construct an invalid Stmt4 */
-  constexpr explicit Stmt4(OpStmt4 op) noexcept : Base{STMT_4, Bad, op} {
-  }
-
   // downcast Node to Stmt4
   constexpr explicit Stmt4(const Node &node) noexcept : Base{node} {
   }
@@ -99,7 +99,7 @@ public:
    *
    * to create a valid For, use one of the other constructors
    */
-  constexpr For() noexcept : Base{FOR} {
+  constexpr For() noexcept : Base{} {
   }
 
   For(Func &func, const Node &init, const Expr &test, const Node &post, const Node &body) noexcept

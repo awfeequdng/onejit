@@ -17,48 +17,48 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * mem.cpp
+ * tuple.cpp
  *
- *  Created on Jan 20, 2021
+ *  Created on Jan 28, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/code.hpp>
 #include <onejit/func.hpp>
-#include <onejit/mem.hpp>
+#include <onejit/functype.hpp>
+#include <onejit/label.hpp>
+#include <onejit/tuple.hpp>
+#include <onestl/buffer.hpp>
 
 namespace onejit {
 
-ONEJIT_NOINLINE Node Mem::create(Func &func, Kind kind, MemType memtype, Expr address) noexcept {
-  while (Code *holder = func.code()) {
-    const NodeHeader header{MEM, kind, memtype};
+// ============================  Tuple  ====================================
+
+Node Tuple::create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept {
+  const size_t n = nodes.size();
+  Code *holder = func.code();
+  while (holder && n == uint32_t(n)) {
+    const NodeHeader header{TUPLE, kind, op};
     CodeItem offset = holder->length();
 
-    if (holder->add(header) && holder->add(address, offset)) {
+    if (holder->add(header) && holder->add_uint32(n) && //
+        holder->add(nodes, offset)) {
       return Node{header, offset, holder};
     }
     holder->truncate(offset);
     break;
   }
-  return Mem{};
+  return Tuple{};
 }
 
-static const Chars memclass_string[] = {"mem", "x86_mem", "arm_mem"};
-
-const Chars to_string(MemType memtype) noexcept {
-  size_t i = 0;
-  if (memtype < ONEJIT_N_OF(memclass_string)) {
-    i = memtype;
+const Fmt &operator<<(const Fmt &out, const Tuple &expr) {
+  out << '(' << expr.op();
+  const bool is_call = expr.op() == CALL_OP;
+  // if op == CALL_OP, skip child(0) i.e. FuncType
+  for (size_t i = size_t(is_call), n = expr.children(); i < n; i++) {
+    out << ' ' << expr.child(i);
   }
-  return memclass_string[i];
-}
-
-const Fmt &operator<<(const Fmt &out, MemType memtype) {
-  return out << to_string(memtype);
-}
-
-const Fmt &operator<<(const Fmt &out, const Mem &mem) {
-  return out << '(' << mem.memtype() << ' ' << mem.child(0) << ')';
+  return out << ')';
 }
 
 } // namespace onejit

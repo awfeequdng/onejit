@@ -115,6 +115,7 @@ private:
   Node compile(StmtN stmt, bool simplify_call) noexcept;
   Node compile(Switch stmt, bool simplify_call) noexcept;
   Expr compile(Unary expr, bool simplify_call) noexcept;
+  Expr compile(Tuple expr, bool simplify_call) noexcept;
 
 private:
   Func *func_;

@@ -628,8 +628,7 @@ LTLIBOBJS
 LIBOBJS
 LIBONESTL
 LIBONEJIT
-LIBONEASM
-LIBONEASM_X86
+LIBONEJIT_X86
 EGREP
 GREP
 CXXCPP
@@ -3401,6 +3400,12 @@ else
 fi
 
 
+ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
 if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}ranlib", so it can be a program name with args.
 set dummy ${ac_tool_prefix}ranlib; ac_word=$2
@@ -4364,11 +4369,11 @@ if ac_fn_c_try_compile "$LINENO"; then :
 
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-   ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
+   ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_ar_interface" >&5
@@ -4390,12 +4395,6 @@ unknown)
   as_fn_error $? "could not determine $AR interface" "$LINENO" 5
   ;;
 esac
-
-ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 # Checks for libraries.
@@ -4816,7 +4815,7 @@ done
 # C++ flags '-g -O2' are already tested by AC_PROG_CXX
 # C++ flags '-p -pg' are incompatible with -fomit-frame-pointer
 initial_CXXFLAGS="$CXXFLAGS"
-for try_flag in -std=c++11 -fomit-frame-pointer -pipe -Wall -W -Wextra -Wshadow \
+for try_flag in -Os -std=c++11 -fomit-frame-pointer -pipe -Wall -W -Wextra -Wshadow \
                 -Wundef -Wcast-qual -Wcast-align -Wpointer-arith -Wsign-compare
 do
   save_CXXFLAGS="$CXXFLAGS"
@@ -4860,22 +4859,19 @@ eval ac_res=\$ac_cv_cflag$try_flag_id
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 done
-# custom_CXXFLAGS="$CXXFLAGS"
 # CXXFLAGS="$initial_CXXFLAGS"
 
 
 # Checks for library functions.
 
-LIBONEASM_X86='$(top_builddir)/oneasm/x86/liboneasm_x86.a'
-
-LIBONEASM='$(top_builddir)/oneasm/liboneasm.a'
+LIBONEJIT_X86='$(top_builddir)/onejit/x86/libonejit_x86.a'
 
 LIBONEJIT='$(top_builddir)/onejit/libonejit.a'
 
 LIBONESTL='$(top_builddir)/onestl/libonestl.a'
 
 
-ac_config_files="$ac_config_files Makefile oneasm/Makefile oneasm/x86/Makefile onejit/Makefile onestl/Makefile"
+ac_config_files="$ac_config_files Makefile onejit/Makefile onejit/x86/Makefile onestl/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -5610,9 +5606,8 @@ do
     "include/onejit_config.h") CONFIG_HEADERS="$CONFIG_HEADERS include/onejit_config.h" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "oneasm/Makefile") CONFIG_FILES="$CONFIG_FILES oneasm/Makefile" ;;
-    "oneasm/x86/Makefile") CONFIG_FILES="$CONFIG_FILES oneasm/x86/Makefile" ;;
     "onejit/Makefile") CONFIG_FILES="$CONFIG_FILES onejit/Makefile" ;;
+    "onejit/x86/Makefile") CONFIG_FILES="$CONFIG_FILES onejit/x86/Makefile" ;;
     "onestl/Makefile") CONFIG_FILES="$CONFIG_FILES onestl/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;

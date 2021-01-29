@@ -10,9 +10,9 @@ AM_INIT_AUTOMAKE([1.14 foreign subdir-objects])
 
 # Checks for programs.
 AC_PROG_CXX
+AC_LANG(C++)
 AC_PROG_RANLIB
 AM_PROG_AR
-AC_LANG(C++)
 
 # Checks for libraries.
 
@@ -26,7 +26,7 @@ AC_CHECK_HEADERS([cerrno cstddef cstdint cstdio cstring])
 # C++ flags '-g -O2' are already tested by AC_PROG_CXX
 # C++ flags '-p -pg' are incompatible with -fomit-frame-pointer
 initial_CXXFLAGS="$CXXFLAGS"
-for try_flag in -std=c++11 -fomit-frame-pointer -pipe -Wall -W -Wextra -Wshadow \
+for try_flag in -Os -std=c++11 -fomit-frame-pointer -pipe -Wall -W -Wextra -Wshadow \
                 -Wundef -Wcast-qual -Wcast-align -Wpointer-arith -Wsign-compare
 do
   save_CXXFLAGS="$CXXFLAGS"
@@ -45,17 +45,15 @@ do
     CXXFLAGS="$save_CXXFLAGS"
   ]))
 done
-# custom_CXXFLAGS="$CXXFLAGS"
 # CXXFLAGS="$initial_CXXFLAGS"
 
 
 # Checks for library functions.
 
-AC_SUBST(LIBONEASM_X86, '$(top_builddir)/oneasm/x86/liboneasm_x86.a')
-AC_SUBST(LIBONEASM,     '$(top_builddir)/oneasm/liboneasm.a')
+AC_SUBST(LIBONEJIT_X86, '$(top_builddir)/onejit/x86/libonejit_x86.a')
 AC_SUBST(LIBONEJIT,     '$(top_builddir)/onejit/libonejit.a')
 AC_SUBST(LIBONESTL,     '$(top_builddir)/onestl/libonestl.a')
 
-AC_CONFIG_FILES([Makefile oneasm/Makefile oneasm/x86/Makefile onejit/Makefile onestl/Makefile])
+AC_CONFIG_FILES([Makefile onejit/Makefile onejit/x86/Makefile onestl/Makefile])
 
 AC_OUTPUT

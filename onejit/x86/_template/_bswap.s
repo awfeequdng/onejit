@@ -29,7 +29,7 @@ bswap_32:
 	.p2align 4,,15
 	.globl	bswap_64
 	.type	bswap_64, @function
-bswap_u8:
+bswap_64:
 	.cfi_startproc
 	bswap	%rax
 	bswap	%rcx

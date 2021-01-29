@@ -23,8 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_UNARYEXPR_HPP
-#define ONEJIT_UNARYEXPR_HPP
+#ifndef ONEJIT_UNARY_HPP
+#define ONEJIT_UNARY_HPP
 
 #include <onejit/expr.hpp>
 #include <onejit/fmt.hpp>
@@ -47,7 +47,7 @@ public:
    *
    * to create a valid Unary, use one of the other constructors
    */
-  constexpr Unary() noexcept : Base{UNARY} {
+  constexpr Unary() noexcept : Base{} {
   }
 
   // also autodetects kind if op != CONVERT && op != BITCOPY
@@ -99,4 +99,4 @@ const Fmt &operator<<(const Fmt &out, const Unary &expr);
 
 } // namespace onejit
 
-#endif // ONEJIT_UNARYEXPR_HPP
+#endif // ONEJIT_UNARY_HPP

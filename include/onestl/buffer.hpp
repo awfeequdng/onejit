@@ -71,20 +71,39 @@ public:
     return good_;
   }
 
-  bool resize(size_t n) noexcept {
-    return (good_ = good_ && Base::resize(n));
+  Buffer<T> &clearerr() noexcept {
+    good_ = true;
+    return *this;
   }
 
-  bool reserve(size_t newcap) noexcept {
-    return (good_ = good_ && Base::reserve(newcap));
+  Buffer<T> &clear() noexcept {
+    Base::clear();
+    return clearerr();
   }
 
-  bool append(const T &src) noexcept {
-    return (good_ = good_ && Base::append(src));
+  Buffer<T> &truncate(size_t n) noexcept {
+    Base::truncate(n);
+    return *this;
   }
 
-  bool append(View<T> src) noexcept {
-    return (good_ = good_ && Base::append(src));
+  Buffer<T> &resize(size_t n) noexcept {
+    good_ = good_ && Base::resize(n);
+    return *this;
+  }
+
+  Buffer<T> &reserve(size_t newcap) noexcept {
+    good_ = good_ && Base::reserve(newcap);
+    return *this;
+  }
+
+  Buffer<T> &append(const T &src) noexcept {
+    good_ = good_ && Base::append(src);
+    return *this;
+  }
+
+  Buffer<T> &append(View<T> src) noexcept {
+    good_ = good_ && Base::append(src);
+    return *this;
   }
 
   void swap(Buffer &other) noexcept {
@@ -96,7 +115,7 @@ private:
   bool good_;
 };
 
-typedef Buffer<char> CharBuf;
+typedef Buffer<uint8_t> ByteBuf;
 
 template <class T> void swap(Buffer<T> &left, Buffer<T> &right) noexcept {
   left.swap(right);

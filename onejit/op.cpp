@@ -31,15 +31,14 @@ namespace onejit {
 
 // ============================  Op1  ==========================================
 
-static const char op1string[] = //
-  "\1?   \1^   \1!   \1-   \4cast\7bitcopy";
+static const char op1string[] = "\1?\0\0\0\1^\0\0\0\1!\0\0\0\1-\0\0\0\4cast\7bitcopy";
 
 const Chars to_string(Op1 op) noexcept {
-  size_t i = 0;
+  size_t i = 0; // "?"
   if (op <= BITCOPY) {
-    i = op * 5;
+    i = op;
   }
-  const char * addr = op1string + i;
+  const char *addr = op1string + i * 5;
   return Chars{addr + 1, uint8_t(addr[0])};
 }
 
@@ -49,18 +48,15 @@ const Fmt &operator<<(const Fmt &out, Op1 op) {
 
 // ============================  Op2  ==========================================
 
-static const char op2string[] = //
-  "\1? \1+ \1- \1* \1/ \1% \1& \1| \1^ " //
-  "\2<<\2>>\2&^\2&&\2||" //
-  "\1< \2<=\2!=\2==\1> \2>=";
-
+static const char op2string[] =
+    "\1?\0\1+\0\1-\0\1*\0\1/\0\1%\0\1&\0\1|\0\1^\0\2<<\2>>\2&^\2&&\2||\1<\0\2<=\2!=\2==\1>\0\2>=";
 
 const Chars to_string(Op2 op) noexcept {
   size_t i = 0; // "?"
   if (op <= GEQ) {
     i = op;
   }
-  const char * addr = op2string + i * 3;
+  const char *addr = op2string + i * 3;
   return Chars{addr + 1, uint8_t(addr[0])};
 }
 
@@ -70,14 +66,14 @@ const Fmt &operator<<(const Fmt &out, Op2 op) {
 
 // ============================  OpN  ==========================================
 
-static const char opnstring[] = "\1?\4call";
+static const char opnstring[][10] = {"\1?", "\4call", "\10x86_addr"};
 
 const Chars to_string(OpN op) noexcept {
-  size_t i = 0;
-  if (op <= CALL_OP) {
+  size_t i = 0; // "?"
+  if (op < ONEJIT_N_OF(opnstring)) {
     i = op;
   }
-  const char *addr = opnstring + i * 2;
+  const char *addr = opnstring[i];
   return Chars{addr + 1, uint8_t(addr[0])};
 }
 

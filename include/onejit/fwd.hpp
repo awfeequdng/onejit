@@ -91,6 +91,7 @@ class Stmt4;
 class StmtN;
 class Switch;
 class Test;
+class Tuple;
 class Unary;
 class Var;
 class VarHelper;

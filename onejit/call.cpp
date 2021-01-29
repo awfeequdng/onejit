@@ -53,7 +53,7 @@ Node Call::create(Func &caller, const FuncType &ftype, const Label &flabel, Expr
   const size_t n = args.size();
   Code *holder = caller.code();
   while (holder && n == uint32_t(n)) {
-    const NodeHeader header{CALL, ftype.param_n() == 0 ? Void : ftype.param(0), CALL_OP};
+    const NodeHeader header{TUPLE, ftype.param_n() == 0 ? Void : ftype.param(0), CALL_OP};
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add_uint32(sum_uint32(2, n)) && //
@@ -65,15 +65,6 @@ Node Call::create(Func &caller, const FuncType &ftype, const Label &flabel, Expr
     break;
   }
   return Call{};
-}
-
-const Fmt &operator<<(const Fmt &out, const Call &call) {
-  out << '(' << call.op();
-  // skip child(0) i.e. FuncType
-  for (size_t i = 1, n = call.children(); i < n; i++) {
-    out << ' ' << call.child(i);
-  }
-  return out << ')';
 }
 
 } // namespace onejit

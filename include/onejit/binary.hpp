@@ -23,8 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_BINARYEXPR_HPP
-#define ONEJIT_BINARYEXPR_HPP
+#ifndef ONEJIT_BINARY_HPP
+#define ONEJIT_BINARY_HPP
 
 #include <onejit/expr.hpp>
 #include <onejit/op.hpp>
@@ -46,7 +46,7 @@ public:
    *
    * to create a valid Binary, use one of the other constructors
    */
-  constexpr Binary() noexcept : Base{BINARY} {
+  constexpr Binary() noexcept : Base{} {
   }
 
   // also autodetects kind
@@ -96,4 +96,4 @@ const Fmt &operator<<(const Fmt &out, const Binary &expr);
 
 } // namespace onejit
 
-#endif // ONEJIT_BINARYEXPR_HPP
+#endif // ONEJIT_BINARY_HPP

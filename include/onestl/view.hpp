@@ -143,6 +143,8 @@ public:
   }
 };
 
+typedef View<uint8_t> Bytes;
+
 template <class T> void swap(View<T> &left, View<T> &right) noexcept {
   left.swap(right);
 }

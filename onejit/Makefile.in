@@ -103,16 +103,17 @@ am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
 am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libonejit_a_AR = $(AR) $(ARFLAGS)
-libonejit_a_LIBADD =
+libonejit_a_DEPENDENCIES = x86/addr.o x86/inst0.o x86/inst1.o
 am_libonejit_a_OBJECTS = archid.$(OBJEXT) binary.$(OBJEXT) \
-	code.$(OBJEXT) codeparser.$(OBJEXT) compiler.$(OBJEXT) \
-	imm.$(OBJEXT) const.$(OBJEXT) error.$(OBJEXT) expr.$(OBJEXT) \
-	func.$(OBJEXT) functype.$(OBJEXT) group.$(OBJEXT) \
-	kind.$(OBJEXT) label.$(OBJEXT) logsize.$(OBJEXT) mem.$(OBJEXT) \
-	name.$(OBJEXT) node.$(OBJEXT) nodeheader.$(OBJEXT) \
-	op.$(OBJEXT) opstmt.$(OBJEXT) stmt0.$(OBJEXT) stmt1.$(OBJEXT) \
+	call.$(OBJEXT) code.$(OBJEXT) codeparser.$(OBJEXT) \
+	compiler.$(OBJEXT) imm.$(OBJEXT) const.$(OBJEXT) \
+	error.$(OBJEXT) expr.$(OBJEXT) func.$(OBJEXT) \
+	functype.$(OBJEXT) group.$(OBJEXT) kind.$(OBJEXT) \
+	label.$(OBJEXT) logsize.$(OBJEXT) mem.$(OBJEXT) name.$(OBJEXT) \
+	node.$(OBJEXT) nodeheader.$(OBJEXT) op.$(OBJEXT) \
+	opstmt.$(OBJEXT) stmt0.$(OBJEXT) stmt1.$(OBJEXT) \
 	stmt2.$(OBJEXT) stmt3.$(OBJEXT) stmt4.$(OBJEXT) \
-	stmtn.$(OBJEXT) type.$(OBJEXT) call.$(OBJEXT) unary.$(OBJEXT) \
+	stmtn.$(OBJEXT) tuple.$(OBJEXT) type.$(OBJEXT) unary.$(OBJEXT) \
 	local.$(OBJEXT) var.$(OBJEXT)
 libonejit_a_OBJECTS = $(am_libonejit_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -141,8 +142,8 @@ am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/binary.Po \
 	./$(DEPDIR)/node.Po ./$(DEPDIR)/nodeheader.Po \
 	./$(DEPDIR)/op.Po ./$(DEPDIR)/opstmt.Po ./$(DEPDIR)/stmt0.Po \
 	./$(DEPDIR)/stmt1.Po ./$(DEPDIR)/stmt2.Po ./$(DEPDIR)/stmt3.Po \
-	./$(DEPDIR)/stmt4.Po ./$(DEPDIR)/stmtn.Po ./$(DEPDIR)/type.Po \
-	./$(DEPDIR)/unary.Po ./$(DEPDIR)/var.Po
+	./$(DEPDIR)/stmt4.Po ./$(DEPDIR)/stmtn.Po ./$(DEPDIR)/tuple.Po \
+	./$(DEPDIR)/type.Po ./$(DEPDIR)/unary.Po ./$(DEPDIR)/var.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -259,9 +260,8 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
-LIBONEASM = @LIBONEASM@
-LIBONEASM_X86 = @LIBONEASM_X86@
 LIBONEJIT = @LIBONEJIT@
+LIBONEJIT_X86 = @LIBONEJIT_X86@
 LIBONESTL = @LIBONESTL@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
@@ -326,18 +326,21 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = 
+SUBDIRS = x86
 noinst_LIBRARIES = libonejit.a
 # pkglib_LTLIBRARIES   =
 AM_CPPFLAGS = -I$(top_srcdir)/include
 # libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
-libonejit_a_SOURCES = archid.cpp binary.cpp code.cpp codeparser.cpp compiler.cpp \
+libonejit_a_SOURCES = archid.cpp binary.cpp call.cpp code.cpp codeparser.cpp compiler.cpp \
                          imm.cpp const.cpp error.cpp expr.cpp func.cpp functype.cpp \
                          group.cpp kind.cpp label.cpp logsize.cpp mem.cpp name.cpp \
                          node.cpp nodeheader.cpp op.cpp opstmt.cpp \
                          stmt0.cpp stmt1.cpp stmt2.cpp stmt3.cpp stmt4.cpp stmtn.cpp \
-                         type.cpp call.cpp unary.cpp local.cpp var.cpp
+                         tuple.cpp type.cpp unary.cpp local.cpp var.cpp
 
+EXTRA_libonejit_a_DEPENDENCIES = $(LIBONEJIT_X86)
+# libonejit_a_LDFLAGS  =
+libonejit_a_LIBADD = x86/addr.o x86/inst0.o x86/inst1.o
 all: all-recursive
 
 .SUFFIXES:
@@ -415,6 +418,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt3.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt4.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmtn.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tuple.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/type.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unary.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/var.Po@am__quote@ # am--include-marker
@@ -667,6 +671,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/stmt3.Po
 	-rm -f ./$(DEPDIR)/stmt4.Po
 	-rm -f ./$(DEPDIR)/stmtn.Po
+	-rm -f ./$(DEPDIR)/tuple.Po
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f ./$(DEPDIR)/unary.Po
 	-rm -f ./$(DEPDIR)/var.Po
@@ -744,6 +749,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/stmt3.Po
 	-rm -f ./$(DEPDIR)/stmt4.Po
 	-rm -f ./$(DEPDIR)/stmtn.Po
+	-rm -f ./$(DEPDIR)/tuple.Po
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f ./$(DEPDIR)/unary.Po
 	-rm -f ./$(DEPDIR)/var.Po
@@ -782,9 +788,6 @@ uninstall-am:
 
 .PRECIOUS: Makefile
 
-
-# libonejit_a_LDFLAGS  =
-# libonejit_a_LDADD    =
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
