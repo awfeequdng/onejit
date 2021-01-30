@@ -176,6 +176,7 @@ ONEJIT_NOINLINE Assembler &emit_call(Assembler &dst, x64::Addr address) noexcept
     const uint8_t immediate_buf[4] = {uint8_t(offset), uint8_t(offset >> 8), //
                                       uint8_t(offset >> 16), uint8_t(offset >> 24)};
     dst.add(Bytes{immediate_buf, 4});
+    dst.add_label(address.label());
   }
   return dst;
 }

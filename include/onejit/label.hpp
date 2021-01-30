@@ -84,6 +84,12 @@ private:
   static Label create(Code *holder, uint64_t address, uint16_t index) noexcept;
 };
 
+// position in Assembler that needs to be filled with Label relative address
+struct LabelRef {
+  size_t pos;
+  Label label;
+};
+
 const Fmt &operator<<(const Fmt &out, const Label &l);
 
 } // namespace onejit

@@ -70,9 +70,20 @@ public:
     return add(View<T>{bytes.begin(), bytes.size()});
   }
 
+  // mark last added bytes to be filled with label relative offset
+  // does nothing if bool(l) == false
+  Assembler &add_label(Label l) noexcept {
+    if (l && !label_.append(LabelRef{size(), l})) {
+      Base::seterr();
+    }
+    return *this;
+  }
+
 private:
   // hide Base::append()
   void append() noexcept;
+
+  Vector<LabelRef> label_;
 
 }; // class Assembler
 
