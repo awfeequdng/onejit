@@ -22,14 +22,14 @@
  *  Created on Jan 29, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X86_REX_HPP
-#define ONEJIT_X86_REX_HPP
+#ifndef ONEJIT_X64_REX_HPP
+#define ONEJIT_X64_REX_HPP
 
 #include <onejit/local.hpp>
-#include <onejit/x86/reg.hpp>
+#include <onejit/x64/reg.hpp>
 
 namespace onejit {
-namespace x86 {
+namespace x64 {
 
 constexpr inline Reg to_reg(Local l) noexcept {
   return Reg(l.id().val());
@@ -44,24 +44,24 @@ inline uint8_t rhi(Local l) noexcept {
 }
 
 // REX byte if default width is 32
-inline uint8_t rex_byte_32_64(Local l) noexcept {
-  uint8_t byte = rhi(l);
-  if (byte || l.kind().bits().val() >= 64) {
+inline uint8_t rex_byte_32_64(Local base, Local index = Local{}) noexcept {
+  uint8_t byte = rhi(base) | rhi(index) << 1;
+  if (byte || base.kind().bitsize() >= 64 || index.kind().bitsize() >= 64) {
     byte |= 0x40;
   }
   return byte;
 }
 
 // REX byte if default width is 64
-inline uint8_t rex_byte_64(Local l) noexcept {
-  uint8_t byte = rhi(l);
+inline uint8_t rex_byte_64(Local base, Local index = Local{}) noexcept {
+  uint8_t byte = rhi(base) | rhi(index) << 1;
   if (byte) {
     byte |= 0x40;
   }
   return byte;
 }
 
-} // namespace x86
+} // namespace x64
 } // namespace onejit
 
-#endif // ONEJIT_X86_REG_HPP
+#endif // ONEJIT_X64_REG_HPP

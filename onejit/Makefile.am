@@ -1,4 +1,4 @@
-SUBDIRS = x86
+SUBDIRS = x64
 
 noinst_LIBRARIES       = libonejit.a
 # pkglib_LTLIBRARIES   =
@@ -15,4 +15,4 @@ libonejit_a_SOURCES    = archid.cpp binary.cpp call.cpp code.cpp codeparser.cpp 
 
 EXTRA_libonejit_a_DEPENDENCIES = $(LIBONEJIT_X86)
 # libonejit_a_LDFLAGS  =
-libonejit_a_LIBADD     = x86/addr.o x86/inst0.o x86/inst1.o
+libonejit_a_LIBADD     = x64/addr.o x64/inst0.o x64/inst1.o

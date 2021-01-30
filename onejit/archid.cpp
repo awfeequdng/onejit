@@ -29,7 +29,7 @@
 namespace onejit {
 
 static const Chars archstring[] = {
-    "NOARCH", "AMD64", "ARM64", "ARM", "X86",
+    "NOARCH", "X64", "ARM64", "ARM", "X86",
 };
 
 const Chars &ArchId::string() const noexcept {

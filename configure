@@ -628,7 +628,7 @@ LTLIBOBJS
 LIBOBJS
 LIBONESTL
 LIBONEJIT
-LIBONEJIT_X86
+LIBONEJIT_X64
 EGREP
 GREP
 CXXCPP
@@ -4864,14 +4864,14 @@ done
 
 # Checks for library functions.
 
-LIBONEJIT_X86='$(top_builddir)/onejit/x86/libonejit_x86.a'
+LIBONEJIT_X64='$(top_builddir)/onejit/x64/libonejit_x64.a'
 
 LIBONEJIT='$(top_builddir)/onejit/libonejit.a'
 
 LIBONESTL='$(top_builddir)/onestl/libonestl.a'
 
 
-ac_config_files="$ac_config_files Makefile onejit/Makefile onejit/x86/Makefile onestl/Makefile"
+ac_config_files="$ac_config_files Makefile onejit/Makefile onejit/x64/Makefile onestl/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -5607,7 +5607,7 @@ do
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "onejit/Makefile") CONFIG_FILES="$CONFIG_FILES onejit/Makefile" ;;
-    "onejit/x86/Makefile") CONFIG_FILES="$CONFIG_FILES onejit/x86/Makefile" ;;
+    "onejit/x64/Makefile") CONFIG_FILES="$CONFIG_FILES onejit/x64/Makefile" ;;
     "onestl/Makefile") CONFIG_FILES="$CONFIG_FILES onestl/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;

@@ -22,13 +22,13 @@
  *  Created on Jan 28, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X86_REG_HPP
-#define ONEJIT_X86_REG_HPP
+#ifndef ONEJIT_X64_REG_HPP
+#define ONEJIT_X64_REG_HPP
 
 #include <cstdint> // uint*_t
 
 namespace onejit {
-namespace x86 {
+namespace x64 {
 
 enum Reg : uint16_t {
   // use interval 256..511 of onejit::Id{}
@@ -92,7 +92,7 @@ constexpr inline uint8_t rhi(Reg r) noexcept {
   return (r >> 3) & 0x1;
 }
 
-} // namespace x86
+} // namespace x64
 } // namespace onejit
 
-#endif // ONEJIT_X86_REG_HPP
+#endif // ONEJIT_X64_REG_HPP

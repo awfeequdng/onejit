@@ -17,44 +17,31 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * archid.hpp
+ * addr.cpp
  *
- *  Created on Jan 08, 2021
+ *  Created on Jan 28, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_ARCHID_HPP
-#define ONEJIT_ARCHID_HPP
-
-#include <onejit/fwd.hpp>
-
-#include <cstdint> // uint8_t
+#include <onejit/const.hpp>
+#include <onejit/x64/addr.hpp>
 
 namespace onejit {
+namespace x64 {
 
-class ArchId {
-public:
-  constexpr explicit ArchId(uint8_t archid) noexcept : val_(archid) {
+// ============================  Addr  ====================================
+
+Node Addr::create(Func &func, Kind kind, const Label &label, const int32_t offset, const Var &base,
+                  const Var &index, Scale scale) noexcept {
+  Const coffset{func, offset};
+  if (coffset) {
+    const Node nodes[] = {label, coffset, base, index, Const{Uint8, uint16_t(scale)}};
+    const size_t len = index && scale != Scale::None ? 5 : 3;
+
+    return Tuple::create(func, kind, X64_ADDR, Nodes{nodes, len});
   }
+  return Addr{};
+}
 
-  const Chars &string() const noexcept;
-
-  constexpr uint8_t val() const noexcept {
-    return val_;
-  }
-
-private:
-  uint8_t val_;
-};
-
-const Fmt &operator<<(const Fmt &out, ArchId archid);
-
-constexpr const ArchId NOARCH(0);
-constexpr const ArchId X64(1); // alias for x86_64 and amd64
-constexpr const ArchId ARM64(2);
-constexpr const ArchId X86(3); // 32 bit i386 / i486 / i586 ...
-constexpr const ArchId ARM(4);
-
-}; // namespace onejit
-
-#endif // ONEJIT_ARCH_HPP
+} // namespace x64
+} // namespace onejit

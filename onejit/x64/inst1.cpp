@@ -24,13 +24,13 @@
  */
 
 #include <onejit/opstmt.hpp>
-#include <onejit/x86/addr.hpp>
-#include <onejit/x86/inst.hpp>
-#include <onejit/x86/rex.hpp>
+#include <onejit/x64/addr.hpp>
+#include <onejit/x64/inst.hpp>
+#include <onejit/x64/rex.hpp>
 #include <onestl/buffer.hpp>
 
 namespace onejit {
-namespace x86 {
+namespace x64 {
 
 using onestl::Bytes;
 
@@ -118,13 +118,16 @@ ONEJIT_NOINLINE onestl::ByteBuf &emit_call(onestl::ByteBuf &dst, Local l) noexce
   return dst.append(bytes);
 }
 
-constexpr inline uint8_t immediate_minbytes(Local base) noexcept {
+constexpr inline size_t immediate_minbytes(Local base) noexcept {
   return rlo(base) == 5 ? 1 : 0;
 }
 
-ONEJIT_NOINLINE uint8_t immediate_minbytes(Local base, x86::Addr address) noexcept {
+ONEJIT_NOINLINE size_t immediate_minbytes(x64::Addr address, Local base, Local index) noexcept {
   int32_t offset = address.offset();
   if (offset != int32_t(int8_t(offset)) || address.label()) {
+    return 4;
+  }
+  if (index && !base) {
     return 4;
   }
   return offset != 0 || rlo(base) == 5 ? 1 : 0;
@@ -134,28 +137,41 @@ constexpr inline bool is_quirk24(Local base) noexcept {
   return rlo(base) == 4;
 }
 
-ONEJIT_NOINLINE void emit_quirk24(onestl::ByteBuf &dst, Local base) noexcept {
-  if (is_quirk24(base)) {
-    dst.append(uint8_t(0x24));
-  }
+ONEJIT_NOINLINE void emit_quirk24(onestl::ByteBuf &dst) noexcept {
+  dst.append(uint8_t(0x24));
 }
 
-ONEJIT_NOINLINE onestl::ByteBuf &emit_call(onestl::ByteBuf &dst, x86::Addr address) noexcept {
+ONEJIT_NOINLINE onestl::ByteBuf &emit_call(onestl::ByteBuf &dst, x64::Addr address) noexcept {
   Local base = address.base().local();
-  uint8_t immediate_bytes = immediate_minbytes(base, address);
+  Local index = address.index().local(); // index cannot be %rsp
+  size_t immediate_bytes = immediate_minbytes(address, base, index);
+  size_t len = 3;
+  uint8_t buf[4] = {0x00, 0xff, 0x10, 0x00};
 
-  uint8_t buf[3] = {rex_byte_64(base), 0xff, uint8_t(0x10 | rlo(base))};
-  if (immediate_bytes == 1) {
+  buf[0] = rex_byte_64(base, index);
+  if (index) {
+    buf[2] |= 0x4;
+    buf[3] = (base ? rlo(base) : 0x5) | rlo(index) << 3 | scale_bits(address.scale()) << 6;
+    len++;
+  } else if (base) {
+    buf[2] |= rlo(base);
+  }
+
+  if (!base && index) {
+    // nothing to do
+  } else if (immediate_bytes == 1) {
     buf[2] |= 0x40;
   } else if (immediate_bytes == 4) {
     buf[2] |= 0x80;
   }
-  onestl::Bytes bytes{buf, 3};
+  onestl::Bytes bytes{buf, len};
   if (buf[0] == 0) {
-    bytes = Bytes{buf + 1, 2};
+    bytes = Bytes{buf + 1, len - 1};
   }
   dst.append(bytes);
-  emit_quirk24(dst, base);
+  if (is_quirk24(base) && !index) {
+    emit_quirk24(dst);
+  }
   if (immediate_bytes == 1) {
     dst.append(uint8_t(address.offset()));
   } else if (immediate_bytes == 4) {
@@ -165,7 +181,7 @@ ONEJIT_NOINLINE onestl::ByteBuf &emit_call(onestl::ByteBuf &dst, x86::Addr addre
     dst.append(Bytes{immediate_buf, 4});
   }
   return dst;
-}
+} // namespace x64
 
-} // namespace x86
+} // namespace x64
 } // namespace onejit

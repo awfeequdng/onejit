@@ -103,7 +103,7 @@ am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
 am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libonejit_a_AR = $(AR) $(ARFLAGS)
-libonejit_a_DEPENDENCIES = x86/addr.o x86/inst0.o x86/inst1.o
+libonejit_a_DEPENDENCIES = x64/addr.o x64/inst0.o x64/inst1.o
 am_libonejit_a_OBJECTS = archid.$(OBJEXT) binary.$(OBJEXT) \
 	call.$(OBJEXT) code.$(OBJEXT) codeparser.$(OBJEXT) \
 	compiler.$(OBJEXT) imm.$(OBJEXT) const.$(OBJEXT) \
@@ -261,7 +261,7 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBONEJIT = @LIBONEJIT@
-LIBONEJIT_X86 = @LIBONEJIT_X86@
+LIBONEJIT_X64 = @LIBONEJIT_X64@
 LIBONESTL = @LIBONESTL@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
@@ -326,7 +326,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = x86
+SUBDIRS = x64
 noinst_LIBRARIES = libonejit.a
 # pkglib_LTLIBRARIES   =
 AM_CPPFLAGS = -I$(top_srcdir)/include
@@ -340,7 +340,7 @@ libonejit_a_SOURCES = archid.cpp binary.cpp call.cpp code.cpp codeparser.cpp com
 
 EXTRA_libonejit_a_DEPENDENCIES = $(LIBONEJIT_X86)
 # libonejit_a_LDFLAGS  =
-libonejit_a_LIBADD = x86/addr.o x86/inst0.o x86/inst1.o
+libonejit_a_LIBADD = x64/addr.o x64/inst0.o x64/inst1.o
 all: all-recursive
 
 .SUFFIXES:

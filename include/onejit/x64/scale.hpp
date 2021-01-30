@@ -1,7 +1,7 @@
 /*
- * onejit - JIT compiler in C++
+ * onejit - in-memory assembler
  *
- * Copyright (C) 2018-2021 Massimiliano Ghilardi
+ * Copyright (C) 2021 Massimiliano Ghilardi
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,26 +17,33 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * fwd.hpp
+ * scale.hpp
  *
- *  Created on Jan 22, 2021
+ *  Created on Jan 28, 2021
  *      Author Massimiliano Ghilardi
  */
+#ifndef ONEJIT_X64_SCALE_HPP
+#define ONEJIT_X64_SCALE_HPP
 
-#ifndef ONEJIT_X86_FWD_HPP
-#define ONEJIT_X86_FWD_HPP
+#include <cstdint> // uint*_t
 
 namespace onejit {
-namespace x86 {
+namespace x64 {
 
-class Addr;
-class Inst;
-class Inst0;
-class Inst1;
-class Inst2;
-class Inst3;
+enum class Scale : uint8_t {
+  None = 0,
+  S0 = 0,
+  S1 = 1,
+  S2 = 2,
+  S4 = 4,
+  S8 = 8,
+};
 
-} // namespace x86
+constexpr inline uint8_t scale_bits(Scale scale) noexcept {
+  return scale == Scale::S2 ? 1 : scale == Scale::S4 ? 2 : scale == Scale::S8 ? 3 : 0;
+}
+
+} // namespace x64
 } // namespace onejit
 
-#endif // ONEJIT_X86_FWD_HPP
+#endif // ONEJIT_X64_SCALE_HPP

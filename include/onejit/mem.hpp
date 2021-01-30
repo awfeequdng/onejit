@@ -35,8 +35,8 @@ namespace onejit {
 // keep track of Mem subclasses
 enum MemType : uint16_t {
   GENERIC_MEM = 0,
-  X86_MEM = 1,
-  ARM_MEM = 2,
+  X64_MEM = 1,
+  ARM64_MEM = 2,
 };
 
 // an unary expression: a memory dereference, either read or write.

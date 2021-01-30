@@ -23,28 +23,20 @@
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_X86_ADDR_HPP
-#define ONEJIT_X86_ADDR_HPP
+#ifndef ONEJIT_X64_ADDR_HPP
+#define ONEJIT_X64_ADDR_HPP
 
 #include <onejit/label.hpp>
 #include <onejit/tuple.hpp>
 #include <onejit/var.hpp>
+#include <onejit/x64/scale.hpp>
 
 namespace onejit {
-namespace x86 {
-
-enum class Scale : uint8_t {
-  None = 0,
-  S0 = 0,
-  S1 = 1,
-  S2 = 2,
-  S4 = 4,
-  S8 = 8,
-};
+namespace x64 {
 
 ////////////////////////////////////////////////////////////////////////////////
-// address representable in a single x86 instruction:
-// optional_label + offset_int32 + optional_base_register + optional_index_reg * {1,2,4,8}
+// address representable in a single x64 instruction:
+// optional_label + offset_int32 + optional_base_reg + optional_index_reg * {1,2,4,8}
 class Addr : public Tuple {
   using Base = Tuple;
   friend class Node;
@@ -78,7 +70,7 @@ public:
   }
 
   static constexpr OpN op() noexcept {
-    return X86_ADDR;
+    return X64_ADDR;
   }
 
   // shortcut for child(0).is<Label>()
@@ -103,14 +95,14 @@ private:
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op == X86_ADDR;
+    return op == X64_ADDR;
   }
 
   static Node create(Func &func, Kind kind, const Label &label, const int32_t offset,
                      const Var &base, const Var &index, Scale scale) noexcept;
 }; // class Addr
 
-} // namespace x86
+} // namespace x64
 } // namespace onejit
 
-#endif // ONEJIT_X86_ADDR_HPP
+#endif // ONEJIT_X64_ADDR_HPP

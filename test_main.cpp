@@ -24,8 +24,8 @@
  */
 
 #include <onejit/onejit.hpp>
-#include <onejit/x86/inst.hpp>
-#include <onejit/x86/mem.hpp>
+#include <onejit/x64/inst.hpp>
+#include <onejit/x64/mem.hpp>
 
 #include <cstdio> // stdout
 
@@ -55,7 +55,7 @@ private:
   void const_expr() const;
   void simple_expr();
   void nested_expr();
-  void x86_expr();
+  void x64_expr();
   void func_fib();
   void func_loop();
   void func_switch1();
@@ -89,7 +89,7 @@ void Test::run() {
   const_expr();
   simple_expr();
   nested_expr();
-  x86_expr();
+  x64_expr();
   func_fib();
   func_loop();
   func_switch1();
@@ -257,22 +257,22 @@ void Test::nested_expr() {
   holder.clear();
 }
 
-void Test::x86_expr() {
-  Func &f = func.reset(&holder, Name{&holder, "x86_expr"}, FuncType{&holder, {}, {}});
+void Test::x64_expr() {
+  Func &f = func.reset(&holder, Name{&holder, "x64_expr"}, FuncType{&holder, {}, {}});
 
   {
     Var v1{f, Uint64}, v2{f, Uint64};
-    x86::Addr address{f, Label{f}, 12345, v1, v2, x86::Scale::S8};
-    x86::Mem mem{f, address};
+    x64::Addr address{f, Label{f}, 12345, v1, v2, x64::Scale::S8};
+    x64::Mem mem{f, address};
 
-    Chars expected = "(x86_mem (x86_addr label_1 12345_i var1000_ul var1001_ul 8_ub))";
+    Chars expected = "(x64_mem (x64_addr label_1 12345_i var1000_ul var1001_ul 8_ub))";
     ONEJIT_TEST(to_string(mem), ==, expected);
   }
 
   {
-    x86::Mem mem{f, x86::Addr{f, Int32, -67890}};
+    x64::Mem mem{f, x64::Addr{f, Int32, -67890}};
 
-    Chars expected = "(x86_mem (x86_addr _ -67890_i _))";
+    Chars expected = "(x64_mem (x64_addr _ -67890_i _))";
     ONEJIT_TEST(to_string(mem), ==, expected);
   }
 

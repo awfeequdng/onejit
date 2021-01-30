@@ -24,11 +24,11 @@
  */
 
 #include <onejit/opstmt.hpp>
-#include <onejit/x86/inst.hpp>
+#include <onejit/x64/inst.hpp>
 #include <onestl/buffer.hpp>
 
 namespace onejit {
-namespace x86 {
+namespace x64 {
 
 using namespace onejit;
 
@@ -75,5 +75,5 @@ onestl::ByteBuf &Inst0::emit(onestl::ByteBuf &dst) const noexcept {
   return dst.append(bytes());
 }
 
-} // namespace x86
+} // namespace x64
 } // namespace onejit

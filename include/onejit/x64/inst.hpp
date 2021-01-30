@@ -22,19 +22,19 @@
  *  Created on Jan 26, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X86_INST_HPP
-#define ONEJIT_X86_INST_HPP
+#ifndef ONEJIT_X64_INST_HPP
+#define ONEJIT_X64_INST_HPP
 
 #include <onejit/opstmt.hpp>
-#include <onejit/x86/arg.hpp>
-#include <onejit/x86/reg.hpp>
+#include <onejit/x64/arg.hpp>
+#include <onejit/x64/reg.hpp>
 #include <onestl/chars.hpp>
 
 namespace onejit {
-namespace x86 {
+namespace x64 {
 
 ////////////////////////////////////////////////////////////////////////////////
-// describe x86/amd64 instruction constraints and side effects
+// describe x86/x64 instruction constraints and side effects
 class Inst {
 public:
   constexpr explicit Inst(BitSize val_size = B0, Eflags eflags = EFnone) noexcept
@@ -152,7 +152,7 @@ private:
   Arg3 arg_; // allowed argument combinations
 };
 
-} // namespace x86
+} // namespace x64
 } // namespace onejit
 
-#endif // ONEJIT_X86_INST_HPP
+#endif // ONEJIT_X64_INST_HPP

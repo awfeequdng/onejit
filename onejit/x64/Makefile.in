@@ -86,7 +86,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-subdir = onejit/x86
+subdir = onejit/x64
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -102,11 +102,11 @@ AM_V_AR = $(am__v_AR_@AM_V@)
 am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
 am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
-libonejit_x86_a_AR = $(AR) $(ARFLAGS)
-libonejit_x86_a_LIBADD =
-am_libonejit_x86_a_OBJECTS = addr.$(OBJEXT) inst0.$(OBJEXT) \
+libonejit_x64_a_AR = $(AR) $(ARFLAGS)
+libonejit_x64_a_LIBADD =
+am_libonejit_x64_a_OBJECTS = addr.$(OBJEXT) inst0.$(OBJEXT) \
 	inst1.$(OBJEXT)
-libonejit_x86_a_OBJECTS = $(am_libonejit_x86_a_OBJECTS)
+libonejit_x64_a_OBJECTS = $(am_libonejit_x64_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -138,8 +138,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(libonejit_x86_a_SOURCES)
-DIST_SOURCES = $(libonejit_x86_a_SOURCES)
+SOURCES = $(libonejit_x64_a_SOURCES)
+DIST_SOURCES = $(libonejit_x64_a_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -241,7 +241,7 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBONEJIT = @LIBONEJIT@
-LIBONEJIT_X86 = @LIBONEJIT_X86@
+LIBONEJIT_X64 = @LIBONEJIT_X64@
 LIBONESTL = @LIBONESTL@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
@@ -307,11 +307,11 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = 
-noinst_LIBRARIES = libonejit_x86.a
+noinst_LIBRARIES = libonejit_x64.a
 # pkglib_LTLIBRARIES       =
 AM_CPPFLAGS = -I$(top_srcdir)/include
-# libonejit_x86_a_CPPFLAGS = -I$(top_srcdir)/include
-libonejit_x86_a_SOURCES = addr.cpp inst0.cpp inst1.cpp
+# libonejit_x64_a_CPPFLAGS = -I$(top_srcdir)/include
+libonejit_x64_a_SOURCES = addr.cpp inst0.cpp inst1.cpp
 all: all-recursive
 
 .SUFFIXES:
@@ -325,9 +325,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign onejit/x86/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign onejit/x64/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign onejit/x86/Makefile
+	  $(AUTOMAKE) --foreign onejit/x64/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -349,10 +349,10 @@ $(am__aclocal_m4_deps):
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
 
-libonejit_x86.a: $(libonejit_x86_a_OBJECTS) $(libonejit_x86_a_DEPENDENCIES) $(EXTRA_libonejit_x86_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libonejit_x86.a
-	$(AM_V_AR)$(libonejit_x86_a_AR) libonejit_x86.a $(libonejit_x86_a_OBJECTS) $(libonejit_x86_a_LIBADD)
-	$(AM_V_at)$(RANLIB) libonejit_x86.a
+libonejit_x64.a: $(libonejit_x64_a_OBJECTS) $(libonejit_x64_a_DEPENDENCIES) $(EXTRA_libonejit_x64_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f libonejit_x64.a
+	$(AM_V_AR)$(libonejit_x64_a_AR) libonejit_x64.a $(libonejit_x64_a_OBJECTS) $(libonejit_x64_a_LIBADD)
+	$(AM_V_at)$(RANLIB) libonejit_x64.a
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -670,8 +670,8 @@ uninstall-am:
 .PRECIOUS: Makefile
 
 
-# libonejit_x86_a_LDFLAGS  =
-# libonejit_x86_a_LDADD    =
+# libonejit_x64_a_LDFLAGS  =
+# libonejit_x64_a_LDADD    =
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

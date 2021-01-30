@@ -72,7 +72,7 @@ enum OpN : uint16_t {
 
   // numeric values of the OpN enum constants below this line MAY CHANGE WITHOUT WARNING
 
-  X86_ADDR,
+  X64_ADDR,
 };
 
 const Chars to_string(Op1 op) noexcept;

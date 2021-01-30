@@ -93,11 +93,11 @@ private:
 
 class VarHelper {
 public:
-  // Var representing architectural flags register: EFLAGS on x86/amd64, APSR on arm/arm64 ...
+  // Var representing architectural flags register: EFLAGS on x86/x64, APSR on arm/arm64 ...
   static constexpr const Var Flags{Local{ArchFlags, Id{1}}};
 };
 
-// Var representing architectural flags register: EFLAGS on x86/amd64, APSR on arm/arm64 ...
+// Var representing architectural flags register: EFLAGS on x86/x64, APSR on arm/arm64 ...
 constexpr const Var FlagsVar = VarHelper::Flags;
 
 const Fmt &operator<<(const Fmt &out, const Var &v);

@@ -22,17 +22,17 @@
  *  Created on Jan 28, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X86_MEM_HPP
-#define ONEJIT_X86_MEM_HPP
+#ifndef ONEJIT_X64_MEM_HPP
+#define ONEJIT_X64_MEM_HPP
 
 #include <onejit/mem.hpp>
-#include <onejit/x86/addr.hpp>
+#include <onejit/x64/addr.hpp>
 
 namespace onejit {
-namespace x86 {
+namespace x64 {
 
 ////////////////////////////////////////////////////////////////////////////////
-// memory access representable in a single x86 instruction: address is x86::Addr i.e.
+// memory access representable in a single x86 instruction: address is x64::Addr i.e.
 // optional_label + offset_int32 + optional_base_register + optional_index_reg * {1,2,4,8}
 class Mem : public onejit::Mem {
   using Base = onejit::Mem;
@@ -49,11 +49,11 @@ public:
   }
 
   Mem(Func &func, Addr address) noexcept //
-      : Base{func, address.kind(), X86_MEM, address} {
+      : Base{func, address.kind(), X64_MEM, address} {
   }
 
   static constexpr MemType memtype() noexcept {
-    return X86_MEM;
+    return X64_MEM;
   }
 
   // shortcut for child(0).is<Addr>()
@@ -68,11 +68,11 @@ private:
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op == X86_MEM;
+    return op == X64_MEM;
   }
 };
 
-} // namespace x86
+} // namespace x64
 } // namespace onejit
 
-#endif // ONEJIT_X86_MEM_HPP
+#endif // ONEJIT_X64_MEM_HPP

@@ -17,31 +17,26 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * addr.cpp
+ * fwd.hpp
  *
- *  Created on Jan 28, 2021
+ *  Created on Jan 22, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/const.hpp>
-#include <onejit/x86/addr.hpp>
+#ifndef ONEJIT_X64_FWD_HPP
+#define ONEJIT_X64_FWD_HPP
 
 namespace onejit {
-namespace x86 {
+namespace x64 {
 
-// ============================  Addr  ====================================
+class Addr;
+class Inst;
+class Inst0;
+class Inst1;
+class Inst2;
+class Inst3;
 
-Node Addr::create(Func &func, Kind kind, const Label &label, const int32_t offset, const Var &base,
-                  const Var &index, Scale scale) noexcept {
-  Const coffset{func, offset};
-  if (coffset) {
-    const Node nodes[] = {label, coffset, base, index, Const{Uint8, uint16_t(scale)}};
-    const size_t len = index && scale != Scale::None ? 5 : 3;
-
-    return Tuple::create(func, kind, X86_ADDR, Nodes{nodes, len});
-  }
-  return Addr{};
-}
-
-} // namespace x86
+} // namespace x64
 } // namespace onejit
+
+#endif // ONEJIT_X64_FWD_HPP

@@ -22,15 +22,15 @@
  *  Created on Jan 28, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X86_ARG_HPP
-#define ONEJIT_X86_ARG_HPP
+#ifndef ONEJIT_X64_ARG_HPP
+#define ONEJIT_X64_ARG_HPP
 
 #include <cstdint> // uint*_t
 
 namespace onejit {
-namespace x86 {
+namespace x64 {
 
-// describe x86/amd64 EFLAGS
+// describe x86/x64 EFLAGS
 enum EflagsMask : uint16_t {
   CF = 1 << 0, // carry flag
   PF = 1 << 2, // parity flag
@@ -52,7 +52,7 @@ enum Eflags : uint8_t {
 };
 
 // describe supported width of registers, memory access or immediate constants
-// in x86/amd64 instructions
+// in x86/x64 instructions
 enum BitSize : uint8_t {
   B0 = 0,        // zero
   B8 = 1 << 0,   // 8 bit
@@ -62,7 +62,7 @@ enum BitSize : uint8_t {
   B128 = 1 << 4, // 128 bit. for Rax means %rdx:%rax
 };
 
-// describe x86/amd64 unary instruction operands
+// describe x86/x64 unary instruction operands
 enum class Arg1 : uint8_t {
   Rax = 1 << 0, // %rax register
   Reg = 1 << 1, // general register
@@ -70,7 +70,7 @@ enum class Arg1 : uint8_t {
   Val = 1 << 3, // immediate
 };
 
-// describe x86/amd64 binary instruction operands.
+// describe x86/x64 binary instruction operands.
 // result is first operand, as per Intel syntax
 // (instead in AT&T / GNU syntax, result is last operand)
 enum class Arg2 : uint16_t {
@@ -94,7 +94,7 @@ enum class Arg2 : uint16_t {
   Mem_Xmm = 1 << 14, // memory OP= %xmm
 };
 
-// describe x86/amd64 ternary instruction operands
+// describe x86/x64 ternary instruction operands
 enum class Arg3 : uint8_t {
   Reg_Reg_Val = 1 << 0, // register = register OP immediate
   Reg_Mem_Val = 1 << 1, // register = memory OP immediate
@@ -142,7 +142,7 @@ constexpr inline Arg3 operator|(Arg3 a, Arg3 b) noexcept {
   return Arg3(int(a) | int(b));
 }
 
-} // namespace x86
+} // namespace x64
 } // namespace onejit
 
-#endif // ONEJIT_X86_ARG_HPP
+#endif // ONEJIT_X64_ARG_HPP
