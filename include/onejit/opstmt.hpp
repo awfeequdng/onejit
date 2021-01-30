@@ -107,6 +107,8 @@ enum OpStmt1 : uint16_t {
   x(BSWAP, bswap)      /* x = byteswap(x) - invert endianity of 32bit or 64bit register */         \
       x(CALL, call)    /* call function. argument is relative offset, register or memory */        \
       x(CBW, cbw)      /* sign-extend %al -> %ax or %ax -> %eax or  %eax -> %rax */                \
+      x(DEC, dec)      /* decrement register or memory by 1 */                                     \
+      x(INC, inc)      /* increment register or memory by 1 */                                     \
       x(INT, int)      /* generate a call to interrupt procedure. argument is immediate */         \
       x(JA, ja)        /* jump if above */                                                         \
       x(JAE, jae)      /* jump if above or equal (if not carry) */                                 \

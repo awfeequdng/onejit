@@ -42,22 +42,24 @@ static const Inst1 inst1[] = {
     Inst1{Arg1::Reg, B32 | B64},                        /* bswap                */
     Inst1{Arg1::Reg | Arg1::Mem | Arg1::Val, B64, B32}, /* call                 */
     Inst1{Arg1::Rax, B16 | B32 | B64},                  /* cbw                  */
-    Inst1{Arg1::Val, B0, B8},                           /* int                  */
-    Inst1{Arg1::Val, B0, B8 | B32, EFread},             /* ja                   */
-    Inst1{Arg1::Val, B0, B8 | B32, EFread},             /* jae                  */
-    Inst1{Arg1::Val, B0, B8 | B32, EFread},             /* jb                   */
-    Inst1{Arg1::Val, B0, B8 | B32, EFread},             /* jbe                  */
-    Inst1{Arg1::Val, B0, B8 | B32, EFread},             /* je                   */
-    Inst1{Arg1::Val, B0, B8 | B32, EFread},             /* jge                  */
-    Inst1{Arg1::Val, B0, B8 | B32, EFread},             /* jl                   */
-    Inst1{Arg1::Val, B0, B8 | B32, EFread},             /* jle                  */
-    Inst1{Arg1::Val, B0, B8 | B32, EFread},             /* jne                  */
-    Inst1{Arg1::Val, B0, B8 | B32, EFread},             /* jno                  */
-    Inst1{Arg1::Val, B0, B8 | B32, EFread},             /* jnp                  */
-    Inst1{Arg1::Val, B0, B8 | B32, EFread},             /* jns                  */
-    Inst1{Arg1::Val, B0, B8 | B32, EFread},             /* jo                   */
-    Inst1{Arg1::Val, B0, B8 | B32, EFread},             /* jp                   */
-    Inst1{Arg1::Val, B0, B8 | B32, EFread},             /* js                   */
+    Inst1{Arg1::Reg | Arg1::Mem, B8 | B16 | B32 | B64, B0, EFwrite}, /* dec     */
+    Inst1{Arg1::Reg | Arg1::Mem, B8 | B16 | B32 | B64, B0, EFwrite}, /* inc     */
+    Inst1{Arg1::Val, B0, B8},                                        /* int     */
+    Inst1{Arg1::Val, B0, B8 | B32, EFread},                          /* ja      */
+    Inst1{Arg1::Val, B0, B8 | B32, EFread},                          /* jae     */
+    Inst1{Arg1::Val, B0, B8 | B32, EFread},                          /* jb      */
+    Inst1{Arg1::Val, B0, B8 | B32, EFread},                          /* jbe     */
+    Inst1{Arg1::Val, B0, B8 | B32, EFread},                          /* je      */
+    Inst1{Arg1::Val, B0, B8 | B32, EFread},                          /* jge     */
+    Inst1{Arg1::Val, B0, B8 | B32, EFread},                          /* jl      */
+    Inst1{Arg1::Val, B0, B8 | B32, EFread},                          /* jle     */
+    Inst1{Arg1::Val, B0, B8 | B32, EFread},                          /* jne     */
+    Inst1{Arg1::Val, B0, B8 | B32, EFread},                          /* jno     */
+    Inst1{Arg1::Val, B0, B8 | B32, EFread},                          /* jnp     */
+    Inst1{Arg1::Val, B0, B8 | B32, EFread},                          /* jns     */
+    Inst1{Arg1::Val, B0, B8 | B32, EFread},                          /* jo      */
+    Inst1{Arg1::Val, B0, B8 | B32, EFread},                          /* jp      */
+    Inst1{Arg1::Val, B0, B8 | B32, EFread},                          /* js      */
     Inst1{Arg1::Reg | Arg1::Mem | Arg1::Val, B64, B8 | B32},         /* jmp     */
     Inst1{Arg1::Reg | Arg1::Mem, B8 | B16 | B32 | B64, B0, EFwrite}, /* neg     */
     Inst1{Arg1::Reg | Arg1::Mem, B8 | B16 | B32 | B64, B0, EFwrite}, /* not     */
