@@ -23,6 +23,7 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/assembler.hpp>
 #include <onejit/onejit.hpp>
 #include <onejit/x64/inst.hpp>
 #include <onejit/x64/mem.hpp>
@@ -269,13 +270,13 @@ void Test::x64_expr() {
     Chars expected = "(x64_mem (x64_addr label_1 12345_i var100_ul var101_ul 8_ub))";
     ONEJIT_TEST(to_string(mem), ==, expected);
 
-    onestl::ByteBuf assembled;
+    Assembler assembler;
     const auto &inst = x64::Inst1::find(X86_CALL);
-    inst.emit(assembled, mem);
+    inst.emit(assembler, mem);
 
-    ONEJIT_TEST(assembled.size(), ==, 7);
+    ONEJIT_TEST(assembler.size(), ==, 7);
     expected = "\xff\x94\xc8\x39\x30\x0\x0"; // call *0x3039(%rax,%rcx,8)
-    ONEJIT_TEST(assembled, ==, expected);
+    ONEJIT_TEST(assembler, ==, expected);
   }
 
   {

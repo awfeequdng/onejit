@@ -76,6 +76,11 @@ public:
     return *this;
   }
 
+  Buffer<T> &seterr() noexcept {
+    good_ = false;
+    return *this;
+  }
+
   Buffer<T> &clear() noexcept {
     Base::clear();
     return clearerr();

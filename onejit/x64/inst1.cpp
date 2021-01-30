@@ -23,11 +23,11 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/assembler.hpp>
 #include <onejit/opstmt.hpp>
 #include <onejit/x64/inst.hpp>
 #include <onejit/x64/mem.hpp>
 #include <onejit/x64/rex.hpp>
-#include <onestl/buffer.hpp>
 
 namespace onejit {
 namespace x64 {
@@ -98,24 +98,24 @@ const Inst1 &Inst1::find(OpStmt1 op) noexcept {
   return inst1[i];
 }
 
-ONEJIT_NOINLINE onestl::ByteBuf &emit_bswap(onestl::ByteBuf &dst, Local l) noexcept {
+ONEJIT_NOINLINE Assembler &emit_bswap(Assembler &dst, Local l) noexcept {
   uint8_t buf[3] = {rex_byte_32_64(l), 0x0f, uint8_t(0xc8 | rlo(l))};
 
   onestl::Bytes bytes{buf, 3};
   if (buf[0] == 0) {
     bytes = Bytes{buf + 1, 2};
   }
-  return dst.append(bytes);
+  return dst.add(bytes);
 }
 
-ONEJIT_NOINLINE onestl::ByteBuf &emit_call(onestl::ByteBuf &dst, Local l) noexcept {
+ONEJIT_NOINLINE Assembler &emit_call(Assembler &dst, Local l) noexcept {
   uint8_t buf[3] = {rex_byte_64(l), 0xff, uint8_t(0xd0 | rlo(l))};
 
   onestl::Bytes bytes{buf, 3};
   if (buf[0] == 0) {
     bytes = Bytes{buf + 1, 2};
   }
-  return dst.append(bytes);
+  return dst.add(bytes);
 }
 
 constexpr inline size_t immediate_minbytes(Local base) noexcept {
@@ -124,10 +124,7 @@ constexpr inline size_t immediate_minbytes(Local base) noexcept {
 
 ONEJIT_NOINLINE size_t immediate_minbytes(x64::Addr address, Local base, Local index) noexcept {
   int32_t offset = address.offset();
-  if (offset != int32_t(int8_t(offset)) || address.label()) {
-    return 4;
-  }
-  if (index && !base) {
+  if (offset != int32_t(int8_t(offset)) || address.label() || (index && !base)) {
     return 4;
   }
   return offset != 0 || rlo(base) == 5 ? 1 : 0;
@@ -137,11 +134,11 @@ constexpr inline bool is_quirk24(Local base) noexcept {
   return rlo(base) == 4;
 }
 
-ONEJIT_NOINLINE void emit_quirk24(onestl::ByteBuf &dst) noexcept {
-  dst.append(uint8_t(0x24));
+ONEJIT_NOINLINE void emit_quirk24(Assembler &dst) noexcept {
+  dst.add(uint8_t(0x24));
 }
 
-ONEJIT_NOINLINE onestl::ByteBuf &emit_call(onestl::ByteBuf &dst, x64::Addr address) noexcept {
+ONEJIT_NOINLINE Assembler &emit_call(Assembler &dst, x64::Addr address) noexcept {
   Local base = address.base();
   Local index = address.index(); // index cannot be %rsp
   size_t immediate_bytes = immediate_minbytes(address, base, index);
@@ -168,22 +165,22 @@ ONEJIT_NOINLINE onestl::ByteBuf &emit_call(onestl::ByteBuf &dst, x64::Addr addre
   if (buf[0] == 0) {
     bytes = Bytes{buf + 1, len - 1};
   }
-  dst.append(bytes);
+  dst.add(bytes);
   if (is_quirk24(base) && !index) {
     emit_quirk24(dst);
   }
   if (immediate_bytes == 1) {
-    dst.append(uint8_t(address.offset()));
+    dst.add(uint8_t(address.offset()));
   } else if (immediate_bytes == 4) {
     uint32_t offset = uint32_t(address.offset());
     const uint8_t immediate_buf[4] = {uint8_t(offset), uint8_t(offset >> 8), //
                                       uint8_t(offset >> 16), uint8_t(offset >> 24)};
-    dst.append(Bytes{immediate_buf, 4});
+    dst.add(Bytes{immediate_buf, 4});
   }
   return dst;
 }
 
-onestl::ByteBuf &Inst1::emit(onestl::ByteBuf &dst, Node arg) const noexcept {
+Assembler &Inst1::emit(Assembler &dst, Node arg) const noexcept {
   if (Var var = arg.is<Var>()) {
     return emit_call(dst, var.local());
   } else if (Mem mem = arg.is<Mem>()) {

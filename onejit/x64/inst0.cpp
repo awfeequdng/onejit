@@ -23,9 +23,9 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/assembler.hpp>
 #include <onejit/opstmt.hpp>
 #include <onejit/x64/inst.hpp>
-#include <onestl/buffer.hpp>
 
 namespace onejit {
 namespace x64 {
@@ -71,8 +71,8 @@ const Inst0 &Inst0::find(OpStmt0 op) noexcept {
   return inst0_vec[op - X86_CLC];
 }
 
-onestl::ByteBuf &Inst0::emit(onestl::ByteBuf &dst) const noexcept {
-  return dst.append(bytes());
+Assembler &Inst0::emit(Assembler &dst) const noexcept {
+  return dst.add(bytes());
 }
 
 } // namespace x64

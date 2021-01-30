@@ -104,10 +104,10 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libonejit_a_AR = $(AR) $(ARFLAGS)
 libonejit_a_DEPENDENCIES = x64/addr.o x64/inst0.o x64/inst1.o
-am_libonejit_a_OBJECTS = archid.$(OBJEXT) binary.$(OBJEXT) \
-	call.$(OBJEXT) code.$(OBJEXT) codeparser.$(OBJEXT) \
-	compiler.$(OBJEXT) imm.$(OBJEXT) const.$(OBJEXT) \
-	error.$(OBJEXT) expr.$(OBJEXT) func.$(OBJEXT) \
+am_libonejit_a_OBJECTS = archid.$(OBJEXT) assembler.$(OBJEXT) \
+	binary.$(OBJEXT) call.$(OBJEXT) code.$(OBJEXT) \
+	codeparser.$(OBJEXT) compiler.$(OBJEXT) imm.$(OBJEXT) \
+	const.$(OBJEXT) error.$(OBJEXT) expr.$(OBJEXT) func.$(OBJEXT) \
 	functype.$(OBJEXT) group.$(OBJEXT) kind.$(OBJEXT) \
 	label.$(OBJEXT) logsize.$(OBJEXT) mem.$(OBJEXT) name.$(OBJEXT) \
 	node.$(OBJEXT) nodeheader.$(OBJEXT) op.$(OBJEXT) \
@@ -131,8 +131,8 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/binary.Po \
-	./$(DEPDIR)/call.Po ./$(DEPDIR)/code.Po \
+am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/assembler.Po \
+	./$(DEPDIR)/binary.Po ./$(DEPDIR)/call.Po ./$(DEPDIR)/code.Po \
 	./$(DEPDIR)/codeparser.Po ./$(DEPDIR)/compiler.Po \
 	./$(DEPDIR)/const.Po ./$(DEPDIR)/error.Po ./$(DEPDIR)/expr.Po \
 	./$(DEPDIR)/func.Po ./$(DEPDIR)/functype.Po \
@@ -331,8 +331,8 @@ noinst_LIBRARIES = libonejit.a
 # pkglib_LTLIBRARIES   =
 AM_CPPFLAGS = -I$(top_srcdir)/include
 # libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
-libonejit_a_SOURCES = archid.cpp binary.cpp call.cpp code.cpp codeparser.cpp compiler.cpp \
-                         imm.cpp const.cpp error.cpp expr.cpp func.cpp functype.cpp \
+libonejit_a_SOURCES = archid.cpp assembler.cpp binary.cpp call.cpp code.cpp codeparser.cpp \
+                         compiler.cpp imm.cpp const.cpp error.cpp expr.cpp func.cpp functype.cpp \
                          group.cpp kind.cpp label.cpp logsize.cpp mem.cpp name.cpp \
                          node.cpp nodeheader.cpp op.cpp opstmt.cpp \
                          stmt0.cpp stmt1.cpp stmt2.cpp stmt3.cpp stmt4.cpp stmtn.cpp \
@@ -390,6 +390,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/archid.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/assembler.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/call.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/code.Po@am__quote@ # am--include-marker
@@ -643,6 +644,7 @@ clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/archid.Po
+	-rm -f ./$(DEPDIR)/assembler.Po
 	-rm -f ./$(DEPDIR)/binary.Po
 	-rm -f ./$(DEPDIR)/call.Po
 	-rm -f ./$(DEPDIR)/code.Po
@@ -721,6 +723,7 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/archid.Po
+	-rm -f ./$(DEPDIR)/assembler.Po
 	-rm -f ./$(DEPDIR)/binary.Po
 	-rm -f ./$(DEPDIR)/call.Po
 	-rm -f ./$(DEPDIR)/code.Po

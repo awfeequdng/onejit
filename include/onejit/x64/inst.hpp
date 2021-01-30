@@ -28,7 +28,6 @@
 #include <onejit/opstmt.hpp>
 #include <onejit/x64/arg.hpp>
 #include <onejit/x64/regid.hpp>
-#include <onestl/chars.hpp>
 
 namespace onejit {
 namespace x64 {
@@ -79,7 +78,7 @@ public:
     return Bytes{bytes_, bytes_len_};
   }
 
-  onestl::ByteBuf &emit(onestl::ByteBuf &dst) const noexcept;
+  Assembler &emit(Assembler &dst) const noexcept;
 
 private:
   uint8_t bytes_len_;
@@ -107,7 +106,7 @@ public:
     return arg_size_;
   }
 
-  onestl::ByteBuf &emit(onestl::ByteBuf &dst, Node arg) const noexcept;
+  Assembler &emit(Assembler &dst, Node arg) const noexcept;
 
 private:
   Arg1 arg_;         // allowed argument combinations

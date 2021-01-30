@@ -48,6 +48,7 @@ template <class T> using View = ::onestl::View<T>;
 using Writer = ::onestl::Writer;
 
 class ArchId;
+class Assembler;
 class Assign;
 class AssignCall;
 class LogSize;
