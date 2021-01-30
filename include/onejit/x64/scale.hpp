@@ -25,23 +25,70 @@
 #ifndef ONEJIT_X64_SCALE_HPP
 #define ONEJIT_X64_SCALE_HPP
 
-#include <cstdint> // uint*_t
+#include <onejit/op.hpp>
 
 namespace onejit {
 namespace x64 {
 
-enum class Scale : uint8_t {
-  None = 0,
-  S0 = 0,
-  S1 = 1,
-  S2 = 2,
-  S4 = 4,
-  S8 = 8,
+class Scale {
+  struct log2tag {};
+
+public:
+  constexpr Scale() noexcept : log2p1_{0} {
+  }
+
+  constexpr explicit Scale(uint8_t val) noexcept
+      : log2p1_{val <= 2 ? val : val == 4 ? uint8_t(3) : val == 8 ? uint8_t(4) : uint8_t(0)} {
+  }
+
+  static constexpr Scale fromlog2p1(uint8_t log2p1) noexcept {
+    return Scale{log2p1, log2tag{}};
+  }
+
+  constexpr operator bool() const noexcept {
+    return log2p1_ != 0;
+  }
+
+  // log2(val) + 1
+  constexpr uint8_t log2p1() const noexcept {
+    return log2p1_;
+  }
+
+  constexpr uint8_t val() const noexcept {
+    return log2p1_ ? 1 << (log2p1_ - 1) : 0;
+  }
+
+  constexpr uint8_t bits() const noexcept {
+    return log2p1_ == 0 ? 0 : log2p1_ - 1;
+  }
+
+  constexpr OpN opn() const noexcept {
+    return OpN(X64_ADDR + log2p1_);
+  }
+
+  Scale &operator>>=(uint8_t shift) noexcept {
+    log2p1_ -= shift;
+    return *this;
+  }
+
+  Scale &operator<<=(uint8_t shift) noexcept {
+    log2p1_ += shift;
+    return *this;
+  }
+
+private:
+  constexpr Scale(uint8_t log2p1, log2tag) noexcept //
+      : log2p1_{log2p1} {
+  }
+
+  uint8_t log2p1_;
 };
 
-constexpr inline uint8_t scale_bits(Scale scale) noexcept {
-  return scale == Scale::S2 ? 1 : scale == Scale::S4 ? 2 : scale == Scale::S8 ? 3 : 0;
-}
+constexpr const Scale Scale0{0};
+constexpr const Scale Scale1{1};
+constexpr const Scale Scale2{2};
+constexpr const Scale Scale4{4};
+constexpr const Scale Scale8{8};
 
 } // namespace x64
 } // namespace onejit

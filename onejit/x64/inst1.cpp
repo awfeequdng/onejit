@@ -146,7 +146,7 @@ ONEJIT_NOINLINE Assembler &emit_call(Assembler &dst, x64::Addr address) noexcept
   if (!base && !index) {
     // use RSP as index, it is interpreted as zero
     index = Reg{Uint64, RSP};
-    scale = Scale::S1;
+    scale = Scale1;
   }
   size_t immediate_bytes = immediate_minbytes(address, base, index);
   size_t len = 3;
@@ -155,7 +155,7 @@ ONEJIT_NOINLINE Assembler &emit_call(Assembler &dst, x64::Addr address) noexcept
   buf[0] = rex_byte_64(base, index);
   if (index) {
     buf[2] |= 0x4;
-    buf[3] = (base ? rlo(base) : 0x5) | rlo(index) << 3 | scale_bits(scale) << 6;
+    buf[3] = (base ? rlo(base) : 0x5) | rlo(index) << 3 | scale.bits() << 6;
     len++;
   } else if (base) {
     buf[2] |= rlo(base);

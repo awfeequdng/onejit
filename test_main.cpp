@@ -276,7 +276,7 @@ void Test::x64_expr() {
   for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
     for (x64::RegId j = x64::RAX; j <= x64::R15; j = j + 1) {
       x64::Reg reg1{Uint64, i}, reg2{Uint64, j};
-      x64::Addr address{f, Uint64, 0x77665544, Var{reg1}, Var{reg2}, x64::Scale::S1};
+      x64::Addr address{f, Uint64, 0x77665544, Var{reg1}, Var{reg2}, x64::Scale1};
       x64::Mem mem{f, address};
 
       inst.emit(assembler, mem);
@@ -284,8 +284,7 @@ void Test::x64_expr() {
     assembler.add(uint8_t(0x90)); // X86_NOP
   }
 #elif 0
-  for (x64::Scale scale = x64::Scale::S0; scale <= x64::Scale::S8;
-       scale = x64::Scale(int(scale) == 0 ? 1 : int(scale) << 1)) {
+  for (x64::Scale scale = x64::Scale0; scale <= x64::Scale8; scale <<= 1) {
     for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
       x64::Reg reg1{Uint64, i};
       x64::Addr address{f, Uint64, 0x7f, Var{}, Var{reg1}, scale};
@@ -308,12 +307,12 @@ void Test::x64_expr() {
 
   {
     x64::Reg reg1{Uint64, x64::RAX}, reg2{Uint64, x64::RCX};
-    x64::Addr address{f, Label{f}, 12345, Var{reg1}, Var{reg2}, x64::Scale::S8};
+    x64::Addr address{f, Label{f}, 12345, Var{reg1}, Var{reg2}, x64::Scale8};
     x64::Mem mem{f, address};
 
     inst.emit(assembler, mem);
 
-    Chars expected = "(x64_mem (x64_addr label_1 12345_i var100_ul var101_ul 8_ub))";
+    Chars expected = "(x64_mem (x64_addr_scale8 label_1 12345_i var100_ul var101_ul))";
     ONEJIT_TEST(to_string(mem), ==, expected);
 
     ONEJIT_TEST(assembler.size(), ==, 7);

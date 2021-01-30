@@ -66,15 +66,22 @@ const Fmt &operator<<(const Fmt &out, Op2 op) {
 
 // ============================  OpN  ==========================================
 
-static const char opnstring[][10] = {"\1?", "\4call", "\10x64_addr"};
+static const Chars opnstring[] = {
+    "?",
+    "call",
+    "x64_addr",
+    "x64_addr_scale1",
+    "x64_addr_scale2",
+    "x64_addr_scale4",
+    "x64_addr_scale8",
+};
 
 const Chars to_string(OpN op) noexcept {
   size_t i = 0; // "?"
   if (op < ONEJIT_N_OF(opnstring)) {
     i = op;
   }
-  const char *addr = opnstring[i];
-  return Chars{addr + 1, uint8_t(addr[0])};
+  return opnstring[i];
 }
 
 const Fmt &operator<<(const Fmt &out, OpN op) {

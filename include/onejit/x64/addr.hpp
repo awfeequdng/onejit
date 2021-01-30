@@ -56,7 +56,7 @@ public:
        const int32_t offset = 0, //
        const Var &base = Var{},  //
        const Var &index = Var{}, //
-       Scale scale = Scale::None) noexcept
+       Scale scale = Scale0) noexcept
       : Base{create(func, kind, Label{}, offset, base, index, scale)} {
   }
 
@@ -64,12 +64,8 @@ public:
        const int32_t offset = 0,       //
        const Var &base = Var{},        //
        const Var &index = Var{},       //
-       Scale scale = Scale::None) noexcept
+       Scale scale = Scale0) noexcept
       : Base{create(func, Ptr, label, offset, base, index, scale)} {
-  }
-
-  static constexpr OpN op() noexcept {
-    return X64_ADDR;
   }
 
   // shortcut for child(0).is<Label>()
@@ -84,8 +80,10 @@ public:
   // shortcut for child(3).is<Var>().local()
   Local index() const noexcept;
 
-  // shortcut for Scale(child(4).is<Const>().imm().int8())
-  Scale scale() const noexcept;
+  // shortcut for Scale::fromlog2p1(op() - X64_ADDR)
+  constexpr Scale scale() const noexcept {
+    return Scale::fromlog2p1(op() - X64_ADDR);
+  }
 
 private:
   // downcast Node to Addr
@@ -94,7 +92,7 @@ private:
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op == X64_ADDR;
+    return op >= X64_ADDR && op <= X64_ADDR_SCALE8;
   }
 
   static Node create(Func &func, Kind kind, const Label &label, const int32_t offset,

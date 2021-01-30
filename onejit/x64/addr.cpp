@@ -35,10 +35,14 @@ Node Addr::create(Func &func, Kind kind, const Label &label, const int32_t offse
                   const Var &index, Scale scale) noexcept {
   Const coffset{func, offset};
   if (coffset) {
-    const Node nodes[] = {label, coffset, base, index, Const{Uint8, uint16_t(scale)}};
-    const size_t len = index && scale != Scale::None ? 5 : 3;
-
-    return Tuple::create(func, kind, X64_ADDR, Nodes{nodes, len});
+    Node nodes[] = {label, coffset, base, index};
+    size_t len = 3;
+    if (scale && index) {
+      len = 4;
+    } else {
+      scale = Scale0;
+    }
+    return Tuple::create(func, kind, scale.opn(), Nodes{nodes, len});
   }
   return Addr{};
 }
@@ -61,11 +65,6 @@ Local Addr::base() const noexcept {
 // shortcut for child(3).is<Var>().local()
 Local Addr::index() const noexcept {
   return child(3).is<Var>().local();
-}
-
-// shortcut for Scale(child(4).is<Const>().imm().int8())
-Scale Addr::scale() const noexcept {
-  return Scale(child(4).is<Const>().imm().int8());
 }
 
 } // namespace x64
