@@ -263,27 +263,62 @@ void Test::x64_expr() {
   Func &f = func.reset(&holder, Name{&holder, "x64_expr"}, FuncType{&holder, {}, {}});
 
   {
-    x64::Reg reg1{Uint64, x64::RAX}, reg2{Uint64, x64::RCX};
-    x64::Addr address{f, Label{f}, 12345, Var{reg1}, Var{reg2}, x64::Scale::S8};
-    x64::Mem mem{f, address};
-
-    Chars expected = "(x64_mem (x64_addr label_1 12345_i var100_ul var101_ul 8_ub))";
-    ONEJIT_TEST(to_string(mem), ==, expected);
-
-    Assembler assembler;
-    const auto &inst = x64::Inst1::find(X86_CALL);
-    inst.emit(assembler, mem);
-
-    ONEJIT_TEST(assembler.size(), ==, 7);
-    expected = "\xff\x94\xc8\x39\x30\x0\x0"; // call *0x3039(%rax,%rcx,8)
-    ONEJIT_TEST(assembler, ==, expected);
-  }
-
-  {
     x64::Mem mem{f, x64::Addr{f, Int32, -67890}};
 
     Chars expected = "(x64_mem (x64_addr _ -67890_i _))";
     ONEJIT_TEST(to_string(mem), ==, expected);
+  }
+
+  Assembler assembler;
+  const auto &inst = x64::Inst1::find(X86_CALL);
+
+#if 0
+  for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
+    for (x64::RegId j = x64::RAX; j <= x64::R15; j = j + 1) {
+      x64::Reg reg1{Uint64, i}, reg2{Uint64, j};
+      x64::Addr address{f, Uint64, 0x77665544, Var{reg1}, Var{reg2}, x64::Scale::S1};
+      x64::Mem mem{f, address};
+
+      inst.emit(assembler, mem);
+    }
+    assembler.add(uint8_t(0x90)); // X86_NOP
+  }
+#elif 0
+  for (x64::Scale scale = x64::Scale::S0; scale <= x64::Scale::S8;
+       scale = x64::Scale(int(scale) == 0 ? 1 : int(scale) << 1)) {
+    for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
+      x64::Reg reg1{Uint64, i};
+      x64::Addr address{f, Uint64, 0x7f, Var{}, Var{reg1}, scale};
+      x64::Mem mem{f, address};
+
+      inst.emit(assembler, mem);
+    }
+    assembler.add(uint8_t(0x90)); // X86_NOP
+  }
+#elif 0
+  for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
+    x64::Reg reg1{Uint64, i};
+    x64::Addr address{f, Uint64, 0x7f, Var{reg1}};
+    x64::Mem mem{f, address};
+
+    inst.emit(assembler, mem);
+  }
+#endif // 0
+  holder.clear();
+
+  {
+    x64::Reg reg1{Uint64, x64::RAX}, reg2{Uint64, x64::RCX};
+    x64::Addr address{f, Label{f}, 12345, Var{reg1}, Var{reg2}, x64::Scale::S8};
+    x64::Mem mem{f, address};
+
+    inst.emit(assembler, mem);
+
+    Chars expected = "(x64_mem (x64_addr label_1 12345_i var100_ul var101_ul 8_ub))";
+    ONEJIT_TEST(to_string(mem), ==, expected);
+
+    ONEJIT_TEST(assembler.size(), ==, 7);
+    expected = "\xff\x94\xc8\x39\x30\x0\x0"; // call *0x3039(%rax,%rcx,8)
+    ONEJIT_TEST(assembler, ==, expected);
   }
 
   // dump_and_clear_code();

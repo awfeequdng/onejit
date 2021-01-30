@@ -46,7 +46,7 @@ Node Const::create(Func &func, const Imm &imm) noexcept {
   while (Code *holder = func.code()) {
     CodeItem offset = holder->length();
 
-    if (holder->add(header) && !imm.write_indirect(holder)) {
+    if (holder->add(header) && imm.write_indirect(holder)) {
       return Node{header, offset, holder};
     }
     holder->truncate(offset);

@@ -84,12 +84,20 @@ enum RegId : uint16_t {
   ZMM31,
 };
 
-constexpr inline uint8_t rlo(RegId r) noexcept {
-  return r & 0x7;
+constexpr inline RegId operator+(RegId id, int delta) noexcept {
+  return RegId(int(id) + delta);
 }
 
-constexpr inline uint8_t rhi(RegId r) noexcept {
-  return (r >> 3) & 0x1;
+constexpr inline RegId operator-(RegId id, int delta) noexcept {
+  return RegId(int(id) - delta);
+}
+
+constexpr inline uint8_t rlo(RegId id) noexcept {
+  return id & 0x7;
+}
+
+constexpr inline uint8_t rhi(RegId id) noexcept {
+  return (id >> 3) & 0x1;
 }
 
 } // namespace x64

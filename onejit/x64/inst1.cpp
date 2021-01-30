@@ -27,6 +27,7 @@
 #include <onejit/opstmt.hpp>
 #include <onejit/x64/inst.hpp>
 #include <onejit/x64/mem.hpp>
+#include <onejit/x64/reg.hpp>
 #include <onejit/x64/rex.hpp>
 
 namespace onejit {
@@ -141,6 +142,12 @@ ONEJIT_NOINLINE void emit_quirk24(Assembler &dst) noexcept {
 ONEJIT_NOINLINE Assembler &emit_call(Assembler &dst, x64::Addr address) noexcept {
   Local base = address.base();
   Local index = address.index(); // index cannot be %rsp
+  Scale scale = address.scale();
+  if (!base && !index) {
+    // use RSP as index, it is interpreted as zero
+    index = Reg{Uint64, RSP};
+    scale = Scale::S1;
+  }
   size_t immediate_bytes = immediate_minbytes(address, base, index);
   size_t len = 3;
   uint8_t buf[4] = {0x00, 0xff, 0x10, 0x00};
@@ -148,7 +155,7 @@ ONEJIT_NOINLINE Assembler &emit_call(Assembler &dst, x64::Addr address) noexcept
   buf[0] = rex_byte_64(base, index);
   if (index) {
     buf[2] |= 0x4;
-    buf[3] = (base ? rlo(base) : 0x5) | rlo(index) << 3 | scale_bits(address.scale()) << 6;
+    buf[3] = (base ? rlo(base) : 0x5) | rlo(index) << 3 | scale_bits(scale) << 6;
     len++;
   } else if (base) {
     buf[2] |= rlo(base);
