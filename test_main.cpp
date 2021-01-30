@@ -26,6 +26,7 @@
 #include <onejit/onejit.hpp>
 #include <onejit/x64/inst.hpp>
 #include <onejit/x64/mem.hpp>
+#include <onejit/x64/reg.hpp>
 
 #include <cstdio> // stdout
 
@@ -261,11 +262,11 @@ void Test::x64_expr() {
   Func &f = func.reset(&holder, Name{&holder, "x64_expr"}, FuncType{&holder, {}, {}});
 
   {
-    Var v1{f, Uint64}, v2{f, Uint64};
-    x64::Addr address{f, Label{f}, 12345, v1, v2, x64::Scale::S8};
+    x64::Reg reg1{Uint64, x64::RAX}, reg2{Uint64, x64::RCX};
+    x64::Addr address{f, Label{f}, 12345, Var{reg1}, Var{reg2}, x64::Scale::S8};
     x64::Mem mem{f, address};
 
-    Chars expected = "(x64_mem (x64_addr label_1 12345_i var1000_ul var1001_ul 8_ub))";
+    Chars expected = "(x64_mem (x64_addr label_1 12345_i var100_ul var101_ul 8_ub))";
     ONEJIT_TEST(to_string(mem), ==, expected);
   }
 

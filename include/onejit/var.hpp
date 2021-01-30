@@ -51,8 +51,14 @@ public:
   constexpr Var() noexcept : Base{} {
   }
 
-  /* create a new local variable with specified kind */
+  // create a new local variable with specified kind
   Var(Func &func, Kind kind) noexcept;
+
+  // create a Var for an existing local variable, which MUST be direct.
+  // use with care!
+  constexpr explicit Var(Local local) noexcept
+      : Base{Node{NodeHeader{VAR, local.kind(), 0}, local.direct(), nullptr}} {
+  }
 
   static constexpr Type type() noexcept {
     return VAR;
@@ -71,11 +77,6 @@ public:
   }
 
 private:
-  // create a Var for an existing local variable, which MUST be direct.
-  constexpr explicit Var(Local local) noexcept
-      : Base{Node{NodeHeader{VAR, local.kind(), 0}, local.direct(), nullptr}} {
-  }
-
   // downcast Node to Const
   constexpr explicit Var(const Node &node) noexcept //
       : Base{Node{node.header(), node.offset_or_direct(),

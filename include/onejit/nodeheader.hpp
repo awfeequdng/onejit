@@ -36,7 +36,7 @@ namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
 // first CodeItem contained in Binary, Unary, Stmt*
-union NodeHeader {
+class NodeHeader {
 
 public:
   /**
@@ -92,15 +92,17 @@ public:
   }
 
 private:
-  CodeItem val_;
+  union {
+    CodeItem val_;
 #ifdef ONEJIT_LITTLE_ENDIAN
-  // only for debug purposes. works only on little-endian machines
-  struct {
-    Type type;
-    eKind ekind;
-    uint16_t op;
-  } u_;
+    // only for debug purposes. works only on little-endian machines
+    struct {
+      Type type_;
+      eKind ekind_;
+      uint16_t op_;
+    };
 #endif
+  };
 };
 
 } // namespace onejit

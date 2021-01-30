@@ -28,15 +28,17 @@
 
 #include <onejit/endian.hpp>
 #include <onejit/node.hpp>
+#include <onejit/x64/fwd.hpp>
 
 namespace onejit {
 
 // index of a local variable or register.
 class Id {
   friend class Func;
-  friend union Local;
+  friend class Local;
   friend class Var;
   friend class VarHelper;
+  friend class x64::Reg;
 
 public:
   constexpr Id() noexcept : val_{} {
@@ -69,7 +71,7 @@ const Fmt &operator<<(const Fmt &out, Id id);
 ////////////////////////////////////////////////////////////////////////////////
 
 // a local variable or register.
-union Local {
+class Local {
   friend class Code;
   friend class Func;
   friend class FuncType;
@@ -99,7 +101,7 @@ public:
     return uint8_t(val_) != kBad;
   }
 
-private:
+protected:
   constexpr explicit Local(uint32_t val) noexcept : val_{val} {
   }
 
@@ -107,6 +109,7 @@ private:
   constexpr Local(Kind kind, Id id) noexcept : val_{kind.val() | id.val() << 8} {
   }
 
+private:
   constexpr bool is_direct() const noexcept {
     return (val_ >> 29) == 0;
   }
@@ -130,14 +133,16 @@ private:
     return Local{kind.val() | data << 8};
   }
 
-  uint32_t val_;
+  union {
+    uint32_t val_;
 #ifdef ONEJIT_LITTLE_ENDIAN
-  // only for debug purposes. works only on little-endian machines
-  struct {
-    eKind ekind;
-    uint8_t id[3];
-  } u_;
+    // only for debug purposes. works only on little-endian machines
+    struct {
+      eKind ekind_;
+      uint8_t id_[3];
+    };
 #endif
+  };
 };
 
 constexpr inline bool operator==(Local a, Local b) noexcept {

@@ -26,13 +26,13 @@
 #define ONEJIT_X64_REX_HPP
 
 #include <onejit/local.hpp>
-#include <onejit/x64/reg.hpp>
+#include <onejit/x64/regid.hpp>
 
 namespace onejit {
 namespace x64 {
 
-constexpr inline Reg to_reg(Local l) noexcept {
-  return Reg(l.id().val());
+constexpr inline RegId to_reg(Local l) noexcept {
+  return RegId(l.id().val());
 }
 
 constexpr inline uint8_t rlo(Local l) noexcept {

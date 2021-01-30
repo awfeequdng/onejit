@@ -27,7 +27,7 @@
 
 #include <onejit/opstmt.hpp>
 #include <onejit/x64/arg.hpp>
-#include <onejit/x64/reg.hpp>
+#include <onejit/x64/regid.hpp>
 #include <onestl/chars.hpp>
 
 namespace onejit {

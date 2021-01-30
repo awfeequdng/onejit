@@ -35,6 +35,7 @@ class Inst0;
 class Inst1;
 class Inst2;
 class Inst3;
+class Reg;
 
 } // namespace x64
 } // namespace onejit
