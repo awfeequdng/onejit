@@ -36,6 +36,7 @@ namespace x64 {
 // optional_label + offset_int32 + optional_base_register + optional_index_reg * {1,2,4,8}
 class Mem : public onejit::Mem {
   using Base = onejit::Mem;
+  friend class Node;
 
 public:
   /**

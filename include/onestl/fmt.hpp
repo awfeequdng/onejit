@@ -119,6 +119,12 @@ inline const Fmt &operator<<(const Fmt &fmt, float arg) noexcept {
 inline const Fmt &operator<<(const Fmt &fmt, View<char> arg) noexcept {
   return fmt.write(arg.data(), arg.size());
 }
+inline const Fmt &operator<<(const Fmt &fmt, View<int8_t> arg) noexcept {
+  return fmt.write(reinterpret_cast<const char *>(arg.data()), arg.size());
+}
+inline const Fmt &operator<<(const Fmt &fmt, View<uint8_t> arg) noexcept {
+  return fmt.write(reinterpret_cast<const char *>(arg.data()), arg.size());
+}
 const Fmt &operator<<(const Fmt &fmt, const void *arg) noexcept;
 const Fmt &operator<<(const Fmt &fmt, std::nullptr_t) noexcept;
 const Fmt &operator<<(const Fmt &fmt, const char *c_str) noexcept; /// c_str must be '\0' terminated

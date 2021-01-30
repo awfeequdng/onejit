@@ -40,7 +40,6 @@ namespace x64 {
 class Addr : public Tuple {
   using Base = Tuple;
   friend class Node;
-  friend class Func;
 
 public:
   /**
@@ -79,11 +78,11 @@ public:
   // shortcut for child(1).is<Const>().imm().int32()
   int32_t offset() const noexcept;
 
-  // shortcut for child(2).is<Var>()
-  Var base() const noexcept;
+  // shortcut for child(2).is<Var>().local()
+  Local base() const noexcept;
 
-  // shortcut for child(3).is<Var>()
-  Var index() const noexcept;
+  // shortcut for child(3).is<Var>().local()
+  Local index() const noexcept;
 
   // shortcut for Scale(child(4).is<Const>().imm().int8())
   Scale scale() const noexcept;

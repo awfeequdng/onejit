@@ -107,6 +107,8 @@ public:
     return arg_size_;
   }
 
+  onestl::ByteBuf &emit(onestl::ByteBuf &dst, Node arg) const noexcept;
+
 private:
   Arg1 arg_;         // allowed argument combinations
   BitSize arg_size_; // allowed argument sizes

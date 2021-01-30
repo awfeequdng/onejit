@@ -43,5 +43,30 @@ Node Addr::create(Func &func, Kind kind, const Label &label, const int32_t offse
   return Addr{};
 }
 
+// shortcut for child(0).is<Label>()
+Label Addr::label() const noexcept {
+  return child(0).is<Label>();
+}
+
+// shortcut for child(1).is<Const>().imm().int32()
+int32_t Addr::offset() const noexcept {
+  return child(1).is<Const>().imm().int32();
+}
+
+// shortcut for child(2).is<Var>().local()
+Local Addr::base() const noexcept {
+  return child(2).is<Var>().local();
+}
+
+// shortcut for child(3).is<Var>().local()
+Local Addr::index() const noexcept {
+  return child(3).is<Var>().local();
+}
+
+// shortcut for Scale(child(4).is<Const>().imm().int8())
+Scale Addr::scale() const noexcept {
+  return Scale(child(4).is<Const>().imm().int8());
+}
+
 } // namespace x64
 } // namespace onejit

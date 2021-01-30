@@ -24,8 +24,8 @@
  */
 
 #include <onejit/opstmt.hpp>
-#include <onejit/x64/addr.hpp>
 #include <onejit/x64/inst.hpp>
+#include <onejit/x64/mem.hpp>
 #include <onejit/x64/rex.hpp>
 #include <onestl/buffer.hpp>
 
@@ -142,8 +142,8 @@ ONEJIT_NOINLINE void emit_quirk24(onestl::ByteBuf &dst) noexcept {
 }
 
 ONEJIT_NOINLINE onestl::ByteBuf &emit_call(onestl::ByteBuf &dst, x64::Addr address) noexcept {
-  Local base = address.base().local();
-  Local index = address.index().local(); // index cannot be %rsp
+  Local base = address.base();
+  Local index = address.index(); // index cannot be %rsp
   size_t immediate_bytes = immediate_minbytes(address, base, index);
   size_t len = 3;
   uint8_t buf[4] = {0x00, 0xff, 0x10, 0x00};
@@ -176,12 +176,22 @@ ONEJIT_NOINLINE onestl::ByteBuf &emit_call(onestl::ByteBuf &dst, x64::Addr addre
     dst.append(uint8_t(address.offset()));
   } else if (immediate_bytes == 4) {
     uint32_t offset = uint32_t(address.offset());
-    const uint8_t immediate_buf[4] = {uint8_t(offset >> 24), uint8_t(offset >> 16),
-                                      uint8_t(offset >> 8), uint8_t(offset)};
+    const uint8_t immediate_buf[4] = {uint8_t(offset), uint8_t(offset >> 8), //
+                                      uint8_t(offset >> 16), uint8_t(offset >> 24)};
     dst.append(Bytes{immediate_buf, 4});
   }
   return dst;
-} // namespace x64
+}
+
+onestl::ByteBuf &Inst1::emit(onestl::ByteBuf &dst, Node arg) const noexcept {
+  if (Var var = arg.is<Var>()) {
+    return emit_call(dst, var.local());
+  } else if (Mem mem = arg.is<Mem>()) {
+    return emit_call(dst, mem.addr());
+  } else {
+    return dst;
+  }
+}
 
 } // namespace x64
 } // namespace onejit
