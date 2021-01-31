@@ -276,7 +276,7 @@ void Test::x64_expr() {
   for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
     for (x64::RegId j = x64::RAX; j <= x64::R15; j = j + 1) {
       x64::Reg reg1{Uint64, i}, reg2{Uint64, j};
-      x64::Addr address{f, Uint64, 0x77665544, Var{reg1}, Var{reg2}, x64::Scale1};
+      x64::Addr address{f, Uint64, 0x7f /*0x77665544*/, Var{reg1}, Var{reg2}, x64::Scale1};
       x64::Mem mem{f, address};
 
       inst.emit(assembler, mem);
@@ -304,6 +304,7 @@ void Test::x64_expr() {
   }
 #endif // 0
   holder.clear();
+  assembler.clear();
 
   {
     x64::Reg reg1{Uint64, x64::RAX}, reg2{Uint64, x64::RCX};

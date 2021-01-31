@@ -102,7 +102,7 @@ const Inst1 &Inst1::find(OpStmt1 op) noexcept {
 }
 
 ONEJIT_NOINLINE Assembler &emit_bswap(Assembler &dst, Local l) noexcept {
-  uint8_t buf[3] = {rex_byte_32_64(l), 0x0f, uint8_t(0xc8 | rlo(l))};
+  uint8_t buf[3] = {rex_byte(l), 0x0f, uint8_t(0xc8 | rlo(l))};
 
   onestl::Bytes bytes{buf, 3};
   if (buf[0] == 0) {
@@ -112,7 +112,7 @@ ONEJIT_NOINLINE Assembler &emit_bswap(Assembler &dst, Local l) noexcept {
 }
 
 ONEJIT_NOINLINE Assembler &emit_call(Assembler &dst, Local l) noexcept {
-  uint8_t buf[3] = {rex_byte_64(l), 0xff, uint8_t(0xd0 | rlo(l))};
+  uint8_t buf[3] = {rex_byte_default64(l), 0xff, uint8_t(0xd0 | rlo(l))};
 
   onestl::Bytes bytes{buf, 3};
   if (buf[0] == 0) {
@@ -137,10 +137,6 @@ constexpr inline bool is_quirk24(Local base) noexcept {
   return rlo(base) == 4;
 }
 
-ONEJIT_NOINLINE void emit_quirk24(Assembler &dst) noexcept {
-  dst.add(uint8_t(0x24));
-}
-
 ONEJIT_NOINLINE Assembler &emit_call(Assembler &dst, x64::Addr address) noexcept {
   Local base = address.base();
   Local index = address.index(); // index cannot be %rsp
@@ -150,11 +146,15 @@ ONEJIT_NOINLINE Assembler &emit_call(Assembler &dst, x64::Addr address) noexcept
     index = Reg{Uint64, RSP};
     scale = Scale1;
   }
+  uint8_t buf[9] = {0x00, 0xff, 0x10};
+  uint8_t *addr = buf;
   size_t immediate_bytes = immediate_minbytes(address, base, index);
   size_t len = 3;
-  uint8_t buf[4] = {0x00, 0xff, 0x10, 0x00};
 
-  buf[0] = rex_byte_64(base, index);
+  if ((buf[0] = rex_byte_default64(base, index)) == 0) {
+    addr++;
+    len--;
+  }
   if (index) {
     buf[2] |= 0x4;
     buf[3] = (base ? rlo(base) : 0x5) | rlo(index) << 3 | scale.bits() << 6;
@@ -170,22 +170,22 @@ ONEJIT_NOINLINE Assembler &emit_call(Assembler &dst, x64::Addr address) noexcept
   } else if (immediate_bytes == 4) {
     buf[2] |= 0x80;
   }
-  onestl::Bytes bytes{buf, len};
-  if (buf[0] == 0) {
-    bytes = Bytes{buf + 1, len - 1};
-  }
-  dst.add(bytes);
+
   if (is_quirk24(base) && !index) {
-    emit_quirk24(dst);
+    addr[len++] = 0x24;
   }
   if (immediate_bytes == 1) {
-    dst.add(uint8_t(address.offset()));
+    addr[len++] = uint8_t(address.offset());
   } else if (immediate_bytes == 4) {
     uint32_t offset = uint32_t(address.offset());
-    const uint8_t immediate_buf[4] = {uint8_t(offset), uint8_t(offset >> 8), //
-                                      uint8_t(offset >> 16), uint8_t(offset >> 24)};
-    dst.add(Bytes{immediate_buf, 4});
-    dst.add_label(address.label());
+    addr[len++] = offset;
+    addr[len++] = offset >> 8;
+    addr[len++] = offset >> 16;
+    addr[len++] = offset >> 24;
+  }
+  dst.add(onestl::Bytes{addr, len});
+  if (auto label = address.label()) {
+    dst.add_label(label);
   }
   return dst;
 }

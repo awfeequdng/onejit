@@ -44,7 +44,7 @@ inline uint8_t rhi(Local l) noexcept {
 }
 
 // REX byte if default width is 32
-inline uint8_t rex_byte_32_64(Local base, Local index = Local{}) noexcept {
+inline uint8_t rex_byte(Local base, Local index = Local{}) noexcept {
   uint8_t byte = rhi(base) | rhi(index) << 1;
   if (byte || base.kind().bitsize() >= 64 || index.kind().bitsize() >= 64) {
     byte |= 0x40;
@@ -53,7 +53,7 @@ inline uint8_t rex_byte_32_64(Local base, Local index = Local{}) noexcept {
 }
 
 // REX byte if default width is 64
-inline uint8_t rex_byte_64(Local base, Local index = Local{}) noexcept {
+inline uint8_t rex_byte_default64(Local base, Local index = Local{}) noexcept {
   uint8_t byte = rhi(base) | rhi(index) << 1;
   if (byte) {
     byte |= 0x40;
