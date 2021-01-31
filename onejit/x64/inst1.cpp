@@ -43,8 +43,8 @@ static const Inst1 inst1[] = {
     Inst1{"\0", Arg1::Reg, B32 | B64}, /*                                           bswap   */
     Inst1{"\xff\x10", Arg1::Reg | Arg1::Mem | Arg1::Val, B64, B32},              /* call    */
     Inst1{"\0", Arg1::Rax, B16 | B32 | B64},                                     /* cbw     */
-    Inst1{"\xff\x08", Arg1::Reg | Arg1::Mem, B8 | B16 | B32 | B64, B0, EFwrite}, /* dec     */
-    Inst1{"\xff\x00", Arg1::Reg | Arg1::Mem, B8 | B16 | B32 | B64, B0, EFwrite}, /* inc     */
+    Inst1{"\xfe\x08", Arg1::Reg | Arg1::Mem, B8 | B16 | B32 | B64, B0, EFwrite}, /* dec     */
+    Inst1{"\xfe\x00", Arg1::Reg | Arg1::Mem, B8 | B16 | B32 | B64, B0, EFwrite}, /* inc     */
     Inst1{"\0", Arg1::Val, B0, B8},                                              /* int     */
     Inst1{"\0", Arg1::Val, B0, B8 | B32, EFread},                                /* ja      */
     Inst1{"\0", Arg1::Val, B0, B8 | B32, EFread},                                /* jae     */
@@ -62,8 +62,8 @@ static const Inst1 inst1[] = {
     Inst1{"\0", Arg1::Val, B0, B8 | B32, EFread},                                /* jp      */
     Inst1{"\0", Arg1::Val, B0, B8 | B32, EFread},                                /* js      */
     Inst1{"\0", Arg1::Reg | Arg1::Mem | Arg1::Val, B64, B8 | B32},               /* jmp     */
-    Inst1{"\0", Arg1::Reg | Arg1::Mem, B8 | B16 | B32 | B64, B0, EFwrite},       /* neg     */
-    Inst1{"\0", Arg1::Reg | Arg1::Mem, B8 | B16 | B32 | B64, B0, EFwrite},       /* not     */
+    Inst1{"\xf6\x18", Arg1::Reg | Arg1::Mem, B8 | B16 | B32 | B64, B0, EFwrite}, /* neg     */
+    Inst1{"\xf6\x10", Arg1::Reg | Arg1::Mem, B8 | B16 | B32 | B64, B0, EFwrite}, /* not     */
     Inst1{"\0", Arg1::Reg | Arg1::Mem, B16 | B64},      /* B32 on 32bit       pop     */
     Inst1{"\0", Arg1::Reg | Arg1::Mem, B16 | B64},      /* B32 on 32bit       push    */
     Inst1{"\0", Arg1::Rax, B128},                       /* B64 on 32bit       rdtsc   */
@@ -91,7 +91,7 @@ static const Inst1 inst1[] = {
     ONEJIT_COMMENT()            /* [CPUID CLWB] is required by the following instructions */
     Inst1{"\0", Arg1::Mem, B8}, /*                           clwb                 */
     ONEJIT_COMMENT()            /* [CPUID RTM] is required by the following instructions */
-    Inst1{"\0", Arg1::Val, B0, B8}, /*                           xabort               */
+    Inst1{"\0", Arg1::Val, B0, B8}, /*                       xabort               */
 };
 
 const Inst1 &Inst1::find(OpStmt1 op) noexcept {
@@ -208,15 +208,9 @@ ONEJIT_NOINLINE Assembler &emit_call(Assembler &dst, x64::Addr address) noexcept
   return emit_inst1_addr(dst, address, bytes, Bits(64));
 }
 
-ONEJIT_NOINLINE Assembler &emit_dec(Assembler &dst, x64::Addr address) noexcept {
-  const uint8_t *bytes = Inst1::find(X86_DEC).bytes();
-  uint8_t prefix[2] = {bytes[0], bytes[1]};
-  prefix[1] |= (address.kind().bits() != Bits(8));
-  return emit_inst1_addr(dst, address, prefix, Bits(32));
-}
-
-ONEJIT_NOINLINE Assembler &emit_inc(Assembler &dst, x64::Addr address) noexcept {
-  const uint8_t *bytes = Inst1::find(X86_INC).bytes();
+// emit one of X86_DEC, X86_INC, X86_NEG, X86_NOT
+ONEJIT_NOINLINE Assembler &emit_arith1(Assembler &dst, OpStmt1 op, x64::Addr address) noexcept {
+  const uint8_t *bytes = Inst1::find(op).bytes();
   uint8_t prefix[2] = {bytes[0], bytes[1]};
   prefix[1] |= (address.kind().bits() != Bits(8));
   return emit_inst1_addr(dst, address, prefix, Bits(32));
