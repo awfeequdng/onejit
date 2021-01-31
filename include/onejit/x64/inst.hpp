@@ -91,12 +91,18 @@ class Inst1 : public Inst {
   using Base = Inst;
 
 public:
-  constexpr explicit Inst1(Arg1 arg, BitSize arg_size, BitSize val_size = B0,
+  constexpr explicit Inst1(const char chars[2], Arg1 arg, BitSize arg_size, BitSize val_size = B0,
                            Eflags eflags = EFnone) noexcept
-      : Base{val_size, eflags}, arg_{arg}, arg_size_{arg_size} {
+      : Base{val_size, eflags}, bytes_{uint8_t(chars[0]), uint8_t(chars[1])}, //
+        arg_{arg}, arg_size_{arg_size} {
   }
 
   static const Inst1 &find(onejit::OpStmt1 op) noexcept;
+
+  // return 2 bytes instruction prefix
+  constexpr const uint8_t *bytes() const noexcept {
+    return bytes_;
+  }
 
   constexpr Arg1 arg() const noexcept {
     return arg_;
@@ -109,6 +115,7 @@ public:
   Assembler &emit(Assembler &dst, Node arg) const noexcept;
 
 private:
+  uint8_t bytes_[2];
   Arg1 arg_;         // allowed argument combinations
   BitSize arg_size_; // allowed argument sizes
 };
