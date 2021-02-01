@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * rex.hpp
+ * rex_byte.hpp
  *
  *  Created on Jan 29, 2021
  *      Author Massimiliano Ghilardi
@@ -25,40 +25,29 @@
 #ifndef ONEJIT_X64_REX_HPP
 #define ONEJIT_X64_REX_HPP
 
-#include <onejit/local.hpp>
-#include <onejit/x64/regid.hpp>
+#include <onejit/x64/reg.hpp>
 
 namespace onejit {
 namespace x64 {
 
-constexpr inline RegId to_reg(Local l) noexcept {
-  return RegId(l.id().val());
+constexpr inline uint8_t rlo(Reg reg) noexcept {
+  return rlo(reg.reg_id());
 }
 
-constexpr inline uint8_t rlo(Local l) noexcept {
-  return rlo(to_reg(l));
+inline uint8_t rhi(Reg reg) noexcept {
+  return rhi(reg.reg_id());
 }
 
-inline uint8_t rhi(Local l) noexcept {
-  return rhi(to_reg(l));
+uint8_t rex_byte(Bits default_size, Reg base, Reg index = Reg{}) noexcept;
+
+// REX byte if default width is 32
+inline uint8_t rex_byte_default32(Reg base, Reg index = Reg{}) noexcept {
+  return rex_byte(Bits(32), base, index);
 }
 
 // REX byte if default width is 32
-inline uint8_t rex_byte(Local base, Local index = Local{}) noexcept {
-  uint8_t byte = rhi(base) | rhi(index) << 1;
-  if (byte || base.kind().bitsize() >= 64 || index.kind().bitsize() >= 64) {
-    byte |= 0x40;
-  }
-  return byte;
-}
-
-// REX byte if default width is 64
-inline uint8_t rex_byte_default64(Local base, Local index = Local{}) noexcept {
-  uint8_t byte = rhi(base) | rhi(index) << 1;
-  if (byte) {
-    byte |= 0x40;
-  }
-  return byte;
+inline uint8_t rex_byte_default64(Reg base, Reg index = Reg{}) noexcept {
+  return rex_byte(Bits(64), base, index);
 }
 
 } // namespace x64

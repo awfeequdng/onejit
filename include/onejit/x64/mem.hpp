@@ -58,7 +58,7 @@ public:
   }
 
   // shortcut for child(0).is<Addr>()
-  Addr addr() const noexcept {
+  Addr address() const noexcept {
     return child(0).is<Addr>();
   }
 

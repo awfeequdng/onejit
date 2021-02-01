@@ -85,7 +85,7 @@ private:
 };
 
 // position in Assembler that needs to be filled with Label relative address
-struct LabelRef {
+struct Relocation {
   size_t pos;
   Label label;
 };

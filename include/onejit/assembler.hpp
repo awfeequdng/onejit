@@ -26,6 +26,7 @@
 #ifndef ONEJIT_ASSEMBLER_HPP
 #define ONEJIT_ASSEMBLER_HPP
 
+#include <onejit/error.hpp>
 #include <onejit/label.hpp>
 #include <onestl/buffer.hpp>
 
@@ -71,19 +72,21 @@ public:
   }
 
   // mark last added bytes to be filled with label relative offset
-  // does nothing if bool(l) == false
-  Assembler &add_label(Label l) noexcept {
-    if (l && !label_.append(LabelRef{size(), l})) {
-      Base::seterr();
-    }
-    return *this;
-  }
+  // does nothing if label is invalid i.e. bool(l) == false
+  Assembler &add_relocation(Label l) noexcept;
+
+  // add an assemble error
+  Assembler &error(const Node &where, Chars msg) noexcept;
+
+  // add an out-of-memory error
+  Assembler &out_of_memory(const Node &where) noexcept;
 
 private:
   // hide Base::append()
   void append() noexcept;
 
-  Vector<LabelRef> label_;
+  Vector<Relocation> relocation_;
+  Vector<Error> error_;
 
 }; // class Assembler
 

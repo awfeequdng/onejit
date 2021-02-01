@@ -25,7 +25,7 @@
 
 #include <onejit/assembler.hpp>
 #include <onejit/onejit.hpp>
-#include <onejit/x64/inst.hpp>
+#include <onejit/x64/emit.hpp>
 #include <onejit/x64/mem.hpp>
 #include <onejit/x64/reg.hpp>
 
@@ -270,16 +270,15 @@ void Test::x64_expr() {
   }
 
   Assembler assembler;
-  const auto &inst = x64::Inst1::find(X86_CALL);
-
-#if 0
+#if 1
   for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
     for (x64::RegId j = x64::RAX; j <= x64::R15; j = j + 1) {
       x64::Reg reg1{Uint64, i}, reg2{Uint64, j};
       x64::Addr address{f, Uint64, 0x7f /*0x77665544*/, Var{reg1}, Var{reg2}, x64::Scale1};
       x64::Mem mem{f, address};
+      Stmt1 st{f, mem, X86_CALL};
 
-      inst.emit(assembler, mem);
+      x64::emit(assembler, st);
     }
     assembler.add(uint8_t(0x90)); // X86_NOP
   }
@@ -289,8 +288,9 @@ void Test::x64_expr() {
       x64::Reg reg1{Uint64, i};
       x64::Addr address{f, Uint64, 0x7f, Var{}, Var{reg1}, scale};
       x64::Mem mem{f, address};
+      Stmt1 st{f, mem, X86_CALL};
 
-      inst.emit(assembler, mem);
+      x64::emit(assembler, st);
     }
     assembler.add(uint8_t(0x90)); // X86_NOP
   }
@@ -299,8 +299,9 @@ void Test::x64_expr() {
     x64::Reg reg1{Uint64, i};
     x64::Addr address{f, Uint64, 0x7f, Var{reg1}};
     x64::Mem mem{f, address};
+    Stmt1 st{f, mem, X86_CALL};
 
-    inst.emit(assembler, mem);
+    x64::emit(assembler, st);
   }
 #endif // 0
   holder.clear();
@@ -310,11 +311,12 @@ void Test::x64_expr() {
     x64::Reg reg1{Uint64, x64::RAX}, reg2{Uint64, x64::RCX};
     x64::Addr address{f, Label{f}, 12345, Var{reg1}, Var{reg2}, x64::Scale8};
     x64::Mem mem{f, address};
+    Stmt1 st{f, mem, X86_CALL};
 
-    inst.emit(assembler, mem);
+    x64::emit(assembler, st);
 
-    Chars expected = "(x64_mem (x64_addr_scale8 label_1 12345_i var100_ul var101_ul))";
-    ONEJIT_TEST(to_string(mem), ==, expected);
+    Chars expected = "(x86_call (x64_mem (x64_addr_scale8 label_1 12345_i var100_ul var101_ul)))";
+    ONEJIT_TEST(to_string(st), ==, expected);
 
     ONEJIT_TEST(assembler.size(), ==, 7);
     expected = "\xff\x94\xc8\x39\x30\x0\x0"; // call *0x3039(%rax,%rcx,8)

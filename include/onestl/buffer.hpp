@@ -116,7 +116,7 @@ public:
     mem::swap(good_, other.good_);
   }
 
-private:
+protected:
   bool good_;
 };
 

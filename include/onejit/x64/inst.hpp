@@ -27,6 +27,7 @@
 
 #include <onejit/opstmt.hpp>
 #include <onejit/x64/arg.hpp>
+#include <onejit/x64/fwd.hpp>
 #include <onejit/x64/regid.hpp>
 
 namespace onejit {
@@ -112,9 +113,14 @@ public:
     return arg_size_;
   }
 
-  Assembler &emit(Assembler &dst, Node arg) const noexcept;
+  Assembler &emit(Assembler &dst, Stmt1 st) const noexcept;
 
 private:
+  Assembler &emit_imm(Assembler &dst, OpStmt1 op, Imm imm) const noexcept;
+  Assembler &emit_label(Assembler &dst, OpStmt1 op, Label l) const noexcept;
+  Assembler &emit_mem(Assembler &dst, OpStmt1 op, Mem mem) const noexcept;
+  Assembler &emit_reg(Assembler &dst, OpStmt1 op, Reg reg) const noexcept;
+
   uint8_t bytes_[2];
   Arg1 arg_;         // allowed argument combinations
   BitSize arg_size_; // allowed argument sizes

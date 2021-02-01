@@ -1,7 +1,7 @@
 /*
- * onejit - JIT compiler in C++
+ * onejit - in-memory assembler
  *
- * Copyright (C) 2018-2021 Massimiliano Ghilardi
+ * Copyright (C) 2021 Massimiliano Ghilardi
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,36 +17,29 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * assembler.cpp
+ * rex_byte.cpp
  *
- *  Created on Jan 30, 2021
+ *  Created on Feb 01, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/assembler.hpp>
-#include <onejit/error.hpp>
+#include <onejit/x64/rex_byte.hpp>
 
 namespace onejit {
+namespace x64 {
 
-Assembler::~Assembler() noexcept {
-}
-
-Assembler &Assembler::add_relocation(Label l) noexcept {
-  if (l && !relocation_.append(Relocation{size(), l})) {
-    good_ = false;
+uint8_t rex_byte(Bits default_size, Reg base, Reg index) noexcept {
+  uint8_t byte = rhi(base) | rhi(index) << 1;
+  // REX byte is needed to use the 8-bit registers %spl %bpl %sil %dil
+  // and also to use 64-bit registers when default size is 32 bits
+  if (byte                                                                         //
+      || (base && !index && base.kind().bits() == Bits(8) && base.reg_id() >= RSP) //
+      || (default_size < Bits(64) &&
+          (base.kind().bits() >= Bits(64) || index.kind().bits() >= Bits(64)))) {
+    byte |= 0x40;
   }
-  return *this;
+  return byte;
 }
 
-Assembler &Assembler::error(const Node &where, Chars msg) noexcept {
-  good_ = good_ && error_.append(Error{where, msg});
-  return *this;
-}
-
-Assembler &Assembler::out_of_memory(const Node &where) noexcept {
-  // always set good_ to false
-  good_ = good_ && error_.append(Error{where, "out of memory"}) && false;
-  return *this;
-}
-
+} // namespace x64
 } // namespace onejit

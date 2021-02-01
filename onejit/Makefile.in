@@ -103,7 +103,8 @@ am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
 am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libonejit_a_AR = $(AR) $(ARFLAGS)
-libonejit_a_DEPENDENCIES = x64/addr.o x64/inst0.o x64/inst1.o
+libonejit_a_DEPENDENCIES = x64/addr.o x64/emit.o x64/inst0.o \
+	x64/inst1.o x64/rex_byte.o
 am_libonejit_a_OBJECTS = archid.$(OBJEXT) assembler.$(OBJEXT) \
 	binary.$(OBJEXT) call.$(OBJEXT) code.$(OBJEXT) \
 	codeparser.$(OBJEXT) compiler.$(OBJEXT) imm.$(OBJEXT) \
@@ -340,7 +341,7 @@ libonejit_a_SOURCES = archid.cpp assembler.cpp binary.cpp call.cpp code.cpp code
 
 EXTRA_libonejit_a_DEPENDENCIES = $(LIBONEJIT_X86)
 # libonejit_a_LDFLAGS  =
-libonejit_a_LIBADD = x64/addr.o x64/inst0.o x64/inst1.o
+libonejit_a_LIBADD = x64/addr.o x64/emit.o x64/inst0.o x64/inst1.o x64/rex_byte.o
 all: all-recursive
 
 .SUFFIXES:

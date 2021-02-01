@@ -53,6 +53,10 @@ public:
       : Base{kind, Id{uint32_t(id)}} {
   }
 
+  constexpr RegId reg_id() const noexcept {
+    return RegId(Base::id().val());
+  }
+
 }; // class Reg
 
 } // namespace x64

@@ -39,6 +39,7 @@ class Stmt1 : public Stmt {
   friend class Compiler;
   friend class Func;
   friend class Node;
+  friend class Test;
 
 public:
   /**

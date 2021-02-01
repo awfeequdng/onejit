@@ -15,4 +15,4 @@ libonejit_a_SOURCES    = archid.cpp assembler.cpp binary.cpp call.cpp code.cpp c
 
 EXTRA_libonejit_a_DEPENDENCIES = $(LIBONEJIT_X86)
 # libonejit_a_LDFLAGS  =
-libonejit_a_LIBADD     = x64/addr.o x64/inst0.o x64/inst1.o
+libonejit_a_LIBADD     = x64/addr.o x64/emit.o x64/inst0.o x64/inst1.o x64/rex_byte.o

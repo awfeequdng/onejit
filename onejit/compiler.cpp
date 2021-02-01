@@ -210,7 +210,7 @@ Expr Compiler::compile(Expr expr, bool) noexcept {
 }
 
 Expr Compiler::compile(Mem expr, bool) noexcept {
-  Expr addr = expr.addr();
+  Expr addr = expr.address();
   Expr comp_addr = compile(addr, true);
   if (addr != comp_addr) {
     expr = Mem{*func_, expr.kind(), comp_addr};

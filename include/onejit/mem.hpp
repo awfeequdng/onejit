@@ -77,7 +77,7 @@ public:
   }
 
   // shortcut for child(0).is<Expr>()
-  Expr addr() const noexcept {
+  Expr address() const noexcept {
     return child(0).is<Expr>();
   }
 

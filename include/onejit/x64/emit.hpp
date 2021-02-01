@@ -1,7 +1,7 @@
 /*
- * onejit - JIT compiler in C++
+ * onejit - in-memory assembler
  *
- * Copyright (C) 2018-2021 Massimiliano Ghilardi
+ * Copyright (C) 2021 Massimiliano Ghilardi
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,36 +17,26 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * assembler.cpp
+ * emit.hpp
  *
- *  Created on Jan 30, 2021
+ *  Created on Feb 01, 2021
  *      Author Massimiliano Ghilardi
  */
+#ifndef ONEJIT_X64_EMIT_HPP
+#define ONEJIT_X64_EMIT_HPP
 
 #include <onejit/assembler.hpp>
-#include <onejit/error.hpp>
 
 namespace onejit {
+namespace x64 {
 
-Assembler::~Assembler() noexcept {
-}
+Assembler &emit(Assembler &dst, Node node) noexcept;
+Assembler &emit(Assembler &dst, Stmt0 st) noexcept;
+Assembler &emit(Assembler &dst, Stmt1 st) noexcept;
+Assembler &emit(Assembler &dst, Stmt2 st) noexcept;
+Assembler &emit(Assembler &dst, Stmt3 st) noexcept;
 
-Assembler &Assembler::add_relocation(Label l) noexcept {
-  if (l && !relocation_.append(Relocation{size(), l})) {
-    good_ = false;
-  }
-  return *this;
-}
-
-Assembler &Assembler::error(const Node &where, Chars msg) noexcept {
-  good_ = good_ && error_.append(Error{where, msg});
-  return *this;
-}
-
-Assembler &Assembler::out_of_memory(const Node &where) noexcept {
-  // always set good_ to false
-  good_ = good_ && error_.append(Error{where, "out of memory"}) && false;
-  return *this;
-}
-
+} // namespace x64
 } // namespace onejit
+
+#endif // ONEJIT_X64_EMIT_HPP

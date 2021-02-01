@@ -24,12 +24,14 @@
  */
 
 #include <onejit/assembler.hpp>
+#include <onejit/const.hpp>
+#include <onejit/label.hpp>
 #include <onejit/logsize.hpp> // Bits
-#include <onejit/opstmt.hpp>
+#include <onejit/stmt1.hpp>
 #include <onejit/x64/inst.hpp>
 #include <onejit/x64/mem.hpp>
 #include <onejit/x64/reg.hpp>
-#include <onejit/x64/rex.hpp>
+#include <onejit/x64/rex_byte.hpp>
 
 namespace onejit {
 namespace x64 {
@@ -102,31 +104,7 @@ const Inst1 &Inst1::find(OpStmt1 op) noexcept {
   return inst1[i];
 }
 
-ONEJIT_NOINLINE Assembler &emit_bswap(Assembler &dst, Local l) noexcept {
-  uint8_t buf[3] = {rex_byte(l), 0x0f, uint8_t(0xc8 | rlo(l))};
-
-  onestl::Bytes bytes{buf, 3};
-  if (buf[0] == 0) {
-    bytes = Bytes{buf + 1, 2};
-  }
-  return dst.add(bytes);
-}
-
-ONEJIT_NOINLINE Assembler &emit_call(Assembler &dst, Local l) noexcept {
-  uint8_t buf[3] = {rex_byte_default64(l), 0xff, uint8_t(0xd0 | rlo(l))};
-
-  onestl::Bytes bytes{buf, 3};
-  if (buf[0] == 0) {
-    bytes = Bytes{buf + 1, 2};
-  }
-  return dst.add(bytes);
-}
-
-constexpr inline size_t immediate_minbytes(Local base) noexcept {
-  return rlo(base) == 5 ? 1 : 0;
-}
-
-size_t immediate_minbytes(x64::Addr address, Local base, Local index) noexcept {
+static size_t immediate_minbytes(x64::Addr address, Reg base, Reg index) noexcept {
   int32_t offset = address.offset();
   if (offset != int32_t(int8_t(offset)) || address.label() || (index && !base)) {
     return 4;
@@ -134,42 +112,23 @@ size_t immediate_minbytes(x64::Addr address, Local base, Local index) noexcept {
   return offset != 0 || rlo(base) == 5 ? 1 : 0;
 }
 
-constexpr inline bool is_quirk24(Local base, Local index) noexcept {
+static constexpr inline bool is_quirk24(Reg base, Reg index) noexcept {
   return !index && rlo(base) == 4;
 }
 
-ONEJIT_NOINLINE Assembler &emit_inst1_addr(Assembler &dst,          //
-                                           x64::Addr address,       //
-                                           const uint8_t prefix[2], //
-                                           Bits default_size) noexcept {
-  Local base = address.base();
-  Local index = address.index(); // index cannot be %rsp
-  Scale scale = address.scale();
-  if (!base && !index) {
-    // use RSP as index, it is interpreted as zero
-    index = Reg{Uint64, RSP};
-    scale = Scale1;
-  }
-  uint8_t buf[10] = {};
-  uint8_t *addr = buf;
-  size_t immediate_bytes = immediate_minbytes(address, base, index);
-  size_t len = 0;
-  uint8_t rexbyte;
-
-  if (address.kind().bits() == Bits(16)) {
+static size_t inst1_insert_prefixes(uint8_t *addr, size_t len, Kind address_kind, Bits default_size,
+                                    Reg base, Reg index) {
+  if (address_kind.bits() == Bits(16)) {
     addr[len++] = 0x66;
   }
-
-  if (default_size == Bits(64)) {
-    addr[len] = rexbyte = rex_byte_default64(base, index);
-  } else {
-    addr[len] = rexbyte = rex_byte(base, index);
-  }
-  if (rexbyte != 0) {
+  if ((addr[len] = rex_byte(default_size, base, index)) != 0) {
     len++;
   }
-  addr[len++] = prefix[0];
-  addr[len] = prefix[1];
+  return len;
+}
+
+static size_t inst1_insert_modrm_sib(uint8_t *addr, size_t len, size_t immediate_bytes, //
+                                     Reg base, Reg index, Scale scale) {
   if (!base && index) {
     // nothing to do
   } else if (immediate_bytes == 1) {
@@ -183,47 +142,137 @@ ONEJIT_NOINLINE Assembler &emit_inst1_addr(Assembler &dst,          //
   } else if (base) {
     addr[len++] |= rlo(base);
   }
-
   if (is_quirk24(base, index)) {
     addr[len++] = 0x24;
   }
+  return len;
+}
+
+static size_t inst1_insert_offset(uint8_t *addr, size_t len, size_t immediate_bytes,
+                                  int32_t offset) {
   if (immediate_bytes == 1) {
-    addr[len++] = uint8_t(address.offset());
+    addr[len++] = uint8_t(offset);
   } else if (immediate_bytes == 4) {
-    uint32_t offset = uint32_t(address.offset());
-    addr[len++] = offset;
-    addr[len++] = offset >> 8;
-    addr[len++] = offset >> 16;
-    addr[len++] = offset >> 24;
+    uint32_t offset_u = uint32_t(offset);
+    addr[len++] = offset_u;
+    addr[len++] = offset_u >> 8;
+    addr[len++] = offset_u >> 16;
+    addr[len++] = offset_u >> 24;
+  }
+  return len;
+}
+
+static ONEJIT_NOINLINE Assembler &inst1_emit_addr(Assembler &dst,           //
+                                                  const x64::Addr &address, //
+                                                  const uint8_t prefix[2],  //
+                                                  Bits default_size) noexcept {
+  Reg base{address.base()};
+  Reg index{address.index()}; // index cannot be %rsp
+  Scale scale = address.scale();
+  if (!base && !index) {
+    // use RSP as index, it is interpreted as zero
+    index = Reg{Uint64, RSP};
+    scale = Scale1;
+  }
+  uint8_t buf[10] = {};
+  uint8_t *addr = buf;
+  size_t len = inst1_insert_prefixes(addr, 0, address.kind(), default_size, base, index);
+  addr[len++] = prefix[0];
+  addr[len] = prefix[1];
+
+  size_t immediate_bytes = immediate_minbytes(address, base, index);
+  len = inst1_insert_modrm_sib(addr, len, immediate_bytes, base, index, scale);
+
+  if (immediate_bytes != 0) {
+    len = inst1_insert_offset(addr, len, immediate_bytes, address.offset());
   }
   dst.add(onestl::Bytes{addr, len});
   if (auto label = address.label()) {
-    dst.add_label(label);
+    dst.add_relocation(label);
   }
   return dst;
 }
 
-ONEJIT_NOINLINE Assembler &emit_call(Assembler &dst, x64::Addr address) noexcept {
-  const uint8_t *bytes = Inst1::find(X86_CALL).bytes();
-  return emit_inst1_addr(dst, address, bytes, Bits(64));
-}
-
-// emit one of X86_DEC, X86_INC, X86_NEG, X86_NOT
-ONEJIT_NOINLINE Assembler &emit_arith1(Assembler &dst, OpStmt1 op, x64::Addr address) noexcept {
-  const uint8_t *bytes = Inst1::find(op).bytes();
-  uint8_t prefix[2] = {bytes[0], bytes[1]};
-  prefix[1] |= (address.kind().bits() != Bits(8));
-  return emit_inst1_addr(dst, address, prefix, Bits(32));
-}
-
-Assembler &Inst1::emit(Assembler &dst, Node arg) const noexcept {
-  if (Var var = arg.is<Var>()) {
-    return emit_call(dst, var.local());
-  } else if (Mem mem = arg.is<Mem>()) {
-    return emit_call(dst, mem.addr());
-  } else {
-    return dst;
+ONEJIT_NOINLINE Assembler &Inst1::emit_mem(Assembler &dst, OpStmt1 op, x64::Mem mem) const
+    noexcept {
+  uint8_t prefix[2] = {bytes_[0], bytes_[1]};
+  if ((arg_size_ & B8) != 0 && mem.kind().bits() != Bits(8)) {
+    // instruction also supports 8-bit memory access, but requested access is wider.
+    prefix[1] |= 1;
   }
+  Bits default_size = (op == X86_CALL) ? Bits(64) : Bits(32);
+
+  // tested for X86_CALL, X86_DEC, X86_INC, X86_NEG, X86_NOT
+  return inst1_emit_addr(dst, mem.address(), prefix, default_size);
+}
+
+static Assembler &inst1_emit_reg_bswap(Assembler &dst, Reg reg) noexcept {
+  uint8_t buf[3] = {rex_byte_default32(reg), 0x0f, uint8_t(0xc8 | rlo(reg))};
+
+  onestl::Bytes bytes{buf, 3};
+  if (buf[0] == 0) {
+    bytes = Bytes{buf + 1, 2};
+  }
+  return dst.add(bytes);
+}
+
+ONEJIT_NOINLINE Assembler &Inst1::emit_imm(Assembler &dst, OpStmt1 op, Imm imm) const noexcept {
+  /// TODO: implement
+  (void)op;
+  (void)imm;
+  return dst;
+}
+
+ONEJIT_NOINLINE Assembler &Inst1::emit_label(Assembler &dst, OpStmt1 op, Label l) const noexcept {
+  /// TODO: implement
+  (void)l;
+  (void)op;
+  return dst;
+}
+
+ONEJIT_NOINLINE Assembler &Inst1::emit_reg(Assembler &dst, OpStmt1 op, Reg reg) const noexcept {
+  if (op == X86_BSWAP) {
+    return inst1_emit_reg_bswap(dst, reg);
+  }
+  Bits default_size = (op == X86_CALL) ? Bits(64) : Bits(32);
+
+  uint8_t buf[3] = {rex_byte(default_size, reg), bytes_[0], uint8_t(bytes_[1] | 0xc0 | rlo(reg))};
+
+  onestl::Bytes bytes{buf, 3};
+  if (buf[0] == 0) {
+    bytes = Bytes{buf + 1, 2};
+  }
+  return dst.add(bytes);
+}
+
+Assembler &Inst1::emit(Assembler &dst, Stmt1 st) const noexcept {
+  Node arg = st.child(0);
+  switch (arg.type()) {
+  case VAR:
+    if (Var v = arg.is<Var>()) {
+      return emit_reg(dst, st.op(), Reg{v.local()});
+    }
+    break;
+  case MEM:
+    if (Mem mem = arg.is<Mem>()) {
+      return emit_mem(dst, st.op(), mem);
+    }
+    break;
+  case LABEL:
+    if (Label l = arg.is<Label>()) {
+      return emit_label(dst, st.op(), l);
+    }
+    break;
+  case CONST:
+    if (Const c = arg.is<Const>()) {
+      return emit_imm(dst, st.op(), c.imm());
+    }
+    break;
+  default:
+    break;
+  }
+  return dst.error(
+      arg, "unexpected node type in x64::Inst1::emit, expecting Const, Label, Var or x64::Mem");
 }
 
 } // namespace x64
