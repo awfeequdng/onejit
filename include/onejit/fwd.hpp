@@ -51,7 +51,7 @@ class ArchId;
 class Assembler;
 class Assign;
 class AssignCall;
-class LogSize;
+class Bits;
 class Block;
 class Binary;
 class Break;
@@ -97,10 +97,9 @@ class Unary;
 class Var;
 class VarHelper;
 
-using Bits = LogSize;
 using CodeItem = uint32_t;
 using Offset = uint32_t;
-using SimdN = LogSize;
+using SimdN = Bits;
 
 using Cases = View<Case>;
 using CodeItems = View<CodeItem>;

@@ -40,7 +40,7 @@ public:
   }
 
   // downcast Local to Reg
-  constexpr explicit Reg(Local l) noexcept : Base{l} {
+  constexpr explicit Reg(Local local) noexcept : Base{local} {
   }
 
   /* create a Reg with specified Kind and Id. */

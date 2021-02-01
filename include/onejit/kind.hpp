@@ -26,40 +26,48 @@
 #ifndef ONEJIT_KIND_HPP
 #define ONEJIT_KIND_HPP
 
+#include <onejit/bits.hpp>
 #include <onejit/group.hpp>
-#include <onejit/logsize.hpp>
 
 #include <cstdint> // uint8_t
 
 namespace onejit {
 
 enum eKind : uint8_t {
-  kBad = 0,
-  kVoid = 1,
-  kBool = 2,
-  kInt8 = 3,
-  kInt16 = 4,
-  kInt32 = 5,
-  kInt64 = 6,
-  kUint8 = 7,
-  kUint16 = 8,
-  kUint32 = 9,
-  kUint64 = 10,
-  kFloat16 = 11,
-  kFloat32 = 12,
-  kFloat64 = 13,
-  kPtr = 14,
-  kArchFlags = 15,
+  eBad = 0,
+  eVoid = 1,
+  eBool = 2,
+  eInt8 = 3,
+  eInt16 = 4,
+  eInt32 = 5,
+  eInt64 = 6,
+  eUint8 = 7,
+  eUint16 = 8,
+  eUint32 = 9,
+  eUint64 = 10,
+  eFloat16 = 11,
+  eFloat32 = 12,
+  eFloat64 = 13,
+  ePtr = 14,
+  eArchFlags = 15,
 
-  kHi = 255,
+  eKindHi = 255,
 };
+
+constexpr inline eKind operator+(eKind a, int b) noexcept {
+  return eKind(int(a) + b);
+}
+
+constexpr inline eKind operator-(eKind a, int b) noexcept {
+  return eKind(int(a) - b);
+}
 
 class Kind {
 public:
-  constexpr Kind() noexcept : val_{kVoid} {
+  constexpr Kind() noexcept : val_{eVoid} {
   }
 
-  constexpr explicit Kind(eKind ekind) noexcept : val_{ekind} {
+  constexpr Kind(eKind ekind) noexcept : val_{ekind} {
   }
 
   constexpr explicit Kind(uint8_t val) noexcept : val_{eKind(val)} {
@@ -74,11 +82,11 @@ public:
   }
 
   constexpr explicit operator bool() const noexcept {
-    return val_ != kBad;
+    return val_ != eBad;
   }
 
   constexpr bool operator!() const noexcept {
-    return val_ == kBad;
+    return val_ == eBad;
   }
 
   Bits bits() const noexcept;
@@ -179,22 +187,22 @@ inline const Fmt &operator<<(const Fmt &out, eKind ekind) {
   return out << Kind{ekind};
 }
 
-constexpr const Kind Bad(kBad);
-constexpr const Kind Void(kVoid);
-constexpr const Kind Bool(kBool);
-constexpr const Kind Int8(kInt8);
-constexpr const Kind Int16(kInt16);
-constexpr const Kind Int32(kInt32);
-constexpr const Kind Int64(kInt64);
-constexpr const Kind Uint8(kUint8);
-constexpr const Kind Uint16(kUint16);
-constexpr const Kind Uint32(kUint32);
-constexpr const Kind Uint64(kUint64);
-constexpr const Kind Float16(kFloat16);
-constexpr const Kind Float32(kFloat32);
-constexpr const Kind Float64(kFloat64);
-constexpr const Kind Ptr(kPtr);
-constexpr const Kind ArchFlags(kArchFlags);
+constexpr const Kind Bad(eBad);
+constexpr const Kind Void(eVoid);
+constexpr const Kind Bool(eBool);
+constexpr const Kind Int8(eInt8);
+constexpr const Kind Int16(eInt16);
+constexpr const Kind Int32(eInt32);
+constexpr const Kind Int64(eInt64);
+constexpr const Kind Uint8(eUint8);
+constexpr const Kind Uint16(eUint16);
+constexpr const Kind Uint32(eUint32);
+constexpr const Kind Uint64(eUint64);
+constexpr const Kind Float16(eFloat16);
+constexpr const Kind Float32(eFloat32);
+constexpr const Kind Float64(eFloat64);
+constexpr const Kind Ptr(ePtr);
+constexpr const Kind ArchFlags(eArchFlags);
 
 } // namespace onejit
 

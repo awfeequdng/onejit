@@ -82,7 +82,7 @@ class Local {
 
 public:
   // create an invalid Local.
-  constexpr Local() noexcept : val_{kBad} {
+  constexpr Local() noexcept : val_{eBad} {
   }
 
   constexpr Type type() const noexcept {
@@ -98,7 +98,7 @@ public:
   }
 
   constexpr explicit operator bool() const noexcept {
-    return uint8_t(val_) != kBad;
+    return uint8_t(val_) != eBad;
   }
 
 protected:

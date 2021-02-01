@@ -45,7 +45,7 @@
 // #include <onejit/kind.hpp>     // redundant
 #include <onejit/label.hpp>
 // #include <onejit/local.hpp>    // redundant
-// #include <onejit/logsize.hpp>  // redundant
+// #include <onejit/bits.hpp>  // redundant
 #include <onejit/math.hpp>
 #include <onejit/mem.hpp>
 // #include <onejit/node.hpp>     // redundant

@@ -45,11 +45,11 @@ static const Chars kstringsuffix[] = {
 };
 
 static const Bits kbits[] = {
-    Bits(0),  Bits(0),  Bits(1),            // Bad, Void, Bool
-    Bits(8),  Bits(16), Bits(32), Bits(64), // Int*
-    Bits(8),  Bits(16), Bits(32), Bits(64), // Uint*
-    Bits(16), Bits(32), Bits(64),           // Float*
-    Bits(64), Bits(64),                     // Ptr, ArchFlags
+    Bits0,  Bits0,  Bits1,          // Bad, Void, Bool
+    Bits8,  Bits16, Bits32, Bits64, // Int*
+    Bits8,  Bits16, Bits32, Bits64, // Uint*
+    Bits16, Bits32, Bits64,         // Float*
+    Bits64, Bits64,                 // Ptr, ArchFlags
 };
 
 static const Group kgroup[] = {

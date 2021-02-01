@@ -17,19 +17,19 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * logsize.cpp
+ * bits.cpp
  *
  *  Created on Jan 08, 2021
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/bits.hpp>
 #include <onejit/fmt.hpp>
-#include <onejit/logsize.hpp>
 
 namespace onejit {
 
-const Fmt &operator<<(const Fmt &out, LogSize size) {
-  return out << size.val();
+const Fmt &operator<<(const Fmt &out, Bits bits) {
+  return out << bits.val();
 }
 
 } // namespace onejit

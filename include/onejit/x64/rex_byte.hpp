@@ -42,12 +42,12 @@ uint8_t rex_byte(Bits default_size, Reg base, Reg index = Reg{}) noexcept;
 
 // REX byte if default width is 32
 inline uint8_t rex_byte_default32(Reg base, Reg index = Reg{}) noexcept {
-  return rex_byte(Bits(32), base, index);
+  return rex_byte(Bits32, base, index);
 }
 
 // REX byte if default width is 32
 inline uint8_t rex_byte_default64(Reg base, Reg index = Reg{}) noexcept {
-  return rex_byte(Bits(64), base, index);
+  return rex_byte(Bits64, base, index);
 }
 
 } // namespace x64

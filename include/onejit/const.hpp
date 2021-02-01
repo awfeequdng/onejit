@@ -53,7 +53,7 @@ public:
   constexpr explicit Const(bool val) noexcept
       : Base{Node{
             NodeHeader{CONST, Bool, 0},
-            Imm::Direct{uint16_t(val), kBool},
+            Imm::Direct{uint16_t(val), eBool},
             nullptr,
         }} {
   }

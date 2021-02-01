@@ -87,40 +87,40 @@ class Imm {
 public:
   // construct a Void imm. equivalent to C/C++ source "(void)0"
   constexpr Imm() noexcept //
-      : bits_{}, ekind_{kVoid}, direct_{Direct{uint16_t(0), ekind_}} {
+      : bits_{}, ekind_{eVoid}, direct_{Direct{uint16_t(0), ekind_}} {
   }
   constexpr explicit Imm(bool val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{kBool}, direct_{Direct{uint16_t(val), ekind_}} {
+      : bits_{uint64_t(val)}, ekind_{eBool}, direct_{Direct{uint16_t(val), ekind_}} {
   }
   constexpr explicit Imm(int8_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{kInt8}, direct_{Direct{int16_t(val), ekind_}} {
+      : bits_{uint64_t(val)}, ekind_{eInt8}, direct_{Direct{int16_t(val), ekind_}} {
   }
   constexpr explicit Imm(int16_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{kInt16}, direct_{Direct{int16_t(val), ekind_}} {
+      : bits_{uint64_t(val)}, ekind_{eInt16}, direct_{Direct{int16_t(val), ekind_}} {
   }
   constexpr explicit Imm(int32_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{kInt32}, direct_{Direct{bits_, ekind_, 0}} {
+      : bits_{uint64_t(val)}, ekind_{eInt32}, direct_{Direct{bits_, ekind_, 0}} {
   }
   constexpr explicit Imm(int64_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{kInt64}, direct_{Direct{bits_, ekind_, 0}} {
+      : bits_{uint64_t(val)}, ekind_{eInt64}, direct_{Direct{bits_, ekind_, 0}} {
   }
   constexpr explicit Imm(uint8_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{kUint8}, direct_{Direct{uint16_t(val), ekind_}} {
+      : bits_{uint64_t(val)}, ekind_{eUint8}, direct_{Direct{uint16_t(val), ekind_}} {
   }
   constexpr explicit Imm(uint16_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{kUint16}, direct_{Direct{uint16_t(val), ekind_}} {
+      : bits_{uint64_t(val)}, ekind_{eUint16}, direct_{Direct{uint16_t(val), ekind_}} {
   }
   constexpr explicit Imm(uint32_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{kUint32}, direct_{Direct{bits_, ekind_, 0}} {
+      : bits_{uint64_t(val)}, ekind_{eUint32}, direct_{Direct{bits_, ekind_, 0}} {
   }
   constexpr explicit Imm(uint64_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{kUint64}, direct_{Direct{bits_, ekind_, 0}} {
+      : bits_{uint64_t(val)}, ekind_{eUint64}, direct_{Direct{bits_, ekind_, 0}} {
   }
   constexpr explicit Imm(float val) noexcept //
-      : bits_{ConstantFloat32{val}.bits()}, ekind_{kFloat32}, direct_{Direct{bits_, ekind_, 0}} {
+      : bits_{ConstantFloat32{val}.bits()}, ekind_{eFloat32}, direct_{Direct{bits_, ekind_, 0}} {
   }
   constexpr explicit Imm(double val) noexcept //
-      : bits_{ConstantFloat64{val}.bits()}, ekind_{kFloat64}, direct_{Direct{bits_, ekind_, 0}} {
+      : bits_{ConstantFloat64{val}.bits()}, ekind_{eFloat64}, direct_{Direct{bits_, ekind_, 0}} {
   }
   constexpr Imm(Kind kind, uint64_t bits) noexcept //
       : bits_{bits}, ekind_{kind.val()}, direct_{Direct{bits_, ekind_, 0}} {
@@ -135,7 +135,7 @@ public:
   }
 
   constexpr explicit operator bool() const noexcept {
-    return ekind_ != kBad;
+    return ekind_ != eBad;
   }
 
   constexpr bool boolean() const noexcept {

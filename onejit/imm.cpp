@@ -50,32 +50,32 @@ Code &Imm::write_indirect(Code *holder) const noexcept {
 const Fmt &operator<<(const Fmt &out, const Imm &imm) {
   const Kind kind = imm.kind();
   switch (kind.nosimd().val()) {
-  case kVoid:
+  case eVoid:
     out << "void";
     break;
-  case kBool:
+  case eBool:
     out << (imm.boolean() ? Chars("true") : Chars("false"));
     break;
-  case kInt8:
-  case kInt16:
-  case kInt32:
-  case kInt64:
+  case eInt8:
+  case eInt16:
+  case eInt32:
+  case eInt64:
     out << imm.int64();
     break;
-  case kUint8:
-  case kUint16:
-  case kUint32:
-  case kUint64:
-  case kArchFlags:
+  case eUint8:
+  case eUint16:
+  case eUint32:
+  case eUint64:
+  case eArchFlags:
     out << imm.uint64();
     break;
-  case kFloat32:
+  case eFloat32:
     out << imm.float32();
     break;
-  case kFloat64:
+  case eFloat64:
     out << imm.float64();
     break;
-  case kPtr:
+  case ePtr:
     out << imm.ptr();
     break;
   default:

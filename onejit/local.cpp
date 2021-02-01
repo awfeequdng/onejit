@@ -33,9 +33,9 @@ const Fmt &operator<<(const Fmt &out, Id id) {
   return out << "id" << Hex(id.val());
 }
 
-const Fmt &operator<<(const Fmt &out, Local l) {
-  return out << "var" << Hex(l.id().val()) //
-             << '_' << l.kind().stringsuffix();
+const Fmt &operator<<(const Fmt &out, Local local) {
+  return out << "var" << Hex(local.id().val()) //
+             << '_' << local.kind().stringsuffix();
 }
 
 } // namespace onejit

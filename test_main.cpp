@@ -101,7 +101,7 @@ void Test::run() {
 
 void Test::kind() {
   Fmt out{stdout};
-  for (uint8_t i = 0; i <= kArchFlags; i++) {
+  for (uint8_t i = 0; i <= eArchFlags; i++) {
     Kind k{i};
     ONEJIT_TEST(bool(k), ==, i != 0);
     ONEJIT_TEST(k.is(k.group()), ==, true);
@@ -111,7 +111,7 @@ void Test::kind() {
 
     out << "Kind " << k << ", Group " << k.group() << ", bits " << k.bits() << '\n';
   }
-  for (uint8_t i = 0; i <= kArchFlags; i++) {
+  for (uint8_t i = 0; i <= eArchFlags; i++) {
     Kind k{eKind(i), SimdN{2}};
     ONEJIT_TEST(bool(k), ==, true);
     ONEJIT_TEST(k.is(k.group()), ==, true);
@@ -175,7 +175,7 @@ void Test::simple_expr() {
   ONEJIT_TEST(bool(c.is<Var>()), ==, false);
   ONEJIT_TEST(bool(c.is<Stmt>()), ==, false);
 
-  for (uint8_t i = kVoid; i <= kArchFlags; i++) {
+  for (uint8_t i = eVoid; i <= eArchFlags; i++) {
     Kind k = Kind(i);
     Expr v = Var{func, k};
     Node node = Binary{func, ADD, v, c};
@@ -228,7 +228,7 @@ void Test::simple_expr() {
 }
 
 void Test::nested_expr() {
-  for (uint8_t i = kInt8; i <= kUint64; i++) {
+  for (uint8_t i = eInt8; i <= eUint64; i++) {
     Kind k{i};
 
     Expr c1 = Const{func, Imm{k, 1}};
@@ -271,18 +271,27 @@ void Test::x64_expr() {
 
   Assembler assembler;
 #if 1
-  for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
-    for (x64::RegId j = x64::RAX; j <= x64::R15; j = j + 1) {
-      x64::Reg reg1{Uint64, i}, reg2{Uint64, j};
-      x64::Addr address{f, Uint64, 0x7f /*0x77665544*/, Var{reg1}, Var{reg2}, x64::Scale1};
-      x64::Mem mem{f, address};
-      Stmt1 st{f, mem, X86_CALL};
+  // reg
+  for (eKind ekind = eUint8; ekind <= eUint64; ekind = ekind + 1) {
+    for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
+      x64::Reg reg{ekind, i};
+      Stmt1 st{f, Var{reg}, X86_NEG};
 
       x64::emit(assembler, st);
     }
-    assembler.add(uint8_t(0x90)); // X86_NOP
   }
 #elif 0
+  // (mem offset base)
+  for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
+    x64::Reg reg1{Uint64, i};
+    x64::Addr address{f, Uint64, 0x7f, Var{reg1}};
+    x64::Mem mem{f, address};
+    Stmt1 st{f, mem, X86_CALL};
+
+    x64::emit(assembler, st);
+  }
+#elif 0
+  // (mem offset _ index scale)
   for (x64::Scale scale = x64::Scale0; scale <= x64::Scale8; scale <<= 1) {
     for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
       x64::Reg reg1{Uint64, i};
@@ -295,13 +304,17 @@ void Test::x64_expr() {
     assembler.add(uint8_t(0x90)); // X86_NOP
   }
 #elif 0
+  // (mem offset base index scale)
   for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
-    x64::Reg reg1{Uint64, i};
-    x64::Addr address{f, Uint64, 0x7f, Var{reg1}};
-    x64::Mem mem{f, address};
-    Stmt1 st{f, mem, X86_CALL};
+    for (x64::RegId j = x64::RAX; j <= x64::R15; j = j + 1) {
+      x64::Reg reg1{Uint64, i}, reg2{Uint64, j};
+      x64::Addr address{f, Uint64, 0x7f /*0x77665544*/, Var{reg1}, Var{reg2}, x64::Scale1};
+      x64::Mem mem{f, address};
+      Stmt1 st{f, mem, X86_CALL};
 
-    x64::emit(assembler, st);
+      x64::emit(assembler, st);
+    }
+    assembler.add(uint8_t(0x90)); // X86_NOP
   }
 #endif // 0
   holder.clear();
