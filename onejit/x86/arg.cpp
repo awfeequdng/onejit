@@ -54,14 +54,16 @@ Arg1 to_arg(const Node &node) noexcept {
         return Arg1::Xmm;
       }
     }
+    break;
   case MEM:
     return Arg1::Mem;
   case LABEL:
   case CONST:
     return Arg1::Val;
   default:
-    return Arg1::None;
+    break;
   }
+  return Arg1::None;
 }
 
 Arg2 to_arg(const Node &node1, const Node &node2) noexcept {
