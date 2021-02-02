@@ -280,8 +280,16 @@ void Test::x64_expr() {
 
     assembler.x64(st);
   }
+#elif 1
+  // reg8
+  for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
+    x64::Reg reg{Uint8, i};
+    Stmt1 st{f, Var{reg}, X86_SETAE};
+
+    assembler.x64(st);
+  }
 #elif 0
-  // reg
+  // reg16, reg64
   for (Kind kind : {Uint16, Uint64}) {
     for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
       x64::Reg reg{kind, i};

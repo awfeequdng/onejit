@@ -81,21 +81,21 @@ static const Inst1 inst1_vec[] = {
     Inst1{"\xff\x30", "\x6a", "\x68", Arg1::Reg | Arg1::Mem | Arg1::Val, B16 | B64, B8 | B32},
     Inst1{"\x0f\x31", "", "", Arg1::Rax, B128}, /* B64 on 32bit                         rdtsc   */
     /*      reg/mem                                                               */ /*-------- */
-    Inst1{"\x0f\x97", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                seta    */
-    Inst1{"\x0f\x93", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setae   */
-    Inst1{"\x0f\x92", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setb    */
-    Inst1{"\x0f\x96", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setbe   */
-    Inst1{"\x0f\x94", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                sete    */
-    Inst1{"\x0f\x9f", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setg    */
-    Inst1{"\x0f\x9d", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setge   */
-    Inst1{"\x0f\x9c", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setl    */
-    Inst1{"\x0f\x9e", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setle   */
-    Inst1{"\x0f\x95", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setne   */
-    Inst1{"\x0f\x91", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setno   */
-    Inst1{"\x0f\x9b", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setnp   */
-    Inst1{"\x0f\x99", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setns   */
-    Inst1{"\x0f\x90", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                seto    */
-    Inst1{"\x0f\x9a", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setp    */
+    Inst1{"\x0f\x97", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            seta    */
+    Inst1{"\x0f\x93", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setae   */
+    Inst1{"\x0f\x92", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setb    */
+    Inst1{"\x0f\x96", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setbe   */
+    Inst1{"\x0f\x94", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            sete    */
+    Inst1{"\x0f\x9f", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setg    */
+    Inst1{"\x0f\x9d", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setge   */
+    Inst1{"\x0f\x9c", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setl    */
+    Inst1{"\x0f\x9e", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setle   */
+    Inst1{"\x0f\x95", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setne   */
+    Inst1{"\x0f\x91", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setno   */
+    Inst1{"\x0f\x9b", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setnp   */
+    Inst1{"\x0f\x99", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setns   */
+    Inst1{"\x0f\x90", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            seto    */
+    Inst1{"\x0f\x9a", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setp    */
     Inst1{"\x0f\x98", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                sets    */
     ONEJIT_COMMENT()                  /* [CPUID CLFSH] is required by the following instructions */
     Inst1{"", "", "", Arg1::Mem, B8}, /*                           clflush              */
@@ -126,10 +126,11 @@ static size_t asm1_insert_prefixes(uint8_t buf[], size_t len, Kind kind, Bits de
   return len;
 }
 
-static ONEJIT_NOINLINE Assembler &asm1_emit_addr(Assembler &dst,          //
-                                                 const Addr &address,     //
+static ONEJIT_NOINLINE Assembler &asm1_emit_addr(Assembler &dst, //
+                                                 OpStmt1 op,
                                                  const uint8_t prefix[2], //
-                                                 Bits default_size) noexcept {
+                                                 Bits default_size,       //
+                                                 const Addr &address) noexcept {
   Reg base{address.base()};
   Reg index{address.index()}; // index cannot be %rsp
   Scale scale = address.scale();
@@ -142,6 +143,10 @@ static ONEJIT_NOINLINE Assembler &asm1_emit_addr(Assembler &dst,          //
   size_t len = asm1_insert_prefixes(buf, 0, address.kind(), default_size, base, index);
   buf[len++] = prefix[0];
   buf[len] = prefix[1];
+
+  if (op >= X86_SETA && op <= X86_SETS) {
+    /// TODO: implement
+  }
 
   size_t offset_bytes = x86::AsmUtil::get_offset_minbytes(address, base, index);
   len = x86::AsmUtil::insert_modrm_sib(buf, len, offset_bytes, base, index, scale);
@@ -170,8 +175,7 @@ static ONEJIT_NOINLINE Assembler &asm1_emit_mem(Assembler &dst, const Inst1 &ins
   }
   Bits default_size = asm1_default_size(op);
 
-  // tested for X86_CALL, X86_DEC, X86_INC, X86_NEG, X86_NOT
-  return asm1_emit_addr(dst, mem.address(), prefix, default_size);
+  return asm1_emit_addr(dst, op, prefix, default_size, mem.address());
 }
 
 static ONEJIT_NOINLINE Assembler &asm1_emit_imm(Assembler &dst, const Inst1 &inst, OpStmt1 op,
@@ -215,16 +219,30 @@ static Assembler &asm1_emit_rdtsc(Assembler &dst, const Inst1 &inst) noexcept {
   return dst.add(inst.bytes());
 }
 
+static Assembler &asm1_emit_setcc_reg(Assembler &dst, const Inst1 &inst, OpStmt1 op,
+                                      Reg reg) noexcept {
+  uint8_t buf[6] = {};
+  size_t len = asm1_insert_prefixes(buf, 0, reg.kind(), asm1_default_size(op), reg);
+  const Bytes bytes = inst.bytes();
+
+  buf[len++] = bytes[0];
+  buf[len++] = bytes[1];
+  buf[len++] = 0xc0 | rlo(reg);
+  return dst.add(onestl::Bytes{buf, len});
+}
+
 static ONEJIT_NOINLINE Assembler &asm1_emit_reg(Assembler &dst, const Inst1 &inst, OpStmt1 op,
                                                 Reg reg) noexcept {
   if (op == X86_POP || op == X86_PUSH) {
     return asm1_emit_pop_or_push_reg(dst, op, reg);
   } else if (op == X86_RDTSC) {
     return asm1_emit_rdtsc(dst, inst);
+  } else if (op >= X86_SETA && op <= X86_SETS) {
+    return asm1_emit_setcc_reg(dst, inst, op, reg);
   }
-  const Bytes bytes = inst.bytes();
   uint8_t buf[4] = {};
   size_t len = asm1_insert_prefixes(buf, 0, reg.kind(), asm1_default_size(op), reg);
+  const Bytes bytes = inst.bytes();
 
   buf[len] = bytes[0];
   buf[len + 1] = bytes[1] | 0xc0 | rlo(reg);

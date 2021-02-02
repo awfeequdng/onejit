@@ -90,13 +90,26 @@ class Inst1 : public Inst {
   using Bytes = onestl::Bytes;
 
 public:
-  constexpr explicit Inst1(const char chars[2], const char imm8_chars[2], const char imm32_chars[2],
-                           Arg1 arg, BitSize arg_size, BitSize imm_size = B0,
-                           Eflags eflags = EFnone) noexcept
-      : Base{imm_size, eflags},                                                                 //
-        bytes_{uint8_t(chars[0]), uint8_t(chars[0] ? chars[1] : '\0')},                         //
-        imm8_bytes_{uint8_t(imm8_chars[0]), uint8_t(imm8_chars[0] ? imm8_chars[1] : '\0')},     //
-        imm32_bytes_{uint8_t(imm32_chars[0]), uint8_t(imm32_chars[0] ? imm32_chars[1] : '\0')}, //
+  constexpr Inst1(const char chars[],       //
+                  const char imm8_chars[],  //
+                  const char imm32_chars[], //
+                  Arg1 arg,                 //
+                  BitSize arg_size,         //
+                  BitSize imm_size = B0,    //
+                  Eflags eflags = EFnone) noexcept
+      : Base{imm_size, eflags}, //
+        bytes_{
+            uint8_t(chars[0]),                   //
+            uint8_t(chars[0] ? chars[1] : '\0'), //
+        },                                       //
+        imm8_bytes_{
+            uint8_t(imm8_chars[0]),                        //
+            uint8_t(imm8_chars[0] ? imm8_chars[1] : '\0'), //
+        },                                                 //
+        imm32_bytes_{
+            uint8_t(imm32_chars[0]),                         //
+            uint8_t(imm32_chars[0] ? imm32_chars[1] : '\0'), //
+        },                                                   //
         arg_{arg}, arg_size_{arg_size} {
   }
 
