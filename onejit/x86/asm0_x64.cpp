@@ -17,20 +17,22 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * inst0.cpp
+ * inst0_x64.cpp
  *
  *  Created on Jan 28, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/assembler.hpp>
-#include <onejit/opstmt.hpp>
+#include <onejit/stmt0.hpp>
+#include <onejit/x64/asm.hpp>
 #include <onejit/x64/inst.hpp>
 
 namespace onejit {
 namespace x64 {
 
 using namespace onejit;
+using namespace onejit::x86;
 
 static const Inst0 inst0_vec[] = {
     Inst0{"\xf8", EFwrite}, /* clc      clear carry flag                      */
@@ -64,15 +66,19 @@ static const Inst0 inst0_vec[] = {
     Inst0{"\x0f\x01\xd6", EFwrite}, /*                                        */
 };
 
-const Inst0 &Inst0::find(OpStmt0 op) noexcept {
+const Inst0 &Asm0::find(OpStmt0 op) noexcept {
   if (op < X86_CLC || op > X86_XTEST) {
     op = X86_UD2;
   }
   return inst0_vec[op - X86_CLC];
 }
 
-Assembler &Inst0::emit(Assembler &dst) const noexcept {
-  return dst.add(bytes());
+Assembler &Asm0::emit(Assembler &dst, const Inst0 &inst) noexcept {
+  return dst.add(inst.bytes());
+}
+
+Assembler &Asm0::emit(Assembler &dst, const Stmt0 &st) noexcept {
+  return emit(dst, find(st.op()));
 }
 
 } // namespace x64

@@ -2,6 +2,41 @@
 	.text
 
 	.p2align 4,,15
+	.globl	main
+	.type	main, @function
+main:
+	.cfi_startproc
+        xor	%eax, %eax
+	ret
+	.cfi_endproc
+
+
+
+	.p2align 4,,15
+	.globl	call_imm
+	.type	call_imm, @function
+call_imm:
+	.cfi_startproc
+	call	call_imm+0
+	call	call_imm+1
+	call	call_imm+2
+	call	call_imm+3
+	call	call_imm+4
+	call	call_imm+5
+	call	call_imm+6
+	call	call_imm+7
+	call	call_imm+0x7f
+	call	call_imm+0x80
+	call	call_imm+0x81
+	call	call_imm+0x82
+	call	call_imm+0x83
+	call	call_imm+0x7fffffff
+        ret
+	.cfi_endproc
+
+
+
+	.p2align 4,,15
 	.globl	call_reg
 	.type	call_reg, @function
 call_reg:

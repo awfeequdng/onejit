@@ -17,35 +17,47 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * scale.hpp
+ * asm2_x64.cpp
  *
- *  Created on Jan 28, 2021
+ *  Created on Feb 02, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X64_SCALE_HPP
-#define ONEJIT_X64_SCALE_HPP
 
-#include <onejit/x86/scale.hpp>
+#include <onejit/assembler.hpp>
+#include <onejit/stmt3.hpp>
+#include <onejit/x64/asm.hpp>
+#include <onejit/x64/inst.hpp>
 
 namespace onejit {
 namespace x64 {
 
-using x86::eScale;
-using x86::Scale;
+using namespace onejit;
+using namespace onejit::x86;
 
-using x86::Scale0;
-using x86::Scale1;
-using x86::Scale2;
-using x86::Scale4;
-using x86::Scale8;
+static const Inst3 inst3_vec[] = {
+    Inst3{Arg3::None}, /* bad instruction */
+};
 
-using x86::eScale0;
-using x86::eScale1;
-using x86::eScale2;
-using x86::eScale4;
-using x86::eScale8;
+const Inst3 &Asm3::find(OpStmt3 op) noexcept {
+  /// TODO: implement
+  (void)op;
+  return inst3_vec[0];
+}
+
+Assembler &Asm3::emit(Assembler &dst, const Stmt3 &st, const Inst3 &inst) noexcept {
+  Node arg0 = st.child(0);
+  Node arg1 = st.child(1);
+  Node arg2 = st.child(2);
+  if (!is_compatible(arg0, arg1, arg2, inst.arg())) {
+    return dst.error(st, "x64::Asm3::emit: instruction does not support specified argument types");
+  }
+
+  return dst.error(st, "unimplemented x64::Asm3::emit");
+}
+
+Assembler &Asm3::emit(Assembler &dst, const Stmt3 &st) noexcept {
+  return emit(dst, st, find(st.op()));
+}
 
 } // namespace x64
 } // namespace onejit
-
-#endif // ONEJIT_X64_SCALE_HPP

@@ -17,57 +17,45 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * emit.cpp
+ * asm2_x64.cpp
  *
- *  Created on Feb 01, 2021
+ *  Created on Feb 02, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/stmt0.hpp>
-#include <onejit/stmt1.hpp>
+#include <onejit/assembler.hpp>
 #include <onejit/stmt2.hpp>
-#include <onejit/stmt3.hpp>
-#include <onejit/x64/emit.hpp>
+#include <onejit/x64/asm.hpp>
 #include <onejit/x64/inst.hpp>
 
 namespace onejit {
 namespace x64 {
 
-Assembler &emit(Assembler &dst, Node node) noexcept {
-  switch (node.type()) {
-  case STMT_0:
-    return emit(dst, node.is<Stmt0>());
-  case STMT_1:
-    return emit(dst, node.is<Stmt1>());
-  case STMT_2:
-    return emit(dst, node.is<Stmt2>());
-  case STMT_3:
-    return emit(dst, node.is<Stmt3>());
-  default:
-    return dst.error(node, "unexpected node type in x64::emit, expecting Stmt[0123]");
+using namespace onejit;
+using namespace onejit::x86;
+
+static const Inst2 inst2_vec[] = {
+    Inst2{Arg2::None}, /* bad instruction */
+};
+
+const Inst2 &Asm2::find(OpStmt2 op) noexcept {
+  /// TODO: implement
+  (void)op;
+  return inst2_vec[0];
+}
+
+Assembler &Asm2::emit(Assembler &dst, const Stmt2 &st, const Inst2 &inst) noexcept {
+  Node arg0 = st.child(0);
+  Node arg1 = st.child(1);
+  if (!is_compatible(arg0, arg1, inst.arg())) {
+    return dst.error(st, "x64::Asm2::emit: instruction does not support specified argument types");
   }
+
+  return dst.error(st, "unimplemented x64::Asm2::emit");
 }
 
-Assembler &emit(Assembler &dst, Stmt0 st) noexcept {
-  return Inst0::find(st.op()).emit(dst);
-}
-
-Assembler &emit(Assembler &dst, Stmt1 st) noexcept {
-  return Inst1::find(st.op()).emit(dst, st);
-}
-
-Assembler &emit(Assembler &dst, Stmt2 st) noexcept {
-  /// TODO: implement
-  (void)dst;
-  (void)st;
-  return dst;
-}
-
-Assembler &emit(Assembler &dst, Stmt3 st) noexcept {
-  /// TODO: implement
-  (void)dst;
-  (void)st;
-  return dst;
+Assembler &Asm2::emit(Assembler &dst, const Stmt2 &st) noexcept {
+  return emit(dst, st, find(st.op()));
 }
 
 } // namespace x64

@@ -25,9 +25,11 @@
 
 #include <onejit/assembler.hpp>
 #include <onejit/onejit.hpp>
-#include <onejit/x64/emit.hpp>
+#include <onejit/x64/addr.hpp>
+#include <onejit/x64/asm.hpp>
 #include <onejit/x64/mem.hpp>
 #include <onejit/x64/reg.hpp>
+#include <onejit/x64/scale.hpp>
 
 #include <cstdio> // stdout
 
@@ -265,19 +267,27 @@ void Test::x64_expr() {
   {
     x64::Mem mem{f, x64::Addr{f, Int32, -67890}};
 
-    Chars expected = "(x64_mem (x64_addr _ -67890_i _))";
+    Chars expected = "(x86_mem (x86_addr _ -67890_i _))";
     ONEJIT_TEST(to_string(mem), ==, expected);
   }
 
   Assembler assembler;
-#if 1
-  // reg
-  for (eKind ekind = eUint8; ekind <= eUint64; ekind = ekind + 1) {
-    for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
-      x64::Reg reg{ekind, i};
-      Stmt1 st{f, Var{reg}, X86_NEG};
+#if 0
+  // imm
+  for (int16_t val = -0x90; val <= 0x90; val += 0x10) {
+    Const c{Int32, val};
+    Stmt1 st{f, c, X86_PUSH};
 
-      x64::emit(assembler, st);
+    assembler.x64(st);
+  }
+#elif 0
+  // reg
+  for (Kind kind : {Uint16, Uint64}) {
+    for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
+      x64::Reg reg{kind, i};
+      Stmt1 st{f, Var{reg}, X86_POP};
+
+      assembler.x64(st);
     }
   }
 #elif 0
@@ -288,7 +298,7 @@ void Test::x64_expr() {
     x64::Mem mem{f, address};
     Stmt1 st{f, mem, X86_CALL};
 
-    x64::emit(assembler, st);
+    assembler.x64(st);
   }
 #elif 0
   // (mem offset _ index scale)
@@ -299,9 +309,9 @@ void Test::x64_expr() {
       x64::Mem mem{f, address};
       Stmt1 st{f, mem, X86_CALL};
 
-      x64::emit(assembler, st);
+      assembler.x64(st);
     }
-    assembler.add(uint8_t(0x90)); // X86_NOP
+    assembler.x64(Stmt0{X86_NOP});
   }
 #elif 0
   // (mem offset base index scale)
@@ -310,11 +320,11 @@ void Test::x64_expr() {
       x64::Reg reg1{Uint64, i}, reg2{Uint64, j};
       x64::Addr address{f, Uint64, 0x7f /*0x77665544*/, Var{reg1}, Var{reg2}, x64::Scale1};
       x64::Mem mem{f, address};
-      Stmt1 st{f, mem, X86_CALL};
+      Stmt1 st{f, mem, X86_JMP};
 
-      x64::emit(assembler, st);
+      assembler.x64(st);
     }
-    assembler.add(uint8_t(0x90)); // X86_NOP
+    assembler.x64(Stmt0{X86_NOP});
   }
 #endif // 0
   holder.clear();
@@ -326,9 +336,9 @@ void Test::x64_expr() {
     x64::Mem mem{f, address};
     Stmt1 st{f, mem, X86_CALL};
 
-    x64::emit(assembler, st);
+    assembler.x64(st);
 
-    Chars expected = "(x86_call (x64_mem (x64_addr_scale8 label_1 12345_i var100_ul var101_ul)))";
+    Chars expected = "(x86_call (x86_mem (x86_addr_scale8 label_1 12345_i var100_ul var101_ul)))";
     ONEJIT_TEST(to_string(st), ==, expected);
 
     ONEJIT_TEST(assembler.size(), ==, 7);

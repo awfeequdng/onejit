@@ -17,31 +17,32 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * rex_byte.cpp
+ * asm_util.hpp
  *
  *  Created on Feb 01, 2021
  *      Author Massimiliano Ghilardi
  */
+#ifndef ONEJIT_X86_ASM_UTIL_HPP
+#define ONEJIT_X86_ASM_UTIL_HPP
 
-#include <onejit/x64/rex_byte.hpp>
+#include <onejit/x86/fwd.hpp>
+#include <onejit/x86/scale.hpp>
 
 namespace onejit {
-namespace x64 {
+namespace x86 {
 
-uint8_t rex_byte(Bits default_size, Reg base, Reg index) noexcept {
-  uint8_t byte = rhi(base) | rhi(index) << 1;
-  if (default_size < Bits64 && (base.kind().bits() >= Bits64 || //
-                                index.kind().bits() >= Bits64)) {
-    // REX byte is needed to use 64-bit registers when default size is 32 bits
-    byte |= 0x48;
-  } else if (byte || (base && !index                 //
-                      && base.kind().bits() == Bits8 //
-                      && base.reg_id() >= RSP)) {
-    // and also to use the 8-bit registers %spl %bpl %sil %dil
-    byte |= 0x40;
-  }
-  return byte;
-}
+class AsmUtil {
+public:
+  static size_t get_offset_minbytes(Addr address, Reg base, Reg index) noexcept;
 
-} // namespace x64
+  static size_t insert_modrm_sib(uint8_t buf[], size_t len, size_t immediate_bytes, //
+                                 Reg base, Reg index, Scale scale);
+
+  static size_t insert_offset_or_imm(uint8_t buf[], size_t len, size_t immediate_bytes,
+                                     int32_t offset);
+};
+
+} // namespace x86
 } // namespace onejit
+
+#endif // ONEJIT_X86_ASM_UTIL_HPP

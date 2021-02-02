@@ -17,35 +17,32 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * scale.hpp
+ * rex_byte_x64.hpp
  *
- *  Created on Jan 28, 2021
+ *  Created on Jan 29, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X64_SCALE_HPP
-#define ONEJIT_X64_SCALE_HPP
+#ifndef ONEJIT_X86_REX_BYTE_X64_HPP
+#define ONEJIT_X86_REX_BYTE_X64_HPP
 
-#include <onejit/x86/scale.hpp>
+#include <onejit/x86/reg.hpp>
 
 namespace onejit {
 namespace x64 {
 
-using x86::eScale;
-using x86::Scale;
+uint8_t rex_byte(Bits default_size, Reg base, Reg index = Reg{}) noexcept;
 
-using x86::Scale0;
-using x86::Scale1;
-using x86::Scale2;
-using x86::Scale4;
-using x86::Scale8;
+// REX byte if default width is 32
+inline uint8_t rex_byte_default32(Reg base, Reg index = Reg{}) noexcept {
+  return rex_byte(Bits32, base, index);
+}
 
-using x86::eScale0;
-using x86::eScale1;
-using x86::eScale2;
-using x86::eScale4;
-using x86::eScale8;
+// REX byte if default width is 32
+inline uint8_t rex_byte_default64(Reg base, Reg index = Reg{}) noexcept {
+  return rex_byte(Bits64, base, index);
+}
 
 } // namespace x64
 } // namespace onejit
 
-#endif // ONEJIT_X64_SCALE_HPP
+#endif // ONEJIT_X86_REX_BYTE_X64_HPP

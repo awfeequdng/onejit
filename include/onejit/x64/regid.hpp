@@ -25,80 +25,69 @@
 #ifndef ONEJIT_X64_REGID_HPP
 #define ONEJIT_X64_REGID_HPP
 
-#include <cstdint> // uint*_t
+#include <onejit/x86/regid.hpp>
 
 namespace onejit {
 namespace x64 {
 
-enum RegId : uint16_t {
-  // use interval 256..511 of onejit::Id{}
-  // 0 is reserved for onejit::NOID
-  RAX = 0x100,
-  RCX,
-  RDX,
-  RBX,
-  RSP,
-  RBP,
-  RSI,
-  RDI,
-  R8,
-  R9,
-  R10,
-  R11,
-  R12,
-  R13,
-  R14,
-  R15,
-  RIP = 0x110,
-  XMM0 = 0x120,
-  XMM1,
-  XMM2,
-  XMM3,
-  XMM4,
-  XMM5,
-  XMM6,
-  XMM7,
-  XMM8,
-  XMM9,
-  XMM10,
-  XMM11,
-  XMM12,
-  XMM13,
-  XMM14,
-  XMM15,
-  ZMM16,
-  ZMM17,
-  ZMM18,
-  ZMM19,
-  ZMM20,
-  ZMM21,
-  ZMM22,
-  ZMM23,
-  ZMM24,
-  ZMM25,
-  ZMM26,
-  ZMM27,
-  ZMM28,
-  ZMM29,
-  ZMM30,
-  ZMM31,
-};
+using x86::RegId;
 
-constexpr inline RegId operator+(RegId id, int delta) noexcept {
-  return RegId(int(id) + delta);
-}
+// clang-format off
+using x86::RAX;
+using x86::RCX;
+using x86::RDX;
+using x86::RBX;
+using x86::RSP;
+using x86::RBP;
+using x86::RSI;
+using x86::RDI;
+using x86::R8;
+using x86::R9;
+using x86::R10;
+using x86::R11;
+using x86::R12;
+using x86::R13;
+using x86::R14;
+using x86::R15;
 
-constexpr inline RegId operator-(RegId id, int delta) noexcept {
-  return RegId(int(id) - delta);
-}
+using x86::RIP;
 
-constexpr inline uint8_t rlo(RegId id) noexcept {
-  return id & 0x7;
-}
+using x86::XMM0;
+using x86::XMM1;
+using x86::XMM2;
+using x86::XMM3;
+using x86::XMM4;
+using x86::XMM5;
+using x86::XMM6;
+using x86::XMM7;
+using x86::XMM8;
+using x86::XMM9;
+using x86::XMM10;
+using x86::XMM11;
+using x86::XMM12;
+using x86::XMM13;
+using x86::XMM14;
+using x86::XMM15;
 
-constexpr inline uint8_t rhi(RegId id) noexcept {
-  return (id >> 3) & 0x1;
-}
+using x86::ZMM16;
+using x86::ZMM17;
+using x86::ZMM18;
+using x86::ZMM19;
+using x86::ZMM20;
+using x86::ZMM21;
+using x86::ZMM22;
+using x86::ZMM23;
+using x86::ZMM24;
+using x86::ZMM25;
+using x86::ZMM26;
+using x86::ZMM27;
+using x86::ZMM28;
+using x86::ZMM29;
+using x86::ZMM30;
+using x86::ZMM31;
+
+using x86::rlo;
+using x86::rhi;
 
 } // namespace x64
 } // namespace onejit

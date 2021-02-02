@@ -17,35 +17,34 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * scale.hpp
+ * rex_byte.cpp
  *
- *  Created on Jan 28, 2021
+ *  Created on Feb 01, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X64_SCALE_HPP
-#define ONEJIT_X64_SCALE_HPP
 
-#include <onejit/x86/scale.hpp>
+#include <onejit/x64/reg.hpp>
+#include <onejit/x64/rex_byte.hpp>
 
 namespace onejit {
 namespace x64 {
 
-using x86::eScale;
-using x86::Scale;
+using namespace onejit::x86;
 
-using x86::Scale0;
-using x86::Scale1;
-using x86::Scale2;
-using x86::Scale4;
-using x86::Scale8;
-
-using x86::eScale0;
-using x86::eScale1;
-using x86::eScale2;
-using x86::eScale4;
-using x86::eScale8;
+uint8_t rex_byte(Bits default_size, Reg base, Reg index) noexcept {
+  uint8_t byte = rhi(base) | rhi(index) << 1;
+  if (default_size < Bits64 && (base.kind().bits() >= Bits64 || //
+                                index.kind().bits() >= Bits64)) {
+    // REX byte is needed to use 64-bit registers when default size is 32 bits
+    byte |= 0x48;
+  } else if (byte || (base && !index                 //
+                      && base.kind().bits() == Bits8 //
+                      && base.reg_id() >= RSP)) {
+    // and also to use the 8-bit registers %spl %bpl %sil %dil
+    byte |= 0x40;
+  }
+  return byte;
+}
 
 } // namespace x64
 } // namespace onejit
-
-#endif // ONEJIT_X64_SCALE_HPP

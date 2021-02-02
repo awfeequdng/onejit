@@ -55,6 +55,17 @@ public:
   using Base::truncate;
   using Base::view;
 
+  /**
+   * high-level methods, they assemble symbolic instructions
+   */
+
+  // assemble an x86_64 instruction. defined in onejit/x86/asm_x64.cpp
+  Assembler &x64(const Node &node) noexcept;
+
+  /**
+   * low-level methods, they add raw bytes
+   */
+
   Assembler &add(T byte) noexcept {
     return add(View<T>{&byte, 1});
   }
@@ -75,7 +86,7 @@ public:
   // does nothing if label is invalid i.e. bool(l) == false
   Assembler &add_relocation(Label l) noexcept;
 
-  // add an assemble error
+  // add an assembler error
   Assembler &error(const Node &where, Chars msg) noexcept;
 
   // add an out-of-memory error
@@ -83,7 +94,7 @@ public:
 
 private:
   // hide Base::append()
-  void append() noexcept;
+  void append(...) noexcept;
 
   Vector<Relocation> relocation_;
   Vector<Error> error_;

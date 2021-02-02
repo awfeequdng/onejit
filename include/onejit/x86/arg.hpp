@@ -22,13 +22,13 @@
  *  Created on Jan 28, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X64_ARG_HPP
-#define ONEJIT_X64_ARG_HPP
+#ifndef ONEJIT_X86_ARG_HPP
+#define ONEJIT_X86_ARG_HPP
 
 #include <cstdint> // uint*_t
 
 namespace onejit {
-namespace x64 {
+namespace x86 {
 
 // describe x86/x64 EFLAGS
 enum EflagsMask : uint16_t {
@@ -64,42 +64,48 @@ enum BitSize : uint8_t {
 
 // describe x86/x64 unary instruction operands
 enum class Arg1 : uint8_t {
-  Rax = 1 << 0, // %rax register
-  Reg = 1 << 1, // general register
-  Mem = 1 << 2, // memory
-  Val = 1 << 3, // immediate
+  None = 0,
+  Rax = 1 << 0,               // %rax register
+  Rcx = 1 << 1,               // %rcx register. only used to compute Arg2, Arg3
+  Reg = (1 << 2) | Rax | Rcx, // general register
+  Xmm = 1 << 3,               // %xmm register. only used to compute Arg2, Arg3
+  Mem = 1 << 4,               // memory
+  Val = 1 << 5,               // immediate or label
 };
 
 // describe x86/x64 binary instruction operands.
 // result is first operand, as per Intel syntax
 // (instead in AT&T / GNU syntax, result is last operand)
 enum class Arg2 : uint16_t {
+  None = 0,
   Rax_Reg = 1 << 0, // %rax OP= register
   Rax_Mem = 1 << 1, // %rax OP= memory
   Rax_Val = 1 << 2, // %rax OP= immediate
 
   Reg_Rcx = 1 << 3, // register OP= %rcx. currently only used by shifts and rotations
-  Reg_Reg = 1 << 4,
-  Reg_Mem = 1 << 5,
-  Reg_Val = 1 << 6,
+  Reg_Reg = (1 << 4) | Rax_Reg | Reg_Rcx,
+  Reg_Xmm = 1 << 5, // register OP= %xmm
+  Reg_Mem = (1 << 6) | Rax_Mem,
+  Reg_Val = (1 << 7) | Rax_Val,
 
-  Mem_Rax = 1 << 7, // memory OP= %rax. currently only used by MOV
-  Mem_Reg = 1 << 8,
-  Mem_Val = 1 << 9,
+  Xmm_Reg = 1 << 8,  // %xmm OP= register
+  Xmm_Xmm = 1 << 9,  // %xmm OP= %xmm
+  Xmm_Mem = 1 << 10, // %xmm OP= memory
 
-  Reg_Xmm = 1 << 10, // register OP= %xmm
-  Xmm_Reg = 1 << 11, // %xmm OP= register
-  Xmm_Xmm = 1 << 12, // %xmm OP= %xmm
-  Xmm_Mem = 1 << 13, // %xmm OP= memory
-  Mem_Xmm = 1 << 14, // memory OP= %xmm
+  Mem_Rax = 1 << 11, // memory OP= %rax. currently only used by MOV
+  Mem_Reg = (1 << 12) | Mem_Rax,
+  Mem_Xmm = 1 << 13, // memory OP= %xmm
+  Mem_Val = 1 << 14,
 };
 
 // describe x86/x64 ternary instruction operands
 enum class Arg3 : uint8_t {
+  None = 0,
   Reg_Reg_Val = 1 << 0, // register = register OP immediate
   Reg_Mem_Val = 1 << 1, // register = memory OP immediate
 };
 
+////////////////////////////////////////////////////////////////////////////////
 constexpr inline EflagsMask operator&(EflagsMask a, EflagsMask b) noexcept {
   return EflagsMask(int(a) & int(b));
 }
@@ -142,7 +148,18 @@ constexpr inline Arg3 operator|(Arg3 a, Arg3 b) noexcept {
   return Arg3(int(a) | int(b));
 }
 
-} // namespace x64
+////////////////////////////////////////////////////////////////////////////////
+BitSize to_bitsize(Bits bits) noexcept;
+Arg1 to_arg(const Node &node1) noexcept;
+Arg2 to_arg(const Node &node1, const Node &node2) noexcept;
+Arg3 to_arg(const Node &node1, const Node &node2, const Node &node3) noexcept;
+
+bool is_compatible(Bits bits, BitSize bitsize) noexcept;
+bool is_compatible(const Node &node1, Arg1 arg) noexcept;
+bool is_compatible(const Node &node1, const Node &node2, Arg2 arg) noexcept;
+bool is_compatible(const Node &node1, const Node &node2, const Node &node3, Arg3 arg) noexcept;
+
+} // namespace x86
 } // namespace onejit
 
-#endif // ONEJIT_X64_ARG_HPP
+#endif // ONEJIT_X86_ARG_HPP

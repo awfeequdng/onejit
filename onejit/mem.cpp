@@ -43,7 +43,7 @@ ONEJIT_NOINLINE Node Mem::create(Func &func, Kind kind, MemType memtype, Expr ad
   return Mem{};
 }
 
-static const Chars memclass_string[] = {"mem", "x64_mem", "arm_mem"};
+static const Chars memclass_string[] = {"mem", "x86_mem", "arm_mem"};
 
 const Chars to_string(MemType memtype) noexcept {
   size_t i = 0;

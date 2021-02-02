@@ -28,7 +28,7 @@
 
 #include <onejit/expr.hpp>
 #include <onejit/op.hpp>
-#include <onejit/x64/fwd.hpp>
+#include <onejit/x86/fwd.hpp>
 #include <onestl/view.hpp>
 
 namespace onejit {
@@ -40,7 +40,7 @@ class Tuple : public Expr {
   friend class Compiler;
   friend class Func;
   friend class Node;
-  friend class x64::Addr;
+  friend class x86::Addr;
 
 public:
   /**

@@ -17,35 +17,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * scale.hpp
+ * asm.hpp
  *
- *  Created on Jan 28, 2021
+ *  Created on Feb 02, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X64_SCALE_HPP
-#define ONEJIT_X64_SCALE_HPP
+#ifndef ONEJIT_X64_ASM_HPP
+#define ONEJIT_X64_ASM_HPP
 
-#include <onejit/x86/scale.hpp>
+#include <onejit/x86/asm_x64.hpp>
 
-namespace onejit {
-namespace x64 {
-
-using x86::eScale;
-using x86::Scale;
-
-using x86::Scale0;
-using x86::Scale1;
-using x86::Scale2;
-using x86::Scale4;
-using x86::Scale8;
-
-using x86::eScale0;
-using x86::eScale1;
-using x86::eScale2;
-using x86::eScale4;
-using x86::eScale8;
-
-} // namespace x64
-} // namespace onejit
-
-#endif // ONEJIT_X64_SCALE_HPP
+#endif // ONEJIT_X64_ASM_HPP

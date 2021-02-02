@@ -17,26 +17,27 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * emit.hpp
+ * inst.hpp
  *
- *  Created on Feb 01, 2021
+ *  Created on Jan 26, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X64_EMIT_HPP
-#define ONEJIT_X64_EMIT_HPP
+#ifndef ONEJIT_X86_INST_X64_HPP
+#define ONEJIT_X86_INST_X64_HPP
 
-#include <onejit/assembler.hpp>
+#include <onejit/fwd.hpp>
+#include <onejit/x86/inst.hpp>
 
 namespace onejit {
 namespace x64 {
 
-Assembler &emit(Assembler &dst, Node node) noexcept;
-Assembler &emit(Assembler &dst, Stmt0 st) noexcept;
-Assembler &emit(Assembler &dst, Stmt1 st) noexcept;
-Assembler &emit(Assembler &dst, Stmt2 st) noexcept;
-Assembler &emit(Assembler &dst, Stmt3 st) noexcept;
+using x86::Inst;
+using x86::Inst0;
+using x86::Inst1;
+using x86::Inst2;
+using x86::Inst3;
 
 } // namespace x64
 } // namespace onejit
 
-#endif // ONEJIT_X64_EMIT_HPP
+#endif // ONEJIT_X86_INST_X64_HPP

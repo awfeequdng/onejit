@@ -86,7 +86,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-subdir = onejit/x64
+subdir = onejit/x86
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -102,11 +102,13 @@ AM_V_AR = $(am__v_AR_@AM_V@)
 am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
 am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
-libonejit_x64_a_AR = $(AR) $(ARFLAGS)
-libonejit_x64_a_LIBADD =
-am_libonejit_x64_a_OBJECTS = addr.$(OBJEXT) emit.$(OBJEXT) \
-	inst0.$(OBJEXT) inst1.$(OBJEXT) rex_byte.$(OBJEXT)
-libonejit_x64_a_OBJECTS = $(am_libonejit_x64_a_OBJECTS)
+libonejit_x86_a_AR = $(AR) $(ARFLAGS)
+libonejit_x86_a_LIBADD =
+am_libonejit_x86_a_OBJECTS = addr.$(OBJEXT) arg.$(OBJEXT) \
+	asm_util.$(OBJEXT) asm_x64.$(OBJEXT) asm0_x64.$(OBJEXT) \
+	asm1_x64.$(OBJEXT) asm2_x64.$(OBJEXT) asm3_x64.$(OBJEXT) \
+	rex_byte_x64.$(OBJEXT)
+libonejit_x86_a_OBJECTS = $(am_libonejit_x86_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -122,9 +124,11 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/addr.Po ./$(DEPDIR)/emit.Po \
-	./$(DEPDIR)/inst0.Po ./$(DEPDIR)/inst1.Po \
-	./$(DEPDIR)/rex_byte.Po
+am__depfiles_remade = ./$(DEPDIR)/addr.Po ./$(DEPDIR)/arg.Po \
+	./$(DEPDIR)/asm0_x64.Po ./$(DEPDIR)/asm1_x64.Po \
+	./$(DEPDIR)/asm2_x64.Po ./$(DEPDIR)/asm3_x64.Po \
+	./$(DEPDIR)/asm_util.Po ./$(DEPDIR)/asm_x64.Po \
+	./$(DEPDIR)/rex_byte_x64.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -139,8 +143,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(libonejit_x64_a_SOURCES)
-DIST_SOURCES = $(libonejit_x64_a_SOURCES)
+SOURCES = $(libonejit_x86_a_SOURCES)
+DIST_SOURCES = $(libonejit_x86_a_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -308,11 +312,14 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = 
-noinst_LIBRARIES = libonejit_x64.a
+noinst_LIBRARIES = libonejit_x86.a
 # pkglib_LTLIBRARIES       =
 AM_CPPFLAGS = -I$(top_srcdir)/include
-# libonejit_x64_a_CPPFLAGS = -I$(top_srcdir)/include
-libonejit_x64_a_SOURCES = addr.cpp emit.cpp inst0.cpp inst1.cpp rex_byte.cpp
+# libonejit_x86_a_CPPFLAGS = -I$(top_srcdir)/include
+libonejit_x86_a_SOURCES = \
+        addr.cpp arg.cpp asm_util.cpp asm_x64.cpp asm0_x64.cpp \
+        asm1_x64.cpp asm2_x64.cpp asm3_x64.cpp rex_byte_x64.cpp
+
 all: all-recursive
 
 .SUFFIXES:
@@ -326,9 +333,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign onejit/x64/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign onejit/x86/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign onejit/x64/Makefile
+	  $(AUTOMAKE) --foreign onejit/x86/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -350,10 +357,10 @@ $(am__aclocal_m4_deps):
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
 
-libonejit_x64.a: $(libonejit_x64_a_OBJECTS) $(libonejit_x64_a_DEPENDENCIES) $(EXTRA_libonejit_x64_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libonejit_x64.a
-	$(AM_V_AR)$(libonejit_x64_a_AR) libonejit_x64.a $(libonejit_x64_a_OBJECTS) $(libonejit_x64_a_LIBADD)
-	$(AM_V_at)$(RANLIB) libonejit_x64.a
+libonejit_x86.a: $(libonejit_x86_a_OBJECTS) $(libonejit_x86_a_DEPENDENCIES) $(EXTRA_libonejit_x86_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f libonejit_x86.a
+	$(AM_V_AR)$(libonejit_x86_a_AR) libonejit_x86.a $(libonejit_x86_a_OBJECTS) $(libonejit_x86_a_LIBADD)
+	$(AM_V_at)$(RANLIB) libonejit_x86.a
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -362,10 +369,14 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/addr.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emit.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inst0.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inst1.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rex_byte.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/arg.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm0_x64.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm1_x64.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm2_x64.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm3_x64.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm_util.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm_x64.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rex_byte_x64.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -587,10 +598,14 @@ clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/addr.Po
-	-rm -f ./$(DEPDIR)/emit.Po
-	-rm -f ./$(DEPDIR)/inst0.Po
-	-rm -f ./$(DEPDIR)/inst1.Po
-	-rm -f ./$(DEPDIR)/rex_byte.Po
+	-rm -f ./$(DEPDIR)/arg.Po
+	-rm -f ./$(DEPDIR)/asm0_x64.Po
+	-rm -f ./$(DEPDIR)/asm1_x64.Po
+	-rm -f ./$(DEPDIR)/asm2_x64.Po
+	-rm -f ./$(DEPDIR)/asm3_x64.Po
+	-rm -f ./$(DEPDIR)/asm_util.Po
+	-rm -f ./$(DEPDIR)/asm_x64.Po
+	-rm -f ./$(DEPDIR)/rex_byte_x64.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -637,10 +652,14 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/addr.Po
-	-rm -f ./$(DEPDIR)/emit.Po
-	-rm -f ./$(DEPDIR)/inst0.Po
-	-rm -f ./$(DEPDIR)/inst1.Po
-	-rm -f ./$(DEPDIR)/rex_byte.Po
+	-rm -f ./$(DEPDIR)/arg.Po
+	-rm -f ./$(DEPDIR)/asm0_x64.Po
+	-rm -f ./$(DEPDIR)/asm1_x64.Po
+	-rm -f ./$(DEPDIR)/asm2_x64.Po
+	-rm -f ./$(DEPDIR)/asm3_x64.Po
+	-rm -f ./$(DEPDIR)/asm_util.Po
+	-rm -f ./$(DEPDIR)/asm_x64.Po
+	-rm -f ./$(DEPDIR)/rex_byte_x64.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -677,8 +696,8 @@ uninstall-am:
 .PRECIOUS: Makefile
 
 
-# libonejit_x64_a_LDFLAGS  =
-# libonejit_x64_a_LDADD    =
+# libonejit_x86_a_LDFLAGS  =
+# libonejit_x86_a_LDADD    =
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

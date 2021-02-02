@@ -24,10 +24,10 @@
  */
 
 #include <onejit/const.hpp>
-#include <onejit/x64/addr.hpp>
+#include <onejit/x86/addr.hpp>
 
 namespace onejit {
-namespace x64 {
+namespace x86 {
 
 // ============================  Addr  ====================================
 
@@ -67,5 +67,5 @@ Local Addr::index() const noexcept {
   return child(3).is<Var>().local();
 }
 
-} // namespace x64
+} // namespace x86
 } // namespace onejit

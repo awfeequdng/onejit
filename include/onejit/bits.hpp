@@ -62,6 +62,10 @@ public:
     return Bits{eBits(log2)};
   }
 
+  constexpr eBits ebits() const noexcept {
+    return val_;
+  }
+
   // 255 means val() == 0
   constexpr uint8_t log2() const noexcept {
     return uint8_t(val_);

@@ -19,59 +19,18 @@
  *
  * mem.hpp
  *
- *  Created on Jan 28, 2021
+ *  Created on Feb 02, 2021
  *      Author Massimiliano Ghilardi
  */
 #ifndef ONEJIT_X64_MEM_HPP
 #define ONEJIT_X64_MEM_HPP
 
-#include <onejit/mem.hpp>
-#include <onejit/x64/addr.hpp>
+#include <onejit/x86/mem.hpp>
 
 namespace onejit {
 namespace x64 {
 
-////////////////////////////////////////////////////////////////////////////////
-// memory access representable in a single x86 instruction: address is x64::Addr i.e.
-// optional_label + offset_int32 + optional_base_register + optional_index_reg * {1,2,4,8}
-class Mem : public onejit::Mem {
-  using Base = onejit::Mem;
-  friend class Node;
-
-public:
-  /**
-   * construct an invalid Mem.
-   * exists only to allow placing Mem in containers
-   * and similar uses that require a default constructor.
-   *
-   * to create a valid Mem, use one of the other constructors
-   */
-  constexpr Mem() noexcept : Base{} {
-  }
-
-  Mem(Func &func, Addr address) noexcept //
-      : Base{func, address.kind(), X64_MEM, address} {
-  }
-
-  static constexpr MemType memtype() noexcept {
-    return X64_MEM;
-  }
-
-  // shortcut for child(0).is<Addr>()
-  Addr address() const noexcept {
-    return child(0).is<Addr>();
-  }
-
-private:
-  // downcast Node to Mem
-  constexpr explicit Mem(const Node &node) noexcept : Base{node} {
-  }
-
-  // downcast helper
-  static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op == X64_MEM;
-  }
-};
+using x86::Mem;
 
 } // namespace x64
 } // namespace onejit

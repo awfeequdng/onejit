@@ -19,38 +19,12 @@
  *
  * rex_byte.hpp
  *
- *  Created on Jan 29, 2021
+ *  Created on Feb 02, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X64_REX_HPP
-#define ONEJIT_X64_REX_HPP
+#ifndef ONEJIT_X64_REX_BYTE_HPP
+#define ONEJIT_X64_REX_BYTE_HPP
 
-#include <onejit/x64/reg.hpp>
+#include <onejit/x86/rex_byte_x64.hpp>
 
-namespace onejit {
-namespace x64 {
-
-constexpr inline uint8_t rlo(Reg reg) noexcept {
-  return rlo(reg.reg_id());
-}
-
-inline uint8_t rhi(Reg reg) noexcept {
-  return rhi(reg.reg_id());
-}
-
-uint8_t rex_byte(Bits default_size, Reg base, Reg index = Reg{}) noexcept;
-
-// REX byte if default width is 32
-inline uint8_t rex_byte_default32(Reg base, Reg index = Reg{}) noexcept {
-  return rex_byte(Bits32, base, index);
-}
-
-// REX byte if default width is 32
-inline uint8_t rex_byte_default64(Reg base, Reg index = Reg{}) noexcept {
-  return rex_byte(Bits64, base, index);
-}
-
-} // namespace x64
-} // namespace onejit
-
-#endif // ONEJIT_X64_REG_HPP
+#endif // ONEJIT_X64_REX_BYTE_HPP
