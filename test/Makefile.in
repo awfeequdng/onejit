@@ -86,7 +86,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-subdir = onejit/x86
+bin_PROGRAMS = test_jit$(EXEEXT)
+subdir = test
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -96,19 +97,13 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/include/onejit_config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-LIBRARIES = $(noinst_LIBRARIES)
-ARFLAGS = cru
-AM_V_AR = $(am__v_AR_@AM_V@)
-am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
-am__v_AR_0 = @echo "  AR      " $@;
-am__v_AR_1 = 
-libonejit_x86_a_AR = $(AR) $(ARFLAGS)
-libonejit_x86_a_LIBADD =
-am_libonejit_x86_a_OBJECTS = addr.$(OBJEXT) arg.$(OBJEXT) \
-	asm_util.$(OBJEXT) asm_x64.$(OBJEXT) asm0_x64.$(OBJEXT) \
-	asm1_x64.$(OBJEXT) asm2_x64.$(OBJEXT) asm3_x64.$(OBJEXT) \
-	rex_byte_x64.$(OBJEXT)
-libonejit_x86_a_OBJECTS = $(am_libonejit_x86_a_OBJECTS)
+am__installdirs = "$(DESTDIR)$(bindir)"
+PROGRAMS = $(bin_PROGRAMS)
+am_test_jit_OBJECTS = test_main.$(OBJEXT)
+test_jit_OBJECTS = $(am_test_jit_OBJECTS)
+am__DEPENDENCIES_1 =
+test_jit_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -124,11 +119,7 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/addr.Po ./$(DEPDIR)/arg.Po \
-	./$(DEPDIR)/asm0_x64.Po ./$(DEPDIR)/asm1_x64.Po \
-	./$(DEPDIR)/asm2_x64.Po ./$(DEPDIR)/asm3_x64.Po \
-	./$(DEPDIR)/asm_util.Po ./$(DEPDIR)/asm_x64.Po \
-	./$(DEPDIR)/rex_byte_x64.Po
+am__depfiles_remade = ./$(DEPDIR)/test_main.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -143,8 +134,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(libonejit_x86_a_SOURCES)
-DIST_SOURCES = $(libonejit_x86_a_SOURCES)
+SOURCES = $(test_jit_SOURCES)
+DIST_SOURCES = $(test_jit_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -317,14 +308,12 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = 
-noinst_LIBRARIES = libonejit_x86.a
-# pkglib_LTLIBRARIES       =
 AM_CPPFLAGS = -I$(top_srcdir)/include
-# libonejit_x86_a_CXXFLAGS =
-libonejit_x86_a_SOURCES = \
-        addr.cpp arg.cpp asm_util.cpp asm_x64.cpp asm0_x64.cpp \
-        asm1_x64.cpp asm2_x64.cpp asm3_x64.cpp rex_byte_x64.cpp
-
+AM_CXXFLAGS = $(CAPSTONE_CFLAGS)
+test_jit_SOURCES = test_main.cpp
+# test_jit_CXXFLAGS    = 
+EXTRA_test_jit_DEPENDENCIES = $(LIBONEJIT) $(LIBONESTL)
+test_jit_LDADD = $(LIBONEJIT) $(LIBONESTL) $(CAPSTONE_LIBS)
 all: all-recursive
 
 .SUFFIXES:
@@ -338,9 +327,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign onejit/x86/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign test/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign onejit/x86/Makefile
+	  $(AUTOMAKE) --foreign test/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -358,14 +347,52 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(bindir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(bindir)" || exit 1; \
+	fi; \
+	for p in $$list; do echo "$$p $$p"; done | \
+	sed 's/$(EXEEXT)$$//' | \
+	while read p p1; do if test -f $$p \
+	  ; then echo "$$p"; echo "$$p"; else :; fi; \
+	done | \
+	sed -e 'p;s,.*/,,;n;h' \
+	    -e 's|.*|.|' \
+	    -e 'p;x;s,.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/' | \
+	sed 'N;N;N;s,\n, ,g' | \
+	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1 } \
+	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
+	    if ($$2 == $$4) files[d] = files[d] " " $$1; \
+	    else { print "f", $$3 "/" $$4, $$1; } } \
+	  END { for (d in files) print "f", d, files[d] }' | \
+	while read type dir files; do \
+	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
+	    test -z "$$files" || { \
+	      echo " $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
+	      $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
+	    } \
+	; done
 
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
+	files=`for p in $$list; do echo "$$p"; done | \
+	  sed -e 'h;s,^.*/,,;s/$(EXEEXT)$$//;$(transform)' \
+	      -e 's/$$/$(EXEEXT)/' \
+	`; \
+	test -n "$$list" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(bindir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(bindir)" && rm -f $$files
 
-libonejit_x86.a: $(libonejit_x86_a_OBJECTS) $(libonejit_x86_a_DEPENDENCIES) $(EXTRA_libonejit_x86_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libonejit_x86.a
-	$(AM_V_AR)$(libonejit_x86_a_AR) libonejit_x86.a $(libonejit_x86_a_OBJECTS) $(libonejit_x86_a_LIBADD)
-	$(AM_V_at)$(RANLIB) libonejit_x86.a
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+
+test_jit$(EXEEXT): $(test_jit_OBJECTS) $(test_jit_DEPENDENCIES) $(EXTRA_test_jit_DEPENDENCIES) 
+	@rm -f test_jit$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(test_jit_OBJECTS) $(test_jit_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -373,15 +400,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/addr.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/arg.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm0_x64.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm1_x64.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm2_x64.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm3_x64.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm_util.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm_x64.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rex_byte_x64.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_main.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -564,9 +583,12 @@ distdir-am: $(DISTFILES)
 	done
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(LIBRARIES)
+all-am: Makefile $(PROGRAMS)
 installdirs: installdirs-recursive
 installdirs-am:
+	for dir in "$(DESTDIR)$(bindir)"; do \
+	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+	done
 install: install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
@@ -599,18 +621,10 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-recursive
-		-rm -f ./$(DEPDIR)/addr.Po
-	-rm -f ./$(DEPDIR)/arg.Po
-	-rm -f ./$(DEPDIR)/asm0_x64.Po
-	-rm -f ./$(DEPDIR)/asm1_x64.Po
-	-rm -f ./$(DEPDIR)/asm2_x64.Po
-	-rm -f ./$(DEPDIR)/asm3_x64.Po
-	-rm -f ./$(DEPDIR)/asm_util.Po
-	-rm -f ./$(DEPDIR)/asm_x64.Po
-	-rm -f ./$(DEPDIR)/rex_byte_x64.Po
+		-rm -f ./$(DEPDIR)/test_main.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -633,7 +647,7 @@ install-dvi: install-dvi-recursive
 
 install-dvi-am:
 
-install-exec-am:
+install-exec-am: install-binPROGRAMS
 
 install-html: install-html-recursive
 
@@ -656,15 +670,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
-		-rm -f ./$(DEPDIR)/addr.Po
-	-rm -f ./$(DEPDIR)/arg.Po
-	-rm -f ./$(DEPDIR)/asm0_x64.Po
-	-rm -f ./$(DEPDIR)/asm1_x64.Po
-	-rm -f ./$(DEPDIR)/asm2_x64.Po
-	-rm -f ./$(DEPDIR)/asm3_x64.Po
-	-rm -f ./$(DEPDIR)/asm_util.Po
-	-rm -f ./$(DEPDIR)/asm_x64.Po
-	-rm -f ./$(DEPDIR)/rex_byte_x64.Po
+		-rm -f ./$(DEPDIR)/test_main.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -680,29 +686,28 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am:
+uninstall-am: uninstall-binPROGRAMS
 
 .MAKE: $(am__recursive_targets) install-am install-strip
 
 .PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am \
-	am--depfiles check check-am clean clean-generic \
-	clean-noinstLIBRARIES cscopelist-am ctags ctags-am distclean \
+	am--depfiles check check-am clean clean-binPROGRAMS \
+	clean-generic cscopelist-am ctags ctags-am distclean \
 	distclean-compile distclean-generic distclean-tags distdir dvi \
 	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am
+	install-binPROGRAMS install-data install-data-am install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic pdf pdf-am \
+	ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-binPROGRAMS
 
 .PRECIOUS: Makefile
 
-
-# libonejit_x86_a_LDFLAGS  =
-# libonejit_x86_a_LDADD    =
+# test_jit_LDFLAGS          = -export-dynamic $(LDFLAGS_BIN_EXPORT_DYNAMIC)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

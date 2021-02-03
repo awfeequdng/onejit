@@ -238,6 +238,8 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+CAPSTONE_CFLAGS = @CAPSTONE_CFLAGS@
+CAPSTONE_LIBS = @CAPSTONE_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -278,6 +280,9 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PKG_CONFIG = @PKG_CONFIG@
+PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
+PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -332,7 +337,7 @@ SUBDIRS = x86
 noinst_LIBRARIES = libonejit.a
 # pkglib_LTLIBRARIES   =
 AM_CPPFLAGS = -I$(top_srcdir)/include
-# libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
+# libonejit_a_CXXFLAGS =
 libonejit_a_SOURCES = \
         archid.cpp assembler.cpp binary.cpp bits.cpp call.cpp code.cpp codeparser.cpp \
         compiler.cpp imm.cpp const.cpp error.cpp expr.cpp func.cpp functype.cpp \

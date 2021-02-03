@@ -15,6 +15,9 @@ AC_PROG_RANLIB
 AM_PROG_AR
 
 # Checks for libraries.
+PKG_CHECK_MODULES([CAPSTONE], [capstone >= 4.0.0]) # only used by tests
+
+# Checks for library functions.
 
 # Checks for header files.
 AC_CHECK_HEADERS([cerrno cstddef cstdint cstdio cstring])
@@ -48,12 +51,14 @@ done
 # CXXFLAGS="$initial_CXXFLAGS"
 
 
-# Checks for library functions.
+
+AC_SUBST([CAPSTONE_CFLAGS])
+AC_SUBST([CAPSTONE_LIBS])
 
 AC_SUBST(LIBONEJIT_X64, '$(top_builddir)/onejit/x86/libonejit_x86.a')
 AC_SUBST(LIBONEJIT,     '$(top_builddir)/onejit/libonejit.a')
 AC_SUBST(LIBONESTL,     '$(top_builddir)/onestl/libonestl.a')
 
-AC_CONFIG_FILES([Makefile onejit/Makefile onejit/x86/Makefile onestl/Makefile])
+AC_CONFIG_FILES([Makefile onejit/Makefile onejit/x86/Makefile onestl/Makefile test/Makefile])
 
 AC_OUTPUT

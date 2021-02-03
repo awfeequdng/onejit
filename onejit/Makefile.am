@@ -4,7 +4,7 @@ noinst_LIBRARIES       = libonejit.a
 # pkglib_LTLIBRARIES   =
 
 AM_CPPFLAGS            = -I$(top_srcdir)/include
-# libonejit_a_CPPFLAGS = -I$(top_srcdir)/include
+# libonejit_a_CXXFLAGS =
 
 libonejit_a_SOURCES    = \
         archid.cpp assembler.cpp binary.cpp bits.cpp call.cpp code.cpp codeparser.cpp \

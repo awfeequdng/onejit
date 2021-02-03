@@ -1,14 +1,8 @@
-SUBDIRS = onejit onestl
+SUBDIRS = onejit onestl test
 
 pkgdata_DATA           = COPYING README.md
 
-bin_PROGRAMS           = test_jit
+bin_PROGRAMS           =
 
-AM_CPPFLAGS            = -I$(top_srcdir)/include
-# onejit_CPPFLAGS      = -I$(top_srcdir)/include
+# AM_CPPFLAGS          = -I$(top_srcdir)/include
 
-test_jit_SOURCES       = test_main.cpp
-
-EXTRA_test_jit_DEPENDENCIES = $(LIBONEJIT) $(LIBONESTL)
-test_jit_LDADD              = $(LIBONEJIT) $(LIBONESTL)
-# test_jit_LDFLAGS          = -export-dynamic $(LDFLAGS_BIN_EXPORT_DYNAMIC)

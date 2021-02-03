@@ -4,7 +4,7 @@ noinst_LIBRARIES           = libonejit_x86.a
 # pkglib_LTLIBRARIES       =
 
 AM_CPPFLAGS                = -I$(top_srcdir)/include
-# libonejit_x86_a_CPPFLAGS = -I$(top_srcdir)/include
+# libonejit_x86_a_CXXFLAGS =
 
 libonejit_x86_a_SOURCES    = \
         addr.cpp arg.cpp asm_util.cpp asm_x64.cpp asm0_x64.cpp \
