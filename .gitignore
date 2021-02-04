@@ -23,5 +23,4 @@ Makefile
 /go/go
 /include/onejit_config.h
 /include/stamp-h1
-/jit
-/test_jit
+/test/test_jit
