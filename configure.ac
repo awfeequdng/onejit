@@ -19,7 +19,7 @@ AM_PROG_AR
 # capstone is only used by tests, continue even if not found
 PKG_CHECK_MODULES([CAPSTONE], [capstone >= 4.0.0],
                   AC_DEFINE([HAVE_LIBCAPSTONE], 1, [Define to 1 if you have the capstone library.]),
-                  [])
+                  [true])
 
 # Checks for library functions.
 
@@ -39,18 +39,20 @@ do
   save_CXXFLAGS="$CXXFLAGS"
   CXXFLAGS="$CXXFLAGS $try_flag"
   try_flag_id="`echo \"$try_flag\" | tr =+- _x_`"
-  AC_CACHE_CHECK(for C++ compiler flag $try_flag, ac_cv_cflag$try_flag_id, AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-    int ret0(void) {
-      return 0;
-    }
-   ]], [[
-    int a = ret0();
-  ]])],[
-    eval "ac_cv_cflag$try_flag_id=yes"
-  ],[
-    eval "ac_cv_cflag$try_flag_id=no"
-    CXXFLAGS="$save_CXXFLAGS"
-  ]))
+  AC_CACHE_CHECK(for C++ compiler flag $try_flag, ac_cv_cflag$try_flag_id,
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+      int ret0(void) {
+        return 0;
+      }
+     ]], [[
+      int a = ret0();
+    ]])],[
+      eval "ac_cv_cflag$try_flag_id=yes"
+    ],[
+      eval "ac_cv_cflag$try_flag_id=no"
+      CXXFLAGS="$save_CXXFLAGS"
+    ])
+  )
 done
 # CXXFLAGS="$initial_CXXFLAGS"
 
