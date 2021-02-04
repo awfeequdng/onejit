@@ -151,8 +151,8 @@ public:
     return is(gInt, gUint, gFloat, gPtr);
   }
 
-  const Chars &string() const noexcept;
-  const Chars &stringsuffix() const noexcept;
+  const Chars string() const noexcept;
+  const Chars stringsuffix() const noexcept;
 
 private:
   eKind val_;

@@ -29,6 +29,7 @@
 #include <onejit/label.hpp>
 #include <onejit/tuple.hpp>
 #include <onejit/var.hpp>
+#include <onejit/x86/fwd.hpp>
 #include <onejit/x86/scale.hpp>
 
 namespace onejit {
@@ -40,6 +41,8 @@ namespace x86 {
 class Addr : public Tuple {
   using Base = Tuple;
   friend class Node;
+  friend const Fmt &operator<<(const Fmt &out, const x86::Mem &mem);
+  friend const Fmt &operator<<(const Fmt &out, const x86::Addr &addr);
 
 public:
   /**
@@ -97,7 +100,11 @@ private:
 
   static Node create(Func &func, Kind kind, const Label &label, const int32_t offset,
                      const Var &base, const Var &index, Scale scale) noexcept;
+
+  const Fmt &format_body(const Fmt &out) const;
 }; // class Addr
+
+const Fmt &operator<<(const Fmt &out, const Addr &addr);
 
 } // namespace x86
 } // namespace onejit

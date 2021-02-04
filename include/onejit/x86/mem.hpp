@@ -50,17 +50,15 @@ public:
   }
 
   Mem(Func &func, Addr address) noexcept //
-      : Base{func, address.kind(), X64_MEM, address} {
+      : Base{func, address.kind(), X86_MEM, address} {
   }
 
   static constexpr MemType memtype() noexcept {
-    return X64_MEM;
+    return X86_MEM;
   }
 
   // shortcut for child(0).is<Addr>()
-  Addr address() const noexcept {
-    return child(0).is<Addr>();
-  }
+  Addr address() const noexcept;
 
 private:
   // downcast Node to Mem
@@ -69,9 +67,11 @@ private:
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op == X64_MEM;
+    return op == X86_MEM;
   }
 };
+
+const Fmt &operator<<(const Fmt &out, const Mem &mem);
 
 } // namespace x86
 } // namespace onejit

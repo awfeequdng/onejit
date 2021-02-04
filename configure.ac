@@ -15,7 +15,11 @@ AC_PROG_RANLIB
 AM_PROG_AR
 
 # Checks for libraries.
-PKG_CHECK_MODULES([CAPSTONE], [capstone >= 4.0.0]) # only used by tests
+
+# capstone is only used by tests, continue even if not found
+PKG_CHECK_MODULES([CAPSTONE], [capstone >= 4.0.0],
+                  AC_DEFINE([HAVE_LIBCAPSTONE], 1, [Define to 1 if you have the capstone library.]),
+                  [])
 
 # Checks for library functions.
 

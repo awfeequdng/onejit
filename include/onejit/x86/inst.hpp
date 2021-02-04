@@ -59,7 +59,6 @@ private:
 // no-argument x86 instruction
 class Inst0 : public Inst {
   using Base = Inst;
-  using Bytes = onestl::Bytes;
 
 public:
   template <uint8_t N>
@@ -87,7 +86,6 @@ private:
 // one-argument x86 instruction
 class Inst1 : public Inst {
   using Base = Inst;
-  using Bytes = onestl::Bytes;
 
 public:
   constexpr Inst1(const char chars[],       //

@@ -40,7 +40,7 @@ enum eScale : uint8_t {
 
 class Scale {
 public:
-  constexpr Scale() noexcept : val_{0} {
+  constexpr Scale() noexcept : val_{eScale0} {
   }
 
   constexpr /*implicit*/ Scale(eScale val) noexcept : val_{val} {
@@ -54,13 +54,12 @@ public:
     return Scale{eScale(log2p1)};
   }
 
-  constexpr operator bool() const noexcept {
+  constexpr explicit operator bool() const noexcept {
     return val_ != eScale0;
   }
 
-  // log2(val) + 1
-  constexpr uint8_t log2p1() const noexcept {
-    return uint8_t(val_);
+  constexpr eScale log2p1() const noexcept {
+    return val_;
   }
 
   constexpr uint8_t val() const noexcept {
@@ -76,24 +75,50 @@ public:
   }
 
   Scale &operator>>=(uint8_t shift) noexcept {
-    val_ -= shift;
+    val_ = eScale(val_ - shift);
     return *this;
   }
 
   Scale &operator<<=(uint8_t shift) noexcept {
-    val_ += shift;
+    val_ = eScale(val_ + shift);
     return *this;
   }
 
+  const Chars string() const noexcept;
+
 private:
-  uint8_t val_;
+  eScale val_;
 };
+
+inline constexpr bool operator==(Scale a, Scale b) noexcept {
+  return a.log2p1() == b.log2p1();
+}
+inline constexpr bool operator!=(Scale a, Scale b) noexcept {
+  return a.log2p1() != b.log2p1();
+}
+inline constexpr bool operator<(Scale a, Scale b) noexcept {
+  return a.log2p1() < b.log2p1();
+}
+inline constexpr bool operator<=(Scale a, Scale b) noexcept {
+  return a.log2p1() <= b.log2p1();
+}
+inline constexpr bool operator>(Scale a, Scale b) noexcept {
+  return a.log2p1() > b.log2p1();
+}
+inline constexpr bool operator>=(Scale a, Scale b) noexcept {
+  return a.log2p1() >= b.log2p1();
+}
 
 constexpr const Scale Scale0{eScale0};
 constexpr const Scale Scale1{eScale1};
 constexpr const Scale Scale2{eScale2};
 constexpr const Scale Scale4{eScale4};
 constexpr const Scale Scale8{eScale8}; // x86_64 only
+
+const Fmt &operator<<(const Fmt &out, Scale scale);
+inline const Fmt &operator<<(const Fmt &out, eScale escale) {
+  return out << Scale{escale};
+}
 
 } // namespace x86
 } // namespace onejit

@@ -43,7 +43,25 @@ ONEJIT_NOINLINE Node Mem::create(Func &func, Kind kind, MemType memtype, Expr ad
   return Mem{};
 }
 
-static const Chars memclass_string[] = {"mem", "x86_mem", "arm_mem"};
+// shortcut for child(0).is<Expr>()
+Expr Mem::address() const noexcept {
+  return child(0).is<Expr>();
+}
+
+static Mem::formatter_func formatter_vec[memtype_end] = {};
+
+// add a custom formatter_vec for operator<< on Mem subclass
+bool Mem::register_formatter(MemType memtype, formatter_func func) noexcept {
+  if (memtype < memtype_end) {
+    formatter_vec[memtype] = func;
+    return true;
+  }
+  return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+static const Chars memclass_string[] = {"mem", "x86_mem", "arm64_mem"};
 
 const Chars to_string(MemType memtype) noexcept {
   size_t i = 0;
@@ -58,7 +76,13 @@ const Fmt &operator<<(const Fmt &out, MemType memtype) {
 }
 
 const Fmt &operator<<(const Fmt &out, const Mem &mem) {
-  return out << '(' << mem.memtype() << ' ' << mem.child(0) << ')';
+  MemType memtype = mem.memtype();
+  if (memtype < memtype_end) {
+    if (Mem::formatter_func func = formatter_vec[memtype]) {
+      return func(out, mem);
+    }
+  }
+  return out << '(' << memtype << ' ' << mem.child(0) << ')';
 }
 
 } // namespace onejit

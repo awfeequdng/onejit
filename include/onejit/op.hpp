@@ -77,6 +77,8 @@ enum OpN : uint16_t {
   X86_ADDR_SCALE2,
   X86_ADDR_SCALE4,
   X86_ADDR_SCALE8, // x86_64 only
+
+  opn_end, // end-of-enum marker
 };
 
 const Chars to_string(Op1 op) noexcept;

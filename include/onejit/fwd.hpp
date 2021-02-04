@@ -38,6 +38,7 @@
 namespace onejit {
 
 template <class T> using Buffer = ::onestl::Buffer<T>;
+using Bytes = ::onestl::Bytes;
 using Chars = ::onestl::Chars;
 using Fmt = ::onestl::Fmt;
 using Hex = ::onestl::Hex;

@@ -35,8 +35,10 @@ namespace onejit {
 // keep track of Mem subclasses
 enum MemType : uint16_t {
   GENERIC_MEM = 0,
-  X64_MEM = 1,
+  X86_MEM = 1,
   ARM64_MEM = 2,
+
+  memtype_end, // end-of-enum marker
 };
 
 // an unary expression: a memory dereference, either read or write.
@@ -77,9 +79,12 @@ public:
   }
 
   // shortcut for child(0).is<Expr>()
-  Expr address() const noexcept {
-    return child(0).is<Expr>();
-  }
+  Expr address() const noexcept;
+
+  using formatter_func = const Fmt &(*)(const Fmt &, const Mem &);
+
+  // add a custom formatter for operator<< on Mem subclass
+  static bool register_formatter(MemType memtype, formatter_func func) noexcept;
 
 protected:
   // used by subclasses

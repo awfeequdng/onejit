@@ -4418,6 +4418,8 @@ esac
 
 # Checks for libraries.
 
+# capstone is only used by tests, continue even if not found
+
 
 
 
@@ -4627,7 +4629,9 @@ else
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 
-fi # only used by tests
+$as_echo "#define HAVE_LIBCAPSTONE 1" >>confdefs.h
+
+fi
 
 # Checks for library functions.
 

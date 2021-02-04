@@ -51,9 +51,27 @@ Node Tuple::create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept {
   return Tuple{};
 }
 
+static Tuple::formatter_func formatter_vec[opn_end] = {};
+
+// add a custom formatter_vec for operator<< on Tuple subclass
+bool Tuple::register_formatter(OpN op, formatter_func func) noexcept {
+  if (op < opn_end) {
+    formatter_vec[op] = func;
+    return true;
+  }
+  return false;
+}
+
 const Fmt &operator<<(const Fmt &out, const Tuple &expr) {
-  out << '(' << expr.op();
-  const bool is_call = expr.op() == CALL_OP;
+  OpN op = expr.op();
+  if (op < opn_end) {
+    if (Tuple::formatter_func func = formatter_vec[op]) {
+      return func(out, expr);
+    }
+  }
+
+  out << '(' << op;
+  const bool is_call = op == CALL_OP;
   // if op == CALL_OP, skip child(0) i.e. FuncType
   for (size_t i = size_t(is_call), n = expr.children(); i < n; i++) {
     out << ' ' << expr.child(i);

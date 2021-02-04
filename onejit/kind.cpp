@@ -60,7 +60,7 @@ static const Group kgroup[] = {
     gPtr,   gArch,                 // Ptr, ArchFlags
 };
 
-const Chars &Kind::string() const noexcept {
+const Chars Kind::string() const noexcept {
   enum _ { n = ONEJIT_N_OF(kstring) };
   uint8_t i = val_ & 0xF;
   if (i >= n) {
@@ -69,7 +69,7 @@ const Chars &Kind::string() const noexcept {
   return kstring[i];
 }
 
-const Chars &Kind::stringsuffix() const noexcept {
+const Chars Kind::stringsuffix() const noexcept {
   enum _ { n = ONEJIT_N_OF(kstringsuffix) };
   uint8_t i = val_ & 0xF;
   if (i >= n) {

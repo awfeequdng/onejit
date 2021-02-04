@@ -67,5 +67,41 @@ Local Addr::index() const noexcept {
   return child(3).is<Var>().local();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+const Fmt &Addr::format_body(const Fmt &out) const {
+  if (Label label = this->label()) {
+    out << ' ' << label;
+  }
+  if (int32_t offset = this->offset()) {
+    out << ' ' << offset << '_' << Int32.stringsuffix();
+  }
+  if (Local base = this->base()) {
+    out << ' ' << base;
+  }
+  if (Local index = this->index()) {
+    Scale scale = this->scale();
+    if (scale != Scale0) {
+      out << ' ' << index << " * " << scale;
+    }
+  }
+  return out;
+}
+
+const Fmt &operator<<(const Fmt &out, const Addr &addr) {
+  out << '(' << X86_ADDR;
+  addr.format_body(out);
+  return out << ')';
+}
+
+static const Fmt &format_addr(const Fmt &out, const onejit::Tuple &expr) {
+  return out << expr.is<Addr>();
+}
+
+static const bool registered = (Tuple::register_formatter(X86_ADDR, format_addr),
+                                Tuple::register_formatter(X86_ADDR_SCALE1, format_addr),
+                                Tuple::register_formatter(X86_ADDR_SCALE2, format_addr),
+                                Tuple::register_formatter(X86_ADDR_SCALE4, format_addr),
+                                Tuple::register_formatter(X86_ADDR_SCALE8, format_addr));
+
 } // namespace x86
 } // namespace onejit

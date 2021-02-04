@@ -17,5 +17,6 @@ libonejit_a_SOURCES    = \
 EXTRA_libonejit_a_DEPENDENCIES = $(LIBONEJIT_X86)
 # libonejit_a_LDFLAGS  =
 libonejit_a_LIBADD     = \
-        x86/addr.o x86/arg.o x86/asm_util.o x86/asm_x64.o x86/asm0_x64.o \
-        x86/asm1_x64.o x86/asm2_x64.o x86/asm3_x64.o x86/rex_byte_x64.o
+        x86/addr.o x86/arg.o x86/asm_util.o x86/asm_x64.o \
+        x86/asm0_x64.o x86/asm1_x64.o x86/asm2_x64.o x86/asm3_x64.o \
+        x86/mem.o x86/rex_byte_x64.o x86/scale.o

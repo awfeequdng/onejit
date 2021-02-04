@@ -31,6 +31,8 @@
 #include <onejit/x64/reg.hpp>
 #include <onejit/x64/scale.hpp>
 
+#include "test_disasm.hpp"
+
 #include <cstdio> // stdout
 
 #ifdef __unix__
@@ -42,7 +44,7 @@
 
 namespace onejit {
 
-class Test {
+class Test : public TestDisasm {
 public:
   Test();
   ~Test();
@@ -98,7 +100,7 @@ void Test::run() {
   func_loop();
   func_switch1();
   func_switch2();
-  // func_cond();
+  func_cond();
 }
 
 void Test::kind() {
@@ -262,12 +264,14 @@ void Test::nested_expr() {
 }
 
 void Test::x64_expr() {
+  Fmt out{stdout};
+
   Func &f = func.reset(&holder, Name{&holder, "x64_expr"}, FuncType{&holder, {}, {}});
 
   {
     x64::Mem mem{f, x64::Addr{f, Int32, -67890}};
 
-    Chars expected = "(x86_mem (x86_addr _ -67890_i _))";
+    Chars expected = "(x86_mem -67890_i)";
     ONEJIT_TEST(to_string(mem), ==, expected);
   }
 
@@ -280,7 +284,7 @@ void Test::x64_expr() {
 
     assembler.x64(st);
   }
-#elif 1
+#elif 0
   // reg8
   for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
     x64::Reg reg{Uint8, i};
@@ -308,9 +312,9 @@ void Test::x64_expr() {
 
     assembler.x64(st);
   }
-#elif 0
+#elif 1
   // (mem offset _ index scale)
-  for (x64::Scale scale = x64::Scale0; scale <= x64::Scale8; scale <<= 1) {
+  for (x64::Scale scale = x64::Scale1; scale <= x64::Scale8; scale <<= 1) {
     for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
       x64::Reg reg1{Uint64, i};
       x64::Addr address{f, Uint64, 0x7f, Var{}, Var{reg1}, scale};
@@ -318,6 +322,7 @@ void Test::x64_expr() {
       Stmt1 st{f, mem, X86_CALL};
 
       assembler.x64(st);
+      out << st << '\n';
     }
     assembler.x64(Stmt0{X86_NOP});
   }
@@ -335,6 +340,10 @@ void Test::x64_expr() {
     assembler.x64(Stmt0{X86_NOP});
   }
 #endif // 0
+
+  out << "-- capstone -- \n";
+  disasm(out, assembler);
+
   holder.clear();
   assembler.clear();
 
@@ -346,7 +355,10 @@ void Test::x64_expr() {
 
     assembler.x64(st);
 
-    Chars expected = "(x86_call (x86_mem (x86_addr_scale8 label_1 12345_i var100_ul var101_ul)))";
+    Chars expected = "(x86_addr label_1 12345_i var100_ul var101_ul * 8)";
+    ONEJIT_TEST(to_string(address), ==, expected);
+
+    expected = "(x86_call (x86_mem label_1 12345_i var100_ul var101_ul * 8))";
     ONEJIT_TEST(to_string(st), ==, expected);
 
     ONEJIT_TEST(assembler.size(), ==, 7);

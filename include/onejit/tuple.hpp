@@ -61,6 +61,11 @@ public:
     return OpN(Base::op());
   }
 
+  using formatter_func = const Fmt &(*)(const Fmt &, const Tuple &);
+
+  // add a custom formatter for operator<< on Tuple subclass
+  static bool register_formatter(OpN op, formatter_func func) noexcept;
+
 private:
   // used by Compiler::compile(Tuple)
   Tuple(Func &func, Kind kind, OpN op, Nodes nodes) noexcept //
