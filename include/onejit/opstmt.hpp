@@ -367,6 +367,48 @@ enum OpStmtN : uint16_t {
   SWITCH = 5,
 };
 
+constexpr OpStmt0 operator+(OpStmt0 op, int delta) noexcept {
+  return OpStmt0(int(op) + delta);
+}
+constexpr OpStmt0 operator-(OpStmt0 op, int delta) noexcept {
+  return OpStmt0(int(op) - delta);
+}
+
+constexpr OpStmt1 operator+(OpStmt1 op, int delta) noexcept {
+  return OpStmt1(int(op) + delta);
+}
+constexpr OpStmt1 operator-(OpStmt1 op, int delta) noexcept {
+  return OpStmt1(int(op) - delta);
+}
+
+constexpr OpStmt2 operator+(OpStmt2 op, int delta) noexcept {
+  return OpStmt2(int(op) + delta);
+}
+constexpr OpStmt2 operator-(OpStmt2 op, int delta) noexcept {
+  return OpStmt2(int(op) - delta);
+}
+
+constexpr OpStmt3 operator+(OpStmt3 op, int delta) noexcept {
+  return OpStmt3(int(op) + delta);
+}
+constexpr OpStmt3 operator-(OpStmt3 op, int delta) noexcept {
+  return OpStmt3(int(op) - delta);
+}
+
+constexpr OpStmt4 operator+(OpStmt4 op, int delta) noexcept {
+  return OpStmt4(int(op) + delta);
+}
+constexpr OpStmt4 operator-(OpStmt4 op, int delta) noexcept {
+  return OpStmt4(int(op) - delta);
+}
+
+constexpr OpStmtN operator+(OpStmtN op, int delta) noexcept {
+  return OpStmtN(int(op) + delta);
+}
+constexpr OpStmtN operator-(OpStmtN op, int delta) noexcept {
+  return OpStmtN(int(op) - delta);
+}
+
 const Chars to_string(OpStmt0 op) noexcept;
 const Chars to_string(OpStmt1 op) noexcept;
 const Chars to_string(OpStmt2 op) noexcept;

@@ -268,87 +268,114 @@ void Test::x64_expr() {
   }
 
   Assembler assembler;
-#if 0
   // imm
   for (int16_t val = -0x90; val <= 0x90; val += 0x10) {
     Const c{Int32, val};
     Stmt1 st{f, c, X86_PUSH};
 
-    assembler.x64(st);
+    test_asm_disasm_x64(st, assembler);
   }
-#elif 0
+
   // reg8
   for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
-    x64::Reg reg{Uint8, i};
-    Stmt1 st{f, Var{reg}, X86_SETAE};
-
-    assembler.x64(st);
-  }
-#elif 0
-  // reg16, reg64
-  for (Kind kind : {Uint16, Uint64}) {
-    for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
-      x64::Reg reg{kind, i};
-      Stmt1 st{f, Var{reg}, X86_POP};
+    Var var{x64::Reg{Uint8, i}};
+    for (OpStmt1 op = X86_SETA; op <= X86_SETS; op = op + 1) {
+      Stmt1 st{f, var, op};
 
       test_asm_disasm_x64(st, assembler);
     }
   }
-#endif
 
   // reg8, reg16, reg32, reg64
-  for (OpStmt1 op : {X86_DEC, X86_INC, X86_NEG, X86_NOT}) {
-    for (Kind kind : {Uint8, Uint16, Uint32, Uint64}) {
-      for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
-        x64::Reg reg{kind, i};
-        Stmt1 st{f, Var{reg}, op};
+  for (Kind kind : {Uint8, Uint16, Uint32, Uint64}) {
+    for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
+      Var var{x64::Reg{kind, i}};
+
+      for (OpStmt1 op : {X86_DEC, X86_INC, X86_NEG, X86_NOT, X86_POP, X86_PUSH}) {
+        if ((op == X86_POP || op == X86_PUSH) && kind != Uint16 && kind != Uint64) {
+          // on x64, pop and push only support 16 bit or 64 bit argument
+          break;
+        }
+        Stmt1 st{f, var, op};
 
         test_asm_disasm_x64(st, assembler);
       }
     }
   }
 
-#if 0
   // (mem offset base)
+  for (Kind kind : {Uint8, Uint16, Uint32, Uint64}) {
+    for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
+      x64::Reg base{Uint64, i};
+      x64::Mem mem{f, kind, 0x7f, Var{base}};
+
+      for (OpStmt1 op : {/*X86_DEC, X86_INC, X86_NEG, X86_NOT,*/ X86_POP, X86_PUSH}) {
+        if ((op == X86_POP || op == X86_PUSH) && kind != Uint16 && kind != Uint64) {
+          // on x64, pop and push only support 16 bit or 64 bit argument
+          break;
+        }
+        Stmt1 st{f, mem, op};
+
+        test_asm_disasm_x64(st, assembler);
+      }
+    }
+  }
+
+  // (mem64 offset base)
   for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
-    x64::Reg reg1{Uint64, i};
-    x64::Mem mem{f, Uint64, 0x7f, Var{reg1}};
+    x64::Reg base{Uint64, i};
+    x64::Mem mem{f, Uint64, 0x7f, Var{base}};
     Stmt1 st{f, mem, X86_CALL};
 
-    assembler.x64(st);
+    test_asm_disasm_x64(st, assembler);
   }
-#elif 0
-  // (mem offset _ index scale)
-  for (x64::Scale scale = x64::Scale1; scale <= x64::Scale8; scale <<= 1) {
-    for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
-      x64::Reg reg1{Uint64, i};
-      x64::Mem mem{f, Uint64, 0x7f, Var{}, Var{reg1}, scale};
-      Stmt1 st{f, mem, X86_CALL};
 
-      assembler.x64(st);
+  // (mem offset _ index scale)
+  for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
+    if (i == x64::RSP) {
+      // cannot encode RSP as index register
+      continue;
     }
-    assembler.x64(Stmt0{X86_NOP});
+    x64::Reg index{Uint64, i};
+
+    for (x64::Scale scale = x64::Scale1; scale <= x64::Scale8; scale <<= 1) {
+      x64::Mem mem{f, Uint64, 0x7f, Var{}, Var{index}, scale};
+
+      for (OpStmt1 op : {X86_CALL, X86_JMP}) {
+        Stmt1 st{f, mem, op};
+
+        test_asm_disasm_x64(st, assembler);
+      }
+    }
   }
-#elif 0
+
   // (mem offset base index scale)
   for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
+    x64::Reg base{Uint64, i};
     for (x64::RegId j = x64::RAX; j <= x64::R15; j = j + 1) {
-      x64::Reg reg1{Uint64, i}, reg2{Uint64, j};
-      x64::Mem mem{f, Uint64, 0x7f /*0x77665544*/, Var{reg1}, Var{reg2}, x64::Scale1};
-      Stmt1 st{f, mem, X86_JMP};
+      if (j == x64::RSP) {
+        // cannot encode RSP as index register
+        continue;
+      }
+      x64::Reg base{Uint64, i}, index{Uint64, j};
+      for (x64::Scale scale = x64::Scale1; scale <= x64::Scale8; scale <<= 1) {
+        x64::Mem mem{f, Uint64, 0x7f /*0x77665544*/, Var{base}, Var{index}, scale};
 
-      assembler.x64(st);
+        for (OpStmt1 op : {X86_CALL, X86_JMP}) {
+          Stmt1 st{f, mem, op};
+
+          test_asm_disasm_x64(st, assembler);
+        }
+      }
     }
-    assembler.x64(Stmt0{X86_NOP});
   }
-#endif // 0
 
   holder.clear();
   assembler.clear();
 
   {
-    x64::Reg reg1{Uint64, x64::RAX}, reg2{Uint64, x64::RCX};
-    x64::Mem mem{f, Label{f}, 12345, Var{reg1}, Var{reg2}, x64::Scale8};
+    x64::Reg base{Uint64, x64::RAX}, index{Uint64, x64::RCX};
+    x64::Mem mem{f, Label{f}, 12345, Var{base}, Var{index}, x64::Scale8};
     Stmt1 st{f, mem, X86_CALL};
 
     assembler.x64(st);

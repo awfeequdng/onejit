@@ -77,6 +77,27 @@ enum OpN : uint16_t {
   ARM64_MEM,
 };
 
+constexpr Op1 operator+(Op1 op, int delta) noexcept {
+  return Op1(int(op) + delta);
+}
+constexpr Op1 operator-(Op1 op, int delta) noexcept {
+  return Op1(int(op) - delta);
+}
+
+constexpr Op2 operator+(Op2 op, int delta) noexcept {
+  return Op2(int(op) + delta);
+}
+constexpr Op2 operator-(Op2 op, int delta) noexcept {
+  return Op2(int(op) - delta);
+}
+
+constexpr OpN operator+(OpN op, int delta) noexcept {
+  return OpN(int(op) + delta);
+}
+constexpr OpN operator-(OpN op, int delta) noexcept {
+  return OpN(int(op) - delta);
+}
+
 const Chars to_string(Op1 op) noexcept;
 const Chars to_string(Op2 op) noexcept;
 const Chars to_string(OpN op) noexcept;
