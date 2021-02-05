@@ -278,17 +278,22 @@ void Test::x64_expr() {
   Assembler assembler;
 
   // imm
-  for (int16_t val = -0x90; val <= 0x90; val += 0x10) {
-    Const c{Int32, val};
-    Stmt1 st{f, c, X86_PUSH};
+  for (OpStmt1 op = X86_JA; op <= X86_JMP + 1; op = op + 1) {
+    if (op == X86_JMP + 1) {
+      op = X86_PUSH;
+    }
+    for (int16_t val = -0x1000; val <= 0x1000; val += 0x37) {
+      Const c{Int32, val};
+      Stmt1 st{f, c, op};
 
-    test_asm_disasm_x64(st, assembler);
+      test_asm_disasm_x64(st, assembler);
+    }
   }
 
   // reg8
-  for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
-    x64::Reg reg{Uint8, i};
-    for (OpStmt1 op = X86_SETA; op <= X86_SETS; op = op + 1) {
+  for (OpStmt1 op = X86_SETA; op <= X86_SETS; op = op + 1) {
+    for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
+      x64::Reg reg{Uint8, i};
       Stmt1 st{f, Var{reg}, op};
       test_asm_disasm_x64(st, assembler);
     }

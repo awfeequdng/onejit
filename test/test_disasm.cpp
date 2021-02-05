@@ -58,7 +58,7 @@ const Fmt &TestDisasm::disasm(const Fmt &out, Bytes bytes) {
     return out << "capstone initialization error";
   }
   cs_insn *insn = nullptr;
-  size_t count = cs_disasm(handle_, bytes.data(), bytes.size(), 0x1000, 0, &insn);
+  size_t count = cs_disasm(handle_, bytes.data(), bytes.size(), 0x0, 0, &insn);
   if (count <= 0) {
     return out << "capstone disassemble error";
   }
@@ -80,10 +80,10 @@ const Fmt &TestDisasm::format(const Fmt &out, const cs_insn *insn) {
     cs_x86_op *op = detail->x86.operands + i;
     switch (op->type) {
     case X86_OP_REG:
-      out << " " << cs_reg_name(handle_, op->reg);
+      out << ' ' << cs_reg_name(handle_, op->reg);
       break;
     case X86_OP_IMM:
-      out << ' ' << op->imm;
+      out << ' ' << fix_immediate(insn, op->imm);
       break;
     case X86_OP_MEM:
       out << " (x86_mem" << (op->size * 8);
@@ -104,6 +104,39 @@ const Fmt &TestDisasm::format(const Fmt &out, const cs_insn *insn) {
     }
   }
   return out << ')';
+}
+
+static bool is_jump(cs_group_type group) noexcept {
+  switch (group) {
+  case CS_GRP_JUMP:
+  case CS_GRP_CALL:
+  case CS_GRP_BRANCH_RELATIVE:
+    return true;
+  default:
+    return false;
+  }
+}
+
+static bool is_jump(const cs_detail *detail) noexcept {
+  for (size_t i = 0, n = detail->groups_count; i < n; i++) {
+    if (is_jump(cs_group_type(detail->groups[i]))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * capstone computes absolute destination address of jumps,
+ * while we want relative address from end of disassembled instruction.
+ *
+ * fix it.
+ */
+int64_t TestDisasm::fix_immediate(const cs_insn *insn, int64_t imm) noexcept {
+  if (is_jump(insn->detail)) {
+    return int32_t(imm - insn->size);
+  }
+  return imm;
 }
 
 void TestDisasm::test_asm_disasm_x64(const Node &node, Assembler &assembler) {

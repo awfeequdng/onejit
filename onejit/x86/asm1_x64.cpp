@@ -56,8 +56,8 @@ static const Inst1 inst1_vec[] = {
     /*          imm8      imm32                                                   */ /*-------- */
     Inst1{"", "\x77", "\x0f\x87", Arg1::Val, B0, B8 | B32, EFread},                  /* ja      */
     Inst1{"", "\x73", "\x0f\x83", Arg1::Val, B0, B8 | B32, EFread},                  /* jae     */
-    Inst1{"", "\x72", "\x0f\x86", Arg1::Val, B0, B8 | B32, EFread},                  /* jb      */
-    Inst1{"", "\x76", "\x0f\x82", Arg1::Val, B0, B8 | B32, EFread},                  /* jbe     */
+    Inst1{"", "\x72", "\x0f\x82", Arg1::Val, B0, B8 | B32, EFread},                  /* jb      */
+    Inst1{"", "\x76", "\x0f\x86", Arg1::Val, B0, B8 | B32, EFread},                  /* jbe     */
     Inst1{"", "\x74", "\x0f\x84", Arg1::Val, B0, B8 | B32, EFread},                  /* je      */
     Inst1{"", "\x7f", "\x0f\x8f", Arg1::Val, B0, B8 | B32, EFread},                  /* jg      */
     Inst1{"", "\x7d", "\x0f\x8d", Arg1::Val, B0, B8 | B32, EFread},                  /* jge     */
