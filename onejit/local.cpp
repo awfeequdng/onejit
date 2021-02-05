@@ -23,9 +23,11 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/archid.hpp>
+#include <onejit/arm64/regid.hpp>
 #include <onejit/fmt.hpp>
 #include <onejit/local.hpp>
-#include <onejit/x86/regid.hpp>
+#include <onejit/x64/regid.hpp>
 #include <onestl/chars.hpp>
 
 namespace onejit {
@@ -37,9 +39,9 @@ static const Fmt &format_reg_noarch(const Fmt &out, Id id, Kind kind) {
              << '_' << kind.stringsuffix();
 }
 
-// ----------------------------------- x86 -------------------------------------
+// ----------------------------------- x64 -------------------------------------
 
-static const char string_reg_x86[4 * 4 * 16] =         //
+static const char string_reg_x64[4 * 4 * 16] =         //
     "al\0\0cl\0\0dl\0\0bl\0\0spl\0bpl\0sil\0dil\0"     //
     "r8b\0r9b\0r10br11br12br13br14br15b"               //
     "ax\0\0cx\0\0dx\0\0bx\0\0sp\0\0bp\0\0si\0\0di\0\0" //
@@ -49,23 +51,38 @@ static const char string_reg_x86[4 * 4 * 16] =         //
     "rax\0rcx\0rdx\0rbx\0rsp\0rbp\0rsi\0rdi\0"         //
     "r8\0\0r9\0\0r10\0r11\0r12\0r13\0r14\0r15";
 
-static const Fmt &format_reg_x86(const Fmt &out, Id id, Kind kind) {
+static const Fmt &format_reg_x64(const Fmt &out, Id id, Kind kind) {
   eBits ebits = kind.bits().ebits();
   uint32_t x = id.val();
-  if (x >= x86::RAX && x <= x86::R15) {
+  if (x >= x64::RAX && x <= x64::R15) {
     if (ebits < eBits8 || ebits > eBits64) {
       ebits = eBits64;
     }
-    const char *addr = string_reg_x86 + (id.val() & 0xF) * 4 + (ebits - eBits8) * 64;
+    const char *addr = string_reg_x64 + (id.val() & 0xF) * 4 + (ebits - eBits8) * 64;
     size_t len = addr[3] ? 4 : addr[2] ? 3 : 2;
     return out << Chars{addr, len};
 
-  } else if (x == x86::RIP) {
+  } else if (x == x64::RIP) {
     return out << Chars{ebits <= eBits32 ? "eip" : "rip", 3};
 
-  } else if (x >= x86::XMM0 && x <= x86::XMM31) {
+  } else if (x >= x64::XMM0 && x <= x64::XMM31) {
     return out << Chars{ebits <= eBits128 ? "xmm" : ebits == eBits256 ? "ymm" : "zmm", 3}
-               << (x - x86::XMM0);
+               << (x - x64::XMM0);
+  } else {
+    return format_reg_noarch(out, id, kind);
+  }
+}
+
+// ----------------------------------- arm64 -----------------------------------
+
+static const Fmt &format_reg_arm64(const Fmt &out, Id id, Kind kind) {
+  eBits ebits = kind.bits().ebits();
+  uint32_t x = id.val();
+  if (x >= arm64::X0 && x <= arm64::X31) {
+    return out << ((ebits <= eBits32) ? 'w' : 'x') << (x - arm64::X0);
+  } else if (x >= arm64::V0 && x <= arm64::V31) {
+    size_t i = (ebits <= eBits8) ? 0 : (ebits >= eBits128) ? 4 : ebits - eBits8;
+    return out << "bhsdq"[i] << (x - arm64::V0);
   } else {
     return format_reg_noarch(out, id, kind);
   }
@@ -80,9 +97,13 @@ const Fmt &operator<<(const Fmt &out, Id id) {
 const Fmt &operator<<(const Fmt &out, Local local) {
   Id id = local.id();
   Kind kind = local.kind();
-  if (id.val() >= x86::RAX && id.val() <= x86::XMM31) {
-    return format_reg_x86(out, id, kind);
-  } else {
+
+  switch (eArchId(id.val() >> 8)) {
+  case eArchId::X64:
+    return format_reg_x64(out, id, kind);
+  case eArchId::ARM64:
+    return format_reg_arm64(out, id, kind);
+  default:
     return format_reg_noarch(out, id, kind);
   }
 }

@@ -32,10 +32,10 @@ static const Chars archstring[] = {
     "NOARCH", "X64", "ARM64", "ARM", "X86",
 };
 
-const Chars &ArchId::string() const noexcept {
-  uint8_t i = val_;
-  if (i >= sizeof(archstring) / sizeof(archstring[0])) {
-    i = 0;
+Chars ArchId::string() const noexcept {
+  size_t i = 0;
+  if (size_t(val_) < ONEJIT_N_OF(archstring)) {
+    i = size_t(val_);
   }
   return archstring[i];
 }
