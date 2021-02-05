@@ -37,20 +37,17 @@ class Expr : public Node {
   friend class Node;
 
 public:
+  /**
+   * construct an invalid Expr.
+   * exists only to allow placing Expr in containers
+   * and similar uses that require a default constructor.
+   *
+   * to construct a valid Expr, use one of the subclasses constructors
+   */
   constexpr Expr() noexcept : Base{} {
   }
 
 protected:
-  /* construct and invalid Expr */
-  constexpr explicit Expr(const Type t) noexcept //
-      : Base{NodeHeader{t, Bad, 0}, 0, nullptr} {
-  }
-
-  /* construct and invalid Expr */
-  constexpr Expr(const Type t, uint16_t op) noexcept //
-      : Base{NodeHeader{t, Bad, op}, 0, nullptr} {
-  }
-
   // downcast Node to Expr
   constexpr explicit Expr(const Node &node) noexcept : Base{node} {
   }

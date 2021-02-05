@@ -85,9 +85,9 @@ class Imm {
   friend class Const;
 
 public:
-  // construct a Void imm. equivalent to C/C++ source "(void)0"
+  // construct an invalid imm.
   constexpr Imm() noexcept //
-      : bits_{}, ekind_{eVoid}, direct_{Direct{uint16_t(0), ekind_}} {
+      : bits_{}, ekind_{eBad}, direct_{} {
   }
   constexpr explicit Imm(bool val) noexcept //
       : bits_{uint64_t(val)}, ekind_{eBool}, direct_{Direct{uint16_t(val), ekind_}} {
@@ -297,11 +297,13 @@ private:
   uint64_t bits_;
   eKind ekind_;
   uint32_t direct_;
-};
+}; // namespace onejit
 
-constexpr const Imm VoidImm{};
+#if 0  // unused
+constexpr const Imm VoidImm{Void, 0};
 constexpr const Imm TrueImm{true};
 constexpr const Imm FalseImm{false};
+#endif // 0
 
 constexpr inline bool operator==(Imm a, Imm b) noexcept {
   return a.kind() == b.kind() && a.uint64() == b.uint64();

@@ -270,7 +270,7 @@ void Test::x64_expr() {
   {
     x64::Mem mem{f, Int32, -67890};
 
-    Chars expected = "(x86_mem _ -67890_i)";
+    Chars expected = "(x86_mem -67890)";
     ONEJIT_TEST(to_string(mem), ==, expected);
   }
 
@@ -350,10 +350,10 @@ void Test::x64_expr() {
 
     assembler.x64(st);
 
-    Chars expected = "(x86_mem label_1 12345_i var100_ul var101_ul 8_ub)";
+    Chars expected = "(x86_mem label_1 12345 var100_ul var101_ul 8)";
     ONEJIT_TEST(to_string(mem), ==, expected);
 
-    expected = "(x86_call (x86_mem label_1 12345_i var100_ul var101_ul 8_ub))";
+    expected = "(x86_call (x86_mem label_1 12345 var100_ul var101_ul 8))";
     ONEJIT_TEST(to_string(st), ==, expected);
 
     ONEJIT_TEST(assembler.size(), ==, 7);
@@ -393,24 +393,24 @@ void Test::func_fib() {
                        Call{f, f, {Binary{f, SUB, n, two}}}}}, //
          Return{f, one}});                                     //
 
-  Chars expected = "(if (> var1000_ul 2_ul)\n\
-    (return (+ (call label_0 (- var1000_ul 1_ul)) (call label_0 (- var1000_ul 2_ul))))\n\
-    (return 1_ul))";
+  Chars expected = "(if (> var1000_ul 2)\n\
+    (return (+ (call label_0 (- var1000_ul 1)) (call label_0 (- var1000_ul 2))))\n\
+    (return 1))";
   ONEJIT_TEST(to_string(f.get_body()), ==, expected);
 
   compile(f);
 
   expected = "(block\n\
-    (jump_if label_1 (! (> var1000_ul 2_ul)))\n\
-    (= var1002_ul (- var1000_ul 1_ul))\n\
+    (jump_if label_1 (! (> var1000_ul 2)))\n\
+    (= var1002_ul (- var1000_ul 1))\n\
     (= var1003_ul (call label_0 var1002_ul))\n\
-    (= var1004_ul (- var1000_ul 2_ul))\n\
+    (= var1004_ul (- var1000_ul 2))\n\
     (= var1005_ul (call label_0 var1004_ul))\n\
     (= var1001_ul (+ var1003_ul var1005_ul))\n\
     (return var1001_ul)\n\
     (goto label_2)\n\
     label_1\n\
-    (= var1001_ul 1_ul)\n\
+    (= var1001_ul 1)\n\
     (return var1001_ul)\n\
     label_2)";
   ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
@@ -452,8 +452,8 @@ void Test::func_loop() {
              Return{f, total}}});
 
   Chars expected = "(block\n\
-    (= var1001_ul 0_ul)\n\
-    (for (= var1002_ul 0_ul) (< var1002_ul var1000_ul) (++ var1002_ul)\n\
+    (= var1001_ul 0)\n\
+    (for (= var1002_ul 0) (< var1002_ul var1000_ul) (++ var1002_ul)\n\
     (+= var1001_ul var1002_ul))\n\
     (return var1001_ul))";
   ONEJIT_TEST(to_string(f.get_body()), ==, expected);
@@ -461,8 +461,8 @@ void Test::func_loop() {
   compile(f);
 
   expected = "(block\n\
-    (= var1001_ul 0_ul)\n\
-    (= var1002_ul 0_ul)\n\
+    (= var1001_ul 0)\n\
+    (= var1002_ul 0)\n\
     (goto label_2)\n\
     label_1\n\
     (+= var1001_ul var1002_ul)\n\
@@ -518,26 +518,26 @@ void Test::func_switch1() {
   Chars expected = "(block\n\
     (switch\n\
     var1000_ul\n\
-    (case 0_ul (= var1001_ul 1_ul))\n\
-    (case 1_ul (= var1001_ul 2_ul))\n\
-    (default (= var1001_ul (+ var1000_ul 1_ul))))\n\
+    (case 0 (= var1001_ul 1))\n\
+    (case 1 (= var1001_ul 2))\n\
+    (default (= var1001_ul (+ var1000_ul 1))))\n\
     (return var1001_ul))";
   ONEJIT_TEST(to_string(f.get_body()), ==, expected);
 
   compile(f);
 
   expected = "(block\n\
-    (jump_if label_2 (!= var1000_ul 0_ul))\n\
-    (= var1001_ul 1_ul)\n\
+    (jump_if label_2 (!= var1000_ul 0))\n\
+    (= var1001_ul 1)\n\
     (goto label_1)\n\
     label_2\n\
-    (jump_if label_4 (!= var1000_ul 1_ul))\n\
+    (jump_if label_4 (!= var1000_ul 1))\n\
     label_3\n\
-    (= var1001_ul 2_ul)\n\
+    (= var1001_ul 2)\n\
     (goto label_1)\n\
     label_4\n\
     label_5\n\
-    (= var1001_ul (+ var1000_ul 1_ul))\n\
+    (= var1001_ul (+ var1000_ul 1))\n\
     label_1\n\
     (return var1001_ul))";
   ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
@@ -587,27 +587,27 @@ void Test::func_switch2() {
   Chars expected = "(block\n\
     (switch\n\
     var1000_ul\n\
-    (case 0_ul (= var1001_ul 1_ul))\n\
-    (default (= var1001_ul (+ var1000_ul 1_ul)))\n\
-    (case 1_ul (= var1001_ul 2_ul)))\n\
+    (case 0 (= var1001_ul 1))\n\
+    (default (= var1001_ul (+ var1000_ul 1)))\n\
+    (case 1 (= var1001_ul 2)))\n\
     (return var1001_ul))";
   ONEJIT_TEST(to_string(f.get_body()), ==, expected);
 
   compile(f);
 
   expected = "(block\n\
-    (jump_if label_2 (!= var1000_ul 0_ul))\n\
-    (= var1001_ul 1_ul)\n\
+    (jump_if label_2 (!= var1000_ul 0))\n\
+    (= var1001_ul 1)\n\
     (goto label_1)\n\
     label_2\n\
     (goto label_4)\n\
     label_3\n\
-    (= var1001_ul (+ var1000_ul 1_ul))\n\
+    (= var1001_ul (+ var1000_ul 1))\n\
     (goto label_1)\n\
     label_4\n\
-    (jump_if label_3 (!= var1000_ul 1_ul))\n\
+    (jump_if label_3 (!= var1000_ul 1))\n\
     label_5\n\
-    (= var1001_ul 2_ul)\n\
+    (= var1001_ul 2)\n\
     label_1\n\
     (return var1001_ul))";
   ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
@@ -651,28 +651,28 @@ void Test::func_cond() {
 
   Chars expected = "(block\n\
     (cond\n\
-    (== var1000_ul 0_ul)\n\
-    (= var1001_ul 1_ul)\n\
-    (== var1000_ul 1_ul)\n\
-    (= var1001_ul 2_ul)\n\
-    true_e\n\
-    (= var1001_ul (+ var1000_ul 1_ul)))\n\
+    (== var1000_ul 0)\n\
+    (= var1001_ul 1)\n\
+    (== var1000_ul 1)\n\
+    (= var1001_ul 2)\n\
+    true\n\
+    (= var1001_ul (+ var1000_ul 1)))\n\
     (return var1001_ul))";
   ONEJIT_TEST(to_string(f.get_body()), ==, expected);
 
   compile(f);
 
   expected = "(block\n\
-    (jump_if label_2 (! (== var1000_ul 0_ul)))\n\
-    (= var1001_ul 1_ul)\n\
+    (jump_if label_2 (! (== var1000_ul 0)))\n\
+    (= var1001_ul 1)\n\
     (goto label_1)\n\
     label_2\n\
-    (jump_if label_3 (! (== var1000_ul 1_ul)))\n\
-    (= var1001_ul 2_ul)\n\
+    (jump_if label_3 (! (== var1000_ul 1)))\n\
+    (= var1001_ul 2)\n\
     (goto label_1)\n\
     label_3\n\
-    (jump_if label_1 (! true_e))\n\
-    (= var1001_ul (+ var1000_ul 1_ul))\n\
+    (jump_if label_1 (! true))\n\
+    (= var1001_ul (+ var1000_ul 1))\n\
     label_1\n\
     (return var1001_ul))";
   ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);

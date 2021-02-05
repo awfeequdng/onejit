@@ -58,7 +58,10 @@ const Fmt &operator<<(const Fmt &out, const Tuple &expr) {
   const bool is_call = op == CALL;
   // if op == CALL, skip child(0) i.e. FuncType
   for (size_t i = size_t(is_call), n = expr.children(); i < n; i++) {
-    out << ' ' << expr.child(i);
+    Node child = expr.child(i);
+    if (child) {
+      out << ' ' << child;
+    }
   }
   return out << ')';
 }

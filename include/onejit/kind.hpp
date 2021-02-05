@@ -64,7 +64,8 @@ constexpr inline eKind operator-(eKind a, int b) noexcept {
 
 class Kind {
 public:
-  constexpr Kind() noexcept : val_{eVoid} {
+  // construct an invalid Kind
+  constexpr Kind() noexcept : val_{eBad} {
   }
 
   constexpr Kind(eKind ekind) noexcept : val_{ekind} {

@@ -38,19 +38,20 @@ Imm Const::imm() const noexcept {
 }
 
 Node Const::create(Func &func, const Imm &imm) noexcept {
-  const NodeHeader header{CONST, imm.kind(), 0};
+  if (imm) {
+    const NodeHeader header{CONST, imm.kind(), 0};
 
-  if (imm.is_direct()) {
-    return Node{header, imm.direct(), nullptr};
-  }
-  while (Code *holder = func.code()) {
-    CodeItem offset = holder->length();
-
-    if (holder->add(header) && imm.write_indirect(holder)) {
-      return Node{header, offset, holder};
+    if (imm.is_direct()) {
+      return Node{header, imm.direct(), nullptr};
     }
-    holder->truncate(offset);
-    break;
+    if (Code *holder = func.code()) {
+      CodeItem offset = holder->length();
+
+      if (holder->add(header) && imm.write_indirect(holder)) {
+        return Node{header, offset, holder};
+      }
+      holder->truncate(offset);
+    }
   }
   return Node{};
 }

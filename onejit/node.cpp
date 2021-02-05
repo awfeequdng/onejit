@@ -75,9 +75,11 @@ Node Node::child(uint32_t i) const noexcept {
   // 0b0110 => unused
   // 0b1110 => NodeHeader
 
-  if (item < 4) {
+  if (item == 0) {
+    // nothing to do
+  } else if (item < 4) {
     // special case: Stmt0 is always direct,
-    // only four values exist: BadStmt Break Continue Fallthrough
+    // only four values exist: BadStmt (handled above) Break Continue Fallthrough
     header = NodeHeader{STMT_0, Void, uint16_t(item)};
   } else if ((item & 1) != 0) {
     // direct Imm

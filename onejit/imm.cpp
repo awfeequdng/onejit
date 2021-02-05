@@ -82,10 +82,9 @@ const Fmt &operator<<(const Fmt &out, const Imm &imm) {
     out << '?';
     break;
   }
-  out << '_' << kind.stringsuffix();
   const size_t n = kind.simdn().val();
-  if (n != 1) {
-    out << 'x' << n;
+  if (n > 1) {
+    out << '_' << kind.stringsuffix() << 'x' << n;
   }
   return out;
 }

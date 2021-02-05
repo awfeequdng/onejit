@@ -153,7 +153,7 @@ constexpr inline bool operator!=(Local a, Local b) noexcept {
   return a.kind() != b.kind() || a.id() != b.id();
 }
 
-const Fmt &operator<<(const Fmt &out, Local var);
+const Fmt &operator<<(const Fmt &out, Local local);
 
 } // namespace onejit
 

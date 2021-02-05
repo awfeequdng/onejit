@@ -24,6 +24,7 @@
  */
 
 #include <onejit/local.hpp>
+#include <onejit/x86/regid.hpp>
 #include <onestl/chars.hpp>
 #include <onestl/fmt.hpp>
 
