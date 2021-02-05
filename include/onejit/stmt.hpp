@@ -56,7 +56,7 @@ protected:
   }
 
 private:
-  // needed by Stmt0{op} constructor
+  // needed by Stmt0{Node} constructor
   constexpr Stmt(Type t, Kind kind, uint16_t op) noexcept
       : Base{NodeHeader{t, kind, op}, 0, nullptr} {
   }

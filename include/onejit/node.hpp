@@ -51,6 +51,7 @@ class Node {
   friend class Mem;
   friend class Name;
   friend class Return;
+  friend class Stmt0;
   friend class Stmt1;
   friend class Stmt2;
   friend class Stmt3;

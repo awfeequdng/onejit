@@ -69,7 +69,8 @@ public:
 
 protected:
   // downcast Node to Stmt0
-  constexpr explicit Stmt0(const Node &node) noexcept : Base{node} {
+  constexpr explicit Stmt0(const Node &node) noexcept //
+      : Base{Node{node.header(), node.offset_or_direct(), nullptr}} {
   }
 
   // downcast helper

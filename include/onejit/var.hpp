@@ -77,7 +77,7 @@ public:
   }
 
 private:
-  // downcast Node to Const
+  // downcast Node to Var
   constexpr explicit Var(const Node &node) noexcept //
       : Base{Node{node.header(), node.offset_or_direct(),
                   node.offset_or_direct() & 2 ? nullptr : node.code()}} {
