@@ -47,7 +47,7 @@ static const char string_reg_x64[4 * 4 * 16] =         //
     "ax\0\0cx\0\0dx\0\0bx\0\0sp\0\0bp\0\0si\0\0di\0\0" //
     "r8w\0r9w\0r10wr11wr12wr13wr14wr15w"               //
     "eax\0ecx\0edx\0ebx\0esp\0ebp\0esi\0edi\0"         //
-    "r8l\0r9l\0r10lr11lr12lr13lr14lr15l"               //
+    "r8d\0r9d\0r10dr11dr12dr13dr14dr15d"               //
     "rax\0rcx\0rdx\0rbx\0rsp\0rbp\0rsi\0rdi\0"         //
     "r8\0\0r9\0\0r10\0r11\0r12\0r13\0r14\0r15";
 

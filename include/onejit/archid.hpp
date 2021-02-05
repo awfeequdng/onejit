@@ -34,9 +34,9 @@ namespace onejit {
 
 enum class eArchId : uint8_t {
   NOARCH = 0,
-  X64 = 1, // alias for x86_64 and amd64
+  X64 = 1, // alias for x86_64, amd64
   ARM64 = 2,
-  X86 = 3, // 32 bit i386 / i486 / i586 ...
+  X86 = 3, // 32-bit i386, i486, i586 ...
   ARM = 4,
 };
 

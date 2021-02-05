@@ -32,15 +32,19 @@ static const char sstring[6] = {'0', '1', '2', '4', '8', '?'};
 
 const Chars Scale::string() const noexcept {
   enum _ { n = ONEJIT_N_OF(sstring) };
-  uint8_t i = val_;
+  size_t i = val_;
   if (i >= n) {
     i = n - 1; // "?"
   }
   return Chars{sstring + i, 1};
 }
 
-const Fmt &operator<<(const Fmt &out, Scale scale) {
+ONEJIT_NOINLINE const Fmt &operator<<(const Fmt &out, Scale scale) {
   return out << scale.string();
+}
+
+const Fmt &operator<<(const Fmt &out, eScale escale) {
+  return out << Scale{escale};
 }
 
 } // namespace x86

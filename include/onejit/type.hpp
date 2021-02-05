@@ -60,7 +60,7 @@ constexpr inline bool is_list(Type t) noexcept {
 
 uint32_t to_children(Type t) noexcept;
 
-const Chars &to_string(Type t) noexcept;
+const Chars to_string(Type t) noexcept;
 
 const Fmt &operator<<(const Fmt &out, Type t);
 

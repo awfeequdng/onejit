@@ -50,7 +50,7 @@ uint32_t to_children(Type t) noexcept {
   return (uint32_t)tchildren[i];
 }
 
-const Chars &to_string(Type t) noexcept {
+const Chars to_string(Type t) noexcept {
   const uint8_t n = ONEJIT_N_OF(tstring);
   uint8_t i = uint8_t(t);
   if (i >= n) {

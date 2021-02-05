@@ -52,7 +52,6 @@ public:
 
 private:
   FuncType ftype();
-  static String to_string(Node node);
   void dump_and_clear_code();
 
   // called by run()
@@ -80,13 +79,10 @@ Test::~Test() {
 }
 
 FuncType Test::ftype() {
-  FuncType ftype{&holder, {Int64, Ptr, Uint64}, {Int64}};
-  Fmt{stdout} << ftype << '\n';
-  return ftype;
-}
-
-String Test::to_string(Node node) {
-  return onestl::to_string(node);
+  FuncType functype{&holder, {Int64, Ptr, Uint64}, {Int64}};
+  Chars expected = "(ftype (int64 ptr uint64) -> (int64))";
+  TEST(to_string(functype), ==, expected);
+  return functype;
 }
 
 void Test::run() {
@@ -100,29 +96,28 @@ void Test::run() {
   func_switch1();
   func_switch2();
   func_cond();
+
+  Fmt{stdout} << testcount() << " tests passed\n";
 }
 
 void Test::kind() {
-  Fmt out{stdout};
   for (uint8_t i = 0; i <= eArchFlags; i++) {
     Kind k{i};
-    ONEJIT_TEST(bool(k), ==, i != 0);
-    ONEJIT_TEST(k.is(k.group()), ==, true);
-    ONEJIT_TEST(k.simdn().val(), ==, 1);
-    ONEJIT_TEST(k.nosimd(), ==, k);
-    ONEJIT_TEST(k.bits().val(), ==, k.nosimd().bits().val());
-
-    out << "Kind " << k << ", Group " << k.group() << ", bits " << k.bits() << '\n';
+    TEST(bool(k), ==, i != 0);
+    TEST(k.is(k.group()), ==, true);
+    TEST(k.simdn().val(), ==, 1);
+    TEST(k.nosimd(), ==, k);
+    TEST(k.bits().val(), ==, k.nosimd().bits().val());
   }
   for (uint8_t i = 0; i <= eArchFlags; i++) {
     Kind k{eKind(i), SimdN{2}};
-    ONEJIT_TEST(bool(k), ==, true);
-    ONEJIT_TEST(k.is(k.group()), ==, true);
-    ONEJIT_TEST(k.simdn().val(), ==, 2);
-    ONEJIT_TEST((Kind{k.nosimd().val(), k.simdn()}), ==, k);
-    ONEJIT_TEST(k.bits().val(), ==, k.nosimd().bits().val() * k.simdn().val());
+    TEST(bool(k), ==, true);
+    TEST(k.is(k.group()), ==, true);
+    TEST(k.simdn().val(), ==, 2);
+    TEST((Kind{k.nosimd().val(), k.simdn()}), ==, k);
+    TEST(k.bits().val(), ==, k.nosimd().bits().val() * k.simdn().val());
   }
-  dump_and_clear_code();
+  // dump_and_clear_code();
 }
 
 // test that integer Imm can be compiled as 'constexpr'
@@ -130,101 +125,101 @@ extern constexpr const Imm one_million{uint64_t(1000000ul)};
 extern constexpr const Imm one_billion{uint64_t(1000000000ul)};
 
 void Test::const_expr() const {
-  ONEJIT_TEST(Const{Void}, ==, VoidExpr);
-  ONEJIT_TEST(Const{true}, ==, TrueExpr);
-  ONEJIT_TEST(Const{false}, ==, FalseExpr);
+  TEST(Const{Void}, ==, VoidExpr);
+  TEST(Const{true}, ==, TrueExpr);
+  TEST(Const{false}, ==, FalseExpr);
 
   Const one{Int8, int16_t(1)};
   Const minus_one{Int8, int16_t(-1)};
-  ONEJIT_TEST(one.imm(), ==, Imm{int8_t(1)});
-  ONEJIT_TEST(minus_one.imm(), ==, Imm{int8_t(-1)});
+  TEST(one.imm(), ==, Imm{int8_t(1)});
+  TEST(minus_one.imm(), ==, Imm{int8_t(-1)});
 
   Const plus_10k{Int16, int16_t(10000)};
   Const minus_10k{Int16, int16_t(-10000)};
-  ONEJIT_TEST(plus_10k.imm(), ==, Imm{int16_t(10000)});
-  ONEJIT_TEST(minus_10k.imm(), ==, Imm{int16_t(-10000)});
+  TEST(plus_10k.imm(), ==, Imm{int16_t(10000)});
+  TEST(minus_10k.imm(), ==, Imm{int16_t(-10000)});
 
   Const plus_32k{Int16, int16_t(32767)};
   Const minus_32k{Int16, int16_t(-32768)};
-  ONEJIT_TEST(plus_32k.imm(), ==, Imm{int16_t(32767)});
-  ONEJIT_TEST(minus_32k.imm(), ==, Imm{int16_t(-32768)});
+  TEST(plus_32k.imm(), ==, Imm{int16_t(32767)});
+  TEST(minus_32k.imm(), ==, Imm{int16_t(-32768)});
 }
 
 void Test::simple_expr() {
   Imm imm{1.5f};
   Expr c = Const{func, imm};
 
-  ONEJIT_TEST(imm.kind(), ==, Float32);
-  ONEJIT_TEST(imm.float32(), ==, 1.5f);
-  ONEJIT_TEST(c.is<Const>().imm(), ==, imm);
+  TEST(imm.kind(), ==, Float32);
+  TEST(imm.float32(), ==, 1.5f);
+  TEST(c.is<Const>().imm(), ==, imm);
 
-  ONEJIT_TEST(c.type(), ==, CONST);
-  ONEJIT_TEST(c.kind(), ==, Float32);
-  ONEJIT_TEST(c.op(), ==, 0);
-  ONEJIT_TEST(c.children(), ==, 0);
-  ONEJIT_TEST(c.is<Node>(), ==, c);
-  ONEJIT_TEST(c.is<Expr>(), ==, c);
-  ONEJIT_TEST(c.is<Binary>(), ==, Binary{});
-  ONEJIT_TEST(c.is<Const>(), ==, c);
-  ONEJIT_TEST(c.is<Unary>(), ==, Unary{});
-  ONEJIT_TEST(c.is<Var>(), ==, Var{});
-  ONEJIT_TEST(c.is<Stmt>(), ==, Stmt{});
-  ONEJIT_TEST(bool(c), ==, true);
-  ONEJIT_TEST(bool(c.is<Node>()), ==, true);
-  ONEJIT_TEST(bool(c.is<Expr>()), ==, true);
-  ONEJIT_TEST(bool(c.is<Binary>()), ==, false);
-  ONEJIT_TEST(bool(c.is<Const>()), ==, true);
-  ONEJIT_TEST(bool(c.is<Unary>()), ==, false);
-  ONEJIT_TEST(bool(c.is<Var>()), ==, false);
-  ONEJIT_TEST(bool(c.is<Stmt>()), ==, false);
+  TEST(c.type(), ==, CONST);
+  TEST(c.kind(), ==, Float32);
+  TEST(c.op(), ==, 0);
+  TEST(c.children(), ==, 0);
+  TEST(c.is<Node>(), ==, c);
+  TEST(c.is<Expr>(), ==, c);
+  TEST(c.is<Binary>(), ==, Binary{});
+  TEST(c.is<Const>(), ==, c);
+  TEST(c.is<Unary>(), ==, Unary{});
+  TEST(c.is<Var>(), ==, Var{});
+  TEST(c.is<Stmt>(), ==, Stmt{});
+  TEST(bool(c), ==, true);
+  TEST(bool(c.is<Node>()), ==, true);
+  TEST(bool(c.is<Expr>()), ==, true);
+  TEST(bool(c.is<Binary>()), ==, false);
+  TEST(bool(c.is<Const>()), ==, true);
+  TEST(bool(c.is<Unary>()), ==, false);
+  TEST(bool(c.is<Var>()), ==, false);
+  TEST(bool(c.is<Stmt>()), ==, false);
 
   for (uint8_t i = eVoid; i <= eArchFlags; i++) {
     Kind k = Kind(i);
     Expr v = Var{func, k};
     Node node = Binary{func, ADD, v, c};
 
-    ONEJIT_TEST(v.type(), ==, VAR);
-    ONEJIT_TEST(v.kind(), ==, k);
-    ONEJIT_TEST(v.op(), ==, 0);
-    ONEJIT_TEST(v.children(), ==, 0);
-    ONEJIT_TEST(v.is<Node>(), ==, v);
-    ONEJIT_TEST(v.is<Expr>(), ==, v);
-    ONEJIT_TEST(v.is<Binary>(), ==, Binary{});
-    ONEJIT_TEST(v.is<Const>(), ==, Const{});
-    ONEJIT_TEST(v.is<Unary>(), ==, Unary{});
-    ONEJIT_TEST(v.is<Var>(), ==, v);
-    ONEJIT_TEST(v.is<Stmt>(), ==, Stmt{});
-    ONEJIT_TEST(bool(v), ==, true);
-    ONEJIT_TEST(bool(v.is<Node>()), ==, true);
-    ONEJIT_TEST(bool(v.is<Expr>()), ==, true);
-    ONEJIT_TEST(bool(v.is<Binary>()), ==, false);
-    ONEJIT_TEST(bool(v.is<Const>()), ==, false);
-    ONEJIT_TEST(bool(v.is<Unary>()), ==, false);
-    ONEJIT_TEST(bool(v.is<Var>()), ==, true);
-    ONEJIT_TEST(bool(v.is<Stmt>()), ==, false);
+    TEST(v.type(), ==, VAR);
+    TEST(v.kind(), ==, k);
+    TEST(v.op(), ==, 0);
+    TEST(v.children(), ==, 0);
+    TEST(v.is<Node>(), ==, v);
+    TEST(v.is<Expr>(), ==, v);
+    TEST(v.is<Binary>(), ==, Binary{});
+    TEST(v.is<Const>(), ==, Const{});
+    TEST(v.is<Unary>(), ==, Unary{});
+    TEST(v.is<Var>(), ==, v);
+    TEST(v.is<Stmt>(), ==, Stmt{});
+    TEST(bool(v), ==, true);
+    TEST(bool(v.is<Node>()), ==, true);
+    TEST(bool(v.is<Expr>()), ==, true);
+    TEST(bool(v.is<Binary>()), ==, false);
+    TEST(bool(v.is<Const>()), ==, false);
+    TEST(bool(v.is<Unary>()), ==, false);
+    TEST(bool(v.is<Var>()), ==, true);
+    TEST(bool(v.is<Stmt>()), ==, false);
 
-    ONEJIT_TEST(node.type(), ==, BINARY);
-    ONEJIT_TEST(node.kind(), ==, k);
-    ONEJIT_TEST(node.op(), ==, ADD);
-    ONEJIT_TEST(node.children(), ==, 2);
-    ONEJIT_TEST(node.child(0), ==, v);
-    ONEJIT_TEST(node.child(1), ==, c);
-    ONEJIT_TEST(node.is<Node>(), ==, node);
-    ONEJIT_TEST(node.is<Expr>(), ==, node);
-    ONEJIT_TEST(node.is<Binary>(), ==, node);
-    ONEJIT_TEST(node.is<Const>(), ==, Const{});
-    ONEJIT_TEST(node.is<Stmt>(), ==, Stmt{});
-    ONEJIT_TEST(bool(node), ==, true);
-    ONEJIT_TEST(bool(node.is<Node>()), ==, true);
-    ONEJIT_TEST(bool(node.is<Expr>()), ==, true);
-    ONEJIT_TEST(bool(node.is<Binary>()), ==, true);
-    ONEJIT_TEST(bool(node.is<Const>()), ==, false);
-    ONEJIT_TEST(bool(node.is<Stmt>()), ==, false);
+    TEST(node.type(), ==, BINARY);
+    TEST(node.kind(), ==, k);
+    TEST(node.op(), ==, ADD);
+    TEST(node.children(), ==, 2);
+    TEST(node.child(0), ==, v);
+    TEST(node.child(1), ==, c);
+    TEST(node.is<Node>(), ==, node);
+    TEST(node.is<Expr>(), ==, node);
+    TEST(node.is<Binary>(), ==, node);
+    TEST(node.is<Const>(), ==, Const{});
+    TEST(node.is<Stmt>(), ==, Stmt{});
+    TEST(bool(node), ==, true);
+    TEST(bool(node.is<Node>()), ==, true);
+    TEST(bool(node.is<Expr>()), ==, true);
+    TEST(bool(node.is<Binary>()), ==, true);
+    TEST(bool(node.is<Const>()), ==, false);
+    TEST(bool(node.is<Stmt>()), ==, false);
 
     Local local1 = v.to<Var>().local();
     Local local2 = Local::parse_direct(local1.direct());
-    ONEJIT_TEST(local1, ==, local2);
-    ONEJIT_TEST(local1.kind(), ==, k);
+    TEST(local1, ==, local2);
+    TEST(local1.kind(), ==, k);
   }
   // dump_and_clear_code();
   holder.clear();
@@ -245,33 +240,31 @@ void Test::nested_expr() {
     Expr b3 = Binary{func, SHL, b1, b2};
     Expr u1 = Unary{func, XOR1, b3};
 
-    ONEJIT_TEST(b1.kind(), ==, k);
-    ONEJIT_TEST(b2.kind(), ==, k);
-    ONEJIT_TEST(b3.kind(), ==, k);
-    ONEJIT_TEST(u1.kind(), ==, k);
+    TEST(b1.kind(), ==, k);
+    TEST(b2.kind(), ==, k);
+    TEST(b3.kind(), ==, k);
+    TEST(u1.kind(), ==, k);
 
-    ONEJIT_TEST(b1.child(0), ==, c1);
-    ONEJIT_TEST(b1.child(1), ==, v1);
-    ONEJIT_TEST(b2.child(0), ==, c2);
-    ONEJIT_TEST(b2.child(1), ==, v2);
-    ONEJIT_TEST(b3.child(0), ==, b1);
-    ONEJIT_TEST(b3.child(1), ==, b2);
-    ONEJIT_TEST(u1.child(0), ==, b3);
+    TEST(b1.child(0), ==, c1);
+    TEST(b1.child(1), ==, v1);
+    TEST(b2.child(0), ==, c2);
+    TEST(b2.child(1), ==, v2);
+    TEST(b3.child(0), ==, b1);
+    TEST(b3.child(1), ==, b2);
+    TEST(u1.child(0), ==, b3);
   }
   // dump_and_clear_code();
   holder.clear();
 }
 
 void Test::x64_expr() {
-  Fmt out{stdout};
-
   Func &f = func.reset(&holder, Name{&holder, "x64_expr"}, FuncType{&holder, {}, {}});
 
   {
     x64::Mem mem{f, Int32, -67890};
 
     Chars expected = "(x86_mem -67890)";
-    ONEJIT_TEST(to_string(mem), ==, expected);
+    TEST(to_string(mem), ==, expected);
   }
 
   Assembler assembler;
@@ -298,10 +291,24 @@ void Test::x64_expr() {
       x64::Reg reg{kind, i};
       Stmt1 st{f, Var{reg}, X86_POP};
 
-      assembler.x64(st);
+      test_asm_disasm_x64(st, assembler);
     }
   }
-#elif 0
+#endif
+
+  // reg8, reg16, reg32, reg64
+  for (OpStmt1 op : {X86_DEC, X86_INC, X86_NEG, X86_NOT}) {
+    for (Kind kind : {Uint8, Uint16, Uint32, Uint64}) {
+      for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
+        x64::Reg reg{kind, i};
+        Stmt1 st{f, Var{reg}, op};
+
+        test_asm_disasm_x64(st, assembler);
+      }
+    }
+  }
+
+#if 0
   // (mem offset base)
   for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
     x64::Reg reg1{Uint64, i};
@@ -310,7 +317,7 @@ void Test::x64_expr() {
 
     assembler.x64(st);
   }
-#elif 1
+#elif 0
   // (mem offset _ index scale)
   for (x64::Scale scale = x64::Scale1; scale <= x64::Scale8; scale <<= 1) {
     for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
@@ -319,7 +326,6 @@ void Test::x64_expr() {
       Stmt1 st{f, mem, X86_CALL};
 
       assembler.x64(st);
-      out << st << '\n';
     }
     assembler.x64(Stmt0{X86_NOP});
   }
@@ -337,9 +343,6 @@ void Test::x64_expr() {
   }
 #endif // 0
 
-  out << "-- capstone -- \n";
-  disasm(out, assembler);
-
   holder.clear();
   assembler.clear();
 
@@ -351,14 +354,14 @@ void Test::x64_expr() {
     assembler.x64(st);
 
     Chars expected = "(x86_mem label_1 12345 rax rcx 8)";
-    ONEJIT_TEST(to_string(mem), ==, expected);
+    TEST(to_string(mem), ==, expected);
 
     expected = "(x86_call (x86_mem label_1 12345 rax rcx 8))";
-    ONEJIT_TEST(to_string(st), ==, expected);
+    TEST(to_string(st), ==, expected);
 
-    ONEJIT_TEST(assembler.size(), ==, 7);
+    TEST(assembler.size(), ==, 7);
     expected = "\xff\x94\xc8\x39\x30\x0\x0"; // call *0x3039(%rax,%rcx,8)
-    ONEJIT_TEST(assembler, ==, expected);
+    TEST(assembler, ==, expected);
   }
 
   // dump_and_clear_code();
@@ -396,7 +399,7 @@ void Test::func_fib() {
   Chars expected = "(if (> var1000_ul 2)\n\
     (return (+ (call label_0 (- var1000_ul 1)) (call label_0 (- var1000_ul 2))))\n\
     (return 1))";
-  ONEJIT_TEST(to_string(f.get_body()), ==, expected);
+  TEST(to_string(f.get_body()), ==, expected);
 
   compile(f);
 
@@ -413,7 +416,7 @@ void Test::func_fib() {
     (= var1001_ul 1)\n\
     (return var1001_ul)\n\
     label_2)";
-  ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled()), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
@@ -456,7 +459,7 @@ void Test::func_loop() {
     (for (= var1002_ul 0) (< var1002_ul var1000_ul) (++ var1002_ul)\n\
     (+= var1001_ul var1002_ul))\n\
     (return var1001_ul))";
-  ONEJIT_TEST(to_string(f.get_body()), ==, expected);
+  TEST(to_string(f.get_body()), ==, expected);
 
   compile(f);
 
@@ -471,7 +474,7 @@ void Test::func_loop() {
     (jump_if label_1 (< var1002_ul var1000_ul))\n\
     label_3\n\
     (return var1001_ul))";
-  ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled()), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
@@ -522,7 +525,7 @@ void Test::func_switch1() {
     (case 1 (= var1001_ul 2))\n\
     (default (= var1001_ul (+ var1000_ul 1))))\n\
     (return var1001_ul))";
-  ONEJIT_TEST(to_string(f.get_body()), ==, expected);
+  TEST(to_string(f.get_body()), ==, expected);
 
   compile(f);
 
@@ -540,7 +543,7 @@ void Test::func_switch1() {
     (= var1001_ul (+ var1000_ul 1))\n\
     label_1\n\
     (return var1001_ul))";
-  ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled()), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
@@ -591,7 +594,7 @@ void Test::func_switch2() {
     (default (= var1001_ul (+ var1000_ul 1)))\n\
     (case 1 (= var1001_ul 2)))\n\
     (return var1001_ul))";
-  ONEJIT_TEST(to_string(f.get_body()), ==, expected);
+  TEST(to_string(f.get_body()), ==, expected);
 
   compile(f);
 
@@ -610,7 +613,7 @@ void Test::func_switch2() {
     (= var1001_ul 2)\n\
     label_1\n\
     (return var1001_ul))";
-  ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled()), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
@@ -658,7 +661,7 @@ void Test::func_cond() {
     true\n\
     (= var1001_ul (+ var1000_ul 1)))\n\
     (return var1001_ul))";
-  ONEJIT_TEST(to_string(f.get_body()), ==, expected);
+  TEST(to_string(f.get_body()), ==, expected);
 
   compile(f);
 
@@ -675,7 +678,7 @@ void Test::func_cond() {
     (= var1001_ul (+ var1000_ul 1))\n\
     label_1\n\
     (return var1001_ul))";
-  ONEJIT_TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled()), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
@@ -693,7 +696,7 @@ void Test::dump_and_clear_code() {
 
 #ifdef __unix__
   {
-    int fd = ::open("dump.1jit", O_WRONLY | O_CREAT | O_TRUNC);
+    int fd = ::open("dump.1jit", O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (fd >= 0) {
       (void)::write(fd, holder.data(), holder.length());
       (void)::close(fd);

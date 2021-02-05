@@ -23,6 +23,7 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/assembler.hpp>
 #include <onejit/fmt.hpp>
 
 #include "test_disasm.hpp"
@@ -37,7 +38,8 @@ namespace onejit {
 
 #ifdef HAVE_LIBCAPSTONE
 
-TestDisasm::TestDisasm() noexcept : handle_{}, err_{cs_open(CS_ARCH_X86, CS_MODE_64, &handle_)} {
+TestDisasm::TestDisasm() noexcept
+    : testcount_{}, handle_{}, err_{cs_open(CS_ARCH_X86, CS_MODE_64, &handle_)} {
   if (err_ != CS_ERR_OK) {
     return;
   }
@@ -61,14 +63,16 @@ const Fmt &TestDisasm::disasm(const Fmt &out, Bytes bytes) {
     return out << "capstone disassemble error";
   }
   for (size_t i = 0; i < count; i++) {
-    show(out, insn + i);
-    out << '\n';
+    if (i) {
+      out << '\n';
+    }
+    format(out, insn + i);
   }
   cs_free(insn, count);
   return out;
 }
 
-const Fmt &TestDisasm::show(const Fmt &out, const cs_insn *insn) {
+const Fmt &TestDisasm::format(const Fmt &out, const cs_insn *insn) {
   out << "(x86_" << cs_insn_name(handle_, insn->id);
 
   cs_detail *detail = insn->detail;
@@ -102,17 +106,38 @@ const Fmt &TestDisasm::show(const Fmt &out, const cs_insn *insn) {
   return out << ')';
 }
 
+void TestDisasm::test_asm_disasm_x64(const Node &node, Assembler &assembler) {
+  assembler.clear();
+  assembler.x64(node);
+
+  String disassembled;
+  disasm(Fmt{&disassembled}, assembler.bytes());
+
+  TEST(to_string(node), ==, disassembled);
+}
+
 #else // !HAVE_LIBCAPSTONE
 
-TestDisasm::TestDisasm() noexcept {
+TestDisasm::TestDisasm() noexcept : testcount_{}, err_{1} {
 }
+
 TestDisasm::~TestDisasm() noexcept {
 }
+
 const Fmt &TestDisasm::disasm(const Fmt &out, Bytes bytes) {
   (void)bytes;
   return out << "capstone support non compiled";
 }
 
+void TestDisasm::test_asm_disasm_x64(const Node &node, Assembler &assembler) {
+  assembler.clear();
+  assembler.x64(node);
+}
+
 #endif
+
+String TestDisasm::to_string(const Node &node) {
+  return onestl::to_string(node);
+}
 
 } // namespace onejit

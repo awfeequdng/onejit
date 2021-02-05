@@ -183,10 +183,8 @@ constexpr inline bool operator>=(Kind a, Kind b) noexcept {
   return a.val() >= b.val();
 }
 
+const Fmt &operator<<(const Fmt &out, eKind ekind);
 const Fmt &operator<<(const Fmt &out, Kind kind);
-inline const Fmt &operator<<(const Fmt &out, eKind ekind) {
-  return out << Kind{ekind};
-}
 
 constexpr const Kind Bad(eBad);
 constexpr const Kind Void(eVoid);

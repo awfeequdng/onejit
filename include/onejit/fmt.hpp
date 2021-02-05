@@ -26,14 +26,7 @@
 #ifndef ONEJIT_FMT_HPP
 #define ONEJIT_FMT_HPP
 
+#include <onejit/fmt_fwd.hpp>
 #include <onestl/fmt.hpp>
-
-namespace onejit {
-
-using Fmt = ::onestl::Fmt;
-using Hex = ::onestl::Hex;
-using Writer = ::onestl::Writer;
-
-} // namespace onejit
 
 #endif // ONEJIT_FMT_HPP

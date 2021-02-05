@@ -78,9 +78,7 @@ protected:
   }
 };
 
-inline const Fmt &operator<<(const Fmt &out, const Stmt0 &st) {
-  return out << st.op();
-}
+const Fmt &operator<<(const Fmt &out, const Stmt0 &st);
 
 ////////////////////////////////////////////////////////////////////////////////
 class BadStmt : public Stmt0 {

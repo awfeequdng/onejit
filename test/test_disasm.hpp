@@ -23,12 +23,15 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/check.hpp>
 #include <onejit/fwd.hpp>
 #include <onejit_config.h> // HAVE_LIBCAPSTONE
 
 #ifdef HAVE_LIBCAPSTONE
 #include <capstone.h>
 #endif
+
+#define TEST(lhs, op, rhs) (ONEJIT_TEST(lhs, op, rhs), ++testcount(), (void)0)
 
 namespace onejit {
 
@@ -37,22 +40,31 @@ public:
   TestDisasm() noexcept;
   ~TestDisasm() noexcept;
 
-  const Fmt &disasm(const Fmt &out, Bytes bytes);
-
   constexpr explicit operator bool() const noexcept {
-#ifdef HAVE_LIBCAPSTONE
-    return err_ == CS_ERR_OK;
-#else
-    return false;
-#endif
+    return err_ == 0;
   }
 
-private:
-#ifdef HAVE_LIBCAPSTONE
-  const Fmt &show(const Fmt &out, const cs_insn *insn);
+  size_t &testcount() const noexcept {
+    return testcount_;
+  }
 
+  const Fmt &disasm(const Fmt &out, Bytes bytes);
+
+  // assemble instruction, then disassemble it with capstone
+  // and compare its text representation
+  void test_asm_disasm_x64(const Node &node, Assembler &assembler);
+
+  static String to_string(const Node &node);
+
+private:
+  mutable size_t testcount_;
+
+#ifdef HAVE_LIBCAPSTONE
+  const Fmt &format(const Fmt &out, const cs_insn *insn);
   csh handle_;
   cs_err err_;
+#else
+  int err_;
 #endif
 };
 

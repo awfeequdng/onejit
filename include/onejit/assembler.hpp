@@ -82,6 +82,10 @@ public:
     return add(View<T>{bytes.begin(), bytes.size()});
   }
 
+  Bytes bytes() const noexcept {
+    return Bytes{*this};
+  }
+
   // mark last added bytes to be filled with label relative offset
   // does nothing if label is invalid i.e. bool(l) == false
   Assembler &add_relocation(Label l) noexcept;

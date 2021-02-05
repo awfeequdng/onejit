@@ -29,4 +29,8 @@ namespace onejit {
 
 // ============================  Stmt0  ========================================
 
+const Fmt &operator<<(const Fmt &out, const Stmt0 &st) {
+  return out << st.op();
+}
+
 } // namespace onejit
