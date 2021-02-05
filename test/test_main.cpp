@@ -268,6 +268,7 @@ void Test::x64_expr() {
   }
 
   Assembler assembler;
+
   // imm
   for (int16_t val = -0x90; val <= 0x90; val += 0x10) {
     Const c{Int32, val};
@@ -278,9 +279,9 @@ void Test::x64_expr() {
 
   // reg8
   for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
-    Var var{x64::Reg{Uint8, i}};
+    x64::Reg reg{Uint8, i};
     for (OpStmt1 op = X86_SETA; op <= X86_SETS; op = op + 1) {
-      Stmt1 st{f, var, op};
+      Stmt1 st{f, Var{reg}, op};
 
       test_asm_disasm_x64(st, assembler);
     }
@@ -289,14 +290,14 @@ void Test::x64_expr() {
   // reg8, reg16, reg32, reg64
   for (Kind kind : {Uint8, Uint16, Uint32, Uint64}) {
     for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
-      Var var{x64::Reg{kind, i}};
+      x64::Reg reg{kind, i};
 
       for (OpStmt1 op : {X86_DEC, X86_INC, X86_NEG, X86_NOT, X86_POP, X86_PUSH}) {
         if ((op == X86_POP || op == X86_PUSH) && kind != Uint16 && kind != Uint64) {
           // on x64, pop and push only support 16 bit or 64 bit argument
-          break;
+          continue;
         }
-        Stmt1 st{f, var, op};
+        Stmt1 st{f, Var{reg}, op};
 
         test_asm_disasm_x64(st, assembler);
       }
@@ -312,7 +313,7 @@ void Test::x64_expr() {
       for (OpStmt1 op : {/*X86_DEC, X86_INC, X86_NEG, X86_NOT,*/ X86_POP, X86_PUSH}) {
         if ((op == X86_POP || op == X86_PUSH) && kind != Uint16 && kind != Uint64) {
           // on x64, pop and push only support 16 bit or 64 bit argument
-          break;
+          continue;
         }
         Stmt1 st{f, mem, op};
 
