@@ -270,8 +270,8 @@ void Test::nested_expr() {
 }
 
 static constexpr bool is_compatible(OpStmt1 op, Kind kind) noexcept {
-  // on x64, pop and push only support 16 bit or 64 bit argument.
-  // instead, call and jmp always require 64 bit argument
+  // pop and push only support 16 bit or 64 bit argument on x64.
+  // call and jmp always require 64 bit argument.
   return (op == X86_POP || op == X86_PUSH)
              ? (kind == Uint16 || kind == Uint64)
              : (op == X86_CALL || op == X86_JMP) ? kind == Uint64 : true;

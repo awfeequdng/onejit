@@ -132,8 +132,15 @@ static ONEJIT_NOINLINE Assembler &asm1_emit_addr(Assembler &dst, //
                                                  Bits default_size,       //
                                                  const Mem &mem) noexcept {
   Reg base{mem.base()};
-  Reg index{mem.index()}; // index cannot be %rsp
+  Reg index{mem.index()};
   Scale scale = mem.scale();
+  if (scale == Scale0 || !index) {
+    // if scale or index is not set, clear both.
+    index = Reg{};
+    scale = Scale0;
+  } else if (index && index.reg_id() == RSP) {
+    return dst.error(mem, "x64::Asm1::emit: memory reference cannot encode %rsp as index register");
+  }
   if (!base && !index) {
     // use RSP as index, it is interpreted as zero
     index = Reg{Uint64, RSP};
@@ -146,6 +153,7 @@ static ONEJIT_NOINLINE Assembler &asm1_emit_addr(Assembler &dst, //
 
   if (op >= X86_SETA && op <= X86_SETS) {
     /// TODO: implement
+    return dst.error(mem, "x64::Asm1::emit: unimplemented SETcc with memory reference");
   }
 
   size_t offset_bytes = x86::AsmUtil::get_offset_minbytes(mem, base, index);

@@ -31,6 +31,8 @@
 #include <onejit/math.hpp>
 #include <onejit/nodeheader.hpp>
 
+#include <type_traits> // std::is_base_of<>
+
 namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -114,11 +116,13 @@ public:
 
   // try to downcast Node to T. return T{} if fails.
   template <class T> constexpr T is() const noexcept {
+    static_assert(std::is_base_of<Node, T>::value, "Node::is(): type T must be a subclass of Node");
     return T::is_allowed_type(type()) && T::is_allowed_op(op()) ? T{*this} : T{};
   }
 
   // try to downcast Node to T. throw exception if fails.
   template <class T> constexpr T to() const {
+    static_assert(std::is_base_of<Node, T>::value, "Node::to(): type T must be a subclass of Node");
     return ONEJIT_CHECK(T::is_allowed_type(type()), &&, T::is_allowed_op(op())), T{*this};
   }
 
