@@ -160,18 +160,24 @@ void Test::simple_expr() {
   TEST(c.is<Node>(), ==, c);
   TEST(c.is<Expr>(), ==, c);
   TEST(c.is<Binary>(), ==, Binary{});
+  TEST(c.is<Call>(), ==, Call{});
   TEST(c.is<Const>(), ==, c);
+  TEST(c.is<Mem>(), ==, Mem{});
+  TEST(c.is<Stmt>(), ==, Stmt{});
+  TEST(c.is<Tuple>(), ==, Tuple{});
   TEST(c.is<Unary>(), ==, Unary{});
   TEST(c.is<Var>(), ==, Var{});
-  TEST(c.is<Stmt>(), ==, Stmt{});
   TEST(bool(c), ==, true);
-  TEST(bool(c.is<Node>()), ==, true);
-  TEST(bool(c.is<Expr>()), ==, true);
   TEST(bool(c.is<Binary>()), ==, false);
+  TEST(bool(c.is<Call>()), ==, false);
   TEST(bool(c.is<Const>()), ==, true);
+  TEST(bool(c.is<Expr>()), ==, true);
+  TEST(bool(c.is<Mem>()), ==, false);
+  TEST(bool(c.is<Node>()), ==, true);
+  TEST(bool(c.is<Stmt>()), ==, false);
   TEST(bool(c.is<Unary>()), ==, false);
   TEST(bool(c.is<Var>()), ==, false);
-  TEST(bool(c.is<Stmt>()), ==, false);
+  TEST(bool(c.is<Tuple>()), ==, false);
 
   for (uint8_t i = eVoid; i <= eArchFlags; i++) {
     Kind k = Kind(i);
@@ -185,18 +191,24 @@ void Test::simple_expr() {
     TEST(v.is<Node>(), ==, v);
     TEST(v.is<Expr>(), ==, v);
     TEST(v.is<Binary>(), ==, Binary{});
+    TEST(v.is<Call>(), ==, Call{});
     TEST(v.is<Const>(), ==, Const{});
+    TEST(v.is<Mem>(), ==, Mem{});
+    TEST(v.is<Stmt>(), ==, Stmt{});
+    TEST(v.is<Tuple>(), ==, Tuple{});
     TEST(v.is<Unary>(), ==, Unary{});
     TEST(v.is<Var>(), ==, v);
-    TEST(v.is<Stmt>(), ==, Stmt{});
     TEST(bool(v), ==, true);
-    TEST(bool(v.is<Node>()), ==, true);
-    TEST(bool(v.is<Expr>()), ==, true);
     TEST(bool(v.is<Binary>()), ==, false);
+    TEST(bool(v.is<Expr>()), ==, true);
+    TEST(bool(v.is<Call>()), ==, false);
     TEST(bool(v.is<Const>()), ==, false);
+    TEST(bool(v.is<Mem>()), ==, false);
+    TEST(bool(v.is<Node>()), ==, true);
+    TEST(bool(v.is<Stmt>()), ==, false);
     TEST(bool(v.is<Unary>()), ==, false);
     TEST(bool(v.is<Var>()), ==, true);
-    TEST(bool(v.is<Stmt>()), ==, false);
+    TEST(bool(v.is<Tuple>()), ==, false);
 
     TEST(node.type(), ==, BINARY);
     TEST(node.kind(), ==, k);
