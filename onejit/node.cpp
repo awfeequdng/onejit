@@ -149,11 +149,12 @@ const Fmt &operator<<(const Fmt &out, const Node &node) {
     return out << node.is<StmtN>();
   case VAR:
     return out << node.is<Var>();
+  case MEM:
+    return out << node.is<Mem>();
   case UNARY:
     return out << node.is<Unary>();
   case BINARY:
     return out << node.is<Binary>();
-  case MEM:
   case TUPLE:
     return out << node.is<Tuple>();
   case LABEL:

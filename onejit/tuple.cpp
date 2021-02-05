@@ -27,6 +27,7 @@
 #include <onejit/func.hpp>
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
+#include <onejit/mem.hpp>
 #include <onejit/tuple.hpp>
 #include <onestl/buffer.hpp>
 
@@ -52,8 +53,12 @@ Node Tuple::create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept {
 }
 
 const Fmt &operator<<(const Fmt &out, const Tuple &expr) {
-  OpN op = expr.op();
+  if (expr.type() == MEM) {
+    // may happen, Mem is a subclass of Tuple
+    return out << expr.is<Mem>();
+  }
 
+  OpN op = expr.op();
   out << '(' << op;
   const bool is_call = op == CALL;
   // if op == CALL, skip child(0) i.e. FuncType

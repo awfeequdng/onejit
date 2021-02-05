@@ -86,7 +86,7 @@ const Fmt &TestDisasm::format(const Fmt &out, const cs_insn *insn) {
       out << ' ' << op->imm;
       break;
     case X86_OP_MEM:
-      out << " (x86_mem";
+      out << " (x86_mem" << (op->size * 8);
       if (op->mem.disp != 0) {
         out << ' ' << op->mem.disp;
       }

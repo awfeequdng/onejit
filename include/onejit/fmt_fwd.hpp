@@ -47,6 +47,7 @@ const Fmt &operator<<(const Fmt &out, Kind);
 const Fmt &operator<<(const Fmt &out, const Label &);
 const Fmt &operator<<(const Fmt &out, Id);
 const Fmt &operator<<(const Fmt &out, Local);
+const Fmt &operator<<(const Fmt &out, const Mem &);
 const Fmt &operator<<(const Fmt &out, const Name &);
 const Fmt &operator<<(const Fmt &out, const Node &);
 const Fmt &operator<<(const Fmt &out, Op1);

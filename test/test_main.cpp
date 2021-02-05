@@ -263,7 +263,7 @@ void Test::x64_expr() {
   {
     x64::Mem mem{f, Int32, -67890};
 
-    Chars expected = "(x86_mem -67890)";
+    Chars expected = "(x86_mem32 -67890)";
     TEST(to_string(mem), ==, expected);
   }
 
@@ -304,7 +304,7 @@ void Test::x64_expr() {
     }
   }
 
-  // (mem offset base)
+  // (mem8,16,32,64 offset base)
   for (Kind kind : {Uint8, Uint16, Uint32, Uint64}) {
     for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
       x64::Reg base{Uint64, i};
@@ -331,7 +331,7 @@ void Test::x64_expr() {
     test_asm_disasm_x64(st, assembler);
   }
 
-  // (mem offset _ index scale)
+  // (mem64 offset _ index scale)
   for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
     if (i == x64::RSP) {
       // cannot encode RSP as index register
@@ -350,9 +350,8 @@ void Test::x64_expr() {
     }
   }
 
-  // (mem offset base index scale)
+  // (mem64 offset base index scale)
   for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
-    x64::Reg base{Uint64, i};
     for (x64::RegId j = x64::RAX; j <= x64::R15; j = j + 1) {
       if (j == x64::RSP) {
         // cannot encode RSP as index register
@@ -381,10 +380,10 @@ void Test::x64_expr() {
 
     assembler.x64(st);
 
-    Chars expected = "(x86_mem label_1 12345 rax rcx 8)";
+    Chars expected = "(x86_mem64 label_1 12345 rax rcx 8)";
     TEST(to_string(mem), ==, expected);
 
-    expected = "(x86_call (x86_mem label_1 12345 rax rcx 8))";
+    expected = "(x86_call (x86_mem64 label_1 12345 rax rcx 8))";
     TEST(to_string(st), ==, expected);
 
     TEST(assembler.size(), ==, 7);

@@ -63,13 +63,6 @@ public:
 
   using Base::kind;
 
-  static constexpr uint32_t children() noexcept {
-    return 1;
-  }
-
-  // shortcut for child(0).is<Expr>()
-  Expr address() const noexcept;
-
 protected:
   // used by subclasses
   Mem(Func &func, Kind kind, OpN op, Exprs args) noexcept //
@@ -93,6 +86,8 @@ private:
 
   static Node create(Func &func, Kind kind, OpN op, Exprs args) noexcept;
 };
+
+const Fmt &operator<<(const Fmt &out, const Mem &mem);
 
 } // namespace onejit
 
