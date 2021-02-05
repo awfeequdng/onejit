@@ -181,14 +181,24 @@ static ONEJIT_NOINLINE Assembler &asm1_emit_mem(Assembler &dst, const Inst1 &ins
 static ONEJIT_NOINLINE Assembler &asm1_emit_imm(Assembler &dst, const Inst1 &inst, OpStmt1 op,
                                                 Imm imm) noexcept {
   const int32_t imm_val = imm.int32();
-  const size_t imm_len =
-      (inst.imm_size() & B8) != B0 && imm_val == int32_t(int8_t(imm_val)) ? 1 : 4;
+  size_t imm_len;
+  if (imm_val == int32_t(int8_t(imm_val)) && (inst.imm_size() & B8) != B0) {
+    imm_len = 1;
+  } else if (imm_val == int32_t(int16_t(imm_val)) && (inst.imm_size() & B16) != B0) {
+    imm_len = 2;
+  } else {
+    imm_len = 4;
+  }
 
   uint8_t buf[6] = {};
   Bytes bytes = imm_len == 1 ? inst.imm8_bytes() : inst.imm32_bytes();
-  size_t len = bytes.size();
+  size_t len = 0;
+  if (imm_len == 2) {
+    buf[len++] = 0x66;
+  }
 
-  std::memcpy(buf, bytes.data(), len);
+  std::memcpy(buf + len, bytes.data(), bytes.size());
+  len += bytes.size();
   (void)op;
   len = x86::AsmUtil::insert_offset_or_imm(buf, len, imm_len, imm_val);
 

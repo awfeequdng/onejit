@@ -129,8 +129,8 @@ enum OpStmt1 : uint16_t {
       x(JMP, jmp)      /* unconditional jump. argument is relative offset, register or memory */   \
       x(NEG, neg)      /* negate (i.e. -x) register or memory */                                   \
       x(NOT, not)      /* invert (i.e. ^x) register or memory */                                   \
-      x(POP, pop)      /* pop 1,2,4 or 8 bytes from stack into register or memory */               \
-      x(PUSH, push)    /* push 1,2,4 or 8 bytes to stack from register or memory */                \
+      x(POP, pop)      /* pop 2 or 8 bytes from stack into register or memory */                   \
+      x(PUSH, push)    /* push 2 or 8 bytes to stack from register or memory */                    \
       x(RDTSC, rdtsc)  /* read timestamp counter into %rdx:%rax */                                 \
       x(SETA, seta)    /* set 1 byte register or memory if above */                                \
       x(SETAE, setae)  /* set 1 byte register or memory if above or equal (if not carry) */        \

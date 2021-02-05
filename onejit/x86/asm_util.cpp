@@ -70,6 +70,10 @@ size_t AsmUtil::insert_offset_or_imm(uint8_t buf[], size_t len, size_t immediate
                                      int32_t offset) {
   if (immediate_bytes == 1) {
     buf[len++] = uint8_t(offset);
+  } else if (immediate_bytes == 2) {
+    uint16_t offset_u = uint16_t(offset);
+    buf[len++] = offset_u;
+    buf[len++] = offset_u >> 8;
   } else if (immediate_bytes == 4) {
     uint32_t offset_u = uint32_t(offset);
     buf[len++] = offset_u;
