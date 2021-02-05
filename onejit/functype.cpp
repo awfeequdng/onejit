@@ -60,7 +60,7 @@ Node FuncType::create(Code *holder, Kinds params, Kinds results) noexcept {
     holder->truncate(offset);
     break;
   }
-  return FuncType{};
+  return Node{};
 }
 
 const Fmt &operator<<(const Fmt &out, const FuncType &ftype) {

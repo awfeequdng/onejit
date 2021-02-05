@@ -39,8 +39,8 @@ class Tuple : public Expr {
   friend class Call;
   friend class Compiler;
   friend class Func;
+  friend class Mem;
   friend class Node;
-  friend class x86::Addr;
 
 public:
   /**
@@ -53,18 +53,9 @@ public:
   constexpr Tuple() noexcept : Base{} {
   }
 
-  static constexpr Type type() noexcept {
-    return TUPLE;
-  }
-
   constexpr OpN op() const noexcept {
     return OpN(Base::op());
   }
-
-  using formatter_func = const Fmt &(*)(const Fmt &, const Tuple &);
-
-  // add a custom formatter for operator<< on Tuple subclass
-  static bool register_formatter(OpN op, formatter_func func) noexcept;
 
 private:
   // used by Compiler::compile(Tuple)
@@ -78,7 +69,7 @@ private:
 
   // downcast helper
   static constexpr bool is_allowed_type(Type t) noexcept {
-    return t == TUPLE;
+    return t == TUPLE || t == MEM;
   }
 
   static Node create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept;

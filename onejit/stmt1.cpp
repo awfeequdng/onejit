@@ -43,7 +43,7 @@ ONEJIT_NOINLINE Node Stmt1::create(Func &func, Node body, OpStmt1 op) noexcept {
     break;
   }
 
-  return Stmt1{};
+  return Node{};
 }
 
 const Fmt &operator<<(const Fmt &out, const Stmt1 &st) {

@@ -41,7 +41,7 @@ Node Name::create(Code *holder, Chars str) noexcept {
     holder->truncate(offset);
     break;
   }
-  return Name{};
+  return Node{};
 }
 
 Chars Name::chars() const noexcept {

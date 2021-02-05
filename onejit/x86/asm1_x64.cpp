@@ -130,17 +130,17 @@ static ONEJIT_NOINLINE Assembler &asm1_emit_addr(Assembler &dst, //
                                                  OpStmt1 op,
                                                  const uint8_t prefix[2], //
                                                  Bits default_size,       //
-                                                 const Addr &address) noexcept {
-  Reg base{address.base()};
-  Reg index{address.index()}; // index cannot be %rsp
-  Scale scale = address.scale();
+                                                 const Mem &mem) noexcept {
+  Reg base{mem.base()};
+  Reg index{mem.index()}; // index cannot be %rsp
+  Scale scale = mem.scale();
   if (!base && !index) {
     // use RSP as index, it is interpreted as zero
     index = Reg{Uint64, RSP};
     scale = Scale1;
   }
   uint8_t buf[10] = {};
-  size_t len = asm1_insert_prefixes(buf, 0, address.kind(), default_size, base, index);
+  size_t len = asm1_insert_prefixes(buf, 0, mem.kind(), default_size, base, index);
   buf[len++] = prefix[0];
   buf[len] = prefix[1];
 
@@ -148,14 +148,14 @@ static ONEJIT_NOINLINE Assembler &asm1_emit_addr(Assembler &dst, //
     /// TODO: implement
   }
 
-  size_t offset_bytes = x86::AsmUtil::get_offset_minbytes(address, base, index);
+  size_t offset_bytes = x86::AsmUtil::get_offset_minbytes(mem, base, index);
   len = x86::AsmUtil::insert_modrm_sib(buf, len, offset_bytes, base, index, scale);
 
   if (offset_bytes != 0) {
-    len = x86::AsmUtil::insert_offset_or_imm(buf, len, offset_bytes, address.offset());
+    len = x86::AsmUtil::insert_offset_or_imm(buf, len, offset_bytes, mem.offset());
   }
   dst.add(onestl::Bytes{buf, len});
-  if (auto label = address.label()) {
+  if (auto label = mem.label()) {
     dst.add_relocation(label);
   }
   return dst;
@@ -175,7 +175,7 @@ static ONEJIT_NOINLINE Assembler &asm1_emit_mem(Assembler &dst, const Inst1 &ins
   }
   Bits default_size = asm1_default_size(op);
 
-  return asm1_emit_addr(dst, op, prefix, default_size, mem.address());
+  return asm1_emit_addr(dst, op, prefix, default_size, mem);
 }
 
 static ONEJIT_NOINLINE Assembler &asm1_emit_imm(Assembler &dst, const Inst1 &inst, OpStmt1 op,

@@ -25,14 +25,17 @@
 #ifndef ONEJIT_X86_MEM_HPP
 #define ONEJIT_X86_MEM_HPP
 
+#include <onejit/const.hpp>
+#include <onejit/label.hpp>
 #include <onejit/mem.hpp>
-#include <onejit/x86/addr.hpp>
+#include <onejit/var.hpp>
+#include <onejit/x86/scale.hpp>
 
 namespace onejit {
 namespace x86 {
 
 ////////////////////////////////////////////////////////////////////////////////
-// memory access representable in a single x86 instruction: address is x86::Addr i.e.
+// memory access representable in a single x86 instruction: address is
 // optional_label + offset_int32 + optional_base_register + optional_index_reg * {1,2,4,8}
 class Mem : public onejit::Mem {
   using Base = onejit::Mem;
@@ -49,16 +52,40 @@ public:
   constexpr Mem() noexcept : Base{} {
   }
 
-  Mem(Func &func, Addr address) noexcept //
-      : Base{func, address.kind(), X86_MEM, address} {
+  Mem(Func &func, Kind kind,    //
+      const int32_t offset = 0, //
+      const Var &base = Var{},  //
+      const Var &index = Var{}, //
+      Scale scale = Scale0) noexcept
+      : Base{create(func, kind, Label{}, offset, base, index, scale)} {
   }
 
-  static constexpr MemType memtype() noexcept {
+  Mem(Func &func, const Label &label, //
+      const int32_t offset = 0,       //
+      const Var &base = Var{},        //
+      const Var &index = Var{},       //
+      Scale scale = Scale0) noexcept
+      : Base{create(func, Ptr, label, offset, base, index, scale)} {
+  }
+
+  static constexpr OpN op() noexcept {
     return X86_MEM;
   }
 
-  // shortcut for child(0).is<Addr>()
-  Addr address() const noexcept;
+  // shortcut for child(0).is<Label>()
+  Label label() const noexcept;
+
+  // shortcut for child(1).is<Const>().imm().int32()
+  int32_t offset() const noexcept;
+
+  // shortcut for child(2).is<Var>().local()
+  Local base() const noexcept;
+
+  // shortcut for child(3).is<Var>().local()
+  Local index() const noexcept;
+
+  // shortcut for Scale(child(4).is<Const>().imm().uint8())
+  Scale scale() const noexcept;
 
 private:
   // downcast Node to Mem
@@ -69,9 +96,11 @@ private:
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op == X86_MEM;
   }
-};
 
-const Fmt &operator<<(const Fmt &out, const Mem &mem);
+  static Node create(Func &func, Kind kind, const Label &label, const int32_t offset,
+                     const Var &base, const Var &index, Scale scale) noexcept;
+
+}; // class Mem
 
 } // namespace x86
 } // namespace onejit

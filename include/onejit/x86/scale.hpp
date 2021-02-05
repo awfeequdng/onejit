@@ -70,10 +70,6 @@ public:
     return val_ == eScale0 ? 0 : val_ - 1;
   }
 
-  constexpr OpN opn() const noexcept {
-    return OpN(X86_ADDR + val_);
-  }
-
   Scale &operator>>=(uint8_t shift) noexcept {
     val_ = eScale(val_ - shift);
     return *this;

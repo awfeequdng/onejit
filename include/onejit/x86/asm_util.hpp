@@ -33,7 +33,7 @@ namespace x86 {
 
 class AsmUtil {
 public:
-  static size_t get_offset_minbytes(Addr address, Reg base, Reg index) noexcept;
+  static size_t get_offset_minbytes(Mem mem, Reg base, Reg index) noexcept;
 
   static size_t insert_modrm_sib(uint8_t buf[], size_t len, size_t immediate_bytes, //
                                  Reg base, Reg index, Scale scale);

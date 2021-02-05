@@ -29,7 +29,6 @@
 namespace onejit {
 namespace x86 {
 
-class Addr;
 class Emit;
 class Inst;
 class Inst0;

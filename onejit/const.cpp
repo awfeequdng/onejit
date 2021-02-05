@@ -52,7 +52,7 @@ Node Const::create(Func &func, const Imm &imm) noexcept {
     holder->truncate(offset);
     break;
   }
-  return Const{};
+  return Node{};
 }
 
 const Fmt &operator<<(const Fmt &out, const Const &c) {

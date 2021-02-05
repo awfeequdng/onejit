@@ -71,7 +71,7 @@ public:
   }
 
   static constexpr OpN op() noexcept {
-    return CALL_OP;
+    return CALL;
   }
 
   // shortcut for child(0).is<FuncType>()
@@ -90,7 +90,7 @@ private:
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op == CALL_OP;
+    return op == CALL;
   }
 
   static Node create(Func &caller, const FuncType &ftype, const Label &flabel, Exprs args) noexcept;

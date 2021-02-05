@@ -1,7 +1,7 @@
 /*
- * onejit - in-memory assembler
+ * onejit - JIT compiler in C++
  *
- * Copyright (C) 2021 Massimiliano Ghilardi
+ * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,33 +19,71 @@
  *
  * mem.cpp
  *
- *  Created on Feb 04, 2021
+ *  Created on Jan 28, 2021
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/const.hpp>
 #include <onejit/x86/mem.hpp>
 
 namespace onejit {
 namespace x86 {
 
-// shortcut for child(0).is<Addr>()
-Addr Mem::address() const noexcept {
-  return child(0).is<Addr>();
+Node Mem::create(Func &func, Kind kind, const Label &label, const int32_t offset, const Var &base,
+                 const Var &index, Scale scale) noexcept {
+  do {
+    Expr args[5] = {};
+    size_t len = 0;
+    if (label) {
+      args[0] = label;
+      len = 1;
+    }
+    if (offset != 0) {
+      args[1] = Const{func, offset};
+      if (!args[1]) {
+        break;
+      }
+      len = 2;
+    }
+    if (base) {
+      args[2] = base;
+      len = 3;
+    }
+    if (index && scale != Scale0) {
+      args[3] = index;
+      args[4] = Const{Uint8, uint16_t(scale.val())};
+      len = 5;
+    }
+    return Base::create(func, kind, X86_MEM, Exprs{args, len});
+
+  } while (false);
+  return Mem{};
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-const Fmt &operator<<(const Fmt &out, const Mem &mem) {
-  out << '(' << mem.memtype();
-  mem.address().format_body(out);
-  return out << ')';
+// shortcut for child(0).is<Label>()
+Label Mem::label() const noexcept {
+  return child(0).is<Label>();
 }
 
-static const Fmt &format_mem(const Fmt &out, const onejit::Mem &mem) {
-  return out << mem.is<Mem>();
+// shortcut for child(1).is<Const>().imm().int32()
+int32_t Mem::offset() const noexcept {
+  return child(1).is<Const>().imm().int32();
 }
 
-static const bool registered = Mem::register_formatter(X86_MEM, format_mem);
+// shortcut for child(2).is<Var>().local()
+Local Mem::base() const noexcept {
+  return child(2).is<Var>().local();
+}
+
+// shortcut for child(3).is<Var>().local()
+Local Mem::index() const noexcept {
+  return child(3).is<Var>().local();
+}
+
+// shortcut for Scale(child(4).is<Const>().imm().uint8())
+Scale Mem::scale() const noexcept {
+  return Scale(child(4).is<Const>().imm().uint8());
+}
 
 } // namespace x86
 } // namespace onejit

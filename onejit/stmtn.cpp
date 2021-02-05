@@ -48,7 +48,7 @@ Node StmtN::create(Func &func, const Nodes nodes, OpStmtN op) noexcept {
     holder->truncate(offset);
     break;
   }
-  return StmtN{};
+  return Node{};
 }
 
 const Fmt &operator<<(const Fmt &out, const StmtN &st) {
@@ -80,7 +80,7 @@ Node AssignCall::create(Func &func, Exprs assign_to, const Call &call) noexcept 
     holder->truncate(offset);
     break;
   }
-  return AssignCall{};
+  return Node{};
 }
 
 // ============================  Block  ====================================
@@ -102,7 +102,7 @@ Node Return::create(Func &func, Exprs exprs) noexcept {
     holder->truncate(offset);
     break;
   }
-  return Return{};
+  return Node{};
 }
 
 // ============================  Switch  ===================================
@@ -122,7 +122,7 @@ Node Switch::create(Func &func, const Expr &expr, const Cases cases) noexcept {
     holder->truncate(offset);
     break;
   }
-  return Switch{};
+  return Node{};
 }
 
 } // namespace onejit

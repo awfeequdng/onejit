@@ -68,17 +68,13 @@ enum Op2 : uint16_t {
 
 enum OpN : uint16_t {
   BAD_OPN = 0,
-  CALL_OP = 1,
+  CALL = 1,
+  MEM_OP = 2,
 
   // numeric values of the OpN enum constants below this line MAY CHANGE WITHOUT WARNING
 
-  X86_ADDR,
-  X86_ADDR_SCALE1,
-  X86_ADDR_SCALE2,
-  X86_ADDR_SCALE4,
-  X86_ADDR_SCALE8, // x86_64 only
-
-  opn_end, // end-of-enum marker
+  X86_MEM,
+  ARM64_MEM,
 };
 
 const Chars to_string(Op1 op) noexcept;

@@ -82,16 +82,20 @@ const Fmt &TestDisasm::show(const Fmt &out, const cs_insn *insn) {
       out << ' ' << op->imm;
       break;
     case X86_OP_MEM:
-      out << " (x86_mem ";
+      out << " (x86_mem";
       if (op->mem.disp != 0) {
-        out << op->mem.disp << "_i"; // suffix for int32
+        out << " _ " << op->mem.disp << "_i"; // suffix for int32
+      } else if (op->mem.base != X86_REG_INVALID || op->mem.index != X86_REG_INVALID) {
+        out << " _ _";
       }
       if (op->mem.base != X86_REG_INVALID) {
         out << ' ' << cs_reg_name(handle_, op->mem.base);
+      } else if (op->mem.index != X86_REG_INVALID) {
+        out << " _";
       }
       if (op->mem.index != X86_REG_INVALID) {
         out << ' ' << cs_reg_name(handle_, op->mem.index);
-        out << " * " << op->mem.scale;
+        out << ' ' << op->mem.scale << "_ub";
       }
       out << ')';
       break;

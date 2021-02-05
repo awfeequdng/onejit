@@ -37,42 +37,26 @@ namespace onejit {
 Node Tuple::create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept {
   const size_t n = nodes.size();
   Code *holder = func.code();
+
   while (holder && n == uint32_t(n)) {
     const NodeHeader header{TUPLE, kind, op};
     CodeItem offset = holder->length();
 
-    if (holder->add(header) && holder->add_uint32(n) && //
-        holder->add(nodes, offset)) {
+    if (holder->add(header) && holder->add_uint32(n) && holder->add(nodes, offset)) {
       return Node{header, offset, holder};
     }
     holder->truncate(offset);
     break;
   }
-  return Tuple{};
-}
-
-static Tuple::formatter_func formatter_vec[opn_end] = {};
-
-// add a custom formatter_vec for operator<< on Tuple subclass
-bool Tuple::register_formatter(OpN op, formatter_func func) noexcept {
-  if (op < opn_end) {
-    formatter_vec[op] = func;
-    return true;
-  }
-  return false;
+  return Node{};
 }
 
 const Fmt &operator<<(const Fmt &out, const Tuple &expr) {
   OpN op = expr.op();
-  if (op < opn_end) {
-    if (Tuple::formatter_func func = formatter_vec[op]) {
-      return func(out, expr);
-    }
-  }
 
   out << '(' << op;
-  const bool is_call = op == CALL_OP;
-  // if op == CALL_OP, skip child(0) i.e. FuncType
+  const bool is_call = op == CALL;
+  // if op == CALL, skip child(0) i.e. FuncType
   for (size_t i = size_t(is_call), n = expr.children(); i < n; i++) {
     out << ' ' << expr.child(i);
   }

@@ -66,15 +66,7 @@ const Fmt &operator<<(const Fmt &out, Op2 op) {
 
 // ============================  OpN  ==========================================
 
-static const Chars opnstring[] = {
-    "?",
-    "call",
-    "x86_addr",
-    "x86_addr_scale1",
-    "x86_addr_scale2",
-    "x86_addr_scale4",
-    "x86_addr_scale8", // x86_64 only
-};
+static const Chars opnstring[] = {"?", "call", "mem", "x86_mem", "arm64_mem"};
 
 const Chars to_string(OpN op) noexcept {
   size_t i = 0; // "?"

@@ -193,12 +193,11 @@ Node Compiler::compile(Node node, bool simplify_call) noexcept {
 Expr Compiler::compile(Expr expr, bool) noexcept {
   const Type t = expr.type();
   switch (t) {
-  case MEM:
-    return compile(expr.is<Mem>(), true);
   case UNARY:
     return compile(expr.is<Unary>(), true);
   case BINARY:
     return compile(expr.is<Binary>(), true);
+  case MEM:
   case TUPLE:
     return compile(expr.is<Tuple>(), true);
   case VAR:
@@ -207,15 +206,6 @@ Expr Compiler::compile(Expr expr, bool) noexcept {
   default:
     return expr;
   }
-}
-
-Expr Compiler::compile(Mem expr, bool) noexcept {
-  Expr addr = expr.address();
-  Expr comp_addr = compile(addr, true);
-  if (addr != comp_addr) {
-    expr = Mem{*func_, expr.kind(), comp_addr};
-  }
-  return expr;
 }
 
 Expr Compiler::compile(Unary expr, bool) noexcept {

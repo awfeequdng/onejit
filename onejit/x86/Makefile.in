@@ -104,10 +104,10 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libonejit_x86_a_AR = $(AR) $(ARFLAGS)
 libonejit_x86_a_LIBADD =
-am_libonejit_x86_a_OBJECTS = addr.$(OBJEXT) arg.$(OBJEXT) \
-	asm_util.$(OBJEXT) asm_x64.$(OBJEXT) asm0_x64.$(OBJEXT) \
-	asm1_x64.$(OBJEXT) asm2_x64.$(OBJEXT) asm3_x64.$(OBJEXT) \
-	mem.$(OBJEXT) rex_byte_x64.$(OBJEXT) scale.$(OBJEXT)
+am_libonejit_x86_a_OBJECTS = arg.$(OBJEXT) asm_util.$(OBJEXT) \
+	asm_x64.$(OBJEXT) asm0_x64.$(OBJEXT) asm1_x64.$(OBJEXT) \
+	asm2_x64.$(OBJEXT) asm3_x64.$(OBJEXT) mem.$(OBJEXT) \
+	rex_byte_x64.$(OBJEXT) scale.$(OBJEXT)
 libonejit_x86_a_OBJECTS = $(am_libonejit_x86_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -124,12 +124,11 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/addr.Po ./$(DEPDIR)/arg.Po \
-	./$(DEPDIR)/asm0_x64.Po ./$(DEPDIR)/asm1_x64.Po \
-	./$(DEPDIR)/asm2_x64.Po ./$(DEPDIR)/asm3_x64.Po \
-	./$(DEPDIR)/asm_util.Po ./$(DEPDIR)/asm_x64.Po \
-	./$(DEPDIR)/mem.Po ./$(DEPDIR)/rex_byte_x64.Po \
-	./$(DEPDIR)/scale.Po
+am__depfiles_remade = ./$(DEPDIR)/arg.Po ./$(DEPDIR)/asm0_x64.Po \
+	./$(DEPDIR)/asm1_x64.Po ./$(DEPDIR)/asm2_x64.Po \
+	./$(DEPDIR)/asm3_x64.Po ./$(DEPDIR)/asm_util.Po \
+	./$(DEPDIR)/asm_x64.Po ./$(DEPDIR)/mem.Po \
+	./$(DEPDIR)/rex_byte_x64.Po ./$(DEPDIR)/scale.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -323,8 +322,7 @@ noinst_LIBRARIES = libonejit_x86.a
 AM_CPPFLAGS = -I$(top_srcdir)/include
 # libonejit_x86_a_CXXFLAGS =
 libonejit_x86_a_SOURCES = \
-        addr.cpp arg.cpp asm_util.cpp asm_x64.cpp \
-        asm0_x64.cpp asm1_x64.cpp asm2_x64.cpp asm3_x64.cpp \
+        arg.cpp asm_util.cpp asm_x64.cpp asm0_x64.cpp asm1_x64.cpp asm2_x64.cpp asm3_x64.cpp \
         mem.cpp rex_byte_x64.cpp scale.cpp
 
 all: all-recursive
@@ -375,7 +373,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/addr.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/arg.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm0_x64.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm1_x64.Po@am__quote@ # am--include-marker
@@ -606,8 +603,7 @@ clean: clean-recursive
 clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-recursive
-		-rm -f ./$(DEPDIR)/addr.Po
-	-rm -f ./$(DEPDIR)/arg.Po
+		-rm -f ./$(DEPDIR)/arg.Po
 	-rm -f ./$(DEPDIR)/asm0_x64.Po
 	-rm -f ./$(DEPDIR)/asm1_x64.Po
 	-rm -f ./$(DEPDIR)/asm2_x64.Po
@@ -662,8 +658,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
-		-rm -f ./$(DEPDIR)/addr.Po
-	-rm -f ./$(DEPDIR)/arg.Po
+		-rm -f ./$(DEPDIR)/arg.Po
 	-rm -f ./$(DEPDIR)/asm0_x64.Po
 	-rm -f ./$(DEPDIR)/asm1_x64.Po
 	-rm -f ./$(DEPDIR)/asm2_x64.Po

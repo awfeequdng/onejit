@@ -24,18 +24,18 @@
  */
 
 #include <onejit/bits.hpp> // Bits
-#include <onejit/x86/addr.hpp>
 #include <onejit/x86/asm_util.hpp>
 #include <onejit/x86/inst.hpp>
+#include <onejit/x86/mem.hpp>
 #include <onejit/x86/reg.hpp>
 #include <onejit/x86/scale.hpp>
 
 namespace onejit {
 namespace x86 {
 
-size_t AsmUtil::get_offset_minbytes(Addr address, Reg base, Reg index) noexcept {
-  int32_t offset = address.offset();
-  if (offset != int32_t(int8_t(offset)) || address.label() || (index && !base)) {
+size_t AsmUtil::get_offset_minbytes(Mem mem, Reg base, Reg index) noexcept {
+  int32_t offset = mem.offset();
+  if (offset != int32_t(int8_t(offset)) || mem.label() || (index && !base)) {
     return 4;
   }
   return offset != 0 || rlo(base) == 5 ? 1 : 0;

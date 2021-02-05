@@ -35,12 +35,12 @@ ONEJIT_NOINLINE Node Unary::create(Func &func, Kind kind, Op1 op, Expr child) no
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add(child, offset)) {
-      return Unary{Node{header, offset, holder}};
+      return Node{header, offset, holder};
     }
     holder->truncate(offset);
     break;
   }
-  return Unary{};
+  return Node{};
 }
 
 ONEJIT_NOINLINE Node Unary::create(Func &func, Op1 op, Expr child) noexcept {

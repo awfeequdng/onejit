@@ -31,7 +31,6 @@
 namespace onejit {
 namespace x64 {
 
-using x86::Addr;
 using x86::Inst;
 using x86::Inst0;
 using x86::Inst1;

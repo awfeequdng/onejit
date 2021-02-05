@@ -48,7 +48,7 @@ Node Binary::create(Func &func, Op2 op, const Expr &left, const Expr &right) {
     holder->truncate(offset);
     break;
   }
-  return Binary{};
+  return Node{};
 }
 
 const Fmt &operator<<(const Fmt &out, const Binary &expr) {
