@@ -310,7 +310,7 @@ void Test::x64_expr() {
       x64::Reg base{Uint64, i};
       x64::Mem mem{f, kind, 0x7f, Var{base}};
 
-      for (OpStmt1 op : {/*X86_DEC, X86_INC, X86_NEG, X86_NOT,*/ X86_POP, X86_PUSH}) {
+      for (OpStmt1 op : {X86_DEC, X86_INC, X86_NEG, X86_NOT, X86_POP, X86_PUSH}) {
         if ((op == X86_POP || op == X86_PUSH) && kind != Uint16 && kind != Uint64) {
           // on x64, pop and push only support 16 bit or 64 bit argument
           continue;

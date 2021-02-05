@@ -120,7 +120,7 @@ static size_t asm1_insert_prefixes(uint8_t buf[], size_t len, Kind kind, Bits de
   if (kind.bits() == Bits16) {
     buf[len++] = 0x66;
   }
-  if ((buf[len] = rex_byte(default_size, base, index)) != 0) {
+  if ((buf[len] = rex_byte(default_size, kind.bits(), base, index)) != 0) {
     len++;
   }
   return len;
@@ -171,7 +171,7 @@ static ONEJIT_NOINLINE Assembler &asm1_emit_mem(Assembler &dst, const Inst1 &ins
   uint8_t prefix[2] = {bytes[0], bytes[1]};
   if ((inst.arg_size() & B8) != 0 && mem.kind().bits() != Bits8) {
     // instruction also supports 8-bit memory access, but requested access is wider.
-    prefix[1] |= 1;
+    prefix[0] |= 1;
   }
   Bits default_size = asm1_default_size(op);
 

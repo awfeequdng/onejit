@@ -31,10 +31,9 @@ namespace x64 {
 
 using namespace onejit::x86;
 
-uint8_t rex_byte(Bits default_size, Reg base, Reg index) noexcept {
+uint8_t rex_byte(Bits default_size, Bits size, Reg base, Reg index) noexcept {
   uint8_t byte = rhi(base) | rhi(index) << 1;
-  if (default_size < Bits64 && (base.kind().bits() >= Bits64 || //
-                                index.kind().bits() >= Bits64)) {
+  if (default_size < Bits64 && size >= Bits64) {
     // REX byte is needed to use 64-bit registers when default size is 32 bits
     byte |= 0x48;
   } else if (byte || (base && !index                 //

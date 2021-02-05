@@ -30,16 +30,16 @@
 namespace onejit {
 namespace x64 {
 
-uint8_t rex_byte(Bits default_size, Reg base, Reg index = Reg{}) noexcept;
+uint8_t rex_byte(Bits default_size, Bits size, Reg base, Reg index = Reg{}) noexcept;
 
 // REX byte if default width is 32
-inline uint8_t rex_byte_default32(Reg base, Reg index = Reg{}) noexcept {
-  return rex_byte(Bits32, base, index);
+inline uint8_t rex_byte_default32(Bits size, Reg base, Reg index = Reg{}) noexcept {
+  return rex_byte(Bits32, size, base, index);
 }
 
 // REX byte if default width is 32
-inline uint8_t rex_byte_default64(Reg base, Reg index = Reg{}) noexcept {
-  return rex_byte(Bits64, base, index);
+inline uint8_t rex_byte_default64(Bits size, Reg base, Reg index = Reg{}) noexcept {
+  return rex_byte(Bits64, size, base, index);
 }
 
 } // namespace x64
