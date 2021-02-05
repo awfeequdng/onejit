@@ -350,10 +350,10 @@ void Test::x64_expr() {
 
     assembler.x64(st);
 
-    Chars expected = "(x86_mem label_1 12345 var100_ul var101_ul 8)";
+    Chars expected = "(x86_mem label_1 12345 rax rcx 8)";
     ONEJIT_TEST(to_string(mem), ==, expected);
 
-    expected = "(x86_call (x86_mem label_1 12345 var100_ul var101_ul 8))";
+    expected = "(x86_call (x86_mem label_1 12345 rax rcx 8))";
     ONEJIT_TEST(to_string(st), ==, expected);
 
     ONEJIT_TEST(assembler.size(), ==, 7);

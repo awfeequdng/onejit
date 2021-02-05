@@ -50,7 +50,7 @@ Arg1 to_arg(const Node &node) noexcept {
         return Arg1::Rcx;
       } else if ((id >= RAX && id <= R15) || id == RIP) {
         return Arg1::Reg;
-      } else if (id >= XMM0 && id <= ZMM31) {
+      } else if (id >= XMM0 && id <= XMM31) {
         return Arg1::Xmm;
       }
     }
@@ -71,7 +71,7 @@ Arg2 to_arg(const Node &node1, const Node &node2) noexcept {
   Arg1 arg2 = to_arg(node2);
   if ((arg1 & Arg1::Rax) != Arg1::None) {
     if ((arg2 & Arg1::Rcx) != Arg1::None) {
-      return Arg2::Rax_Reg | Arg2::Reg_Rcx; 
+      return Arg2::Rax_Reg | Arg2::Reg_Rcx;
     } else if ((arg2 & Arg1::Reg) != Arg1::None) {
       return Arg2::Rax_Reg;
     } else if ((arg2 & Arg1::Mem) != Arg1::None) {
