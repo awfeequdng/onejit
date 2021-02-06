@@ -56,6 +56,38 @@ const Fmt &operator<<(const Fmt &out, OpStmt0 op) {
 
 // ============================  OpStmt1  ======================================
 
+OpStmt1 negate_condjump(OpStmt1 op) noexcept {
+  switch (op) {
+  case ASM_JA:
+    op = ASM_JBE;
+    break;
+  case ASM_JAE:
+    op = ASM_JB;
+    break;
+  case ASM_JB:
+    op = ASM_JAE;
+    break;
+  case ASM_JBE:
+    op = ASM_JA;
+    break;
+  case ASM_JE:
+    op = ASM_JNE;
+    break;
+  case ASM_JG:
+    op = ASM_JLE;
+    break;
+  case ASM_JGE:
+    op = ASM_JL;
+    break;
+  case ASM_JNE:
+    op = ASM_JE;
+    break;
+  default:
+    break;
+  }
+  return op;
+}
+
 static const Chars op_stmt_1_string[] = { //
     "?", "goto", "++", "--",
 

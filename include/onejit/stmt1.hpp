@@ -79,7 +79,7 @@ protected:
     return t == STMT_1;
   }
 
-  // used by subclasses
+  // used by subclasses and by Compiler::compile(JumpIf)
   Stmt1(Func &func, Node body, OpStmt1 op) noexcept : Base{create(func, body, op)} {
   }
 

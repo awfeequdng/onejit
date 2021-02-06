@@ -356,12 +356,55 @@ Node Compiler::compile(Assign assign, bool) noexcept {
 }
 
 Node Compiler::compile(JumpIf jump_if, bool) noexcept {
-  Expr test = jump_if.test();
-  Expr comp_test = compile(test, true);
-  if (test != comp_test) {
-    jump_if = JumpIf{*func_, jump_if.to(), comp_test};
+  Label to = jump_if.to();
+  Expr test = compile(jump_if.test(), true);
+  Expr x, y;
+  OpStmt1 op = BAD_ST1;
+  bool negate = false;
+  while (Unary expr = test.is<Unary>()) {
+    if (expr.op() == NOT1) {
+      negate = !negate;
+      test = expr.x();
+    }
   }
-  add(jump_if);
+  if (Binary expr = test.is<Binary>()) {
+    x = expr.x();
+    y = expr.y();
+    bool is_unsigned = x.kind().is_unsigned();
+    switch (expr.op()) {
+    case LSS:
+      op = is_unsigned ? ASM_JB : ASM_JL;
+      break;
+    case LEQ:
+      op = is_unsigned ? ASM_JBE : ASM_JLE;
+      break;
+    case NEQ:
+      op = ASM_JNE;
+      break;
+    case EQL:
+      op = ASM_JE;
+      break;
+    case GTR:
+      op = is_unsigned ? ASM_JA : ASM_JG;
+      break;
+    case GEQ:
+      op = is_unsigned ? ASM_JAE : ASM_JGE;
+      break;
+    default:
+      break;
+    }
+  }
+  if (op == BAD_ST1) {
+    x = test;
+    y = Zero(test.kind());
+    op = ASM_JNE;
+  }
+
+  if (negate) {
+    op = negate_condjump(op);
+  }
+  add(Stmt2{*func_, x, y, ASM_CMP});
+  add(Stmt1{*func_, to, op});
   // all compile(Stmt*) must return VoidExpr
   return VoidExpr;
 }

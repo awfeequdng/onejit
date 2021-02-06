@@ -409,6 +409,25 @@ constexpr OpStmtN operator-(OpStmtN op, int delta) noexcept {
   return OpStmtN(int(op) - delta);
 }
 
+/*
+ * if op is a conditional jump, return its negation, i.e.:
+ * convert ASM_JA  -> ASM_JBE
+ * convert ASM_JAE -> ASM_JB
+ * convert ASM_JB  -> ASM_JAE
+ * convert ASM_JBE -> ASM_JA
+ *
+ * convert ASM_JE  -> ASM_JNE
+ * convert ASM_JNE -> ASM_JE
+ *
+ * convert ASM_JG  -> ASM_JLE
+ * convert ASM_JGE -> ASM_JL
+ * convert ASM_JL  -> ASM_JGE
+ * convert ASM_JLE -> ASM_JG
+ *
+ * other values are returned unchanged
+ */
+OpStmt1 negate_condjump(OpStmt1 op) noexcept;
+
 const Chars to_string(OpStmt0 op) noexcept;
 const Chars to_string(OpStmt1 op) noexcept;
 const Chars to_string(OpStmt2 op) noexcept;

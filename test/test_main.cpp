@@ -469,7 +469,8 @@ void Test::func_fib() {
   compile(f);
 
   expected = "(block\n\
-    (jump_if label_1 (! (> var1000_ul 2)))\n\
+    (asm_cmp var1000_ul 2)\n\
+    (asm_jbe label_1)\n\
     (= var1002_ul (- var1000_ul 1))\n\
     (= var1003_ul (call label_0 var1002_ul))\n\
     (= var1004_ul (- var1000_ul 2))\n\
@@ -536,7 +537,8 @@ void Test::func_loop() {
     (+= var1001_ul var1002_ul)\n\
     (++ var1002_ul)\n\
     label_2\n\
-    (jump_if label_1 (< var1002_ul var1000_ul))\n\
+    (asm_cmp var1002_ul var1000_ul)\n\
+    (asm_jb label_1)\n\
     label_3\n\
     (return var1001_ul))";
   TEST(to_string(f.get_compiled()), ==, expected);
@@ -595,11 +597,13 @@ void Test::func_switch1() {
   compile(f);
 
   expected = "(block\n\
-    (jump_if label_2 (!= var1000_ul 0))\n\
+    (asm_cmp var1000_ul 0)\n\
+    (asm_jne label_2)\n\
     (= var1001_ul 1)\n\
     (goto label_1)\n\
     label_2\n\
-    (jump_if label_4 (!= var1000_ul 1))\n\
+    (asm_cmp var1000_ul 1)\n\
+    (asm_jne label_4)\n\
     label_3\n\
     (= var1001_ul 2)\n\
     (goto label_1)\n\
@@ -664,7 +668,8 @@ void Test::func_switch2() {
   compile(f);
 
   expected = "(block\n\
-    (jump_if label_2 (!= var1000_ul 0))\n\
+    (asm_cmp var1000_ul 0)\n\
+    (asm_jne label_2)\n\
     (= var1001_ul 1)\n\
     (goto label_1)\n\
     label_2\n\
@@ -673,7 +678,8 @@ void Test::func_switch2() {
     (= var1001_ul (+ var1000_ul 1))\n\
     (goto label_1)\n\
     label_4\n\
-    (jump_if label_3 (!= var1000_ul 1))\n\
+    (asm_cmp var1000_ul 1)\n\
+    (asm_jne label_3)\n\
     label_5\n\
     (= var1001_ul 2)\n\
     label_1\n\
@@ -731,15 +737,18 @@ void Test::func_cond() {
   compile(f);
 
   expected = "(block\n\
-    (jump_if label_2 (! (== var1000_ul 0)))\n\
+    (asm_cmp var1000_ul 0)\n\
+    (asm_jne label_2)\n\
     (= var1001_ul 1)\n\
     (goto label_1)\n\
     label_2\n\
-    (jump_if label_3 (! (== var1000_ul 1)))\n\
+    (asm_cmp var1000_ul 1)\n\
+    (asm_jne label_3)\n\
     (= var1001_ul 2)\n\
     (goto label_1)\n\
     label_3\n\
-    (jump_if label_1 (! true))\n\
+    (asm_cmp true false)\n\
+    (asm_je label_1)\n\
     (= var1001_ul (+ var1000_ul 1))\n\
     label_1\n\
     (return var1001_ul))";

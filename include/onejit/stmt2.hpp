@@ -40,9 +40,10 @@ namespace onejit {
 ////////////////////////////////////////////////////////////////////////////////
 class Stmt2 : public Stmt {
   using Base = Stmt;
+  friend class Compiler;
+  friend class Default;
   friend class Node;
   friend class Func;
-  friend class Default;
 
 public:
   /**
@@ -77,7 +78,7 @@ protected:
     return t == STMT_2;
   }
 
-  // needed by subclasses
+  // used by subclasses and by Compiler::compile(JumpIf)
   Stmt2(Func &func, Node child0, Node child1, OpStmt2 op) noexcept
       : Base{create(func, child0, child1, op)} {
   }
@@ -175,7 +176,7 @@ protected:
   constexpr explicit Case(const Node &node) noexcept : Base{node} {
   }
 
-  // needed by subclasses
+  // used by subclasses
   Case(Func &func, Expr expr, Node body, OpStmt2 op) noexcept //
       : Base{func, expr, body, op} {
   }
