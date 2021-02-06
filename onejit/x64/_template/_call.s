@@ -509,3 +509,16 @@ call_off32_base_index0:
         ret
 	.cfi_endproc
 
+
+	.p2align 4,,15
+	.globl	call_misc
+	.type	call_misc, @function
+call_misc:
+	.cfi_startproc
+	call	*(%rip)
+	call	*0x7f(%rip)
+	call	*0x67452301(%rip)
+	nop
+	call	*0x67452301
+        ret
+	.cfi_endproc

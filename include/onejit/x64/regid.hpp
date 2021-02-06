@@ -42,7 +42,7 @@ enum RegId : uint32_t {
   RBP,
   RSI,
   RDI,
-  R8, // R8..R15 are x86_64 only
+  R8,
   R9,
   R10,
   R11,
@@ -50,8 +50,8 @@ enum RegId : uint32_t {
   R13,
   R14,
   R15,
-  RIP = 0x110, // RIP is x86_64 only
-  XMM0 = 0x120,
+  RIP = RBP + 16, // rlo(RIP), rhi(RIP) must be == rlo(RBP), rhi(RBP)
+  XMM0 = RAX + 32,
   XMM1,
   XMM2,
   XMM3,
@@ -59,7 +59,7 @@ enum RegId : uint32_t {
   XMM5,
   XMM6,
   XMM7,
-  XMM8, // XMM8..XMM15 are x86_64 only
+  XMM8,
   XMM9,
   XMM10,
   XMM11,
@@ -67,7 +67,7 @@ enum RegId : uint32_t {
   XMM13,
   XMM14,
   XMM15,
-  XMM16, // XMM16..XMM31 are x86_64 only and require [CPUID AVX512F]
+  XMM16, // XMM16..XMM31 require [CPUID AVX512F]
   XMM17,
   XMM18,
   XMM19,

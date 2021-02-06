@@ -17,25 +17,26 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * asm_util.cpp
+ * util.cpp
  *
  *  Created on Jan 28, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/bits.hpp> // Bits
-#include <onejit/x64/asm_util.hpp>
+#include <onejit/assembler.hpp>
 #include <onejit/x64/inst.hpp>
 #include <onejit/x64/mem.hpp>
 #include <onejit/x64/reg.hpp>
 #include <onejit/x64/scale.hpp>
+#include <onejit/x64/util.hpp>
 
 namespace onejit {
 namespace x64 {
 
-size_t AsmUtil::get_offset_minbytes(Mem mem, Reg base, Reg index) noexcept {
+size_t Util::get_offset_minbytes(Mem mem, Reg base, Reg index) noexcept {
   int32_t offset = mem.offset();
-  if (offset != int32_t(int8_t(offset)) || mem.label() || (index && !base)) {
+  if (offset != int32_t(int8_t(offset)) || mem.label() || base.reg_id() == RIP ||
+      (index && !base)) {
     return 4;
   }
   return offset != 0 || rlo(base) == 5 ? 1 : 0;
@@ -45,13 +46,13 @@ static constexpr inline bool is_quirk24(Reg base, Reg index) noexcept {
   return !index && rlo(base) == 4;
 }
 
-size_t AsmUtil::insert_modrm_sib(uint8_t buf[], size_t len, size_t immediate_bytes, //
-                                 Reg base, Reg index, Scale scale) {
+size_t Util::insert_modrm_sib(uint8_t buf[], size_t len, size_t immediate_bytes, //
+                              Reg base, Reg index, Scale scale) {
   if (!base && index) {
     // nothing to do
   } else if (immediate_bytes == 1) {
     buf[len] |= 0x40;
-  } else if (immediate_bytes == 4) {
+  } else if (immediate_bytes == 4 && base.reg_id() != RIP) {
     buf[len] |= 0x80;
   }
   if (index) {
@@ -66,8 +67,8 @@ size_t AsmUtil::insert_modrm_sib(uint8_t buf[], size_t len, size_t immediate_byt
   return len;
 }
 
-size_t AsmUtil::insert_offset_or_imm(uint8_t buf[], size_t len, size_t immediate_bytes,
-                                     int32_t offset) {
+size_t Util::insert_offset_or_imm(uint8_t buf[], size_t len, size_t immediate_bytes,
+                                  int32_t offset) {
   if (immediate_bytes == 1) {
     buf[len++] = uint8_t(offset);
   } else if (immediate_bytes == 2) {
@@ -82,6 +83,38 @@ size_t AsmUtil::insert_offset_or_imm(uint8_t buf[], size_t len, size_t immediate
     buf[len++] = offset_u >> 24;
   }
   return len;
+}
+
+bool Util::validate_mem(Assembler &dst, Mem mem) {
+  Reg base{mem.base()};
+  Reg index{mem.index()};
+  Scale scale = mem.scale();
+  bool ok = true;
+  if (base) {
+    RegId id = base.reg_id();
+    if ((id < RAX || id > R15) && id != RIP) {
+      dst.error(mem, "x64::Asm memory reference: invalid base register");
+      ok = false;
+    }
+  }
+  if (index && scale != eScale0) {
+    RegId id = index.reg_id();
+    if ((id < RAX || id > R15) && id != RIP) {
+      dst.error(mem, "x64::Asm memory reference: invalid index register");
+      ok = false;
+    } else if (id == RSP) {
+      dst.error(mem, "x64::Asm memory reference: cannot use %rsp as index register");
+      ok = false;
+    } else if (id == RIP) {
+      dst.error(mem, "x64::Asm memory reference: cannot use %rip as index register");
+      ok = false;
+    } else if (base.reg_id() == RIP) {
+      dst.error(
+          mem, "x64::Asm memory reference: %rip-relative addressing does not allow index register");
+      ok = false;
+    }
+  }
+  return ok;
 }
 
 } // namespace x64

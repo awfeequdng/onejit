@@ -29,11 +29,11 @@
 #include <onejit/label.hpp>
 #include <onejit/stmt1.hpp>
 #include <onejit/x64/asm.hpp>
-#include <onejit/x64/asm_util.hpp>
 #include <onejit/x64/inst.hpp>
 #include <onejit/x64/mem.hpp>
 #include <onejit/x64/reg.hpp>
 #include <onejit/x64/rex_byte.hpp>
+#include <onejit/x64/util.hpp>
 
 namespace onejit {
 namespace x64 {
@@ -137,8 +137,6 @@ static ONEJIT_NOINLINE Assembler &asm1_emit_addr(Assembler &dst, //
     // if scale or index is not set, clear both.
     index = Reg{};
     scale = Scale0;
-  } else if (index && index.reg_id() == RSP) {
-    return dst.error(mem, "x64::Asm1::emit: memory reference cannot encode %rsp as index register");
   }
   if (!base && !index) {
     // use RSP as index, it is interpreted as zero
@@ -155,11 +153,11 @@ static ONEJIT_NOINLINE Assembler &asm1_emit_addr(Assembler &dst, //
     return dst.error(mem, "x64::Asm1::emit: unimplemented SETcc with memory reference");
   }
 
-  size_t offset_bytes = AsmUtil::get_offset_minbytes(mem, base, index);
-  len = AsmUtil::insert_modrm_sib(buf, len, offset_bytes, base, index, scale);
+  size_t offset_bytes = Util::get_offset_minbytes(mem, base, index);
+  len = Util::insert_modrm_sib(buf, len, offset_bytes, base, index, scale);
 
   if (offset_bytes != 0) {
-    len = AsmUtil::insert_offset_or_imm(buf, len, offset_bytes, mem.offset());
+    len = Util::insert_offset_or_imm(buf, len, offset_bytes, mem.offset());
   }
   dst.add(onestl::Bytes{buf, len});
   if (auto label = mem.label()) {
@@ -174,6 +172,9 @@ static constexpr Bits asm1_default_size(OpStmt1 op) noexcept {
 
 static ONEJIT_NOINLINE Assembler &asm1_emit_mem(Assembler &dst, const Inst1 &inst, OpStmt1 op,
                                                 Mem mem) noexcept {
+  if (!Util::validate_mem(dst, mem)) {
+    return dst;
+  }
   const Bytes bytes = inst.bytes();
   uint8_t prefix[2] = {bytes[0], bytes[1]};
   if ((inst.arg_size() & B8) != 0 && mem.kind().bits() != Bits8) {
@@ -207,7 +208,7 @@ static ONEJIT_NOINLINE Assembler &asm1_emit_imm(Assembler &dst, const Inst1 &ins
   std::memcpy(buf + len, bytes.data(), bytes.size());
   len += bytes.size();
   (void)op;
-  len = AsmUtil::insert_offset_or_imm(buf, len, imm_len, imm_val);
+  len = Util::insert_offset_or_imm(buf, len, imm_len, imm_val);
 
   return dst.add(Bytes{buf, len});
 }

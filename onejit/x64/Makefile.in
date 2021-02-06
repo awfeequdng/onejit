@@ -104,10 +104,10 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libonejit_x64_a_AR = $(AR) $(ARFLAGS)
 libonejit_x64_a_LIBADD =
-am_libonejit_x64_a_OBJECTS = arg.$(OBJEXT) asm_util.$(OBJEXT) \
-	asm.$(OBJEXT) asm0.$(OBJEXT) asm1.$(OBJEXT) asm2.$(OBJEXT) \
-	asm3.$(OBJEXT) mem.$(OBJEXT) rex_byte.$(OBJEXT) \
-	scale.$(OBJEXT)
+am_libonejit_x64_a_OBJECTS = arg.$(OBJEXT) asm0.$(OBJEXT) \
+	asm1.$(OBJEXT) asm2.$(OBJEXT) asm3.$(OBJEXT) \
+	assembler.$(OBJEXT) mem.$(OBJEXT) rex_byte.$(OBJEXT) \
+	scale.$(OBJEXT) util.$(OBJEXT)
 libonejit_x64_a_OBJECTS = $(am_libonejit_x64_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -124,10 +124,11 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/arg.Po ./$(DEPDIR)/asm.Po \
-	./$(DEPDIR)/asm0.Po ./$(DEPDIR)/asm1.Po ./$(DEPDIR)/asm2.Po \
-	./$(DEPDIR)/asm3.Po ./$(DEPDIR)/asm_util.Po ./$(DEPDIR)/mem.Po \
-	./$(DEPDIR)/rex_byte.Po ./$(DEPDIR)/scale.Po
+am__depfiles_remade = ./$(DEPDIR)/arg.Po ./$(DEPDIR)/asm0.Po \
+	./$(DEPDIR)/asm1.Po ./$(DEPDIR)/asm2.Po ./$(DEPDIR)/asm3.Po \
+	./$(DEPDIR)/assembler.Po ./$(DEPDIR)/mem.Po \
+	./$(DEPDIR)/rex_byte.Po ./$(DEPDIR)/scale.Po \
+	./$(DEPDIR)/util.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -321,8 +322,8 @@ noinst_LIBRARIES = libonejit_x64.a
 AM_CPPFLAGS = -I$(top_srcdir)/include
 # libonejit_x64_a_CXXFLAGS =
 libonejit_x64_a_SOURCES = \
-        arg.cpp asm_util.cpp asm.cpp asm0.cpp asm1.cpp asm2.cpp asm3.cpp \
-        mem.cpp rex_byte.cpp scale.cpp
+        arg.cpp asm0.cpp asm1.cpp asm2.cpp asm3.cpp assembler.cpp \
+        mem.cpp rex_byte.cpp scale.cpp util.cpp
 
 all: all-recursive
 
@@ -373,15 +374,15 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/arg.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm0.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm1.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm2.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm3.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm_util.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/assembler.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mem.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rex_byte.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scale.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -603,15 +604,15 @@ clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/arg.Po
-	-rm -f ./$(DEPDIR)/asm.Po
 	-rm -f ./$(DEPDIR)/asm0.Po
 	-rm -f ./$(DEPDIR)/asm1.Po
 	-rm -f ./$(DEPDIR)/asm2.Po
 	-rm -f ./$(DEPDIR)/asm3.Po
-	-rm -f ./$(DEPDIR)/asm_util.Po
+	-rm -f ./$(DEPDIR)/assembler.Po
 	-rm -f ./$(DEPDIR)/mem.Po
 	-rm -f ./$(DEPDIR)/rex_byte.Po
 	-rm -f ./$(DEPDIR)/scale.Po
+	-rm -f ./$(DEPDIR)/util.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -658,15 +659,15 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/arg.Po
-	-rm -f ./$(DEPDIR)/asm.Po
 	-rm -f ./$(DEPDIR)/asm0.Po
 	-rm -f ./$(DEPDIR)/asm1.Po
 	-rm -f ./$(DEPDIR)/asm2.Po
 	-rm -f ./$(DEPDIR)/asm3.Po
-	-rm -f ./$(DEPDIR)/asm_util.Po
+	-rm -f ./$(DEPDIR)/assembler.Po
 	-rm -f ./$(DEPDIR)/mem.Po
 	-rm -f ./$(DEPDIR)/rex_byte.Po
 	-rm -f ./$(DEPDIR)/scale.Po
+	-rm -f ./$(DEPDIR)/util.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
