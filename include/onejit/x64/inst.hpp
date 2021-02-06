@@ -88,7 +88,8 @@ class Inst1 : public Inst {
   using Base = Inst;
 
 public:
-  constexpr Inst1(const char chars[],       //
+  template <size_t N>
+  constexpr Inst1(const char (&chars)[N],   //
                   const char imm8_chars[],  //
                   const char imm32_chars[], //
                   Arg1 arg,                 //
@@ -96,10 +97,12 @@ public:
                   BitSize imm_size = B0,    //
                   Eflags eflags = EFnone) noexcept
       : Base{imm_size, eflags}, //
+        bytes_len_{uint8_t(N - 1)},
         bytes_{
-            uint8_t(chars[0]),                   //
-            uint8_t(chars[0] ? chars[1] : '\0'), //
-        },                                       //
+            uint8_t(N > 0 ? chars[0] : '\0'), //
+            uint8_t(N > 1 ? chars[1] : '\0'), //
+            uint8_t(N > 2 ? chars[2] : '\0'), //
+        },                                    //
         imm8_bytes_{
             uint8_t(imm8_chars[0]),                        //
             uint8_t(imm8_chars[0] ? imm8_chars[1] : '\0'), //
@@ -113,7 +116,7 @@ public:
 
   // return instruction prefix to use when argument is register or memory
   constexpr Bytes bytes() const noexcept {
-    return Bytes{bytes_, 2};
+    return Bytes{bytes_, bytes_len_};
   }
 
   // return instruction prefix to use when argument is 8-bit immediate
@@ -135,7 +138,8 @@ public:
   }
 
 private:
-  uint8_t bytes_[2];
+  uint8_t bytes_len_;
+  uint8_t bytes_[3];
   uint8_t imm8_bytes_[2];
   uint8_t imm32_bytes_[2];
   Arg1 arg_;         // allowed argument combinations

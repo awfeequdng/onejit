@@ -80,22 +80,22 @@ static const Inst1 inst1_vec[] = {
     Inst1{"\xff\x30", "\x6a", "\x68", Arg1::Reg | Arg1::Mem | Arg1::Val, B16 | B64, B8 | B32},
     Inst1{"\x0f\x31", "", "", Arg1::Rax, B128}, /* B64 on 32bit                         rdtsc   */
     /*      reg/mem                                                               */ /*-------- */
-    Inst1{"\x0f\x97", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                seta    */
-    Inst1{"\x0f\x93", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setae   */
-    Inst1{"\x0f\x92", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setb    */
-    Inst1{"\x0f\x96", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setbe   */
-    Inst1{"\x0f\x94", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                sete    */
-    Inst1{"\x0f\x9f", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setg    */
-    Inst1{"\x0f\x9d", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setge   */
-    Inst1{"\x0f\x9c", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setl    */
-    Inst1{"\x0f\x9e", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setle   */
-    Inst1{"\x0f\x95", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setne   */
-    Inst1{"\x0f\x91", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setno   */
-    Inst1{"\x0f\x9b", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setnp   */
-    Inst1{"\x0f\x99", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setns   */
-    Inst1{"\x0f\x90", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                seto    */
-    Inst1{"\x0f\x9a", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                setp    */
-    Inst1{"\x0f\x98", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*                sets    */
+    Inst1{"\x0f\x97\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            seta    */
+    Inst1{"\x0f\x93\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setae   */
+    Inst1{"\x0f\x92\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setb    */
+    Inst1{"\x0f\x96\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setbe   */
+    Inst1{"\x0f\x94\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            sete    */
+    Inst1{"\x0f\x9f\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setg    */
+    Inst1{"\x0f\x9d\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setge   */
+    Inst1{"\x0f\x9c\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setl    */
+    Inst1{"\x0f\x9e\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setle   */
+    Inst1{"\x0f\x95\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setne   */
+    Inst1{"\x0f\x91\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setno   */
+    Inst1{"\x0f\x9b\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setnp   */
+    Inst1{"\x0f\x99\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setns   */
+    Inst1{"\x0f\x90\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            seto    */
+    Inst1{"\x0f\x9a\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setp    */
+    Inst1{"\x0f\x98\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            sets    */
     ONEJIT_COMMENT() /* [CPUID CLFSH] is required by the following instructions */
     Inst1{"\x0f\xae", "", "", Arg1::Mem, B8}, /*                                     clflush    */
     ONEJIT_COMMENT() /* [CPUID CLFLUSHOPT] is required by the following instructions */
@@ -239,38 +239,30 @@ static Assembler &asm1_emit_rdtsc(Assembler &dst, const Inst1 &inst) noexcept {
   return dst.add(inst.bytes());
 }
 
-static Assembler &asm1_emit_setcc_reg(Assembler &dst, const Inst1 &inst, OpStmt1 op,
-                                      Reg reg) noexcept {
-  uint8_t buf[6] = {};
-  size_t len = asm1_insert_prefixes(buf, 0, reg.kind(), asm1_default_size(op), reg);
-  const Bytes bytes = inst.bytes();
-
-  buf[len++] = bytes[0];
-  buf[len++] = bytes[1];
-  buf[len++] = 0xc0 | rlo(reg);
-  return dst.add(onestl::Bytes{buf, len});
-}
-
 static ONEJIT_NOINLINE Assembler &asm1_emit_reg(Assembler &dst, const Inst1 &inst, OpStmt1 op,
                                                 Reg reg) noexcept {
   if (op == X86_POP || op == X86_PUSH) {
     return asm1_emit_pop_or_push_reg(dst, op, reg);
   } else if (op == X86_RDTSC) {
     return asm1_emit_rdtsc(dst, inst);
-  } else if (op >= X86_SETA && op <= X86_SETS) {
-    return asm1_emit_setcc_reg(dst, inst, op, reg);
   }
-  uint8_t buf[4] = {};
+  uint8_t buf[8] = {};
   size_t len = asm1_insert_prefixes(buf, 0, reg.kind(), asm1_default_size(op), reg);
   const Bytes bytes = inst.bytes();
 
-  buf[len] = bytes[0];
-  buf[len + 1] = bytes[1] | 0xc0 | rlo(reg);
-  if ((inst.arg_size() & B8) != 0 && reg.kind().bits() != Bits8) {
-    // instruction also supports 8-bit memory access, but requested access is wider.
-    buf[len] |= 1;
+  // if instruction also supports 8-bit memory access, but requested access is wider,
+  // then set lowest bit to 1
+  uint8_t lsb_bit = uint8_t((inst.arg_size() & B8) != 0 && reg.kind().bits() != Bits8);
+
+  buf[len++] = lsb_bit | bytes[0];
+  if (bytes.size() > 1) {
+    buf[len++] = bytes[1];
+    if (bytes.size() > 2) {
+      buf[len++] = bytes[2];
+    }
   }
-  return dst.add(onestl::Bytes{buf, len + 2});
+  buf[len - 1] |= 0xc0 | rlo(reg);
+  return dst.add(onestl::Bytes{buf, len});
 }
 
 Assembler &Asm1::emit(Assembler &dst, const Stmt1 &st, const Inst1 &inst) noexcept {
