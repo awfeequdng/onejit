@@ -96,10 +96,10 @@ static const Inst1 inst1_vec[] = {
     Inst1{"\x0f\x90\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            seto    */
     Inst1{"\x0f\x9a\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setp    */
     Inst1{"\x0f\x98\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            sets    */
-    ONEJIT_COMMENT() /* [CPUID CLFSH] is required by the following instructions */
-    Inst1{"\x0f\xae", "", "", Arg1::Mem, B8}, /*                                     clflush    */
+    ONEJIT_COMMENT()                  /* [CPUID CLFSH] is required by the following instructions */
+    Inst1{"", "", "", Arg1::Mem, B8}, /*                                     clflush    */
     ONEJIT_COMMENT() /* [CPUID CLFLUSHOPT] is required by the following instructions */
-    Inst1{"\x0f\xae", "", "", Arg1::Mem, B8}, /*                                     clflushopt */
+    Inst1{"", "", "", Arg1::Mem, B8}, /*                                     clflushopt */
     ONEJIT_COMMENT() /* [CPUID CLWB] is required by the following instructions                  */
     Inst1{"", "", "", Arg1::Mem, B8}, /*                           clwb                 */
     ONEJIT_COMMENT() /* [CPUID RTM] is required by the following instructions                   */
@@ -284,6 +284,8 @@ Assembler &Asm1::emit(Assembler &dst, const Stmt1 &st, const Inst1 &inst) noexce
       if (!is_compatible(mem.kind().bits(), inst.arg_size())) {
         return dst.error(st,
                          "x64::Asm1::emit: instruction does not support specified memory width");
+      } else if (inst.bytes().empty()) {
+        return dst.error(st, "x64::Asm1::emit: unimplemented instruction");
       }
       return asm1_emit_mem(dst, inst, st.op(), mem);
     }

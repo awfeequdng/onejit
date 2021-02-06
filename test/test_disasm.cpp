@@ -143,6 +143,17 @@ void TestDisasm::test_asm_disasm_x64(const Node &node, Assembler &assembler) {
   assembler.clear();
   assembler.x64(node);
 
+  if (!assembler) {
+    TEST(bool(assembler), ==, true);
+  } else {
+    Errors errors = assembler.get_errors();
+    if (!errors.empty()) {
+      String errmsg;
+      Fmt{&errmsg} << errors[0].msg() << ' ' << errors[0].where();
+      TEST(errmsg, ==, Chars{});
+    }
+  }
+
   String disassembled;
   disasm(Fmt{&disassembled}, assembler.bytes());
 

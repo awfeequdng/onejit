@@ -118,6 +118,7 @@ using SimdN = Bits;
 
 using Cases = View<Case>;
 using CodeItems = View<CodeItem>;
+using Errors = View<Error>;
 using Exprs = View<Expr>;
 using Kinds = View<Kind>;
 using Nodes = View<Node>;

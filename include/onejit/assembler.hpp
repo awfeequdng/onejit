@@ -90,6 +90,10 @@ public:
   // does nothing if label is invalid i.e. bool(l) == false
   Assembler &add_relocation(Label l) noexcept;
 
+  constexpr Errors get_errors() const noexcept {
+    return error_;
+  }
+
   // add an assembler error
   Assembler &error(const Node &where, Chars msg) noexcept;
 

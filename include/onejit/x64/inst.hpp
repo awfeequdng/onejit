@@ -97,7 +97,7 @@ public:
                   BitSize imm_size = B0,    //
                   Eflags eflags = EFnone) noexcept
       : Base{imm_size, eflags}, //
-        bytes_len_{uint8_t(N > 1 ? N - 1 : 1)},
+        bytes_len_{uint8_t(N > 0 ? N - 1 : 0)},
         bytes_{
             uint8_t(N > 0 ? chars[0] : '\0'), //
             uint8_t(N > 1 ? chars[1] : '\0'), //
