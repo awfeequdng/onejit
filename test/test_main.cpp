@@ -316,12 +316,14 @@ void Test::x64_expr() {
       if (!is_compatible(op, kind)) {
         continue;
       }
-
-      for (x64::RegId i = x64::RAX; i <= x64::R15; i = i + 1) {
+      for (x64::RegId i = x64::RAX; i <= x64::R15 + 1; i = i + 1) {
+        if (i == x64::R15 + 1) {
+          i = x64::RIP;
+        }
         x64::Reg reg{kind, i};
 
         // reg8,16,32,64
-        {
+        if (i != x64::RIP) {
           Stmt1 st{f, Var{reg}, op};
           test_asm_disasm_x64(st, assembler);
         }
@@ -338,8 +340,8 @@ void Test::x64_expr() {
         }
 
         // (mem8,16,32,64 offset _ index scale)
-        if (i != x64::RSP) {
-          // cannot encode RSP as index register
+        if (i != x64::RSP && i != x64::RIP) {
+          // cannot encode RSP or RIP as index register
           x64::Reg index{Uint64, i};
 
           for (x64::Scale scale = x64::Scale1; scale <= x64::Scale8; scale <<= 1) {
@@ -352,20 +354,24 @@ void Test::x64_expr() {
           }
         }
 
-        // (mem8,16,32,64 offset base index scale)
-        for (x64::RegId j = x64::RAX; j <= x64::R15; j = j + 1) {
-          if (j == x64::RSP) {
-            // cannot encode RSP as index register
-            continue;
-          }
-          x64::Reg base{Uint64, i}, index{Uint64, j};
-          for (x64::Scale scale = x64::Scale1; scale <= x64::Scale8; scale <<= 1) {
-            for (int32_t offset : {0x7f, 0x77665544}) {
-              x64::Mem mem{f, Uint64, offset, Var{base}, Var{index}, scale};
+        if (i != x64::RIP) {
+          // base register = RIP cannot encode an index register
 
-              Stmt1 st{f, mem, op};
+          // (mem8,16,32,64 offset base index scale)
+          for (x64::RegId j = x64::RAX; j <= x64::R15; j = j + 1) {
+            if (j == x64::RSP) {
+              // cannot encode RSP as index register
+              continue;
+            }
+            x64::Reg base{Uint64, i}, index{Uint64, j};
+            for (x64::Scale scale = x64::Scale1; scale <= x64::Scale8; scale <<= 1) {
+              for (int32_t offset : {0x7f, 0x77665544}) {
+                x64::Mem mem{f, Uint64, offset, Var{base}, Var{index}, scale};
 
-              test_asm_disasm_x64(st, assembler);
+                Stmt1 st{f, mem, op};
+
+                test_asm_disasm_x64(st, assembler);
+              }
             }
           }
         }
