@@ -127,8 +127,8 @@ static size_t asm1_insert_prefixes(uint8_t buf[], size_t len, Kind kind, Bits de
 
 static Assembler &asm1_emit_addr(Assembler &dst, //
                                  OpStmt1 op,
-                                 const uint8_t prefix[2], //
-                                 Bits default_size,       //
+                                 Bytes prefix,      //
+                                 Bits default_size, //
                                  const Mem &mem) noexcept {
   Reg base{mem.base()};
   Reg index{mem.index()};
@@ -148,12 +148,9 @@ static Assembler &asm1_emit_addr(Assembler &dst, //
 
   uint8_t buf[16] = {};
   size_t len = asm1_insert_prefixes(buf, 0, kind, default_size, base, index);
-  buf[len++] = prefix[0];
-  buf[len] = prefix[1];
 
-  if (((op >= X86_SETA && op <= X86_SETS) || op == X86_CLFLUSH || op == X86_CLFLUSHOPT)) {
-    buf[++len] = 0x00;
-  }
+  std::memcpy(buf + len, prefix.data(), prefix.size());
+  len += prefix.size() - 1;
 
   size_t offset_bytes = Util::get_offset_minbytes(mem, base, index);
   len = Util::insert_modrm_sib(buf, len, offset_bytes, base, index, scale);
@@ -178,14 +175,14 @@ static ONEJIT_NOINLINE Assembler &asm1_emit_mem(Assembler &dst, const Inst1 &ins
     return dst;
   }
   const Bytes bytes = inst.bytes();
-  uint8_t prefix[2] = {bytes[0], bytes[1]};
+  uint8_t prefix[3] = {bytes[0], bytes[1], bytes[2]};
   if ((inst.arg_size() & B8) != 0 && mem.kind().bits() != Bits8) {
     // instruction also supports 8-bit memory access, but requested access is wider.
     prefix[0] |= 1;
   }
   Bits default_size = asm1_default_size(op);
 
-  return asm1_emit_addr(dst, op, prefix, default_size, mem);
+  return asm1_emit_addr(dst, op, Bytes{prefix, bytes.size()}, default_size, mem);
 }
 
 static ONEJIT_NOINLINE Assembler &asm1_emit_imm(Assembler &dst, const Inst1 &inst, OpStmt1 op,
