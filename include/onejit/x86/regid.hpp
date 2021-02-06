@@ -25,81 +25,31 @@
 #ifndef ONEJIT_X86_REGID_HPP
 #define ONEJIT_X86_REGID_HPP
 
-#include <onejit/archid.hpp>
+#include <onejit/x64/regid.hpp>
 
 namespace onejit {
 namespace x86 {
 
-enum RegId : uint16_t {
-  // use onejit::Id{256...511}
-  // 0 is reserved for onejit::NOID
-  // 512...767 are reserved for arm64::RegId
-  RAX = uint16_t(eArchId::X64) << 8,
-  RCX,
-  RDX,
-  RBX,
-  RSP,
-  RBP,
-  RSI,
-  RDI,
-  R8, // R8..R15 are x86_64 only
-  R9,
-  R10,
-  R11,
-  R12,
-  R13,
-  R14,
-  R15,
-  RIP = 0x110, // RIP is x86_64 only
-  XMM0 = 0x120,
-  XMM1,
-  XMM2,
-  XMM3,
-  XMM4,
-  XMM5,
-  XMM6,
-  XMM7,
-  XMM8, // XMM8..XMM15 are x86_64 only
-  XMM9,
-  XMM10,
-  XMM11,
-  XMM12,
-  XMM13,
-  XMM14,
-  XMM15,
-  XMM16, // XMM16..XMM31 are x86_64 only and require [CPUID AVX512F]
-  XMM17,
-  XMM18,
-  XMM19,
-  XMM20,
-  XMM21,
-  XMM22,
-  XMM23,
-  XMM24,
-  XMM25,
-  XMM26,
-  XMM27,
-  XMM28,
-  XMM29,
-  XMM30,
-  XMM31,
-};
+using x64::RegId;
 
-constexpr inline RegId operator+(RegId id, int delta) noexcept {
-  return RegId(int(id) + delta);
-}
+// clang-format off
+using EAX = x64::RAX;
+using ECX = x64::RCX;
+using EDX = x64::RDX;
+using EBX = x64::RBX;
+using ESP = x64::RSP;
+using EBP = x64::RBP;
+using ESI = x64::RSI;
+using EDI = x64::RDI;
 
-constexpr inline RegId operator-(RegId id, int delta) noexcept {
-  return RegId(int(id) - delta);
-}
-
-constexpr inline uint8_t rlo(RegId id) noexcept {
-  return id & 0x7;
-}
-
-constexpr inline uint8_t rhi(RegId id) noexcept {
-  return (id >> 3) & 0x1;
-}
+using x64::XMM0;
+using x64::XMM1;
+using x64::XMM2;
+using x64::XMM3;
+using x64::XMM4;
+using x64::XMM5;
+using x64::XMM6;
+using x64::XMM7;
 
 } // namespace x86
 } // namespace onejit

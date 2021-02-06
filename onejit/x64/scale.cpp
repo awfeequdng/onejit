@@ -17,45 +17,34 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * asm2_x64.cpp
+ * scale.cpp
  *
- *  Created on Feb 02, 2021
+ *  Created on Feb 03, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/assembler.hpp>
-#include <onejit/stmt2.hpp>
-#include <onejit/x64/asm.hpp>
-#include <onejit/x64/inst.hpp>
+#include <onejit/x64/scale.hpp>
 
 namespace onejit {
 namespace x64 {
 
-using namespace onejit;
-using namespace onejit::x86;
+static const char sstring[6] = {'0', '1', '2', '4', '8', '?'};
 
-static const Inst2 inst2_vec[] = {
-    Inst2{Arg2::None}, /* bad instruction */
-};
-
-const Inst2 &Asm2::find(OpStmt2 op) noexcept {
-  /// TODO: implement
-  (void)op;
-  return inst2_vec[0];
-}
-
-Assembler &Asm2::emit(Assembler &dst, const Stmt2 &st, const Inst2 &inst) noexcept {
-  Node arg0 = st.child(0);
-  Node arg1 = st.child(1);
-  if (!is_compatible(arg0, arg1, inst.arg())) {
-    return dst.error(st, "x64::Asm2::emit: instruction does not support specified argument types");
+const Chars Scale::string() const noexcept {
+  enum _ { n = ONEJIT_N_OF(sstring) };
+  size_t i = val_;
+  if (i >= n) {
+    i = n - 1; // "?"
   }
-
-  return dst.error(st, "unimplemented x64::Asm2::emit");
+  return Chars{sstring + i, 1};
 }
 
-Assembler &Asm2::emit(Assembler &dst, const Stmt2 &st) noexcept {
-  return emit(dst, st, find(st.op()));
+ONEJIT_NOINLINE const Fmt &operator<<(const Fmt &out, Scale scale) {
+  return out << scale.string();
+}
+
+const Fmt &operator<<(const Fmt &out, eScale escale) {
+  return out << Scale{escale};
 }
 
 } // namespace x64

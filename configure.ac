@@ -61,10 +61,10 @@ done
 AC_SUBST([CAPSTONE_CFLAGS])
 AC_SUBST([CAPSTONE_LIBS])
 
-AC_SUBST(LIBONEJIT_X64, '$(top_builddir)/onejit/x86/libonejit_x86.a')
+AC_SUBST(LIBONEJIT_X64, '$(top_builddir)/onejit/x64/libonejit_x64.a')
 AC_SUBST(LIBONEJIT,     '$(top_builddir)/onejit/libonejit.a')
 AC_SUBST(LIBONESTL,     '$(top_builddir)/onestl/libonestl.a')
 
-AC_CONFIG_FILES([Makefile onejit/Makefile onejit/x86/Makefile onestl/Makefile test/Makefile])
+AC_CONFIG_FILES([Makefile onejit/Makefile onejit/x64/Makefile onestl/Makefile test/Makefile])
 
 AC_OUTPUT

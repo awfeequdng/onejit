@@ -25,11 +25,11 @@
 
 #include <onejit/bits.hpp>
 #include <onejit/var.hpp>
-#include <onejit/x86/arg.hpp>
-#include <onejit/x86/reg.hpp>
+#include <onejit/x64/arg.hpp>
+#include <onejit/x64/reg.hpp>
 
 namespace onejit {
-namespace x86 {
+namespace x64 {
 
 BitSize to_bitsize(Bits bits) noexcept {
   eBits ebits = bits.ebits();
@@ -148,5 +148,5 @@ bool is_compatible(const Node &node1, const Node &node2, const Node &node3, Arg3
   return (to_arg(node1, node2, node3) & arg) != Arg3::None;
 }
 
-} // namespace x86
+} // namespace x64
 } // namespace onejit

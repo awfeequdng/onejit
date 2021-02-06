@@ -29,7 +29,7 @@
 #include <onejit/fmt.hpp>
 #include <onejit/op.hpp>
 #include <onejit/tuple.hpp>
-#include <onejit/x86/fwd.hpp>
+#include <onejit/x64/fwd.hpp>
 
 namespace onejit {
 
@@ -40,7 +40,7 @@ class Mem : public Tuple {
 
   friend class Func;
   friend class Node;
-  friend class x86::Mem;
+  friend class x64::Mem;
 
 public:
   /**

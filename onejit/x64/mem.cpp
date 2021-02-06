@@ -24,10 +24,10 @@
  */
 
 #include <onejit/const.hpp>
-#include <onejit/x86/mem.hpp>
+#include <onejit/x64/mem.hpp>
 
 namespace onejit {
-namespace x86 {
+namespace x64 {
 
 Node Mem::create(Func &func, Kind kind, const Label &label, const int32_t offset, const Var &base,
                  const Var &index, Scale scale) noexcept {
@@ -85,5 +85,5 @@ Scale Mem::scale() const noexcept {
   return Scale(child(4).is<Const>().imm().uint8());
 }
 
-} // namespace x86
+} // namespace x64
 } // namespace onejit

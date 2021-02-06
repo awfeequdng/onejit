@@ -25,69 +25,81 @@
 #ifndef ONEJIT_X64_REGID_HPP
 #define ONEJIT_X64_REGID_HPP
 
-#include <onejit/x86/regid.hpp>
+#include <onejit/archid.hpp>
 
 namespace onejit {
 namespace x64 {
 
-using x86::RegId;
+enum RegId : uint32_t {
+  // use onejit::Id{256...511}
+  // 0 is reserved for onejit::NOID
+  // 512...767 are reserved for arm64::RegId
+  RAX = uint32_t(eArchId::X64) << 8,
+  RCX,
+  RDX,
+  RBX,
+  RSP,
+  RBP,
+  RSI,
+  RDI,
+  R8, // R8..R15 are x86_64 only
+  R9,
+  R10,
+  R11,
+  R12,
+  R13,
+  R14,
+  R15,
+  RIP = 0x110, // RIP is x86_64 only
+  XMM0 = 0x120,
+  XMM1,
+  XMM2,
+  XMM3,
+  XMM4,
+  XMM5,
+  XMM6,
+  XMM7,
+  XMM8, // XMM8..XMM15 are x86_64 only
+  XMM9,
+  XMM10,
+  XMM11,
+  XMM12,
+  XMM13,
+  XMM14,
+  XMM15,
+  XMM16, // XMM16..XMM31 are x86_64 only and require [CPUID AVX512F]
+  XMM17,
+  XMM18,
+  XMM19,
+  XMM20,
+  XMM21,
+  XMM22,
+  XMM23,
+  XMM24,
+  XMM25,
+  XMM26,
+  XMM27,
+  XMM28,
+  XMM29,
+  XMM30,
+  XMM31,
+};
 
-// clang-format off
-using x86::RAX;
-using x86::RCX;
-using x86::RDX;
-using x86::RBX;
-using x86::RSP;
-using x86::RBP;
-using x86::RSI;
-using x86::RDI;
-using x86::R8;
-using x86::R9;
-using x86::R10;
-using x86::R11;
-using x86::R12;
-using x86::R13;
-using x86::R14;
-using x86::R15;
+constexpr inline RegId operator+(RegId id, int delta) noexcept {
+  return RegId(int(id) + delta);
+}
 
-using x86::RIP;
+constexpr inline RegId operator-(RegId id, int delta) noexcept {
+  return RegId(int(id) - delta);
+}
 
-using x86::XMM0;
-using x86::XMM1;
-using x86::XMM2;
-using x86::XMM3;
-using x86::XMM4;
-using x86::XMM5;
-using x86::XMM6;
-using x86::XMM7;
-using x86::XMM8;
-using x86::XMM9;
-using x86::XMM10;
-using x86::XMM11;
-using x86::XMM12;
-using x86::XMM13;
-using x86::XMM14;
-using x86::XMM15;
+constexpr inline uint8_t rlo(RegId id) noexcept {
+  return id & 0x7;
+}
 
-using x86::XMM16;
-using x86::XMM17;
-using x86::XMM18;
-using x86::XMM19;
-using x86::XMM20;
-using x86::XMM21;
-using x86::XMM22;
-using x86::XMM23;
-using x86::XMM24;
-using x86::XMM25;
-using x86::XMM26;
-using x86::XMM27;
-using x86::XMM28;
-using x86::XMM29;
-using x86::XMM30;
-using x86::XMM31;
-
-using x86::rlo;
-using x86::rhi;
+constexpr inline uint8_t rhi(RegId id) noexcept {
+  return (id >> 3) & 0x1;
+}
 
 } // namespace x64
 } // namespace onejit

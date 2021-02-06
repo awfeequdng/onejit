@@ -17,27 +17,32 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * inst.hpp
+ * asm_util.hpp
  *
- *  Created on Jan 26, 2021
+ *  Created on Feb 01, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X86_INST_X64_HPP
-#define ONEJIT_X86_INST_X64_HPP
+#ifndef ONEJIT_X64_ASM_UTIL_HPP
+#define ONEJIT_X64_ASM_UTIL_HPP
 
-#include <onejit/fwd.hpp>
-#include <onejit/x86/inst.hpp>
+#include <onejit/x64/fwd.hpp>
+#include <onejit/x64/scale.hpp>
 
 namespace onejit {
 namespace x64 {
 
-using x86::Inst;
-using x86::Inst0;
-using x86::Inst1;
-using x86::Inst2;
-using x86::Inst3;
+class AsmUtil {
+public:
+  static size_t get_offset_minbytes(Mem mem, Reg base, Reg index) noexcept;
+
+  static size_t insert_modrm_sib(uint8_t buf[], size_t len, size_t immediate_bytes, //
+                                 Reg base, Reg index, Scale scale);
+
+  static size_t insert_offset_or_imm(uint8_t buf[], size_t len, size_t immediate_bytes,
+                                     int32_t offset);
+};
 
 } // namespace x64
 } // namespace onejit
 
-#endif // ONEJIT_X86_INST_X64_HPP
+#endif // ONEJIT_X64_ASM_UTIL_HPP

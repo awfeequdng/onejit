@@ -19,24 +19,25 @@
  *
  * fwd.hpp
  *
- *  Created on Jan 22, 2021
+ *  Created on Feb 02, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #ifndef ONEJIT_X86_FWD_HPP
 #define ONEJIT_X86_FWD_HPP
 
+#include <onejit/x64/fwd.hpp>
+
 namespace onejit {
 namespace x86 {
 
-class Emit;
-class Inst;
-class Inst0;
-class Inst1;
-class Inst2;
-class Inst3;
-class Mem;
-class Reg;
+using x64::Inst;
+using x64::Inst0;
+using x64::Inst1;
+using x64::Inst2;
+using x64::Inst3;
+using x64::Mem;
+using x64::Reg;
 
 } // namespace x86
 } // namespace onejit

@@ -28,7 +28,6 @@
 
 #include <onejit/expr.hpp>
 #include <onejit/op.hpp>
-#include <onejit/x86/fwd.hpp>
 #include <onestl/view.hpp>
 
 namespace onejit {

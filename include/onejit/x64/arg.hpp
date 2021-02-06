@@ -22,13 +22,13 @@
  *  Created on Jan 28, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X86_ARG_HPP
-#define ONEJIT_X86_ARG_HPP
+#ifndef ONEJIT_X64_ARG_HPP
+#define ONEJIT_X64_ARG_HPP
 
 #include <cstdint> // uint*_t
 
 namespace onejit {
-namespace x86 {
+namespace x64 {
 
 // describe x86/x64 EFLAGS
 enum EflagsMask : uint16_t {
@@ -159,7 +159,7 @@ bool is_compatible(const Node &node1, Arg1 arg) noexcept;
 bool is_compatible(const Node &node1, const Node &node2, Arg2 arg) noexcept;
 bool is_compatible(const Node &node1, const Node &node2, const Node &node3, Arg3 arg) noexcept;
 
-} // namespace x86
+} // namespace x64
 } // namespace onejit
 
-#endif // ONEJIT_X86_ARG_HPP
+#endif // ONEJIT_X64_ARG_HPP

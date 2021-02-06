@@ -59,7 +59,7 @@ public:
    * high-level methods, they assemble symbolic instructions
    */
 
-  // assemble an x86_64 instruction. defined in onejit/x86/asm_x64.cpp
+  // assemble an x86_64 instruction. defined in onejit/x64/asm.cpp
   Assembler &x64(const Node &node) noexcept;
 
   /**

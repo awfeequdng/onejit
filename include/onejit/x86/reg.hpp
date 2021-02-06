@@ -19,53 +19,19 @@
  *
  * reg.hpp
  *
- *  Created on Jan 30, 2021
+ *  Created on Feb 02, 2021
  *      Author Massimiliano Ghilardi
  */
 #ifndef ONEJIT_X86_REG_HPP
 #define ONEJIT_X86_REG_HPP
 
-#include <onejit/local.hpp>
-#include <onejit/x86/regid.hpp>
+#include <onejit/x64/reg.hpp>
+#include <onejit/x64/regid.hpp>
 
 namespace onejit {
 namespace x86 {
 
-class Reg : public Local {
-  using Base = Local;
-
-public:
-  // create an invalid Reg.
-  constexpr Reg() noexcept : Base{} {
-  }
-
-  // downcast Local to Reg
-  constexpr explicit Reg(const Local &local) noexcept : Base{local} {
-  }
-
-  /* create a Reg with specified Kind and Id. */
-  constexpr Reg(Kind kind, Id id) noexcept //
-      : Base{kind, id} {
-  }
-
-  /* create a Reg with specified Kind and RegId. */
-  constexpr Reg(Kind kind, RegId id) noexcept //
-      : Base{kind, Id{uint32_t(id)}} {
-  }
-
-  constexpr RegId reg_id() const noexcept {
-    return RegId(Base::id().val());
-  }
-
-}; // class Reg
-
-constexpr inline uint8_t rlo(Reg reg) noexcept {
-  return rlo(reg.reg_id());
-}
-
-inline uint8_t rhi(Reg reg) noexcept {
-  return rhi(reg.reg_id());
-}
+using x64::Reg;
 
 } // namespace x86
 } // namespace onejit

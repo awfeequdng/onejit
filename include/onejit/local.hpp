@@ -28,7 +28,7 @@
 
 #include <onejit/endian.hpp>
 #include <onejit/node.hpp>
-#include <onejit/x86/fwd.hpp>
+#include <onejit/x64/fwd.hpp>
 
 namespace onejit {
 
@@ -38,7 +38,7 @@ class Id {
   friend class Local;
   friend class Var;
   friend class VarHelper;
-  friend class x86::Reg;
+  friend class x64::Reg;
 
 public:
   constexpr Id() noexcept : val_{} {

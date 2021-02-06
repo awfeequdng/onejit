@@ -1,4 +1,4 @@
-SUBDIRS = x86
+SUBDIRS = x64
 
 noinst_LIBRARIES       = libonejit.a
 # pkglib_LTLIBRARIES   =
@@ -14,9 +14,8 @@ libonejit_a_SOURCES    = \
         stmt0.cpp stmt1.cpp stmt2.cpp stmt3.cpp stmt4.cpp stmtn.cpp \
         tuple.cpp type.cpp unary.cpp local.cpp var.cpp
 
-EXTRA_libonejit_a_DEPENDENCIES = $(LIBONEJIT_X86)
+EXTRA_libonejit_a_DEPENDENCIES = $(LIBONEJIT_X64)
 # libonejit_a_LDFLAGS  =
 libonejit_a_LIBADD     = \
-        x86/arg.o x86/asm_util.o x86/asm_x64.o \
-        x86/asm0_x64.o x86/asm1_x64.o x86/asm2_x64.o x86/asm3_x64.o \
-        x86/mem.o x86/rex_byte_x64.o x86/scale.o
+        x64/arg.o x64/asm_util.o x64/asm.o x64/asm0.o x64/asm1.o x64/asm2.o x64/asm3.o \
+        x64/mem.o x64/rex_byte.o x64/scale.o

@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * inst0_x64.cpp
+ * asm0.cpp
  *
  *  Created on Jan 28, 2021
  *      Author Massimiliano Ghilardi
@@ -32,7 +32,6 @@ namespace onejit {
 namespace x64 {
 
 using namespace onejit;
-using namespace onejit::x86;
 
 static const Inst0 inst0_vec[] = {
     Inst0{"\xf8", EFwrite}, /* clc      clear carry flag                      */

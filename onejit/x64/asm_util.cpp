@@ -17,21 +17,21 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * inst1_x64.cpp
+ * asm_util.cpp
  *
  *  Created on Jan 28, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/bits.hpp> // Bits
-#include <onejit/x86/asm_util.hpp>
-#include <onejit/x86/inst.hpp>
-#include <onejit/x86/mem.hpp>
-#include <onejit/x86/reg.hpp>
-#include <onejit/x86/scale.hpp>
+#include <onejit/x64/asm_util.hpp>
+#include <onejit/x64/inst.hpp>
+#include <onejit/x64/mem.hpp>
+#include <onejit/x64/reg.hpp>
+#include <onejit/x64/scale.hpp>
 
 namespace onejit {
-namespace x86 {
+namespace x64 {
 
 size_t AsmUtil::get_offset_minbytes(Mem mem, Reg base, Reg index) noexcept {
   int32_t offset = mem.offset();
@@ -84,5 +84,5 @@ size_t AsmUtil::insert_offset_or_imm(uint8_t buf[], size_t len, size_t immediate
   return len;
 }
 
-} // namespace x86
+} // namespace x64
 } // namespace onejit

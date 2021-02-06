@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * asm2_x64.cpp
+ * asm3.cpp
  *
  *  Created on Feb 02, 2021
  *      Author Massimiliano Ghilardi
@@ -32,7 +32,6 @@ namespace onejit {
 namespace x64 {
 
 using namespace onejit;
-using namespace onejit::x86;
 
 static const Inst3 inst3_vec[] = {
     Inst3{Arg3::None}, /* bad instruction */

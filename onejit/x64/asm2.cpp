@@ -17,32 +17,45 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * asm_util.hpp
+ * asm2.cpp
  *
- *  Created on Feb 01, 2021
+ *  Created on Feb 02, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X86_ASM_UTIL_HPP
-#define ONEJIT_X86_ASM_UTIL_HPP
 
-#include <onejit/x86/fwd.hpp>
-#include <onejit/x86/scale.hpp>
+#include <onejit/assembler.hpp>
+#include <onejit/stmt2.hpp>
+#include <onejit/x64/asm.hpp>
+#include <onejit/x64/inst.hpp>
 
 namespace onejit {
-namespace x86 {
+namespace x64 {
 
-class AsmUtil {
-public:
-  static size_t get_offset_minbytes(Mem mem, Reg base, Reg index) noexcept;
+using namespace onejit;
 
-  static size_t insert_modrm_sib(uint8_t buf[], size_t len, size_t immediate_bytes, //
-                                 Reg base, Reg index, Scale scale);
-
-  static size_t insert_offset_or_imm(uint8_t buf[], size_t len, size_t immediate_bytes,
-                                     int32_t offset);
+static const Inst2 inst2_vec[] = {
+    Inst2{Arg2::None}, /* bad instruction */
 };
 
-} // namespace x86
-} // namespace onejit
+const Inst2 &Asm2::find(OpStmt2 op) noexcept {
+  /// TODO: implement
+  (void)op;
+  return inst2_vec[0];
+}
 
-#endif // ONEJIT_X86_ASM_UTIL_HPP
+Assembler &Asm2::emit(Assembler &dst, const Stmt2 &st, const Inst2 &inst) noexcept {
+  Node arg0 = st.child(0);
+  Node arg1 = st.child(1);
+  if (!is_compatible(arg0, arg1, inst.arg())) {
+    return dst.error(st, "x64::Asm2::emit: instruction does not support specified argument types");
+  }
+
+  return dst.error(st, "unimplemented x64::Asm2::emit");
+}
+
+Assembler &Asm2::emit(Assembler &dst, const Stmt2 &st) noexcept {
+  return emit(dst, st, find(st.op()));
+}
+
+} // namespace x64
+} // namespace onejit

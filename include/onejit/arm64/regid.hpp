@@ -30,11 +30,11 @@
 namespace onejit {
 namespace arm64 {
 
-enum RegId : uint16_t {
+enum RegId : uint32_t {
   // use onejit::Id{512...1023}
   // 0 is reserved for onejit::NOID
-  // 256...511 are reserved for x86::RegId
-  X0 = uint16_t(eArchId::ARM64) << 8,
+  // 256...511 are reserved for x64::RegId
+  X0 = uint32_t(eArchId::ARM64) << 8,
   X1,
   X2,
   X3,
