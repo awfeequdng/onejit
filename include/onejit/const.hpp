@@ -105,6 +105,8 @@ public:
 
   Imm imm() const noexcept;
 
+  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+
 private:
   // downcast Node to Const
   constexpr explicit Const(const Node &node) noexcept //
@@ -138,8 +140,6 @@ constexpr inline Const One(Kind kind) noexcept {
 constexpr inline Const Two(Kind kind) noexcept {
   return Const{kind, uint16_t(2)};
 }
-
-const Fmt &operator<<(const Fmt &out, const Const &c);
 
 } // namespace onejit
 

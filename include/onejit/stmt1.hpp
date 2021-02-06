@@ -69,6 +69,8 @@ public:
     return child(0);
   }
 
+  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+
 protected:
   // downcast Node to Stmt1
   constexpr explicit Stmt1(const Node &node) noexcept : Base{node} {
@@ -86,8 +88,6 @@ protected:
 private:
   static Node create(Func &func, Node body, OpStmt1 op) noexcept;
 };
-
-const Fmt &operator<<(const Fmt &out, const Stmt1 &st);
 
 ////////////////////////////////////////////////////////////////////////////////
 class Goto : public Stmt1 {

@@ -46,12 +46,12 @@ Node Mem::create(Func &func, Kind kind, OpN op, Exprs args) noexcept {
   return Node{};
 }
 
-const Fmt &operator<<(const Fmt &out, const Mem &mem) {
-  out << '(' << mem.op() << mem.kind().bitsize();
-  for (size_t i = 0, n = mem.children(); i < n; i++) {
-    Node child = mem.child(i);
-    if (child) {
-      out << ' ' << child;
+const Fmt &Mem::format(const Fmt &out, size_t /*depth*/) const {
+  out << '(' << op() << kind().bitsize();
+  for (size_t i = 0, n = children(); i < n; i++) {
+    Node node = child(i);
+    if (node) {
+      out << ' ' << node;
     }
   }
   return out << ')';

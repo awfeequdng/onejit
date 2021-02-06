@@ -143,6 +143,8 @@ public:
     return true;
   }
 
+  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+
 protected:
   constexpr Node(NodeHeader header, CodeItem offset_or_direct, const Code *code) noexcept
       : header_{header}, off_or_dir_{offset_or_direct}, code_{code} {
@@ -188,9 +190,11 @@ private:
   NodeHeader header_;
   CodeItem off_or_dir_;
   const Code *code_;
-}; // namespace onejit
+};
 
-const Fmt &operator<<(const Fmt &out, const Node &node);
+inline const Fmt &operator<<(const Fmt &out, const Node &node) {
+  return node.format(out);
+}
 
 } // namespace onejit
 

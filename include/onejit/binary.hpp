@@ -78,6 +78,8 @@ public:
     return child_is<Expr>(1);
   }
 
+  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+
 private:
   // downcast Node to Unary
   constexpr explicit Binary(const Node &node) noexcept : Base{node} {
@@ -91,8 +93,6 @@ private:
   // also autodetects kind
   static Node create(Func &func, Op2 op, const Expr &left, const Expr &right);
 };
-
-const Fmt &operator<<(const Fmt &out, const Binary &expr);
 
 } // namespace onejit
 

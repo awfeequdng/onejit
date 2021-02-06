@@ -46,8 +46,8 @@ ONEJIT_NOINLINE Node Stmt1::create(Func &func, Node body, OpStmt1 op) noexcept {
   return Node{};
 }
 
-const Fmt &operator<<(const Fmt &out, const Stmt1 &st) {
-  return out << '(' << st.op() << ' ' << st.child(0) << ')';
+const Fmt &Stmt1::format(const Fmt &out, size_t /*depth*/) const {
+  return out << '(' << op() << ' ' << child(0) << ')';
 }
 
 // ============================  Goto  ==================================

@@ -80,6 +80,8 @@ public:
   /// \return kind of i-th result, or Bad if out-of-bounds
   Kind result(uint16_t i) const noexcept;
 
+  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+
 private:
   // downcast Node to FuncType
   constexpr explicit FuncType(const Node &node) noexcept : Base{node} {
@@ -92,8 +94,6 @@ private:
 
   static Node create(Code *holder, Kinds params, Kinds results) noexcept;
 };
-
-const Fmt &operator<<(const Fmt &out, const FuncType &ftype);
 
 } // namespace onejit
 

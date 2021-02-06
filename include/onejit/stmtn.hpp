@@ -57,6 +57,8 @@ public:
     return OpStmtN(Base::op());
   }
 
+  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+
 protected:
   // downcast Node to StmtN
   constexpr explicit StmtN(const Node &node) noexcept : Base{node} {
@@ -74,8 +76,6 @@ protected:
 private:
   static Node create(Func &func, const Nodes nodes, OpStmtN op) noexcept;
 };
-
-const Fmt &operator<<(const Fmt &out, const StmtN &st);
 
 ////////////////////////////////////////////////////////////////////////////////
 // collect multiple results of a function call and assign them to multiple variables

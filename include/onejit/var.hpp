@@ -76,6 +76,8 @@ public:
     return local().id();
   }
 
+  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+
 private:
   // downcast Node to Var
   constexpr explicit Var(const Node &node) noexcept //
@@ -100,8 +102,6 @@ public:
 
 // Var representing architectural flags register: EFLAGS on x86/x64, APSR on arm/arm64 ...
 constexpr const Var FlagsVar = VarHelper::Flags;
-
-const Fmt &operator<<(const Fmt &out, const Var &v);
 
 } // namespace onejit
 

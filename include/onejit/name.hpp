@@ -64,6 +64,8 @@ public:
   /// \return reference to string contents inside Code* holder
   Chars chars() const noexcept;
 
+  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+
 private:
   // downcast Node to Name
   constexpr explicit Name(const Node &node) noexcept : Base{node} {
@@ -76,8 +78,6 @@ private:
 
   static Node create(Code *holder, Chars str) noexcept;
 };
-
-const Fmt &operator<<(const Fmt &out, const Name &name);
 
 } // namespace onejit
 

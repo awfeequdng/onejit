@@ -67,6 +67,8 @@ public:
     return 0;
   }
 
+  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+
 protected:
   // downcast Node to Stmt0
   constexpr explicit Stmt0(const Node &node) noexcept //
@@ -78,8 +80,6 @@ protected:
     return t == STMT_0;
   }
 };
-
-const Fmt &operator<<(const Fmt &out, const Stmt0 &st);
 
 ////////////////////////////////////////////////////////////////////////////////
 class BadStmt : public Stmt0 {

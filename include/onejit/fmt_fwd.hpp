@@ -35,20 +35,14 @@ using Hex = ::onestl::Hex;
 using Writer = ::onestl::Writer;
 
 const Fmt &operator<<(const Fmt &out, ArchId);
-const Fmt &operator<<(const Fmt &out, const Binary &);
 const Fmt &operator<<(const Fmt &out, Bits);
-const Fmt &operator<<(const Fmt &out, const Const &);
 const Fmt &operator<<(const Fmt &out, eArchId);
 const Fmt &operator<<(const Fmt &out, eKind);
-const Fmt &operator<<(const Fmt &out, const FuncType &);
 const Fmt &operator<<(const Fmt &out, Group);
 const Fmt &operator<<(const Fmt &out, const Imm &);
 const Fmt &operator<<(const Fmt &out, Kind);
-const Fmt &operator<<(const Fmt &out, const Label &);
 const Fmt &operator<<(const Fmt &out, Id);
 const Fmt &operator<<(const Fmt &out, Local);
-const Fmt &operator<<(const Fmt &out, const Mem &);
-const Fmt &operator<<(const Fmt &out, const Name &);
 const Fmt &operator<<(const Fmt &out, const Node &);
 const Fmt &operator<<(const Fmt &out, Op1);
 const Fmt &operator<<(const Fmt &out, Op2);
@@ -59,16 +53,6 @@ const Fmt &operator<<(const Fmt &out, OpStmt2);
 const Fmt &operator<<(const Fmt &out, OpStmt3);
 const Fmt &operator<<(const Fmt &out, OpStmt4);
 const Fmt &operator<<(const Fmt &out, OpStmtN);
-const Fmt &operator<<(const Fmt &out, const Stmt0 &);
-const Fmt &operator<<(const Fmt &out, const Stmt1 &);
-const Fmt &operator<<(const Fmt &out, const Stmt2 &);
-const Fmt &operator<<(const Fmt &out, const Stmt2 &);
-const Fmt &operator<<(const Fmt &out, const Stmt3 &);
-const Fmt &operator<<(const Fmt &out, const Stmt4 &);
-const Fmt &operator<<(const Fmt &out, const StmtN &);
-const Fmt &operator<<(const Fmt &out, const Tuple &);
-const Fmt &operator<<(const Fmt &out, const Unary &);
-const Fmt &operator<<(const Fmt &out, const Var &);
 
 } // namespace onejit
 

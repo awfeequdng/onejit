@@ -17,42 +17,34 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * binary.cpp
+ * space.hpp
  *
- *  Created on Jan 16, 2021
+ *  Created on Feb 06, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/binary.hpp>
-#include <onejit/code.hpp>
-#include <onejit/func.hpp>
+#ifndef ONEJIT_SPACE_HPP
+#define ONEJIT_SPACE_HPP
+
+#include <onejit/fwd.hpp>
 
 namespace onejit {
 
-// autodetect kind
-Node Binary::create(Func &func, Op2 op, const Expr &left, const Expr &right) {
-  while (Code *holder = func.code()) {
-    Kind kind = Bad;
-    if (op == BAD2) {
-    } else if (op <= AND_NOT) {
-      kind = left.kind();
-    } else if (op <= GEQ) {
-      kind = Bool; // && || comparison
-    }
-    const NodeHeader header{BINARY, kind, uint16_t(op)};
-    CodeItem offset = holder->length();
-
-    if (holder->add(header) && holder->add(left, offset) && holder->add(right, offset)) {
-      return Node{header, offset, holder};
-    }
-    holder->truncate(offset);
-    break;
+class Space {
+public:
+  constexpr explicit Space(size_t size) noexcept : size_{size} {
   }
-  return Node{};
-}
 
-const Fmt &Binary::format(const Fmt &out, size_t /*depth*/) const {
-  return out << '(' << op() << ' ' << x() << ' ' << y() << ')';
-}
+  constexpr size_t size() noexcept {
+    return size_;
+  }
+
+private:
+  size_t size_;
+};
+
+const Fmt &operator<<(const Fmt &out, Space space);
 
 } // namespace onejit
+
+#endif // ONEJIT_SPACE_HPP

@@ -63,6 +63,8 @@ public:
 
   using Base::kind;
 
+  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+
 protected:
   // used by subclasses
   Mem(Func &func, Kind kind, OpN op, Exprs args) noexcept //
@@ -86,8 +88,6 @@ private:
 
   static Node create(Func &func, Kind kind, OpN op, Exprs args) noexcept;
 };
-
-const Fmt &operator<<(const Fmt &out, const Mem &mem);
 
 } // namespace onejit
 

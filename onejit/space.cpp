@@ -17,42 +17,35 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * binary.cpp
+ * space.cpp
  *
- *  Created on Jan 16, 2021
+ *  Created on Feb 06, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/binary.hpp>
-#include <onejit/code.hpp>
-#include <onejit/func.hpp>
+#include <onejit/fmt.hpp>
+#include <onejit/space.hpp>
+#include <onestl/chars.hpp>
 
 namespace onejit {
 
-// autodetect kind
-Node Binary::create(Func &func, Op2 op, const Expr &left, const Expr &right) {
-  while (Code *holder = func.code()) {
-    Kind kind = Bad;
-    if (op == BAD2) {
-    } else if (op <= AND_NOT) {
-      kind = left.kind();
-    } else if (op <= GEQ) {
-      kind = Bool; // && || comparison
-    }
-    const NodeHeader header{BINARY, kind, uint16_t(op)};
-    CodeItem offset = holder->length();
+static const Chars str = "                                                                "
+                         "                                                                "
+                         "                                                                "
+                         "                                                                ";
 
-    if (holder->add(header) && holder->add(left, offset) && holder->add(right, offset)) {
-      return Node{header, offset, holder};
-    }
-    holder->truncate(offset);
-    break;
+const Fmt &operator<<(const Fmt &out, Space space) {
+  const size_t n = str.size();
+  size_t left = space.size();
+
+  while (left >= n) {
+    out << str;
+    left -= n;
   }
-  return Node{};
-}
-
-const Fmt &Binary::format(const Fmt &out, size_t /*depth*/) const {
-  return out << '(' << op() << ' ' << x() << ' ' << y() << ')';
+  if (left) {
+    out << str.view(0, left);
+  }
+  return out;
 }
 
 } // namespace onejit

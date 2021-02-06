@@ -79,6 +79,8 @@ public:
     return child_is<Expr>(0);
   }
 
+  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+
 private:
   // downcast Node to Unary
   constexpr explicit Unary(const Node &node) noexcept : Base{node} {
@@ -94,8 +96,6 @@ private:
   // overrides Kind autodetection. needed by CONVERT and BITCOPY
   static Node create(Func &func, Kind kind, Op1 op, Expr child) noexcept;
 };
-
-const Fmt &operator<<(const Fmt &out, const Unary &expr);
 
 } // namespace onejit
 

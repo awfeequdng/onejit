@@ -57,8 +57,8 @@ Label Label::create(Code *holder, uint64_t address, uint16_t index) noexcept {
   return Label{};
 }
 
-const Fmt &operator<<(const Fmt &out, const Label &l) {
-  return out << l.type() << '_' << l.index();
+const Fmt &Label::format(const Fmt &out, size_t /*depth*/) const {
+  return out << type() << '_' << index();
 }
 
 } // namespace onejit

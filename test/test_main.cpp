@@ -523,7 +523,7 @@ void Test::func_loop() {
   Chars expected = "(block\n\
     (= var1001_ul 0)\n\
     (for (= var1002_ul 0) (< var1002_ul var1000_ul) (++ var1002_ul)\n\
-    (+= var1001_ul var1002_ul))\n\
+        (+= var1001_ul var1002_ul))\n\
     (return var1001_ul))";
   TEST(to_string(f.get_body()), ==, expected);
 
@@ -587,10 +587,10 @@ void Test::func_switch1() {
 
   Chars expected = "(block\n\
     (switch\n\
-    var1000_ul\n\
-    (case 0 (= var1001_ul 1))\n\
-    (case 1 (= var1001_ul 2))\n\
-    (default (= var1001_ul (+ var1000_ul 1))))\n\
+        var1000_ul\n\
+        (case 0 (= var1001_ul 1))\n\
+        (case 1 (= var1001_ul 2))\n\
+        (default (= var1001_ul (+ var1000_ul 1))))\n\
     (return var1001_ul))";
   TEST(to_string(f.get_body()), ==, expected);
 
@@ -658,10 +658,10 @@ void Test::func_switch2() {
 
   Chars expected = "(block\n\
     (switch\n\
-    var1000_ul\n\
-    (case 0 (= var1001_ul 1))\n\
-    (default (= var1001_ul (+ var1000_ul 1)))\n\
-    (case 1 (= var1001_ul 2)))\n\
+        var1000_ul\n\
+        (case 0 (= var1001_ul 1))\n\
+        (default (= var1001_ul (+ var1000_ul 1)))\n\
+        (case 1 (= var1001_ul 2)))\n\
     (return var1001_ul))";
   TEST(to_string(f.get_body()), ==, expected);
 
@@ -725,12 +725,12 @@ void Test::func_cond() {
 
   Chars expected = "(block\n\
     (cond\n\
-    (== var1000_ul 0)\n\
-    (= var1001_ul 1)\n\
-    (== var1000_ul 1)\n\
-    (= var1001_ul 2)\n\
-    true\n\
-    (= var1001_ul (+ var1000_ul 1)))\n\
+        (== var1000_ul 0)\n\
+        (= var1001_ul 1)\n\
+        (== var1000_ul 1)\n\
+        (= var1001_ul 2)\n\
+        true\n\
+        (= var1001_ul (+ var1000_ul 1)))\n\
     (return var1001_ul))";
   TEST(to_string(f.get_body()), ==, expected);
 

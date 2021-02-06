@@ -56,6 +56,8 @@ public:
     return OpN(Base::op());
   }
 
+  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+
 private:
   // used by Compiler::compile(Tuple)
   Tuple(Func &func, Kind kind, OpN op, Nodes nodes) noexcept //
@@ -73,8 +75,6 @@ private:
 
   static Node create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept;
 };
-
-const Fmt &operator<<(const Fmt &out, const Tuple &expr);
 
 } // namespace onejit
 

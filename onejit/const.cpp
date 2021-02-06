@@ -56,8 +56,8 @@ Node Const::create(Func &func, const Imm &imm) noexcept {
   return Node{};
 }
 
-const Fmt &operator<<(const Fmt &out, const Const &c) {
-  return out << c.imm();
+const Fmt &Const::format(const Fmt &out, size_t /*depth*/) const {
+  return out << imm();
 }
 
 } // namespace onejit

@@ -70,6 +70,8 @@ public:
     return Base::uint64(offset_or_direct() + sizeof(CodeItem));
   }
 
+  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+
 private:
   // downcast Node to Label
   constexpr explicit Label(const Node &node) noexcept : Base{node} {
@@ -89,8 +91,6 @@ struct Relocation {
   size_t pos;
   Label label;
 };
-
-const Fmt &operator<<(const Fmt &out, const Label &l);
 
 } // namespace onejit
 

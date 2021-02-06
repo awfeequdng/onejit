@@ -132,39 +132,39 @@ Offset Node::length_items() const noexcept {
   return sum_uint32(len, plus);
 }
 
-const Fmt &operator<<(const Fmt &out, const Node &node) {
-  const Type t = node.type();
+const Fmt &Node::format(const Fmt &out, const size_t depth) const {
+  const Type t = type();
   switch (t) {
   case STMT_0:
-    return out << node.is<Stmt0>();
+    return is<Stmt0>().format(out, depth);
   case STMT_1:
-    return out << node.is<Stmt1>();
+    return is<Stmt1>().format(out, depth);
   case STMT_2:
-    return out << node.is<Stmt2>();
+    return is<Stmt2>().format(out, depth);
   case STMT_3:
-    return out << node.is<Stmt3>();
+    return is<Stmt3>().format(out, depth);
   case STMT_4:
-    return out << node.is<Stmt4>();
+    return is<Stmt4>().format(out, depth);
   case STMT_N:
-    return out << node.is<StmtN>();
+    return is<StmtN>().format(out, depth);
   case VAR:
-    return out << node.is<Var>();
+    return is<Var>().format(out, depth);
   case MEM:
-    return out << node.is<Mem>();
+    return is<Mem>().format(out, depth);
   case UNARY:
-    return out << node.is<Unary>();
+    return is<Unary>().format(out, depth);
   case BINARY:
-    return out << node.is<Binary>();
+    return is<Binary>().format(out, depth);
   case TUPLE:
-    return out << node.is<Tuple>();
+    return is<Tuple>().format(out, depth);
   case LABEL:
-    return out << node.is<Label>();
+    return is<Label>().format(out, depth);
   case CONST:
-    return out << node.is<Const>();
+    return is<Const>().format(out, depth);
   case FTYPE:
-    return out << node.is<FuncType>();
+    return is<FuncType>().format(out, depth);
   case NAME:
-    return out << node.is<Name>();
+    return is<Name>().format(out, depth);
   default:
     return out << to_string(t);
   }

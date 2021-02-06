@@ -52,20 +52,21 @@ Node Tuple::create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept {
   return Node{};
 }
 
-const Fmt &operator<<(const Fmt &out, const Tuple &expr) {
-  if (expr.type() == MEM) {
+const Fmt &Tuple::format(const Fmt &out, size_t depth) const {
+  if (type() == MEM) {
     // may happen, Mem is a subclass of Tuple
-    return out << expr.is<Mem>();
+    return is<Mem>().format(out, depth);
   }
 
-  OpN op = expr.op();
+  OpN op = this->op();
   out << '(' << op;
   const bool is_call = op == CALL;
   // if op == CALL, skip child(0) i.e. FuncType
-  for (size_t i = size_t(is_call), n = expr.children(); i < n; i++) {
-    Node child = expr.child(i);
-    if (child) {
-      out << ' ' << child;
+  for (size_t i = size_t(is_call), n = children(); i < n; i++) {
+    Node node = child(i);
+    if (node) {
+      out << ' ';
+      node.format(out, depth + 1);
     }
   }
   return out << ')';

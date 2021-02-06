@@ -27,6 +27,7 @@
 #include <onejit/code.hpp>
 #include <onejit/expr.hpp>
 #include <onejit/func.hpp>
+#include <onejit/space.hpp>
 #include <onejit/stmt2.hpp> // Case
 #include <onejit/stmtn.hpp>
 #include <onestl/chars.hpp>
@@ -51,15 +52,18 @@ Node StmtN::create(Func &func, const Nodes nodes, OpStmtN op) noexcept {
   return Node{};
 }
 
-const Fmt &operator<<(const Fmt &out, const StmtN &st) {
-  const OpStmtN op = st.op();
+const Fmt &StmtN::format(const Fmt &out, size_t depth) const {
+  ++depth;
+  const OpStmtN op = this->op();
   out << '(' << op;
-  Chars separator = " ";
-  if (op == BLOCK || op == COND || op == SWITCH) {
-    separator = "\n    ";
-  }
-  for (size_t i = 0, n = st.children(); i < n; i++) {
-    out << separator << st.child(i);
+
+  for (size_t i = 0, n = children(); i < n; i++) {
+    if (op == BLOCK || op == COND || op == SWITCH) {
+      out << '\n' << Space{depth * 4};
+    } else {
+      out << ' ';
+    }
+    child(i).format(out, depth);
   }
   return out << ')';
 }

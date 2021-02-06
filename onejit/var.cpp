@@ -57,8 +57,8 @@ Local Var::local() const noexcept {
   }
 }
 
-const Fmt &operator<<(const Fmt &out, const Var &v) {
-  return out << v.local();
+const Fmt &Var::format(const Fmt &out, size_t /*depth*/) const {
+  return out << local();
 }
 
 } // namespace onejit

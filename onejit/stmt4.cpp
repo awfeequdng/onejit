@@ -25,6 +25,7 @@
 
 #include <onejit/code.hpp>
 #include <onejit/func.hpp>
+#include <onejit/space.hpp>
 #include <onejit/stmt4.hpp>
 #include <onestl/chars.hpp>
 
@@ -49,9 +50,14 @@ ONEJIT_NOINLINE Node Stmt4::create(Func &func, const Node &child0, const Node &c
   return Node{};
 }
 
-const Fmt &operator<<(const Fmt &out, const Stmt4 &st) {
-  return out << '(' << st.op() << ' ' << st.child(0) << ' ' << st.child(1) //
-             << ' ' << st.child(2) << "\n    " << st.child(3) << ')';
+const Fmt &Stmt4::format(const Fmt &out, size_t depth) const {
+  ++depth;
+  out << '(' << op() << ' ';
+  child(0).format(out, depth) << ' ';
+  child(1).format(out, depth) << ' ';
+  child(2).format(out, depth) << '\n' << Space{depth * 4};
+  child(3).format(out, depth) << ')';
+  return out;
 }
 
 // ============================  For  =======================================
