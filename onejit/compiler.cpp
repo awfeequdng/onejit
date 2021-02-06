@@ -355,6 +355,33 @@ Node Compiler::compile(Assign assign, bool) noexcept {
   return VoidExpr;
 }
 
+static OpStmt1 comparison_to_condjump(Op2 op2, bool is_unsigned) noexcept {
+  OpStmt1 op = BAD_ST1;
+  switch (op2) {
+  case LSS:
+    op = is_unsigned ? ASM_JB : ASM_JL;
+    break;
+  case LEQ:
+    op = is_unsigned ? ASM_JBE : ASM_JLE;
+    break;
+  case NEQ:
+    op = ASM_JNE;
+    break;
+  case EQL:
+    op = ASM_JE;
+    break;
+  case GTR:
+    op = is_unsigned ? ASM_JA : ASM_JG;
+    break;
+  case GEQ:
+    op = is_unsigned ? ASM_JAE : ASM_JGE;
+    break;
+  default:
+    break;
+  }
+  return op;
+}
+
 Node Compiler::compile(JumpIf jump_if, bool) noexcept {
   Label to = jump_if.to();
   Expr test = compile(jump_if.test(), true);
@@ -371,29 +398,7 @@ Node Compiler::compile(JumpIf jump_if, bool) noexcept {
   if (Binary expr = test.is<Binary>()) {
     x = expr.x();
     y = expr.y();
-    bool is_unsigned = x.kind().is_unsigned();
-    switch (expr.op()) {
-    case LSS:
-      op = is_unsigned ? ASM_JB : ASM_JL;
-      break;
-    case LEQ:
-      op = is_unsigned ? ASM_JBE : ASM_JLE;
-      break;
-    case NEQ:
-      op = ASM_JNE;
-      break;
-    case EQL:
-      op = ASM_JE;
-      break;
-    case GTR:
-      op = is_unsigned ? ASM_JA : ASM_JG;
-      break;
-    case GEQ:
-      op = is_unsigned ? ASM_JAE : ASM_JGE;
-      break;
-    default:
-      break;
-    }
+    op = comparison_to_condjump(expr.op(), x.kind().is_unsigned());
   }
   if (op == BAD_ST1) {
     x = test;
