@@ -362,10 +362,11 @@ Node Compiler::compile(JumpIf jump_if, bool) noexcept {
   OpStmt1 op = BAD_ST1;
   bool negate = false;
   while (Unary expr = test.is<Unary>()) {
-    if (expr.op() == NOT1) {
-      negate = !negate;
-      test = expr.x();
+    if (expr.op() != NOT1) {
+      break;
     }
+    negate = !negate;
+    test = expr.x();
   }
   if (Binary expr = test.is<Binary>()) {
     x = expr.x();
