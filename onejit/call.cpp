@@ -34,16 +34,6 @@ namespace onejit {
 
 // ============================  Call  ====================================
 
-// shortcut for child(0).is<FuncType>()
-FuncType Call::ftype() const noexcept {
-  return child(0).is<FuncType>();
-}
-
-// shortcut for child(1).is<Label>()
-Label Call::label() const noexcept {
-  return child(1).is<Label>();
-}
-
 // shortcut for child(i + 2).is<Expr>()
 Expr Call::arg(uint32_t i) const noexcept {
   return child(sum_uint32(2, i)).is<Expr>();

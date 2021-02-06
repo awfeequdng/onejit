@@ -548,7 +548,7 @@ Node Compiler::compile(Cond st, bool) noexcept {
       bool is_last = i + 2 >= n;
       Label l_next = is_last ? l_end : Label{*func_};
       compile_add(JumpIf{*func_, l_next, //
-                         Unary{*func_, NOT1, st.child(i).is<Expr>()}},
+                         Unary{*func_, NOT1, st.child_is<Expr>(i)}},
                   false);
       compile_add(st.child(i + 1), false);
       if (!is_last && goto_end) {
@@ -579,7 +579,7 @@ Node Compiler::compile(Return st, bool) noexcept {
   Buffer<Expr> vars;
   for (size_t i = 0; i < n; i++) {
     Var var = func_->result(i);
-    Expr expr = st.child(i).is<Expr>();
+    Expr expr = st.child_is<Expr>(i);
     if (expr != var) {
       // compile expression and copy its result
       // to expected location func_->result(i)
@@ -627,7 +627,7 @@ Node Compiler::compile(Switch st, bool) noexcept {
 
   // skip child(0) = expr
   for (size_t i = 1; i < n; i++) {
-    Case case_i = st.child(i).is<Case>();
+    Case case_i = st.child_is<Case>(i);
     bool is_last = i + 1 >= n;
     if (is_last) {
       l_next = l_default ? l_default : l_break;

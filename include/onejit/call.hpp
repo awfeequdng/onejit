@@ -74,13 +74,17 @@ public:
     return CALL;
   }
 
-  // shortcut for child(0).is<FuncType>()
-  FuncType ftype() const noexcept;
+  // shortcut for child_is<FuncType>(0)
+  FuncType ftype() const noexcept {
+    return child_is<FuncType>(0);
+  }
 
-  // shortcut for child(1).is<Label>()
-  Label label() const noexcept;
+  // shortcut for child_is<Label>(1)
+  Label label() const noexcept {
+    return child_is<Label>(1);
+  }
 
-  // shortcut for child(i+2).is<Expr>()
+  // shortcut for child_is<Expr>(i+2)
   Expr arg(uint32_t i) const noexcept;
 
 private:

@@ -72,19 +72,21 @@ public:
     return X86_MEM;
   }
 
-  // shortcut for child(0).is<Label>()
-  Label label() const noexcept;
+  // shortcut for child_is<Label>(0)
+  Label label() const noexcept {
+    return child_is<Label>(0);
+  }
 
-  // shortcut for child(1).is<Const>().imm().int32()
+  // shortcut for child_is<Const>(1).imm().int32()
   int32_t offset() const noexcept;
 
-  // shortcut for child(2).is<Var>().local()
+  // shortcut for child_is<Var>(2).local()
   Local base() const noexcept;
 
-  // shortcut for child(3).is<Var>().local()
+  // shortcut for child_is<Var>(3).local()
   Local index() const noexcept;
 
-  // shortcut for Scale(child(4).is<Const>().imm().uint8())
+  // shortcut for Scale(child_is<Const>(4).imm().uint8())
   Scale scale() const noexcept;
 
 private:

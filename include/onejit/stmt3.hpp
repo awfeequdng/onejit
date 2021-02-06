@@ -106,9 +106,9 @@ public:
     return IF;
   }
 
-  // shortcut for child(0).is<Expr>()
+  // shortcut for child_is<Expr>(0)
   Expr test() const noexcept {
-    return child(0).is<Expr>();
+    return child_is<Expr>(0);
   }
 
   // shortcut for child(1)

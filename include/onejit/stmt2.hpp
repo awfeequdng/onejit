@@ -114,14 +114,14 @@ public:
     return OpStmt2(Base::op());
   }
 
-  // shortcut for child(0).is<Expr>()
+  // shortcut for child_is<Expr>(0)
   Expr dst() const noexcept {
-    return child(0).is<Expr>();
+    return child_is<Expr>(0);
   }
 
-  // shortcut for child(1).is<Expr>()
+  // shortcut for child_is<Expr>(1)
   Expr src() const noexcept {
-    return child(1).is<Expr>();
+    return child_is<Expr>(1);
   }
 
 private:
@@ -161,9 +161,9 @@ public:
     return OpStmt2(Base::op());
   }
 
-  // shortcut for child(0).is<Expr>()
+  // shortcut for child_is<Expr>(0)
   Expr expr() noexcept {
-    return child(0).is<Expr>();
+    return child_is<Expr>(0);
   }
 
   // shortcut for child(1)
@@ -256,14 +256,14 @@ public:
     return JUMP_IF;
   }
 
-  // shortcut for child(0).is<Label>()
+  // shortcut for child_is<Label>(0)
   Label to() const noexcept {
-    return child(0).is<Label>();
+    return child_is<Label>(0);
   }
 
-  // shortcut for child(1).is<Expr>()
+  // shortcut for child_is<Expr>(1)
   Expr test() const noexcept {
-    return child(1).is<Expr>();
+    return child_is<Expr>(1);
   }
 
 private:

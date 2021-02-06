@@ -297,15 +297,13 @@ public:
     return SWITCH;
   }
 
-  // shortcut for child(0).is<Expr>()
+  // shortcut for child_is<Expr>(0)
   Expr expr() const noexcept {
-    return child(0).is<Expr>();
+    return child_is<Expr>(0);
   }
 
   // shortcut for child(i+1).is<Case>()
-  Case case_(uint32_t i) const noexcept {
-    return child(sum_uint32(1, i)).is<Case>();
-  }
+  Case case_(uint32_t i) const noexcept;
 
 private:
   // downcast Node to Switch

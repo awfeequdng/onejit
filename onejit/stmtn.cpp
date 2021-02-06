@@ -125,4 +125,8 @@ Node Switch::create(Func &func, const Expr &expr, const Cases cases) noexcept {
   return Node{};
 }
 
+Case Switch::case_(uint32_t i) const noexcept {
+  return child_is<Case>(sum_uint32(1, i));
+}
+
 } // namespace onejit

@@ -68,14 +68,14 @@ public:
     return 2;
   }
 
-  // shortcut for child(0).is<Expr>()
-  Expr x() const {
-    return child(0).is<Expr>();
+  // shortcut for child_is<Expr>(0)
+  Expr x() const noexcept {
+    return child_is<Expr>(0);
   }
 
-  // shortcut for child(1).is<Expr>()
-  Expr y() const {
-    return child(1).is<Expr>();
+  // shortcut for child_is<Expr>(1)
+  Expr y() const noexcept {
+    return child_is<Expr>(1);
   }
 
 private:

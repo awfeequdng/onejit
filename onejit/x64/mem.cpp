@@ -60,29 +60,24 @@ Node Mem::create(Func &func, Kind kind, const Label &label, const int32_t offset
   return Mem{};
 }
 
-// shortcut for child(0).is<Label>()
-Label Mem::label() const noexcept {
-  return child(0).is<Label>();
-}
-
-// shortcut for child(1).is<Const>().imm().int32()
+// shortcut for child_is<Const>(1).imm().int32()
 int32_t Mem::offset() const noexcept {
-  return child(1).is<Const>().imm().int32();
+  return child_is<Const>(1).imm().int32();
 }
 
-// shortcut for child(2).is<Var>().local()
+// shortcut for child_is<Var>(2).local()
 Local Mem::base() const noexcept {
-  return child(2).is<Var>().local();
+  return child_is<Var>(2).local();
 }
 
-// shortcut for child(3).is<Var>().local()
+// shortcut for child_is<Var>(3).local()
 Local Mem::index() const noexcept {
-  return child(3).is<Var>().local();
+  return child_is<Var>(3).local();
 }
 
-// shortcut for Scale(child(4).is<Const>().imm().uint8())
+// shortcut for Scale(child_is<Const>(4).imm().uint8())
 Scale Mem::scale() const noexcept {
-  return Scale(child(4).is<Const>().imm().uint8());
+  return Scale(child_is<Const>(4).imm().uint8());
 }
 
 } // namespace x64

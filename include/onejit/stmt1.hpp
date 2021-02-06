@@ -114,9 +114,9 @@ public:
     return GOTO;
   }
 
-  // shortcut for child(0).is<Label>()
+  // shortcut for child_is<Label>(0)
   Label to() const noexcept {
-    return child(0).is<Label>();
+    return child_is<Label>(0);
   }
 
 private:
@@ -157,9 +157,9 @@ public:
     return INC;
   }
 
-  // shortcut for child(0).is<Expr>()
+  // shortcut for child_is<Expr>(0)
   Expr expr() const noexcept {
-    return child(0).is<Expr>();
+    return child_is<Expr>(0);
   }
 
 private:
@@ -200,9 +200,9 @@ public:
     return DEC;
   }
 
-  // shortcut for child(0).is<Expr>()
+  // shortcut for child_is<Expr>(0)
   Expr expr() const noexcept {
-    return child(0).is<Expr>();
+    return child_is<Expr>(0);
   }
 
 private:

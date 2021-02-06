@@ -115,6 +115,12 @@ public:
   // return Node{} if i is out of bounds
   Node child(uint32_t i) const noexcept;
 
+  // try to downcast child(i) to T. return T{} if fails.
+  // equivalent to child(i).is<T>()
+  template <class T> constexpr ONEJIT_NOINLINE T child_is(uint32_t i) const noexcept {
+    return child(i).is<T>();
+  }
+
   // try to downcast Node to T. return T{} if fails.
   template <class T> constexpr T is() const noexcept {
     static_assert(std::is_base_of<Node, T>::value, "Node::is(): type T must be a subclass of Node");
@@ -130,7 +136,7 @@ public:
   // return true if all children between start ... end-1 can be downcasted to T.
   template <class T> bool children_are(uint32_t start, uint32_t end) const noexcept {
     for (size_t i = start; i < end; i++) {
-      if (!child(i).is<T>()) {
+      if (!child_is<T>(i)) {
         return false;
       }
     }
