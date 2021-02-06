@@ -47,7 +47,7 @@ static const Inst1 inst1_vec[] = {
     Inst1{"\x0f\x0b", "\x0f\x0b", "\x0f\x0b", Arg1::None, B0}, /*               bad instruction */
     Inst1{"\x0f\xc8", "", "", Arg1::Reg, B32 | B64},           /*                       bswap   */
     Inst1{"\xff\x10", "", "\xe8", Arg1::Reg | Arg1::Mem | Arg1::Val, B64, B32}, /*      call    */
-    /* TODO */ Inst1{"", "", "", Arg1::Rax, B16 | B32 | B64},                   /*      cbw     */
+    Inst1{"", "", "", Arg1::Rax, B16 | B32 | B64},                              /* TODO cbw     */
     Inst1{"\xfe\x08", "", "", Arg1::Reg | Arg1::Mem, B8 | B16 | B32 | B64, B0, EFwrite}, /* dec */
     Inst1{"\xfe\x00", "", "", Arg1::Reg | Arg1::Mem, B8 | B16 | B32 | B64, B0, EFwrite}, /* inc */
     Inst1{"", "\xcd", "", Arg1::Val, B0, B8},                                        /* int     */
@@ -80,30 +80,30 @@ static const Inst1 inst1_vec[] = {
     Inst1{"\xff\x30", "\x6a", "\x68", Arg1::Reg | Arg1::Mem | Arg1::Val, B16 | B64, B8 | B32},
     Inst1{"\x0f\x31", "", "", Arg1::Rax, B128}, /* B64 on 32bit                         rdtsc   */
     /*      reg/mem                                                               */ /*-------- */
-    Inst1{"\x0f\x97\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            seta    */
-    Inst1{"\x0f\x93\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setae   */
-    Inst1{"\x0f\x92\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setb    */
-    Inst1{"\x0f\x96\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setbe   */
-    Inst1{"\x0f\x94\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            sete    */
-    Inst1{"\x0f\x9f\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setg    */
-    Inst1{"\x0f\x9d\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setge   */
-    Inst1{"\x0f\x9c\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setl    */
-    Inst1{"\x0f\x9e\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setle   */
-    Inst1{"\x0f\x95\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setne   */
-    Inst1{"\x0f\x91\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setno   */
-    Inst1{"\x0f\x9b\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setnp   */
-    Inst1{"\x0f\x99\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setns   */
-    Inst1{"\x0f\x90\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            seto    */
-    Inst1{"\x0f\x9a\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            setp    */
-    Inst1{"\x0f\x98\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread}, /*            sets    */
-    ONEJIT_COMMENT()                  /* [CPUID CLFSH] is required by the following instructions */
-    Inst1{"", "", "", Arg1::Mem, B8}, /*                                     clflush    */
-    ONEJIT_COMMENT() /* [CPUID CLFLUSHOPT] is required by the following instructions */
-    Inst1{"", "", "", Arg1::Mem, B8}, /*                                     clflushopt */
-    ONEJIT_COMMENT() /* [CPUID CLWB] is required by the following instructions                  */
-    Inst1{"", "", "", Arg1::Mem, B8}, /*                           clwb                 */
-    ONEJIT_COMMENT() /* [CPUID RTM] is required by the following instructions                   */
-    Inst1{"", "", "", Arg1::Val, B0, B8}, /*                       xabort               */
+    Inst1{"\x0f\x97\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* seta    */
+    Inst1{"\x0f\x93\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* setae   */
+    Inst1{"\x0f\x92\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* setb    */
+    Inst1{"\x0f\x96\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* setbe   */
+    Inst1{"\x0f\x94\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* sete    */
+    Inst1{"\x0f\x9f\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* setg    */
+    Inst1{"\x0f\x9d\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* setge   */
+    Inst1{"\x0f\x9c\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* setl    */
+    Inst1{"\x0f\x9e\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* setle   */
+    Inst1{"\x0f\x95\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* setne   */
+    Inst1{"\x0f\x91\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* setno   */
+    Inst1{"\x0f\x9b\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* setnp   */
+    Inst1{"\x0f\x99\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* setns   */
+    Inst1{"\x0f\x90\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* seto    */
+    Inst1{"\x0f\x9a\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* setp    */
+    Inst1{"\x0f\x98\x00", "", "", Arg1::Reg | Arg1::Mem, B8, B0, EFread},            /* sets    */
+    ONEJIT_COMMENT() /* [CPUID CLFSH] is required by the following instructions --------------- */
+    Inst1{"", "", "", Arg1::Mem, B8}, /*                                     TODO    clflush    */
+    ONEJIT_COMMENT() /* [CPUID CLFLUSHOPT] is required by the following instructions ---------- */
+    Inst1{"", "", "", Arg1::Mem, B8}, /*                                     TODO    clflushopt */
+    ONEJIT_COMMENT() /* [CPUID CLWB] is required by the following instructions ---------------- */
+    Inst1{"", "", "", Arg1::Mem, B8}, /*                                     TODO    clwb       */
+    ONEJIT_COMMENT() /* [CPUID RTM] is required by the following instructions ----------------- */
+    Inst1{"", "", "", Arg1::Val, B0, B8}, /*                                 TODO    xabort     */
 };
 
 const Inst1 &Asm1::find(OpStmt1 op) noexcept {

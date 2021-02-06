@@ -85,6 +85,10 @@ inline String to_string(const String &val) {
   return String{val};
 }
 
+inline String to_string(String &&val) noexcept {
+  return std::move(val);
+}
+
 } // namespace onestl
 
 #endif // ONESTL_CHECK_HPP
