@@ -17,34 +17,26 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * imm.cpp
+ * eval.hpp
  *
- *  Created on Jan 13, 2021
+ *  Created on Feb 07, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/code.hpp>
-#include <onejit/imm.hpp>
-#include <onestl/chars.hpp>
+#ifndef ONEJIT_EVAL_HPP
+#define ONEJIT_EVAL_HPP
+
+#include <onejit/fwd.hpp>
 
 namespace onejit {
 
-Imm Imm::parse_indirect(Kind kind, Offset offset, const Code *holder) noexcept {
-  uint64_t bits;
-  if (kind.bits().val() == 64) {
-    bits = holder->uint64(offset);
-  } else {
-    bits = holder->uint32(offset);
-  }
-  return Imm{kind, bits};
-}
+bool is_const(Expr expr) noexcept;
 
-Code &Imm::write_indirect(Code *holder) const noexcept {
-  if (kind().bits().val() == 64) {
-    return holder->add_uint64(uint64());
-  } else {
-    return holder->add_uint32(uint32());
-  }
-}
+// evaluate a constant expression
+Value eval(Expr expr) noexcept;
+Value eval_unary(Kind kind, Op1 op, Value x) noexcept;
+Value eval_binary(Op2 op, Value x, Value y) noexcept;
 
 } // namespace onejit
+
+#endif // ONEJIT_EVAL_HPP

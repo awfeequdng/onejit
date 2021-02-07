@@ -39,7 +39,6 @@ const Fmt &operator<<(const Fmt &out, Bits);
 const Fmt &operator<<(const Fmt &out, eArchId);
 const Fmt &operator<<(const Fmt &out, eKind);
 const Fmt &operator<<(const Fmt &out, Group);
-const Fmt &operator<<(const Fmt &out, const Imm &);
 const Fmt &operator<<(const Fmt &out, Kind);
 const Fmt &operator<<(const Fmt &out, Id);
 const Fmt &operator<<(const Fmt &out, Local);
@@ -53,6 +52,7 @@ const Fmt &operator<<(const Fmt &out, OpStmt2);
 const Fmt &operator<<(const Fmt &out, OpStmt3);
 const Fmt &operator<<(const Fmt &out, OpStmt4);
 const Fmt &operator<<(const Fmt &out, OpStmtN);
+const Fmt &operator<<(const Fmt &out, const Value &);
 
 } // namespace onejit
 

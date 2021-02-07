@@ -23,63 +23,18 @@
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_CONST_HPP
-#define ONEJIT_CONST_HPP
+#ifndef ONEJIT_IMM_HPP
+#define ONEJIT_IMM_HPP
 
 #include <onejit/node.hpp>
+#include <onejit/value.hpp>
 
 namespace onejit {
 
-union ConstantFloat32 {
-public:
-  constexpr ConstantFloat32() noexcept : float_{0.0f} {
-  }
-  constexpr explicit ConstantFloat32(float val) noexcept : float_{val} {
-  }
-  constexpr explicit ConstantFloat32(uint32_t bits) noexcept : bits_{bits} {
-  }
-
-  constexpr float val() const noexcept {
-    return float_;
-  }
-  constexpr uint32_t bits() const noexcept {
-    return bits_;
-  }
-
-private:
-  float float_;
-  uint32_t bits_;
-}; // namespace onejit
-
-////////////////////////////////////////////////////////////////////////////////
-
-union ConstantFloat64 {
-public:
-  constexpr ConstantFloat64() noexcept : float_{0.0} {
-  }
-  constexpr explicit ConstantFloat64(double val) noexcept : float_{val} {
-  }
-  constexpr explicit ConstantFloat64(uint64_t bits) noexcept : bits_{bits} {
-  }
-
-  constexpr double val() const noexcept {
-    return float_;
-  }
-  constexpr uint64_t bits() const noexcept {
-    return bits_;
-  }
-
-private:
-  double float_;
-  uint64_t bits_;
-}; // namespace onejit
-
-////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////
-
 // immediate constant
-class Imm {
+class Imm : public Value {
+  using Base = Value;
+
   friend class Func;
   friend class Node;
   friend class Const;
@@ -87,103 +42,59 @@ class Imm {
 public:
   // construct an invalid imm.
   constexpr Imm() noexcept //
-      : bits_{}, ekind_{eBad}, direct_{} {
+      : Base{}, direct_{} {
+  }
+  constexpr explicit Imm(const Value &val) noexcept //
+      : Base{val}, direct_{Direct{Base::bits(), ekind(), 0}} {
   }
   constexpr explicit Imm(bool val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{eBool}, direct_{Direct{uint16_t(val), ekind_}} {
+      : Base{val}, direct_{Direct{uint16_t(val), ekind()}} {
   }
   constexpr explicit Imm(int8_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{eInt8}, direct_{Direct{int16_t(val), ekind_}} {
+      : Base{val}, direct_{Direct{int16_t(val), ekind()}} {
   }
   constexpr explicit Imm(int16_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{eInt16}, direct_{Direct{int16_t(val), ekind_}} {
+      : Base{val}, direct_{Direct{int16_t(val), ekind()}} {
   }
   constexpr explicit Imm(int32_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{eInt32}, direct_{Direct{bits_, ekind_, 0}} {
+      : Base{val}, direct_{Direct{Base::bits(), ekind(), 0}} {
   }
   constexpr explicit Imm(int64_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{eInt64}, direct_{Direct{bits_, ekind_, 0}} {
+      : Base{val}, direct_{Direct{Base::bits(), ekind(), 0}} {
   }
   constexpr explicit Imm(uint8_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{eUint8}, direct_{Direct{uint16_t(val), ekind_}} {
+      : Base{val}, direct_{Direct{uint16_t(val), ekind()}} {
   }
   constexpr explicit Imm(uint16_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{eUint16}, direct_{Direct{uint16_t(val), ekind_}} {
+      : Base{val}, direct_{Direct{uint16_t(val), ekind()}} {
   }
   constexpr explicit Imm(uint32_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{eUint32}, direct_{Direct{bits_, ekind_, 0}} {
+      : Base{val}, direct_{Direct{Base::bits(), ekind(), 0}} {
   }
   constexpr explicit Imm(uint64_t val) noexcept //
-      : bits_{uint64_t(val)}, ekind_{eUint64}, direct_{Direct{bits_, ekind_, 0}} {
+      : Base{val}, direct_{Direct{Base::bits(), ekind(), 0}} {
   }
   constexpr explicit Imm(float val) noexcept //
-      : bits_{ConstantFloat32{val}.bits()}, ekind_{eFloat32}, direct_{Direct{bits_, ekind_, 0}} {
+      : Base{val}, direct_{Direct{Base::bits(), ekind(), 0}} {
   }
   constexpr explicit Imm(double val) noexcept //
-      : bits_{ConstantFloat64{val}.bits()}, ekind_{eFloat64}, direct_{Direct{bits_, ekind_, 0}} {
+      : Base{val}, direct_{Direct{Base::bits(), ekind(), 0}} {
   }
   constexpr Imm(Kind kind, uint64_t bits) noexcept //
-      : bits_{bits}, ekind_{kind.val()}, direct_{Direct{bits_, ekind_, 0}} {
+      : Base{kind, bits}, direct_{Direct{Base::bits(), ekind(), 0}} {
   }
 
   static constexpr Type type() noexcept {
     return CONST;
   }
 
-  constexpr Kind kind() const noexcept {
-    return Kind{ekind_};
-  }
-
-  constexpr explicit operator bool() const noexcept {
-    return ekind_ != eBad;
-  }
-
-  constexpr bool boolean() const noexcept {
-    return bool(bits_);
-  }
-
-  constexpr int8_t int8() const noexcept {
-    return int8_t(bits_);
-  }
-  constexpr int16_t int16() const noexcept {
-    return int16_t(bits_);
-  }
-  constexpr int32_t int32() const noexcept {
-    return int32_t(bits_);
-  }
-  constexpr int64_t int64() const noexcept {
-    return int64_t(bits_);
-  }
-
-  constexpr uint8_t uint8() const noexcept {
-    return uint8_t(bits_);
-  }
-  constexpr uint16_t uint16() const noexcept {
-    return uint16_t(bits_);
-  }
-  constexpr uint32_t uint32() const noexcept {
-    return uint32_t(bits_);
-  }
-  constexpr uint64_t uint64() const noexcept {
-    return uint64_t(bits_);
-  }
-
-  constexpr float float32() const noexcept {
-    return ConstantFloat32{uint32_t(bits_)}.val();
-  }
-  constexpr double float64() const noexcept {
-    return ConstantFloat64{bits_}.val();
-  }
-
-  void *ptr() const noexcept {
-    return reinterpret_cast<void *>(size_t(bits_));
-  }
+  Imm cast(Kind to) noexcept;
 
 private:
   class Direct;
 
   constexpr Imm(uint64_t bits, Kind kind, Direct direct) noexcept //
-      : bits_{bits}, ekind_{kind.val()}, direct_{direct} {
+      : Base{kind, bits}, direct_{direct} {
   }
 
   class Direct {
@@ -294,27 +205,9 @@ private:
 
   Code &write_indirect(Code *holder) const noexcept;
 
-  uint64_t bits_;
-  eKind ekind_;
   uint32_t direct_;
-}; // namespace onejit
-
-#if 0  // unused
-constexpr const Imm VoidImm{Void, 0};
-constexpr const Imm TrueImm{true};
-constexpr const Imm FalseImm{false};
-#endif // 0
-
-constexpr inline bool operator==(Imm a, Imm b) noexcept {
-  return a.kind() == b.kind() && a.uint64() == b.uint64();
-}
-
-constexpr inline bool operator!=(Imm a, Imm b) noexcept {
-  return a.kind() != b.kind() || a.uint64() != b.uint64();
-}
-
-const Fmt &operator<<(const Fmt &out, const Imm &imm);
+};
 
 } // namespace onejit
 
-#endif // ONEJIT_CONST_HPP
+#endif // ONEJIT_IMM_HPP

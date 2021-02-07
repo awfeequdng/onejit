@@ -45,7 +45,7 @@ enum eKind : uint8_t {
   eUint16 = 8,
   eUint32 = 9,
   eUint64 = 10,
-  eFloat16 = 11,
+  // eFloat16 = 11,
   eFloat32 = 12,
   eFloat64 = 13,
   ePtr = 14,
@@ -136,6 +136,10 @@ public:
     return g == g1 || g == g2 || g == g3 || g == g4;
   }
 
+  bool is_float() const noexcept {
+    return is(gFloat);
+  }
+
   bool is_integer() const noexcept {
     return is(gInt, gUint);
   }
@@ -197,7 +201,7 @@ constexpr const Kind Uint8(eUint8);
 constexpr const Kind Uint16(eUint16);
 constexpr const Kind Uint32(eUint32);
 constexpr const Kind Uint64(eUint64);
-constexpr const Kind Float16(eFloat16);
+// constexpr const Kind Float16(eFloat16);
 constexpr const Kind Float32(eFloat32);
 constexpr const Kind Float64(eFloat64);
 constexpr const Kind Ptr(ePtr);

@@ -23,8 +23,8 @@
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_CONSTEXPR_HPP
-#define ONEJIT_CONSTEXPR_HPP
+#ifndef ONEJIT_CONST_HPP
+#define ONEJIT_CONST_HPP
 
 #include <onejit/expr.hpp>
 #include <onejit/imm.hpp>
@@ -143,4 +143,4 @@ constexpr inline Const Two(Kind kind) noexcept {
 
 } // namespace onejit
 
-#endif // ONEJIT_LOCAL_HPP
+#endif // ONEJIT_CONST_HPP
