@@ -35,7 +35,7 @@ public:
   constexpr explicit Space(size_t size) noexcept : size_{size} {
   }
 
-  constexpr size_t size() noexcept {
+  constexpr size_t size() const noexcept {
     return size_;
   }
 
