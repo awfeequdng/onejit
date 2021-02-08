@@ -84,19 +84,9 @@ Node AssignCall::create(Func &func, Exprs assign_to, const Call &call) noexcept 
 // ============================  Return  ===================================
 
 Node Return::create(Func &func, Exprs exprs) noexcept {
-  const size_t n = exprs.size();
-  Code *holder = func.code();
-  while (holder && n == uint32_t(n)) {
-    const NodeHeader header{STMT_N, Void, RETURN};
-    CodeItem offset = holder->length();
-
-    if (holder->add(header) && holder->add_uint32(n) && holder->add(exprs, offset)) {
-      return Node{header, offset, holder};
-    }
-    holder->truncate(offset);
-    break;
-  }
-  return Node{};
+  return Node::create_indirect(func,                             //
+                               NodeHeader{STMT_N, Void, RETURN}, //
+                               Nodes{exprs.data(), exprs.size()});
 }
 
 // ============================  Switch  ===================================
