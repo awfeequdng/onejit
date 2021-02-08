@@ -23,9 +23,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/fmt.hpp>
 #include <onejit/value.hpp>
-#include <onestl/chars.hpp>
 
 namespace onejit {
 
@@ -47,12 +45,179 @@ Value Value::bitcopy(Kind to) noexcept {
   return extend_or_truncate(to, bits_);
 }
 
-Value operator-(Value a) noexcept {
-  return extend_or_truncate(a.kind(), -a.bits());
+Value Value::cast(Kind to) noexcept {
+  Kind from = kind();
+  if (from == to) {
+    return *this;
+  }
+  if (to == Float32) {
+    float f = 0.0f;
+    switch (from.val()) {
+    case eVoid:
+      break;
+    case eBool:
+      f = float(boolean());
+      break;
+    case eInt8:
+    case eInt16:
+    case eInt32:
+    case eInt64:
+      f = float(int64());
+      break;
+    case eUint8:
+    case eUint16:
+    case eUint32:
+    case eUint64:
+    case ePtr:
+    case eArchFlags:
+      f = float(uint64());
+      break;
+    case eFloat64:
+      f = float(float64());
+      break;
+    default:
+      return Value{};
+    }
+    return Value{f};
+  }
+  if (to == Float64) {
+    double f = 0.0f;
+    switch (from.val()) {
+    case eVoid:
+      break;
+    case eBool:
+      f = double(boolean());
+      break;
+    case eInt8:
+    case eInt16:
+    case eInt32:
+    case eInt64:
+      f = double(int64());
+      break;
+    case eUint8:
+    case eUint16:
+    case eUint32:
+    case eUint64:
+    case ePtr:
+    case eArchFlags:
+      f = double(uint64());
+      break;
+    case eFloat32:
+      f = double(float32());
+      break;
+    default:
+      return Value{};
+    }
+    return Value{f};
+  }
+  uint64_t bits = 0;
+  if (from == Float32) {
+    float f = float32();
+    switch (to.val()) {
+    case eVoid:
+      break;
+    case eBool:
+      bits = uint64_t(f != 0.0f);
+      break;
+    case eInt8:
+      bits = int8_t(f);
+      break;
+    case eInt16:
+      bits = int16_t(f);
+      break;
+    case eInt32:
+      bits = int32_t(f);
+      break;
+    case eInt64:
+      bits = int64_t(f);
+      break;
+    case eUint8:
+      bits = uint8_t(f);
+      break;
+    case eUint16:
+      bits = uint16_t(f);
+      break;
+    case eUint32:
+      bits = uint32_t(f);
+      break;
+    case eUint64:
+    case ePtr:
+    case eArchFlags:
+      bits = uint64_t(f);
+      break;
+    case eFloat64:
+      bits = Float64Bits{double(f)}.bits();
+      break;
+    default:
+      return Value{};
+    }
+    return Value{to, bits};
+  }
+  if (from == Float64) {
+    double f = float64();
+    switch (to.val()) {
+    case eVoid:
+      break;
+    case eBool:
+      bits = uint64_t(f != 0.0f);
+      break;
+    case eInt8:
+      bits = int8_t(f);
+      break;
+    case eInt16:
+      bits = int16_t(f);
+      break;
+    case eInt32:
+      bits = int32_t(f);
+      break;
+    case eInt64:
+      bits = int64_t(f);
+      break;
+    case eUint8:
+      bits = uint8_t(f);
+      break;
+    case eUint16:
+      bits = uint16_t(f);
+      break;
+    case eUint32:
+      bits = uint32_t(f);
+      break;
+    case eUint64:
+    case ePtr:
+    case eArchFlags:
+      bits = uint64_t(f);
+      break;
+    case eFloat32:
+      bits = Float32Bits{float(f)}.bits();
+      break;
+    default:
+      return Value{};
+    }
+    return Value{to, bits};
+  }
+  return extend_or_truncate(to, bits_);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 Value operator~(Value a) noexcept {
-  return extend_or_truncate(a.kind(), ~a.bits());
+  Kind kind = a.kind();
+  if (kind == Float32 || kind == Float64) {
+    return Value{};
+  } else {
+    return extend_or_truncate(a.kind(), ~a.bits());
+  }
+}
+
+Value operator-(Value a) noexcept {
+  Kind kind = a.kind();
+  if (kind == Float32) {
+    return Value{-a.float32()};
+  } else if (kind == Float64) {
+    return Value{-a.float64()};
+  } else {
+    return extend_or_truncate(a.kind(), -a.bits());
+  }
 }
 
 Value operator+(Value a, Value b) noexcept {
@@ -120,6 +285,33 @@ Value operator%(Value a, Value b) noexcept {
   }
 }
 
+Value operator&(Value a, Value b) noexcept {
+  Kind kind = a.kind();
+  if (kind != b.kind() || kind == Float32 || kind == Float64) {
+    return Value{};
+  } else {
+    return Value{kind, a.bits() & b.bits()};
+  }
+}
+
+Value operator|(Value a, Value b) noexcept {
+  Kind kind = a.kind();
+  if (kind != b.kind() || kind == Float32 || kind == Float64) {
+    return Value{};
+  } else {
+    return Value{kind, a.bits() | b.bits()};
+  }
+}
+
+Value operator^(Value a, Value b) noexcept {
+  Kind kind = a.kind();
+  if (kind != b.kind() || kind == Float32 || kind == Float64) {
+    return Value{};
+  } else {
+    return Value{kind, a.bits() ^ b.bits()};
+  }
+}
+
 Value operator<<(Value a, Value b) noexcept {
   Kind kind = a.kind();
   if (kind != b.kind() || kind == Float32 || kind == Float64) {
@@ -144,63 +336,68 @@ Value and_not(Value a, Value b) noexcept {
   return a & ~b;
 }
 
-bool operator<(Value a, Value b) noexcept {
+Value operator==(Value a, Value b) noexcept {
   Kind kind = a.kind();
+  bool ret;
   if (kind != b.kind()) {
-    return false;
+    return Value{};
   } else if (kind == Float32) {
-    return a.float32() < b.float32();
+    ret = a.float32() == b.float32();
   } else if (kind == Float64) {
-    return a.float64() < b.float64();
-  } else if (kind.is(gInt)) {
-    return a.int64() < b.int64();
+    ret = a.float64() == b.float64();
   } else {
-    return a.uint64() < b.uint64();
+    ret = a.bits() == b.bits();
   }
+  return Value{ret};
 }
 
-////////////////////////////////////////////////////////////////////////////////
+Value operator!=(Value a, Value b) noexcept {
+  Kind kind = a.kind();
+  bool ret;
+  if (kind != b.kind()) {
+    return Value{};
+  } else if (kind == Float32) {
+    ret = a.float32() != b.float32();
+  } else if (kind == Float64) {
+    ret = a.float64() != b.float64();
+  } else {
+    ret = a.bits() != b.bits();
+  }
+  return Value{ret};
+}
 
-const Fmt &operator<<(const Fmt &out, const Value &value) {
-  const Kind kind = value.kind();
-  switch (kind.nosimd().val()) {
-  case eVoid:
-    out << "void";
-    break;
-  case eBool:
-    out << (value.boolean() ? Chars("true") : Chars("false"));
-    break;
-  case eInt8:
-  case eInt16:
-  case eInt32:
-  case eInt64:
-    out << value.int64();
-    break;
-  case eUint8:
-  case eUint16:
-  case eUint32:
-  case eUint64:
-  case eArchFlags:
-    out << value.uint64();
-    break;
-  case eFloat32:
-    out << value.float32();
-    break;
-  case eFloat64:
-    out << value.float64();
-    break;
-  case ePtr:
-    out << value.ptr();
-    break;
-  default:
-    out << '?';
-    break;
+Value operator<(Value a, Value b) noexcept {
+  Kind kind = a.kind();
+  bool ret;
+  if (kind != b.kind()) {
+    return Value{};
+  } else if (kind == Float32) {
+    ret = a.float32() < b.float32();
+  } else if (kind == Float64) {
+    ret = a.float64() < b.float64();
+  } else if (kind.is(gInt)) {
+    ret = a.int64() < b.int64();
+  } else {
+    ret = a.uint64() < b.uint64();
   }
-  const size_t n = kind.simdn().val();
-  if (n > 1) {
-    out << '_' << kind.stringsuffix() << 'x' << n;
+  return Value{ret};
+}
+
+Value operator<=(Value a, Value b) noexcept {
+  Kind kind = a.kind();
+  bool ret;
+  if (kind != b.kind()) {
+    return Value{};
+  } else if (kind == Float32) {
+    ret = a.float32() <= b.float32();
+  } else if (kind == Float64) {
+    ret = a.float64() <= b.float64();
+  } else if (kind.is(gInt)) {
+    ret = a.int64() <= b.int64();
+  } else {
+    ret = a.uint64() <= b.uint64();
   }
-  return out;
+  return Value{ret};
 }
 
 } // namespace onejit

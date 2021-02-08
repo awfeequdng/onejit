@@ -17,47 +17,58 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * const.cpp
+ * value_fmt.cpp
  *
- *  Created on Jan 13, 2021
+ *  Created on Feb 07, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/code.hpp>
-#include <onejit/const.hpp>
-#include <onejit/func.hpp>
+#include <onejit/fmt.hpp>
+#include <onejit/value.hpp>
+#include <onestl/chars.hpp>
 
 namespace onejit {
 
-Imm Const::imm() const noexcept {
-  if (is_direct()) {
-    return Imm::parse_direct(offset_or_direct());
-  } else {
-    return Imm::parse_indirect(kind(), offset_or_direct() + sizeof(CodeItem), code());
+const Fmt &operator<<(const Fmt &out, const Value &value) {
+  const Kind kind = value.kind();
+  switch (kind.nosimd().val()) {
+  case eVoid:
+    out << "void";
+    break;
+  case eBool:
+    out << (value.boolean() ? Chars("true") : Chars("false"));
+    break;
+  case eInt8:
+  case eInt16:
+  case eInt32:
+  case eInt64:
+    out << value.int64();
+    break;
+  case eUint8:
+  case eUint16:
+  case eUint32:
+  case eUint64:
+  case eArchFlags:
+    out << value.uint64();
+    break;
+  case eFloat32:
+    out << value.float32();
+    break;
+  case eFloat64:
+    out << value.float64();
+    break;
+  case ePtr:
+    out << value.ptr();
+    break;
+  default:
+    out << '?';
+    break;
   }
-}
-
-Node Const::create(Func &func, const Imm &imm) noexcept {
-  if (imm.is_valid()) {
-    const NodeHeader header{CONST, imm.kind(), 0};
-
-    if (imm.is_direct()) {
-      return Node{header, imm.direct(), nullptr};
-    }
-    if (Code *holder = func.code()) {
-      CodeItem offset = holder->length();
-
-      if (holder->add(header) && imm.write_indirect(holder)) {
-        return Node{header, offset, holder};
-      }
-      holder->truncate(offset);
-    }
+  const size_t n = kind.simdn().val();
+  if (n > 1) {
+    out << '_' << kind.stringsuffix() << 'x' << n;
   }
-  return Node{};
-}
-
-const Fmt &Const::format(const Fmt &out, size_t /*depth*/) const {
-  return out << imm();
+  return out;
 }
 
 } // namespace onejit

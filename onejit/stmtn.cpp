@@ -37,19 +37,9 @@ namespace onejit {
 // ============================  StmtN  ========================================
 
 Node StmtN::create(Func &func, const Nodes nodes, OpStmtN op) noexcept {
-  Code *holder = func.code();
-  const size_t n = nodes.size();
-  while (holder && n == uint32_t(n)) {
-    const NodeHeader header{STMT_N, Void, uint16_t(op)};
-    CodeItem offset = holder->length();
-
-    if (holder->add(header) && holder->add_uint32(n) && holder->add(nodes, offset)) {
-      return Node{header, offset, holder};
-    }
-    holder->truncate(offset);
-    break;
-  }
-  return Node{};
+  return Base::create_indirect(func,                                   //
+                               NodeHeader{STMT_N, Void, uint16_t(op)}, //
+                               nodes);
 }
 
 const Fmt &StmtN::format(const Fmt &out, size_t depth) const {

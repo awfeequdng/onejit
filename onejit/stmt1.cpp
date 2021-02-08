@@ -32,18 +32,9 @@ namespace onejit {
 // ============================  Stmt1  ========================================
 
 ONEJIT_NOINLINE Node Stmt1::create(Func &func, Node body, OpStmt1 op) noexcept {
-  while (Code *holder = func.code()) {
-    const NodeHeader header{STMT_1, Void, uint16_t(op)};
-    CodeItem offset = holder->length();
-
-    if (holder->add(header) && holder->add(body, offset)) {
-      return Node{header, offset, holder};
-    }
-    holder->truncate(offset);
-    break;
-  }
-
-  return Node{};
+  return Base::create_indirect(func,                                   //
+                               NodeHeader{STMT_1, Void, uint16_t(op)}, //
+                               Nodes{&body, 1});
 }
 
 const Fmt &Stmt1::format(const Fmt &out, size_t /*depth*/) const {

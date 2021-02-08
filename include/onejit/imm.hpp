@@ -90,6 +90,17 @@ public:
 
   Imm cast(Kind to) noexcept;
 
+  /**
+   * Inherited method Value::operator bool() compares against zero,
+   * while in all classes related to Expr, operator bool() instead checks kind() != Bad
+   *
+   * Imm is caught between the two, thus to avoid confusion it does *not* define operator bool()
+   * It instead has the method is_valid(), inherited from base class
+   */
+  explicit operator bool() const noexcept = delete;
+
+  using Base::is_valid;
+
 private:
   class Direct;
 

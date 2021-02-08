@@ -31,24 +31,17 @@ namespace onejit {
 
 // autodetect kind
 Node Binary::create(Func &func, Op2 op, const Expr &left, const Expr &right) {
-  while (Code *holder = func.code()) {
-    Kind kind = Bad;
-    if (op == BAD2) {
-    } else if (op <= AND_NOT) {
-      kind = left.kind();
-    } else if (op <= GEQ) {
-      kind = Bool; // && || comparison
-    }
-    const NodeHeader header{BINARY, kind, uint16_t(op)};
-    CodeItem offset = holder->length();
-
-    if (holder->add(header) && holder->add(left, offset) && holder->add(right, offset)) {
-      return Node{header, offset, holder};
-    }
-    holder->truncate(offset);
-    break;
+  Kind kind = Bad;
+  if (op == BAD2) {
+  } else if (op <= AND_NOT) {
+    kind = left.kind();
+  } else if (op <= GEQ) {
+    kind = Bool; // && || comparison
   }
-  return Node{};
+
+  return Base::create_indirect(func,                         //
+                               NodeHeader{BINARY, kind, op}, //
+                               {left, right});
 }
 
 const Fmt &Binary::format(const Fmt &out, size_t /*depth*/) const {

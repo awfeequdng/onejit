@@ -30,13 +30,14 @@
 
 namespace onejit {
 
-union Float32Value {
+// convert float32 to its bit representation and vice versa
+union Float32Bits {
 public:
-  constexpr Float32Value() noexcept : float_{0.0f} {
+  constexpr Float32Bits() noexcept : float_{0.0f} {
   }
-  constexpr explicit Float32Value(float val) noexcept : float_{val} {
+  constexpr explicit Float32Bits(float val) noexcept : float_{val} {
   }
-  constexpr explicit Float32Value(uint32_t bits) noexcept : bits_{bits} {
+  constexpr explicit Float32Bits(uint32_t bits) noexcept : bits_{bits} {
   }
 
   constexpr float val() const noexcept {
@@ -53,13 +54,14 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-union Float64Value {
+// convert float64 to its bit representation and vice versa
+union Float64Bits {
 public:
-  constexpr Float64Value() noexcept : float_{0.0} {
+  constexpr Float64Bits() noexcept : float_{0.0} {
   }
-  constexpr explicit Float64Value(double val) noexcept : float_{val} {
+  constexpr explicit Float64Bits(double val) noexcept : float_{val} {
   }
-  constexpr explicit Float64Value(uint64_t bits) noexcept : bits_{bits} {
+  constexpr explicit Float64Bits(uint64_t bits) noexcept : bits_{bits} {
   }
 
   constexpr double val() const noexcept {
@@ -111,10 +113,10 @@ public:
       : bits_{uint64_t(val)}, ekind_{eUint64} {
   }
   constexpr explicit Value(float val) noexcept //
-      : bits_{Float32Value{val}.bits()}, ekind_{eFloat32} {
+      : bits_{Float32Bits{val}.bits()}, ekind_{eFloat32} {
   }
   constexpr explicit Value(double val) noexcept //
-      : bits_{Float64Value{val}.bits()}, ekind_{eFloat64} {
+      : bits_{Float64Bits{val}.bits()}, ekind_{eFloat64} {
   }
   constexpr Value(Kind kind, uint64_t bits) noexcept //
       : bits_{bits}, ekind_{kind.val()} {
@@ -128,9 +130,13 @@ public:
     return ekind_;
   }
 
-  constexpr explicit operator bool() const noexcept {
+  constexpr bool is_valid() const noexcept {
     return ekind_ != eBad;
   }
+
+  // return true if Value is != zero,
+  // as C operator bool does on POD types
+  explicit operator bool() const noexcept;
 
   constexpr bool boolean() const noexcept {
     return bool(bits_);
@@ -163,10 +169,10 @@ public:
   }
 
   constexpr float float32() const noexcept {
-    return Float32Value{uint32_t(bits_)}.val();
+    return Float32Bits{uint32_t(bits_)}.val();
   }
   constexpr double float64() const noexcept {
-    return Float64Value{bits_}.val();
+    return Float64Bits{bits_}.val();
   }
 
   void *ptr() const noexcept {
@@ -188,49 +194,84 @@ private:
   eKind ekind_;
 };
 
-constexpr Value operator+(Value a) noexcept {
-  return a;
+// return a zero Value with specified kind
+constexpr Value ZeroValue(Kind kind) noexcept {
+  return Value{kind, uint64_t(0)};
 }
-Value operator-(Value a) noexcept;
-Value operator~(Value a) noexcept;
+
+// ----------------------------- formatting ------------------------------------
+
+const Fmt &operator<<(const Fmt &out, const Value &value);
+
+// ----------------------------- binary operators ------------------------------
+
 Value operator+(Value a, Value b) noexcept;
 Value operator-(Value a, Value b) noexcept;
 Value operator*(Value a, Value b) noexcept;
 Value operator/(Value a, Value b) noexcept;
 Value operator%(Value a, Value b) noexcept;
-constexpr Value operator&(Value a, Value b) noexcept {
-  return Value{a.kind(), a.bits() & b.bits()};
-}
-constexpr Value operator|(Value a, Value b) noexcept {
-  return Value{a.kind(), a.bits() | b.bits()};
-}
-constexpr Value operator^(Value a, Value b) noexcept {
-  return Value{a.kind(), a.bits() ^ b.bits()};
-}
+Value operator&(Value a, Value b) noexcept;
+Value operator|(Value a, Value b) noexcept;
+Value operator^(Value a, Value b) noexcept;
 Value operator<<(Value a, Value b) noexcept;
 Value operator>>(Value a, Value b) noexcept;
 Value and_not(Value a, Value b) noexcept;
 
-bool operator<(Value a, Value b) noexcept;
-inline bool operator<=(Value a, Value b) noexcept {
-  return !(b < a);
-}
-inline bool operator>(Value a, Value b) noexcept {
+/**
+ * relational operators return Value{} if a and b have different kind.
+ * they also use floating point comparison when a and b are floating point,
+ * which has non-trivial behavior for not-a-number (NaN) and +0 vs -0
+ */
+Value operator==(Value a, Value b) noexcept;
+Value operator!=(Value a, Value b) noexcept;
+Value operator<(Value a, Value b) noexcept;
+Value operator<=(Value a, Value b) noexcept;
+inline Value operator>(Value a, Value b) noexcept {
   return b < a;
 }
-inline bool operator>=(Value a, Value b) noexcept {
-  return !(a < b);
+inline Value operator>=(Value a, Value b) noexcept {
+  return b <= a;
 }
 
-constexpr inline bool operator==(Value a, Value b) noexcept {
+// return true if Values a and b have the same kind and bits
+// differs from operator== when kind is Bad, or floating point +/- 0,
+// or floating point not-a-number
+constexpr bool identical(Value a, Value b) noexcept {
   return a.kind() == b.kind() && a.bits() == b.bits();
 }
 
-constexpr inline bool operator!=(Value a, Value b) noexcept {
-  return a.kind() != b.kind() || a.bits() != b.bits();
+// if a and b are boolean, return their &&
+// otherwise return Value{}
+constexpr Value and_(Value a, Value b) noexcept {
+  return (a.kind() == Bool && b.kind() == Bool) //
+             ? Value{a.boolean() && b.boolean()}
+             : Value{};
 }
 
-const Fmt &operator<<(const Fmt &out, const Value &value);
+// if a and b are boolean, return their &&
+// otherwise return Value{}
+constexpr Value or_(Value a, Value b) noexcept {
+  return (a.kind() == Bool && b.kind() == Bool) //
+             ? Value{a.boolean() || b.boolean()}
+             : Value{};
+}
+
+// ----------------------------- unary operators -------------------------------
+
+inline Value::operator bool() const noexcept {
+  return (*this != ZeroValue(kind())).boolean();
+}
+
+// compare Value == zero, as C operator ! does on POD types
+inline Value operator!(Value a) noexcept {
+  return a == ZeroValue(a.kind());
+}
+
+Value operator~(Value a) noexcept;
+Value operator-(Value a) noexcept;
+constexpr Value operator+(Value a) noexcept {
+  return a;
+}
 
 } // namespace onejit
 

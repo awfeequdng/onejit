@@ -46,6 +46,7 @@ enum Type : uint8_t {
   UNARY = 8,
   BINARY = 9,
   TUPLE = 10,
+  // Optimizer assumes expression types below this line CANNOT be optimized further
   LABEL = 11, // jump destination
   CONST = 12,
 

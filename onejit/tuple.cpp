@@ -36,20 +36,9 @@ namespace onejit {
 // ============================  Tuple  ====================================
 
 Node Tuple::create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept {
-  const size_t n = nodes.size();
-  Code *holder = func.code();
-
-  while (holder && n == uint32_t(n)) {
-    const NodeHeader header{TUPLE, kind, op};
-    CodeItem offset = holder->length();
-
-    if (holder->add(header) && holder->add_uint32(n) && holder->add(nodes, offset)) {
-      return Node{header, offset, holder};
-    }
-    holder->truncate(offset);
-    break;
-  }
-  return Node{};
+  return Base::create_indirect(func,                        //
+                               NodeHeader{TUPLE, kind, op}, //
+                               nodes);
 }
 
 const Fmt &Tuple::format(const Fmt &out, size_t depth) const {

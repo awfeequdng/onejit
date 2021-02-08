@@ -50,6 +50,7 @@ class Node {
   friend class Label;
   friend class Mem;
   friend class Name;
+  friend class Optimizer;
   friend class Return;
   friend class Stmt0;
   friend class Stmt1;
@@ -187,6 +188,14 @@ protected:
   uint64_t uint64(Offset byte_offset) const noexcept;
 
 private:
+  // used by Optimizer and by subclasses create()
+  static Node create_indirect(Func &func, NodeHeader header, Nodes children) noexcept;
+
+  static Node create_indirect(Func &func, NodeHeader header,
+                              std::initializer_list<Node> children) noexcept {
+    return create_indirect(func, header, Nodes{children.begin(), children.size()});
+  }
+
   NodeHeader header_;
   CodeItem off_or_dir_;
   const Code *code_;

@@ -113,10 +113,11 @@ am_libonejit_a_OBJECTS = archid.$(OBJEXT) assembler.$(OBJEXT) \
 	func.$(OBJEXT) functype.$(OBJEXT) group.$(OBJEXT) \
 	kind.$(OBJEXT) label.$(OBJEXT) mem.$(OBJEXT) name.$(OBJEXT) \
 	node.$(OBJEXT) nodeheader.$(OBJEXT) op.$(OBJEXT) \
-	opstmt.$(OBJEXT) space.$(OBJEXT) stmt0.$(OBJEXT) \
-	stmt1.$(OBJEXT) stmt2.$(OBJEXT) stmt3.$(OBJEXT) \
-	stmt4.$(OBJEXT) stmtn.$(OBJEXT) tuple.$(OBJEXT) type.$(OBJEXT) \
-	unary.$(OBJEXT) local.$(OBJEXT) value.$(OBJEXT) var.$(OBJEXT)
+	opstmt.$(OBJEXT) optimizer.$(OBJEXT) space.$(OBJEXT) \
+	stmt0.$(OBJEXT) stmt1.$(OBJEXT) stmt2.$(OBJEXT) \
+	stmt3.$(OBJEXT) stmt4.$(OBJEXT) stmtn.$(OBJEXT) \
+	tuple.$(OBJEXT) type.$(OBJEXT) unary.$(OBJEXT) local.$(OBJEXT) \
+	value.$(OBJEXT) value_fmt.$(OBJEXT) var.$(OBJEXT)
 libonejit_a_OBJECTS = $(am_libonejit_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -143,11 +144,12 @@ am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/assembler.Po \
 	./$(DEPDIR)/label.Po ./$(DEPDIR)/local.Po ./$(DEPDIR)/mem.Po \
 	./$(DEPDIR)/name.Po ./$(DEPDIR)/node.Po \
 	./$(DEPDIR)/nodeheader.Po ./$(DEPDIR)/op.Po \
-	./$(DEPDIR)/opstmt.Po ./$(DEPDIR)/space.Po \
-	./$(DEPDIR)/stmt0.Po ./$(DEPDIR)/stmt1.Po ./$(DEPDIR)/stmt2.Po \
-	./$(DEPDIR)/stmt3.Po ./$(DEPDIR)/stmt4.Po ./$(DEPDIR)/stmtn.Po \
-	./$(DEPDIR)/tuple.Po ./$(DEPDIR)/type.Po ./$(DEPDIR)/unary.Po \
-	./$(DEPDIR)/value.Po ./$(DEPDIR)/var.Po
+	./$(DEPDIR)/opstmt.Po ./$(DEPDIR)/optimizer.Po \
+	./$(DEPDIR)/space.Po ./$(DEPDIR)/stmt0.Po ./$(DEPDIR)/stmt1.Po \
+	./$(DEPDIR)/stmt2.Po ./$(DEPDIR)/stmt3.Po ./$(DEPDIR)/stmt4.Po \
+	./$(DEPDIR)/stmtn.Po ./$(DEPDIR)/tuple.Po ./$(DEPDIR)/type.Po \
+	./$(DEPDIR)/unary.Po ./$(DEPDIR)/value.Po \
+	./$(DEPDIR)/value_fmt.Po ./$(DEPDIR)/var.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -344,9 +346,9 @@ libonejit_a_SOURCES = \
         archid.cpp assembler.cpp binary.cpp bits.cpp call.cpp code.cpp codeparser.cpp \
         compiler.cpp imm.cpp const.cpp error.cpp eval.cpp expr.cpp \
         func.cpp functype.cpp group.cpp kind.cpp label.cpp mem.cpp name.cpp \
-        node.cpp nodeheader.cpp op.cpp opstmt.cpp space.cpp \
+        node.cpp nodeheader.cpp op.cpp opstmt.cpp optimizer.cpp space.cpp \
         stmt0.cpp stmt1.cpp stmt2.cpp stmt3.cpp stmt4.cpp stmtn.cpp \
-        tuple.cpp type.cpp unary.cpp local.cpp value.cpp var.cpp
+        tuple.cpp type.cpp unary.cpp local.cpp value.cpp value_fmt.cpp var.cpp
 
 EXTRA_libonejit_a_DEPENDENCIES = $(LIBONEJIT_X64)
 # libonejit_a_LDFLAGS  =
@@ -427,6 +429,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nodeheader.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/op.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opstmt.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/optimizer.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/space.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt0.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt1.Po@am__quote@ # am--include-marker
@@ -438,6 +441,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/type.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unary.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/value.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/value_fmt.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/var.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -684,6 +688,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/nodeheader.Po
 	-rm -f ./$(DEPDIR)/op.Po
 	-rm -f ./$(DEPDIR)/opstmt.Po
+	-rm -f ./$(DEPDIR)/optimizer.Po
 	-rm -f ./$(DEPDIR)/space.Po
 	-rm -f ./$(DEPDIR)/stmt0.Po
 	-rm -f ./$(DEPDIR)/stmt1.Po
@@ -695,6 +700,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f ./$(DEPDIR)/unary.Po
 	-rm -f ./$(DEPDIR)/value.Po
+	-rm -f ./$(DEPDIR)/value_fmt.Po
 	-rm -f ./$(DEPDIR)/var.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -766,6 +772,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/nodeheader.Po
 	-rm -f ./$(DEPDIR)/op.Po
 	-rm -f ./$(DEPDIR)/opstmt.Po
+	-rm -f ./$(DEPDIR)/optimizer.Po
 	-rm -f ./$(DEPDIR)/space.Po
 	-rm -f ./$(DEPDIR)/stmt0.Po
 	-rm -f ./$(DEPDIR)/stmt1.Po
@@ -777,6 +784,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f ./$(DEPDIR)/unary.Po
 	-rm -f ./$(DEPDIR)/value.Po
+	-rm -f ./$(DEPDIR)/value_fmt.Po
 	-rm -f ./$(DEPDIR)/var.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic

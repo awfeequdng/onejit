@@ -29,9 +29,12 @@
 #include <onejit/error.hpp>
 #include <onejit/label.hpp>
 #include <onejit/node.hpp>
+#include <onejit/optimizer.hpp>
 #include <onestl/vector.hpp>
 
 namespace onejit {
+
+////////////////////////////////////////////////////////////////////////////////
 
 class Compiler {
 public:
@@ -48,7 +51,31 @@ public:
   }
 
   // compile function
-  Compiler &compile(Func &func) noexcept;
+  Compiler &compile(Func &func, Optimizer::Flag opt = Optimizer::All) noexcept;
+
+private:
+  Node compile(Assign stmt, bool simplify_call) noexcept;
+  Node compile(AssignCall stmt, bool simplify_call) noexcept;
+  Expr compile(Binary expr, bool simplify_call) noexcept;
+  Node compile(Block stmt, bool simplify_call) noexcept;
+  Expr compile(Call expr, bool simplify_call) noexcept;
+  Node compile(Cond stmt, bool simplify_call) noexcept;
+  Expr compile(Expr expr, bool simplify_call) noexcept;
+  Node compile(For stmt, bool simplify_call) noexcept;
+  Node compile(If stmt, bool simplify_call) noexcept;
+  Node compile(JumpIf stmt, bool simplify_call) noexcept;
+  Expr compile(Mem expr, bool simplify_call) noexcept;
+  Node compile(Node node, bool simplify_call) noexcept;
+  Node compile(Return stmt, bool simplify_call) noexcept;
+  Node compile(Stmt0 stmt, bool simplify_call) noexcept;
+  Node compile(Stmt1 stmt, bool simplify_call) noexcept;
+  Node compile(Stmt2 stmt, bool simplify_call) noexcept;
+  Node compile(Stmt3 stmt, bool simplify_call) noexcept;
+  Node compile(Stmt4 stmt, bool simplify_call) noexcept;
+  Node compile(StmtN stmt, bool simplify_call) noexcept;
+  Node compile(Switch stmt, bool simplify_call) noexcept;
+  Expr compile(Unary expr, bool simplify_call) noexcept;
+  Expr compile(Tuple expr, bool simplify_call) noexcept;
 
 private:
   // get current destination for "break"
@@ -94,30 +121,7 @@ private:
   Compiler &out_of_memory(const Node &where) noexcept;
 
 private:
-  Node compile(Assign stmt, bool simplify_call) noexcept;
-  Node compile(AssignCall stmt, bool simplify_call) noexcept;
-  Expr compile(Binary expr, bool simplify_call) noexcept;
-  Node compile(Block stmt, bool simplify_call) noexcept;
-  Expr compile(Call expr, bool simplify_call) noexcept;
-  Node compile(Cond stmt, bool simplify_call) noexcept;
-  Expr compile(Expr expr, bool simplify_call) noexcept;
-  Node compile(For stmt, bool simplify_call) noexcept;
-  Node compile(If stmt, bool simplify_call) noexcept;
-  Node compile(JumpIf stmt, bool simplify_call) noexcept;
-  Expr compile(Mem expr, bool simplify_call) noexcept;
-  Node compile(Node node, bool simplify_call) noexcept;
-  Node compile(Return stmt, bool simplify_call) noexcept;
-  Node compile(Stmt0 stmt, bool simplify_call) noexcept;
-  Node compile(Stmt1 stmt, bool simplify_call) noexcept;
-  Node compile(Stmt2 stmt, bool simplify_call) noexcept;
-  Node compile(Stmt3 stmt, bool simplify_call) noexcept;
-  Node compile(Stmt4 stmt, bool simplify_call) noexcept;
-  Node compile(StmtN stmt, bool simplify_call) noexcept;
-  Node compile(Switch stmt, bool simplify_call) noexcept;
-  Expr compile(Unary expr, bool simplify_call) noexcept;
-  Expr compile(Tuple expr, bool simplify_call) noexcept;
-
-private:
+  Optimizer optimizer_;
   Func *func_;
 
   Vector<Label> break_;       // stack of 'break' destination labels

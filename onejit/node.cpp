@@ -27,6 +27,7 @@
 #include <onejit/check.hpp>
 #include <onejit/code.hpp>
 #include <onejit/const.hpp>
+#include <onejit/func.hpp>
 #include <onejit/functype.hpp>
 #include <onejit/label.hpp>
 #include <onejit/mem.hpp>
@@ -130,6 +131,25 @@ Offset Node::length_items() const noexcept {
     break;
   }
   return sum_uint32(len, plus);
+}
+
+Node Node::create_indirect(Func &func, NodeHeader header, Nodes children) noexcept {
+  Code *holder = func.code();
+  const size_t n = children.size();
+  while (holder && n == uint32_t(n)) {
+    CodeItem offset = holder->length();
+
+    if (holder->add(header)) {
+      if (!is_list(header.type()) || holder->add_uint32(n)) {
+        if (holder->add(children, offset)) {
+          return Node{header, offset, holder};
+        }
+      }
+      holder->truncate(offset);
+      break;
+    }
+  }
+  return Node{};
 }
 
 const Fmt &Node::format(const Fmt &out, const size_t depth) const {

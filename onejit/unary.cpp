@@ -30,17 +30,9 @@
 namespace onejit {
 
 ONEJIT_NOINLINE Node Unary::create(Func &func, Kind kind, Op1 op, Expr child) noexcept {
-  while (Code *holder = func.code()) {
-    const NodeHeader header{UNARY, kind, uint16_t(op)};
-    CodeItem offset = holder->length();
-
-    if (holder->add(header) && holder->add(child, offset)) {
-      return Node{header, offset, holder};
-    }
-    holder->truncate(offset);
-    break;
-  }
-  return Node{};
+  return Base::create_indirect(func,                        //
+                               NodeHeader{UNARY, kind, op}, //
+                               {child});
 }
 
 ONEJIT_NOINLINE Node Unary::create(Func &func, Op1 op, Expr child) noexcept {
