@@ -64,7 +64,7 @@ Optimizer::Result Optimizer::optimize(Node &node_inout) noexcept {
     result = result & optimize(nodes_[i] = node.child(i));
   }
 
-  if (result & IsConst) {
+  if ((result & IsConst) && (opt_ & ConstantFolding)) {
     Value v, v1, v2;
     if (Unary unary = node.is<Unary>()) {
       if (nodes_.size() == 1 //
@@ -82,8 +82,8 @@ Optimizer::Result Optimizer::optimize(Node &node_inout) noexcept {
       node_inout = node;
       return IsConst;
     }
-    result = result & ~IsConst;
   }
+  result = result & ~IsConst;
   if ((result & IsSame) || (node = Node::create_indirect(*func_, node.header(), nodes_))) {
     node_inout = node;
   }

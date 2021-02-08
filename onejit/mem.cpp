@@ -30,20 +30,9 @@
 namespace onejit {
 
 Node Mem::create(Func &func, Kind kind, OpN op, Exprs args) noexcept {
-  const size_t n = args.size();
-  Code *holder = func.code();
-
-  while (holder && n == uint32_t(n)) {
-    const NodeHeader header{MEM, kind, op};
-    CodeItem offset = holder->length();
-
-    if (holder->add(header) && holder->add_uint32(n) && holder->add(args, offset)) {
-      return Node{header, offset, holder};
-    }
-    holder->truncate(offset);
-    break;
-  }
-  return Node{};
+  return Base::create_indirect(func,                      //
+                               NodeHeader{MEM, kind, op}, //
+                               Nodes{args.data(), args.size()});
 }
 
 const Fmt &Mem::format(const Fmt &out, size_t /*depth*/) const {
