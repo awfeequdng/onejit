@@ -26,7 +26,7 @@
 #ifndef ONEJIT_IMM_HPP
 #define ONEJIT_IMM_HPP
 
-#include <onejit/node.hpp>
+#include <onejit/node/node.hpp>
 #include <onejit/value.hpp>
 
 namespace onejit {

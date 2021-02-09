@@ -24,7 +24,7 @@
  */
 
 #include <onejit/bits.hpp>
-#include <onejit/var.hpp>
+#include <onejit/node/var.hpp>
 #include <onejit/x64/arg.hpp>
 #include <onejit/x64/reg.hpp>
 

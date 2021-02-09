@@ -25,7 +25,7 @@
 
 #include <onejit/code.hpp>
 #include <onejit/codeparser.hpp>
-#include <onejit/node.hpp>
+#include <onejit/node/node.hpp>
 
 namespace onejit {
 

@@ -26,7 +26,7 @@
 #ifndef ONEJIT_CONST_HPP
 #define ONEJIT_CONST_HPP
 
-#include <onejit/expr.hpp>
+#include <onejit/node/expr.hpp>
 #include <onejit/imm.hpp>
 
 namespace onejit {
@@ -117,6 +117,11 @@ private:
   // downcast helper
   static constexpr bool is_allowed_type(Type t) noexcept {
     return t == CONST;
+  }
+
+  static constexpr bool child_result_is_used(uint32_t /*i*/) noexcept {
+    // no children
+    return false;
   }
 
   static Node create(Func &func, const Imm &imm) noexcept;

@@ -70,6 +70,7 @@ enum OpN : uint16_t {
   BAD_OPN = 0,
   CALL = 1,
   MEM_OP = 2,
+  COMMA = 3,
 
   // numeric values of the OpN enum constants below this line MAY CHANGE WITHOUT WARNING
 

@@ -61,6 +61,7 @@ class Call;
 class Case;
 class Code;
 class CodeParser;
+class Comma;
 class Cond;
 class Const;
 union Float32Bits;

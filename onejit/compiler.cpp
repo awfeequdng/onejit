@@ -23,19 +23,19 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/binary.hpp>
-#include <onejit/call.hpp>
 #include <onejit/compiler.hpp>
 #include <onejit/const.hpp>
 #include <onejit/func.hpp>
-#include <onejit/mem.hpp>
-#include <onejit/stmt0.hpp>
-#include <onejit/stmt1.hpp>
-#include <onejit/stmt2.hpp>
-#include <onejit/stmt3.hpp>
-#include <onejit/stmt4.hpp>
-#include <onejit/stmtn.hpp>
-#include <onejit/unary.hpp>
+#include <onejit/node/binary.hpp>
+#include <onejit/node/call.hpp>
+#include <onejit/node/mem.hpp>
+#include <onejit/node/stmt0.hpp>
+#include <onejit/node/stmt1.hpp>
+#include <onejit/node/stmt2.hpp>
+#include <onejit/node/stmt3.hpp>
+#include <onejit/node/stmt4.hpp>
+#include <onejit/node/stmtn.hpp>
+#include <onejit/node/unary.hpp>
 
 namespace onejit {
 
@@ -50,7 +50,7 @@ Compiler::operator bool() const noexcept {
   return good_ && func_ && *func_;
 }
 
-Compiler &Compiler::compile(Func &func, Optimizer::Flag opt) noexcept {
+Compiler &Compiler::compile(Func &func, Optimizer::Flag flags) noexcept {
   func_ = &func;
   break_.clear();
   continue_.clear();
@@ -59,7 +59,7 @@ Compiler &Compiler::compile(Func &func, Optimizer::Flag opt) noexcept {
   error_.clear();
   good_ = bool(func);
 
-  Node node = optimizer_.optimize(func, func.get_body(), opt);
+  Node node = optimizer_.optimize(func, func.get_body(), flags);
 
   return compile_add(node, false).finish();
 }
@@ -180,7 +180,7 @@ Expr Compiler::compile(Call call, bool simplify_call) noexcept {
     return call;
   }
   // avoid calls inside other expressions,
-  // and copy result value to a Var.
+  // and copy result to a Var.
   //
   // we could also use to_var(call), but it risks
   // infinite recursion because it invokes compile(call)

@@ -27,7 +27,7 @@
 #define ONEJIT_ASSEMBLER_HPP
 
 #include <onejit/error.hpp>
-#include <onejit/label.hpp>
+#include <onejit/node/label.hpp>
 #include <onestl/buffer.hpp>
 
 namespace onejit {

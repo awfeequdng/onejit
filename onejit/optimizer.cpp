@@ -23,71 +23,111 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/binary.hpp>
 #include <onejit/const.hpp>
 #include <onejit/eval.hpp>
 #include <onejit/func.hpp>
-#include <onejit/node.hpp>
+#include <onejit/node/binary.hpp>
+#include <onejit/node/node.hpp>
+#include <onejit/node/unary.hpp>
 #include <onejit/optimizer.hpp>
-#include <onejit/unary.hpp>
 
 namespace onejit {
 
-Optimizer::Optimizer() noexcept : func_{nullptr}, nodes_{}, opt_{None} {
+Optimizer::Optimizer() noexcept : func_{nullptr}, nodes_{}, flags_{None} {
 }
 
 Optimizer::~Optimizer() noexcept {
 }
 
-Node Optimizer::optimize(Func &func, Node node, Optimizer::Flag opt) noexcept {
-  if (func && node && opt != None) {
+Node Optimizer::optimize(Func &func, Node node, Flag flags) noexcept {
+  if (func && node && flags != None) {
     func_ = &func;
     nodes_.clear();
-    opt_ = opt;
-    optimize(node);
+    flags_ = flags;
+    Result result = IsAll;
+    node = optimize(node, result);
   }
   return node;
 }
 
-Optimizer::Result Optimizer::optimize(Node &node_inout) noexcept {
-  Node node = node_inout;
+Node Optimizer::optimize(Node node, Result &in_out) noexcept {
   uint32_t n = node.children();
   if (n == 0 || node.type() >= LABEL) {
-    return node.type() == CONST ? IsConst | IsSame : IsSame;
+    in_out = in_out & ((node.type() == CONST ? IsConst : IsNone) | IsSame | IsPure);
+    if (node.type() < LABEL) {
+      in_out = in_out & ~IsPure;
+    }
+    return node;
   }
   nodes_.clear();
   if (!nodes_.resize(n)) {
-    return IsSame;
+    in_out = in_out & IsSame;
+    return node;
   }
-  Result result = IsSame | IsConst;
+  Result result = IsAll;
   for (uint32_t i = 0; i < n; i++) {
-    result = result & optimize(nodes_[i] = node.child(i));
+    nodes_[i] = optimize(node.child(i), result);
+  }
+  Node new_node;
+  switch (node.type()) {
+  case UNARY:
+    new_node = optimize(node.is<Unary>(), result);
+    break;
+  case BINARY:
+    new_node = optimize(node.is<Binary>(), result);
+    break;
+  default:
+    break;
+  }
+  return finish(node, new_node, result, in_out);
+}
+
+Node Optimizer::finish(Node orig_node, Node new_node, Result result, Result &in_out) noexcept {
+  if (!new_node && !(result & IsSame)) {
+    new_node = Node::create_indirect(*func_, orig_node.header(), nodes_);
   }
 
-  if ((result & IsConst) && (opt_ & ConstantFolding)) {
-    Value v, v1, v2;
-    if (Unary unary = node.is<Unary>()) {
-      if (nodes_.size() == 1 //
-          && (v1 = eval(nodes_[0].is<Expr>())).is_valid()) {
-        v = eval_unary(unary.kind(), unary.op(), v1);
-      }
-    } else if (Binary binary = node.is<Binary>()) {
-      if (nodes_.size() == 2                              //
-          && (v1 = eval(nodes_[0].is<Expr>())).is_valid() //
-          && (v2 = eval(nodes_[1].is<Expr>())).is_valid()) {
-        v = eval_binary(binary.op(), v1, v2);
+  if (new_node && new_node != orig_node) {
+    result = result & ~IsSame;
+  } else {
+    new_node = orig_node;
+    result = result | IsSame;
+  }
+  if (new_node.type() == CONST) {
+    result = result | IsConst;
+  } else {
+    result = result & ~IsConst;
+  }
+  in_out = in_out & result;
+  return new_node;
+}
+
+Node Optimizer::optimize(Unary expr, Result result) noexcept {
+  Node new_node = expr;
+  if (expr && (result & IsConst) && (flags_ & ConstantFolding) && nodes_.size() == 1) {
+    Value v0, ve;
+    if ((v0 = eval(nodes_[0].is<Expr>())).is_valid()) {
+      if ((ve = eval_unary(expr.kind(), expr.op(), v0)).is_valid()) {
+        new_node = Const{*func_, ve};
       }
     }
-    if (v.is_valid() && (node = Const{*func_, v})) {
-      node_inout = node;
-      return IsConst;
+  }
+  return new_node;
+}
+
+Node Optimizer::optimize(Binary expr, Result result) noexcept {
+  Node new_node = expr;
+  if (expr && (result & IsConst) && (flags_ & ConstantFolding) && nodes_.size() == 2) {
+    Value v0, v1, ve;
+    if ((v0 = eval(nodes_[0].is<Expr>())).is_valid()) {
+      if ((v1 = eval(nodes_[1].is<Expr>())).is_valid()) {
+        if ((ve = eval_binary(expr.op(), v0, v1)).is_valid()) {
+          new_node = Const{*func_, ve};
+        }
+      }
     }
   }
-  result = result & ~IsConst;
-  if ((result & IsSame) || (node = Node::create_indirect(*func_, node.header(), nodes_))) {
-    node_inout = node;
-  }
-  return result;
+  return new_node;
 }
 
 } // namespace onejit

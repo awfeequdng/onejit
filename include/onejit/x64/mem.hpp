@@ -26,9 +26,9 @@
 #define ONEJIT_X64_MEM_HPP
 
 #include <onejit/const.hpp>
-#include <onejit/label.hpp>
-#include <onejit/mem.hpp>
-#include <onejit/var.hpp>
+#include <onejit/node/label.hpp>
+#include <onejit/node/mem.hpp>
+#include <onejit/node/var.hpp>
 #include <onejit/x64/scale.hpp>
 
 namespace onejit {

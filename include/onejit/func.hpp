@@ -27,11 +27,11 @@
 #define ONEJIT_FUNC_HPP
 
 #include <onejit/code.hpp>
-#include <onejit/functype.hpp>
-#include <onejit/label.hpp>
-#include <onejit/name.hpp>
+#include <onejit/node/label.hpp>
+#include <onejit/node/name.hpp>
+#include <onejit/node/functype.hpp>
 #include <onejit/op.hpp>
-#include <onejit/var.hpp>
+#include <onejit/node/var.hpp>
 #include <onestl/chars.hpp>
 #include <onestl/string.hpp>
 #include <onestl/vector.hpp>

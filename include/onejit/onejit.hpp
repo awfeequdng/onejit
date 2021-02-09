@@ -27,8 +27,6 @@
 #define ONEJIT_ONEJIT_HPP
 
 #include <onejit/archid.hpp>
-#include <onejit/binary.hpp>
-#include <onejit/call.hpp>
 #include <onejit/check.hpp>
 #include <onejit/code.hpp>
 #include <onejit/codeparser.hpp>
@@ -36,32 +34,19 @@
 #include <onejit/const.hpp>
 #include <onejit/endian.hpp>
 #include <onejit/error.hpp>
-// #include <onejit/expr.hpp>     // redundant
+#include <onejit/eval.hpp>
 #include <onejit/fmt.hpp>
 #include <onejit/func.hpp>
-// #include <onejit/functype.hpp> // redundant
+#include <onejit/node.hpp> // includes all onejit/node/*.hpp
 // #include <onejit/group.hpp>    // redundant
 // #include <onejit/imm.hpp>      // redundant
 // #include <onejit/kind.hpp>     // redundant
-#include <onejit/label.hpp>
 // #include <onejit/local.hpp>    // redundant
 // #include <onejit/bits.hpp>  // redundant
 #include <onejit/math.hpp>
-#include <onejit/mem.hpp>
-// #include <onejit/node.hpp>     // redundant
-// #include <onejit/nodeheader.hpp>  // redundant
 // #include <onejit/op.hpp>       // redundant
 // #include <onejit/opstmt.hpp>   // redundant
-// #include <onejit/stmt.hpp>     // redundant
-#include <onejit/stmt0.hpp>
-#include <onejit/stmt1.hpp>
-#include <onejit/stmt2.hpp>
-#include <onejit/stmt3.hpp>
-#include <onejit/stmt4.hpp>
-#include <onejit/stmtn.hpp>
 // #include <onejit/type.hpp>     // redundant
-#include <onejit/unary.hpp>
-#include <onejit/var.hpp>
 
 #include <onestl/chars.hpp>
 #include <onestl/string.hpp>

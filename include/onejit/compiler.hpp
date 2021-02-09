@@ -27,8 +27,8 @@
 #define ONEJIT_COMPILER_HPP
 
 #include <onejit/error.hpp>
-#include <onejit/label.hpp>
-#include <onejit/node.hpp>
+#include <onejit/node/label.hpp>
+#include <onejit/node/node.hpp>
 #include <onejit/optimizer.hpp>
 #include <onestl/vector.hpp>
 
@@ -51,7 +51,7 @@ public:
   }
 
   // compile function
-  Compiler &compile(Func &func, Optimizer::Flag opt = Optimizer::All) noexcept;
+  Compiler &compile(Func &func, Optimizer::Flag flags = Optimizer::All) noexcept;
 
 private:
   Node compile(Assign stmt, bool simplify_call) noexcept;

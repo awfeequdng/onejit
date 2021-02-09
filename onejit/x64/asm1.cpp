@@ -26,8 +26,8 @@
 #include <onejit/assembler.hpp>
 #include <onejit/bits.hpp> // Bits
 #include <onejit/const.hpp>
-#include <onejit/label.hpp>
-#include <onejit/stmt1.hpp>
+#include <onejit/node/label.hpp>
+#include <onejit/node/stmt1.hpp>
 #include <onejit/x64/asm.hpp>
 #include <onejit/x64/inst.hpp>
 #include <onejit/x64/mem.hpp>

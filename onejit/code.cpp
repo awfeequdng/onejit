@@ -25,7 +25,7 @@
 
 #include <onejit/code.hpp>
 #include <onejit/local.hpp>
-#include <onejit/nodeheader.hpp>
+#include <onejit/node/nodeheader.hpp>
 
 #include <cstring>
 

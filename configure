@@ -628,7 +628,6 @@ LTLIBOBJS
 LIBOBJS
 LIBONESTL
 LIBONEJIT
-LIBONEJIT_X64
 EGREP
 GREP
 CXXCPP
@@ -5083,14 +5082,12 @@ done
 
 
 
-LIBONEJIT_X64='$(top_builddir)/onejit/x64/libonejit_x64.a'
-
 LIBONEJIT='$(top_builddir)/onejit/libonejit.a'
 
 LIBONESTL='$(top_builddir)/onestl/libonestl.a'
 
 
-ac_config_files="$ac_config_files Makefile onejit/Makefile onejit/x64/Makefile onestl/Makefile test/Makefile"
+ac_config_files="$ac_config_files Makefile onejit/Makefile onestl/Makefile test/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -5826,7 +5823,6 @@ do
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "onejit/Makefile") CONFIG_FILES="$CONFIG_FILES onejit/Makefile" ;;
-    "onejit/x64/Makefile") CONFIG_FILES="$CONFIG_FILES onejit/x64/Makefile" ;;
     "onestl/Makefile") CONFIG_FILES="$CONFIG_FILES onestl/Makefile" ;;
     "test/Makefile") CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
 

@@ -28,7 +28,7 @@
 
 #include <onejit/fwd.hpp>
 #include <onejit/imm.hpp>
-#include <onejit/node.hpp>
+#include <onejit/node/node.hpp>
 #include <onejit/type.hpp>
 #include <onestl/buffer.hpp>
 
