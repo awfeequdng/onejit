@@ -106,7 +106,7 @@ Node Optimizer::optimize(Unary expr, Result result) noexcept {
   Node new_node = expr;
   if (expr && (result & IsConst) && (flags_ & ConstantFolding) && nodes_.size() == 1) {
     Value v0, ve;
-    if ((v0 = eval(nodes_[0].is<Expr>())).is_valid()) {
+    if ((v0 = nodes_[0].is<Const>().imm()).is_valid()) {
       if ((ve = eval_unary(expr.kind(), expr.op(), v0)).is_valid()) {
         new_node = Const{*func_, ve};
       }
@@ -119,8 +119,8 @@ Node Optimizer::optimize(Binary expr, Result result) noexcept {
   Node new_node = expr;
   if (expr && (result & IsConst) && (flags_ & ConstantFolding) && nodes_.size() == 2) {
     Value v0, v1, ve;
-    if ((v0 = eval(nodes_[0].is<Expr>())).is_valid()) {
-      if ((v1 = eval(nodes_[1].is<Expr>())).is_valid()) {
+    if ((v0 = nodes_[0].is<Const>().imm()).is_valid()) {
+      if ((v0 = nodes_[1].is<Const>().imm()).is_valid()) {
         if ((ve = eval_binary(expr.op(), v0, v1)).is_valid()) {
           new_node = Const{*func_, ve};
         }
