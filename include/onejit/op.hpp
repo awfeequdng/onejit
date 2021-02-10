@@ -100,6 +100,13 @@ constexpr OpN operator-(OpN op, int delta) noexcept {
 }
 
 bool is_commutative(Op2 op) noexcept;
+constexpr bool is_comparison(Op2 op) noexcept {
+  return op >= LSS && op <= GEQ;
+}
+// change < to >, <= to >=, > to < and >= to <=
+Op2 swap_comparison(Op2 op) noexcept;
+// change < to >=, <= to >, != to ==, == to !=, > to <= and >= to <
+Op2 not_comparison(Op2 op) noexcept;
 
 const Chars to_string(Op1 op) noexcept;
 const Chars to_string(Op2 op) noexcept;

@@ -30,6 +30,7 @@
 #include <onejit/node/node.hpp>
 #include <onejit/node/unary.hpp>
 #include <onejit/optimizer.hpp>
+#include <onestl/vector.hpp>
 
 namespace onejit {
 
@@ -65,7 +66,7 @@ Optimizer::Result &operator|=(Optimizer::Result &a, Optimizer::Result b) noexcep
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Optimizer::Optimizer() noexcept : func_{nullptr}, nodes_{}, flags_{None} {
+Optimizer::Optimizer() noexcept : func_{nullptr}, flags_{None} {
 }
 
 Optimizer::~Optimizer() noexcept {
@@ -74,7 +75,6 @@ Optimizer::~Optimizer() noexcept {
 Node Optimizer::optimize(Func &func, Node node, Flag flags) noexcept {
   if (func && node && flags != None) {
     func_ = &func;
-    nodes_.clear();
     flags_ = flags;
     Result result = IsAll;
     node = optimize(node, result);
@@ -100,32 +100,33 @@ Node Optimizer::optimize(Node node, Result &in_out) noexcept {
     }
     return node;
   }
-  nodes_.clear();
-  if (!nodes_.resize(n)) {
+  Vector<Node> children;
+  if (!children.resize(n)) {
     in_out &= IsSame;
     return node;
   }
   Result result = IsAll;
   for (uint32_t i = 0; i < n; i++) {
-    nodes_[i] = optimize(node.child(i), result);
+    children[i] = optimize(node.child(i), result);
   }
   Node new_node;
   switch (node.type()) {
   case UNARY:
-    new_node = optimize(node.is<Unary>(), result);
+    new_node = optimize(node.is<Unary>(), children, result);
     break;
   case BINARY:
-    new_node = optimize(node.is<Binary>(), result);
+    new_node = optimize(node.is<Binary>(), children, result);
     break;
   default:
     break;
   }
-  return finish(node, new_node, result, in_out);
+  return finish(node, new_node, Nodes{children}, result, in_out);
 }
 
-Node Optimizer::finish(Node orig_node, Node new_node, Result result, Result &in_out) noexcept {
+Node Optimizer::finish(const Node &orig_node, Node new_node, const Nodes &optimized_children,
+                       Result result, Result &in_out) noexcept {
   if (!new_node && !(result & IsSame)) {
-    new_node = Node::create_indirect(*func_, orig_node.header(), nodes_);
+    new_node = Node::create_indirect(*func_, orig_node.header(), optimized_children);
   }
 
   if (new_node && new_node != orig_node) {
@@ -143,84 +144,98 @@ Node Optimizer::finish(Node orig_node, Node new_node, Result result, Result &in_
   return new_node;
 }
 
-Node Optimizer::optimize(Unary expr, Result result) noexcept {
-  Node new_node;
-  if (expr && nodes_.size() == 1) {
+Node Optimizer::optimize(Unary expr, Nodes children, Result result) noexcept {
+  Node ret;
+  if (expr && children.size() == 1) {
     if ((flags_ & ConstantFolding) && (result & IsConst)) {
       Value v0, ve;
-      if ((v0 = nodes_[0].is<Const>().imm()).is_valid()) {
+      if ((v0 = children[0].is<Const>().imm()).is_valid()) {
         if ((ve = eval_unary(expr.kind(), expr.op(), v0)).is_valid()) {
-          new_node = Const{*func_, ve};
+          ret = Const{*func_, ve};
         }
       }
     }
-    if (!new_node && (flags_ & ExprSimplification)) {
-      new_node = simplify(expr);
+    if (!ret && (flags_ & ExprSimplification)) {
+      ret = simplify(expr, children);
     }
   }
-  return new_node;
+  return ret;
 }
 
-Node Optimizer::optimize(Binary expr, Result result) noexcept {
-  Node new_node;
-  if (expr && nodes_.size() == 2) {
+Node Optimizer::optimize(Binary expr, Nodes children, Result result) noexcept {
+  Node ret;
+  if (expr && children.size() == 2) {
     if ((flags_ & ConstantFolding) && (result & IsConst)) {
       Value v0, v1, ve;
-      if ((v0 = nodes_[0].is<Const>().imm()).is_valid()) {
-        if ((v1 = nodes_[1].is<Const>().imm()).is_valid()) {
+      if ((v0 = children[0].is<Const>().imm()).is_valid()) {
+        if ((v1 = children[1].is<Const>().imm()).is_valid()) {
           if ((ve = eval_binary(expr.op(), v0, v1)).is_valid()) {
-            new_node = Const{*func_, ve};
+            ret = Const{*func_, ve};
           }
         }
       }
     }
-    if (!new_node && (flags_ & ExprSimplification)) {
-      new_node = simplify(expr);
+    if (!ret && (flags_ & ExprSimplification)) {
+      ret = simplify(expr, children);
     }
   }
-  return new_node;
+  return ret;
 }
 
-Node Optimizer::simplify(Unary expr) noexcept {
-  Node new_node;
+Node Optimizer::simplify(Unary expr, Nodes children) noexcept {
+  Node ret, arg = children[0];
   Op1 op = expr.op();
-  if (Unary x = nodes_[0].is<Unary>()) {
-    if (Expr y = x.x()) {
-      Op1 xop = x.op();
+  if (Unary u = arg.is<Unary>()) {
+    if (Expr y = u.x()) {
+      Op1 xop = u.op();
       if (op == XOR1 && xop == XOR1) {
         // simplify ~~y to y
-        new_node = y;
+        ret = y;
       } else if (op == XOR1 && xop == NEG1) {
         // simplify ~-y to y-1
-        new_node = Binary{*func_, SUB, y, One(y.kind())};
-      } else if (op == NEG1 && xop == NEG1) {
+        ret = Binary{*func_, SUB, y, One(*func_, y.kind())};
+      } else if (op == NEG1 && xop == XOR1) {
         // simplify -~y to y+1
-        new_node = Binary{*func_, ADD, y, One(y.kind())};
+        ret = Binary{*func_, ADD, y, One(*func_, y.kind())};
       } else if (op == NEG1 && xop == NEG1) {
         // simplify --y to y
-        new_node = y;
+        ret = y;
       }
     }
+  } else if (Binary b = arg.is<Binary>()) {
+    Op2 xop = b.op();
+    if (op == NOT1 && is_comparison(xop)) {
+      // simplify !(a compare b) to (a inverted_compare b)
+      ret = Binary{*func_, not_comparison(xop), b.x(), b.y()};
+    }
   }
-  if (!new_node) {
-    if (Expr x = nodes_[0].is<Expr>()) {
-      if ((op == CAST || op == BITCOPY) && expr.kind() == x.kind()) {
+  if (!ret) {
+    if (Expr e = arg.is<Expr>()) {
+      if ((op == CAST || op == BITCOPY) && expr.kind() == e.kind()) {
         // CAST or BITCOPY from a kind to itself
-        new_node = x;
+        ret = e;
       }
     }
   }
-  return new_node;
+  return ret;
 }
 
-Node Optimizer::simplify(Binary expr) noexcept {
-  Node new_node;
-  Expr x = expr.x(), y = expr.y();
-  Op2 op = expr.op();
-  if (is_commutative(op) && x.kind() > y.kind()) {
-    new_node = Binary{*func_, op, y, x};
+Node Optimizer::simplify(Binary expr, Nodes children) noexcept {
+  Node ret;
+  Expr x = children[0].is<Expr>(), y = children[1].is<Expr>();
+  if (x && y) {
+    Op2 op = expr.op();
+    if (x.type() > y.type()) {
+      if (is_commutative(op)) {
+        // put constants to the right
+        ret = expr = Binary{*func_, op, y, x};
+      } else if (is_comparison(op)) {
+        // put constants to the right
+        ret = expr = Binary{*func_, swap_comparison(op), y, x};
+      }
+    }
   }
-  return new_node;
+  return ret;
 }
 
 } // namespace onejit

@@ -39,7 +39,7 @@
 
 namespace onejit {
 
-Test::Test() : holder{}, func{&holder, Name{&holder, "test_func"}, ftype()} {
+Test::Test() : holder{}, func{&holder, Name{&holder, "test_func"}, ftype()}, comp{}, opt{} {
 }
 
 Test::~Test() {
@@ -59,6 +59,7 @@ void Test::run() {
   nested_expr();
   x64_expr();
   eval_expr();
+  optimize_expr();
   func_fib();
   func_loop();
   func_switch1();

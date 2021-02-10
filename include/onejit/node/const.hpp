@@ -131,20 +131,16 @@ constexpr const Const VoidExpr{Void};
 constexpr const Const TrueExpr{true};
 constexpr const Const FalseExpr{false};
 
-// return a Const value = 0 with specified Kind (which must NOT be Bad)
+// return a Const value = 0 with specified Kind
 constexpr inline Const Zero(Kind kind) noexcept {
   return Const{kind, uint16_t(0)};
 }
 
-// return a Const value = 1 with specified Kind (which must NOT be Bad or float)
-constexpr inline Const One(Kind kind) noexcept {
-  return Const{kind, uint16_t(1)};
-}
+// return a Const value = 1 with specified Kind
+Const One(Func &func, Kind kind) noexcept;
 
-// return a Const value = 2 with specified Kind (which must NOT be Bad or float)
-constexpr inline Const Two(Kind kind) noexcept {
-  return Const{kind, uint16_t(2)};
-}
+// return a Const value = 2 with specified Kind
+Const Two(Func &func, Kind kind) noexcept;
 
 } // namespace onejit
 

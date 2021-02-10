@@ -63,6 +63,41 @@ bool is_commutative(Op2 op) noexcept {
   }
 }
 
+// change < to >, <= to >=, > to < and >= to <=
+Op2 swap_comparison(Op2 op) noexcept {
+  switch (op) {
+  case LSS:
+    return GTR;
+  case LEQ:
+    return GEQ;
+  case GTR:
+    return LSS;
+  case GEQ:
+    return LEQ;
+  default:
+    return op;
+  }
+}
+
+Op2 not_comparison(Op2 op) noexcept {
+  switch (op) {
+  case LSS:
+    return GEQ;
+  case LEQ:
+    return GTR;
+  case NEQ:
+    return EQL;
+  case EQL:
+    return NEQ;
+  case GTR:
+    return LEQ;
+  case GEQ:
+    return LSS;
+  default:
+    return op;
+  }
+}
+
 static const char op2string[] =
     "\1?\0\1+\0\1-\0\1*\0\1/\0\1%\0\1&\0\1|\0\1^\0\2<<\2>>\2&^\2&&\2||\1<\0\2<=\2!=\2==\1>\0\2>=";
 

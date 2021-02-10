@@ -25,6 +25,7 @@
 
 #include <onejit/compiler.hpp>
 #include <onejit/func.hpp>
+#include <onejit/optimizer.hpp>
 
 #include "test_disasm.hpp"
 
@@ -54,11 +55,15 @@ private:
   void func_switch1();
   void func_switch2();
   void func_cond();
+  void optimize_expr();
+  template <class T> void optimize_expr_T();
+
   void compile(Func &func);
 
   Code holder;
   Func func;
   Compiler comp;
+  Optimizer opt;
 };
 
 } // namespace onejit

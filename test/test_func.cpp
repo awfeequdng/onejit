@@ -34,8 +34,8 @@ void Test::func_fib() {
   Kind kind = Uint64;
   Func &f = func.reset(&holder, Name{&holder, "fib"}, FuncType{&holder, {kind}, {kind}});
   Var n = f.param(0);
-  Const one = One(kind);
-  Const two = Two(kind);
+  Const one = One(f, kind);
+  Const two = Two(f, kind);
 
   /**
    * jit equivalent of C/C++ source code
@@ -150,8 +150,8 @@ void Test::func_switch1() {
   Var n = f.param(0);
   Var ret = f.result(0);
   Const zero = Zero(kind);
-  Const one = One(kind);
-  Const two = Two(kind);
+  Const one = One(f, kind);
+  Const two = Two(f, kind);
 
   /**
    * jit equivalent of C/C++ source code
@@ -221,8 +221,8 @@ void Test::func_switch2() {
   Var n = f.param(0);
   Var ret = f.result(0);
   Const zero = Zero(kind);
-  Const one = One(kind);
-  Const two = Two(kind);
+  Const one = One(f, kind);
+  Const two = Two(f, kind);
 
   /**
    * jit equivalent of C/C++ source code
@@ -293,8 +293,8 @@ void Test::func_cond() {
   Var n = f.param(0);
   Var ret = f.result(0);
   Const zero = Zero(kind);
-  Const one = One(kind);
-  Const two = Two(kind);
+  Const one = One(f, kind);
+  Const two = Two(f, kind);
 
   /**
    * jit equivalent of C/C++ source code

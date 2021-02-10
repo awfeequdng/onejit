@@ -54,6 +54,7 @@ const Fmt &Unary::format(const Fmt &out, size_t depth) const {
   if (op == CAST || op == BITCOPY) {
     out << ' ' << kind();
   }
+  out << ' ';
   return x().format(out, depth + 1) << ')';
 }
 

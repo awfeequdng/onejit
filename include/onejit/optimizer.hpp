@@ -27,7 +27,6 @@
 #define ONEJIT_OPTIMIZER_HPP
 
 #include <onejit/node/node.hpp>
-#include <onestl/buffer.hpp>
 
 namespace onejit {
 
@@ -51,21 +50,21 @@ public:
 
   ~Optimizer() noexcept;
 
-  Node optimize(Func &func, Node node, Flag flags) noexcept;
+  Node optimize(Func &func, Node node, Flag flags = All) noexcept;
 
 private:
   Node optimize(Node node, Result &in_out) noexcept;
-  Node optimize(Unary expr, Result result) noexcept;
-  Node optimize(Binary expr, Result result) noexcept;
+  Node optimize(Unary expr, Nodes children, Result result) noexcept;
+  Node optimize(Binary expr, Nodes children, Result result) noexcept;
 
-  Node simplify(Unary expr) noexcept;
-  Node simplify(Binary expr) noexcept;
+  Node simplify(Unary expr, Nodes children) noexcept;
+  Node simplify(Binary expr, Nodes children) noexcept;
 
-  Node finish(Node orig_node, Node new_node, Result result, Result &in_out) noexcept;
+  Node finish(const Node &orig_node, Node new_node, const Nodes &optimized_children, //
+              Result result, Result &in_out) noexcept;
 
 private:
   Func *func_;
-  Buffer<Node> nodes_;
   Flag flags_;
 };
 

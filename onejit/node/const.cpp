@@ -24,8 +24,8 @@
  */
 
 #include <onejit/code.hpp>
-#include <onejit/node/const.hpp>
 #include <onejit/func.hpp>
+#include <onejit/node/const.hpp>
 
 namespace onejit {
 
@@ -54,6 +54,28 @@ Node Const::create(Func &func, const Imm &imm) noexcept {
     }
   }
   return Node{};
+}
+
+Const One(Func &func, Kind kind) noexcept {
+  switch (kind.val()) {
+  case eFloat32:
+    return Const{func, float(1)};
+  case eFloat64:
+    return Const{func, double(1)};
+  default:
+    return Const{kind, uint16_t(1)};
+  }
+}
+
+Const Two(Func &func, Kind kind) noexcept {
+  switch (kind.val()) {
+  case eFloat32:
+    return Const{func, float(2)};
+  case eFloat64:
+    return Const{func, double(2)};
+  default:
+    return Const{kind, uint16_t(2)};
+  }
 }
 
 const Fmt &Const::format(const Fmt &out, size_t /*depth*/) const {
