@@ -203,10 +203,10 @@ Node Optimizer::simplify(Unary expr, Nodes children) noexcept {
       }
     }
   } else if (Binary b = arg.is<Binary>()) {
-    Op2 xop = b.op();
-    if (op == NOT1 && is_comparison(xop)) {
+    Op2 bop = b.op();
+    if (op == NOT1 && is_comparison(bop)) {
       // simplify !(a compare b) to (a inverted_compare b)
-      ret = Binary{*func_, not_comparison(xop), b.x(), b.y()};
+      ret = Binary{*func_, not_comparison(bop), b.x(), b.y()};
     }
   }
   if (!ret) {
