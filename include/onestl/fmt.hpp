@@ -67,7 +67,7 @@ public:
     return err_ == 0;
   }
 
-  const Fmt &write(const char *chars, size_t n) const noexcept;
+  const Fmt &write(const char *chars, size_t n) const;
 
 private:
   Writer writer_;
@@ -89,48 +89,48 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-const Fmt &operator<<(const Fmt &fmt, bool arg) noexcept;
-const Fmt &operator<<(const Fmt &fmt, char arg) noexcept;
-const Fmt &operator<<(const Fmt &fmt, int64_t arg) noexcept;
-const Fmt &operator<<(const Fmt &fmt, uint64_t arg) noexcept;
-const Fmt &operator<<(const Fmt &fmt, double arg) noexcept;
+const Fmt &operator<<(const Fmt &fmt, bool arg);
+const Fmt &operator<<(const Fmt &fmt, char arg);
+const Fmt &operator<<(const Fmt &fmt, int64_t arg);
+const Fmt &operator<<(const Fmt &fmt, uint64_t arg);
+const Fmt &operator<<(const Fmt &fmt, double arg);
 
-inline const Fmt &operator<<(const Fmt &fmt, int8_t arg) noexcept {
+inline const Fmt &operator<<(const Fmt &fmt, int8_t arg) {
   return fmt << int64_t(arg);
 }
-inline const Fmt &operator<<(const Fmt &fmt, int16_t arg) noexcept {
+inline const Fmt &operator<<(const Fmt &fmt, int16_t arg) {
   return fmt << int64_t(arg);
 }
-inline const Fmt &operator<<(const Fmt &fmt, int32_t arg) noexcept {
+inline const Fmt &operator<<(const Fmt &fmt, int32_t arg) {
   return fmt << int64_t(arg);
 }
-inline const Fmt &operator<<(const Fmt &fmt, uint8_t arg) noexcept {
+inline const Fmt &operator<<(const Fmt &fmt, uint8_t arg) {
   return fmt << uint64_t(arg);
 }
-inline const Fmt &operator<<(const Fmt &fmt, uint16_t arg) noexcept {
+inline const Fmt &operator<<(const Fmt &fmt, uint16_t arg) {
   return fmt << uint64_t(arg);
 }
-inline const Fmt &operator<<(const Fmt &fmt, uint32_t arg) noexcept {
+inline const Fmt &operator<<(const Fmt &fmt, uint32_t arg) {
   return fmt << uint64_t(arg);
 }
-inline const Fmt &operator<<(const Fmt &fmt, float arg) noexcept {
+inline const Fmt &operator<<(const Fmt &fmt, float arg) {
   return fmt << double(arg);
 }
-inline const Fmt &operator<<(const Fmt &fmt, View<char> arg) noexcept {
+inline const Fmt &operator<<(const Fmt &fmt, View<char> arg) {
   return fmt.write(arg.data(), arg.size());
 }
-inline const Fmt &operator<<(const Fmt &fmt, View<int8_t> arg) noexcept {
+inline const Fmt &operator<<(const Fmt &fmt, View<int8_t> arg) {
   return fmt.write(reinterpret_cast<const char *>(arg.data()), arg.size());
 }
-inline const Fmt &operator<<(const Fmt &fmt, View<uint8_t> arg) noexcept {
+inline const Fmt &operator<<(const Fmt &fmt, View<uint8_t> arg) {
   return fmt.write(reinterpret_cast<const char *>(arg.data()), arg.size());
 }
-const Fmt &operator<<(const Fmt &fmt, const void *arg) noexcept;
-const Fmt &operator<<(const Fmt &fmt, std::nullptr_t) noexcept;
-const Fmt &operator<<(const Fmt &fmt, const char *c_str) noexcept; /// c_str must be '\0' terminated
-const Fmt &operator<<(const Fmt &fmt, Hex arg) noexcept;
+const Fmt &operator<<(const Fmt &fmt, const void *arg);
+const Fmt &operator<<(const Fmt &fmt, std::nullptr_t);
+const Fmt &operator<<(const Fmt &fmt, const char *c_str); /// c_str must be '\0' terminated
+const Fmt &operator<<(const Fmt &fmt, Hex arg);
 
-template <size_t N> const Fmt &operator<<(const Fmt &fmt, const char (&addr)[N]) noexcept {
+template <size_t N> const Fmt &operator<<(const Fmt &fmt, const char (&addr)[N]) {
   return fmt.write(addr, N - 1);
 }
 

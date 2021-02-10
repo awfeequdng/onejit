@@ -30,22 +30,22 @@
 
 namespace onestl {
 
-ONESTL_NOINLINE const Fmt &Fmt::write(const char *chars, size_t n) const noexcept {
+ONESTL_NOINLINE const Fmt &Fmt::write(const char *chars, size_t n) const {
   if (n != 0 && err_ == 0) {
     err_ = writer_.write(chars, n);
   }
   return *this;
 }
 
-ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, bool val) noexcept {
+ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, bool val) {
   return fmt << (val ? Chars("true") : Chars("false"));
 }
 
-ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, char ch) noexcept {
+ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, char ch) {
   return fmt.write(&ch, 1);
 }
 
-ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, int64_t val) noexcept {
+ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, int64_t val) {
   if (val < 0) {
     fmt.write("-", 1);
     val = -val;
@@ -53,7 +53,7 @@ ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, int64_t val) noexcept {
   return fmt << uint64_t(val);
 }
 
-ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, uint64_t val) noexcept {
+ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, uint64_t val) {
   if (!fmt || !fmt.writer().func()) {
     return fmt;
   }
@@ -69,7 +69,7 @@ ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, uint64_t val) noexcept {
   return fmt.write(buf + i, sizeof(buf) - i);
 }
 
-ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, double val) noexcept {
+ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, double val) {
   if (!fmt || !fmt.writer().func()) {
     return fmt;
   }
@@ -82,20 +82,20 @@ ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, double val) noexcept {
   return fmt.write(buf, n);
 }
 
-const Fmt &operator<<(const Fmt &fmt, const void *val) noexcept {
+const Fmt &operator<<(const Fmt &fmt, const void *val) {
   return fmt << "0x" << Hex{size_t(val)};
 }
 
-const Fmt &operator<<(const Fmt &fmt, std::nullptr_t) noexcept {
+const Fmt &operator<<(const Fmt &fmt, std::nullptr_t) {
   return fmt.write("null", 4);
 }
 
 // c_str must be '\0' terminated
-const Fmt &operator<<(const Fmt &fmt, const char *c_str) noexcept {
+const Fmt &operator<<(const Fmt &fmt, const char *c_str) {
   return fmt.write(c_str, c_str ? std::strlen(c_str) : 0);
 }
 
-const Fmt &operator<<(const Fmt &fmt, Hex arg) noexcept {
+const Fmt &operator<<(const Fmt &fmt, Hex arg) {
   if (!fmt || !fmt.writer().func()) {
     return fmt;
   }

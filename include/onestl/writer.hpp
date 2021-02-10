@@ -25,7 +25,7 @@
 #ifndef ONESTL_WRITER_HPP
 #define ONESTL_WRITER_HPP
 
-#include <onestl/chars.hpp>
+#include <cstddef> // size_t
 
 namespace onestl {
 
@@ -57,7 +57,7 @@ public:
   }
 
   // write n chars to handle, return I/O error
-  int write(const char *chars, size_t n) const noexcept {
+  int write(const char *chars, size_t n) const {
     return func_ ? func_(handle_, chars, n) : 0;
   }
 
@@ -68,7 +68,7 @@ private:
 
   void *handle_;
   func_type func_;
-}; // namespace onestl
+};
 
 } // namespace onestl
 
