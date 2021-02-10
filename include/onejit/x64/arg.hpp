@@ -107,45 +107,63 @@ enum class Arg3 : uint8_t {
 
 ////////////////////////////////////////////////////////////////////////////////
 constexpr inline EflagsMask operator&(EflagsMask a, EflagsMask b) noexcept {
-  return EflagsMask(int(a) & int(b));
+  return EflagsMask(unsigned(a) & unsigned(b));
 }
 constexpr inline EflagsMask operator|(EflagsMask a, EflagsMask b) noexcept {
-  return EflagsMask(int(a) | int(b));
+  return EflagsMask(unsigned(a) | unsigned(b));
+}
+constexpr inline EflagsMask operator^(EflagsMask a, EflagsMask b) noexcept {
+  return EflagsMask(unsigned(a) ^ unsigned(b));
 }
 
 constexpr inline Eflags operator&(Eflags a, Eflags b) noexcept {
-  return Eflags(int(a) & int(b));
+  return Eflags(unsigned(a) & unsigned(b));
 }
 constexpr inline Eflags operator|(Eflags a, Eflags b) noexcept {
-  return Eflags(int(a) | int(b));
+  return Eflags(unsigned(a) | unsigned(b));
+}
+constexpr inline Eflags operator^(Eflags a, Eflags b) noexcept {
+  return Eflags(unsigned(a) ^ unsigned(b));
 }
 
 constexpr inline BitSize operator&(BitSize a, BitSize b) noexcept {
-  return BitSize(int(a) & int(b));
+  return BitSize(unsigned(a) & unsigned(b));
 }
 constexpr inline BitSize operator|(BitSize a, BitSize b) noexcept {
-  return BitSize(int(a) | int(b));
+  return BitSize(unsigned(a) | unsigned(b));
+}
+constexpr inline BitSize operator^(BitSize a, BitSize b) noexcept {
+  return BitSize(unsigned(a) ^ unsigned(b));
 }
 
 constexpr inline Arg1 operator&(Arg1 a, Arg1 b) noexcept {
-  return Arg1(int(a) & int(b));
+  return Arg1(unsigned(a) & unsigned(b));
 }
 constexpr inline Arg1 operator|(Arg1 a, Arg1 b) noexcept {
-  return Arg1(int(a) | int(b));
+  return Arg1(unsigned(a) | unsigned(b));
+}
+constexpr inline Arg1 operator^(Arg1 a, Arg1 b) noexcept {
+  return Arg1(unsigned(a) ^ unsigned(b));
 }
 
 constexpr inline Arg2 operator&(Arg2 a, Arg2 b) noexcept {
-  return Arg2(int(a) & int(b));
+  return Arg2(unsigned(a) & unsigned(b));
 }
 constexpr inline Arg2 operator|(Arg2 a, Arg2 b) noexcept {
-  return Arg2(int(a) | int(b));
+  return Arg2(unsigned(a) | unsigned(b));
+}
+constexpr inline Arg2 operator^(Arg2 a, Arg2 b) noexcept {
+  return Arg2(unsigned(a) ^ unsigned(b));
 }
 
 constexpr inline Arg3 operator&(Arg3 a, Arg3 b) noexcept {
-  return Arg3(int(a) & int(b));
+  return Arg3(unsigned(a) & unsigned(b));
 }
 constexpr inline Arg3 operator|(Arg3 a, Arg3 b) noexcept {
-  return Arg3(int(a) | int(b));
+  return Arg3(unsigned(a) | unsigned(b));
+}
+constexpr inline Arg3 operator^(Arg3 a, Arg3 b) noexcept {
+  return Arg3(unsigned(a) ^ unsigned(b));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

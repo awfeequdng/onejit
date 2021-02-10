@@ -23,7 +23,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/const.hpp>
+#include <onejit/node/const.hpp>
 #include <onejit/x64/mem.hpp>
 
 namespace onejit {

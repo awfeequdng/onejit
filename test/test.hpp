@@ -17,47 +17,48 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * const.cpp
+ * test.hpp
  *
- *  Created on Jan 13, 2021
+ *  Created on Jan 08, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/code.hpp>
-#include <onejit/node/const.hpp>
+#include <onejit/compiler.hpp>
 #include <onejit/func.hpp>
+
+#include "test_disasm.hpp"
 
 namespace onejit {
 
-Imm Const::imm() const noexcept {
-  if (is_direct()) {
-    return Imm::parse_direct(offset_or_direct());
-  } else {
-    return Imm::parse_indirect(kind(), offset_or_direct() + sizeof(CodeItem), code());
-  }
-}
+class Test : public TestDisasm {
+public:
+  Test();
+  ~Test();
 
-Node Const::create(Func &func, const Imm &imm) noexcept {
-  if (imm.is_valid()) {
-    const NodeHeader header{CONST, imm.kind(), 0};
+  void run();
 
-    if (imm.is_direct()) {
-      return Node{header, imm.direct(), nullptr};
-    }
-    if (Code *holder = func.code()) {
-      CodeItem offset = holder->length();
+private:
+  FuncType ftype();
+  void dump_and_clear_code();
 
-      if (holder->add(header) && imm.write_indirect(holder)) {
-        return Node{header, offset, holder};
-      }
-      holder->truncate(offset);
-    }
-  }
-  return Node{};
-}
+  // called by run()
+  void kind();
+  void const_expr() const;
+  void simple_expr();
+  void nested_expr();
+  void x64_expr();
+  void eval_expr();
+  template <class T> void eval_expr_T();
+  void func_fib();
+  void func_loop();
+  void func_switch1();
+  void func_switch2();
+  void func_cond();
+  void compile(Func &func);
 
-const Fmt &Const::format(const Fmt &out, size_t /*depth*/) const {
-  return out << imm();
-}
+  Code holder;
+  Func func;
+  Compiler comp;
+};
 
 } // namespace onejit

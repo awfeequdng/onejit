@@ -23,7 +23,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/const.hpp>
+#include <onejit/node/const.hpp>
 #include <onejit/eval.hpp>
 #include <onejit/node/binary.hpp>
 #include <onejit/node/unary.hpp>

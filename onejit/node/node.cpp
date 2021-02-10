@@ -26,7 +26,7 @@
 #include <onejit/node/binary.hpp>
 #include <onejit/check.hpp>
 #include <onejit/code.hpp>
-#include <onejit/const.hpp>
+#include <onejit/node/const.hpp>
 #include <onejit/func.hpp>
 #include <onejit/node/functype.hpp>
 #include <onejit/node/label.hpp>

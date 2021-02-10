@@ -35,19 +35,14 @@ namespace onejit {
 
 class Optimizer {
 public:
+  enum Result : uint8_t;
+
   enum Flag : uint16_t {
     None = 0,
     ConstantFolding = 1 << 0,
-    DeadCodeElimination = 1 << 1,
+    ExprSimplification = 1 << 1,
+    DeadCodeElimination = 1 << 2,
     All = 0xffff,
-  };
-
-  enum Result : uint8_t {
-    IsNone = 0,
-    IsSame = 1 << 0,
-    IsPure = 1 << 1,
-    IsConst = 1 << 2,
-    IsAll = 0xff,
   };
 
   Optimizer() noexcept;
@@ -63,6 +58,9 @@ private:
   Node optimize(Unary expr, Result result) noexcept;
   Node optimize(Binary expr, Result result) noexcept;
 
+  Node simplify(Unary expr) noexcept;
+  Node simplify(Binary expr) noexcept;
+
   Node finish(Node orig_node, Node new_node, Result result, Result &in_out) noexcept;
 
 private:
@@ -73,30 +71,32 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-constexpr Optimizer::Flag operator&(Optimizer::Flag a, Optimizer::Flag b) noexcept {
-  return Optimizer::Flag(unsigned(a) & unsigned(b));
-}
-
-constexpr Optimizer::Flag operator|(Optimizer::Flag a, Optimizer::Flag b) noexcept {
-  return Optimizer::Flag(unsigned(a) | unsigned(b));
-}
-
-constexpr Optimizer::Flag operator~(Optimizer::Flag a) noexcept {
+constexpr inline Optimizer::Flag operator~(Optimizer::Flag a) noexcept {
   return Optimizer::Flag(~unsigned(a));
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-constexpr Optimizer::Result operator&(Optimizer::Result a, Optimizer::Result b) noexcept {
-  return Optimizer::Result(unsigned(a) & unsigned(b));
+constexpr inline Optimizer::Flag operator&(Optimizer::Flag a, Optimizer::Flag b) noexcept {
+  return Optimizer::Flag(unsigned(a) & unsigned(b));
 }
 
-constexpr Optimizer::Result operator|(Optimizer::Result a, Optimizer::Result b) noexcept {
-  return Optimizer::Result(unsigned(a) | unsigned(b));
+constexpr inline Optimizer::Flag operator|(Optimizer::Flag a, Optimizer::Flag b) noexcept {
+  return Optimizer::Flag(unsigned(a) | unsigned(b));
 }
 
-constexpr Optimizer::Result operator~(Optimizer::Result a) noexcept {
-  return Optimizer::Result(~unsigned(a));
+constexpr inline Optimizer::Flag operator^(Optimizer::Flag a, Optimizer::Flag b) noexcept {
+  return Optimizer::Flag(unsigned(a) ^ unsigned(b));
+}
+
+inline Optimizer::Flag operator&=(Optimizer::Flag &a, Optimizer::Flag b) noexcept {
+  return a = a & b;
+}
+
+inline Optimizer::Flag operator|=(Optimizer::Flag &a, Optimizer::Flag b) noexcept {
+  return a = a | b;
+}
+
+inline Optimizer::Flag operator^=(Optimizer::Flag &a, Optimizer::Flag b) noexcept {
+  return a = a ^ b;
 }
 
 } // namespace onejit

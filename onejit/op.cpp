@@ -48,6 +48,21 @@ const Fmt &operator<<(const Fmt &out, Op1 op) {
 
 // ============================  Op2  ==========================================
 
+bool is_commutative(Op2 op) noexcept {
+  switch (op) {
+  case ADD:
+  case MUL:
+  case AND:
+  case OR:
+  case XOR:
+  case NEQ:
+  case EQL:
+    return true;
+  default:
+    return false;
+  }
+}
+
 static const char op2string[] =
     "\1?\0\1+\0\1-\0\1*\0\1/\0\1%\0\1&\0\1|\0\1^\0\2<<\2>>\2&^\2&&\2||\1<\0\2<=\2!=\2==\1>\0\2>=";
 

@@ -23,11 +23,11 @@
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_CONST_HPP
-#define ONEJIT_CONST_HPP
+#ifndef ONEJIT_NODE_CONST_HPP
+#define ONEJIT_NODE_CONST_HPP
 
-#include <onejit/node/expr.hpp>
 #include <onejit/imm.hpp>
+#include <onejit/node/expr.hpp>
 
 namespace onejit {
 
@@ -148,4 +148,4 @@ constexpr inline Const Two(Kind kind) noexcept {
 
 } // namespace onejit
 
-#endif // ONEJIT_CONST_HPP
+#endif // ONEJIT_NODE_CONST_HPP

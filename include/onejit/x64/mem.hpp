@@ -25,7 +25,7 @@
 #ifndef ONEJIT_X64_MEM_HPP
 #define ONEJIT_X64_MEM_HPP
 
-#include <onejit/const.hpp>
+#include <onejit/node/const.hpp>
 #include <onejit/node/label.hpp>
 #include <onejit/node/mem.hpp>
 #include <onejit/node/var.hpp>

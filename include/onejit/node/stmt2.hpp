@@ -26,7 +26,7 @@
 #ifndef ONEJIT_NODE_STMT2_HPP
 #define ONEJIT_NODE_STMT2_HPP
 
-#include <onejit/const.hpp> // VoidExpr
+#include <onejit/node/const.hpp> // VoidExpr
 #include <onejit/fmt.hpp>
 #include <onejit/node/label.hpp>
 #include <onejit/node/stmt.hpp>

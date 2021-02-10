@@ -31,22 +31,23 @@
 #include <onejit/code.hpp>
 #include <onejit/codeparser.hpp>
 #include <onejit/compiler.hpp>
-#include <onejit/const.hpp>
 #include <onejit/endian.hpp>
 #include <onejit/error.hpp>
 #include <onejit/eval.hpp>
 #include <onejit/fmt.hpp>
 #include <onejit/func.hpp>
-#include <onejit/node.hpp> // includes all onejit/node/*.hpp
-// #include <onejit/group.hpp>    // redundant
-// #include <onejit/imm.hpp>      // redundant
-// #include <onejit/kind.hpp>     // redundant
-// #include <onejit/local.hpp>    // redundant
-// #include <onejit/bits.hpp>  // redundant
+#include <onejit/node.hpp>       // includes all onejit/node/
+#include <onejit/node/const.hpp> // redundant
+// #include <onejit/group.hpp>   // redundant
+// #include <onejit/imm.hpp>     // redundant
+// #include <onejit/kind.hpp>    // redundant
+// #include <onejit/local.hpp>   // redundant
+// #include <onejit/bits.hpp>    // redundant
 #include <onejit/math.hpp>
-// #include <onejit/op.hpp>       // redundant
-// #include <onejit/opstmt.hpp>   // redundant
-// #include <onejit/type.hpp>     // redundant
+// #include <onejit/op.hpp>      // redundant
+// #include <onejit/opstmt.hpp>  // redundant
+// #include <onejit/type.hpp>    // redundant
+#include <onejit/x64.hpp> //     // includes all onejit/x64/
 
 #include <onestl/chars.hpp>
 #include <onestl/string.hpp>

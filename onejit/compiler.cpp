@@ -24,7 +24,7 @@
  */
 
 #include <onejit/compiler.hpp>
-#include <onejit/const.hpp>
+#include <onejit/node/const.hpp>
 #include <onejit/func.hpp>
 #include <onejit/node/binary.hpp>
 #include <onejit/node/call.hpp>

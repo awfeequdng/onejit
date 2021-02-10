@@ -23,15 +23,47 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/const.hpp>
 #include <onejit/eval.hpp>
 #include <onejit/func.hpp>
 #include <onejit/node/binary.hpp>
+#include <onejit/node/const.hpp>
 #include <onejit/node/node.hpp>
 #include <onejit/node/unary.hpp>
 #include <onejit/optimizer.hpp>
 
 namespace onejit {
+
+////////////////////////////////////////////////////////////////////////////////
+
+enum Optimizer::Result : uint8_t {
+  IsNone = 0,
+  IsSame = 1 << 0,
+  IsPure = 1 << 1,
+  IsConst = 1 << 2,
+  IsAll = 0xff,
+};
+
+constexpr Optimizer::Result operator~(Optimizer::Result a) noexcept {
+  return Optimizer::Result(~uint8_t(a));
+}
+
+constexpr Optimizer::Result operator&(Optimizer::Result a, Optimizer::Result b) noexcept {
+  return Optimizer::Result(uint8_t(a) & uint8_t(b));
+}
+
+constexpr Optimizer::Result operator|(Optimizer::Result a, Optimizer::Result b) noexcept {
+  return Optimizer::Result(uint8_t(a) | uint8_t(b));
+}
+
+Optimizer::Result &operator&=(Optimizer::Result &a, Optimizer::Result b) noexcept {
+  return a = a & b;
+}
+
+Optimizer::Result &operator|=(Optimizer::Result &a, Optimizer::Result b) noexcept {
+  return a = a | b;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 Optimizer::Optimizer() noexcept : func_{nullptr}, nodes_{}, flags_{None} {
 }
@@ -51,17 +83,26 @@ Node Optimizer::optimize(Func &func, Node node, Flag flags) noexcept {
 }
 
 Node Optimizer::optimize(Node node, Result &in_out) noexcept {
+  if (!*func_) {
+    // out of memory
+    in_out &= IsSame;
+    return node;
+  }
   uint32_t n = node.children();
-  if (n == 0 || node.type() >= LABEL) {
-    in_out = in_out & ((node.type() == CONST ? IsConst : IsNone) | IsSame | IsPure);
-    if (node.type() < LABEL) {
-      in_out = in_out & ~IsPure;
+  Type t = node.type();
+  if (n == 0 || t >= LABEL) {
+    if (t != CONST) {
+      in_out &= ~IsConst;
+    }
+    if (t == LABEL) {
+      // labels are jump destinations, cannot optimize them away
+      in_out &= ~IsPure;
     }
     return node;
   }
   nodes_.clear();
   if (!nodes_.resize(n)) {
-    in_out = in_out & IsSame;
+    in_out &= IsSame;
     return node;
   }
   Result result = IsAll;
@@ -88,44 +129,96 @@ Node Optimizer::finish(Node orig_node, Node new_node, Result result, Result &in_
   }
 
   if (new_node && new_node != orig_node) {
-    result = result & ~IsSame;
+    result &= ~IsSame;
   } else {
     new_node = orig_node;
-    result = result | IsSame;
+    result |= IsSame;
   }
   if (new_node.type() == CONST) {
-    result = result | IsConst;
+    result |= IsConst | IsPure;
   } else {
-    result = result & ~IsConst;
+    result &= ~IsConst;
   }
-  in_out = in_out & result;
+  in_out &= result;
   return new_node;
 }
 
 Node Optimizer::optimize(Unary expr, Result result) noexcept {
-  Node new_node = expr;
-  if (expr && (result & IsConst) && (flags_ & ConstantFolding) && nodes_.size() == 1) {
-    Value v0, ve;
-    if ((v0 = nodes_[0].is<Const>().imm()).is_valid()) {
-      if ((ve = eval_unary(expr.kind(), expr.op(), v0)).is_valid()) {
-        new_node = Const{*func_, ve};
+  Node new_node;
+  if (expr && nodes_.size() == 1) {
+    if ((flags_ & ConstantFolding) && (result & IsConst)) {
+      Value v0, ve;
+      if ((v0 = nodes_[0].is<Const>().imm()).is_valid()) {
+        if ((ve = eval_unary(expr.kind(), expr.op(), v0)).is_valid()) {
+          new_node = Const{*func_, ve};
+        }
       }
+    }
+    if (!new_node && (flags_ & ExprSimplification)) {
+      new_node = simplify(expr);
     }
   }
   return new_node;
 }
 
 Node Optimizer::optimize(Binary expr, Result result) noexcept {
-  Node new_node = expr;
-  if (expr && (result & IsConst) && (flags_ & ConstantFolding) && nodes_.size() == 2) {
-    Value v0, v1, ve;
-    if ((v0 = nodes_[0].is<Const>().imm()).is_valid()) {
-      if ((v0 = nodes_[1].is<Const>().imm()).is_valid()) {
-        if ((ve = eval_binary(expr.op(), v0, v1)).is_valid()) {
-          new_node = Const{*func_, ve};
+  Node new_node;
+  if (expr && nodes_.size() == 2) {
+    if ((flags_ & ConstantFolding) && (result & IsConst)) {
+      Value v0, v1, ve;
+      if ((v0 = nodes_[0].is<Const>().imm()).is_valid()) {
+        if ((v1 = nodes_[1].is<Const>().imm()).is_valid()) {
+          if ((ve = eval_binary(expr.op(), v0, v1)).is_valid()) {
+            new_node = Const{*func_, ve};
+          }
         }
       }
     }
+    if (!new_node && (flags_ & ExprSimplification)) {
+      new_node = simplify(expr);
+    }
+  }
+  return new_node;
+}
+
+Node Optimizer::simplify(Unary expr) noexcept {
+  Node new_node;
+  Op1 op = expr.op();
+  if (Unary x = nodes_[0].is<Unary>()) {
+    if (Expr y = x.x()) {
+      Op1 xop = x.op();
+      if (op == XOR1 && xop == XOR1) {
+        // simplify ~~y to y
+        new_node = y;
+      } else if (op == XOR1 && xop == NEG1) {
+        // simplify ~-y to y-1
+        new_node = Binary{*func_, SUB, y, One(y.kind())};
+      } else if (op == NEG1 && xop == NEG1) {
+        // simplify -~y to y+1
+        new_node = Binary{*func_, ADD, y, One(y.kind())};
+      } else if (op == NEG1 && xop == NEG1) {
+        // simplify --y to y
+        new_node = y;
+      }
+    }
+  }
+  if (!new_node) {
+    if (Expr x = nodes_[0].is<Expr>()) {
+      if ((op == CAST || op == BITCOPY) && expr.kind() == x.kind()) {
+        // CAST or BITCOPY from a kind to itself
+        new_node = x;
+      }
+    }
+  }
+  return new_node;
+}
+
+Node Optimizer::simplify(Binary expr) noexcept {
+  Node new_node;
+  Expr x = expr.x(), y = expr.y();
+  Op2 op = expr.op();
+  if (is_commutative(op) && x.kind() > y.kind()) {
+    new_node = Binary{*func_, op, y, x};
   }
   return new_node;
 }

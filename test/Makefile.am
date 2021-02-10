@@ -5,7 +5,8 @@ bin_PROGRAMS           = test_jit
 AM_CPPFLAGS            = -I$(top_srcdir)/include
 AM_CXXFLAGS            = $(CAPSTONE_CFLAGS)
 
-test_jit_SOURCES       = test_disasm.cpp test_main.cpp
+test_jit_SOURCES       = test_disasm.cpp test_expr.cpp test_eval.cpp test_func.cpp test_main.cpp \
+                         test_x64.cpp
 # test_jit_CXXFLAGS    =
 
 EXTRA_test_jit_DEPENDENCIES = $(LIBONEJIT) $(LIBONESTL)

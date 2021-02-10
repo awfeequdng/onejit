@@ -99,7 +99,9 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_test_jit_OBJECTS = test_disasm.$(OBJEXT) test_main.$(OBJEXT)
+am_test_jit_OBJECTS = test_disasm.$(OBJEXT) test_expr.$(OBJEXT) \
+	test_eval.$(OBJEXT) test_func.$(OBJEXT) test_main.$(OBJEXT) \
+	test_x64.$(OBJEXT)
 test_jit_OBJECTS = $(am_test_jit_OBJECTS)
 am__DEPENDENCIES_1 =
 test_jit_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
@@ -120,7 +122,9 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/test_disasm.Po \
-	./$(DEPDIR)/test_main.Po
+	./$(DEPDIR)/test_eval.Po ./$(DEPDIR)/test_expr.Po \
+	./$(DEPDIR)/test_func.Po ./$(DEPDIR)/test_main.Po \
+	./$(DEPDIR)/test_x64.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -310,7 +314,9 @@ top_srcdir = @top_srcdir@
 SUBDIRS = 
 AM_CPPFLAGS = -I$(top_srcdir)/include
 AM_CXXFLAGS = $(CAPSTONE_CFLAGS)
-test_jit_SOURCES = test_disasm.cpp test_main.cpp
+test_jit_SOURCES = test_disasm.cpp test_expr.cpp test_eval.cpp test_func.cpp test_main.cpp \
+                         test_x64.cpp
+
 # test_jit_CXXFLAGS    =
 EXTRA_test_jit_DEPENDENCIES = $(LIBONEJIT) $(LIBONESTL)
 test_jit_LDADD = $(LIBONEJIT) $(LIBONESTL) $(CAPSTONE_LIBS)
@@ -401,7 +407,11 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_disasm.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_eval.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_expr.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_func.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_main.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_x64.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -626,7 +636,11 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/test_disasm.Po
+	-rm -f ./$(DEPDIR)/test_eval.Po
+	-rm -f ./$(DEPDIR)/test_expr.Po
+	-rm -f ./$(DEPDIR)/test_func.Po
 	-rm -f ./$(DEPDIR)/test_main.Po
+	-rm -f ./$(DEPDIR)/test_x64.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -673,7 +687,11 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/test_disasm.Po
+	-rm -f ./$(DEPDIR)/test_eval.Po
+	-rm -f ./$(DEPDIR)/test_expr.Po
+	-rm -f ./$(DEPDIR)/test_func.Po
 	-rm -f ./$(DEPDIR)/test_main.Po
+	-rm -f ./$(DEPDIR)/test_x64.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

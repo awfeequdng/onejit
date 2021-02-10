@@ -23,10 +23,10 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include "test_disasm.hpp"
+
 #include <onejit/assembler.hpp>
 #include <onejit/fmt.hpp>
-
-#include "test_disasm.hpp"
 
 #ifdef HAVE_LIBCAPSTONE
 #include <arm64.h>
