@@ -89,6 +89,11 @@ public:
   }
 
   /** construct a Const containing specified immediate value */
+  Const(Func &func, const Value &value) noexcept //
+      : Base{create(func, Imm{value})} {
+  }
+
+  /** construct a Const containing specified immediate value */
   Const(Func &func, const Imm &imm) noexcept //
       : Base{create(func, imm)} {
   }

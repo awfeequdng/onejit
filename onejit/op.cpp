@@ -48,6 +48,19 @@ const Fmt &operator<<(const Fmt &out, Op1 op) {
 
 // ============================  Op2  ==========================================
 
+bool is_associative(Op2 op) noexcept {
+  switch (op) {
+  case ADD:
+  case MUL:
+  case AND:
+  case OR:
+  case XOR:
+    return true;
+  default:
+    return false;
+  }
+}
+
 bool is_commutative(Op2 op) noexcept {
   switch (op) {
   case ADD:

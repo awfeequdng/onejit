@@ -49,6 +49,7 @@ template <class T> void Test::optimize_expr_T() {
   Func &f = func;
 
   Const one{f, T(1)};
+  Const two{f, T(2)};
   Kind kind = one.kind();
   Var x{f, kind};
 
@@ -79,6 +80,26 @@ template <class T> void Test::optimize_expr_T() {
   optimized = opt.optimize(f, expr);
   expected.clear();
   Fmt{&expected} << "(<= " << x << " 1)";
+  TEST(optimized, !=, expr);
+  TEST(to_string(optimized), ==, expected);
+
+  if (kind.is_float()) {
+    return;
+  }
+
+  // optimize() on (x+1)+2 should return x+3
+  expr = Binary{f, ADD, Binary{f, ADD, x, one}, two};
+  optimized = opt.optimize(f, expr);
+  expected.clear();
+  Fmt{&expected} << "(+ " << x << " 3)";
+  TEST(optimized, !=, expr);
+  TEST(to_string(optimized), ==, expected);
+
+  // optimize() on (x+1)+(x+2) should return (x+x)+3
+  expr = Binary{f, ADD, Binary{f, ADD, x, one}, Binary{f, ADD, x, two}};
+  optimized = opt.optimize(f, expr);
+  expected.clear();
+  Fmt{&expected} << "(+ (+ " << x << ' ' << x << ") 3)";
   TEST(optimized, !=, expr);
   TEST(to_string(optimized), ==, expected);
 }
