@@ -210,6 +210,8 @@ inline const Fmt &operator<<(const Fmt &out, const Node &node) {
   return node.format(out);
 }
 
+String to_string(Node node);
+
 } // namespace onejit
 
 #endif // ONEJIT_NODE_NODE_HPP

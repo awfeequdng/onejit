@@ -54,8 +54,6 @@ public:
   // and compare its text representation
   void test_asm_disasm_x64(const Node &node, Assembler &assembler);
 
-  static String to_string(const Node &node);
-
 private:
   mutable size_t testcount_;
 

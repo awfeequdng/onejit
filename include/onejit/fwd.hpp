@@ -127,6 +127,8 @@ using Exprs = View<Expr>;
 using Kinds = View<Kind>;
 using Nodes = View<Node>;
 
+String to_string(Node node);
+
 } // namespace onejit
 
 #endif // ONEJIT_FWD_HPP

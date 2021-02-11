@@ -180,8 +180,4 @@ void TestDisasm::test_asm_disasm_x64(const Node &node, Assembler &assembler) {
 
 #endif
 
-String TestDisasm::to_string(const Node &node) {
-  return onestl::to_string(node);
-}
-
 } // namespace onejit

@@ -23,11 +23,11 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/node/binary.hpp>
 #include <onejit/check.hpp>
 #include <onejit/code.hpp>
-#include <onejit/node/const.hpp>
 #include <onejit/func.hpp>
+#include <onejit/node/binary.hpp>
+#include <onejit/node/const.hpp>
 #include <onejit/node/functype.hpp>
 #include <onejit/node/label.hpp>
 #include <onejit/node/mem.hpp>
@@ -188,6 +188,12 @@ const Fmt &Node::format(const Fmt &out, const size_t depth) const {
   default:
     return out << to_string(t);
   }
+}
+
+String to_string(Node node) {
+  String str;
+  Fmt{&str} << node;
+  return str;
 }
 
 } // namespace onejit

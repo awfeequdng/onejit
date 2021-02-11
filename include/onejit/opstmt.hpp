@@ -192,11 +192,7 @@ enum OpStmt2 : uint16_t {
 
 // numeric values of the OpStmt2 enum constants below this line MAY CHANGE WITHOUT WARNING
 
-#define ONEJIT_OPSTMT2_ASM(x)                                                                      \
-  x(/**/ MOVE, move) /* copy register or immediate to register */                                  \
-      x(LOAD, load)  /* load register from memory */                                               \
-      x(STOR, stor)  /* store register to memory */                                                \
-      x(CMP, cmp)    /* compare arguments, set architectural flags */
+#define ONEJIT_OPSTMT2_ASM(x) x(CMP, cmp) /* compare arguments, set architectural flags */
 
 #define ONEJIT_OPSTMT2_X86(x)                                                                      \
   x(/**/ ADD, add)              /* x += y on register or memory */                                 \
