@@ -33,25 +33,20 @@ namespace onejit {
 void Test::eval_expr() {
   func.reset(&holder, Name{&holder, "eval_expr"}, FuncType{&holder, {}, {}});
 
-  eval_expr_T<int8_t>();
-  eval_expr_T<int16_t>();
-  eval_expr_T<int32_t>();
-  eval_expr_T<int64_t>();
-  eval_expr_T<uint8_t>();
-  eval_expr_T<uint16_t>();
-  eval_expr_T<uint32_t>();
-  eval_expr_T<uint64_t>();
-  eval_expr_T<float>();
-  eval_expr_T<double>();
+  for (Kind kind : {Int8, Int16, Int32, Int64,     //
+                    Uint8, Uint16, Uint32, Uint64, //
+                    Float32, Float64}) {
+    eval_expr_kind(kind);
+  }
 }
 
-template <class T> void Test::eval_expr_T() {
+void Test::eval_expr_kind(Kind kind) {
   Func &f = func;
 
-  Const one = Const{f, T(1)};
-  Const two = Const{f, T(2)};
-  Const three = Const{f, T(3)};
-  Const four = Const{f, T(4)};
+  Const one = One(f, kind);
+  Const two = Two(f, kind);
+  Const three{f, Value{3}.cast(kind)};
+  Const four{f, Value{4}.cast(kind)};
 
   // run eval() on the expression 4 / -1 + (2 * 3)
   Expr expr = Binary{
@@ -59,7 +54,7 @@ template <class T> void Test::eval_expr_T() {
       Binary{f, QUO, four, Unary{f, NEG1, one}}, //
       Binary{f, MUL, two, three},                //
   };
-  Value expected{T(T(4) / T(-T(1)) + T(2) * T(3))};
+  Value expected = Value{kind.is_unsigned() ? 6 : 2}.cast(kind);
 
   TEST(is_const(expr), ==, true);
   Value result = eval(expr);
@@ -67,7 +62,7 @@ template <class T> void Test::eval_expr_T() {
 
   // run eval() on the expression 3 < 4
   expr = Binary{f, LSS, three, four};
-  expected = Value{T(3) < T(4)};
+  expected = Value{true};
 
   TEST(is_const(expr), ==, true);
   result = eval(expr);

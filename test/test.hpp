@@ -49,14 +49,14 @@ private:
   void nested_expr();
   void x64_expr();
   void eval_expr();
-  template <class T> void eval_expr_T();
+  void eval_expr_kind(Kind kind);
   void func_fib();
   void func_loop();
   void func_switch1();
   void func_switch2();
   void func_cond();
   void optimize_expr();
-  template <class T> void optimize_expr_T();
+  void optimize_expr_kind(Kind kind);
 
   void compile(Func &func);
 

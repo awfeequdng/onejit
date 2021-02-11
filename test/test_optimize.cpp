@@ -33,24 +33,18 @@ namespace onejit {
 void Test::optimize_expr() {
   func.reset(&holder, Name{&holder, "optimize_expr"}, FuncType{&holder, {}, {}});
 
-  optimize_expr_T<int8_t>();
-  optimize_expr_T<int16_t>();
-  optimize_expr_T<int32_t>();
-  optimize_expr_T<int64_t>();
-  optimize_expr_T<uint8_t>();
-  optimize_expr_T<uint16_t>();
-  optimize_expr_T<uint32_t>();
-  optimize_expr_T<uint64_t>();
-  optimize_expr_T<float>();
-  optimize_expr_T<double>();
+  for (Kind kind : {Int8, Int16, Int32, Int64,     //
+                    Uint8, Uint16, Uint32, Uint64, //
+                    Float32, Float64}) {
+    optimize_expr_kind(kind);
+  }
 }
 
-template <class T> void Test::optimize_expr_T() {
+void Test::optimize_expr_kind(Kind kind) {
   Func &f = func;
 
-  Const one{f, T(1)};
-  Const two{f, T(2)};
-  Kind kind = one.kind();
+  Const one = One(f, kind);
+  Const two = Two(f, kind);
   Var x{f, kind};
 
   // optimize() on --x should return x
