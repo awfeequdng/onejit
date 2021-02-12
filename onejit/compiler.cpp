@@ -24,6 +24,7 @@
  */
 
 #include <onejit/compiler.hpp>
+#include <onejit/eval.hpp>
 #include <onejit/func.hpp>
 #include <onejit/node/binary.hpp>
 #include <onejit/node/call.hpp>
@@ -408,7 +409,7 @@ Node Compiler::compile(JumpIf jump_if, Flag) noexcept {
   // preserve any binary comparison, it's optimized below
   Expr test = compile(jump_if.test(), SimplifyAll & ~SimplifyLandLor);
   Expr x, y;
-  OpStmt1 op = BAD_ST1;
+  Op2 op = BAD2;
   bool negate = false;
   while (Unary expr = test.is<Unary>()) {
     if (expr.op() != NOT1) {
@@ -420,19 +421,32 @@ Node Compiler::compile(JumpIf jump_if, Flag) noexcept {
   if (Binary expr = test.is<Binary>()) {
     x = expr.x();
     y = expr.y();
-    op = comparison_to_condjump(expr.op(), x.kind().is_signed());
+    op = expr.op();
   }
-  if (op == BAD_ST1) {
+  if (op == BAD2) {
     x = test;
     y = Zero(test.kind());
-    op = ASM_JNE;
+    op = NEQ;
   }
-
+  if (Const cx = x.is<Const>()) {
+    if (Const cy = y.is<Const>()) {
+      // test is a constant,
+      // optimize to unconditional jump
+      Value v = eval_binary(op, cx.imm(), cy.imm());
+      if (v.is_valid()) {
+	 if (negate ? !v : v) {
+	   add(Goto{*func_, to});
+	 }
+	 return VoidConst;
+      }
+    }
+  }
+  OpStmt1 jop = comparison_to_condjump(op, x.kind().is_signed());
   if (negate) {
-    op = negate_condjump(op);
+    jop = negate_condjump(jop);
   }
   add(Stmt2{*func_, x, y, ASM_CMP});
-  add(Stmt1{*func_, to, op});
+  add(Stmt1{*func_, to, jop});
   // all compile(Stmt*) must return VoidConst
   return VoidConst;
 }

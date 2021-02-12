@@ -344,8 +344,6 @@ void Test::func_cond() {
     (= var1001_ul 2)\n\
     (goto label_1)\n\
     label_3\n\
-    (asm_cmp true false)\n\
-    (asm_je label_1)\n\
     (= var1001_ul (+ var1000_ul 1))\n\
     label_1\n\
     (return var1001_ul))";
