@@ -466,13 +466,16 @@ Node Compiler::compile(Stmt3 st, Flag flags) noexcept {
 Node Compiler::compile(If st, Flag) noexcept {
   Node then = st.then();
   Node else_ = st.else_();
+  Expr test = compile(st.test(), SimplifyDefault);
+  if (Const ctest = test.is<Const>()) {
+     compile_add(ctest.imm().is_nonzero() ? then : else_, SimplifyDefault);
+     return VoidConst;
+  }
   bool have_else = else_.type() != CONST;
-
   Label else_label{*func_};
   Label endif_label = have_else ? Label{*func_} : else_label;
 
-  Expr test = Unary{*func_, NOT1, st.test()};
-  test = compile(test, SimplifyDefault);
+  test = Unary{*func_, NOT1, test};
   JumpIf jump_if{*func_, else_label, test};
 
   compile_add(jump_if, SimplifyDefault) //

@@ -134,9 +134,13 @@ public:
     return ekind_ != eBad;
   }
 
-  // return true if Value is != zero,
+  // return true if Value != zero,
   // as C operator bool does on POD types
   explicit operator bool() const noexcept;
+
+  // return true if Value == zero,
+  // as C operator ! does on POD types
+  Value operator!() const noexcept;
 
   constexpr bool boolean() const noexcept {
     return bool(bits_);
@@ -262,9 +266,8 @@ inline Value::operator bool() const noexcept {
   return (*this != ZeroValue(kind())).boolean();
 }
 
-// compare Value == zero, as C operator ! does on POD types
-inline Value operator!(Value a) noexcept {
-  return a == ZeroValue(a.kind());
+inline Value Value::operator!() const noexcept {
+  return *this == ZeroValue(kind());
 }
 
 Value operator~(Value a) noexcept;

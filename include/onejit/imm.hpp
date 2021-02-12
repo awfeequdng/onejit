@@ -95,11 +95,21 @@ public:
    * while in all classes related to Expr, operator bool() instead checks kind() != Bad
    *
    * Imm is caught between the two, thus to avoid confusion it does *not* define operator bool()
-   * It instead has the method is_valid(), inherited from base class
+   * It instead has the method is_valid(), inherited from base class,
+   * plus the methods is_nonzero() and is_zero()
    */
   explicit operator bool() const noexcept = delete;
+  bool operator!() const noexcept = delete;
 
   using Base::is_valid;
+
+  bool is_nonzero() const noexcept {
+    return Base::operator bool();
+  }
+
+  bool is_zero() const noexcept {
+    return !Base::operator bool();
+  }
 
 private:
   class Direct;
