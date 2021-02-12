@@ -26,7 +26,7 @@
 #ifndef ONEJIT_NODE_STMT3_HPP
 #define ONEJIT_NODE_STMT3_HPP
 
-#include <onejit/node/const.hpp> // VoidExpr
+#include <onejit/node/const.hpp> // VoidConst
 #include <onejit/fmt.hpp>
 #include <onejit/node/expr.hpp>
 #include <onejit/node/stmt.hpp>
@@ -101,8 +101,8 @@ public:
   }
 
   // create a new 'if (test) { then } else { else_ }'
-  // the 'else' part can be omitted also by specifying else_ = VoidExpr
-  If(Func &func, const Expr &test, const Node &then, const Node &else_ = VoidExpr) noexcept //
+  // the 'else' part can be omitted also by specifying else_ = VoidConst
+  If(Func &func, const Expr &test, const Node &then, const Node &else_ = VoidConst) noexcept //
       : Base{create(func, test, then, else_)} {
   }
 

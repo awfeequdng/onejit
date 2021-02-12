@@ -40,7 +40,7 @@ void Test::func_fib() {
   /**
    * jit equivalent of C/C++ source code
    *
-   * uint64_t fib(uint64_n) {
+   * uint64_t fib(uint64_t n) {
    *   if (n > 2) {
    *     return f(n-1) + f(n-2);
    *   } else {
@@ -96,7 +96,7 @@ void Test::func_loop() {
   /**
    * jit equivalent of C/C++ source code
    *
-   * uint64_t loop(uint64_n) {
+   * uint64_t loop(uint64_t n) {
    *   uint64_t total = 0, i;
    *   for (i = 0; i < n; i++) {
    *     total += i;
@@ -156,7 +156,7 @@ void Test::func_switch1() {
   /**
    * jit equivalent of C/C++ source code
    *
-   * uint64_t fswitch1(uint64_n) {
+   * uint64_t fswitch1(uint64_t n) {
    *   uint64_t ret;
    *   switch (n) {
    *     case 0:
@@ -227,7 +227,7 @@ void Test::func_switch2() {
   /**
    * jit equivalent of C/C++ source code
    *
-   * uint64_t fswitch2(uint64_n) {
+   * uint64_t fswitch2(uint64_t n) {
    *   uint64_t ret;
    *   switch (n) {
    *     case 0:
@@ -299,7 +299,7 @@ void Test::func_cond() {
   /**
    * jit equivalent of C/C++ source code
    *
-   * uint64_t fswitch(uint64_n) {
+   * uint64_t fswitch(uint64_t n) {
    *   uint64_t ret;
    *   if (n == 0) {
    *     ret = 1;
@@ -349,6 +349,50 @@ void Test::func_cond() {
     (= var1001_ul (+ var1000_ul 1))\n\
     label_1\n\
     (return var1001_ul))";
+  TEST(to_string(f.get_compiled()), ==, expected);
+
+  // dump_and_clear_code();
+  holder.clear();
+}
+
+void Test::func_and_or() {
+  Func &f = func.reset(&holder, Name{&holder, "fand_or"}, FuncType{&holder, {Ptr, Ptr}, {Bool}});
+  Var a = f.param(0);
+  Var b = f.param(1);
+  Mem ma{f, Bool, {a}};
+  Mem mb{f, Bool, {b}};
+
+  /**
+   * jit equivalent of C/C++ source code
+   *
+   * bool fand_or(bool *a, bool *b) {
+   *   return (*a && *b) ^ (*a || *b);
+   * }
+   */
+
+  f.set_body(Return{f, Binary{f, XOR,                  //
+                              Binary{f, LAND, ma, mb}, //
+                              Binary{f, LOR, ma, mb}}});
+
+  Chars expected = "(return (^ (&& (mem1 var1000_p) (mem1 var1001_p)) \
+(|| (mem1 var1000_p) (mem1 var1001_p))))";
+  TEST(to_string(f.get_body()), ==, expected);
+
+  compile(f);
+
+  expected = "(block\n\
+    (= var1003_e (mem1 var1000_p))\n\
+    (asm_cmp var1003_e false)\n\
+    (asm_je label_1)\n\
+    (= var1003_e (mem1 var1001_p))\n\
+    label_1\n\
+    (= var1004_e (mem1 var1000_p))\n\
+    (asm_cmp var1004_e false)\n\
+    (asm_jne label_2)\n\
+    (= var1004_e (mem1 var1001_p))\n\
+    label_2\n\
+    (= var1002_e (^ var1003_e var1004_e))\n\
+    (return var1002_e))";
   TEST(to_string(f.get_compiled()), ==, expected);
 
   // dump_and_clear_code();

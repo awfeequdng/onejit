@@ -148,8 +148,12 @@ public:
     return is(gInt, gUint, gPtr);
   }
 
+  bool is_signed() const noexcept {
+    return is(gInt, gFloat);
+  }
+
   bool is_unsigned() const noexcept {
-    return is(gBool /*remove?*/, gUint, gPtr);
+    return !is_signed();
   }
 
   bool is_ordered() const noexcept {

@@ -34,9 +34,30 @@
 
 namespace onestl {
 
-// dynamically resizeable vector of arbitrary type T, with two constraints:
-// 1. T must have trivial copy constructor, destructor and assignment operator
-// 2. zero-initializing T must be produce a valid T instance
+/**
+ * Dynamically resizeable vector of arbitrary type T, with two constraints:
+ * 1. T must have trivial copy constructor, destructor and assignment operator
+ * 2. zero-initializing T must be produce a valid T instance
+ *
+ * Iterator invalidation:
+ *
+ * The following methods always invalidate *all* references, pointers, iterators,
+ * spans and views to the vector elements:
+ *   operator=  dup  swap
+ *
+ * The following methods will invalidate *all* references, pointers, iterators,
+ * spans and views to the vector elements *only* if they change the vector's capacity:
+ *   append reserve resize
+ *
+ * Some methods may change the vector's size, while preserving its capacity.
+ * Doing so invalidates the references, pointers, iterators, spans and views
+ * to the vector elements *at or after* the minimum between the old and new size.
+ * The following methods may change the size, and either preserve or change the capacity:
+ *   append resize
+ * The following methods may change the size, but always preserve the capacity:
+ *   clear truncate
+ *
+ */
 template <class T> class Vector : protected Span<T> {
   static_assert(std::is_trivially_copyable<T>::value,
                 "Vector<T>: element type T must be trivially copyable");

@@ -77,8 +77,14 @@ void Test::optimize_expr_kind(Kind kind) {
   TEST(optimized, !=, expr);
   TEST(to_string(optimized), ==, expected);
 
-  if (kind.is_float()) {
-    return;
+  if (kind.is_signed()) {
+    // optimize() on x-1 should return x+(-1)
+    expr = Binary{f, SUB, x, one};
+    optimized = opt.optimize(f, expr);
+    expected.clear();
+    Fmt{&expected} << "(+ " << x << " -1)";
+    TEST(optimized, !=, expr);
+    TEST(to_string(optimized), ==, expected);
   }
 
   // optimize() on (x+1)+2 should return x+3

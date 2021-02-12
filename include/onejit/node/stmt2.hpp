@@ -26,8 +26,8 @@
 #ifndef ONEJIT_NODE_STMT2_HPP
 #define ONEJIT_NODE_STMT2_HPP
 
-#include <onejit/node/const.hpp> // VoidExpr
 #include <onejit/fmt.hpp>
+#include <onejit/node/const.hpp> // VoidConst
 #include <onejit/node/label.hpp>
 #include <onejit/node/stmt.hpp>
 #include <onejit/opstmt.hpp>
@@ -201,7 +201,7 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// Default is represented as a Case where op == DEFAULT and child(0) == VoidExpr
+// Default is represented as a Case where op == DEFAULT and child(0) == VoidConst
 class Default : public Case {
   using Base = Case;
   friend class Node;
@@ -219,16 +219,16 @@ public:
   }
 
   Default(Func &func, Node body) noexcept //
-      : Base{func, VoidExpr, body, DEFAULT} {
+      : Base{func, VoidConst, body, DEFAULT} {
   }
 
   static constexpr OpStmt2 op() noexcept {
     return DEFAULT;
   }
 
-  // always returns VoidExpr
+  // always returns VoidConst
   static constexpr Expr expr() noexcept {
-    return VoidExpr;
+    return VoidConst;
   }
 
 private:

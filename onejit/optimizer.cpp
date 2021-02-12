@@ -96,17 +96,23 @@ Node Optimizer::optimize(Node node, Result &in_out) noexcept {
     return node;
   }
   Node new_node;
-  size_t orig_nodes_n = nodes_.size();
-  if (!nodes_.resize(n + orig_nodes_n)) {
+  size_t orig_n = nodes_.size();
+  if (!nodes_.resize(n + orig_n)) {
     in_out &= IsSame;
     return node;
   }
-  // nodes_.span() may throw
-  Span<Node> children{nodes_.data() + orig_nodes_n, n};
   Result result = IsAll;
   for (uint32_t i = 0; i < n; i++) {
-    children[i] = optimize(node.child(i), result);
+    nodes_[i + orig_n] = optimize(node.child(i), result);
   }
+  // Caveats:
+  //
+  // 1. do not use nodes_.view() here, because it may throw.
+  //
+  // 2. the loop immediately above recursively calls optimize()
+  //    which may resize nodes_ and thus change its data()
+  //    => we must retrieve nodes_.data() *after* such loop.
+  Nodes children{nodes_.data() + orig_n, n};
   switch (node.type()) {
   case UNARY:
     new_node = optimize(node.is<Unary>(), children, result);
@@ -121,7 +127,7 @@ Node Optimizer::optimize(Node node, Result &in_out) noexcept {
   if (!new_node && !(result & IsSame)) {
     new_node = Node::create_indirect(*func_, node.header(), children);
   }
-  nodes_.truncate(orig_nodes_n);
+  nodes_.truncate(orig_n);
 
   return finish(node, new_node, result, in_out);
 }
@@ -171,9 +177,7 @@ Node Optimizer::optimize(Unary expr, Nodes children, Result result) noexcept {
       }
     }
     if (flags_ & ExprSimplification) {
-      if (Node ret = simplify_unary(kind, op, x)) {
-        return ret;
-      }
+      return simplify_unary(kind, op, x);
     }
   }
   return Node{};
@@ -196,9 +200,7 @@ Node Optimizer::optimize(Binary expr, Nodes children, Result result) noexcept {
       }
     }
     if (flags_ & ExprSimplification) {
-      if (Node ret = simplify_binary(op, x, y)) {
-        return ret;
-      }
+      return simplify_binary(op, x, y);
     }
   }
   return Node{};
@@ -211,15 +213,15 @@ Node Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
       if (op == XOR1 && xop == XOR1) {
         // simplify ~~xx to xx
         return xx;
-      } else if (op == XOR1 && xop == NEG1) {
-        // simplify ~-xx to xx-1
-        return Binary{*func_, SUB, xx, One(*func_, xx.kind())};
-      } else if (op == NEG1 && xop == XOR1) {
-        // simplify -~xx to xx+1
-        return Binary{*func_, ADD, xx, One(*func_, xx.kind())};
       } else if (op == NEG1 && xop == NEG1) {
         // simplify --xx to xx
         return xx;
+      } else if (op == NEG1 && xop == XOR1) {
+        // simplify -~xx to xx+1
+        return Binary{*func_, ADD, xx, One(*func_, xx.kind())};
+      } else if (op == XOR1 && xop == NEG1) {
+        // simplify ~-xx to xx-1
+        return Binary{*func_, SUB, xx, One(*func_, xx.kind())};
       }
     }
   } else if (Binary b = x.is<Binary>()) {
@@ -250,8 +252,21 @@ Node Optimizer::simplify_binary(Op2 op, Expr x, Expr y) noexcept {
       changed = true;
     }
   }
-  if (!x.kind().is_float() // floating point operations are never exactly associative
-      && is_associative(op) && x.type() == BINARY && Op2(x.op()) == op) {
+  if (op == SUB && y.type() == CONST && y.kind().is_signed()) {
+    // optimize (x - const) to (x + (-const))
+    // because + is easier to optimize further
+    Value v = -y.is<Const>().imm();
+    if (v.is_valid()) {
+      op = ADD;
+      y = Const{*func_, v};
+      changed = true;
+    }
+  }
+  // floating point operations are never exactly associative.
+  // treat them as associative only if (flags & FastMath)
+  if (is_associative(op) && x.type() == BINARY && Op2(x.op()) == op //
+      && ((flags_ & FastMath) || !x.kind().is_float())) {
+
     if (Expr z = x.child_is<Expr>(0)) {
       if (Const c1 = x.child_is<Const>(1)) {
         if (Const c2 = y.is<Const>()) {

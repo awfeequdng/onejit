@@ -35,6 +35,7 @@ static ONEJIT_NOINLINE Value extend_or_truncate(Kind kind, uint64_t bits) noexce
     uint64_t lomask = ~(uint64_t)0 >> (64 - bitsize);
     bits &= lomask;
     if (kind.is(gInt) && (bits & (lomask >> 1)) != bits) {
+      // sign-extend to 64 bits
       bits |= ~lomask;
     }
   }

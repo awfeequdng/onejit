@@ -38,6 +38,8 @@ namespace onejit {
 
 class Compiler {
 public:
+  enum Flag : uint8_t;
+
   Compiler() noexcept;
   Compiler(Compiler &&other) noexcept = default;
   Compiler &operator=(Compiler &&other) noexcept = default;
@@ -54,28 +56,33 @@ public:
   Compiler &compile(Func &func, Optimizer::Flag flags = Optimizer::All) noexcept;
 
 private:
-  Node compile(Assign stmt, bool simplify_call) noexcept;
-  Node compile(AssignCall stmt, bool simplify_call) noexcept;
-  Expr compile(Binary expr, bool simplify_call) noexcept;
-  Node compile(Block stmt, bool simplify_call) noexcept;
-  Expr compile(Call expr, bool simplify_call) noexcept;
-  Node compile(Cond stmt, bool simplify_call) noexcept;
-  Expr compile(Expr expr, bool simplify_call) noexcept;
-  Node compile(For stmt, bool simplify_call) noexcept;
-  Node compile(If stmt, bool simplify_call) noexcept;
-  Node compile(JumpIf stmt, bool simplify_call) noexcept;
-  Expr compile(Mem expr, bool simplify_call) noexcept;
-  Node compile(Node node, bool simplify_call) noexcept;
-  Node compile(Return stmt, bool simplify_call) noexcept;
-  Node compile(Stmt0 stmt, bool simplify_call) noexcept;
-  Node compile(Stmt1 stmt, bool simplify_call) noexcept;
-  Node compile(Stmt2 stmt, bool simplify_call) noexcept;
-  Node compile(Stmt3 stmt, bool simplify_call) noexcept;
-  Node compile(Stmt4 stmt, bool simplify_call) noexcept;
-  Node compile(StmtN stmt, bool simplify_call) noexcept;
-  Node compile(Switch stmt, bool simplify_call) noexcept;
-  Expr compile(Unary expr, bool simplify_call) noexcept;
-  Expr compile(Tuple expr, bool simplify_call) noexcept;
+  Node compile(Assign stmt, Flag flags) noexcept;
+  Node compile(AssignCall stmt, Flag flags) noexcept;
+  Expr compile(Binary expr, Flag flags) noexcept;
+  Node compile(Block stmt, Flag flags) noexcept;
+  Expr compile(Call expr, Flag flags) noexcept;
+  Node compile(Cond stmt, Flag flags) noexcept;
+  Expr compile(Expr expr, Flag flags) noexcept;
+  Node compile(For stmt, Flag flags) noexcept;
+  Node compile(If stmt, Flag flags) noexcept;
+  Node compile(JumpIf stmt, Flag flags) noexcept;
+  Expr compile(Mem expr, Flag flags) noexcept;
+  Node compile(Node node, Flag flags) noexcept;
+  Node compile(Return stmt, Flag flags) noexcept;
+  Node compile(Stmt0 stmt, Flag flags) noexcept;
+  Node compile(Stmt1 stmt, Flag flags) noexcept;
+  Node compile(Stmt2 stmt, Flag flags) noexcept;
+  Node compile(Stmt3 stmt, Flag flags) noexcept;
+  Node compile(Stmt4 stmt, Flag flags) noexcept;
+  Node compile(StmtN stmt, Flag flags) noexcept;
+  Node compile(Switch stmt, Flag flags) noexcept;
+  Expr compile(Unary expr, Flag flags) noexcept;
+  Expr compile(Tuple expr, Flag flags) noexcept;
+
+  // simplify x && y
+  Expr simplify_land(Expr x, Expr y) noexcept;
+  // simplify x || y
+  Expr simplify_lor(Expr x, Expr y) noexcept;
 
 private:
   // get current destination for "break"
@@ -106,8 +113,8 @@ private:
   Compiler &add(const Node &node) noexcept;
 
   // compile a node, then add it to compiled list
-  Compiler &compile_add(const Node &node, bool simplify_call) noexcept {
-    return add(compile(node, simplify_call));
+  Compiler &compile_add(const Node &node, Flag flags) noexcept {
+    return add(compile(node, flags));
   }
 
   // store compiled code into function.compiled()

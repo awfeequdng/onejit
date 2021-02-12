@@ -132,9 +132,13 @@ private:
   static Node create(Func &func, const Imm &imm) noexcept;
 };
 
-constexpr const Const VoidExpr{Void};
-constexpr const Const TrueExpr{true};
-constexpr const Const FalseExpr{false};
+constexpr const Const VoidConst{Void};
+constexpr const Const TrueConst{true};
+constexpr const Const FalseConst{false};
+
+constexpr const Expr VoidExpr = VoidConst;
+constexpr const Expr TrueExpr = TrueConst;
+constexpr const Expr FalseExpr = FalseConst;
 
 // return a Const value = 0 with specified Kind
 constexpr inline Const Zero(Kind kind) noexcept {

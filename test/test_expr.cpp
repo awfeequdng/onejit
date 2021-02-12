@@ -54,9 +54,9 @@ extern constexpr const Imm one_million{uint64_t(1000000ul)};
 extern constexpr const Imm one_billion{uint64_t(1000000000ul)};
 
 void Test::const_expr() const {
-  TEST(Const{Void}, ==, VoidExpr);
-  TEST(Const{true}, ==, TrueExpr);
-  TEST(Const{false}, ==, FalseExpr);
+  TEST(Const{Void}, ==, VoidConst);
+  TEST(Const{true}, ==, TrueConst);
+  TEST(Const{false}, ==, FalseConst);
 
   Const one{Int8, int16_t(1)};
   Const minus_one{Int8, int16_t(-1)};

@@ -33,7 +33,7 @@
 
 namespace onestl {
 
-/** read-only view of T[] */
+/** non-owning, read-only view of T[] */
 template <class T> class View {
 
 protected:
@@ -96,6 +96,12 @@ public:
   const T &at(size_t index) const {
     ONESTL_BOUNDS_TINY(index, <, size_);
     return data_[index];
+  }
+
+  // checked element access:
+  // returns T{} if index is out of bounds
+  T get(size_t index) const noexcept(noexcept(T{})) {
+    return index < size_ ? data_[index] : T{};
   }
 
   constexpr const T *data() const noexcept {

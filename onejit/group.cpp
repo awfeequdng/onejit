@@ -30,9 +30,9 @@
 namespace onejit {
 
 static const Chars gstring[] = {
-    "void", "bool",                     //
-    "int",  "uint", "float", "complex", //
-    "ptr",  "arch", "?",                //
+    "void", "bool",          //
+    "int",  "uint", "float", //
+    "ptr",  "arch", "?",     //
 };
 
 const Chars &to_string(Group g) noexcept {

@@ -24,10 +24,10 @@
  */
 
 #include <onejit/compiler.hpp>
-#include <onejit/node/const.hpp>
 #include <onejit/func.hpp>
 #include <onejit/node/binary.hpp>
 #include <onejit/node/call.hpp>
+#include <onejit/node/const.hpp>
 #include <onejit/node/mem.hpp>
 #include <onejit/node/stmt0.hpp>
 #include <onejit/node/stmt1.hpp>
@@ -38,6 +38,39 @@
 #include <onejit/node/unary.hpp>
 
 namespace onejit {
+
+enum Compiler::Flag : uint8_t {
+  SimplifyNone = 0,
+  SimplifyCall = 1 << 0,
+  SimplifyLandLor = 1 << 1,
+  SimplifyAll = 0x3,
+  SimplifyDefault = SimplifyLandLor,
+};
+
+constexpr inline Compiler::Flag operator~(Compiler::Flag a) noexcept {
+  return Compiler::Flag(~unsigned(a));
+}
+constexpr inline Compiler::Flag operator&(Compiler::Flag a, Compiler::Flag b) noexcept {
+  return Compiler::Flag(unsigned(a) & unsigned(b));
+}
+constexpr inline Compiler::Flag operator|(Compiler::Flag a, Compiler::Flag b) noexcept {
+  return Compiler::Flag(unsigned(a) | unsigned(b));
+}
+constexpr inline Compiler::Flag operator^(Compiler::Flag a, Compiler::Flag b) noexcept {
+  return Compiler::Flag(unsigned(a) ^ unsigned(b));
+}
+
+inline Compiler::Flag &operator&=(Compiler::Flag &a, Compiler::Flag b) noexcept {
+  return a = a & b;
+}
+inline Compiler::Flag &operator|=(Compiler::Flag &a, Compiler::Flag b) noexcept {
+  return a = a | b;
+}
+inline Compiler::Flag &operator^=(Compiler::Flag &a, Compiler::Flag b) noexcept {
+  return a = a ^ b;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 Compiler::Compiler() noexcept
     : optimizer_{}, func_{}, break_{}, continue_{}, fallthrough_{}, node_{}, error_{}, good_{true} {
@@ -61,7 +94,7 @@ Compiler &Compiler::compile(Func &func, Optimizer::Flag flags) noexcept {
 
   Node node = optimizer_.optimize(func, func.get_body(), flags);
 
-  return compile_add(node, false).finish();
+  return compile_add(node, SimplifyDefault).finish();
 }
 
 Compiler &Compiler::finish() noexcept {
@@ -69,7 +102,7 @@ Compiler &Compiler::finish() noexcept {
     Node compiled;
     switch (node_.size()) {
     case 0:
-      compiled = VoidExpr;
+      compiled = VoidConst;
       break;
     case 1:
       compiled = node_[0];
@@ -85,39 +118,39 @@ Compiler &Compiler::finish() noexcept {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Node Compiler::compile(Node node, bool simplify_call) noexcept {
+Node Compiler::compile(Node node, Flag flags) noexcept {
   const Type t = node.type();
   switch (t) {
   case STMT_0:
-    return compile(node.is<Stmt0>(), simplify_call);
+    return compile(node.is<Stmt0>(), flags);
   case STMT_1:
-    return compile(node.is<Stmt1>(), simplify_call);
+    return compile(node.is<Stmt1>(), flags);
   case STMT_2:
-    return compile(node.is<Stmt2>(), simplify_call);
+    return compile(node.is<Stmt2>(), flags);
   case STMT_3:
-    return compile(node.is<Stmt3>(), simplify_call);
+    return compile(node.is<Stmt3>(), flags);
   case STMT_4:
-    return compile(node.is<Stmt4>(), simplify_call);
+    return compile(node.is<Stmt4>(), flags);
   case STMT_N:
-    return compile(node.is<StmtN>(), simplify_call);
+    return compile(node.is<StmtN>(), flags);
   default:
     if (const Expr expr = node.is<Expr>()) {
-      return compile(expr, simplify_call);
+      return compile(expr, flags);
     }
     return node;
   }
 }
 
-Expr Compiler::compile(Expr expr, bool) noexcept {
+Expr Compiler::compile(Expr expr, Flag) noexcept {
   const Type t = expr.type();
   switch (t) {
   case UNARY:
-    return compile(expr.is<Unary>(), true);
+    return compile(expr.is<Unary>(), SimplifyAll);
   case BINARY:
-    return compile(expr.is<Binary>(), true);
+    return compile(expr.is<Binary>(), SimplifyAll);
   case MEM:
   case TUPLE:
-    return compile(expr.is<Tuple>(), true);
+    return compile(expr.is<Tuple>(), SimplifyAll);
   case VAR:
   case LABEL:
   case CONST:
@@ -126,27 +159,97 @@ Expr Compiler::compile(Expr expr, bool) noexcept {
   }
 }
 
-Expr Compiler::compile(Unary expr, bool) noexcept {
+Expr Compiler::compile(Unary expr, Flag) noexcept {
   Expr x = expr.x();
-  Expr comp_x = compile(x, true);
+  Expr comp_x = compile(x, SimplifyAll);
   if (x != comp_x) {
     expr = Unary{*func_, expr.op(), comp_x};
   }
   return expr;
 }
 
-Expr Compiler::compile(Binary expr, bool) noexcept {
+Expr Compiler::compile(Binary expr, Flag flags) noexcept {
   Expr x = expr.x(), y = expr.y();
-  Expr comp_x = compile(x, true), comp_y = compile(y, true);
-  if (x != comp_x || y != comp_y) {
-    expr = Binary{*func_, expr.op(), comp_x, comp_y};
+  Op2 op = expr.op();
+  Expr comp_x = compile(x, SimplifyAll);
+  Expr comp_y = compile(y, SimplifyAll);
+  bool changed = x != comp_x || y != comp_y;
+  x = comp_x;
+  y = comp_y;
+  if ((flags & SimplifyLandLor)) {
+    if (op == LAND) {
+      return simplify_land(x, y);
+    } else if (op == LOR) {
+      return simplify_lor(x, y);
+    }
+  }
+  if (changed) {
+    expr = Binary{*func_, op, x, y};
   }
   return expr;
 }
 
-Expr Compiler::compile(Tuple expr, bool simplify_call) noexcept {
+Expr Compiler::simplify_land(Expr x, Expr y) noexcept {
+  if (Const cx = x.is<Const>()) {
+    return cx.imm().boolean() ? y : x;
+  }
+  if (Const cy = y.is<Const>()) {
+    if (cy.imm().boolean()) {
+      return x;
+    } else {
+      add(x);
+      return y;
+    }
+  }
+  if (x.is<Var>() && y.is<Var>()) {
+    return Binary{*func_, LAND, x, y};
+  }
+  Var dst{*func_, Bool};
+  Label out{*func_};
+  if (x.type() == BINARY && is_comparison(Op2(x.op()))) {
+    add(Assign{*func_, ASSIGN, dst, FalseExpr});
+    compile_add(JumpIf{*func_, out, Unary{*func_, NOT1, x}}, SimplifyDefault);
+  } else {
+    add(Assign{*func_, ASSIGN, dst, x});
+    compile_add(JumpIf{*func_, out, Unary{*func_, NOT1, dst}}, SimplifyDefault);
+  }
+  compile_add(Assign{*func_, ASSIGN, dst, y}, SimplifyDefault);
+  add(out);
+  return dst;
+}
+
+Expr Compiler::simplify_lor(Expr x, Expr y) noexcept {
+  if (Const cx = x.is<Const>()) {
+    return cx.imm().boolean() ? x : y;
+  }
+  if (Const cy = y.is<Const>()) {
+    if (cy.imm().boolean()) {
+      add(x);
+      return y;
+    } else {
+      return x;
+    }
+  }
+  if (x.is<Var>() && y.is<Var>()) {
+    return Binary{*func_, LOR, x, y};
+  }
+  Var dst{*func_, Bool};
+  Label out{*func_};
+  if (x.type() == BINARY && is_comparison(Op2(x.op()))) {
+    add(Assign{*func_, ASSIGN, dst, TrueExpr});
+    compile_add(JumpIf{*func_, out, x}, SimplifyDefault);
+  } else {
+    add(Assign{*func_, ASSIGN, dst, x});
+    compile_add(JumpIf{*func_, out, dst}, SimplifyDefault);
+  }
+  compile_add(Assign{*func_, ASSIGN, dst, y}, SimplifyDefault);
+  add(out);
+  return dst;
+}
+
+Expr Compiler::compile(Tuple expr, Flag flags) noexcept {
   if (Call call = expr.is<Call>()) {
-    return compile(call, simplify_call);
+    return compile(call, flags);
   }
   Vector<Node> nodes;
   const size_t n = expr.children();
@@ -157,16 +260,16 @@ Expr Compiler::compile(Tuple expr, bool simplify_call) noexcept {
   bool changed = false;
   for (size_t i = 0; i < n; i++) {
     Node child = expr.child(i);
-    Node comp_child = nodes[i] = compile(child, simplify_call);
+    Node comp_child = nodes[i] = compile(child, flags);
     changed = changed || child != comp_child;
   }
   if (changed) {
-    return Tuple{*func_, expr.kind(), expr.op(), nodes};
+    expr = Tuple{*func_, expr.kind(), expr.op(), nodes};
   }
   return expr;
 }
 
-Expr Compiler::compile(Call call, bool simplify_call) noexcept {
+Expr Compiler::compile(Call call, Flag flags) noexcept {
   const uint32_t n = call.children();
 
   if (!call.children_are<Var>(2, n)) {
@@ -176,7 +279,7 @@ Expr Compiler::compile(Call call, bool simplify_call) noexcept {
     call = Call{*func_, call.ftype(), call.label(), vargs};
   }
 
-  if (!simplify_call) {
+  if (!(flags & SimplifyCall)) {
     return call;
   }
   // avoid calls inside other expressions,
@@ -191,25 +294,25 @@ Expr Compiler::compile(Call call, bool simplify_call) noexcept {
 
 // ===============================  compile(Stmt0)  ============================
 
-Node Compiler::compile(Stmt0 st, bool) noexcept {
+Node Compiler::compile(Stmt0 st, Flag) noexcept {
   switch (st.op()) {
   case BREAK:
     if (Label l = label_break()) {
-      compile_add(Goto{*func_, l}, false);
+      add(Goto{*func_, l});
     } else {
       error(st, "misplaced Break");
     }
     break;
   case CONTINUE:
     if (Label l = label_continue()) {
-      compile_add(Goto{*func_, l}, false);
+      add(Goto{*func_, l});
     } else {
       error(st, "misplaced Continue");
     }
     break;
   case FALLTHROUGH:
     if (Label l = label_fallthrough()) {
-      compile_add(Goto{*func_, l}, false);
+      add(Goto{*func_, l});
     } else {
       error(st, "misplaced Fallthrough");
     }
@@ -219,26 +322,26 @@ Node Compiler::compile(Stmt0 st, bool) noexcept {
     error(st, "bad Stmt0");
     break;
   }
-  // all compile(Stmt*) must return VoidExpr
-  return VoidExpr;
+  // all compile(Stmt*) must return VoidConst
+  return VoidConst;
 }
 
 // ===============================  compile(Stmt1)  ============================
 
-Node Compiler::compile(Stmt1 st, bool) noexcept {
+Node Compiler::compile(Stmt1 st, Flag) noexcept {
   Node body = st.body();
-  Node comp_body = compile(body, false);
+  Node comp_body = compile(body, SimplifyDefault);
   if (body != comp_body) {
     st = Stmt1{*func_, comp_body, st.op()};
   }
   add(st);
-  // all compile(Stmt*) must return VoidExpr
-  return VoidExpr;
+  // all compile(Stmt*) must return VoidConst
+  return VoidConst;
 }
 
 // ===============================  compile(Stmt2)  ============================
 
-Node Compiler::compile(Stmt2 st, bool simplify_call) noexcept {
+Node Compiler::compile(Stmt2 st, Flag flags) noexcept {
   switch (st.op()) {
   case CASE:
     error(st, "misplaced Case");
@@ -247,40 +350,40 @@ Node Compiler::compile(Stmt2 st, bool simplify_call) noexcept {
     error(st, "misplaced Default");
     break;
   case JUMP_IF:
-    return compile(st.is<JumpIf>(), simplify_call);
+    return compile(st.is<JumpIf>(), flags);
   default:
     if (auto assign = st.is<Assign>()) {
-      return compile(assign, simplify_call);
+      return compile(assign, flags);
     }
     break;
   }
   add(st);
-  // all compile(Stmt*) must return VoidExpr
-  return VoidExpr;
+  // all compile(Stmt*) must return VoidConst
+  return VoidConst;
 }
 
-Node Compiler::compile(Assign assign, bool) noexcept {
+Node Compiler::compile(Assign assign, Flag) noexcept {
   Expr src = assign.src();
   Expr dst = assign.dst();
   // compile src first: its side effects, if any, must be applied before dst
-  Expr comp_src = compile(src, false);
-  Expr comp_dst = compile(dst, false);
+  Expr comp_src = compile(src, SimplifyAll);
+  Expr comp_dst = compile(dst, SimplifyDefault);
   if (src != comp_src || dst != comp_src) {
     assign = Assign{*func_, assign.op(), comp_dst, comp_src};
   }
   add(assign);
-  // all compile(Stmt*) must return VoidExpr
-  return VoidExpr;
+  // all compile(Stmt*) must return VoidConst
+  return VoidConst;
 }
 
-static OpStmt1 comparison_to_condjump(Op2 op2, bool is_unsigned) noexcept {
+static OpStmt1 comparison_to_condjump(Op2 op2, bool is_signed) noexcept {
   OpStmt1 op = BAD_ST1;
   switch (op2) {
   case LSS:
-    op = is_unsigned ? ASM_JB : ASM_JL;
+    op = is_signed ? ASM_JL : ASM_JB;
     break;
   case LEQ:
-    op = is_unsigned ? ASM_JBE : ASM_JLE;
+    op = is_signed ? ASM_JLE : ASM_JBE;
     break;
   case NEQ:
     op = ASM_JNE;
@@ -289,10 +392,10 @@ static OpStmt1 comparison_to_condjump(Op2 op2, bool is_unsigned) noexcept {
     op = ASM_JE;
     break;
   case GTR:
-    op = is_unsigned ? ASM_JA : ASM_JG;
+    op = is_signed ? ASM_JG : ASM_JA;
     break;
   case GEQ:
-    op = is_unsigned ? ASM_JAE : ASM_JGE;
+    op = is_signed ? ASM_JGE : ASM_JAE;
     break;
   default:
     break;
@@ -300,9 +403,10 @@ static OpStmt1 comparison_to_condjump(Op2 op2, bool is_unsigned) noexcept {
   return op;
 }
 
-Node Compiler::compile(JumpIf jump_if, bool) noexcept {
+Node Compiler::compile(JumpIf jump_if, Flag) noexcept {
   Label to = jump_if.to();
-  Expr test = compile(jump_if.test(), true);
+  // preserve any binary comparison, it's optimized below
+  Expr test = compile(jump_if.test(), SimplifyAll & ~SimplifyLandLor);
   Expr x, y;
   OpStmt1 op = BAD_ST1;
   bool negate = false;
@@ -316,7 +420,7 @@ Node Compiler::compile(JumpIf jump_if, bool) noexcept {
   if (Binary expr = test.is<Binary>()) {
     x = expr.x();
     y = expr.y();
-    op = comparison_to_condjump(expr.op(), x.kind().is_unsigned());
+    op = comparison_to_condjump(expr.op(), x.kind().is_signed());
   }
   if (op == BAD_ST1) {
     x = test;
@@ -329,23 +433,23 @@ Node Compiler::compile(JumpIf jump_if, bool) noexcept {
   }
   add(Stmt2{*func_, x, y, ASM_CMP});
   add(Stmt1{*func_, to, op});
-  // all compile(Stmt*) must return VoidExpr
-  return VoidExpr;
+  // all compile(Stmt*) must return VoidConst
+  return VoidConst;
 }
 
 // ===============================  compile(Stmt3)  ============================
 
-Node Compiler::compile(Stmt3 st, bool) noexcept {
+Node Compiler::compile(Stmt3 st, Flag flags) noexcept {
   switch (st.op()) {
   case IF:
-    return compile(st.is<If>(), false);
+    return compile(st.is<If>(), flags);
   default:
     add(st);
-    return VoidExpr;
+    return VoidConst;
   }
 }
 
-Node Compiler::compile(If st, bool) noexcept {
+Node Compiler::compile(If st, Flag) noexcept {
   Node then = st.then();
   Node else_ = st.else_();
   bool have_else = else_.type() != CONST;
@@ -354,37 +458,37 @@ Node Compiler::compile(If st, bool) noexcept {
   Label endif_label = have_else ? Label{*func_} : else_label;
 
   Expr test = Unary{*func_, NOT1, st.test()};
-  test = compile(test, false);
+  test = compile(test, SimplifyDefault);
   JumpIf jump_if{*func_, else_label, test};
 
-  compile_add(jump_if, false) //
-      .compile_add(then, false);
+  compile_add(jump_if, SimplifyDefault) //
+      .compile_add(then, SimplifyDefault);
   if (have_else) {
-    compile_add(Goto{*func_, endif_label}, false) //
-        .compile_add(else_label, false)
-        .compile_add(else_, false);
+    add(Goto{*func_, endif_label}) //
+        .add(else_label)
+        .compile_add(else_, SimplifyDefault);
   }
-  compile_add(endif_label, false);
-  return VoidExpr;
+  add(endif_label);
+  return VoidConst;
 }
 
 // ===============================  compile(Stmt4)  ============================
 
-Node Compiler::compile(Stmt4 st, bool) noexcept {
+Node Compiler::compile(Stmt4 st, Flag flags) noexcept {
   switch (st.op()) {
   case FOR:
-    return compile(st.is<For>(), false);
+    return compile(st.is<For>(), flags);
   default:
     add(st);
-    return VoidExpr;
+    return VoidConst;
   }
 }
 
-Node Compiler::compile(For st, bool) noexcept {
-  compile_add(st.init(), false);
+Node Compiler::compile(For st, Flag) noexcept {
+  compile_add(st.init(), SimplifyDefault);
 
   Expr test = st.test();
-  bool have_test = test != VoidExpr;
+  bool have_test = test != VoidConst;
 
   Label l_loop{*func_};
   Label l_continue = have_test ? Label{*func_} : l_loop;
@@ -395,44 +499,44 @@ Node Compiler::compile(For st, bool) noexcept {
   }
   add(l_loop);
   enter_loop(l_break, l_continue);
-  compile_add(st.body(), false);
-  compile_add(st.post(), false);
+  compile_add(st.body(), SimplifyDefault);
+  compile_add(st.post(), SimplifyDefault);
   exit_loop();
 
   if (have_test) {
     add(l_continue);
-    compile_add(JumpIf{*func_, l_loop, test}, false);
+    compile_add(JumpIf{*func_, l_loop, test}, SimplifyDefault);
   } else {
-    compile_add(Goto{*func_, l_loop}, false);
+    compile_add(Goto{*func_, l_loop}, SimplifyDefault);
   }
   add(l_break);
-  return VoidExpr;
+  return VoidConst;
 }
 
 // ===============================  compile(StmtN)  ============================
 
-Node Compiler::compile(StmtN st, bool simplify_call) noexcept {
+Node Compiler::compile(StmtN st, Flag flags) noexcept {
   switch (st.op()) {
   case ASSIGN_CALL:
-    return compile(st.is<AssignCall>(), simplify_call);
+    return compile(st.is<AssignCall>(), flags);
   case BLOCK:
-    return compile(st.is<Block>(), simplify_call);
+    return compile(st.is<Block>(), flags);
   case COND:
-    return compile(st.is<Cond>(), simplify_call);
+    return compile(st.is<Cond>(), flags);
   case RETURN:
-    return compile(st.is<Return>(), simplify_call);
+    return compile(st.is<Return>(), flags);
   case SWITCH:
-    return compile(st.is<Switch>(), simplify_call);
+    return compile(st.is<Switch>(), flags);
   default:
     add(st);
-    return VoidExpr;
+    return VoidConst;
   }
 }
 
-Node Compiler::compile(AssignCall st, bool) noexcept {
+Node Compiler::compile(AssignCall st, Flag) noexcept {
   while (const size_t n = st.children()) {
     Call call = st.child(n - 1).is<Call>();
-    Call comp_call = compile(call, false).is<Call>();
+    Call comp_call = compile(call, SimplifyDefault).is<Call>();
     if (call == comp_call && st.children_are<Var>(0, n - 1)) {
       break;
     }
@@ -442,17 +546,17 @@ Node Compiler::compile(AssignCall st, bool) noexcept {
     break;
   }
   add(st);
-  return VoidExpr;
+  return VoidConst;
 }
 
-Node Compiler::compile(Block st, bool) noexcept {
+Node Compiler::compile(Block st, Flag) noexcept {
   for (size_t i = 0, n = st.children(); i < n; i++) {
-    compile(st.child(i), false);
+    compile(st.child(i), SimplifyDefault);
   }
-  return VoidExpr;
+  return VoidConst;
 }
 
-Node Compiler::compile(Cond st, bool) noexcept {
+Node Compiler::compile(Cond st, Flag) noexcept {
   const size_t n = st.children();
   if (n == 0) {
     // nothing to do
@@ -467,23 +571,23 @@ Node Compiler::compile(Cond st, bool) noexcept {
       Label l_next = is_last ? l_end : Label{*func_};
       compile_add(JumpIf{*func_, l_next, //
                          Unary{*func_, NOT1, st.child_is<Expr>(i)}},
-                  false);
-      compile_add(st.child(i + 1), false);
+                  SimplifyDefault);
+      compile_add(st.child(i + 1), SimplifyDefault);
       if (!is_last && goto_end) {
         add(goto_end);
       }
       add(l_next);
     }
   }
-  return VoidExpr;
+  return VoidConst;
 }
 
-Node Compiler::compile(Return st, bool) noexcept {
+Node Compiler::compile(Return st, Flag) noexcept {
   const size_t n = st.children();
   if (n != func_->result_n()) {
     error(st, "bad number of return values");
     add(st);
-    return VoidExpr;
+    return VoidConst;
   }
   bool uses_func_result = true;
   for (size_t i = 0; uses_func_result && i < n; i++) {
@@ -492,7 +596,7 @@ Node Compiler::compile(Return st, bool) noexcept {
   if (uses_func_result) {
     // nothing to do
     add(st);
-    return VoidExpr;
+    return VoidConst;
   }
   Buffer<Expr> vars;
   for (size_t i = 0; i < n; i++) {
@@ -501,7 +605,7 @@ Node Compiler::compile(Return st, bool) noexcept {
     if (expr != var) {
       // compile expression and copy its result
       // to expected location func_->result(i)
-      expr = compile(expr, false);
+      expr = compile(expr, SimplifyDefault);
       add(Assign{*func_, ASSIGN, var, expr});
     }
     vars.append(var);
@@ -510,10 +614,10 @@ Node Compiler::compile(Return st, bool) noexcept {
     out_of_memory(st);
   }
   add(Return{*func_, vars});
-  return VoidExpr;
+  return VoidConst;
 }
 
-Node Compiler::compile(Switch st, bool) noexcept {
+Node Compiler::compile(Switch st, Flag) noexcept {
   const size_t n = st.children();
   bool have_default = false;
 
@@ -522,12 +626,12 @@ Node Compiler::compile(Switch st, bool) noexcept {
     Case case_i = node_i.is<Case>();
     if (!case_i) {
       error(node_i, "unexpected node in Switch, expecting Case or Default");
-      return VoidExpr;
+      return VoidConst;
     }
     if (case_i.op() == DEFAULT) {
       if (have_default) {
         error(node_i, "unexpected duplicate Default in Switch, expecting at most one");
-        return VoidExpr;
+        return VoidConst;
       }
       have_default = true;
     }
@@ -568,13 +672,14 @@ Node Compiler::compile(Switch st, bool) noexcept {
         l_default = l_this_fallthrough;
       }
     } else {
-      compile_add(JumpIf{*func_, l_next, Binary{*func_, NEQ, expr, case_i.expr()}}, false);
+      compile_add(JumpIf{*func_, l_next, Binary{*func_, NEQ, expr, case_i.expr()}}, //
+                  SimplifyDefault);
     }
     if (l_this_fallthrough) {
       add(l_this_fallthrough);
     }
     enter_case(l_break, l_fallthrough);
-    compile_add(case_i.body(), false);
+    compile_add(case_i.body(), SimplifyDefault);
     exit_case();
     // automatically add 'break' at the end of each case.
     // can be overridden, by adding 'fallthrough' as last statement in Case{...}
@@ -586,7 +691,7 @@ Node Compiler::compile(Switch st, bool) noexcept {
     l_this_fallthrough = l_fallthrough;
   }
   add(l_break);
-  return VoidExpr;
+  return VoidConst;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -637,7 +742,7 @@ Var Compiler::to_var(const Node &node) noexcept {
   if (e && !v) {
     // copy Expr result to a Var
     v = Var{*func_, e.kind()};
-    compile_add(Assign{*func_, ASSIGN, v, e}, false);
+    compile_add(Assign{*func_, ASSIGN, v, e}, SimplifyDefault);
   }
   return v;
 }
@@ -654,7 +759,7 @@ Compiler &Compiler::to_vars(const Node &node, uint32_t start, uint32_t end,
 }
 
 Compiler &Compiler::add(const Node &node) noexcept {
-  if (node != VoidExpr) {
+  if (node != VoidConst) {
     good_ = good_ && node_.append(node);
   }
   return *this;

@@ -29,7 +29,7 @@
 
 namespace onestl {
 
-/** read-write span of T[] */
+/** non-owning, read-write span of T[] */
 template <class T> class Span : protected View<T> {
 private:
   typedef View<T> Base;

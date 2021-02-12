@@ -55,6 +55,7 @@ private:
   void func_switch1();
   void func_switch2();
   void func_cond();
+  void func_and_or();
   void optimize_expr();
   void optimize_expr_kind(Kind kind);
 

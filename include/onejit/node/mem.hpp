@@ -27,8 +27,8 @@
 #define ONEJIT_NODE_MEM_HPP
 
 #include <onejit/fmt.hpp>
-#include <onejit/op.hpp>
 #include <onejit/node/tuple.hpp>
+#include <onejit/op.hpp>
 #include <onejit/x64/fwd.hpp>
 
 namespace onejit {
@@ -55,6 +55,10 @@ public:
 
   Mem(Func &func, Kind kind, Exprs args) noexcept //
       : Base{create(func, kind, MEM_OP, args)} {
+  }
+
+  Mem(Func &func, Kind kind, std::initializer_list<Expr> args) noexcept //
+      : Base{create(func, kind, MEM_OP, Exprs{args.begin(), args.size()})} {
   }
 
   static constexpr Type type() noexcept {

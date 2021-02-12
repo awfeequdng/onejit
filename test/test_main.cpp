@@ -65,6 +65,7 @@ void Test::run() {
   func_switch1();
   func_switch2();
   func_cond();
+  func_and_or();
 
   Fmt{stdout} << testcount() << " tests passed\n";
 }

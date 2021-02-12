@@ -42,6 +42,8 @@ public:
     ConstantFolding = 1 << 0,
     ExprSimplification = 1 << 1,
     DeadCodeElimination = 1 << 2,
+    // treat floating point + and * as associative. requires ExprSimplification
+    FastMath = 1 << 3,
     All = 0xffff,
   };
 
