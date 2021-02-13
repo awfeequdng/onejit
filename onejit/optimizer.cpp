@@ -25,10 +25,8 @@
 
 #include <onejit/eval.hpp>
 #include <onejit/func.hpp>
-#include <onejit/mem.hpp>
 #include <onejit/node/binary.hpp>
 #include <onejit/node/const.hpp>
-#include <onejit/node/node.hpp>
 #include <onejit/node/unary.hpp>
 #include <onejit/optimizer.hpp>
 #include <onestl/vector.hpp>
@@ -170,7 +168,7 @@ Node Optimizer::optimize(Unary expr, Nodes children, Result result) noexcept {
 
     if ((flags_ & ConstantFolding) && (result & IsConst)) {
       Value v0, ve;
-      if ((v0 = x.is<Const>().imm()).is_valid()) {
+      if ((v0 = x.is<Const>().val()).is_valid()) {
         if ((ve = eval_unary(kind, op, v0)).is_valid()) {
           return Const{*func_, ve};
         }
@@ -191,8 +189,8 @@ Node Optimizer::optimize(Binary expr, Nodes children, Result result) noexcept {
     Op2 op = expr.op();
     if ((flags_ & ConstantFolding) && (result & IsConst)) {
       Value v0, v1, ve;
-      if ((v0 = x.is<Const>().imm()).is_valid()) {
-        if ((v1 = y.is<Const>().imm()).is_valid()) {
+      if ((v0 = x.is<Const>().val()).is_valid()) {
+        if ((v1 = y.is<Const>().val()).is_valid()) {
           if ((ve = eval_binary(op, v0, v1)).is_valid()) {
             return Const{*func_, ve};
           }
@@ -206,7 +204,7 @@ Node Optimizer::optimize(Binary expr, Nodes children, Result result) noexcept {
   return Node{};
 }
 
-Node Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
+Expr Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
   if (Unary u = x.is<Unary>()) {
     Op1 xop = u.op();
     if (Expr xx = u.x()) {
@@ -235,80 +233,7 @@ Node Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
     // CAST or BITCOPY from a kind to itself
     return x;
   }
-  return Node{};
-}
-
-Node Optimizer::simplify_binary(Op2 op, Expr x, Expr y) noexcept {
-  bool changed = false;
-  if (x.type() > y.type()) {
-    if (is_commutative(op)) {
-      // put constants to the right
-      mem::swap(x, y);
-      changed = true;
-    } else if (is_comparison(op)) {
-      // put constants to the right
-      op = swap_comparison(op);
-      mem::swap(x, y);
-      changed = true;
-    }
-  }
-  if (op == SUB && y.type() == CONST && y.kind().is_signed()) {
-    // optimize (x - const) to (x + (-const))
-    // because + is easier to optimize further
-    Value v = -y.is<Const>().imm();
-    if (v.is_valid()) {
-      op = ADD;
-      y = Const{*func_, v};
-      changed = true;
-    }
-  }
-  // floating point operations are never exactly associative.
-  // treat them as associative only if (flags & FastMath)
-  if (is_associative(op) && x.type() == BINARY && Op2(x.op()) == op //
-      && ((flags_ & FastMath) || !x.kind().is_float())) {
-
-    if (Expr z = x.child_is<Expr>(0)) {
-      if (Const c1 = x.child_is<Const>(1)) {
-        if (Const c2 = y.is<Const>()) {
-          /**
-           * optimize   op    =>     op
-           *           /  \         /  \
-           *         op   c2       z  eval_binary(op, c1, c2)
-           *        /  \
-           *       z   c1
-           */
-          Value v = eval_binary(op, c1.imm(), c2.imm());
-          if (v.is_valid()) {
-            x = z;
-            y = Const{*func_, v};
-            changed = true;
-          }
-        } else if (is_commutative(op) && y.type() == BINARY && Op2(y.op()) == op) {
-          if (Expr w = y.child_is<Expr>(0)) {
-            if ((c2 = y.child_is<Const>(1))) {
-              /**
-               * optimize    op       =>      op
-               *           /    \            /  \
-               *        op       op        op   eval_binary(op, c1, c2)
-               *       /  \     /  \      /  \
-               *      z   c1   w   c2    z    w
-               */
-              Value v = eval_binary(op, c1.imm(), c2.imm());
-              if (v.is_valid()) {
-                if (z.type() > w.type()) {
-                  mem::swap(z, w);
-                }
-                x = Binary{*func_, op, z, w};
-                y = Const{*func_, v};
-                changed = true;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  return changed && x && y ? Binary{*func_, op, x, y} : Node{};
+  return Expr{};
 }
 
 } // namespace onejit

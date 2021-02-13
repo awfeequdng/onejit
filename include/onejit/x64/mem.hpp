@@ -77,7 +77,7 @@ public:
     return child_is<Label>(0);
   }
 
-  // shortcut for child_is<Const>(1).imm().int32()
+  // shortcut for child_is<Const>(1).val().int32()
   int32_t offset() const noexcept;
 
   // shortcut for child_is<Var>(2).local()
@@ -86,7 +86,7 @@ public:
   // shortcut for child_is<Var>(3).local()
   Local index() const noexcept;
 
-  // shortcut for Scale(child_is<Const>(4).imm().uint8())
+  // shortcut for Scale(child_is<Const>(4).val().uint8())
   Scale scale() const noexcept;
 
 private:

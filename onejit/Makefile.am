@@ -9,7 +9,7 @@ AM_CPPFLAGS            = -I$(top_srcdir)/include
 libonejit_a_SOURCES    = \
         archid.cpp assembler.cpp bits.cpp code.cpp codeparser.cpp \
         compiler.cpp imm.cpp error.cpp eval.cpp func.cpp group.cpp kind.cpp  \
-        op.cpp opstmt.cpp optimizer.cpp space.cpp \
+        op.cpp opstmt.cpp optimizer.cpp optimizer_binary.cpp space.cpp \
         type.cpp local.cpp value.cpp value_fmt.cpp \
         \
         node/binary.cpp node/call.cpp node/const.cpp node/expr.cpp node/functype.cpp \

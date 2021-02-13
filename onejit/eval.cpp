@@ -23,9 +23,9 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/node/const.hpp>
 #include <onejit/eval.hpp>
 #include <onejit/node/binary.hpp>
+#include <onejit/node/const.hpp>
 #include <onejit/node/unary.hpp>
 
 namespace onejit {
@@ -68,7 +68,7 @@ Value eval(Expr expr) noexcept {
     return eval_binary(be.op(), x, y);
   }
   case CONST:
-    return expr.is<Const>().imm();
+    return expr.is<Const>().val();
   default:
     return Value{};
   }

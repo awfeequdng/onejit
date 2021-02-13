@@ -78,6 +78,10 @@ Const Two(Func &func, Kind kind) noexcept {
   }
 }
 
+Const MinusOne(Func &func, Kind kind) noexcept {
+  return Const{func, Value{int64_t(-1)}.cast(kind)};
+}
+
 const Fmt &Const::format(const Fmt &out, size_t /*depth*/) const {
   return out << imm();
 }

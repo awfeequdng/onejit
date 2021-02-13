@@ -66,8 +66,19 @@ private:
   Node optimize(Binary expr, Nodes children, Result result) noexcept;
   static bool optimize_leaf(Type t, size_t n_children, Result &in_out) noexcept;
 
-  Node simplify_unary(Kind kind, Op1 op, Expr x) noexcept;
-  Node simplify_binary(Op2 op, Expr x, Expr y) noexcept;
+  Expr simplify_unary(Kind kind, Op1 op, Expr x) noexcept;
+  Expr simplify_binary(Op2 op, Expr x, Expr y) noexcept;
+  Binary partial_eval_binary(Op2 op, Expr x, Expr y) noexcept;
+
+  Expr simplify_add(Expr x, Expr y) noexcept;
+  Expr simplify_sub(Expr x, Expr y) noexcept;
+  Expr simplify_mul(Expr x, Expr y) noexcept;
+  Expr simplify_quo(Expr x, Expr y) noexcept;
+  Expr simplify_rem(Expr x, Expr y) noexcept;
+  Expr simplify_bitwise(Op2 op, Expr x, Expr y) noexcept;
+  Expr simplify_shift(Op2 op, Expr x, Expr y) noexcept;
+  Expr simplify_boolean(Op2 op, Expr x, Expr y) noexcept;
+  Expr simplify_comparison(Op2 op, Expr x, Expr y) noexcept;
 
   static Node finish(Node node, Node new_node, Result result, Result &in_out) noexcept;
 

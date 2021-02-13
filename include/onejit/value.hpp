@@ -198,7 +198,7 @@ private:
   eKind ekind_;
 };
 
-// return a zero Value with specified kind
+// return a Value = 0 with specified kind
 constexpr Value ZeroValue(Kind kind) noexcept {
   return Value{kind, uint64_t(0)};
 }

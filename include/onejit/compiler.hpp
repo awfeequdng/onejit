@@ -79,9 +79,8 @@ private:
   Expr compile(Unary expr, Flag flags) noexcept;
   Expr compile(Tuple expr, Flag flags) noexcept;
 
-  // simplify x && y
+  Expr simplify_boolean(Op2 op, Expr x, Expr y) noexcept;
   Expr simplify_land(Expr x, Expr y) noexcept;
-  // simplify x || y
   Expr simplify_lor(Expr x, Expr y) noexcept;
 
 private:

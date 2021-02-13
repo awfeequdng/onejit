@@ -178,10 +178,8 @@ Expr Compiler::compile(Binary expr, Flag flags) noexcept {
   x = comp_x;
   y = comp_y;
   if ((flags & SimplifyLandLor)) {
-    if (op == LAND) {
-      return simplify_land(x, y);
-    } else if (op == LOR) {
-      return simplify_lor(x, y);
+    if (Expr expr2 = simplify_boolean(op, x, y)) {
+      return expr2;
     }
   }
   if (changed) {
@@ -190,20 +188,29 @@ Expr Compiler::compile(Binary expr, Flag flags) noexcept {
   return expr;
 }
 
+Expr Compiler::simplify_boolean(Op2 op, Expr x, Expr y) noexcept {
+  if (op == LAND) {
+    return simplify_land(x, y);
+  } else if (op == LOR) {
+    return simplify_lor(x, y);
+  }
+  return Expr{};
+}
+
 Expr Compiler::simplify_land(Expr x, Expr y) noexcept {
   if (Const cx = x.is<Const>()) {
-    return cx.imm().boolean() ? y : x;
+    return cx.val() ? y : x;
   }
   if (Const cy = y.is<Const>()) {
-    if (cy.imm().boolean()) {
+    if (cy.val()) {
       return x;
     } else {
       add(x);
       return y;
     }
   }
-  if (x.is<Var>() && y.is<Var>()) {
-    return Binary{*func_, LAND, x, y};
+  if (y.is<Var>()) {
+    return Expr{}; // no simplification
   }
   Var dst{*func_, Bool};
   Label out{*func_};
@@ -221,18 +228,18 @@ Expr Compiler::simplify_land(Expr x, Expr y) noexcept {
 
 Expr Compiler::simplify_lor(Expr x, Expr y) noexcept {
   if (Const cx = x.is<Const>()) {
-    return cx.imm().boolean() ? x : y;
+    return cx.val() ? x : y;
   }
   if (Const cy = y.is<Const>()) {
-    if (cy.imm().boolean()) {
+    if (cy.val()) {
       add(x);
       return y;
     } else {
       return x;
     }
   }
-  if (x.is<Var>() && y.is<Var>()) {
-    return Binary{*func_, LOR, x, y};
+  if (y.is<Var>()) {
+    return Expr{}; // no simplification
   }
   Var dst{*func_, Bool};
   Label out{*func_};
@@ -284,10 +291,10 @@ Expr Compiler::compile(Call call, Flag flags) noexcept {
     return call;
   }
   // avoid calls inside other expressions,
-  // and copy result to a Var.
+  // and copy first result to a Var.
   //
   // we could also use to_var(call), but it risks
-  // infinite recursion because it invokes compile(call)
+  // infinite recursion because it invokes compile(Node)
   Var dst{*func_, call.kind()};
   add(Assign{*func_, ASSIGN, dst, call});
   return dst;
@@ -432,12 +439,12 @@ Node Compiler::compile(JumpIf jump_if, Flag) noexcept {
     if (Const cy = y.is<Const>()) {
       // test is a constant,
       // optimize to unconditional jump
-      Value v = eval_binary(op, cx.imm(), cy.imm());
+      Value v = eval_binary(op, cx.val(), cy.val());
       if (v.is_valid()) {
-	 if (negate ? !v : v) {
-	   add(Goto{*func_, to});
-	 }
-	 return VoidConst;
+        if (negate ? !v : v) {
+          add(Goto{*func_, to});
+        }
+        return VoidConst;
       }
     }
   }
@@ -468,8 +475,8 @@ Node Compiler::compile(If st, Flag) noexcept {
   Node else_ = st.else_();
   Expr test = compile(st.test(), SimplifyDefault);
   if (Const ctest = test.is<Const>()) {
-     compile_add(ctest.imm().is_nonzero() ? then : else_, SimplifyDefault);
-     return VoidConst;
+    compile_add(ctest.val() ? then : else_, SimplifyDefault);
+    return VoidConst;
   }
   bool have_else = else_.type() != CONST;
   Label else_label{*func_};
@@ -505,7 +512,14 @@ Node Compiler::compile(For st, Flag) noexcept {
   compile_add(st.init(), SimplifyDefault);
 
   Expr test = st.test();
-  bool have_test = test != VoidConst;
+  bool have_test = true;
+  if (Const ctest = test.is<Const>()) {
+    have_test = test != VoidExpr || !ctest.val();
+    if (have_test) {
+      // test is always false: compile only st.init()
+      return VoidConst;
+    }
+  }
 
   Label l_loop{*func_};
   Label l_continue = have_test ? Label{*func_} : l_loop;

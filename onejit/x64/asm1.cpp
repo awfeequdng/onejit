@@ -185,29 +185,29 @@ static ONEJIT_NOINLINE Assembler &asm1_emit_mem(Assembler &dst, const Inst1 &ins
   return asm1_emit_addr(dst, op, Bytes{prefix, bytes.size()}, default_size, mem);
 }
 
-static ONEJIT_NOINLINE Assembler &asm1_emit_imm(Assembler &dst, const Inst1 &inst, OpStmt1 op,
-                                                Imm imm) noexcept {
-  const int32_t imm_val = imm.int32();
-  size_t imm_len;
-  if (imm_val == int32_t(int8_t(imm_val)) && (inst.imm_size() & B8) != B0) {
-    imm_len = 1;
-  } else if (imm_val == int32_t(int16_t(imm_val)) && (inst.imm_size() & B16) != B0) {
-    imm_len = 2;
+static ONEJIT_NOINLINE Assembler &asm1_emit_const(Assembler &dst, const Inst1 &inst, OpStmt1 op,
+                                                  Value val) noexcept {
+  const int32_t val32 = val.int32();
+  size_t val_len;
+  if (val32 == int32_t(int8_t(val32)) && (inst.imm_size() & B8)) {
+    val_len = 1;
+  } else if (val32 == int32_t(int16_t(val32)) && (inst.imm_size() & B16)) {
+    val_len = 2;
   } else {
-    imm_len = 4;
+    val_len = 4;
   }
 
   uint8_t buf[6] = {};
-  Bytes bytes = imm_len == 1 ? inst.imm8_bytes() : inst.imm32_bytes();
+  Bytes bytes = val_len == 1 ? inst.imm8_bytes() : inst.imm32_bytes();
   size_t len = 0;
-  if (imm_len == 2) {
+  if (val_len == 2) {
     buf[len++] = 0x66;
   }
 
   std::memcpy(buf + len, bytes.data(), bytes.size());
   len += bytes.size();
   (void)op;
-  len = Util::insert_offset_or_imm(buf, len, imm_len, imm_val);
+  len = Util::insert_offset_or_imm(buf, len, val_len, val32);
 
   return dst.add(Bytes{buf, len});
 }
@@ -304,7 +304,7 @@ Assembler &Asm1::emit(Assembler &dst, const Stmt1 &st, const Inst1 &inst) noexce
         return dst.error(st,
                          "x64::Asm1::emit: instruction does not support specified immediate width");
       }
-      return asm1_emit_imm(dst, inst, st.op(), c.imm());
+      return asm1_emit_const(dst, inst, st.op(), c.val());
     }
     break;
   default:
