@@ -27,6 +27,7 @@
 #include <onejit/func.hpp>
 #include <onejit/node/binary.hpp>
 #include <onejit/node/const.hpp>
+#include <onejit/node/tuple.hpp>
 #include <onejit/node/unary.hpp>
 #include <onejit/optimizer.hpp>
 #include <onestl/vector.hpp>
@@ -118,6 +119,9 @@ Node Optimizer::optimize(Node node, Result &in_out) noexcept {
   case BINARY:
     new_node = optimize(node.is<Binary>(), children, result);
     break;
+  case TUPLE:
+    new_node = optimize(node.is<Tuple>(), children, result);
+    break;
   default:
     break;
   }
@@ -160,7 +164,7 @@ bool Optimizer::optimize_leaf(Type t, size_t n_children, Result &in_out) noexcep
   return false;
 }
 
-Node Optimizer::optimize(Unary expr, Nodes children, Result result) noexcept {
+Expr Optimizer::optimize(Unary expr, Nodes children, Result result) noexcept {
   Expr x;
   if (expr && children.size() == 1 && (x = children[0].is<Expr>())) {
     Kind kind = expr.kind();
@@ -178,10 +182,10 @@ Node Optimizer::optimize(Unary expr, Nodes children, Result result) noexcept {
       return simplify_unary(kind, op, x);
     }
   }
-  return Node{};
+  return Expr{};
 }
 
-Node Optimizer::optimize(Binary expr, Nodes children, Result result) noexcept {
+Expr Optimizer::optimize(Binary expr, Nodes children, Result result) noexcept {
   Expr x, y;
   if (expr && children.size() == 2 //
       && (x = children[0].is<Expr>()) && (y = children[1].is<Expr>())) {
@@ -201,7 +205,16 @@ Node Optimizer::optimize(Binary expr, Nodes children, Result result) noexcept {
       return simplify_binary(op, x, y);
     }
   }
-  return Node{};
+  return Expr{};
+}
+
+Expr Optimizer::optimize(Tuple expr, Nodes children, Result result) noexcept {
+  if (expr) {
+    (void)children;
+    (void)result;
+    return expr;
+  }
+  return Expr{};
 }
 
 Expr Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {

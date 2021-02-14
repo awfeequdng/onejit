@@ -62,8 +62,9 @@ public:
 
 private:
   Node optimize(Node node, Result &in_out) noexcept;
-  Node optimize(Unary expr, Nodes children, Result result) noexcept;
-  Node optimize(Binary expr, Nodes children, Result result) noexcept;
+  Expr optimize(Unary expr, Nodes children, Result result) noexcept;
+  Expr optimize(Binary expr, Nodes children, Result result) noexcept;
+  Expr optimize(Tuple expr, Nodes children, Result result) noexcept;
   static bool optimize_leaf(Type t, size_t n_children, Result &in_out) noexcept;
 
   Expr simplify_unary(Kind kind, Op1 op, Expr x) noexcept;
