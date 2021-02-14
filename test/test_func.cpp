@@ -53,7 +53,7 @@ void Test::func_fib() {
       If{f, Binary{f, GTR, n, two},                            //
          Return{f,                                             //
                 Binary{f,                                      //
-                       ADD,                                    //
+                       ADD2,                                   //
                        Call{f, f, {Binary{f, SUB, n, one}}},   //
                        Call{f, f, {Binary{f, SUB, n, two}}}}}, //
          Return{f, one}});                                     //
@@ -179,7 +179,7 @@ void Test::func_switch1() {
                     n,
                     {Case{f, zero, Assign{f, ASSIGN, ret, one}}, //
                      Case{f, one, Assign{f, ASSIGN, ret, two}},  //
-                     Default{f, Assign{f, ASSIGN, ret, Binary{f, ADD, n, one}}}}},
+                     Default{f, Assign{f, ASSIGN, ret, Binary{f, ADD2, n, one}}}}},
              Return{f, ret}}});
 
   Chars expected = "(block\n\
@@ -248,9 +248,9 @@ void Test::func_switch2() {
       Block{f,
             {Switch{f,
                     n,
-                    {Case{f, zero, Assign{f, ASSIGN, ret, one}},                 //
-                     Default{f, Assign{f, ASSIGN, ret, Binary{f, ADD, n, one}}}, //
-                     Case{f, one, Assign{f, ASSIGN, ret, two}}}},                //
+                    {Case{f, zero, Assign{f, ASSIGN, ret, one}},                  //
+                     Default{f, Assign{f, ASSIGN, ret, Binary{f, ADD2, n, one}}}, //
+                     Case{f, one, Assign{f, ASSIGN, ret, two}}}},                 //
              Return{f, ret}}});
 
   Chars expected = "(block\n\
@@ -315,9 +315,9 @@ void Test::func_cond() {
   f.set_body( //
       Block{f,
             {Cond{f,
-                  {Binary{f, EQL, n, zero}, Assign{f, ASSIGN, ret, one},       //
-                   Binary{f, EQL, n, one}, Assign{f, ASSIGN, ret, two},        //
-                   TrueExpr, Assign{f, ASSIGN, ret, Binary{f, ADD, n, one}}}}, //
+                  {Binary{f, EQL, n, zero}, Assign{f, ASSIGN, ret, one},        //
+                   Binary{f, EQL, n, one}, Assign{f, ASSIGN, ret, two},         //
+                   TrueExpr, Assign{f, ASSIGN, ret, Binary{f, ADD2, n, one}}}}, //
              Return{f, ret}}});
 
   Chars expected = "(block\n\
@@ -368,7 +368,7 @@ void Test::func_and_or() {
    * }
    */
 
-  f.set_body(Return{f, Binary{f, XOR,                  //
+  f.set_body(Return{f, Binary{f, XOR2,                 //
                               Binary{f, LAND, ma, mb}, //
                               Binary{f, LOR, ma, mb}}});
 

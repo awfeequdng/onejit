@@ -111,7 +111,7 @@ void Test::simple_expr() {
   for (uint8_t i = eVoid; i <= eArchFlags; i++) {
     Kind k = Kind(i);
     Expr v = Var{func, k};
-    Node node = Binary{func, ADD, v, c};
+    Node node = Binary{func, ADD2, v, c};
 
     TEST(v.type(), ==, VAR);
     TEST(v.kind(), ==, k);
@@ -141,7 +141,7 @@ void Test::simple_expr() {
 
     TEST(node.type(), ==, BINARY);
     TEST(node.kind(), ==, k);
-    TEST(node.op(), ==, ADD);
+    TEST(node.op(), ==, ADD2);
     TEST(node.children(), ==, 2);
     TEST(node.child(0), ==, v);
     TEST(node.child(1), ==, c);
@@ -176,8 +176,8 @@ void Test::nested_expr() {
     Expr v1 = Var{func, k};
     Expr v2 = Var{func, k};
 
-    Expr b1 = Binary{func, ADD, c1, v1};
-    Expr b2 = Binary{func, MUL, c2, v2};
+    Expr b1 = Binary{func, ADD2, c1, v1};
+    Expr b2 = Binary{func, MUL2, c2, v2};
     Expr b3 = Binary{func, SHL, b1, b2};
     Expr u1 = Unary{func, XOR1, b3};
 

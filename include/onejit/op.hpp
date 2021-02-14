@@ -44,16 +44,16 @@ enum Op1 : uint16_t {
 
 enum Op2 : uint16_t {
   BAD2 = 0,
-  ADD, // +
-  SUB, // -
-  MUL, // *
-  QUO, // /
-  REM, // %
-  AND, // &
-  OR,  // |
-  XOR, // ^
-  SHL, // <<
-  SHR, // >>
+  ADD2, // +
+  SUB,  // -
+  MUL2, // *
+  QUO,  // /
+  REM,  // %
+  AND2, // &
+  OR2,  // |
+  XOR2, // ^
+  SHL,  // <<
+  SHR,  // >>
 
   LAND, // &&
   LOR,  // ||
@@ -66,10 +66,15 @@ enum Op2 : uint16_t {
 };
 
 enum OpN : uint16_t {
-  BAD_OPN = 0,
-  CALL = 1,
-  MEM_OP = 2,
-  COMMA = 3,
+  BADN = 0,
+  ADD, // +
+  MUL, // *
+  AND, // &
+  OR,  // |
+  XOR, // ^
+  CALL,
+  COMMA,
+  MEM_OP,
 
   // numeric values of the OpN enum constants below this line MAY CHANGE WITHOUT WARNING
 

@@ -216,7 +216,7 @@ Expr Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
         return xx;
       } else if (op == NEG1 && xop == XOR1) {
         // simplify -~xx to xx+1
-        return Binary{*func_, ADD, xx, One(*func_, xx.kind())};
+        return Binary{*func_, ADD2, xx, One(*func_, xx.kind())};
       } else if (op == XOR1 && xop == NEG1) {
         // simplify ~-xx to xx-1
         return Binary{*func_, SUB, xx, One(*func_, xx.kind())};

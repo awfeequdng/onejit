@@ -100,13 +100,13 @@ Value eval_unary(Kind to, Op1 op, Value x) noexcept {
 
 Value eval_binary(Op2 op, Value x, Value y) noexcept {
   switch (op) {
-  case ADD:
+  case ADD2:
     x = x + y;
     break;
   case SUB:
     x = x - y;
     break;
-  case MUL:
+  case MUL2:
     x = x * y;
     break;
   case QUO:
@@ -115,13 +115,13 @@ Value eval_binary(Op2 op, Value x, Value y) noexcept {
   case REM:
     x = x % y;
     break;
-  case AND:
+  case AND2:
     x = x & y;
     break;
-  case OR:
+  case OR2:
     x = x | y;
     break;
-  case XOR:
+  case XOR2:
     x = x ^ y;
     break;
   case SHL:

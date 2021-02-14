@@ -54,7 +54,7 @@ void Test::optimize_expr_kind(Kind kind) {
   TEST(optimized, ==, x);
 
   // optimize() on 1+x should return x+1
-  expr = Binary(f, ADD, one, x);
+  expr = Binary(f, ADD2, one, x);
   optimized = opt.optimize(f, expr);
   String expected;
   Fmt{&expected} << "(+ " << x << " 1)";
@@ -88,7 +88,7 @@ void Test::optimize_expr_kind(Kind kind) {
   }
 
   // optimize() on (x+1)+2 should return x+3
-  expr = Binary{f, ADD, Binary{f, ADD, x, one}, two};
+  expr = Binary{f, ADD2, Binary{f, ADD2, x, one}, two};
   optimized = opt.optimize(f, expr);
   expected.clear();
   Fmt{&expected} << "(+ " << x << " 3)";
@@ -96,7 +96,7 @@ void Test::optimize_expr_kind(Kind kind) {
   TEST(to_string(optimized), ==, expected);
 
   // optimize() on (x+1)+(x+2) should return (x+x)+3
-  expr = Binary{f, ADD, Binary{f, ADD, x, one}, Binary{f, ADD, x, two}};
+  expr = Binary{f, ADD2, Binary{f, ADD2, x, one}, Binary{f, ADD2, x, two}};
   optimized = opt.optimize(f, expr);
   expected.clear();
   Fmt{&expected} << "(+ (+ " << x << ' ' << x << ") 3)";

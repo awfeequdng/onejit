@@ -247,7 +247,7 @@ enum OpStmt2 : uint16_t {
       x(TEST, test)   /* bitwise AND register or memory, discard result, set EFLAGS */             \
       x(XADD, xadd)   /* exchange and add register or memory */                                    \
       x(XCHG, xchg)   /* exchange register or memory */                                            \
-      x(XOR, xor)     /* bitwise OR (i.e. x^y) register or memory */                               \
+      x(XOR, xor)     /* bitwise XOR (i.e. x^y) register or memory */                              \
       ONEJIT_COMMENT()    /* ------------------------------------------------------------------ */ \
       ONEJIT_COMMENT()    /* [CPUID SSE] is required by the following instructions ------------ */ \
       ONEJIT_COMMENT()    /* ------------------------------------------------------------------ */ \

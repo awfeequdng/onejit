@@ -41,13 +41,13 @@ Expr Optimizer::simplify_binary(Op2 op, Expr x, Expr y) noexcept {
   }
   Expr expr2;
   switch (op) {
-  case ADD:
+  case ADD2:
     expr2 = simplify_add(x, y);
     break;
   case SUB:
     expr2 = simplify_sub(x, y);
     break;
-  case MUL:
+  case MUL2:
     expr2 = simplify_mul(x, y);
     break;
   case QUO:
@@ -56,9 +56,9 @@ Expr Optimizer::simplify_binary(Op2 op, Expr x, Expr y) noexcept {
   case REM:
     expr2 = simplify_rem(x, y);
     break;
-  case AND:
-  case OR:
-  case XOR:
+  case AND2:
+  case OR2:
+  case XOR2:
     expr2 = simplify_bitwise(op, x, y);
     break;
   case SHL:
@@ -102,7 +102,7 @@ Binary Optimizer::partial_eval_binary(Op2 op, Expr x, Expr y) noexcept {
     // because + is easier to optimize further
     Value v = -y.is<Const>().val();
     if (v.is_valid()) {
-      op = ADD;
+      op = ADD2;
       y = Const{*func_, v};
       changed = true;
     }

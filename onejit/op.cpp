@@ -50,11 +50,11 @@ const Fmt &operator<<(const Fmt &out, Op1 op) {
 
 bool is_associative(Op2 op) noexcept {
   switch (op) {
-  case ADD:
-  case MUL:
-  case AND:
-  case OR:
-  case XOR:
+  case ADD2:
+  case MUL2:
+  case AND2:
+  case OR2:
+  case XOR2:
     return true;
   default:
     return false;
@@ -63,11 +63,11 @@ bool is_associative(Op2 op) noexcept {
 
 bool is_commutative(Op2 op) noexcept {
   switch (op) {
-  case ADD:
-  case MUL:
-  case AND:
-  case OR:
-  case XOR:
+  case ADD2:
+  case MUL2:
+  case AND2:
+  case OR2:
+  case XOR2:
   case NEQ:
   case EQL:
     return true;
@@ -129,14 +129,16 @@ const Fmt &operator<<(const Fmt &out, Op2 op) {
 
 // ============================  OpN  ==========================================
 
-static const Chars opnstring[] = {"?", "call", "mem", "comma", "x86_mem", "arm64_mem"};
+static const Chars opnstring[] = {"call", "comma", "mem", "x86_mem", "arm64_mem"};
 
 const Chars to_string(OpN op) noexcept {
-  size_t i = 0; // "?"
-  if (op < ONEJIT_N_OF(opnstring)) {
-    i = op;
+  if (op >= CALL && op - CALL < ONEJIT_N_OF(opnstring)) {
+    return opnstring[op - CALL];
   }
-  return opnstring[i];
+  if (op > XOR) {
+    op = BADN;
+  }
+  return Chars{&"?+*&|^"[op], 1};
 }
 
 const Fmt &operator<<(const Fmt &out, OpN op) {
