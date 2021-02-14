@@ -64,12 +64,13 @@ private:
   Node optimize(Node node, Result &in_out) noexcept;
   Expr optimize(Unary expr, Nodes children, Result result) noexcept;
   Expr optimize(Binary expr, Nodes children, Result result) noexcept;
-  Expr optimize(Tuple expr, Nodes children, Result result) noexcept;
+  Expr optimize(Tuple expr, Span<Node> children, Result result) noexcept;
   static bool optimize_leaf(Type t, size_t n_children, Result &in_out) noexcept;
 
   Expr simplify_unary(Kind kind, Op1 op, Expr x) noexcept;
   Expr simplify_binary(Op2 op, Expr x, Expr y) noexcept;
   Binary partial_eval_binary(Op2 op, Expr x, Expr y) noexcept;
+  Expr partial_eval_tuple(Tuple expr, Span<Node> children) noexcept;
 
   Expr simplify_add(Expr x, Expr y) noexcept;
   Expr simplify_sub(Expr x, Expr y) noexcept;

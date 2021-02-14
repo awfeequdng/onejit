@@ -41,6 +41,7 @@ class Tuple : public Expr {
   friend class Func;
   friend class Mem;
   friend class Node;
+  friend class Optimizer;
 
 public:
   /**
@@ -60,7 +61,7 @@ public:
   const Fmt &format(const Fmt &out, size_t depth = 0) const;
 
 private:
-  // used by Compiler::compile(Tuple)
+  // used by Compiler::compile(Tuple) and Optimizer::partial_eval(Tuple)
   Tuple(Func &func, Kind kind, OpN op, Nodes nodes) noexcept //
       : Base{create(func, kind, op, nodes)} {
   }

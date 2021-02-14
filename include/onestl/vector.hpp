@@ -146,6 +146,7 @@ public:
   using Base::operator==;
   using Base::size;
   using Base::span;
+  using Base::truncate;
   using Base::view;
 
   Vector<T> &operator=(Vector<T> &&other) noexcept {
@@ -181,12 +182,6 @@ public:
       return true;
     }
     return VectorHelper::cast(*this).reserve(newcap, sizeof(T));
-  }
-
-  void truncate(size_t n) noexcept {
-    if (size_ > n) {
-      size_ = n;
-    }
   }
 
   bool append(const T &src) noexcept {

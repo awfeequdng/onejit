@@ -74,6 +74,7 @@ public:
   using Base::operator==;
   using Base::operator[];
   using Base::size;
+  using Base::truncate;
   using Base::view;
 
   T *data() noexcept {

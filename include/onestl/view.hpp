@@ -123,12 +123,6 @@ public:
     return View(data_ + start, end - start);
   }
 
-  void swap(View &other) noexcept {
-    View temp = *this;
-    *this = other;
-    other = temp;
-  }
-
   void ref(const T *addr, size_t n) noexcept {
     data_ = addr;
     size_ = n;
@@ -139,6 +133,18 @@ public:
   }
   void ref(const Span<T> &other) noexcept;
   void ref(const Vector<T> &other) noexcept;
+
+  void swap(View &other) noexcept {
+    View temp = *this;
+    *this = other;
+    other = temp;
+  }
+
+  void truncate(size_t n) noexcept {
+    if (size_ > n) {
+      size_ = n;
+    }
+  }
 
   template <class VEC> bool operator==(const VEC &other) const noexcept {
     static_assert(

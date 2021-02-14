@@ -111,7 +111,7 @@ Node Optimizer::optimize(Node node, Result &in_out) noexcept {
   // 2. the loop immediately above recursively calls optimize()
   //    which may resize nodes_ and thus change its data()
   //    => we must retrieve nodes_.data() *after* such loop.
-  Nodes children{nodes_.data() + orig_n, n};
+  Span<Node> children{nodes_.data() + orig_n, n};
   switch (node.type()) {
   case UNARY:
     new_node = optimize(node.is<Unary>(), children, result);
@@ -208,13 +208,14 @@ Expr Optimizer::optimize(Binary expr, Nodes children, Result result) noexcept {
   return Expr{};
 }
 
-Expr Optimizer::optimize(Tuple expr, Nodes children, Result result) noexcept {
+Expr Optimizer::optimize(Tuple expr, Span<Node> children, Result result) noexcept {
+  (void)result;
   if (expr) {
-    (void)children;
-    (void)result;
-    return expr;
+    if (Expr expr2 = partial_eval_tuple(expr, children)) {
+      return expr2;
+    }
   }
-  return Expr{};
+  return expr;
 }
 
 Expr Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
