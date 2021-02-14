@@ -32,30 +32,55 @@
 
 namespace onejit {
 
+static Value identity_element(OpN op, Kind kind) noexcept {
+  int64_t i = 0;
+  switch (op) {
+  case ADD:
+  case OR:
+  case XOR:
+    break;
+  case MUL:
+    i = 1;
+    break;
+  case AND:
+    i = -1;
+    break;
+  default:
+    return Value{};
+  }
+  return Value{i}.cast(kind);
+}
+
 Expr Optimizer::partial_eval_tuple(Tuple expr, Span<Node> children) noexcept {
   OpN op = expr.op();
-  bool have_value = false;
   if (is_associative(op) && is_commutative(op) && (flags_ & FastMath || !expr.kind().is_float())) {
-    std::sort(children.begin(), children.end(),
-              [](const Node &lhs, const Node &rhs) { return lhs.type() < rhs.type(); });
+    Value identity = identity_element(op, expr.kind());
     size_t n = children.size();
-    Value v;
+    if (n == 0) {
+      return Const{*func_, identity};
+    } else if (n > 1) {
+      // also put constants as last
+      std::sort(children.begin(), children.end(),
+                [](const Node &lhs, const Node &rhs) { return lhs.type() < rhs.type(); });
+    }
+    Value v = identity;
     for (; n != 0; --n) {
-      Const c = children[n - 1].is<Const>();
-      if (!c) {
-        break;
-      } else if (have_value) {
+      if (Const c = children[n - 1].is<Const>()) {
         v = eval_tuple(op, {c.val(), v});
       } else {
-        have_value = true;
-        v = c.val();
+        break;
       }
     }
-    if (have_value) {
-      Expr e = Const{*func_, v};
-      children[n] = e;
-      children.truncate(n + 1);
-      return n == 1 ? e : Tuple{*func_, expr.kind(), op, children};
+    if (n < children.size() && v != identity) {
+      children[n++] = Const{*func_, v};
+    }
+    switch (n) {
+    case 0:
+      return Const{*func_, v};
+    case 1:
+      return children[0].is<Expr>();
+    default:
+      return Tuple{*func_, expr.kind(), op, children.view(0, n)};
     }
   }
   return Expr{};
