@@ -23,9 +23,9 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/node/binary.hpp>
 #include <onejit/code.hpp>
 #include <onejit/func.hpp>
+#include <onejit/node/binary.hpp>
 
 namespace onejit {
 
@@ -33,7 +33,7 @@ namespace onejit {
 Node Binary::create(Func &func, Op2 op, const Expr &left, const Expr &right) {
   Kind kind = Bad;
   if (op == BAD2) {
-  } else if (op <= AND_NOT) {
+  } else if (op <= SHR) {
     kind = left.kind();
   } else if (op <= GEQ) {
     kind = Bool; // && || comparison

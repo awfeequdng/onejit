@@ -219,7 +219,6 @@ Value operator|(Value a, Value b) noexcept;
 Value operator^(Value a, Value b) noexcept;
 Value operator<<(Value a, Value b) noexcept;
 Value operator>>(Value a, Value b) noexcept;
-Value and_not(Value a, Value b) noexcept;
 
 /**
  * relational operators return Value{} if a and b have different kind.

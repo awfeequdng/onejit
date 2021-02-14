@@ -44,17 +44,16 @@ enum Op1 : uint16_t {
 
 enum Op2 : uint16_t {
   BAD2 = 0,
-  ADD,     // +
-  SUB,     // -
-  MUL,     // *
-  QUO,     // /
-  REM,     // %
-  AND,     // &
-  OR,      // |
-  XOR,     // ^
-  SHL,     // <<
-  SHR,     // >>
-  AND_NOT, // &^
+  ADD, // +
+  SUB, // -
+  MUL, // *
+  QUO, // /
+  REM, // %
+  AND, // &
+  OR,  // |
+  XOR, // ^
+  SHL, // <<
+  SHR, // >>
 
   LAND, // &&
   LOR,  // ||

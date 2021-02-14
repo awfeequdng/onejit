@@ -127,7 +127,6 @@ static const Chars op_stmt_2_string[] = { //
     "^=",
     "<<=",
     ">>=",
-    "&^=",
     "=",
     "case",
     "default",

@@ -173,18 +173,17 @@ enum OpStmt1 : uint16_t {
 enum OpStmt2 : uint16_t {
   BAD_ST2 = 0,
   // intentionally same values as Op2
-  ADD_ASSIGN,     // +=
-  SUB_ASSIGN,     // -=
-  MUL_ASSIGN,     // *=
-  QUO_ASSIGN,     // /=
-  REM_ASSIGN,     // %=
-  AND_ASSIGN,     // &=
-  OR_ASSIGN,      // |=
-  XOR_ASSIGN,     // ^=
-  SHL_ASSIGN,     // <<=
-  SHR_ASSIGN,     // >>=
-  AND_NOT_ASSIGN, // &^=
-  ASSIGN,         // =
+  ADD_ASSIGN, // +=
+  SUB_ASSIGN, // -=
+  MUL_ASSIGN, // *=
+  QUO_ASSIGN, // /=
+  REM_ASSIGN, // %=
+  AND_ASSIGN, // &=
+  OR_ASSIGN,  // |=
+  XOR_ASSIGN, // ^=
+  SHL_ASSIGN, // <<=
+  SHR_ASSIGN, // >>=
+  ASSIGN,     // =
 
   CASE,
   DEFAULT,

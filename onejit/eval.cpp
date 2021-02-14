@@ -130,9 +130,6 @@ Value eval_binary(Op2 op, Value x, Value y) noexcept {
   case SHR:
     x = x >> y;
     break;
-  case AND_NOT:
-    x = and_not(x, y);
-    break;
   case LAND:
     x = and_(x, y);
     break;

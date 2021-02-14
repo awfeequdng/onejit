@@ -333,10 +333,6 @@ Value operator>>(Value a, Value b) noexcept {
   }
 }
 
-Value and_not(Value a, Value b) noexcept {
-  return a & ~b;
-}
-
 Value operator==(Value a, Value b) noexcept {
   Kind kind = a.kind();
   bool ret;

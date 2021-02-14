@@ -59,7 +59,6 @@ Expr Optimizer::simplify_binary(Op2 op, Expr x, Expr y) noexcept {
   case AND:
   case OR:
   case XOR:
-  case AND_NOT:
     expr2 = simplify_bitwise(op, x, y);
     break;
   case SHL:
