@@ -27,6 +27,7 @@
 #include <onejit/node/binary.hpp>
 #include <onejit/node/const.hpp>
 #include <onejit/node/unary.hpp>
+#include <onestl/view.hpp>
 
 namespace onejit {
 
@@ -153,6 +154,49 @@ Value eval_binary(Op2 op, Value x, Value y) noexcept {
     break;
   case GEQ:
     x = x >= y;
+    break;
+  default:
+    x = Value{};
+    break;
+  }
+  return x;
+}
+
+Value eval_tuple(OpN op, std::initializer_list<Value> vs) noexcept {
+  return eval_tuple(op, Values{vs.begin(), vs.size()});
+}
+
+Value eval_tuple(OpN op, Values vs) noexcept {
+  if (vs.empty()) {
+    return Value{};
+  }
+  Value x = vs[0];
+  vs = vs.view(1, vs.size());
+  switch (op) {
+  case ADD:
+    for (const Value &v : vs) {
+      x += v;
+    }
+    break;
+  case MUL:
+    for (const Value &v : vs) {
+      x *= v;
+    }
+    break;
+  case AND:
+    for (const Value &v : vs) {
+      x &= v;
+    }
+    break;
+  case OR:
+    for (const Value &v : vs) {
+      x |= v;
+    }
+    break;
+  case XOR:
+    for (const Value &v : vs) {
+      x ^= v;
+    }
     break;
   default:
     x = Value{};

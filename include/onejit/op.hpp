@@ -113,6 +113,13 @@ Op2 swap_comparison(Op2 op) noexcept;
 // change < to >=, <= to >, != to ==, == to !=, > to <= and >= to <
 Op2 not_comparison(Op2 op) noexcept;
 
+constexpr bool is_associative(OpN op) noexcept {
+  return op >= ADD && op <= XOR;
+}
+constexpr bool is_commutative(OpN op) noexcept {
+  return op >= ADD && op <= XOR;
+}
+
 const Chars to_string(Op1 op) noexcept;
 const Chars to_string(Op2 op) noexcept;
 const Chars to_string(OpN op) noexcept;

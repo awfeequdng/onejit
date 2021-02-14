@@ -126,6 +126,7 @@ using Errors = View<Error>;
 using Exprs = View<Expr>;
 using Kinds = View<Kind>;
 using Nodes = View<Node>;
+using Values = View<Value>;
 
 String to_string(Node node);
 

@@ -259,6 +259,39 @@ constexpr Value or_(Value a, Value b) noexcept {
              : Value{};
 }
 
+// ----------------------------- assignment operators --------------------------
+
+inline Value &operator+=(Value &a, Value b) noexcept {
+  return a = a + b;
+}
+inline Value &operator-=(Value &a, Value b) noexcept {
+  return a = a - b;
+}
+inline Value &operator*=(Value &a, Value b) noexcept {
+  return a = a * b;
+}
+inline Value &operator/=(Value &a, Value b) noexcept {
+  return a = a / b;
+}
+inline Value &operator%=(Value &a, Value b) noexcept {
+  return a = a % b;
+}
+inline Value &operator&=(Value &a, Value b) noexcept {
+  return a = a & b;
+}
+inline Value &operator|=(Value &a, Value b) noexcept {
+  return a = a | b;
+}
+inline Value &operator^=(Value &a, Value b) noexcept {
+  return a = a ^ b;
+}
+inline Value &operator<<=(Value &a, Value b) noexcept {
+  return a = a << b;
+}
+inline Value &operator>>=(Value &a, Value b) noexcept {
+  return a = a >> b;
+}
+
 // ----------------------------- unary operators -------------------------------
 
 inline Value::operator bool() const noexcept {
