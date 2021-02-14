@@ -72,6 +72,8 @@ enum OpN : uint16_t {
   AND, // &
   OR,  // |
   XOR, // ^
+  MAX,
+  MIN,
   CALL,
   COMMA,
   MEM_OP,
@@ -114,10 +116,10 @@ Op2 swap_comparison(Op2 op) noexcept;
 Op2 not_comparison(Op2 op) noexcept;
 
 constexpr bool is_associative(OpN op) noexcept {
-  return op >= ADD && op <= XOR;
+  return op >= ADD && op <= MIN;
 }
 constexpr bool is_commutative(OpN op) noexcept {
-  return op >= ADD && op <= XOR;
+  return op >= ADD && op <= MIN;
 }
 
 const Chars to_string(Op1 op) noexcept;

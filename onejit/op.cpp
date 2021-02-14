@@ -129,11 +129,11 @@ const Fmt &operator<<(const Fmt &out, Op2 op) {
 
 // ============================  OpN  ==========================================
 
-static const Chars opnstring[] = {"call", "comma", "mem", "x86_mem", "arm64_mem"};
+static const Chars opnstring[] = {"max", "min", "call", "comma", "mem", "x86_mem", "arm64_mem"};
 
 const Chars to_string(OpN op) noexcept {
-  if (op >= CALL && op - CALL < ONEJIT_N_OF(opnstring)) {
-    return opnstring[op - CALL];
+  if (op >= MAX && op - MAX < ONEJIT_N_OF(opnstring)) {
+    return opnstring[op - MAX];
   }
   if (op > XOR) {
     op = BADN;

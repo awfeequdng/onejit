@@ -23,6 +23,7 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/op.hpp>
 #include <onejit/value.hpp>
 
 namespace onejit {
@@ -197,6 +198,77 @@ Value Value::cast(Kind to) noexcept {
     return Value{to, bits};
   }
   return extend_or_truncate(to, bits_);
+}
+
+Value Value::max(Kind kind) noexcept {
+  if (kind == Float32) {
+    return Value{float(1.0f / 0.0f)};
+  } else if (kind == Float64) {
+    return Value{double(1.0 / 0.0)};
+  }
+  const size_t bitsize = kind.bitsize();
+  uint64_t bits = bitsize == 0 ? uint64_t(0) : uint64_t(-1) >> (64 - bitsize);
+  if (kind.is_signed()) {
+    bits >>= 1;
+  }
+  return Value{kind, bits};
+}
+
+Value Value::min(Kind kind) noexcept {
+  if (kind.is_unsigned()) {
+    return zero(kind);
+  } else if (kind == Float32) {
+    return Value{float(-1.0f / 0.0f)};
+  } else if (kind == Float64) {
+    return Value{double(-1.0 / 0.0)};
+  }
+  return Value{kind, uint64_t(1) << (kind.bitsize() - 1)};
+}
+
+// return the identity element for specified operation and kind
+Value Value::identity(OpN op, Kind kind) noexcept {
+  uint64_t i;
+  switch (op) {
+  case ADD:
+  case OR:
+  case XOR:
+    i = 0;
+    break;
+  case MUL:
+    i = 1;
+    break;
+  case AND:
+    i = uint64_t(-1);
+    break;
+  case MAX:
+    return min(kind);
+  case MIN:
+    return max(kind);
+  default:
+    return Value{};
+  }
+  return Value{i}.cast(kind);
+}
+
+// return the absorbing element for specified operation and kind
+Value Value::absorbing(OpN op, Kind kind) noexcept {
+  uint64_t i;
+  switch (op) {
+  case OR:
+    i = uint64_t(-1);
+    break;
+  case MUL:
+  case AND:
+    i = 0;
+    break;
+  case MAX:
+    return max(kind);
+  case MIN:
+    return min(kind);
+  default:
+    return Value{};
+  }
+  return Value{i}.cast(kind);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

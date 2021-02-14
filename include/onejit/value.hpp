@@ -193,15 +193,30 @@ public:
   // convert between kinds, for example between float and int
   Value cast(Kind to) noexcept;
 
+  // return a Value = 0 with specified kind
+  static constexpr Value zero(Kind kind) noexcept {
+    return Value{kind, uint64_t(0)};
+  }
+
+  // return the maximum value of specified kind
+  static Value max(Kind kind) noexcept;
+  // return the minimum value of specified kind
+  static Value min(Kind kind) noexcept;
+
+  // return the identity element for specified operation and kind,
+  // or Value{} if op has no identity element
+  // i.e. 0 for ADD, OR, XOR; 1 for MUL, -1 for AND ...
+  static Value identity(OpN op, Kind kind) noexcept;
+
+  // return the absorbing element for specified operation and kind,
+  // or Value{} if op has no absorbing element
+  // i.e. 0 for MUL, AND; -1 for OR ...
+  static Value absorbing(OpN op, Kind kind) noexcept;
+
 private:
   uint64_t bits_;
   eKind ekind_;
 };
-
-// return a Value = 0 with specified kind
-constexpr Value ZeroValue(Kind kind) noexcept {
-  return Value{kind, uint64_t(0)};
-}
 
 // ----------------------------- formatting ------------------------------------
 
@@ -295,11 +310,11 @@ inline Value &operator>>=(Value &a, Value b) noexcept {
 // ----------------------------- unary operators -------------------------------
 
 inline Value::operator bool() const noexcept {
-  return (*this != ZeroValue(kind())).boolean();
+  return (*this != zero(kind())).boolean();
 }
 
 inline Value Value::operator!() const noexcept {
-  return *this == ZeroValue(kind());
+  return *this == zero(kind());
 }
 
 Value operator~(Value a) noexcept;

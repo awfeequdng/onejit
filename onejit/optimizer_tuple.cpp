@@ -26,35 +26,28 @@
 #include <onejit/eval.hpp>
 #include <onejit/node/const.hpp>
 #include <onejit/node/tuple.hpp>
+#include <onejit/node/var.hpp>
 #include <onejit/optimizer.hpp>
 
 #include <algorithm>
 
 namespace onejit {
 
-static Value identity_element(OpN op, Kind kind) noexcept {
-  int64_t i = 0;
-  switch (op) {
-  case ADD:
-  case OR:
-  case XOR:
-    break;
-  case MUL:
-    i = 1;
-    break;
-  case AND:
-    i = -1;
-    break;
-  default:
-    return Value{};
+template <class T> //
+static bool all_are(Nodes nodes) noexcept {
+  for (Node node : nodes) {
+    if (!node.is<T>()) {
+      return false;
+    }
   }
-  return Value{i}.cast(kind);
+  return true;
 }
 
 Expr Optimizer::partial_eval_tuple(Tuple expr, Span<Node> children) noexcept {
   OpN op = expr.op();
-  if (is_associative(op) && is_commutative(op) && (flags_ & FastMath || !expr.kind().is_float())) {
-    Value identity = identity_element(op, expr.kind());
+  Kind kind = expr.kind();
+  if (is_associative(op) && is_commutative(op) && (flags_ & FastMath || !kind.is_float())) {
+    Value identity = Value::identity(op, kind);
     size_t n = children.size();
     if (n == 0) {
       return Const{*func_, identity};
@@ -72,7 +65,11 @@ Expr Optimizer::partial_eval_tuple(Tuple expr, Span<Node> children) noexcept {
       }
     }
     if (n < children.size() && v != identity) {
-      children[n++] = Const{*func_, v};
+      Const c{*func_, v};
+      if (v == Value::absorbing(op, kind) && all_are<Var>(children.view(0, n))) {
+        return c;
+      }
+      children[n++] = c;
     }
     switch (n) {
     case 0:
@@ -80,7 +77,7 @@ Expr Optimizer::partial_eval_tuple(Tuple expr, Span<Node> children) noexcept {
     case 1:
       return children[0].is<Expr>();
     default:
-      return Tuple{*func_, expr.kind(), op, children.view(0, n)};
+      return Tuple{*func_, kind, op, children.view(0, n)};
     }
   }
   return Expr{};
