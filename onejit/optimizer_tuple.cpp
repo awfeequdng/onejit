@@ -122,7 +122,11 @@ bool Optimizer::optimize_flatten_children_tobuf(Node node, Result &result) noexc
       ok = optimize_flatten_children_tobuf(child, result);
     } else {
       child = optimize(child, result);
-      ok = bool(nodes_.append(child));
+      if (child.header() == node.header()) {
+        ok = flatten_children_tobuf(child);
+      } else {
+        ok = bool(nodes_.append(child));
+      }
     }
   }
   return ok;
