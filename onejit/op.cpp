@@ -48,34 +48,6 @@ const Fmt &operator<<(const Fmt &out, Op1 op) {
 
 // ============================  Op2  ==========================================
 
-bool is_associative(Op2 op) noexcept {
-  switch (op) {
-  case ADD2:
-  case MUL2:
-  case AND2:
-  case OR2:
-  case XOR2:
-    return true;
-  default:
-    return false;
-  }
-}
-
-bool is_commutative(Op2 op) noexcept {
-  switch (op) {
-  case ADD2:
-  case MUL2:
-  case AND2:
-  case OR2:
-  case XOR2:
-  case NEQ:
-  case EQL:
-    return true;
-  default:
-    return false;
-  }
-}
-
 // change < to >, <= to >=, > to < and >= to <=
 Op2 swap_comparison(Op2 op) noexcept {
   switch (op) {
@@ -111,8 +83,7 @@ Op2 not_comparison(Op2 op) noexcept {
   }
 }
 
-static const char op2string[] =
-    "\1?\0\1+\0\1-\0\1*\0\1/\0\1%\0\1&\0\1|\0\1^\0\2<<\2>>\2&&\2||\1<\0\2<=\2!=\2==\1>\0\2>=";
+static const char op2string[] = "\1?\0\1-\0\1/\0\1%\0\2<<\2>>\2&&\2||\1<\0\2<=\2!=\2==\1>\0\2>=";
 
 const Chars to_string(Op2 op) noexcept {
   size_t i = 0; // "?"
@@ -129,7 +100,7 @@ const Fmt &operator<<(const Fmt &out, Op2 op) {
 
 // ============================  OpN  ==========================================
 
-static const Chars opnstring[] = {"max", "min", "call", "comma", "mem", "x86_mem", "arm64_mem"};
+static const Chars opnstring[] = {"max", "min", "comma", "call", "mem", "x86_mem", "arm64_mem"};
 
 const Chars to_string(OpN op) noexcept {
   if (op >= MAX && op - MAX < ONEJIT_N_OF(opnstring)) {

@@ -30,41 +30,10 @@
 #include <onejit/node/tuple.hpp>
 #include <onejit/node/unary.hpp>
 #include <onejit/optimizer.hpp>
+#include <onejit/optimizer_result.hpp>
 #include <onestl/vector.hpp>
 
 namespace onejit {
-
-////////////////////////////////////////////////////////////////////////////////
-
-enum Optimizer::Result : uint8_t {
-  IsNone = 0,
-  IsSame = 1 << 0,
-  IsPure = 1 << 1,
-  IsConst = 1 << 2,
-  IsAll = 0x7,
-};
-
-constexpr Optimizer::Result operator~(Optimizer::Result a) noexcept {
-  return Optimizer::Result(~uint8_t(a));
-}
-
-constexpr Optimizer::Result operator&(Optimizer::Result a, Optimizer::Result b) noexcept {
-  return Optimizer::Result(uint8_t(a) & uint8_t(b));
-}
-
-constexpr Optimizer::Result operator|(Optimizer::Result a, Optimizer::Result b) noexcept {
-  return Optimizer::Result(uint8_t(a) | uint8_t(b));
-}
-
-Optimizer::Result &operator&=(Optimizer::Result &a, Optimizer::Result b) noexcept {
-  return a = a & b;
-}
-
-Optimizer::Result &operator|=(Optimizer::Result &a, Optimizer::Result b) noexcept {
-  return a = a | b;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 Optimizer::Optimizer() noexcept : func_{nullptr}, nodes_{}, flags_{None} {
 }
@@ -93,61 +62,30 @@ Node Optimizer::optimize(Node node, Result &in_out) noexcept {
   Type t = node.type();
   if (optimize_leaf(t, n, in_out)) {
     return node;
-  }
-  Node new_node;
-  size_t orig_n = nodes_.size();
-  if (!nodes_.resize(n + orig_n)) {
-    in_out &= IsSame;
-    return node;
-  }
-  Result result = IsAll;
-  for (uint32_t i = 0; i < n; i++) {
-    nodes_[i + orig_n] = optimize(node.child(i), result);
-  }
-  // Caveats:
-  //
-  // 1. do not use nodes_.view() here, because it may throw.
-  //
-  // 2. the loop immediately above recursively calls optimize()
-  //    which may resize nodes_ and thus change its data()
-  //    => we must retrieve nodes_.data() *after* such loop.
-  Span<Node> children{nodes_.data() + orig_n, n};
-  switch (node.type()) {
-  case UNARY:
-    new_node = optimize(node.is<Unary>(), children, result);
-    break;
-  case BINARY:
-    new_node = optimize(node.is<Binary>(), children, result);
-    break;
-  case TUPLE:
-    new_node = optimize(node.is<Tuple>(), children, result);
-    break;
-  default:
-    break;
+  } else if (t == TUPLE) {
+    return optimize(node.is<Tuple>(), in_out);
   }
 
+  Node new_node;
+  Span<Node> children;
+  size_t orig_n = nodes_.size();
+  Result result = IsAll;
+
+  if (t == UNARY || t == BINARY) {
+    if (optimize_children(node, children, result)) {
+      if (t == UNARY) {
+        new_node = try_optimize(node.is<Unary>(), children, result);
+      } else {
+        new_node = try_optimize(node.is<Binary>(), children, result);
+      }
+    }
+  }
   if (!new_node && !(result & IsSame)) {
     new_node = Node::create_indirect(*func_, node.header(), children);
   }
   nodes_.truncate(orig_n);
 
   return finish(node, new_node, result, in_out);
-}
-
-Node Optimizer::finish(Node node, Node new_node, Result result, Result &in_out) noexcept {
-  if (new_node && new_node != node) {
-    result &= ~IsSame;
-  } else {
-    new_node = node;
-    result |= IsSame;
-  }
-  if (new_node.type() == CONST) {
-    result |= IsConst | IsPure;
-  } else {
-    result &= ~IsConst;
-  }
-  in_out &= result;
-  return new_node;
 }
 
 bool Optimizer::optimize_leaf(Type t, size_t n_children, Result &in_out) noexcept {
@@ -164,7 +102,27 @@ bool Optimizer::optimize_leaf(Type t, size_t n_children, Result &in_out) noexcep
   return false;
 }
 
-Expr Optimizer::optimize(Unary expr, Nodes children, Result result) noexcept {
+bool Optimizer::optimize_children(Node node, Span<Node> &children, Result &result) noexcept {
+  size_t n = node.children();
+  size_t orig_n = nodes_.size();
+  if (!nodes_.resize(n + orig_n)) {
+    return false;
+  }
+  for (size_t i = 0; i < n; i++) {
+    nodes_[i + orig_n] = optimize(node.child(i), result);
+  }
+  // Caveats:
+  //
+  // 1. do not use nodes_.span() here, because it may throw.
+  //
+  // 2. the loop immediately above recursively calls optimize()
+  //    which may resize nodes_ and thus change its data()
+  //    => we must retrieve nodes_.data() *after* such loop.
+  children = Span<Node>{nodes_.data() + orig_n, n};
+  return true;
+}
+
+Expr Optimizer::try_optimize(Unary expr, Nodes children, Result result) noexcept {
   Expr x;
   if (expr && children.size() == 1 && (x = children[0].is<Expr>())) {
     Kind kind = expr.kind();
@@ -185,7 +143,7 @@ Expr Optimizer::optimize(Unary expr, Nodes children, Result result) noexcept {
   return Expr{};
 }
 
-Expr Optimizer::optimize(Binary expr, Nodes children, Result result) noexcept {
+Expr Optimizer::try_optimize(Binary expr, Nodes children, Result result) noexcept {
   Expr x, y;
   if (expr && children.size() == 2 //
       && (x = children[0].is<Expr>()) && (y = children[1].is<Expr>())) {
@@ -208,16 +166,6 @@ Expr Optimizer::optimize(Binary expr, Nodes children, Result result) noexcept {
   return Expr{};
 }
 
-Expr Optimizer::optimize(Tuple expr, Span<Node> children, Result result) noexcept {
-  (void)result;
-  if (expr) {
-    if (Expr expr2 = partial_eval_tuple(expr, children)) {
-      return expr2;
-    }
-  }
-  return expr;
-}
-
 Expr Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
   if (Unary u = x.is<Unary>()) {
     Op1 xop = u.op();
@@ -230,7 +178,7 @@ Expr Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
         return xx;
       } else if (op == NEG1 && xop == XOR1) {
         // simplify -~xx to xx+1
-        return Binary{*func_, ADD2, xx, One(*func_, xx.kind())};
+        return Tuple{*func_, ADD, xx, One(*func_, xx.kind())};
       } else if (op == XOR1 && xop == NEG1) {
         // simplify ~-xx to xx-1
         return Binary{*func_, SUB, xx, One(*func_, xx.kind())};
@@ -248,6 +196,22 @@ Expr Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
     return x;
   }
   return Expr{};
+}
+
+Node Optimizer::finish(Node node, Node new_node, Result result, Result &in_out) noexcept {
+  if (new_node && new_node != node) {
+    result &= ~IsSame;
+  } else {
+    new_node = node;
+    result |= IsSame;
+  }
+  if (new_node.type() == CONST) {
+    result |= IsConst | IsPure;
+  } else {
+    result &= ~IsConst;
+  }
+  in_out &= result;
+  return new_node;
 }
 
 } // namespace onejit

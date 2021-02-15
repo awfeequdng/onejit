@@ -49,14 +49,14 @@ void Test::func_fib() {
    * }
    */
 
-  f.set_body(                                                  //
-      If{f, Binary{f, GTR, n, two},                            //
-         Return{f,                                             //
-                Binary{f,                                      //
-                       ADD2,                                   //
-                       Call{f, f, {Binary{f, SUB, n, one}}},   //
-                       Call{f, f, {Binary{f, SUB, n, two}}}}}, //
-         Return{f, one}});                                     //
+  f.set_body(                                                 //
+      If{f, Binary{f, GTR, n, two},                           //
+         Return{f,                                            //
+                Tuple{f,                                      //
+                      ADD,                                    //
+                      Call{f, f, {Binary{f, SUB, n, one}}},   //
+                      Call{f, f, {Binary{f, SUB, n, two}}}}}, //
+         Return{f, one}});                                    //
 
   Chars expected = "(if (> var1000_ul 2)\n\
     (return (+ (call label_0 (- var1000_ul 1)) (call label_0 (- var1000_ul 2))))\n\
@@ -179,7 +179,8 @@ void Test::func_switch1() {
                     n,
                     {Case{f, zero, Assign{f, ASSIGN, ret, one}}, //
                      Case{f, one, Assign{f, ASSIGN, ret, two}},  //
-                     Default{f, Assign{f, ASSIGN, ret, Binary{f, ADD2, n, one}}}}},
+                     Default{f, Assign{f, ASSIGN, ret,           //
+                                       Tuple{f, ADD, n, one}}}}},
              Return{f, ret}}});
 
   Chars expected = "(block\n\
@@ -248,9 +249,10 @@ void Test::func_switch2() {
       Block{f,
             {Switch{f,
                     n,
-                    {Case{f, zero, Assign{f, ASSIGN, ret, one}},                  //
-                     Default{f, Assign{f, ASSIGN, ret, Binary{f, ADD2, n, one}}}, //
-                     Case{f, one, Assign{f, ASSIGN, ret, two}}}},                 //
+                    {Case{f, zero, Assign{f, ASSIGN, ret, one}},  //
+                     Default{f, Assign{f, ASSIGN, ret,            //
+                                       Tuple{f, ADD, n, one}}},   //
+                     Case{f, one, Assign{f, ASSIGN, ret, two}}}}, //
              Return{f, ret}}});
 
   Chars expected = "(block\n\
@@ -315,9 +317,9 @@ void Test::func_cond() {
   f.set_body( //
       Block{f,
             {Cond{f,
-                  {Binary{f, EQL, n, zero}, Assign{f, ASSIGN, ret, one},        //
-                   Binary{f, EQL, n, one}, Assign{f, ASSIGN, ret, two},         //
-                   TrueExpr, Assign{f, ASSIGN, ret, Binary{f, ADD2, n, one}}}}, //
+                  {Binary{f, EQL, n, zero}, Assign{f, ASSIGN, ret, one},      //
+                   Binary{f, EQL, n, one}, Assign{f, ASSIGN, ret, two},       //
+                   TrueExpr, Assign{f, ASSIGN, ret, Tuple{f, ADD, n, one}}}}, //
              Return{f, ret}}});
 
   Chars expected = "(block\n\
@@ -368,9 +370,9 @@ void Test::func_and_or() {
    * }
    */
 
-  f.set_body(Return{f, Binary{f, XOR2,                 //
-                              Binary{f, LAND, ma, mb}, //
-                              Binary{f, LOR, ma, mb}}});
+  f.set_body(Return{f, Tuple{f, XOR,                  //
+                             Binary{f, LAND, ma, mb}, //
+                             Binary{f, LOR, ma, mb}}});
 
   Chars expected = "(return (^ (&& (mem1 var1000_p) (mem1 var1001_p)) \
 (|| (mem1 var1000_p) (mem1 var1001_p))))";

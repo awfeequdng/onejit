@@ -226,7 +226,7 @@ Value Value::min(Kind kind) noexcept {
 }
 
 // return the identity element for specified operation and kind
-Value Value::identity(OpN op, Kind kind) noexcept {
+Value Value::identity(Kind kind, OpN op) noexcept {
   uint64_t i;
   switch (op) {
   case ADD:
@@ -244,6 +244,9 @@ Value Value::identity(OpN op, Kind kind) noexcept {
     return min(kind);
   case MIN:
     return max(kind);
+  case COMMA:
+    i = 0;
+    break;
   default:
     return Value{};
   }
@@ -251,7 +254,7 @@ Value Value::identity(OpN op, Kind kind) noexcept {
 }
 
 // return the absorbing element for specified operation and kind
-Value Value::absorbing(OpN op, Kind kind) noexcept {
+Value Value::absorbing(Kind kind, OpN op) noexcept {
   uint64_t i;
   switch (op) {
   case OR:

@@ -54,7 +54,7 @@ void Test::optimize_expr_kind(Kind kind) {
   TEST(optimized, ==, x);
 
   // optimize() on 1+x should return x+1
-  expr = Binary(f, ADD2, one, x);
+  expr = Tuple{f, ADD, one, x};
   optimized = opt.optimize(f, expr);
   String expected;
   Fmt{&expected} << "(+ " << x << " 1)";
@@ -78,28 +78,29 @@ void Test::optimize_expr_kind(Kind kind) {
   TEST(to_string(optimized), ==, expected);
 
   if (kind.is_signed()) {
-    // optimize() on x-1 should return x+(-1)
-    expr = Binary{f, SUB, x, one};
+    // optimize() on (x-1)-2 should return x+(-3)
+    expr = Binary{f, SUB, Binary{f, SUB, x, one}, two};
     optimized = opt.optimize(f, expr);
     expected.clear();
-    Fmt{&expected} << "(+ " << x << " -1)";
+    Fmt{&expected} << "(+ " << x << " -3)";
     TEST(optimized, !=, expr);
     TEST(to_string(optimized), ==, expected);
   }
 
-  // optimize() on (x+1)+2 should return x+3
-  expr = Binary{f, ADD2, Binary{f, ADD2, x, one}, two};
+  // optimize() on 1+(2+x) should return x+3
+  expr = Tuple{f, ADD, one, Tuple{f, ADD, two, x}};
   optimized = opt.optimize(f, expr);
   expected.clear();
   Fmt{&expected} << "(+ " << x << " 3)";
   TEST(optimized, !=, expr);
   TEST(to_string(optimized), ==, expected);
 
-  // optimize() on (x+1)+(x+2) should return (x+x)+3
-  expr = Binary{f, ADD2, Binary{f, ADD2, x, one}, Binary{f, ADD2, x, two}};
+  // optimize() on (x+1) + (-(-x)+2) should return x+x+3
+  expr = Tuple{f, ADD, Tuple{f, ADD, x, one}, //
+               Tuple{f, ADD, Unary{f, NEG1, Unary{f, NEG1, x}}, two}};
   optimized = opt.optimize(f, expr);
   expected.clear();
-  Fmt{&expected} << "(+ (+ " << x << ' ' << x << ") 3)";
+  Fmt{&expected} << "(+ " << x << ' ' << x << " 3)";
   TEST(optimized, !=, expr);
   TEST(to_string(optimized), ==, expected);
 }

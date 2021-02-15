@@ -49,10 +49,10 @@ void Test::eval_expr_kind(Kind kind) {
   Const four{f, Value{4}.cast(kind)};
 
   // run eval() on the expression 4 / -1 + (2 * 3)
-  Expr expr = Binary{
-      f, ADD2,                                   //
+  Expr expr = Tuple{
+      f, ADD,                                    //
       Binary{f, QUO, four, Unary{f, NEG1, one}}, //
-      Binary{f, MUL2, two, three},               //
+      Tuple{f, MUL, two, three},                 //
   };
   Value expected = Value{kind.is_unsigned() ? 6 : 2}.cast(kind);
 

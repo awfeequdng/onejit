@@ -37,8 +37,8 @@ bool is_const(Expr expr) noexcept;
 Value eval(Expr expr) noexcept;
 Value eval_unary(Kind kind, Op1 op, Value x) noexcept;
 Value eval_binary(Op2 op, Value x, Value y) noexcept;
-Value eval_tuple(OpN op, Values vs) noexcept;
-Value eval_tuple(OpN op, std::initializer_list<Value> vs) noexcept;
+Value eval_tuple(Kind kind, OpN op, Values vs) noexcept;
+Value eval_tuple(Kind kind, OpN op, std::initializer_list<Value> vs) noexcept;
 
 } // namespace onejit
 

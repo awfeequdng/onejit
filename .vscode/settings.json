@@ -4,8 +4,8 @@
         "*.S": "c",
         "*.cu": "cpp",
         "*.forth": "forth",
-        "*.l": "c",
         "*.lua": "lua",
+        "*.l": "c",
         "cctype": "cpp",
         "clocale": "cpp",
         "cmath": "cpp",
@@ -85,7 +85,8 @@
         "__errc": "cpp",
         "__functional_03": "cpp",
         "__memory": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "list": "cpp"
     },
     "files.watcherExclude": {
         "**/.git/**": true

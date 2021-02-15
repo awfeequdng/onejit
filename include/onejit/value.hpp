@@ -206,12 +206,12 @@ public:
   // return the identity element for specified operation and kind,
   // or Value{} if op has no identity element
   // i.e. 0 for ADD, OR, XOR; 1 for MUL, -1 for AND ...
-  static Value identity(OpN op, Kind kind) noexcept;
+  static Value identity(Kind kind, OpN op) noexcept;
 
   // return the absorbing element for specified operation and kind,
   // or Value{} if op has no absorbing element
   // i.e. 0 for MUL, AND; -1 for OR ...
-  static Value absorbing(OpN op, Kind kind) noexcept;
+  static Value absorbing(Kind kind, OpN op) noexcept;
 
 private:
   uint64_t bits_;

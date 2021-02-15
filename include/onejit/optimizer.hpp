@@ -62,22 +62,26 @@ public:
 
 private:
   Node optimize(Node node, Result &in_out) noexcept;
-  Expr optimize(Unary expr, Nodes children, Result result) noexcept;
-  Expr optimize(Binary expr, Nodes children, Result result) noexcept;
-  Expr optimize(Tuple expr, Span<Node> children, Result result) noexcept;
+  Expr optimize(Tuple expr, Result &in_out) noexcept;
+  Expr try_optimize(Unary expr, Nodes children, Result result) noexcept;
+  Expr try_optimize(Binary expr, Nodes children, Result result) noexcept;
   static bool optimize_leaf(Type t, size_t n_children, Result &in_out) noexcept;
+
+  bool optimize_children(Node node, Span<Node> &children_out, Result &result) noexcept;
+  // recursively append optimized children of node to this->nodes_
+  bool optimize_flatten_children_tobuf(Node node, Result &result) noexcept;
+  // recursively append children of node to this->nodes_
+  bool flatten_children_tobuf(Node node) noexcept;
 
   Expr simplify_unary(Kind kind, Op1 op, Expr x) noexcept;
   Expr simplify_binary(Op2 op, Expr x, Expr y) noexcept;
-  Binary partial_eval_binary(Op2 op, Expr x, Expr y) noexcept;
+  Expr partial_eval_binary(Op2 op, Expr x, Expr y) noexcept;
   Expr partial_eval_tuple(Tuple expr, Span<Node> children) noexcept;
+  Expr flatten_tuple(Tuple expr) noexcept;
 
-  Expr simplify_add(Expr x, Expr y) noexcept;
   Expr simplify_sub(Expr x, Expr y) noexcept;
-  Expr simplify_mul(Expr x, Expr y) noexcept;
   Expr simplify_quo(Expr x, Expr y) noexcept;
   Expr simplify_rem(Expr x, Expr y) noexcept;
-  Expr simplify_bitwise(Op2 op, Expr x, Expr y) noexcept;
   Expr simplify_shift(Op2 op, Expr x, Expr y) noexcept;
   Expr simplify_boolean(Op2 op, Expr x, Expr y) noexcept;
   Expr simplify_comparison(Op2 op, Expr x, Expr y) noexcept;
