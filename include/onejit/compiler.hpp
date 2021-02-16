@@ -38,7 +38,7 @@ namespace onejit {
 
 class Compiler {
 public:
-  enum OptFlags : uint8_t;
+  enum Flags : uint8_t;
 
   Compiler() noexcept;
   Compiler(Compiler &&other) noexcept = default;
@@ -56,28 +56,28 @@ public:
   Compiler &compile(Func &func, Optimizer::OptFlags flags = Optimizer::OptAll) noexcept;
 
 private:
-  Node compile(Assign stmt, OptFlags flags) noexcept;
-  Node compile(AssignCall stmt, OptFlags flags) noexcept;
-  Expr compile(Binary expr, OptFlags flags) noexcept;
-  Node compile(Block stmt, OptFlags flags) noexcept;
-  Expr compile(Call expr, OptFlags flags) noexcept;
-  Node compile(Cond stmt, OptFlags flags) noexcept;
-  Expr compile(Expr expr, OptFlags flags) noexcept;
-  Node compile(For stmt, OptFlags flags) noexcept;
-  Node compile(If stmt, OptFlags flags) noexcept;
-  Node compile(JumpIf stmt, OptFlags flags) noexcept;
-  Expr compile(Mem expr, OptFlags flags) noexcept;
-  Node compile(Node node, OptFlags flags) noexcept;
-  Node compile(Return stmt, OptFlags flags) noexcept;
-  Node compile(Stmt0 stmt, OptFlags flags) noexcept;
-  Node compile(Stmt1 stmt, OptFlags flags) noexcept;
-  Node compile(Stmt2 stmt, OptFlags flags) noexcept;
-  Node compile(Stmt3 stmt, OptFlags flags) noexcept;
-  Node compile(Stmt4 stmt, OptFlags flags) noexcept;
-  Node compile(StmtN stmt, OptFlags flags) noexcept;
-  Node compile(Switch stmt, OptFlags flags) noexcept;
-  Expr compile(Unary expr, OptFlags flags) noexcept;
-  Expr compile(Tuple expr, OptFlags flags) noexcept;
+  Node compile(Assign stmt, Flags flags) noexcept;
+  Node compile(AssignCall stmt, Flags flags) noexcept;
+  Expr compile(Binary expr, Flags flags) noexcept;
+  Node compile(Block stmt, Flags flags) noexcept;
+  Expr compile(Call expr, Flags flags) noexcept;
+  Node compile(Cond stmt, Flags flags) noexcept;
+  Expr compile(Expr expr, Flags flags) noexcept;
+  Node compile(For stmt, Flags flags) noexcept;
+  Node compile(If stmt, Flags flags) noexcept;
+  Node compile(JumpIf stmt, Flags flags) noexcept;
+  Expr compile(Mem expr, Flags flags) noexcept;
+  Node compile(Node node, Flags flags) noexcept;
+  Node compile(Return stmt, Flags flags) noexcept;
+  Node compile(Stmt0 stmt, Flags flags) noexcept;
+  Node compile(Stmt1 stmt, Flags flags) noexcept;
+  Node compile(Stmt2 stmt, Flags flags) noexcept;
+  Node compile(Stmt3 stmt, Flags flags) noexcept;
+  Node compile(Stmt4 stmt, Flags flags) noexcept;
+  Node compile(StmtN stmt, Flags flags) noexcept;
+  Node compile(Switch stmt, Flags flags) noexcept;
+  Expr compile(Unary expr, Flags flags) noexcept;
+  Expr compile(Tuple expr, Flags flags) noexcept;
 
   Expr simplify_boolean(Op2 op, Expr x, Expr y) noexcept;
   Expr simplify_land(Expr x, Expr y) noexcept;
@@ -112,7 +112,7 @@ private:
   Compiler &add(const Node &node) noexcept;
 
   // compile a node, then add it to compiled list
-  Compiler &compile_add(const Node &node, OptFlags flags) noexcept {
+  Compiler &compile_add(const Node &node, Flags flags) noexcept {
     return add(compile(node, flags));
   }
 
