@@ -28,7 +28,6 @@
 #include <onejit/node/tuple.hpp>
 #include <onejit/node/var.hpp>
 #include <onejit/optimizer.hpp>
-#include <onejit/optimizer_result.hpp>
 
 #include <algorithm>
 
@@ -44,86 +43,40 @@ static bool all_are(Nodes nodes) noexcept {
   return true;
 }
 
-static bool same_children(Node node, Nodes children) noexcept {
-  const size_t n = node.children();
-  if (n != children.size()) {
-    return false;
-  }
-  for (size_t i = 0; i < n; i++) {
-    if (node.child(i) != children[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-
-Expr Optimizer::optimize(Tuple expr, Result &in_out) noexcept {
+Expr Optimizer::optimize(Tuple expr, bool optimize_children) noexcept {
   Expr ret;
-  Result result = IsNone;
-  if (expr && (flags_ & ExprSimplification)) {
+  if (expr && (flags_ & OptSimplifyExpr)) {
     size_t orig_n = nodes_.size();
-    result = IsAll;
-    if (optimize_flatten_children_tobuf(expr, result)) {
+    if (flatten_children_tobuf(expr, optimize_children)) {
       // Caveats:
       //
       // 1. do not use nodes_.span() here, because it may throw.
       //
-      // 2. optimize_flatten_children_tobuf() above appends to nodes_
+      // 2. flatten_children_tobuf() above appends to nodes_
       //    and thus may reallocate its data()
       //    => we must retrieve nodes_.data() *after* such call.
-      if (nodes_.size() >= orig_n) {
-        Span<Node> children{nodes_.data() + orig_n, nodes_.size() - orig_n};
-        ret = partial_eval_tuple(expr, children);
-        nodes_.truncate(orig_n);
-      }
-    } else {
-      result = IsNone;
-    }
-  }
-  in_out &= result;
-  return ret ? ret : expr;
-}
-
-Expr Optimizer::flatten_tuple(Tuple expr) noexcept {
-  Expr expr2;
-  if (expr && (flags_ & ExprSimplification)) {
-    size_t orig_n = nodes_.size();
-    if (flatten_children_tobuf(expr)) {
       const size_t n = nodes_.size() - orig_n;
       Span<Node> children{nodes_.data() + orig_n, n};
-      expr2 = partial_eval_tuple(expr, children);
+      ret = partial_eval_tuple(expr, children);
     }
     nodes_.truncate(orig_n);
   }
-  return expr2 ? expr2 : expr;
+  return ret ? ret : expr;
 }
 
-bool Optimizer::flatten_children_tobuf(Node node) noexcept {
+bool Optimizer::flatten_children_tobuf(Node node, bool optimize_children) noexcept {
   bool ok = true;
   for (size_t i = 0, n = node.children(); ok && i < n; i++) {
     Node child = node.child(i);
     // compare type, kind, op
     if (child.header() == node.header()) {
-      ok = flatten_children_tobuf(child);
+      ok = flatten_children_tobuf(child, optimize_children);
     } else {
-      ok = bool(nodes_.append(child));
-    }
-  }
-  return ok;
-}
-
-bool Optimizer::optimize_flatten_children_tobuf(Node node, Result &result) noexcept {
-  bool ok = true;
-  for (size_t i = 0, n = node.children(); ok && i < n; i++) {
-    Node child = node.child(i);
-    // compare type, kind, op
-    if (child.header() == node.header()) {
-      result &= ~IsSame;
-      ok = optimize_flatten_children_tobuf(child, result);
-    } else {
-      child = optimize(child, result);
+      if (optimize_children) {
+        child = optimize(child);
+      }
       if (child.header() == node.header()) {
-        ok = flatten_children_tobuf(child);
+        ok = flatten_children_tobuf(child, optimize_children);
       } else {
         ok = bool(nodes_.append(child));
       }
@@ -135,7 +88,7 @@ bool Optimizer::optimize_flatten_children_tobuf(Node node, Result &result) noexc
 Expr Optimizer::partial_eval_tuple(Tuple expr, Span<Node> children) noexcept {
   OpN op = expr.op();
   Kind kind = expr.kind();
-  if (is_associative(op) && (flags_ & FastMath || !kind.is_float())) {
+  if (is_associative(op) && (flags_ & OptFastMath || !kind.is_float())) {
     Value identity = Value::identity(kind, op);
     size_t n = children.size();
     if (n == 0) {
@@ -146,7 +99,7 @@ Expr Optimizer::partial_eval_tuple(Tuple expr, Span<Node> children) noexcept {
                 [](const Node &lhs, const Node &rhs) { return lhs.type() < rhs.type(); });
     }
     Value v = identity;
-    if (flags_ & ConstantFolding) {
+    if (flags_ & OptFoldConstant) {
       for (; n != 0; --n) {
         if (Const c = children[n - 1].is<Const>()) {
           v = eval_tuple(kind, op, {c.val(), v});

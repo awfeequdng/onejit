@@ -92,7 +92,7 @@ Expr Optimizer::partial_eval_binary(Op2 op, Expr x, Expr y) noexcept {
     Value v = -y.is<Const>().val();
     if (v.is_valid()) {
       if (Const c = Const{*func_, v}) {
-        return flatten_tuple(Tuple{*func_, ADD, x, c});
+        return optimize(Tuple{*func_, ADD, x, c}, false);
       }
     }
   }

@@ -35,16 +35,14 @@ namespace onejit {
 
 class Optimizer {
 public:
-  enum Result : uint8_t;
-
-  enum Flag : uint16_t {
-    None = 0,
-    ConstantFolding = 1 << 0,
-    ExprSimplification = 1 << 1,
-    DeadCodeElimination = 1 << 2,
-    // treat floating point + and * as associative. requires ExprSimplification
-    FastMath = 1 << 3,
-    All = 0xffff,
+  enum OptFlags : uint16_t {
+    OptNone = 0,
+    OptFoldConstant = 1 << 0,
+    OptSimplifyExpr = 1 << 1,
+    OptRemoveDeadCode = 1 << 2,
+    // treat floating point + and * as associative. requires OptSimplifyExpr
+    OptFastMath = 1 << 3,
+    OptAll = 0xffff,
   };
 
   Optimizer() noexcept;
@@ -53,7 +51,7 @@ public:
 
   ~Optimizer() noexcept;
 
-  Node optimize(Func &func, Node node, Flag flags = All) noexcept;
+  Node optimize(Func &func, Node node, OptFlags flags = OptAll) noexcept;
 
   // false if out-of-memory
   constexpr explicit operator bool() const noexcept {
@@ -61,23 +59,21 @@ public:
   }
 
 private:
-  Node optimize(Node node, Result &in_out) noexcept;
-  Expr optimize(Tuple expr, Result &in_out) noexcept;
-  Expr try_optimize(Unary expr, Nodes children, Result result) noexcept;
-  Expr try_optimize(Binary expr, Nodes children, Result result) noexcept;
-  static bool optimize_leaf(Type t, size_t n_children, Result &in_out) noexcept;
+  Node optimize(Node node) noexcept;
+  Expr try_optimize(Unary expr, Nodes children) noexcept;
+  Expr try_optimize(Binary expr, Nodes children) noexcept;
+  Expr optimize(Tuple expr, bool optimize_children) noexcept;
 
-  bool optimize_children(Node node, Span<Node> &children_out, Result &result) noexcept;
-  // recursively append optimized children of node to this->nodes_
-  bool optimize_flatten_children_tobuf(Node node, Result &result) noexcept;
-  // recursively append children of node to this->nodes_
-  bool flatten_children_tobuf(Node node) noexcept;
+  bool optimize_children(Node node, Span<Node> &children_out) noexcept;
+  // recursively append (optionally) optimized children of node to this->nodes_
+  bool flatten_children_tobuf(Node node, bool optimize_children) noexcept;
+
+  static bool same_children(Node node, Nodes children) noexcept;
 
   Expr simplify_unary(Kind kind, Op1 op, Expr x) noexcept;
   Expr simplify_binary(Op2 op, Expr x, Expr y) noexcept;
   Expr partial_eval_binary(Op2 op, Expr x, Expr y) noexcept;
   Expr partial_eval_tuple(Tuple expr, Span<Node> children) noexcept;
-  Expr flatten_tuple(Tuple expr) noexcept;
 
   Expr simplify_sub(Expr x, Expr y) noexcept;
   Expr simplify_quo(Expr x, Expr y) noexcept;
@@ -86,41 +82,42 @@ private:
   Expr simplify_boolean(Op2 op, Expr x, Expr y) noexcept;
   Expr simplify_comparison(Op2 op, Expr x, Expr y) noexcept;
 
-  static Node finish(Node node, Node new_node, Result result, Result &in_out) noexcept;
-
 private:
   Func *func_;
   Buffer<Node> nodes_;
-  Flag flags_;
+  OptFlags flags_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-constexpr inline Optimizer::Flag operator~(Optimizer::Flag a) noexcept {
-  return Optimizer::Flag(~unsigned(a));
+constexpr inline Optimizer::OptFlags operator~(Optimizer::OptFlags a) noexcept {
+  return Optimizer::OptFlags(~unsigned(a));
 }
 
-constexpr inline Optimizer::Flag operator&(Optimizer::Flag a, Optimizer::Flag b) noexcept {
-  return Optimizer::Flag(unsigned(a) & unsigned(b));
+constexpr inline Optimizer::OptFlags operator&(Optimizer::OptFlags a,
+                                               Optimizer::OptFlags b) noexcept {
+  return Optimizer::OptFlags(unsigned(a) & unsigned(b));
 }
 
-constexpr inline Optimizer::Flag operator|(Optimizer::Flag a, Optimizer::Flag b) noexcept {
-  return Optimizer::Flag(unsigned(a) | unsigned(b));
+constexpr inline Optimizer::OptFlags operator|(Optimizer::OptFlags a,
+                                               Optimizer::OptFlags b) noexcept {
+  return Optimizer::OptFlags(unsigned(a) | unsigned(b));
 }
 
-constexpr inline Optimizer::Flag operator^(Optimizer::Flag a, Optimizer::Flag b) noexcept {
-  return Optimizer::Flag(unsigned(a) ^ unsigned(b));
+constexpr inline Optimizer::OptFlags operator^(Optimizer::OptFlags a,
+                                               Optimizer::OptFlags b) noexcept {
+  return Optimizer::OptFlags(unsigned(a) ^ unsigned(b));
 }
 
-inline Optimizer::Flag operator&=(Optimizer::Flag &a, Optimizer::Flag b) noexcept {
+inline Optimizer::OptFlags operator&=(Optimizer::OptFlags &a, Optimizer::OptFlags b) noexcept {
   return a = a & b;
 }
 
-inline Optimizer::Flag operator|=(Optimizer::Flag &a, Optimizer::Flag b) noexcept {
+inline Optimizer::OptFlags operator|=(Optimizer::OptFlags &a, Optimizer::OptFlags b) noexcept {
   return a = a | b;
 }
 
-inline Optimizer::Flag operator^=(Optimizer::Flag &a, Optimizer::Flag b) noexcept {
+inline Optimizer::OptFlags operator^=(Optimizer::OptFlags &a, Optimizer::OptFlags b) noexcept {
   return a = a ^ b;
 }
 

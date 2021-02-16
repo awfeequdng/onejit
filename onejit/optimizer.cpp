@@ -30,86 +30,80 @@
 #include <onejit/node/tuple.hpp>
 #include <onejit/node/unary.hpp>
 #include <onejit/optimizer.hpp>
-#include <onejit/optimizer_result.hpp>
 #include <onestl/vector.hpp>
 
 namespace onejit {
 
-Optimizer::Optimizer() noexcept : func_{nullptr}, nodes_{}, flags_{None} {
+Optimizer::Optimizer() noexcept : func_{nullptr}, nodes_{}, flags_{OptNone} {
 }
 
 Optimizer::~Optimizer() noexcept {
 }
 
-Node Optimizer::optimize(Func &func, Node node, Flag flags) noexcept {
-  if (func && node && flags != None) {
+bool Optimizer::same_children(Node node, Nodes children) noexcept {
+  const size_t n = node.children();
+  if (n != children.size()) {
+    return false;
+  }
+  for (size_t i = 0; i < n; i++) {
+    if (node.child(i) != children[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+Node Optimizer::optimize(Func &func, Node node, OptFlags flags) noexcept {
+  if (func && node && flags != OptNone) {
     func_ = &func;
     nodes_.clear();
     flags_ = flags;
-    Result result = IsAll;
-    node = optimize(node, result);
+    node = optimize(node);
   }
   return node;
 }
 
-Node Optimizer::optimize(Node node, Result &in_out) noexcept {
+Node Optimizer::optimize(Node node) noexcept {
   if (!*func_) {
     // out of memory
-    in_out &= IsSame;
     return node;
   }
   uint32_t n = node.children();
   Type t = node.type();
-  if (optimize_leaf(t, n, in_out)) {
+  if (t >= LABEL && n == 0) {
     return node;
   } else if (t == TUPLE) {
-    return optimize(node.is<Tuple>(), in_out);
+    return optimize(node.is<Tuple>(), true);
   }
 
   Node new_node;
   Span<Node> children;
   size_t orig_n = nodes_.size();
-  Result result = IsAll;
 
-  if (t == UNARY || t == BINARY) {
-    if (optimize_children(node, children, result)) {
-      if (t == UNARY) {
-        new_node = try_optimize(node.is<Unary>(), children, result);
-      } else {
-        new_node = try_optimize(node.is<Binary>(), children, result);
-      }
-    }
+  if (!optimize_children(node, children)) {
+    nodes_.truncate(orig_n);
+    return node;
+  } else if (t == UNARY) {
+    new_node = try_optimize(node.is<Unary>(), children);
+  } else if (t == BINARY) {
+    new_node = try_optimize(node.is<Binary>(), children);
   }
-  if (!new_node && !(result & IsSame)) {
+  if (!new_node && !same_children(node, children)) {
     new_node = Node::create_indirect(*func_, node.header(), children);
   }
   nodes_.truncate(orig_n);
 
-  return finish(node, new_node, result, in_out);
+  return new_node ? new_node : node;
 }
 
-bool Optimizer::optimize_leaf(Type t, size_t n_children, Result &in_out) noexcept {
-  if (n_children == 0 || t >= LABEL) {
-    if (t != CONST) {
-      in_out &= ~IsConst;
-    }
-    if (t == LABEL) {
-      // labels are jump destinations, cannot optimize them away
-      in_out &= ~IsPure;
-    }
-    return true;
-  }
-  return false;
-}
-
-bool Optimizer::optimize_children(Node node, Span<Node> &children, Result &result) noexcept {
+bool Optimizer::optimize_children(Node node, Span<Node> &children) noexcept {
   size_t n = node.children();
   size_t orig_n = nodes_.size();
   if (!nodes_.resize(n + orig_n)) {
     return false;
   }
   for (size_t i = 0; i < n; i++) {
-    nodes_[i + orig_n] = optimize(node.child(i), result);
+    nodes_[i + orig_n] = optimize(node.child(i));
   }
   // Caveats:
   //
@@ -122,44 +116,45 @@ bool Optimizer::optimize_children(Node node, Span<Node> &children, Result &resul
   return true;
 }
 
-Expr Optimizer::try_optimize(Unary expr, Nodes children, Result result) noexcept {
+Expr Optimizer::try_optimize(Unary expr, Nodes children) noexcept {
   Expr x;
   if (expr && children.size() == 1 && (x = children[0].is<Expr>())) {
     Kind kind = expr.kind();
     Op1 op = expr.op();
 
-    if ((flags_ & ConstantFolding) && (result & IsConst)) {
-      Value v0, ve;
-      if ((v0 = x.is<Const>().val()).is_valid()) {
-        if ((ve = eval_unary(kind, op, v0)).is_valid()) {
+    if ((flags_ & OptFoldConstant) && x.type() == CONST) {
+      Value v0 = x.is<Const>().val();
+      if (v0.is_valid()) {
+        Value ve = eval_unary(kind, op, v0);
+        if (ve.is_valid()) {
           return Const{*func_, ve};
         }
       }
     }
-    if (flags_ & ExprSimplification) {
+    if (flags_ & OptSimplifyExpr) {
       return simplify_unary(kind, op, x);
     }
   }
   return Expr{};
 }
 
-Expr Optimizer::try_optimize(Binary expr, Nodes children, Result result) noexcept {
+Expr Optimizer::try_optimize(Binary expr, Nodes children) noexcept {
   Expr x, y;
   if (expr && children.size() == 2 //
       && (x = children[0].is<Expr>()) && (y = children[1].is<Expr>())) {
 
     Op2 op = expr.op();
-    if ((flags_ & ConstantFolding) && (result & IsConst)) {
-      Value v0, v1, ve;
-      if ((v0 = x.is<Const>().val()).is_valid()) {
-        if ((v1 = y.is<Const>().val()).is_valid()) {
-          if ((ve = eval_binary(op, v0, v1)).is_valid()) {
-            return Const{*func_, ve};
-          }
+    if ((flags_ & OptFoldConstant) && x.type() == CONST && y.type() == CONST) {
+      Value v0 = x.is<Const>().val();
+      Value v1 = y.is<Const>().val();
+      if (v0.is_valid() && v1.is_valid()) {
+        Value ve = eval_binary(op, v0, v1);
+        if (ve.is_valid()) {
+          return Const{*func_, ve};
         }
       }
     }
-    if (flags_ & ExprSimplification) {
+    if (flags_ & OptSimplifyExpr) {
       return simplify_binary(op, x, y);
     }
   }
@@ -196,22 +191,6 @@ Expr Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
     return x;
   }
   return Expr{};
-}
-
-Node Optimizer::finish(Node node, Node new_node, Result result, Result &in_out) noexcept {
-  if (new_node && new_node != node) {
-    result &= ~IsSame;
-  } else {
-    new_node = node;
-    result |= IsSame;
-  }
-  if (new_node.type() == CONST) {
-    result |= IsConst | IsPure;
-  } else {
-    result &= ~IsConst;
-  }
-  in_out &= result;
-  return new_node;
 }
 
 } // namespace onejit
