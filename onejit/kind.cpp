@@ -36,13 +36,12 @@ static const Chars kstring[] = {
     "ptr",     "archflags", "?",                 //
 };
 
-static const Chars kstringsuffix[] = {
-    "?",  "v",   "e",        //
-    "b",  "s",   "i",  "l",  //
-    "ub", "us",  "ui", "ul", //
-    "hf", "f",   "lf",       //
-    "p",  "cmp",             //
-};
+static const char kstringsuffix[] = //
+    "\001?\0\001v\0\001e\0"
+    "\001b\0\001s\0\001i\0\001l\0"
+    "\002ub\002us\002ui\002ul"
+    "\002hf\001f\0\002lf"
+    "\001p\0\003cmp";
 
 static const Bits kbits[] = {
     Bits0,  Bits0,  Bits1,          // Bad, Void, Bool
@@ -75,7 +74,8 @@ const Chars Kind::stringsuffix() const noexcept {
   if (i >= n) {
     i = 0;
   }
-  return kstringsuffix[i];
+  const char *str = &kstringsuffix[i * 3];
+  return Chars{str + 1, uint8_t(str[0])};
 }
 
 Bits Kind::bits() const noexcept {
