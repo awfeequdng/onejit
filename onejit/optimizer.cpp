@@ -27,6 +27,7 @@
 #include <onejit/func.hpp>
 #include <onejit/node/binary.hpp>
 #include <onejit/node/const.hpp>
+#include <onejit/node/stmt2.hpp>
 #include <onejit/node/tuple.hpp>
 #include <onejit/node/unary.hpp>
 #include <onejit/optimizer.hpp>
@@ -87,6 +88,8 @@ Node Optimizer::optimize(Node node) noexcept {
     new_node = try_optimize(node.is<Unary>(), children);
   } else if (t == BINARY) {
     new_node = try_optimize(node.is<Binary>(), children);
+  } else if (t == STMT_2 && is_assign(OpStmt2(node.op()))) {
+    new_node = try_optimize(node.is<Assign>(), children);
   }
   if (!new_node && !same_children(node, children)) {
     new_node = Node::create_indirect(*func_, node.header(), children);
@@ -116,7 +119,7 @@ bool Optimizer::optimize_children(Node node, Span<Node> &children) noexcept {
   return true;
 }
 
-Expr Optimizer::try_optimize(Unary expr, Nodes children) noexcept {
+Node Optimizer::try_optimize(Unary expr, Nodes children) noexcept {
   Expr x;
   if (expr && children.size() == 1 && (x = children[0].is<Expr>())) {
     Kind kind = expr.kind();
@@ -135,30 +138,7 @@ Expr Optimizer::try_optimize(Unary expr, Nodes children) noexcept {
       return simplify_unary(kind, op, x);
     }
   }
-  return Expr{};
-}
-
-Expr Optimizer::try_optimize(Binary expr, Nodes children) noexcept {
-  Expr x, y;
-  if (expr && children.size() == 2 //
-      && (x = children[0].is<Expr>()) && (y = children[1].is<Expr>())) {
-
-    Op2 op = expr.op();
-    if ((flags_ & OptFoldConstant) && x.type() == CONST && y.type() == CONST) {
-      Value v0 = x.is<Const>().val();
-      Value v1 = y.is<Const>().val();
-      if (v0.is_valid() && v1.is_valid()) {
-        Value ve = eval_binary(op, v0, v1);
-        if (ve.is_valid()) {
-          return Const{*func_, ve};
-        }
-      }
-    }
-    if (flags_ & OptSimplifyExpr) {
-      return simplify_binary(op, x, y);
-    }
-  }
-  return Expr{};
+  return Node{};
 }
 
 Expr Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
@@ -191,6 +171,13 @@ Expr Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
     return x;
   }
   return Expr{};
+}
+
+Node Optimizer::try_optimize(Assign st, Nodes children) noexcept {
+  // TODO
+  (void)st;
+  (void)children;
+  return Node{};
 }
 
 } // namespace onejit

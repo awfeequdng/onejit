@@ -135,7 +135,7 @@ private:
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op >= ADD_ASSIGN && op <= ASSIGN;
+    return is_assign(OpStmt2(op));
   }
 
   static constexpr bool child_result_is_used(uint32_t /*i*/) noexcept {

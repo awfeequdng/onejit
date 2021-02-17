@@ -144,6 +144,7 @@ public:
   using Base::end;
   using Base::operator[];
   using Base::operator==;
+  using Base::clear;
   using Base::size;
   using Base::span;
   using Base::truncate;
@@ -163,10 +164,6 @@ public:
   }
   bool dup(View<T> other) noexcept {
     return dup(other.data(), other.size());
-  }
-
-  void clear() noexcept {
-    size_ = 0;
   }
 
   bool resize(size_t n) noexcept {

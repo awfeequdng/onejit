@@ -1,5 +1,5 @@
 /*
- * onestl - Tiny STL C++ library
+ * onejit - JIT compiler in C++
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -17,41 +17,22 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * fwd.hpp
+ * comma.cpp
  *
- *  Created on Jan 09, 2021
+ *  Created on Feb 17, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONESTL_FWD_HPP
-#define ONESTL_FWD_HPP
+#include <onejit/node/comma.hpp>
+#include <onejit/node/expr.hpp>
 
-#include <cstddef> // size_t
-#include <cstdint> // uint*_t
+namespace onejit {
 
-#ifdef __GNUC__
-#define ONESTL_NOINLINE __attribute__((noinline))
-#define ONESTL_NORETURN __attribute__((noreturn))
-#else
-#define ONESTL_NOINLINE
-#define ONESTL_NORETURN
-#endif
+// ============================  Comma  ====================================
 
-namespace onestl {
+Node Comma::create(Func &func, Exprs args) noexcept {
+  return Base::create(func, Void, COMMA, //
+                      Nodes{args.begin(), args.size()});
+}
 
-template <class T> class Buffer;
-class Chars;
-class Fmt;
-class Hex;
-template <class T> class Span;
-class String;
-template <class T> class Vector;
-class VectorHelper;
-template <class T> class View;
-class Writer;
-
-typedef View<uint8_t> Bytes;
-
-} // namespace onestl
-
-#endif // ONESTL_FWD_HPP
+} // namespace onejit

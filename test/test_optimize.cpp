@@ -63,19 +63,23 @@ void Test::optimize_expr_kind(Kind kind) {
 
   // optimize() on 1<x should return x>1
   expr = Binary(f, LSS, one, x);
-  optimized = opt.optimize(f, expr);
-  expected.clear();
-  Fmt{&expected} << "(> " << x << " 1)";
-  TEST(optimized, !=, expr);
-  TEST(to_string(optimized), ==, expected);
+  {
+    optimized = opt.optimize(f, expr);
+    expected.clear();
+    Fmt{&expected} << "(> " << x << " 1)";
+    TEST(optimized, !=, expr);
+    TEST(to_string(optimized), ==, expected);
+  }
 
   // optimize() on !(1<x) should return x<=1
   expr = Unary{f, NOT1, expr};
-  optimized = opt.optimize(f, expr);
-  expected.clear();
-  Fmt{&expected} << "(<= " << x << " 1)";
-  TEST(optimized, !=, expr);
-  TEST(to_string(optimized), ==, expected);
+  {
+    optimized = opt.optimize(f, expr);
+    expected.clear();
+    Fmt{&expected} << "(<= " << x << " 1)";
+    TEST(optimized, !=, expr);
+    TEST(to_string(optimized), ==, expected);
+  }
 
   if (kind.is_signed()) {
     // optimize() on (x-1)-2 should return x+(-3)
@@ -89,20 +93,83 @@ void Test::optimize_expr_kind(Kind kind) {
 
   // optimize() on 1+(2+x) should return x+3
   expr = Tuple{f, ADD, one, Tuple{f, ADD, two, x}};
-  optimized = opt.optimize(f, expr);
-  expected.clear();
-  Fmt{&expected} << "(+ " << x << " 3)";
-  TEST(optimized, !=, expr);
-  TEST(to_string(optimized), ==, expected);
+  {
+    optimized = opt.optimize(f, expr);
+    expected.clear();
+    Fmt{&expected} << "(+ " << x << " 3)";
+    TEST(optimized, !=, expr);
+    TEST(to_string(optimized), ==, expected);
+  }
 
   // optimize() on (x+1) + (-(-x)+2) should return x+x+3
   expr = Tuple{f, ADD, Tuple{f, ADD, x, one}, //
                Tuple{f, ADD, Unary{f, NEG1, Unary{f, NEG1, x}}, two}};
-  optimized = opt.optimize(f, expr);
-  expected.clear();
-  Fmt{&expected} << "(+ " << x << ' ' << x << " 3)";
-  TEST(optimized, !=, expr);
-  TEST(to_string(optimized), ==, expected);
+  {
+    optimized = opt.optimize(f, expr);
+    expected.clear();
+    Fmt{&expected} << "(+ " << x << ' ' << x << " 3)";
+    TEST(optimized, !=, expr);
+    TEST(to_string(optimized), ==, expected);
+  }
+
+  // optimize() on ((x == 1) || true) should return true
+  expr = Binary{f, LOR, Binary{f, EQL, x, one}, TrueExpr};
+  {
+    expected.clear();
+    Fmt{&expected} << "(|| (== " << x << " 1) true)";
+    TEST(to_string(expr), ==, expected);
+    optimized = opt.optimize(f, expr);
+    expected = "true";
+    TEST(optimized, !=, expr);
+    TEST(to_string(optimized), ==, expected);
+  }
+
+  // optimize() on ((x == 2) && true) should return (x == 2)
+  expr = Binary{f, LAND, Binary{f, EQL, x, two}, TrueExpr};
+  {
+    expected.clear();
+    Fmt{&expected} << "(&& (== " << x << " 2) true)";
+    TEST(to_string(expr), ==, expected);
+    optimized = opt.optimize(f, expr);
+    TEST(optimized, !=, expr);
+    TEST(optimized, ==, expr.child(0));
+  }
+
+  // optimize() on ((f() && true) should return f()
+  expr = Binary{f, LAND, Call{f, f, {}}, TrueExpr};
+  {
+    expected.clear();
+    Fmt{&expected} << "(&& (call label_0) true)";
+    TEST(to_string(expr), ==, expected);
+    optimized = opt.optimize(f, expr);
+    TEST(optimized, !=, expr);
+    TEST(optimized, ==, expr.child(0));
+    expected = "(call label_0)";
+    TEST(to_string(optimized), ==, expected);
+  }
+
+  // optimize() on (f() && (1 == 2)) should return (comma f() false)
+  expr = Binary{f, LAND, Call{f, f, {}}, Binary{f, EQL, one, two}};
+  {
+    expected.clear();
+    Fmt{&expected} << "(&& (call label_0) (== 1 2))";
+    TEST(to_string(expr), ==, expected);
+    optimized = opt.optimize(f, expr);
+    TEST(optimized, !=, expr);
+    expected = "(comma (call label_0) false)";
+    TEST(to_string(optimized), ==, expected);
+  }
+
+  // optimize() on ((x + 1) == (x + 1)) should return true
+  expr = Binary{f, EQL, Tuple{f, ADD, x, one}, Tuple{f, ADD, x, one}};
+  {
+    expected.clear();
+    Fmt{&expected} << "(== (+ " << x << " 1) (+ " << x << " 1))";
+    TEST(to_string(expr), ==, expected);
+    optimized = opt.optimize(f, expr);
+    TEST(optimized, !=, expr);
+    TEST(optimized, ==, TrueExpr);
+  }
 }
 
 } // namespace onejit

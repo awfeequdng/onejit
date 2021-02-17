@@ -140,6 +140,10 @@ public:
     other = temp;
   }
 
+  void clear() noexcept {
+    size_ = 0;
+  }
+
   void truncate(size_t n) noexcept {
     if (size_ > n) {
       size_ = n;

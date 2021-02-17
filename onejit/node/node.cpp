@@ -152,6 +152,105 @@ Node Node::create_indirect(Func &func, NodeHeader header, Nodes children) noexce
   return Node{};
 }
 
+bool Node::deep_equal(const Node &other, bool allow_calls) noexcept {
+  if (header() != other.header() || is_direct() != other.is_direct()) {
+    return false;
+  }
+  if (!allow_calls && type() == TUPLE && OpN(op()) == CALL) {
+    return false;
+  }
+  if (is_direct()) {
+    // direct nodes have no children. compare only their direct data
+    return offset_or_direct() == other.offset_or_direct();
+  }
+  if (code() == other.code() && offset_or_direct() == other.offset_or_direct()) {
+    // nodes are identical, i.e. the same node
+    return true;
+  }
+  const size_t n = children();
+  if (n != other.children()) {
+    return false;
+  }
+  for (size_t i = 0; i < n; i++) {
+    if (!child(i).deep_equal(other.child(i), allow_calls)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+static constexpr int compare(size_t a, size_t b) noexcept {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+int Node::deep_compare(const Node &other) const noexcept {
+  if (header() != other.header()) {
+    return header() < other.header() ? -1 : 1;
+  }
+  if (is_direct() != other.is_direct()) {
+    // direct nodes are "less" than indirect nodes
+    return is_direct() ? -1 : 1;
+  }
+  if (is_direct()) {
+    // direct nodes have no children. compare only their direct data
+    return compare(offset_or_direct(), other.offset_or_direct());
+  }
+  if (code() == other.code() && offset_or_direct() == other.offset_or_direct()) {
+    // nodes are identical, i.e. the same node
+    return 0;
+  }
+  const size_t n1 = children();
+  const size_t n2 = other.children();
+  const size_t n = n1 < n2 ? n1 : n2;
+  for (size_t i = 0; i < n; i++) {
+    if (int cmp = child(i).deep_compare(other.child(i))) {
+      return cmp;
+    }
+  }
+  // children up to min(n1,n2) are equal.
+  // last comparison: nodes with fewer children are "less"
+  return compare(n1, n2);
+}
+
+bool Node::deep_pure() const noexcept {
+  Node node = *this;
+  for (;;) {
+    Type t = node.type();
+    if (t <= STMT_N || t == MEM) {
+      // statements exist for their side effects
+      return false;
+    } else if (t == VAR || t >= LABEL) {
+      return true;
+    } else if (t == UNARY) {
+      node = node.child(0);
+      continue;
+    } else if (t == BINARY) {
+      Op2 op = Op2(node.op());
+      if (op == QUO || op == REM || !node.child(0).deep_pure()) {
+        // division and remainder can signal division by zero
+        // => they have side effects
+        return false;
+      }
+      node = node.child(1);
+      continue;
+    } else if (t == TUPLE) {
+      if (OpN(node.op()) >= CALL) {
+        // the only OpN > CALL are MEM_OP, X86_MEM, ARM64_MEM...
+        return false;
+      }
+      for (size_t i = 0, n = node.children(); i < n; i++) {
+        if (!node.child(i).deep_pure()) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 const Fmt &Node::format(const Fmt &out, const size_t depth) const {
   const Type t = type();
   switch (t) {

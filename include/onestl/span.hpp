@@ -73,6 +73,7 @@ public:
   using Base::end;
   using Base::operator==;
   using Base::operator[];
+  using Base::clear;
   using Base::size;
   using Base::truncate;
   using Base::view;
@@ -148,8 +149,6 @@ template <class T> void View<T>::ref(const Span<T> &other) noexcept {
   data_ = other.data();
   size_ = other.size();
 }
-
-typedef Span<char> CharSpan;
 
 } // namespace onestl
 

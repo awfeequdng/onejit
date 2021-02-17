@@ -53,6 +53,10 @@ public:
   Comma(Func &func, Exprs args) noexcept : Base{create(func, args)} {
   }
 
+  Comma(Func &func, std::initializer_list<Expr> args) noexcept
+      : Base{create(func, Exprs{args.begin(), args.size()})} {
+  }
+
   static constexpr OpN op() noexcept {
     return COMMA;
   }

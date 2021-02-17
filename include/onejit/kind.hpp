@@ -191,25 +191,28 @@ constexpr inline bool operator>=(Kind a, Kind b) noexcept {
   return a.val() >= b.val();
 }
 
-const Fmt &operator<<(const Fmt &out, eKind ekind);
 const Fmt &operator<<(const Fmt &out, Kind kind);
 
-constexpr const Kind Bad(eBad);
-constexpr const Kind Void(eVoid);
-constexpr const Kind Bool(eBool);
-constexpr const Kind Int8(eInt8);
-constexpr const Kind Int16(eInt16);
-constexpr const Kind Int32(eInt32);
-constexpr const Kind Int64(eInt64);
-constexpr const Kind Uint8(eUint8);
-constexpr const Kind Uint16(eUint16);
-constexpr const Kind Uint32(eUint32);
-constexpr const Kind Uint64(eUint64);
-// constexpr const Kind Float16(eFloat16);
-constexpr const Kind Float32(eFloat32);
-constexpr const Kind Float64(eFloat64);
-constexpr const Kind Ptr(ePtr);
-constexpr const Kind ArchFlags(eArchFlags);
+inline const Fmt &operator<<(const Fmt &out, eKind ekind) {
+  return out << Kind{ekind};
+}
+
+constexpr const Kind Bad{eBad};
+constexpr const Kind Void{eVoid};
+constexpr const Kind Bool{eBool};
+constexpr const Kind Int8{eInt8};
+constexpr const Kind Int16{eInt16};
+constexpr const Kind Int32{eInt32};
+constexpr const Kind Int64{eInt64};
+constexpr const Kind Uint8{eUint8};
+constexpr const Kind Uint16{eUint16};
+constexpr const Kind Uint32{eUint32};
+constexpr const Kind Uint64{eUint64};
+// constexpr const Kind Float16{eFloat16};
+constexpr const Kind Float32{eFloat32};
+constexpr const Kind Float64{eFloat64};
+constexpr const Kind Ptr{ePtr};
+constexpr const Kind ArchFlags{eArchFlags};
 
 } // namespace onejit
 

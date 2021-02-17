@@ -120,8 +120,6 @@ protected:
   bool good_;
 };
 
-typedef Buffer<uint8_t> ByteBuf;
-
 template <class T> void swap(Buffer<T> &left, Buffer<T> &right) noexcept {
   left.swap(right);
 }

@@ -27,11 +27,35 @@
 #include <onejit/func.hpp>
 #include <onejit/mem.hpp>
 #include <onejit/node/binary.hpp>
+#include <onejit/node/comma.hpp>
 #include <onejit/node/const.hpp>
 #include <onejit/node/tuple.hpp>
 #include <onejit/optimizer.hpp>
 
 namespace onejit {
+
+Node Optimizer::try_optimize(Binary expr, Nodes children) noexcept {
+  Expr x, y;
+  if (expr && children.size() == 2 //
+      && (x = children[0].is<Expr>()) && (y = children[1].is<Expr>())) {
+
+    Op2 op = expr.op();
+    if ((flags_ & OptFoldConstant) && x.type() == CONST && y.type() == CONST) {
+      Value v0 = x.is<Const>().val();
+      Value v1 = y.is<Const>().val();
+      if (v0.is_valid() && v1.is_valid()) {
+        Value ve = eval_binary(op, v0, v1);
+        if (ve.is_valid()) {
+          return Const{*func_, ve};
+        }
+      }
+    }
+    if (flags_ & OptSimplifyExpr) {
+      return simplify_binary(op, x, y);
+    }
+  }
+  return Node{};
+}
 
 Expr Optimizer::simplify_binary(Op2 op, Expr x, Expr y) noexcept {
   Expr expr = partial_eval_binary(op, x, y);
@@ -118,18 +142,21 @@ Expr Optimizer::simplify_sub(Expr x, Expr y) noexcept {
 }
 
 Expr Optimizer::simplify_quo(Expr x, Expr y) noexcept {
+  // TODO
   (void)x;
   (void)y;
   return Expr{};
 }
 
 Expr Optimizer::simplify_rem(Expr x, Expr y) noexcept {
+  // TODO
   (void)x;
   (void)y;
   return Expr{};
 }
 
 Expr Optimizer::simplify_shift(Op2 op, Expr x, Expr y) noexcept {
+  // TODO
   (void)op;
   (void)x;
   (void)y;
@@ -137,17 +164,103 @@ Expr Optimizer::simplify_shift(Op2 op, Expr x, Expr y) noexcept {
 }
 
 Expr Optimizer::simplify_boolean(Op2 op, Expr x, Expr y) noexcept {
-  (void)op;
-  (void)x;
-  (void)y;
+  Const xc = x.is<Const>();
+  Const yc = y.is<Const>();
+  switch (op) {
+  case LAND:
+    if (xc) {
+      // optimize true && y to y
+      // optimize false && y to false
+      return xc.val() ? y : x;
+    } else if (yc) {
+      if (yc.val()) {
+        // optimize x && true to x
+        return x;
+      } else {
+        // optimize x && false to x, false
+        Expr args[] = {x, y};
+        return simplify_comma(Span<Expr>{args, 2});
+      }
+    }
+    break;
+  case LOR:
+    if (xc) {
+      // optimize true || y to true
+      // optimize false || y to y
+      return xc.val() ? x : y;
+    } else if (yc) {
+      if (yc.val()) {
+        // optimize x || true to x, true
+        Expr args[] = {x, y};
+        return simplify_comma(Span<Expr>{args, 2});
+      } else {
+        // optimize x || false to x
+        return x;
+      }
+    }
+    break;
+  default:
+    break;
+  }
   return Expr{};
 }
 
 Expr Optimizer::simplify_comparison(Op2 op, Expr x, Expr y) noexcept {
-  (void)op;
-  (void)x;
-  (void)y;
+  // partial_eval_binary() above put constants to the right
+  if (Const cy = y.is<Const>()) {
+    if (y.kind().is_unsigned() && !cy.val()) {
+      // comparing unsigned expression with zero
+      switch (op) {
+      case LSS:
+        return FalseExpr;
+      case LEQ:
+        // simplify x_u <= 0 to x_u == 0
+        return Binary{*func_, EQL, x, y};
+      case GEQ:
+        return TrueExpr;
+      case GTR:
+        // simplify x_u > 0 to x_u != 0
+        return Binary{*func_, NEQ, x, y};
+      default:
+        break;
+      }
+    }
+  } else if (x.deep_equal(y, false)) {
+    // comparing an expression with itself
+    switch (op) {
+    case LSS:
+    case NEQ:
+    case GTR:
+      return FalseExpr;
+    case LEQ:
+    case EQL:
+    case GEQ:
+      return TrueExpr;
+    default:
+      break;
+    }
+  }
   return Expr{};
+}
+
+Expr Optimizer::simplify_comma(Span<Expr> argspan) noexcept {
+  const size_t n = argspan.size();
+  if (n == 0) {
+    return VoidExpr;
+  }
+  Expr *args = argspan.data();
+  size_t src, dst;
+  for (src = dst = 0; src + 1 < n; src++) {
+    if (!args[src].deep_pure()) {
+      args[dst++] = args[src];
+    }
+  }
+  Expr last = args[src];
+  if (dst == 0) {
+    return last;
+  }
+  args[dst++] = last;
+  return Comma{*func_, Exprs{args, dst}};
 }
 
 } // namespace onejit

@@ -423,6 +423,10 @@ constexpr OpStmtN operator-(OpStmtN op, int delta) noexcept {
  */
 OpStmt1 negate_condjump(OpStmt1 op) noexcept;
 
+constexpr bool is_assign(OpStmt2 op) noexcept {
+  return op >= ADD_ASSIGN && op <= ASSIGN;
+}
+
 const Chars to_string(OpStmt0 op) noexcept;
 const Chars to_string(OpStmt1 op) noexcept;
 const Chars to_string(OpStmt2 op) noexcept;

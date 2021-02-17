@@ -60,8 +60,9 @@ public:
 
 private:
   Node optimize(Node node) noexcept;
-  Expr try_optimize(Unary expr, Nodes children) noexcept;
-  Expr try_optimize(Binary expr, Nodes children) noexcept;
+  Node try_optimize(Unary expr, Nodes children) noexcept;
+  Node try_optimize(Binary expr, Nodes children) noexcept;
+  Node try_optimize(Assign st, Nodes children) noexcept;
   Expr optimize(Tuple expr, bool optimize_children) noexcept;
 
   bool optimize_children(Node node, Span<Node> &children_out) noexcept;
@@ -81,6 +82,8 @@ private:
   Expr simplify_shift(Op2 op, Expr x, Expr y) noexcept;
   Expr simplify_boolean(Op2 op, Expr x, Expr y) noexcept;
   Expr simplify_comparison(Op2 op, Expr x, Expr y) noexcept;
+
+  Expr simplify_comma(Span<Expr> args) noexcept;
 
 private:
   Func *func_;

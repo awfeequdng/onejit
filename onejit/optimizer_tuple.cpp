@@ -95,8 +95,10 @@ Expr Optimizer::partial_eval_tuple(Tuple expr, Span<Node> children) noexcept {
       return Const{*func_, identity};
     } else if (n > 1 && is_commutative(op)) {
       // also put constants as last
-      std::sort(children.begin(), children.end(),
-                [](const Node &lhs, const Node &rhs) { return lhs.type() < rhs.type(); });
+      std::sort(children.begin(), children.end(),      //
+                [](const Node &lhs, const Node &rhs) { //
+                  return lhs.deep_compare(rhs) < 0;
+                });
     }
     Value v = identity;
     if (flags_ & OptFoldConstant) {

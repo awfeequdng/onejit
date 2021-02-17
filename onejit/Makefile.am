@@ -12,7 +12,7 @@ libonejit_a_SOURCES    = \
         op.cpp opstmt.cpp optimizer.cpp optimizer_binary.cpp optimizer_tuple.cpp \
         space.cpp type.cpp local.cpp value.cpp value_fmt.cpp \
         \
-        node/binary.cpp node/call.cpp node/const.cpp node/expr.cpp node/functype.cpp \
+        node/binary.cpp node/call.cpp node/comma.cpp node/const.cpp node/expr.cpp node/functype.cpp \
         node/label.cpp node/mem.cpp node/name.cpp node/node.cpp node/nodeheader.cpp \
         node/stmt0.cpp node/stmt1.cpp node/stmt2.cpp node/stmt3.cpp node/stmt4.cpp node/stmtn.cpp \
         node/tuple.cpp node/unary.cpp node/var.cpp \
