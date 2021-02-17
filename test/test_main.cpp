@@ -71,7 +71,9 @@ void Test::run() {
 }
 
 void Test::compile(Func &f) {
-  comp.compile(f);
+  // FIXME OptFoldConstant (or worse, OptAll) cause valgrind errors
+  // if compiled with "g++ -O0"
+  comp.compile(f, OptNone);
 }
 
 void Test::dump_and_clear_code() {

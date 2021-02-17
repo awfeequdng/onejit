@@ -86,7 +86,8 @@
         "__functional_03": "cpp",
         "__memory": "cpp",
         "cinttypes": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "__debug": "cpp"
     },
     "files.watcherExclude": {
         "**/.git/**": true

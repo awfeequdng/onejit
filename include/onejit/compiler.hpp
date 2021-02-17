@@ -52,8 +52,20 @@ public:
     return func_;
   }
 
+  // configure the checks that compiled code must perform at runtime.
+  // default is CheckNone
+  Compiler &configure(Check check) noexcept {
+    optimizer_.configure(check);
+    return *this;
+  }
+
   // compile function
-  Compiler &compile(Func &func, Optimizer::OptFlags flags = Optimizer::OptAll) noexcept;
+  Compiler &compile(Func &func, Opt flags = OptAll) noexcept;
+
+  // return the configured checks that compiled code must perform at runtime.
+  constexpr Check check() const noexcept {
+    return optimizer_.check();
+  }
 
 private:
   Node compile(Assign stmt, Flags flags) noexcept;

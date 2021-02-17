@@ -25,7 +25,7 @@
 #ifndef ONESTL_VIEW_HPP
 #define ONESTL_VIEW_HPP
 
-#include <onestl/check_tiny.hpp>
+#include <onestl/test_tiny.hpp>
 #include <onestl/fwd.hpp>
 
 #include <cstddef> // size_t

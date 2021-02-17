@@ -48,6 +48,7 @@ template <class T> using Vector = ::onestl::Vector<T>;
 template <class T> using View = ::onestl::View<T>;
 using Writer = ::onestl::Writer;
 
+enum Allow : uint8_t;
 class ArchId;
 class Assembler;
 class Assign;
@@ -56,18 +57,18 @@ class Bits;
 class Block;
 class Binary;
 class Break;
-class Compiler;
 class Call;
 class Case;
+enum Check : uint8_t;
 class Code;
 class CodeParser;
 class Comma;
+class Compiler;
 class Cond;
 class Const;
 union Float32Bits;
 union Float64Bits;
 class Imm;
-class Interpreter;
 class Continue;
 class Default;
 enum class eArchId : uint8_t;
@@ -100,6 +101,7 @@ enum OpStmt2 : uint16_t;
 enum OpStmt3 : uint16_t;
 enum OpStmt4 : uint16_t;
 enum OpStmtN : uint16_t;
+enum Opt : uint16_t;
 class Optimizer;
 class Return;
 class Stmt0;
@@ -127,8 +129,6 @@ using Exprs = View<Expr>;
 using Kinds = View<Kind>;
 using Nodes = View<Node>;
 using Values = View<Value>;
-
-String to_string(Node node);
 
 } // namespace onejit
 

@@ -35,13 +35,13 @@
 
 namespace onejit {
 
-Optimizer::Optimizer() noexcept : func_{nullptr}, nodes_{}, flags_{OptNone} {
+Optimizer::Optimizer() noexcept : func_{nullptr}, nodes_{}, check_{CheckNone}, flags_{OptNone} {
 }
 
 Optimizer::~Optimizer() noexcept {
 }
 
-bool Optimizer::same_children(Node node, Nodes children) noexcept {
+bool Optimizer::same_children(Node node, const NodeRange &children) noexcept {
   const size_t n = node.children();
   if (n != children.size()) {
     return false;
@@ -54,7 +54,7 @@ bool Optimizer::same_children(Node node, Nodes children) noexcept {
   return true;
 }
 
-Node Optimizer::optimize(Func &func, Node node, OptFlags flags) noexcept {
+Node Optimizer::optimize(Func &func, Node node, Opt flags) noexcept {
   if (func && node && flags != OptNone) {
     func_ = &func;
     nodes_.clear();
@@ -78,7 +78,7 @@ Node Optimizer::optimize(Node node) noexcept {
   }
 
   Node new_node;
-  Span<Node> children;
+  NodeRange children = {nullptr, 0, 0};
   size_t orig_n = nodes_.size();
 
   if (!optimize_children(node, children)) {
@@ -92,34 +92,28 @@ Node Optimizer::optimize(Node node) noexcept {
     new_node = try_optimize(node.is<Assign>(), children);
   }
   if (!new_node && !same_children(node, children)) {
-    new_node = Node::create_indirect(*func_, node.header(), children);
+    new_node = Node::create_indirect(*func_, node.header(), children.to_nodes());
   }
   nodes_.truncate(orig_n);
 
   return new_node ? new_node : node;
 }
 
-bool Optimizer::optimize_children(Node node, Span<Node> &children) noexcept {
+bool Optimizer::optimize_children(Node node, NodeRange &children) noexcept {
   size_t n = node.children();
   size_t orig_n = nodes_.size();
+
   if (!nodes_.resize(n + orig_n)) {
     return false;
   }
   for (size_t i = 0; i < n; i++) {
     nodes_[i + orig_n] = optimize(node.child(i));
   }
-  // Caveats:
-  //
-  // 1. do not use nodes_.span() here, because it may throw.
-  //
-  // 2. the loop immediately above recursively calls optimize()
-  //    which may resize nodes_ and thus change its data()
-  //    => we must retrieve nodes_.data() *after* such loop.
-  children = Span<Node>{nodes_.data() + orig_n, n};
+  children = NodeRange{&nodes_, orig_n, n};
   return true;
 }
 
-Node Optimizer::try_optimize(Unary expr, Nodes children) noexcept {
+Node Optimizer::try_optimize(Unary expr, const NodeRange &children) noexcept {
   Expr x;
   if (expr && children.size() == 1 && (x = children[0].is<Expr>())) {
     Kind kind = expr.kind();
@@ -173,7 +167,7 @@ Expr Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
   return Expr{};
 }
 
-Node Optimizer::try_optimize(Assign st, Nodes children) noexcept {
+Node Optimizer::try_optimize(Assign st, const NodeRange &children) noexcept {
   // TODO
   (void)st;
   (void)children;

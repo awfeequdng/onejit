@@ -74,7 +74,8 @@ inline Compiler::Flags &operator^=(Compiler::Flags &a, Compiler::Flags b) noexce
 ////////////////////////////////////////////////////////////////////////////////
 
 Compiler::Compiler() noexcept
-    : optimizer_{}, func_{}, break_{}, continue_{}, fallthrough_{}, node_{}, error_{}, good_{true} {
+    : optimizer_{}, func_{}, break_{}, continue_{}, fallthrough_{}, //
+      node_{}, error_{}, good_{true} {
 }
 
 Compiler::~Compiler() noexcept {
@@ -84,7 +85,7 @@ Compiler::operator bool() const noexcept {
   return good_ && func_ && *func_;
 }
 
-Compiler &Compiler::compile(Func &func, Optimizer::OptFlags flags) noexcept {
+Compiler &Compiler::compile(Func &func, Opt flags) noexcept {
   func_ = &func;
   break_.clear();
   continue_.clear();

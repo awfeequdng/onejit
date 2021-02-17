@@ -34,7 +34,7 @@
 
 namespace onejit {
 
-Node Optimizer::try_optimize(Binary expr, Nodes children) noexcept {
+Node Optimizer::try_optimize(Binary expr, const NodeRange &children) noexcept {
   Expr x, y;
   if (expr && children.size() == 2 //
       && (x = children[0].is<Expr>()) && (y = children[1].is<Expr>())) {
@@ -211,21 +211,27 @@ Expr Optimizer::simplify_comparison(Op2 op, Expr x, Expr y) noexcept {
     if (y.kind().is_unsigned() && !cy.val()) {
       // comparing unsigned expression with zero
       switch (op) {
-      case LSS:
-        return FalseExpr;
+      case LSS: {
+        // simplify expr_u < 0 to (expr_u, false)
+        Expr args[] = {x, FalseExpr};
+        return simplify_comma(Span<Expr>{args, 2});
+      }
       case LEQ:
-        // simplify x_u <= 0 to x_u == 0
+        // simplify expr_u <= 0 to expr_u == 0
         return Binary{*func_, EQL, x, y};
-      case GEQ:
-        return TrueExpr;
+      case GEQ: {
+        // simplify expr_u >= 0 to (expr_u, true)
+        Expr args[] = {x, TrueExpr};
+        return simplify_comma(Span<Expr>{args, 2});
+      }
       case GTR:
-        // simplify x_u > 0 to x_u != 0
+        // simplify expr_u > 0 to expr_u != 0
         return Binary{*func_, NEQ, x, y};
       default:
         break;
       }
     }
-  } else if (x.deep_equal(y, false)) {
+  } else if (x.deep_equal(y, allow_mask())) {
     // comparing an expression with itself
     switch (op) {
     case LSS:
@@ -251,7 +257,7 @@ Expr Optimizer::simplify_comma(Span<Expr> argspan) noexcept {
   Expr *args = argspan.data();
   size_t src, dst;
   for (src = dst = 0; src + 1 < n; src++) {
-    if (!args[src].deep_pure()) {
+    if (!args[src].deep_pure(allow_mask())) {
       args[dst++] = args[src];
     }
   }

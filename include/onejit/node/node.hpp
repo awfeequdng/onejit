@@ -26,10 +26,11 @@
 #ifndef ONEJIT_NODE_NODE_HPP
 #define ONEJIT_NODE_NODE_HPP
 
-#include <onejit/check.hpp>
 #include <onejit/fmt.hpp>
 #include <onejit/math.hpp>
+#include <onejit/node/allow.hpp>
 #include <onejit/node/nodeheader.hpp>
+#include <onejit/test.hpp>
 
 #include <type_traits> // std::is_base_of<>
 
@@ -107,7 +108,7 @@ public:
 
   // deep comparison: return true if this and other Node are equal trees.
   // Recurses on children.
-  bool deep_equal(const Node &other, bool allow_calls = true) noexcept;
+  bool deep_equal(const Node &other, Allow allow_mask = AllowAll) noexcept;
 
   // deep comparison:
   // return -1 if this tree is "less" than other tree,
@@ -119,7 +120,7 @@ public:
   // no memory access, no function calls, no assignments
   // i.e. only arithmetic on constants and variables.
   // Recurses on children.
-  bool deep_pure() const noexcept;
+  bool deep_pure(Allow allow_mask = AllowAll) const noexcept;
 
   // return Node length, in bytes
   Offset length_bytes() const noexcept {

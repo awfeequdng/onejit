@@ -26,6 +26,7 @@
 #ifndef ONEJIT_NODE_HPP
 #define ONEJIT_NODE_HPP
 
+#include <onejit/node/allow.hpp>
 #include <onejit/node/binary.hpp>
 #include <onejit/node/call.hpp>
 #include <onejit/node/comma.hpp>

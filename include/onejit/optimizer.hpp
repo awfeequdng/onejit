@@ -26,6 +26,7 @@
 #ifndef ONEJIT_OPTIMIZER_HPP
 #define ONEJIT_OPTIMIZER_HPP
 
+#include <onejit/check.hpp>
 #include <onejit/node/node.hpp>
 #include <onestl/buffer.hpp>
 
@@ -33,48 +34,99 @@ namespace onejit {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// optimizations
+enum Opt : uint16_t {
+  OptNone = 0,
+  OptFoldConstant = 1 << 0,
+  OptSimplifyExpr = 1 << 1,
+  OptRemoveDeadCode = 1 << 2,
+  // treat floating point + and * as associative. requires OptSimplifyExpr
+  OptFastMath = 1 << 3,
+  OptAll = 0xffff,
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 class Optimizer {
 public:
-  enum OptFlags : uint16_t {
-    OptNone = 0,
-    OptFoldConstant = 1 << 0,
-    OptSimplifyExpr = 1 << 1,
-    OptRemoveDeadCode = 1 << 2,
-    // treat floating point + and * as associative. requires OptSimplifyExpr
-    OptFastMath = 1 << 3,
-    OptAll = 0xffff,
-  };
-
   Optimizer() noexcept;
   Optimizer(Optimizer &&other) noexcept = default;
   Optimizer &operator=(Optimizer &&other) noexcept = default;
 
   ~Optimizer() noexcept;
 
-  Node optimize(Func &func, Node node, OptFlags flags = OptAll) noexcept;
+  // configure the checks that compiled code must perform at runtime.
+  // default is CheckNone
+  Optimizer &configure(Check check) noexcept {
+    check_ = check;
+    return *this;
+  }
+
+  Node optimize(Func &func, Node node, Opt flags = OptAll) noexcept;
 
   // false if out-of-memory
   constexpr explicit operator bool() const noexcept {
     return bool(nodes_);
   }
 
+  // return the configured checks that compiled code must perform at runtime.
+  constexpr Check check() const noexcept {
+    return check_;
+  }
+
 private:
+  // range of nodes inside a Span<Node>
+  struct NodeRange {
+    Vector<Node> *nodes;
+    size_t start_, size_;
+
+    size_t constexpr size() const noexcept {
+      return size_;
+    }
+
+    Node *begin() noexcept {
+      return nodes->begin() + start_;
+    }
+
+    Node *end() noexcept {
+      return nodes->begin() + start_ + size_;
+    }
+
+    void truncate(size_t n) noexcept {
+      if (size_ > n) {
+        size_ = n;
+      }
+    }
+
+    Node &operator[](size_t i) noexcept {
+      return (*nodes)[i + start_];
+    }
+
+    const Node &operator[](size_t i) const noexcept {
+      return (*nodes)[i + start_];
+    }
+
+    Nodes to_nodes() const noexcept {
+      return Nodes{nodes->data() + start_, size_};
+    }
+  };
+
   Node optimize(Node node) noexcept;
-  Node try_optimize(Unary expr, Nodes children) noexcept;
-  Node try_optimize(Binary expr, Nodes children) noexcept;
-  Node try_optimize(Assign st, Nodes children) noexcept;
+  Node try_optimize(Unary expr, const NodeRange &children) noexcept;
+  Node try_optimize(Binary expr, const NodeRange &children) noexcept;
+  Node try_optimize(Assign st, const NodeRange &children) noexcept;
   Expr optimize(Tuple expr, bool optimize_children) noexcept;
 
-  bool optimize_children(Node node, Span<Node> &children_out) noexcept;
+  bool optimize_children(Node node, NodeRange &children_out) noexcept;
   // recursively append (optionally) optimized children of node to this->nodes_
   bool flatten_children_tobuf(Node node, bool optimize_children) noexcept;
 
-  static bool same_children(Node node, Nodes children) noexcept;
+  static bool same_children(Node node, const NodeRange &children) noexcept;
 
   Expr simplify_unary(Kind kind, Op1 op, Expr x) noexcept;
   Expr simplify_binary(Op2 op, Expr x, Expr y) noexcept;
   Expr partial_eval_binary(Op2 op, Expr x, Expr y) noexcept;
-  Expr partial_eval_tuple(Tuple expr, Span<Node> children) noexcept;
+  Expr partial_eval_tuple(Tuple expr, NodeRange &children) noexcept;
 
   Expr simplify_sub(Expr x, Expr y) noexcept;
   Expr simplify_quo(Expr x, Expr y) noexcept;
@@ -85,42 +137,45 @@ private:
 
   Expr simplify_comma(Span<Expr> args) noexcept;
 
+  // convert configured Check:s to an Allow mask
+  constexpr Allow allow_mask() const noexcept {
+    return Allow(~check());
+  }
+
 private:
   Func *func_;
   Buffer<Node> nodes_;
-  OptFlags flags_;
+  Check check_;
+  Opt flags_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-constexpr inline Optimizer::OptFlags operator~(Optimizer::OptFlags a) noexcept {
-  return Optimizer::OptFlags(~unsigned(a));
+constexpr inline Opt operator~(Opt a) noexcept {
+  return Opt(~unsigned(a));
 }
 
-constexpr inline Optimizer::OptFlags operator&(Optimizer::OptFlags a,
-                                               Optimizer::OptFlags b) noexcept {
-  return Optimizer::OptFlags(unsigned(a) & unsigned(b));
+constexpr inline Opt operator&(Opt a, Opt b) noexcept {
+  return Opt(unsigned(a) & unsigned(b));
 }
 
-constexpr inline Optimizer::OptFlags operator|(Optimizer::OptFlags a,
-                                               Optimizer::OptFlags b) noexcept {
-  return Optimizer::OptFlags(unsigned(a) | unsigned(b));
+constexpr inline Opt operator|(Opt a, Opt b) noexcept {
+  return Opt(unsigned(a) | unsigned(b));
 }
 
-constexpr inline Optimizer::OptFlags operator^(Optimizer::OptFlags a,
-                                               Optimizer::OptFlags b) noexcept {
-  return Optimizer::OptFlags(unsigned(a) ^ unsigned(b));
+constexpr inline Opt operator^(Opt a, Opt b) noexcept {
+  return Opt(unsigned(a) ^ unsigned(b));
 }
 
-inline Optimizer::OptFlags operator&=(Optimizer::OptFlags &a, Optimizer::OptFlags b) noexcept {
+inline Opt operator&=(Opt &a, Opt b) noexcept {
   return a = a & b;
 }
 
-inline Optimizer::OptFlags operator|=(Optimizer::OptFlags &a, Optimizer::OptFlags b) noexcept {
+inline Opt operator|=(Opt &a, Opt b) noexcept {
   return a = a | b;
 }
 
-inline Optimizer::OptFlags operator^=(Optimizer::OptFlags &a, Optimizer::OptFlags b) noexcept {
+inline Opt operator^=(Opt &a, Opt b) noexcept {
   return a = a ^ b;
 }
 

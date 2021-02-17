@@ -23,7 +23,6 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/check.hpp>
 #include <onejit/code.hpp>
 #include <onejit/func.hpp>
 #include <onejit/node/binary.hpp>
@@ -42,6 +41,7 @@
 #include <onejit/node/tuple.hpp>
 #include <onejit/node/unary.hpp>
 #include <onejit/node/var.hpp>
+#include <onejit/test.hpp>
 #include <onestl/chars.hpp>
 
 namespace onejit {
@@ -152,11 +152,15 @@ Node Node::create_indirect(Func &func, NodeHeader header, Nodes children) noexce
   return Node{};
 }
 
-bool Node::deep_equal(const Node &other, bool allow_calls) noexcept {
-  if (header() != other.header() || is_direct() != other.is_direct()) {
-    return false;
-  }
-  if (!allow_calls && type() == TUPLE && OpN(op()) == CALL) {
+constexpr bool is_allowed(Type t, uint16_t op, Allow allow_mask) noexcept {
+  return ((allow_mask & AllowDivision) || t != BINARY || Op2(op) < QUO || Op2(op) > REM) &&
+         ((allow_mask & AllowMemAccess) || t != TUPLE || OpN(op) < MEM_OP) &&
+         ((allow_mask & AllowCall) || t != TUPLE || OpN(op) != CALL);
+}
+
+bool Node::deep_equal(const Node &other, Allow allow_mask) noexcept {
+  if (is_direct() != other.is_direct() || header() != other.header() ||
+      !is_allowed(type(), op(), allow_mask)) {
     return false;
   }
   if (is_direct()) {
@@ -172,7 +176,7 @@ bool Node::deep_equal(const Node &other, bool allow_calls) noexcept {
     return false;
   }
   for (size_t i = 0; i < n; i++) {
-    if (!child(i).deep_equal(other.child(i), allow_calls)) {
+    if (!child(i).deep_equal(other.child(i), allow_mask)) {
       return false;
     }
   }
@@ -212,7 +216,7 @@ int Node::deep_compare(const Node &other) const noexcept {
   return compare(n1, n2);
 }
 
-bool Node::deep_pure() const noexcept {
+bool Node::deep_pure(Allow allow_mask) const noexcept {
   Node node = *this;
   for (;;) {
     Type t = node.type();
@@ -226,7 +230,7 @@ bool Node::deep_pure() const noexcept {
       continue;
     } else if (t == BINARY) {
       Op2 op = Op2(node.op());
-      if (op == QUO || op == REM || !node.child(0).deep_pure()) {
+      if (op == QUO || op == REM || !node.child(0).deep_pure(allow_mask)) {
         // division and remainder can signal division by zero
         // => they have side effects
         return false;
@@ -239,7 +243,7 @@ bool Node::deep_pure() const noexcept {
         return false;
       }
       for (size_t i = 0, n = node.children(); i < n; i++) {
-        if (!node.child(i).deep_pure()) {
+        if (!node.child(i).deep_pure(allow_mask)) {
           return false;
         }
       }
