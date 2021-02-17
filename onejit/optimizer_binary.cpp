@@ -116,6 +116,9 @@ Expr Optimizer::partial_eval_binary(Op2 op, Expr x, Expr y) noexcept {
     Value v = -y.is<Const>().val();
     if (v.is_valid()) {
       if (Const c = Const{*func_, v}) {
+        // optimize() may resize nodes_ and change its data()
+        // => it invalidates spans and views on it!
+        // only NodeRange on nodes_ remains valid.
         return optimize(Tuple{*func_, ADD, x, c}, false);
       }
     }

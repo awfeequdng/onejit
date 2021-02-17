@@ -78,6 +78,9 @@ Node Optimizer::optimize(Node node) noexcept {
   }
 
   Node new_node;
+  // use a NodeRange on nodes_ because a span or view would be invalidated
+  // by try_optimize() calling back optimize() which may resize nodes_
+  // and change its data()
   NodeRange children = {nullptr, 0, 0};
   size_t orig_n = nodes_.size();
 
