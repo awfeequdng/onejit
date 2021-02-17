@@ -84,6 +84,10 @@ public:
     return header_;
   }
 
+  Node &operator=(const Node &other) &noexcept = default;
+  // forbid assignment to temporary Node
+  Node &operator=(const Node &other) &&noexcept = delete;
+
   // return true if this Node is valid
   constexpr explicit operator bool() const noexcept {
     return bool(header_);

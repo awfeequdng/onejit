@@ -137,11 +137,13 @@ public:
   constexpr size_t capacity() const noexcept {
     return cap_;
   }
+  using Base::at;
   using Base::begin;
   using Base::copy;
   using Base::data;
   using Base::empty;
   using Base::end;
+  using Base::get;
   using Base::operator[];
   using Base::operator==;
   using Base::clear;

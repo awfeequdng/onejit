@@ -77,7 +77,9 @@ bool Optimizer::flatten_children_tobuf(Node node, bool optimize_children) noexce
   return ok;
 }
 
-Expr Optimizer::partial_eval_tuple(Tuple expr, NodeRange &children) noexcept {
+Expr Optimizer::partial_eval_tuple(Tuple expr, NodeRange &noderange) noexcept {
+  Span<Node> children{noderange.nodes->data() + noderange.start_, noderange.size()};
+
   OpN op = expr.op();
   Kind kind = expr.kind();
   if (is_associative(op) && (flags_ & OptFastMath || !kind.is_float())) {
@@ -103,7 +105,7 @@ Expr Optimizer::partial_eval_tuple(Tuple expr, NodeRange &children) noexcept {
       }
       if (n < children.size() && v != identity) {
         Const c{*func_, v};
-        if (v == Value::absorbing(kind, op) && all_are<Var>(children.to_nodes().view(0, n))) {
+        if (v == Value::absorbing(kind, op) && all_are<Var>(children.view(0, n))) {
           return c;
         }
         children[n++] = c;
@@ -122,7 +124,7 @@ Expr Optimizer::partial_eval_tuple(Tuple expr, NodeRange &children) noexcept {
   if (same_children(expr, children)) {
     return expr;
   }
-  return Tuple{*func_, kind, op, children.to_nodes()};
+  return Tuple{*func_, kind, op, children};
 }
 
 } // namespace onejit

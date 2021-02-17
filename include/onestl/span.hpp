@@ -71,6 +71,7 @@ public:
   using Base::data;
   using Base::empty;
   using Base::end;
+  using Base::get;
   using Base::operator==;
   using Base::operator[];
   using Base::clear;

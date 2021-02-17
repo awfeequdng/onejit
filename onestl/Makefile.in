@@ -104,8 +104,8 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libonestl_a_AR = $(AR) $(ARFLAGS)
 libonestl_a_LIBADD =
-am_libonestl_a_OBJECTS = chars.$(OBJEXT) check.$(OBJEXT) fmt.$(OBJEXT) \
-	mem.$(OBJEXT) string.$(OBJEXT) vector.$(OBJEXT) \
+am_libonestl_a_OBJECTS = chars.$(OBJEXT) fmt.$(OBJEXT) mem.$(OBJEXT) \
+	string.$(OBJEXT) test.$(OBJEXT) vector.$(OBJEXT) \
 	vectorhelper.$(OBJEXT) writer_cstdio.$(OBJEXT) \
 	writer_string.$(OBJEXT)
 libonestl_a_OBJECTS = $(am_libonestl_a_OBJECTS)
@@ -124,8 +124,8 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/chars.Po ./$(DEPDIR)/check.Po \
-	./$(DEPDIR)/fmt.Po ./$(DEPDIR)/mem.Po ./$(DEPDIR)/string.Po \
+am__depfiles_remade = ./$(DEPDIR)/chars.Po ./$(DEPDIR)/fmt.Po \
+	./$(DEPDIR)/mem.Po ./$(DEPDIR)/string.Po ./$(DEPDIR)/test.Po \
 	./$(DEPDIR)/vector.Po ./$(DEPDIR)/vectorhelper.Po \
 	./$(DEPDIR)/writer_cstdio.Po ./$(DEPDIR)/writer_string.Po
 am__mv = mv -f
@@ -319,7 +319,7 @@ noinst_LIBRARIES = libonestl.a
 # pkglib_LTLIBRARIES   =
 AM_CPPFLAGS = -I$(top_srcdir)/include
 # libonestl_a_CPPFLAGS =
-libonestl_a_SOURCES = chars.cpp check.cpp fmt.cpp mem.cpp string.cpp vector.cpp vectorhelper.cpp \
+libonestl_a_SOURCES = chars.cpp fmt.cpp mem.cpp string.cpp test.cpp vector.cpp vectorhelper.cpp \
                          writer_cstdio.cpp writer_string.cpp
 
 all: all-recursive
@@ -371,10 +371,10 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chars.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fmt.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mem.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vector.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vectorhelper.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/writer_cstdio.Po@am__quote@ # am--include-marker
@@ -600,10 +600,10 @@ clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/chars.Po
-	-rm -f ./$(DEPDIR)/check.Po
 	-rm -f ./$(DEPDIR)/fmt.Po
 	-rm -f ./$(DEPDIR)/mem.Po
 	-rm -f ./$(DEPDIR)/string.Po
+	-rm -f ./$(DEPDIR)/test.Po
 	-rm -f ./$(DEPDIR)/vector.Po
 	-rm -f ./$(DEPDIR)/vectorhelper.Po
 	-rm -f ./$(DEPDIR)/writer_cstdio.Po
@@ -654,10 +654,10 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/chars.Po
-	-rm -f ./$(DEPDIR)/check.Po
 	-rm -f ./$(DEPDIR)/fmt.Po
 	-rm -f ./$(DEPDIR)/mem.Po
 	-rm -f ./$(DEPDIR)/string.Po
+	-rm -f ./$(DEPDIR)/test.Po
 	-rm -f ./$(DEPDIR)/vector.Po
 	-rm -f ./$(DEPDIR)/vectorhelper.Po
 	-rm -f ./$(DEPDIR)/writer_cstdio.Po

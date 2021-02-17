@@ -75,7 +75,8 @@ public:
   }
 
 private:
-  // range of nodes inside a Span<Node>
+  // range of nodes inside a Vector<Node>. it remains valid
+  // even after the Vector is resized or changes capacity
   struct NodeRange {
     Vector<Node> *nodes;
     size_t start_, size_;
@@ -84,29 +85,11 @@ private:
       return size_;
     }
 
-    Node *begin() noexcept {
-      return nodes->begin() + start_;
+    Node operator[](size_t i) const noexcept {
+      return nodes->get(i + start_);
     }
 
-    Node *end() noexcept {
-      return nodes->begin() + start_ + size_;
-    }
-
-    void truncate(size_t n) noexcept {
-      if (size_ > n) {
-        size_ = n;
-      }
-    }
-
-    Node &operator[](size_t i) noexcept {
-      return (*nodes)[i + start_];
-    }
-
-    const Node &operator[](size_t i) const noexcept {
-      return (*nodes)[i + start_];
-    }
-
-    Nodes to_nodes() const noexcept {
+    Nodes to_view() const noexcept {
       return Nodes{nodes->data() + start_, size_};
     }
   };
@@ -121,7 +104,7 @@ private:
   // recursively append (optionally) optimized children of node to this->nodes_
   bool flatten_children_tobuf(Node node, bool optimize_children) noexcept;
 
-  static bool same_children(Node node, const NodeRange &children) noexcept;
+  static bool same_children(Node node, Nodes children) noexcept;
 
   Expr simplify_unary(Kind kind, Op1 op, Expr x) noexcept;
   Expr simplify_binary(Op2 op, Expr x, Expr y) noexcept;
