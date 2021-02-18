@@ -95,6 +95,14 @@ public:
     return data()[index];
   }
 
+  // checked element access:
+  // set i-th element, or do nothing if index is out of bounds
+  void set(size_t index, T elem) noexcept(std::is_nothrow_move_assignable<T>::value) {
+    if (index < size_) {
+      data()[index] = std::move(elem);
+    }
+  }
+
   T *begin() noexcept {
     return data();
   }

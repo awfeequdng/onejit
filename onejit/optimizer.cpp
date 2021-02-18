@@ -94,8 +94,8 @@ Node Optimizer::optimize(Node node) noexcept {
   } else if (t == STMT_2 && is_assign(OpStmt2(node.op()))) {
     new_node = try_optimize(node.is<Assign>(), children);
   }
-  if (!new_node && !same_children(node, children.to_view())) {
-    new_node = Node::create_indirect(*func_, node.header(), children.to_view());
+  if (!new_node && !same_children(node, children.view())) {
+    new_node = Node::create_indirect(*func_, node.header(), children.view());
   }
   nodes_.truncate(orig_n);
 
@@ -111,9 +111,9 @@ bool Optimizer::optimize_children(Node node, NodeRange &children) noexcept {
   }
   for (size_t i = 0; i < n; i++) {
     // optimize() may resize nodes_ and change its data()
-    // => we must split assignment in two statements
-    Node child = optimize(node.child(i));
-    nodes_[i + orig_n] = child;
+    // => do not take references to nodes_.data() before calling optimize(),
+    // as operator[] would do
+    nodes_.set(i + orig_n, optimize(node.child(i)));
   }
   children = NodeRange{&nodes_, orig_n, n};
   return true;

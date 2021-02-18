@@ -28,6 +28,7 @@
 
 #include <onejit/check.hpp>
 #include <onejit/node/node.hpp>
+#include <onejit/node/noderange.hpp>
 #include <onestl/buffer.hpp>
 
 namespace onejit {
@@ -75,25 +76,6 @@ public:
   }
 
 private:
-  // range of nodes inside a Vector<Node>. it remains valid
-  // even after the Vector is resized or changes capacity
-  struct NodeRange {
-    Vector<Node> *nodes;
-    size_t start_, size_;
-
-    size_t constexpr size() const noexcept {
-      return size_;
-    }
-
-    Node operator[](size_t i) const noexcept {
-      return nodes->get(i + start_);
-    }
-
-    Nodes to_view() const noexcept {
-      return Nodes{nodes->data() + start_, size_};
-    }
-  };
-
   Node optimize(Node node) noexcept;
   Node try_optimize(Unary expr, const NodeRange &children) noexcept;
   Node try_optimize(Binary expr, const NodeRange &children) noexcept;

@@ -24,10 +24,16 @@
  */
 
 #include <onejit/code.hpp>
+#include <onejit/math.hpp>
 #include <onejit/node/functype.hpp>
 #include <onestl/chars.hpp>
 
 namespace onejit {
+
+/// \return number of parameters
+uint16_t FuncType::param_n() const noexcept {
+  return sub_uint16(children(), result_n());
+}
 
 /// \return kind of i-th parameter, or Bad if out-of-bounds
 Kind FuncType::param(uint16_t i) const noexcept {

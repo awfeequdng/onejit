@@ -37,6 +37,7 @@
 #include <onejit/node/mem.hpp>
 // #include <onejit/node/node.hpp>       // redundant
 // #include <onejit/node/nodeheader.hpp> // redundant
+#include <onejit/node/noderange.hpp>
 // #include <onejit/node/stmt.hpp>       // redundant
 #include <onejit/node/stmt0.hpp>
 #include <onejit/node/stmt1.hpp>

@@ -57,8 +57,7 @@ public:
   // checked element access:
   // returns 0 if byte_offset is out of bounds
   T get(Offset byte_offset) const noexcept {
-    const size_t index = byte_offset / sizeof(T);
-    return index < Base::size() ? Base::operator[](index) : T{};
+    return Base::get(byte_offset / sizeof(T));
   }
 
   // returns 0 if byte_offset is out of bounds

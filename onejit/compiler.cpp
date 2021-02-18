@@ -107,7 +107,7 @@ Compiler &Compiler::finish() noexcept {
       compiled = VoidConst;
       break;
     case 1:
-      compiled = node_[0];
+      compiled = node_.get(0);
       break;
     default:
       compiled = Block{*func_, node_};
@@ -269,7 +269,8 @@ Expr Compiler::compile(Tuple expr, Flags flags) noexcept {
   bool changed = false;
   for (size_t i = 0; i < n; i++) {
     Node child = expr.child(i);
-    Node comp_child = nodes[i] = compile(child, flags);
+    Node comp_child = compile(child, flags);
+    nodes.set(i, comp_child);
     changed = changed || child != comp_child;
   }
   if (changed) {
@@ -785,7 +786,7 @@ Compiler &Compiler::to_vars(const Node &node, uint32_t start, uint32_t end,
     return out_of_memory(node);
   }
   for (size_t i = start; i < end; i++) {
-    vars[i - start] = to_var(node.child(i));
+    vars.set(i - start, to_var(node.child(i)));
   }
   return *this;
 }

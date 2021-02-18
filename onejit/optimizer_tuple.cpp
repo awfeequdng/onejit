@@ -78,8 +78,7 @@ bool Optimizer::flatten_children_tobuf(Node node, bool optimize_children) noexce
 }
 
 Expr Optimizer::partial_eval_tuple(Tuple expr, NodeRange &noderange) noexcept {
-  Span<Node> children{noderange.nodes->data() + noderange.start_, noderange.size()};
-
+  Span<Node> children = noderange.span();
   OpN op = expr.op();
   Kind kind = expr.kind();
   if (is_associative(op) && (flags_ & OptFastMath || !kind.is_float())) {

@@ -67,9 +67,8 @@ public:
   }
 
   /// \return number of parameters
-  uint16_t param_n() const noexcept {
-    return children() - result_n();
-  }
+  uint16_t param_n() const noexcept;
+
   /// \return number of results
   constexpr uint16_t result_n() const noexcept {
     return Base::op();

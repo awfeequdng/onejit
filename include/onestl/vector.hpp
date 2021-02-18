@@ -57,8 +57,13 @@ namespace onestl {
  * The following methods may change the size, but always preserve the capacity:
  *   clear truncate
  *
+ * For increased safety, Vector does not have operator[] - which returns a reference
+ * that could be invalidated by one of the methods above - and only provides methods
+ * get() and set()
  */
 template <class T> class Vector : protected Span<T> {
+  static_assert(std::is_nothrow_default_constructible<T>::value,
+                "Vector<T>: element type T default constructor must be nothrow");
   static_assert(std::is_trivially_copyable<T>::value,
                 "Vector<T>: element type T must be trivially copyable");
   static_assert(std::is_trivially_destructible<T>::value,
@@ -137,20 +142,26 @@ public:
   constexpr size_t capacity() const noexcept {
     return cap_;
   }
-  using Base::at;
   using Base::begin;
   using Base::copy;
   using Base::data;
   using Base::empty;
   using Base::end;
   using Base::get;
-  using Base::operator[];
+  using Base::set;
   using Base::operator==;
   using Base::clear;
   using Base::size;
   using Base::span;
   using Base::truncate;
   using Base::view;
+
+  /*
+   * For increased safety, vector does not have operator[] - which returns a reference
+   * that could be invalidated by resizing the vector. Use get() and set() instead.
+   */
+  T &operator[](size_t index) noexcept = delete;
+  const T &operator[](size_t index) const noexcept = delete;
 
   Vector<T> &operator=(Vector<T> &&other) noexcept {
     swap(other);
@@ -198,8 +209,6 @@ public:
     h_other = h_tmp;
   }
 };
-
-typedef Vector<char> CharVec;
 
 extern template class Vector<char>;     // defined in onestl/string.cpp
 extern template class Vector<uint32_t>; // defined in onestl/vector.cpp

@@ -25,11 +25,12 @@
 #ifndef ONESTL_VIEW_HPP
 #define ONESTL_VIEW_HPP
 
-#include <onestl/test_tiny.hpp>
 #include <onestl/fwd.hpp>
+#include <onestl/test_tiny.hpp>
 
-#include <cstddef> // size_t
-#include <cstring> // memcmp()
+#include <cstddef>     // size_t
+#include <cstring>     // memcmp()
+#include <type_traits> // std::is_nothrow_*<>
 
 namespace onestl {
 
@@ -99,8 +100,9 @@ public:
   }
 
   // checked element access:
-  // returns T{} if index is out of bounds
-  T get(size_t index) const noexcept(noexcept(T{})) {
+  // returns i-th element by value, or T{} if index is out of bounds
+  T get(size_t index) const
+      noexcept(noexcept(T{}) && std::is_nothrow_copy_constructible<T>::value) {
     return index < size_ ? data_[index] : T{};
   }
 
