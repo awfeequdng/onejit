@@ -210,6 +210,23 @@ Node Optimizer::try_optimize(Assign st, const NodeRange &children) noexcept {
       default:
         break;
       }
+    } else if (st.op() == ASSIGN) {
+      if (Binary bsrc = src.is<Binary>()) {
+        if (OpStmt2 op = to_assign_op(bsrc.op())) {
+          if (dst.deep_equal(bsrc.x(), allow_mask() & ~AllowCall)) {
+            // optimize (= dst (op dst y)) to (op= dst y)
+            return Assign{*func_, op, dst, bsrc.y()};
+          }
+        }
+      } else if (Tuple tsrc = src.is<Tuple>()) {
+        if (OpStmt2 op = to_assign_op(tsrc.op())) {
+          if (tsrc.children() == 2 //
+              && dst.deep_equal(tsrc.arg(0), allow_mask() & ~AllowCall)) {
+            // optimize (= dst (op dst y)) to (op= dst y)
+            return Assign{*func_, op, dst, tsrc.arg(1)};
+          }
+        }
+      }
     }
   }
   return Node{};

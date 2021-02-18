@@ -128,7 +128,7 @@ enum OpStmt1 : uint16_t {
       x(JS, js)        /* jump if sign */                                                          \
       x(JMP, jmp)      /* unconditional jump. argument is relative offset, register or memory */   \
       x(NEG, neg)      /* negate (i.e. -x) register or memory */                                   \
-      x(NOT, not)      /* invert (i.e. ^x) register or memory */                                   \
+      x(NOT, not )     /* invert (i.e. ^x) register or memory */                                   \
       x(POP, pop)      /* pop 2 or 8 bytes from stack into register or memory */                   \
       x(PUSH, push)    /* push 2 or 8 bytes to stack from register or memory */                    \
       x(RDTSC, rdtsc)  /* read timestamp counter into %rdx:%rax */                                 \
@@ -431,6 +431,11 @@ constexpr bool is_assign(OpStmt2 op) noexcept {
 Op2 to_op2(OpStmt2 op) noexcept;
 // if OpStmt2 is *_ASSIGN, return the corresponding OpN
 OpN to_opn(OpStmt2 op) noexcept;
+
+// return the *_ASSIGN corresponding to Op2
+OpStmt2 to_assign_op(Op2 op) noexcept;
+// return the *_ASSIGN corresponding to OpN
+OpStmt2 to_assign_op(OpN op) noexcept;
 
 const Chars to_string(OpStmt0 op) noexcept;
 const Chars to_string(OpStmt1 op) noexcept;

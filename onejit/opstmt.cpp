@@ -133,6 +133,7 @@ Op2 to_op2(OpStmt2 op) noexcept {
     return BAD2;
   }
 }
+
 // if OpStmt2 is *_ASSIGN, return the corresponding OpN
 OpN to_opn(OpStmt2 op) noexcept {
   switch (op) {
@@ -148,6 +149,42 @@ OpN to_opn(OpStmt2 op) noexcept {
     return XOR;
   default:
     return BADN;
+  }
+}
+
+// return the *_ASSIGN corresponding to Op2
+OpStmt2 to_assign_op(Op2 op) noexcept {
+  switch (op) {
+  case SUB:
+    return SUB_ASSIGN;
+  case QUO:
+    return QUO_ASSIGN;
+  case REM:
+    return REM_ASSIGN;
+  case SHL:
+    return SHL_ASSIGN;
+  case SHR:
+    return SHR_ASSIGN;
+  default:
+    return BAD_ST2;
+  }
+}
+
+// return the *_ASSIGN corresponding to OpN
+OpStmt2 to_assign_op(OpN op) noexcept {
+  switch (op) {
+  case ADD:
+    return ADD_ASSIGN;
+  case MUL:
+    return MUL_ASSIGN;
+  case AND:
+    return AND_ASSIGN;
+  case OR:
+    return OR_ASSIGN;
+  case XOR:
+    return XOR_ASSIGN;
+  default:
+    return BAD_ST2;
   }
 }
 
