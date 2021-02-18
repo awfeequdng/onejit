@@ -427,6 +427,11 @@ constexpr bool is_assign(OpStmt2 op) noexcept {
   return op >= ADD_ASSIGN && op <= ASSIGN;
 }
 
+// if OpStmt2 is *_ASSIGN, return the corresponding Op2
+Op2 to_op2(OpStmt2 op) noexcept;
+// if OpStmt2 is *_ASSIGN, return the corresponding OpN
+OpN to_opn(OpStmt2 op) noexcept;
+
 const Chars to_string(OpStmt0 op) noexcept;
 const Chars to_string(OpStmt1 op) noexcept;
 const Chars to_string(OpStmt2 op) noexcept;

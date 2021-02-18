@@ -234,7 +234,7 @@ Expr Optimizer::simplify_comparison(Op2 op, Expr x, Expr y) noexcept {
         break;
       }
     }
-  } else if (x.deep_equal(y, allow_mask())) {
+  } else if (x.deep_equal(y, allow_mask() & ~AllowCall)) {
     // comparing an expression with itself
     switch (op) {
     case LSS:

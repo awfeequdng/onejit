@@ -88,7 +88,7 @@ public:
   }
 
   // unchecked element access
-  const T &operator[](size_t index) const noexcept {
+  constexpr const T &operator[](size_t index) const noexcept {
     return data_[index];
   }
 
@@ -101,7 +101,7 @@ public:
 
   // checked element access:
   // returns i-th element by value, or T{} if index is out of bounds
-  T get(size_t index) const
+  constexpr T get(size_t index) const
       noexcept(noexcept(T{}) && std::is_nothrow_copy_constructible<T>::value) {
     return index < size_ ? data_[index] : T{};
   }
@@ -152,7 +152,8 @@ public:
     }
   }
 
-  template <class VEC> bool operator==(const VEC &other) const noexcept {
+  template <class VEC> //
+  bool operator==(const VEC &other) const noexcept {
     static_assert(
         sizeof(value_type) == sizeof(typename VEC::value_type),
         "onestl::View<T>::operator==(VEC) mismatched sizes of value_type and VEC::value_type");

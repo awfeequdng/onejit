@@ -47,22 +47,16 @@ public:
     return size_;
   }
 
-  Node operator[](size_t i) const noexcept {
-    return vec_ ? vec_->get(i + start_) : Node{};
+  constexpr Node operator[](size_t i) const noexcept {
+    return vec_ && i < size_ ? vec_->get(i + start_) : Node{};
   }
 
   Span<Node> span() noexcept {
-    if (*this) {
-      return Span<Node>{vec_->data() + start_, size_};
-    }
-    return Span<Node>{};
+    return bool(*this) ? Span<Node>{vec_->data() + start_, size_} : Span<Node>{};
   }
 
-  Nodes view() const noexcept {
-    if (*this) {
-      return Nodes{vec_->data() + start_, size_};
-    }
-    return Nodes{};
+  constexpr Nodes view() const noexcept {
+    return bool(*this) ? Nodes{vec_->data() + start_, size_} : Nodes{};
   }
 
   constexpr explicit operator bool() const noexcept {

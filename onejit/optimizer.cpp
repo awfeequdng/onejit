@@ -174,9 +174,44 @@ Expr Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
 }
 
 Node Optimizer::try_optimize(Assign st, const NodeRange &children) noexcept {
-  // TODO
-  (void)st;
-  (void)children;
+  Expr dst = children[0].is<Expr>();
+  Expr src = children[1].is<Expr>();
+  if (src && dst) {
+    Kind kind = dst.kind();
+    if (Const c = src.is<Const>()) {
+      if (OpN op = to_opn(st.op())) {
+        Value val = c.val();
+        Value absorbing = Value::absorbing(kind, op);
+        if (val == absorbing) {
+          // optimize (op= expr absorbing)
+          return Assign{*func_, ASSIGN, dst, Const{*func_, absorbing}};
+        } else if (val == Value::identity(kind, op) && dst.deep_pure(allow_mask())) {
+          // optimize (op= expr identity)
+          return VoidExpr;
+        }
+      }
+    } else if (dst.deep_equal(src, allow_mask() & ~AllowCall)) {
+      // optimize (op= expr expr)
+      switch (st.op()) {
+      case ADD_ASSIGN:
+        return Assign{*func_, MUL_ASSIGN, dst, Two(*func_, kind)};
+      case SUB_ASSIGN:
+      case REM_ASSIGN:
+      case XOR_ASSIGN:
+        return Assign{*func_, ASSIGN, dst, Zero(kind)};
+      case MUL_ASSIGN:
+        break; // square
+      case QUO_ASSIGN:
+        return Assign{*func_, ASSIGN, dst, One(*func_, kind)};
+      case AND_ASSIGN:
+      case OR_ASSIGN:
+      case ASSIGN:
+        return VoidExpr;
+      default:
+        break;
+      }
+    }
+  }
   return Node{};
 }
 
