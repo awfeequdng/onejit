@@ -226,6 +226,24 @@ Value Value::min(Kind kind) noexcept {
 }
 
 // return the identity element for specified operation and kind
+Value Value::identity(Kind kind, Op2 op) noexcept {
+  uint64_t i;
+  switch (op) {
+  case SUB:
+  case SHL:
+  case SHR:
+    i = 0;
+    break;
+  case QUO:
+    i = 1;
+    break;
+  default:
+    return Value{};
+  }
+  return Value{i}.cast(kind);
+}
+
+// return the identity element for specified operation and kind
 Value Value::identity(Kind kind, OpN op) noexcept {
   uint64_t i;
   switch (op) {

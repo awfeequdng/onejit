@@ -27,6 +27,7 @@
 #include <onejit/func.hpp>
 #include <onejit/node/binary.hpp>
 #include <onejit/node/const.hpp>
+#include <onejit/node/stmt1.hpp>
 #include <onejit/node/stmt2.hpp>
 #include <onejit/node/tuple.hpp>
 #include <onejit/node/unary.hpp>
@@ -87,12 +88,12 @@ Node Optimizer::optimize(Node node) noexcept {
   if (!optimize_children(node, children)) {
     nodes_.truncate(orig_n);
     return node;
-  } else if (t == UNARY) {
-    new_node = try_optimize(node.is<Unary>(), children);
-  } else if (t == BINARY) {
-    new_node = try_optimize(node.is<Binary>(), children);
-  } else if (t == STMT_2 && is_assign(OpStmt2(node.op()))) {
-    new_node = try_optimize(node.is<Assign>(), children);
+  } else if (Unary unary = node.is<Unary>()) {
+    new_node = try_optimize(unary, children);
+  } else if (Binary binary = node.is<Binary>()) {
+    new_node = try_optimize(binary, children);
+  } else if (Assign assign = node.is<Assign>()) {
+    new_node = try_optimize(assign, children);
   }
   if (!new_node && !same_children(node, children.view())) {
     new_node = Node::create_indirect(*func_, node.header(), children.view());
@@ -174,25 +175,19 @@ Expr Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
 }
 
 Node Optimizer::try_optimize(Assign st, const NodeRange &children) noexcept {
-  Expr dst = children[0].is<Expr>();
-  Expr src = children[1].is<Expr>();
+  return try_optimize(st.op(), children[0].is<Expr>(), children[1].is<Expr>());
+}
+
+Node Optimizer::try_optimize(OpStmt2 assign_op, Expr dst, Expr src) noexcept {
   if (src && dst) {
     Kind kind = dst.kind();
     if (Const c = src.is<Const>()) {
-      if (OpN op = to_opn(st.op())) {
-        Value val = c.val();
-        Value absorbing = Value::absorbing(kind, op);
-        if (val == absorbing) {
-          // optimize (op= expr absorbing)
-          return Assign{*func_, ASSIGN, dst, Const{*func_, absorbing}};
-        } else if (val == Value::identity(kind, op) && dst.deep_pure(allow_mask())) {
-          // optimize (op= expr identity)
-          return VoidExpr;
-        }
+      if (Node ret = simplify_assign(assign_op, dst, c.val())) {
+        return ret;
       }
-    } else if (dst.deep_equal(src, allow_mask() & ~AllowCall)) {
+    } else if (dst.deep_equal(src, allow_mask_pure())) {
       // optimize (op= expr expr)
-      switch (st.op()) {
+      switch (assign_op) {
       case ADD_ASSIGN:
         return Assign{*func_, MUL_ASSIGN, dst, Two(*func_, kind)};
       case SUB_ASSIGN:
@@ -210,22 +205,68 @@ Node Optimizer::try_optimize(Assign st, const NodeRange &children) noexcept {
       default:
         break;
       }
-    } else if (st.op() == ASSIGN) {
+    } else if (assign_op == ASSIGN) {
       if (Binary bsrc = src.is<Binary>()) {
         if (OpStmt2 op = to_assign_op(bsrc.op())) {
-          if (dst.deep_equal(bsrc.x(), allow_mask() & ~AllowCall)) {
+          if (dst.deep_equal(bsrc.x(), allow_mask_pure())) {
             // optimize (= dst (op dst y)) to (op= dst y)
-            return Assign{*func_, op, dst, bsrc.y()};
+            return make_assign(op, dst, bsrc.y());
           }
         }
       } else if (Tuple tsrc = src.is<Tuple>()) {
         if (OpStmt2 op = to_assign_op(tsrc.op())) {
           if (tsrc.children() == 2 //
-              && dst.deep_equal(tsrc.arg(0), allow_mask() & ~AllowCall)) {
+              && dst.deep_equal(tsrc.arg(0), allow_mask_pure())) {
             // optimize (= dst (op dst y)) to (op= dst y)
-            return Assign{*func_, op, dst, tsrc.arg(1)};
+            return make_assign(op, dst, tsrc.arg(1));
           }
         }
+      }
+    }
+  }
+  return Node{};
+}
+
+Node Optimizer::make_assign(OpStmt2 assign_op, Expr dst, Expr src) noexcept {
+  if (Node ret = try_optimize(assign_op, dst, src)) {
+    return ret;
+  }
+  return Assign{*func_, assign_op, dst, src};
+}
+
+// try to simplify (op= dst const)
+Node Optimizer::simplify_assign(OpStmt2 assign_op, Expr dst, Value val) noexcept {
+  Kind kind = dst.kind();
+  if (OpN op = to_opn(assign_op)) {
+    Value absorbing = Value::absorbing(kind, op);
+    if (val == absorbing) {
+      // optimize (op= expr absorbing) to (= expr absorbing)
+      return Assign{*func_, ASSIGN, dst, Const{*func_, absorbing}};
+    } else if (val == Value::identity(kind, op) && dst.deep_pure(allow_mask_pure())) {
+      // optimize (op= expr identity) to nothing
+      return VoidExpr;
+    } else if (op == ADD) {
+      if (val == Value::one(kind)) {
+        // optimize (+= expr 1) to (inc expr)
+        return Inc{*func_, dst};
+      } else if (val == Value::minus_one(kind)) {
+        // optimize (+= expr -1) to (dec expr)
+        return Dec{*func_, dst};
+      }
+    }
+    return Node{};
+  }
+  if (Op2 op = to_op2(assign_op)) {
+    if (val == Value::identity(kind, op) && dst.deep_pure(allow_mask_pure())) {
+      // optimize (op= expr identity) to nothing
+      return VoidExpr;
+    } else if (op == SUB) {
+      if (val == Value::one(kind)) {
+        // optimize (-= expr 1) to (dec expr)
+        return Dec{*func_, dst};
+      } else if (val == Value::minus_one(kind)) {
+        // optimize (-= expr -1) to (inc expr)
+        return Inc{*func_, dst};
       }
     }
   }

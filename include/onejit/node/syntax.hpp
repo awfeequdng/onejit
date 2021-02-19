@@ -1,7 +1,7 @@
 /*
- * onejit - in-memory assembler
+ * onejit - JIT compiler in C++
  *
- * Copyright (C) 2021 Massimiliano Ghilardi
+ * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,24 +17,25 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * x64.hpp - include all onejit/x64/ in one fell swoop
+ * syntax.hpp
  *
- *  Created on Feb 01, 2021
+ *  Created on Feb 19, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X64_HPP
-#define ONEJIT_X64_HPP
 
-#include <onejit/x64/arg.hpp>
-#include <onejit/x64/asm.hpp>
-#include <onejit/x64/compiler.hpp>
-#include <onejit/x64/fwd.hpp>
-#include <onejit/x64/inst.hpp>
-#include <onejit/x64/mem.hpp>
-// #include <onejit/x64/reg.hpp>   // redundant
-// #include <onejit/x64/regid.hpp> // redundant
-#include <onejit/x64/rex_byte.hpp>
-// #include <onejit/x64/scale.hpp> // redundant
-#include <onejit/x64/util.hpp>
+#ifndef ONEJIT_NODE_SYNTAX_HPP
+#define ONEJIT_NODE_SYNTAX_HPP
 
-#endif // ONEJIT_X64_HPP
+#include <cstdint>
+
+namespace onejit {
+
+// Syntax passed to to_string(Node) and Node::format()
+enum class Syntax : uint8_t {
+  Default = 0,
+  CapstoneCompat = 1, // compatible with capstone disassembly
+};
+
+} // namespace onejit
+
+#endif // ONEJIT_NODE_SYNTAX_HPP

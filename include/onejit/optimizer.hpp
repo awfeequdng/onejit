@@ -65,7 +65,7 @@ public:
 
   Node optimize(Func &func, Node node, Opt flags = OptAll) noexcept;
 
-  // false if out-of-memory
+  // false if out of memory
   constexpr explicit operator bool() const noexcept {
     return bool(nodes_);
   }
@@ -77,19 +77,25 @@ public:
 
 private:
   Node optimize(Node node) noexcept;
-  Node try_optimize(Unary expr, const NodeRange &children) noexcept;
-  Node try_optimize(Binary expr, const NodeRange &children) noexcept;
-  Node try_optimize(Assign st, const NodeRange &children) noexcept;
   Expr optimize(Tuple expr, bool optimize_children) noexcept;
 
+  Node try_optimize(Assign st, const NodeRange &children) noexcept;
+  Node try_optimize(Binary expr, const NodeRange &children) noexcept;
+  Node try_optimize(Unary expr, const NodeRange &children) noexcept;
+  // called by try_optimize(Assign) above
+  Node try_optimize(OpStmt2 assign_op, Expr dst, Expr src) noexcept;
+
+  // recursively call optimize() on node's children and append them to children_out
   bool optimize_children(Node node, NodeRange &children_out) noexcept;
   // recursively append (optionally) optimized children of node to this->nodes_
   bool flatten_children_tobuf(Node node, bool optimize_children) noexcept;
 
   static bool same_children(Node node, Nodes children) noexcept;
 
-  Expr simplify_unary(Kind kind, Op1 op, Expr x) noexcept;
+  Node make_assign(OpStmt2 assign_op, Expr dst, Expr src) noexcept;
+  Node simplify_assign(OpStmt2 assign_op, Expr dst, Value src) noexcept;
   Expr simplify_binary(Op2 op, Expr x, Expr y) noexcept;
+  Expr simplify_unary(Kind kind, Op1 op, Expr x) noexcept;
   Expr partial_eval_binary(Op2 op, Expr x, Expr y) noexcept;
   Expr partial_eval_tuple(Tuple expr, NodeRange &children) noexcept;
 
@@ -103,8 +109,9 @@ private:
   Expr simplify_comma(Span<Expr> args) noexcept;
 
   // convert configured Check:s to an Allow mask
-  constexpr Allow allow_mask() const noexcept {
-    return Allow(~check());
+  // that ignores expressions with side effects
+  constexpr Allow allow_mask_pure() const noexcept {
+    return Allow(~check()) & ~AllowCall;
   }
 
 private:

@@ -111,6 +111,7 @@ class Stmt3;
 class Stmt4;
 class StmtN;
 class Switch;
+enum class Syntax : uint8_t;
 class Test;
 class Tuple;
 class Unary;

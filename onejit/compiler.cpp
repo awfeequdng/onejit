@@ -86,6 +86,10 @@ Compiler::operator bool() const noexcept {
 }
 
 Compiler &Compiler::compile(Func &func, Opt flags) noexcept {
+  if (func.get_compiled()) {
+    return *this;
+  }
+
   func_ = &func;
   break_.clear();
   continue_.clear();

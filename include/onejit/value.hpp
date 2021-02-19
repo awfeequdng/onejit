@@ -198,10 +198,25 @@ public:
     return Value{kind, uint64_t(0)};
   }
 
+  // return a Value = 1 with specified kind
+  static Value one(Kind kind) noexcept {
+    return Value{1}.cast(kind);
+  }
+
+  // return a Value = -1 with specified kind
+  static Value minus_one(Kind kind) noexcept {
+    return Value{-1}.cast(kind);
+  }
+
   // return the maximum value of specified kind
   static Value max(Kind kind) noexcept;
   // return the minimum value of specified kind
   static Value min(Kind kind) noexcept;
+
+  // return the identity element for specified operation and kind,
+  // or Value{} if op has no identity element
+  // i.e. 0 for SUB, SHL, SHR; 1 for QUO ...
+  static Value identity(Kind kind, Op2 op) noexcept;
 
   // return the identity element for specified operation and kind,
   // or Value{} if op has no identity element

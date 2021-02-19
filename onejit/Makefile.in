@@ -121,7 +121,8 @@ am_libonejit_a_OBJECTS = archid.$(OBJEXT) assembler.$(OBJEXT) \
 	node/stmt4.$(OBJEXT) node/stmtn.$(OBJEXT) node/tuple.$(OBJEXT) \
 	node/unary.$(OBJEXT) node/var.$(OBJEXT) x64/arg.$(OBJEXT) \
 	x64/asm0.$(OBJEXT) x64/asm1.$(OBJEXT) x64/asm2.$(OBJEXT) \
-	x64/asm3.$(OBJEXT) x64/assembler.$(OBJEXT) x64/mem.$(OBJEXT) \
+	x64/asm3.$(OBJEXT) x64/assembler.$(OBJEXT) \
+	x64/compiler.$(OBJEXT) x64/mem.$(OBJEXT) \
 	x64/rex_byte.$(OBJEXT) x64/scale.$(OBJEXT) x64/util.$(OBJEXT)
 libonejit_a_OBJECTS = $(am_libonejit_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -161,9 +162,9 @@ am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/assembler.Po \
 	node/$(DEPDIR)/var.Po x64/$(DEPDIR)/arg.Po \
 	x64/$(DEPDIR)/asm0.Po x64/$(DEPDIR)/asm1.Po \
 	x64/$(DEPDIR)/asm2.Po x64/$(DEPDIR)/asm3.Po \
-	x64/$(DEPDIR)/assembler.Po x64/$(DEPDIR)/mem.Po \
-	x64/$(DEPDIR)/rex_byte.Po x64/$(DEPDIR)/scale.Po \
-	x64/$(DEPDIR)/util.Po
+	x64/$(DEPDIR)/assembler.Po x64/$(DEPDIR)/compiler.Po \
+	x64/$(DEPDIR)/mem.Po x64/$(DEPDIR)/rex_byte.Po \
+	x64/$(DEPDIR)/scale.Po x64/$(DEPDIR)/util.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -367,7 +368,7 @@ libonejit_a_SOURCES = \
         node/tuple.cpp node/unary.cpp node/var.cpp \
         \
         x64/arg.cpp x64/asm0.cpp x64/asm1.cpp x64/asm2.cpp x64/asm3.cpp x64/assembler.cpp \
-        x64/mem.cpp x64/rex_byte.cpp x64/scale.cpp x64/util.cpp
+        x64/compiler.cpp x64/mem.cpp x64/rex_byte.cpp x64/scale.cpp x64/util.cpp
 
 EXTRA_libonejit_a_DEPENDENCIES = 
 # libonejit_a_LDFLAGS  =
@@ -467,6 +468,8 @@ x64/asm2.$(OBJEXT): x64/$(am__dirstamp) x64/$(DEPDIR)/$(am__dirstamp)
 x64/asm3.$(OBJEXT): x64/$(am__dirstamp) x64/$(DEPDIR)/$(am__dirstamp)
 x64/assembler.$(OBJEXT): x64/$(am__dirstamp) \
 	x64/$(DEPDIR)/$(am__dirstamp)
+x64/compiler.$(OBJEXT): x64/$(am__dirstamp) \
+	x64/$(DEPDIR)/$(am__dirstamp)
 x64/mem.$(OBJEXT): x64/$(am__dirstamp) x64/$(DEPDIR)/$(am__dirstamp)
 x64/rex_byte.$(OBJEXT): x64/$(am__dirstamp) \
 	x64/$(DEPDIR)/$(am__dirstamp)
@@ -534,6 +537,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/asm2.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/asm3.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/assembler.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/compiler.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/mem.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/rex_byte.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/scale.Po@am__quote@ # am--include-marker
@@ -810,6 +814,7 @@ distclean: distclean-recursive
 	-rm -f x64/$(DEPDIR)/asm2.Po
 	-rm -f x64/$(DEPDIR)/asm3.Po
 	-rm -f x64/$(DEPDIR)/assembler.Po
+	-rm -f x64/$(DEPDIR)/compiler.Po
 	-rm -f x64/$(DEPDIR)/mem.Po
 	-rm -f x64/$(DEPDIR)/rex_byte.Po
 	-rm -f x64/$(DEPDIR)/scale.Po
@@ -907,6 +912,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f x64/$(DEPDIR)/asm2.Po
 	-rm -f x64/$(DEPDIR)/asm3.Po
 	-rm -f x64/$(DEPDIR)/assembler.Po
+	-rm -f x64/$(DEPDIR)/compiler.Po
 	-rm -f x64/$(DEPDIR)/mem.Po
 	-rm -f x64/$(DEPDIR)/rex_byte.Po
 	-rm -f x64/$(DEPDIR)/scale.Po

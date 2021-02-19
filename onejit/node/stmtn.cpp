@@ -23,13 +23,13 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/node/call.hpp> // Call
 #include <onejit/code.hpp>
-#include <onejit/node/expr.hpp>
 #include <onejit/func.hpp>
-#include <onejit/space.hpp>
+#include <onejit/node/call.hpp> // Call
+#include <onejit/node/expr.hpp>
 #include <onejit/node/stmt2.hpp> // Case
 #include <onejit/node/stmtn.hpp>
+#include <onejit/space.hpp>
 #include <onestl/chars.hpp>
 
 namespace onejit {
@@ -42,7 +42,7 @@ Node StmtN::create(Func &func, const Nodes nodes, OpStmtN op) noexcept {
                                nodes);
 }
 
-const Fmt &StmtN::format(const Fmt &out, size_t depth) const {
+const Fmt &StmtN::format(const Fmt &out, Syntax syntax, size_t depth) const {
   ++depth;
   const OpStmtN op = this->op();
   out << '(' << op;
@@ -53,7 +53,7 @@ const Fmt &StmtN::format(const Fmt &out, size_t depth) const {
     } else {
       out << ' ';
     }
-    child(i).format(out, depth);
+    child(i).format(out, syntax, depth);
   }
   return out << ')';
 }

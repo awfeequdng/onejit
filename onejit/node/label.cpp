@@ -57,7 +57,7 @@ Label Label::create(Code *holder, uint64_t address, uint16_t index) noexcept {
   return Label{};
 }
 
-const Fmt &Label::format(const Fmt &out, size_t /*depth*/) const {
+const Fmt &Label::format(const Fmt &out, Syntax /*syntax*/, size_t /*depth*/) const {
   return out << type() << '_' << index();
 }
 

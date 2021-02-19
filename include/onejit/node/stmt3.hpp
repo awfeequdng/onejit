@@ -26,8 +26,8 @@
 #ifndef ONEJIT_NODE_STMT3_HPP
 #define ONEJIT_NODE_STMT3_HPP
 
-#include <onejit/node/const.hpp> // VoidConst
 #include <onejit/fmt.hpp>
+#include <onejit/node/const.hpp> // VoidConst
 #include <onejit/node/expr.hpp>
 #include <onejit/node/stmt.hpp>
 #include <onejit/opstmt.hpp>
@@ -63,7 +63,7 @@ public:
     return 3;
   }
 
-  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+  const Fmt &format(const Fmt &out, Syntax syntax = Syntax::Default, size_t depth = 0) const;
 
 protected:
   // downcast Node to Stmt3

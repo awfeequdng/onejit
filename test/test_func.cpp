@@ -374,22 +374,22 @@ void Test::func_and_or() {
                              Binary{f, LAND, ma, mb}, //
                              Binary{f, LOR, ma, mb}}});
 
-  Chars expected = "(return (^ (&& (mem1 var1000_p) (mem1 var1001_p)) \
-(|| (mem1 var1000_p) (mem1 var1001_p))))";
+  Chars expected = "(return (^ (&& (mem_e var1000_p) (mem_e var1001_p)) "
+                   "(|| (mem_e var1000_p) (mem_e var1001_p))))";
   TEST(to_string(f.get_body()), ==, expected);
 
   compile(f);
 
   expected = "(block\n\
-    (= var1003_e (mem1 var1000_p))\n\
+    (= var1003_e (mem_e var1000_p))\n\
     (asm_cmp var1003_e false)\n\
     (asm_je label_1)\n\
-    (= var1003_e (mem1 var1001_p))\n\
+    (= var1003_e (mem_e var1001_p))\n\
     label_1\n\
-    (= var1004_e (mem1 var1000_p))\n\
+    (= var1004_e (mem_e var1000_p))\n\
     (asm_cmp var1004_e false)\n\
     (asm_jne label_2)\n\
-    (= var1004_e (mem1 var1001_p))\n\
+    (= var1004_e (mem_e var1001_p))\n\
     label_2\n\
     (= var1002_e (^ var1003_e var1004_e))\n\
     (return var1002_e))";

@@ -154,7 +154,7 @@ Node Node::create_indirect(Func &func, NodeHeader header, Nodes children) noexce
 
 constexpr bool is_allowed(Type t, uint16_t op, Allow allow_mask) noexcept {
   return ((allow_mask & AllowDivision) || t != BINARY || Op2(op) < QUO || Op2(op) > REM) &&
-         ((allow_mask & AllowMemAccess) || t != TUPLE || OpN(op) < MEM_OP) &&
+         ((allow_mask & AllowMemAccess) || t != MEM) &&
          ((allow_mask & AllowCall) || t != TUPLE || OpN(op) != CALL);
 }
 
@@ -220,34 +220,22 @@ bool Node::deep_pure(Allow allow_mask) const noexcept {
   Node node = *this;
   for (;;) {
     Type t = node.type();
-    if (t <= STMT_N || t == MEM) {
+    if (t == VAR || t >= LABEL) {
+      return true;
+    } else if (t <= STMT_N || !is_allowed(t, node.op(), allow_mask)) {
       // statements exist for their side effects
       return false;
-    } else if (t == VAR || t >= LABEL) {
-      return true;
-    } else if (t == UNARY) {
-      node = node.child(0);
-      continue;
-    } else if (t == BINARY) {
-      Op2 op = Op2(node.op());
-      if (op == QUO || op == REM || !node.child(0).deep_pure(allow_mask)) {
-        // division and remainder can signal division by zero
-        // => they have side effects
-        return false;
-      }
-      node = node.child(1);
-      continue;
-    } else if (t == TUPLE) {
-      if (OpN(node.op()) >= CALL) {
-        // the only OpN > CALL are MEM_OP, X86_MEM, ARM64_MEM...
-        return false;
-      }
-      for (size_t i = 0, n = node.children(); i < n; i++) {
+    } else if (const size_t n = node.children()) {
+      // is_allowed() above already checked whether the type and operation are allowed
+      for (size_t i = 0; i + 1 < n; i++) {
         if (!node.child(i).deep_pure(allow_mask)) {
           return false;
         }
       }
-      return true;
+      node = node.child(n - 1);
+      continue;
+    } else {
+      return true; // no children
     }
     return false;
   }
@@ -255,47 +243,47 @@ bool Node::deep_pure(Allow allow_mask) const noexcept {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const Fmt &Node::format(const Fmt &out, const size_t depth) const {
+const Fmt &Node::format(const Fmt &out, Syntax syntax, const size_t depth) const {
   const Type t = type();
   switch (t) {
   case STMT_0:
-    return is<Stmt0>().format(out, depth);
+    return is<Stmt0>().format(out, syntax, depth);
   case STMT_1:
-    return is<Stmt1>().format(out, depth);
+    return is<Stmt1>().format(out, syntax, depth);
   case STMT_2:
-    return is<Stmt2>().format(out, depth);
+    return is<Stmt2>().format(out, syntax, depth);
   case STMT_3:
-    return is<Stmt3>().format(out, depth);
+    return is<Stmt3>().format(out, syntax, depth);
   case STMT_4:
-    return is<Stmt4>().format(out, depth);
+    return is<Stmt4>().format(out, syntax, depth);
   case STMT_N:
-    return is<StmtN>().format(out, depth);
+    return is<StmtN>().format(out, syntax, depth);
   case VAR:
-    return is<Var>().format(out, depth);
+    return is<Var>().format(out, syntax, depth);
   case MEM:
-    return is<Mem>().format(out, depth);
+    return is<Mem>().format(out, syntax, depth);
   case UNARY:
-    return is<Unary>().format(out, depth);
+    return is<Unary>().format(out, syntax, depth);
   case BINARY:
-    return is<Binary>().format(out, depth);
+    return is<Binary>().format(out, syntax, depth);
   case TUPLE:
-    return is<Tuple>().format(out, depth);
+    return is<Tuple>().format(out, syntax, depth);
   case LABEL:
-    return is<Label>().format(out, depth);
+    return is<Label>().format(out, syntax, depth);
   case CONST:
-    return is<Const>().format(out, depth);
+    return is<Const>().format(out, syntax, depth);
   case FTYPE:
-    return is<FuncType>().format(out, depth);
+    return is<FuncType>().format(out, syntax, depth);
   case NAME:
-    return is<Name>().format(out, depth);
+    return is<Name>().format(out, syntax, depth);
   default:
     return out << to_string(t);
   }
 }
 
-String to_string(Node node) {
+String to_string(Node node, Syntax syntax, size_t depth) {
   String str;
-  Fmt{&str} << node;
+  node.format(Fmt{&str}, syntax, depth);
   return str;
 }
 

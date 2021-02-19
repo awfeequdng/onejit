@@ -59,7 +59,7 @@ void Test::run() {
   nested_expr();
   x64_expr();
   eval_expr();
-  optimize_expr();
+  optimize();
   func_fib();
   func_loop();
   func_switch1();

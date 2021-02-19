@@ -110,12 +110,17 @@ Expr Optimizer::partial_eval_binary(Op2 op, Expr x, Expr y) noexcept {
     mem::swap(x, y);
     changed = true;
   }
-  if (op == SUB && y.type() == CONST && y.kind().is_signed()) {
-    // optimize (x - const) to (x + (-const))
-    // because + is easier to optimize further
-    Value v = -y.is<Const>().val();
-    if (v.is_valid()) {
-      if (Const c = Const{*func_, v}) {
+  if (Const c = y.is<Const>()) {
+    Value identity = Value::identity(x.kind(), op);
+    if (identity.is_valid() && identity == c.val()) {
+      // optimize (op x identity) to x
+      return x;
+    }
+    if (op == SUB && y.kind().is_signed()) {
+      // optimize (x - const) to (x + (-const))
+      // because + is easier to optimize further
+      Value v = -c.val();
+      if (v.is_valid() && (c = Const{*func_, v})) {
         // optimize() may resize nodes_ and change its data()
         // => it invalidates spans and views on it!
         // only NodeRange on nodes_ remains valid.
@@ -127,34 +132,26 @@ Expr Optimizer::partial_eval_binary(Op2 op, Expr x, Expr y) noexcept {
 }
 
 Expr Optimizer::simplify_sub(Expr x, Expr y) noexcept {
-  if (Const yc = y.is<Const>()) {
-    if (!yc.val()) {
-      // optimize x-0 to x
-      return x;
-    }
-  }
-  if (Var xv = x.is<Var>()) {
-    if (Var yv = y.is<Var>()) {
-      if (xv.local() == yv.local()) {
-        // optimize x-x to 0
-        return Zero(x.kind());
-      }
-    }
+  if (x.deep_equal(y, allow_mask_pure())) {
+    // optimize (- x x) to 0
+    return Zero(x.kind());
   }
   return Expr{};
 }
 
 Expr Optimizer::simplify_quo(Expr x, Expr y) noexcept {
-  // TODO
-  (void)x;
-  (void)y;
+  if (x.deep_equal(y, allow_mask_pure())) {
+    // optimize (/ x x) to 1
+    return One(*func_, x.kind());
+  }
   return Expr{};
 }
 
 Expr Optimizer::simplify_rem(Expr x, Expr y) noexcept {
-  // TODO
-  (void)x;
-  (void)y;
+  if (x.deep_equal(y, allow_mask_pure())) {
+    // optimize (% x x) to 0
+    return Zero(x.kind());
+  }
   return Expr{};
 }
 
@@ -234,7 +231,7 @@ Expr Optimizer::simplify_comparison(Op2 op, Expr x, Expr y) noexcept {
         break;
       }
     }
-  } else if (x.deep_equal(y, allow_mask() & ~AllowCall)) {
+  } else if (x.deep_equal(y, allow_mask_pure())) {
     // comparing an expression with itself
     switch (op) {
     case LSS:
@@ -260,7 +257,7 @@ Expr Optimizer::simplify_comma(Span<Expr> argspan) noexcept {
   Expr *args = argspan.data();
   size_t src, dst;
   for (src = dst = 0; src + 1 < n; src++) {
-    if (!args[src].deep_pure(allow_mask())) {
+    if (!args[src].deep_pure(allow_mask_pure())) {
       args[dst++] = args[src];
     }
   }

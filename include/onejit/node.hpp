@@ -26,12 +26,12 @@
 #ifndef ONEJIT_NODE_HPP
 #define ONEJIT_NODE_HPP
 
-#include <onejit/node/allow.hpp>
+// #include <onejit/node/allow.hpp>      // redundant
 #include <onejit/node/binary.hpp>
 #include <onejit/node/call.hpp>
 #include <onejit/node/comma.hpp>
 #include <onejit/node/const.hpp>
-// #include <onejit/node/expr.hpp>     // redundant
+// #include <onejit/node/expr.hpp>       // redundant
 #include <onejit/node/functype.hpp>
 #include <onejit/node/label.hpp>
 #include <onejit/node/mem.hpp>
@@ -45,7 +45,8 @@
 #include <onejit/node/stmt3.hpp>
 #include <onejit/node/stmt4.hpp>
 #include <onejit/node/stmtn.hpp>
-// #include <onejit/node/tuple.hpp> // redundant
+// #include <onejit/node/syntax.hpp>     // redundant
+// #include <onejit/node/tuple.hpp>      // redundant
 #include <onejit/node/unary.hpp>
 #include <onejit/node/var.hpp>
 

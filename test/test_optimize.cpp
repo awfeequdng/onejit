@@ -30,13 +30,14 @@
 
 namespace onejit {
 
-void Test::optimize_expr() {
-  func.reset(&holder, Name{&holder, "optimize_expr"}, FuncType{&holder, {}, {}});
+void Test::optimize() {
+  func.reset(&holder, Name{&holder, "optimize"}, FuncType{&holder, {}, {}});
 
   for (Kind kind : {Int8, Int16, Int32, Int64,     //
                     Uint8, Uint16, Uint32, Uint64, //
                     Float32, Float64}) {
     optimize_expr_kind(kind);
+    optimize_assign_kind(kind);
   }
 }
 
@@ -170,6 +171,55 @@ void Test::optimize_expr_kind(Kind kind) {
     TEST(optimized, !=, expr);
     TEST(optimized, ==, TrueExpr);
   }
+}
+
+void Test::optimize_assign_kind(Kind kind) {
+  Func &f = func;
+
+  Const one = One(f, kind);
+  // Const two = Two(f, kind);
+  Var x{f, kind};
+  String expected;
+
+  // optimize() on (= x x) should return void
+  Assign st{f, ASSIGN, x, x};
+  Node optimized = opt.optimize(f, st);
+  TEST(optimized, ==, VoidExpr);
+
+  // optimize() on (^= x x) should return (= x 0)
+  st = Assign{f, XOR_ASSIGN, x, x};
+  optimized = opt.optimize(f, st);
+  expected.clear();
+  Fmt{&expected} << "(= " << x << " 0)";
+  TEST(to_string(optimized), ==, expected);
+
+  // optimize() on (+= x x) should return (*= x 2)
+  st = Assign{f, ADD_ASSIGN, x, x};
+  optimized = opt.optimize(f, st);
+  expected.clear();
+  Fmt{&expected} << "(*= " << x << " 2)";
+  TEST(to_string(optimized), ==, expected);
+
+  // optimize() on (+= x 1) should return (++ x)
+  st = Assign{f, ADD_ASSIGN, x, one};
+  optimized = opt.optimize(f, st);
+  expected.clear();
+  Fmt{&expected} << "(++ " << x << ")";
+  TEST(to_string(optimized), ==, expected);
+
+  // optimize() on (= x (- x 1)) should return (-- x)
+  st = Assign{f, ASSIGN, x, Binary{f, SUB, x, one}};
+  optimized = opt.optimize(f, st);
+  expected.clear();
+  Fmt{&expected} << "(-- " << x << ")";
+  TEST(to_string(optimized), ==, expected);
+
+  // optimize() on (&= x (% x x)) should return (= x 0)
+  st = Assign{f, AND_ASSIGN, x, Binary{f, REM, x, x}};
+  optimized = opt.optimize(f, st);
+  expected.clear();
+  Fmt{&expected} << "(= " << x << " 0)";
+  TEST(to_string(optimized), ==, expected);
 }
 
 } // namespace onejit

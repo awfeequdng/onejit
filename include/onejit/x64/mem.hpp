@@ -60,12 +60,13 @@ public:
       : Base{create(func, kind, Label{}, offset, base, index, scale)} {
   }
 
-  Mem(Func &func, const Label &label, //
-      const int32_t offset = 0,       //
-      const Var &base = Var{},        //
-      const Var &index = Var{},       //
+  Mem(Func &func, Kind kind,    //
+      const Label &label,       //
+      const int32_t offset = 0, //
+      const Var &base = Var{},  //
+      const Var &index = Var{}, //
       Scale scale = Scale0) noexcept
-      : Base{create(func, Ptr, label, offset, base, index, scale)} {
+      : Base{create(func, kind, label, offset, base, index, scale)} {
   }
 
   static constexpr OpN op() noexcept {

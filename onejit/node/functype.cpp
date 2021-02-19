@@ -69,7 +69,7 @@ Node FuncType::create(Code *holder, Kinds params, Kinds results) noexcept {
   return Node{};
 }
 
-const Fmt &FuncType::format(const Fmt &out, size_t /*depth*/) const {
+const Fmt &FuncType::format(const Fmt &out, Syntax /*syntax*/, size_t /*depth*/) const {
   out << '(' << type() << " (";
   for (size_t i = 0, n = param_n(); i < n; i++) {
     if (i) {

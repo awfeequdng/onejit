@@ -157,7 +157,7 @@ void TestDisasm::test_asm_disasm_x64(const Node &node, Assembler &assembler) {
   String disassembled;
   disasm(Fmt{&disassembled}, assembler.bytes());
 
-  TEST(to_string(node), ==, disassembled);
+  TEST(to_string(node, Syntax::CapstoneCompat), ==, disassembled);
 }
 
 #else // !HAVE_LIBCAPSTONE

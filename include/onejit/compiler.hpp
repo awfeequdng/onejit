@@ -46,6 +46,7 @@ public:
 
   ~Compiler() noexcept;
 
+  // return false if out of memory
   explicit operator bool() const noexcept;
 
   constexpr Func *func() const noexcept {
@@ -59,8 +60,12 @@ public:
     return *this;
   }
 
-  // compile function
+  // compile function to portable IR (intermediate representation)
   Compiler &compile(Func &func, Opt flags = OptAll) noexcept;
+
+  // compile function to x86_64 assembly
+  // defined in onejit/x64/compiler.cpp
+  Compiler &x64(Func &func, Opt flags = OptAll) noexcept;
 
   // return the configured checks that compiled code must perform at runtime.
   constexpr Check check() const noexcept {
@@ -135,7 +140,7 @@ private:
   // add a compile error
   Compiler &error(const Node &where, Chars msg) noexcept;
 
-  // add an out-of-memory error
+  // add an out of memory error
   Compiler &out_of_memory(const Node &where) noexcept;
 
 private:
@@ -147,7 +152,7 @@ private:
   Vector<Label> fallthrough_; // stack of 'fallthrough' destination labels
   Vector<Node> node_;
   Vector<Error> error_;
-  bool good_; // good_ = false means out-of-memory
+  bool good_; // !good_ means out of memory
 };
 
 } // namespace onejit
