@@ -622,7 +622,7 @@ Node Compiler::compile(Cond st, Flags) noexcept {
 Node Compiler::compile(Return st, Flags) noexcept {
   const size_t n = st.children();
   if (n != func_->result_n()) {
-    error(st, "bad number of return values");
+    error(st, "number of return values does not match function signature");
     add(st);
     return VoidConst;
   }
@@ -639,6 +639,9 @@ Node Compiler::compile(Return st, Flags) noexcept {
   for (size_t i = 0; i < n; i++) {
     Var var = func_->result(i);
     Expr expr = st.child_is<Expr>(i);
+    if (var.kind() != expr.kind()) {
+      error(st, "return value kind does not match function signature");
+    }
     if (expr != var) {
       // compile expression and copy its result
       // to expected location func_->result(i)
