@@ -54,12 +54,6 @@ protected:
   static constexpr bool is_allowed_type(Type t) noexcept {
     return t >= STMT_0 && t <= STMT_N;
   }
-
-private:
-  // needed by Stmt0{Node} constructor
-  constexpr Stmt(Type t, Kind kind, uint16_t op) noexcept
-      : Base{NodeHeader{t, kind, op}, 0, nullptr} {
-  }
 };
 
 } // namespace onejit

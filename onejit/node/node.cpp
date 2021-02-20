@@ -71,37 +71,36 @@ Node Node::child(uint32_t i) const noexcept {
 
   // item low bits can be:
   // 0b***1 => direct CONST
-  // 0b**00 => relative offset of indirect Node
+  // 0b**00 => indirect Node. item is relative offset
   // 0b*010 => direct VAR
-  // 0b0110 => unused
+  // 0b0110 => direct Stmt0
   // 0b1110 => NodeHeader
 
   if (item == 0) {
     // nothing to do
   } else if (item < 4) {
-    // special case: Stmt0 is always direct,
-    // only four values exist: BadStmt (handled above) Break Continue Fallthrough
+    // special case. Stmt0, one of:
+    // BadStmt (handled above) Break Continue Fallthrough
     header = NodeHeader{STMT_0, Void, uint16_t(item)};
   } else if ((item & 1) != 0) {
-    // direct Imm
+    // direct Const
     offset_or_direct = item;
     header = NodeHeader{CONST, Imm::parse_direct_kind(item), 0};
   } else if ((item & 7) == 2) {
     // direct Local
     offset_or_direct = item;
     header = NodeHeader{VAR, Local::parse_direct_kind(item), 0};
-#if 0 // unused
-  } else if ((item & 0xF) == 0xE) {
+  } else if ((item & 0xF) == 6) {
+    // direct Stmt0
     offset_or_direct = item;
-    header = NodeHeader{???, ???::parse_direct_kind(item), 0};
-#endif
+    header = NodeHeader{STMT_0, Void, Stmt0::parse_direct_op(item)};
   } else if ((item & 3) == 0) {
     // indirect Node: item is relative offset between parent and child
     offset_or_direct = off_or_dir_ + item;
     header = NodeHeader{code_->get(offset_or_direct)};
     code = code_; // only indirect Nodes need code
   } else {
-    // NodeHeader or tag 0b0110: should not appear here,
+    // NodeHeader or tag 0b1110: should not appear here,
     // => return an invalid node
   }
   return Node{header, offset_or_direct, code};

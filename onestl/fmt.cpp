@@ -82,10 +82,6 @@ ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, double val) {
   return fmt.write(buf, n);
 }
 
-const Fmt &operator<<(const Fmt &fmt, const void *val) {
-  return fmt << "0x" << Hex{size_t(val)};
-}
-
 const Fmt &operator<<(const Fmt &fmt, std::nullptr_t) {
   return fmt.write("null", 4);
 }

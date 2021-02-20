@@ -261,7 +261,7 @@ Compiler &Compiler::compile(AssignCall st) noexcept {
 }
 
 Compiler &Compiler::compile(Return st) noexcept {
-  return add(st); // TODO add X86_RET
+  return add(st).add(Stmt0{X86_RET});
 }
 
 ////////////////////////////////////////////////////////////////////////////////

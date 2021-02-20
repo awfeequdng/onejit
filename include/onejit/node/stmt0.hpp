@@ -48,7 +48,7 @@ public:
   constexpr Stmt0() noexcept : Base{} {
   }
 
-  constexpr explicit Stmt0(OpStmt0 op) noexcept : Base{STMT_0, Void, op} {
+  constexpr explicit Stmt0(OpStmt0 op) noexcept : Base{create(op)} {
   }
 
   static constexpr Type type() noexcept {
@@ -70,7 +70,8 @@ public:
   const Fmt &format(const Fmt &out, Syntax syntax = Syntax::Default, size_t depth = 0) const;
 
 protected:
-  // downcast Node to Stmt0
+  // downcast Node to Stmt0.
+  // Stmt0 is always direct => set code_ to nullptr
   constexpr explicit Stmt0(const Node &node) noexcept //
       : Base{Node{node.header(), node.offset_or_direct(), nullptr}} {
   }
@@ -83,6 +84,18 @@ protected:
   static constexpr bool child_result_is_used(uint32_t /*i*/) noexcept {
     // no children
     return false;
+  }
+
+  static constexpr Node create(OpStmt0 op) noexcept {
+    return Node{NodeHeader{STMT_0, Void, op}, direct(op), nullptr};
+  }
+
+  static constexpr CodeItem direct(OpStmt0 op) noexcept {
+    return op <= FALLTHROUGH ? CodeItem(op) : CodeItem(op) << 4 | 0xE;
+  }
+
+  static constexpr OpStmt0 parse_direct_op(CodeItem item) noexcept {
+    return OpStmt0(item >> 4);
   }
 };
 
