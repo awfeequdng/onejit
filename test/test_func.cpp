@@ -79,7 +79,9 @@ void Test::func_fib() {
     (= var1001_ul 1)\n\
     (return var1001_ul)\n\
     label_2)";
-  TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
+
+  Fmt{stdout} << f.get_compiled(X64) << '\n';
 
   // dump_and_clear_code();
   holder.clear();
@@ -138,7 +140,7 @@ void Test::func_loop() {
     (asm_jb label_1)\n\
     label_3\n\
     (return var1001_ul))";
-  TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
@@ -210,7 +212,7 @@ void Test::func_switch1() {
     (= var1001_ul (+ var1000_ul 1))\n\
     label_1\n\
     (return var1001_ul))";
-  TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
@@ -283,7 +285,7 @@ void Test::func_switch2() {
     (= var1001_ul 2)\n\
     label_1\n\
     (return var1001_ul))";
-  TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
@@ -349,7 +351,7 @@ void Test::func_cond() {
     (= var1001_ul (+ var1000_ul 1))\n\
     label_1\n\
     (return var1001_ul))";
-  TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
@@ -393,7 +395,7 @@ void Test::func_and_or() {
     label_2\n\
     (= var1002_e (^ var1003_e var1004_e))\n\
     (return var1002_e))";
-  TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();

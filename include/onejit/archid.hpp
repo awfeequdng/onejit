@@ -38,6 +38,8 @@ enum class eArchId : uint8_t {
   ARM64 = 2,
   X86 = 3, // 32-bit i386, i486, i586 ...
   ARM = 4,
+
+  COUNT
 };
 
 class ArchId {
@@ -55,7 +57,16 @@ private:
   eArchId val_;
 };
 
+constexpr bool operator==(ArchId a, ArchId b) noexcept {
+  return a.val() == b.val();
+}
+
+constexpr bool operator!=(ArchId a, ArchId b) noexcept {
+  return a.val() != b.val();
+}
+
 const Fmt &operator<<(const Fmt &out, ArchId archid);
+
 inline const Fmt &operator<<(const Fmt &out, eArchId earchid) {
   return out << ArchId{earchid};
 }

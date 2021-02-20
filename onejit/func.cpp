@@ -42,11 +42,15 @@ Func::Func() noexcept
 Func &Func::reset(Code *holder, Name name, FuncType ftype) noexcept {
   holder_ = holder;
   body_var_n_ = 0;
+  compiled_var_n_ = 0;
   ftype_ = ftype;
   vars_.clear();
   labels_.clear();
   name_ = name;
-  compiled_ = body_ = Node{};
+  body_ = Node{};
+  for (size_t i = 0; i < ARCHID_N; i++) {
+    compiled_[i] = Node{};
+  }
 
   bool ok = bool(*this);
   for (size_t i = 0, n = ftype.param_n(); ok && i < n; i++) {
@@ -90,6 +94,30 @@ Var Func::result(uint16_t i) const noexcept {
     return vars_.get(size_t(i) + param_n_);
   }
   return Var{};
+}
+
+Node Func::get_compiled(ArchId archid) const noexcept {
+  size_t id = size_t(archid.val());
+  if (id < ARCHID_N) {
+    return compiled_[id];
+  } else {
+    return Node{};
+  }
+}
+
+Func &Func::set_compiled(ArchId archid, const Node &compiled) noexcept {
+  size_t id = size_t(archid.val());
+  if (id < ARCHID_N) {
+    compiled_[id] = compiled;
+    if (archid == NOARCH) {
+      compiled_var_n_ = vars_.size();
+    } else {
+      // do not keep vars created by compile_<ARCH>()
+      // otherwise different archs would interfere with each other
+      vars_.truncate(compiled_var_n_);
+    }
+  }
+  return *this;
 }
 
 Label Func::new_label() noexcept {

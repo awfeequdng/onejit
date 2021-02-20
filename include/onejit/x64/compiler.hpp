@@ -56,7 +56,9 @@ private:
   // private, use onejit::Compiler::x64() instead
   Compiler &compile(Func &func, Vector<Node> &node, Vector<Error> &error, Opt flags) noexcept;
 
+  Compiler &compile(Assign stmt) noexcept;
   Compiler &compile(AssignCall stmt) noexcept;
+  Compiler &compile(Block stmt) noexcept;
   Compiler &compile(Expr expr) noexcept;
   Compiler &compile(Node node) noexcept;
   Compiler &compile(Return stmt) noexcept;
@@ -69,6 +71,7 @@ private:
   Expr simplify(onejit::Mem expr) noexcept;
   Expr simplify(Tuple expr) noexcept;
   Expr simplify(Unary expr) noexcept;
+  void simplify_binary(Expr &x, Expr &y) noexcept;
 
   // if expr is a Var, does nothing and returns it.
   // otherwise copies expression result to a new local variable and returns it.
@@ -85,7 +88,7 @@ private:
   // add an already compiled node to compiled list
   Compiler &add(const Node &node) noexcept;
 
-  // store compiled code into function.compiled_arch(ArchId::X64)
+  // store compiled code into function.set_compiled(X64)
   // invoked by compile(Func)
   Compiler &finish() noexcept;
 

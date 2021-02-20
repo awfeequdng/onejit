@@ -65,7 +65,7 @@ public:
 
   // compile function to x86_64 assembly
   // defined in onejit/x64/compiler.cpp
-  Compiler &x64(Func &func, Opt flags = OptAll) noexcept;
+  Compiler &compile_x64(Func &func, Opt flags = OptAll) noexcept;
 
   // return the configured checks that compiled code must perform at runtime.
   constexpr Check check() const noexcept {

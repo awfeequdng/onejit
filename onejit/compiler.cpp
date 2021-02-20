@@ -86,7 +86,8 @@ Compiler::operator bool() const noexcept {
 }
 
 Compiler &Compiler::compile(Func &func, Opt flags) noexcept {
-  if (func.get_compiled()) {
+  if (func.get_compiled(NOARCH)) {
+    // already compiled
     return *this;
   }
 
@@ -117,7 +118,7 @@ Compiler &Compiler::finish() noexcept {
       compiled = Block{*func_, node_};
       break;
     }
-    func_->set_compiled(compiled);
+    func_->set_compiled(NOARCH, compiled);
   }
   return *this;
 }

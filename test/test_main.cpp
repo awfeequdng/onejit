@@ -71,7 +71,8 @@ void Test::run() {
 }
 
 void Test::compile(Func &f) {
-  comp.compile(f, OptAll);
+  // implies comp.compile(f, OptAll);
+  comp.compile_x64(f, OptAll);
 }
 
 void Test::dump_and_clear_code() {

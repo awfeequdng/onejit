@@ -31,6 +31,7 @@
 #include <onejit/node/label.hpp>
 #include <onejit/node/stmt.hpp>
 #include <onejit/opstmt.hpp>
+#include <onejit/x64/fwd.hpp>
 #include <onestl/view.hpp>
 
 #include <initializer_list>
@@ -44,6 +45,7 @@ class Stmt2 : public Stmt {
   friend class Default;
   friend class Node;
   friend class Func;
+  friend class x64::Compiler;
 
 public:
   /**

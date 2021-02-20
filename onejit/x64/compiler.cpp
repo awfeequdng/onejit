@@ -30,7 +30,7 @@
 
 namespace onejit {
 
-Compiler &Compiler::x64(Func &func, Opt flags) noexcept {
+Compiler &Compiler::compile_x64(Func &func, Opt flags) noexcept {
   compile(func, flags);
   if (*this && error_.empty()) {
     // pass our internal buffers node_ and error_ to x64::Compiler
@@ -39,28 +39,56 @@ Compiler &Compiler::x64(Func &func, Opt flags) noexcept {
   return *this;
 }
 
+// ===============================  x64::Compiler  =============================
+
 namespace x64 {
 
 Compiler::operator bool() const noexcept {
   return good_ && func_ && *func_;
 }
 
-Compiler &Compiler::compile(Func &func, Vector<Node> &node, Vector<Error> &error,
+Compiler &Compiler::compile(Func &func, Vector<Node> &node_vec, Vector<Error> &error_vec,
                             Opt flags) noexcept {
-  node.clear();
+  if (func.get_compiled(X64)) {
+    // already compiled for x86_64
+    return *this;
+  }
+  Node node = func.get_compiled(NOARCH);
+  if (!node) {
+    error_vec.append(Error{node, "function not compiled yet, cannot materialize it for x64 arch"});
+    return *this;
+  }
+
+  node_vec.clear();
   func_ = &func;
-  node_ = &node;
-  error_ = &error;
+  node_ = &node_vec;
+  error_ = &error_vec;
   flags_ = flags;
   good_ = bool(func);
 
-  if (Node node = func.get_compiled()) {
-    return compile(node).finish();
+  return compile(node).finish();
+}
+
+Compiler &Compiler::finish() noexcept {
+  if (*this && node_) {
+    Node compiled;
+    switch (node_->size()) {
+    case 0:
+      compiled = VoidConst;
+      break;
+    case 1:
+      compiled = node_->get(0);
+      break;
+    default:
+      compiled = Block{*func_, *node_};
+      break;
+    }
+    func_->set_compiled(X64, compiled);
   }
   return *this;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+// ===============================  compile(Node)  =============================
 
 Compiler &Compiler::compile(Node node) noexcept {
   const Type t = node.type();
@@ -126,6 +154,15 @@ Expr Compiler::simplify(Unary expr) noexcept {
 
 Expr Compiler::simplify(Binary expr) noexcept {
   Expr x = expr.x(), y = expr.y();
+  Expr simpl_x = x, simpl_y = y;
+  simplify_binary(simpl_x, simpl_y);
+  if (simpl_x != x || simpl_y != y) {
+    return Binary{*func_, expr.op(), simpl_x, simpl_y};
+  }
+  return expr;
+}
+
+void Compiler::simplify_binary(Expr &x, Expr &y) noexcept {
   Expr simpl_x = to_var_mem_const(simplify(x));
   Expr simpl_y = to_var_mem_const(simplify(y));
   if (simpl_x.type() == MEM && simpl_y.type() == MEM) {
@@ -133,10 +170,8 @@ Expr Compiler::simplify(Binary expr) noexcept {
     // not supported by x86_64 assembly, force one to register
     simpl_y = to_var(simpl_y);
   }
-  if (simpl_x != x || simpl_y != y) {
-    return Binary{*func_, expr.op(), simpl_x, simpl_y};
-  }
-  return expr;
+  x = simpl_x;
+  y = simpl_y;
 }
 
 Expr Compiler::simplify(Tuple expr) noexcept {
@@ -167,6 +202,12 @@ Compiler &Compiler::compile(Stmt2 st) noexcept {
   switch (st.op()) {
   case JUMP_IF:
     return compile(st.is<JumpIf>());
+  case ASM_CMP: {
+    Expr x = st.child_is<Expr>(0);
+    Expr y = st.child_is<Expr>(1);
+    simplify_binary(x, y);
+    return add(Stmt2{*func_, x, y, X86_CMP});
+  }
   default:
     if (Assign assign = st.is<Assign>()) {
       return compile(assign);
@@ -175,12 +216,32 @@ Compiler &Compiler::compile(Stmt2 st) noexcept {
   }
 }
 
+Compiler &Compiler::compile(Assign st) noexcept {
+  Expr src = st.src(), dst = st.dst();
+  // simplify src first: its side effects, if any, must be applied before dst
+  //
+  // FIXME: to_var_mem_const(simplify(src)) creates redundant Vars
+  Expr simpl_src = simplify(src);
+  Expr simpl_dst = to_var_mem_const(simplify(dst));
+  if (simpl_src.type() == MEM && simpl_dst.type() == MEM) {
+    // both arguments are memory.
+    // not supported by x86_64 assembly, force one to register
+    simpl_src = to_var(simpl_src);
+  }
+  if (simpl_src != src || simpl_dst != dst) {
+    st = Assign{*func_, st.op(), simpl_dst, simpl_src};
+  }
+  return add(st);
+}
+
 // ===============================  compile(StmtN)  ============================
 
 Compiler &Compiler::compile(StmtN st) noexcept {
   switch (st.op()) {
   case ASSIGN_CALL:
     return compile(st.is<AssignCall>());
+  case BLOCK:
+    return compile(st.is<Block>());
   case RETURN:
     return compile(st.is<Return>());
   default:
@@ -188,12 +249,19 @@ Compiler &Compiler::compile(StmtN st) noexcept {
   }
 }
 
+Compiler &Compiler::compile(Block st) noexcept {
+  for (size_t i = 0, n = st.children(); i < n; i++) {
+    compile(st.child(i));
+  }
+  return *this;
+}
+
 Compiler &Compiler::compile(AssignCall st) noexcept {
   return add(st); // TODO?
 }
 
 Compiler &Compiler::compile(Return st) noexcept {
-  return add(st); // TODO?
+  return add(st); // TODO add X86_RET
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +271,8 @@ Var Compiler::to_var(Expr expr) noexcept {
   if (expr && !v) {
     // copy Expr result to a Var
     v = Var{*func_, expr.kind()};
-    compile(Assign{*func_, ASSIGN, v, expr});
+    // compile(Assign{...}) would cause infinite recursion
+    add(Assign{*func_, ASSIGN, v, expr});
   }
   return v;
 }

@@ -26,12 +26,13 @@
 #ifndef ONEJIT_FUNC_HPP
 #define ONEJIT_FUNC_HPP
 
+#include <onejit/archid.hpp>
 #include <onejit/code.hpp>
+#include <onejit/node/functype.hpp>
 #include <onejit/node/label.hpp>
 #include <onejit/node/name.hpp>
-#include <onejit/node/functype.hpp>
-#include <onejit/op.hpp>
 #include <onejit/node/var.hpp>
+#include <onejit/op.hpp>
 #include <onestl/chars.hpp>
 #include <onestl/string.hpp>
 #include <onestl/vector.hpp>
@@ -41,6 +42,8 @@ namespace onejit {
 class Func {
   friend class Label;
   friend class Var;
+
+  enum : size_t { ARCHID_N = size_t(eArchId::COUNT) };
 
 public:
   /**
@@ -111,15 +114,9 @@ public:
     return *this;
   }
 
-  constexpr Node get_compiled() const noexcept {
-    return compiled_;
-  }
+  Node get_compiled(ArchId archid) const noexcept;
 
-  Func &set_compiled(const Node &compiled) noexcept {
-    compiled_var_n_ = vars_.size();
-    compiled_ = compiled;
-    return *this;
-  }
+  Func &set_compiled(ArchId archid, const Node &compiled) noexcept;
 
 private:
   // create a new local label, used for jumps within the function
@@ -134,14 +131,14 @@ private:
   uint16_t param_n_;
   uint16_t result_n_;
   uint32_t body_var_n_;     // # local vars used by body_
-  uint32_t compiled_var_n_; // # local vars used by compiled_
+  uint32_t compiled_var_n_; // # local vars used by compiled_[NOARCH]
 
   FuncType ftype_;
   Vector<Var> vars_;
   Vector<Label> labels_;
   Name name_;
   Node body_;
-  Node compiled_;
+  Node compiled_[ARCHID_N]; // compiled code. index is archid
 };
 
 } // namespace onejit
