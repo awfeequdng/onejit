@@ -136,8 +136,8 @@ public:
     return g == g1 || g == g2 || g == g3 || g == g4;
   }
 
-  bool is_float() const noexcept {
-    return is(gFloat);
+  constexpr bool is_float() const noexcept {
+    return (val_ & 0xF) == eFloat32 || (val_ & 0xF) == eFloat64;
   }
 
   bool is_integer() const noexcept {

@@ -227,6 +227,9 @@ Value Value::min(Kind kind) noexcept {
 
 // return the identity element for specified operation and kind
 Value Value::identity(OpN op, Kind kind) noexcept {
+  if (is_bitwise(op) && kind.is_float()) {
+    return Value{};
+  }
   uint64_t i;
   switch (op) {
   case ADD:
@@ -252,6 +255,9 @@ Value Value::identity(OpN op, Kind kind) noexcept {
 
 // return the absorbing element for specified operation and kind
 Value Value::absorbing(OpN op, Kind kind) noexcept {
+  if (is_bitwise(op) && kind.is_float()) {
+    return Value{};
+  }
   uint64_t i;
   switch (op) {
   case OR:

@@ -121,6 +121,9 @@ constexpr bool is_associative(OpN op) noexcept {
 constexpr bool is_commutative(OpN op) noexcept {
   return op >= ADD && op <= MIN;
 }
+constexpr bool is_bitwise(OpN op) noexcept {
+  return op >= AND && op <= XOR;
+}
 
 const Chars to_string(Op1 op) noexcept;
 const Chars to_string(Op2 op) noexcept;
