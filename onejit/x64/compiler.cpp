@@ -232,11 +232,12 @@ Compiler &Compiler::compile(Assign st) noexcept {
 }
 
 Node Compiler::simplify_assign(Assign st, Expr dst, Expr src) noexcept {
+  // FIXME use st.kind() to select appropriate x86_64 instruction
   OpStmt2 op = st.op();
   if (op >= ADD_ASSIGN && op <= SHR_ASSIGN) {
     static const OpStmt2 xop[] =
-        // FIXME X86_DIV computes both quotient and remainder
-        {X86_ADD, X86_SUB, X86_MUL, X86_DIV, X86_DIV, //
+        // FIXME: X86_DIV computes both quotient and remainder
+        {X86_ADD, X86_SUB, X86_MUL, X86_DIV, REM_ASSIGN, //
          X86_AND, X86_OR,  X86_XOR, X86_SHL, X86_SHR};
     op = xop[op - ADD_ASSIGN];
   } else if (op == ASSIGN) {
