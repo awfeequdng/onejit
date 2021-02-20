@@ -50,8 +50,6 @@ class VectorHelper;
 template <class T> class View;
 class Writer;
 
-typedef Span<char> CharSpan;
-typedef Buffer<uint8_t> ByteBuf;
 typedef View<uint8_t> Bytes;
 
 } // namespace onestl

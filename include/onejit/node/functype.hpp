@@ -67,9 +67,8 @@ public:
   }
 
   /// \return number of parameters
-  uint16_t param_n() const noexcept {
-    return children() - result_n();
-  }
+  uint16_t param_n() const noexcept;
+
   /// \return number of results
   constexpr uint16_t result_n() const noexcept {
     return Base::op();
@@ -80,7 +79,7 @@ public:
   /// \return kind of i-th result, or Bad if out-of-bounds
   Kind result(uint16_t i) const noexcept;
 
-  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+  const Fmt &format(const Fmt &out, Syntax syntax = Syntax::Default, size_t depth = 0) const;
 
 private:
   // downcast Node to FuncType

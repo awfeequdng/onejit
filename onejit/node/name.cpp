@@ -56,7 +56,7 @@ Chars Name::chars() const noexcept {
   return Chars{};
 }
 
-const Fmt &Name::format(const Fmt &out, size_t /*depth*/) const {
+const Fmt &Name::format(const Fmt &out, Syntax /*syntax*/, size_t /*depth*/) const {
   return out << '"' << chars() << '"';
 }
 

@@ -24,6 +24,7 @@
  */
 
 #include <onejit/fmt.hpp>
+#include <onejit/op.hpp>
 #include <onejit/opstmt.hpp>
 #include <onestl/chars.hpp>
 
@@ -114,6 +115,78 @@ const Fmt &operator<<(const Fmt &out, OpStmt1 op) {
 }
 
 // ============================  OpStmt2  ======================================
+
+// if OpStmt2 is *_ASSIGN, return the corresponding Op2
+Op2 to_op2(OpStmt2 op) noexcept {
+  switch (op) {
+  case SUB_ASSIGN:
+    return SUB;
+  case QUO_ASSIGN:
+    return QUO;
+  case REM_ASSIGN:
+    return REM;
+  case SHL_ASSIGN:
+    return SHL;
+  case SHR_ASSIGN:
+    return SHR;
+  default:
+    return BAD2;
+  }
+}
+
+// if OpStmt2 is *_ASSIGN, return the corresponding OpN
+OpN to_opn(OpStmt2 op) noexcept {
+  switch (op) {
+  case ADD_ASSIGN:
+    return ADD;
+  case MUL_ASSIGN:
+    return MUL;
+  case AND_ASSIGN:
+    return AND;
+  case OR_ASSIGN:
+    return OR;
+  case XOR_ASSIGN:
+    return XOR;
+  default:
+    return BADN;
+  }
+}
+
+// return the *_ASSIGN corresponding to Op2
+OpStmt2 to_assign_op(Op2 op) noexcept {
+  switch (op) {
+  case SUB:
+    return SUB_ASSIGN;
+  case QUO:
+    return QUO_ASSIGN;
+  case REM:
+    return REM_ASSIGN;
+  case SHL:
+    return SHL_ASSIGN;
+  case SHR:
+    return SHR_ASSIGN;
+  default:
+    return BAD_ST2;
+  }
+}
+
+// return the *_ASSIGN corresponding to OpN
+OpStmt2 to_assign_op(OpN op) noexcept {
+  switch (op) {
+  case ADD:
+    return ADD_ASSIGN;
+  case MUL:
+    return MUL_ASSIGN;
+  case AND:
+    return AND_ASSIGN;
+  case OR:
+    return OR_ASSIGN;
+  case XOR:
+    return XOR_ASSIGN;
+  default:
+    return BAD_ST2;
+  }
+}
 
 static const Chars op_stmt_2_string[] = { //
     "?",

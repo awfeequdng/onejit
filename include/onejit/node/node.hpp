@@ -26,10 +26,12 @@
 #ifndef ONEJIT_NODE_NODE_HPP
 #define ONEJIT_NODE_NODE_HPP
 
-#include <onejit/check.hpp>
 #include <onejit/fmt.hpp>
 #include <onejit/math.hpp>
+#include <onejit/node/allow.hpp>
 #include <onejit/node/nodeheader.hpp>
+#include <onejit/node/syntax.hpp>
+#include <onejit/test.hpp>
 
 #include <type_traits> // std::is_base_of<>
 
@@ -83,10 +85,16 @@ public:
     return header_;
   }
 
+  Node &operator=(const Node &other) &noexcept = default;
+  // forbid assignment to temporary Node
+  Node &operator=(const Node &other) &&noexcept = delete;
+
+  // return true if this Node is valid
   constexpr explicit operator bool() const noexcept {
     return bool(header_);
   }
 
+  // return true if this Node is invalid
   constexpr bool operator!() const noexcept {
     return !header_;
   }
@@ -97,9 +105,27 @@ public:
     return header_ == other.header_ && off_or_dir_ == other.off_or_dir_ && code_ == other.code_;
   }
 
+  // identity test: true if this and other are *not* the same Node.
+  // does not recurse on children.
   constexpr bool operator!=(const Node &other) const noexcept {
     return !(*this == other);
   }
+
+  // deep comparison: return true if this and other Node are equal trees.
+  // Recurses on children.
+  bool deep_equal(const Node &other, Allow allow_mask = AllowAll) noexcept;
+
+  // deep comparison:
+  // return -1 if this tree is "less" than other tree,
+  // return +1 if this tree is "greater" than other tree,
+  // otherwise return 0. Recurses on children.
+  int deep_compare(const Node &other) const noexcept;
+
+  // true if node and its children have no side effects:
+  // no memory access, no function calls, no assignments
+  // i.e. only arithmetic on constants and variables.
+  // Recurses on children.
+  bool deep_pure(Allow allow_mask = AllowAll) const noexcept;
 
   // return Node length, in bytes
   Offset length_bytes() const noexcept {
@@ -144,7 +170,7 @@ public:
     return true;
   }
 
-  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+  const Fmt &format(const Fmt &out, Syntax syntax = Syntax::Default, size_t depth = 0) const;
 
 protected:
   constexpr Node(NodeHeader header, CodeItem offset_or_direct, const Code *code) noexcept
@@ -206,11 +232,11 @@ private:
   const Code *code_;
 };
 
+String to_string(Node node, Syntax syntax = Syntax::Default, size_t depth = 0);
+
 inline const Fmt &operator<<(const Fmt &out, const Node &node) {
   return node.format(out);
 }
-
-String to_string(Node node);
 
 } // namespace onejit
 

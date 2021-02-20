@@ -41,10 +41,10 @@ Node Tuple::create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept {
                                nodes);
 }
 
-const Fmt &Tuple::format(const Fmt &out, size_t depth) const {
+const Fmt &Tuple::format(const Fmt &out, Syntax syntax, size_t depth) const {
   if (type() == MEM) {
     // may happen, Mem is a subclass of Tuple
-    return is<Mem>().format(out, depth);
+    return is<Mem>().format(out, syntax, depth);
   }
 
   OpN op = this->op();
@@ -55,7 +55,7 @@ const Fmt &Tuple::format(const Fmt &out, size_t depth) const {
     Node node = child(i);
     if (node) {
       out << ' ';
-      node.format(out, depth + 1);
+      node.format(out, syntax, depth + 1);
     }
   }
   return out << ')';

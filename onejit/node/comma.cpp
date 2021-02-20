@@ -17,35 +17,22 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * stmt1.cpp
+ * comma.cpp
  *
- *  Created on Jan 18, 2021
+ *  Created on Feb 17, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/code.hpp>
-#include <onejit/func.hpp>
-#include <onejit/node/stmt1.hpp>
+#include <onejit/node/comma.hpp>
+#include <onejit/node/expr.hpp>
 
 namespace onejit {
 
-// ============================  Stmt1  ========================================
+// ============================  Comma  ====================================
 
-ONEJIT_NOINLINE Node Stmt1::create(Func &func, Expr arg, OpStmt1 op) noexcept {
-  return Base::create_indirect(func,                                   //
-                               NodeHeader{STMT_1, Void, uint16_t(op)}, //
-                               Nodes{&arg, 1});
+Node Comma::create(Func &func, Exprs args) noexcept {
+  return Base::create(func, Void, COMMA, //
+                      Nodes{args.begin(), args.size()});
 }
-
-const Fmt &Stmt1::format(const Fmt &out, Syntax syntax, size_t depth) const {
-  out << '(' << op() << ' ';
-  return child(0).format(out, syntax, depth + 1) << ')';
-}
-
-// ============================  Goto  ==================================
-
-// ============================  Inc  ===================================
-
-// ============================  Dec  ===================================
 
 } // namespace onejit

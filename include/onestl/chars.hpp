@@ -38,9 +38,14 @@ private:
 public:
   constexpr Chars() noexcept : Base{} {
   }
+
+  // construct Chars from '\0' terminated C string
+  explicit Chars(const T *c_str) noexcept;
+
   // construct Chars from literal string constant
   template <size_t N> constexpr Chars(const T (&addr)[N]) noexcept : Base{addr, N - 1} {
   }
+
   constexpr Chars(const T *addr, size_t n) noexcept : Base{addr, n} {
   }
   constexpr Chars(const View<T> &other) noexcept : Base{other} {

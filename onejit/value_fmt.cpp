@@ -58,7 +58,7 @@ const Fmt &operator<<(const Fmt &out, const Value &value) {
     out << value.float64();
     break;
   case ePtr:
-    out << value.ptr();
+    out << "0x" << Hex{value.ptr()};
     break;
   default:
     out << '?';

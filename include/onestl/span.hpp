@@ -71,8 +71,10 @@ public:
   using Base::data;
   using Base::empty;
   using Base::end;
+  using Base::get;
   using Base::operator==;
   using Base::operator[];
+  using Base::clear;
   using Base::size;
   using Base::truncate;
   using Base::view;
@@ -91,6 +93,14 @@ public:
   T &at(size_t index) {
     ONESTL_BOUNDS_TINY(index, <, size_);
     return data()[index];
+  }
+
+  // checked element access:
+  // set i-th element, or do nothing if index is out of bounds
+  void set(size_t index, T elem) noexcept(std::is_nothrow_move_assignable<T>::value) {
+    if (index < size_) {
+      data()[index] = std::move(elem);
+    }
   }
 
   T *begin() noexcept {
@@ -148,8 +158,6 @@ template <class T> void View<T>::ref(const Span<T> &other) noexcept {
   data_ = other.data();
   size_ = other.size();
 }
-
-typedef Span<char> CharSpan;
 
 } // namespace onestl
 

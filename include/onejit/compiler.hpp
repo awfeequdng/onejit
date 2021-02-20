@@ -38,7 +38,7 @@ namespace onejit {
 
 class Compiler {
 public:
-  enum Flag : uint8_t;
+  enum Flags : uint8_t;
 
   Compiler() noexcept;
   Compiler(Compiler &&other) noexcept = default;
@@ -46,38 +46,55 @@ public:
 
   ~Compiler() noexcept;
 
+  // return false if out of memory
   explicit operator bool() const noexcept;
 
   constexpr Func *func() const noexcept {
     return func_;
   }
 
-  // compile function
-  Compiler &compile(Func &func, Optimizer::Flag flags = Optimizer::All) noexcept;
+  // configure the checks that compiled code must perform at runtime.
+  // default is CheckNone
+  Compiler &configure(Check check) noexcept {
+    optimizer_.configure(check);
+    return *this;
+  }
+
+  // compile function to portable IR (intermediate representation)
+  Compiler &compile(Func &func, Opt flags = OptAll) noexcept;
+
+  // compile function to x86_64 assembly
+  // defined in onejit/x64/compiler.cpp
+  Compiler &compile_x64(Func &func, Opt flags = OptAll) noexcept;
+
+  // return the configured checks that compiled code must perform at runtime.
+  constexpr Check check() const noexcept {
+    return optimizer_.check();
+  }
 
 private:
-  Node compile(Assign stmt, Flag flags) noexcept;
-  Node compile(AssignCall stmt, Flag flags) noexcept;
-  Expr compile(Binary expr, Flag flags) noexcept;
-  Node compile(Block stmt, Flag flags) noexcept;
-  Expr compile(Call expr, Flag flags) noexcept;
-  Node compile(Cond stmt, Flag flags) noexcept;
-  Expr compile(Expr expr, Flag flags) noexcept;
-  Node compile(For stmt, Flag flags) noexcept;
-  Node compile(If stmt, Flag flags) noexcept;
-  Node compile(JumpIf stmt, Flag flags) noexcept;
-  Expr compile(Mem expr, Flag flags) noexcept;
-  Node compile(Node node, Flag flags) noexcept;
-  Node compile(Return stmt, Flag flags) noexcept;
-  Node compile(Stmt0 stmt, Flag flags) noexcept;
-  Node compile(Stmt1 stmt, Flag flags) noexcept;
-  Node compile(Stmt2 stmt, Flag flags) noexcept;
-  Node compile(Stmt3 stmt, Flag flags) noexcept;
-  Node compile(Stmt4 stmt, Flag flags) noexcept;
-  Node compile(StmtN stmt, Flag flags) noexcept;
-  Node compile(Switch stmt, Flag flags) noexcept;
-  Expr compile(Unary expr, Flag flags) noexcept;
-  Expr compile(Tuple expr, Flag flags) noexcept;
+  Node compile(Assign stmt, Flags flags) noexcept;
+  Node compile(AssignCall stmt, Flags flags) noexcept;
+  Expr compile(Binary expr, Flags flags) noexcept;
+  Node compile(Block stmt, Flags flags) noexcept;
+  Expr compile(Call expr, Flags flags) noexcept;
+  Node compile(Cond stmt, Flags flags) noexcept;
+  Expr compile(Expr expr, Flags flags) noexcept;
+  Node compile(For stmt, Flags flags) noexcept;
+  Node compile(If stmt, Flags flags) noexcept;
+  Node compile(JumpIf stmt, Flags flags) noexcept;
+  Expr compile(Mem expr, Flags flags) noexcept;
+  Node compile(Node node, Flags flags) noexcept;
+  Node compile(Return stmt, Flags flags) noexcept;
+  Node compile(Stmt0 stmt, Flags flags) noexcept;
+  Node compile(Stmt1 stmt, Flags flags) noexcept;
+  Node compile(Stmt2 stmt, Flags flags) noexcept;
+  Node compile(Stmt3 stmt, Flags flags) noexcept;
+  Node compile(Stmt4 stmt, Flags flags) noexcept;
+  Node compile(StmtN stmt, Flags flags) noexcept;
+  Node compile(Switch stmt, Flags flags) noexcept;
+  Expr compile(Unary expr, Flags flags) noexcept;
+  Expr compile(Tuple expr, Flags flags) noexcept;
 
   Expr simplify_boolean(Op2 op, Expr x, Expr y) noexcept;
   Expr simplify_land(Expr x, Expr y) noexcept;
@@ -101,18 +118,18 @@ private:
 
   // copy expression result to a new local variable.
   // if node is already a Var, does nothing and returns it
-  Var to_var(const Node &node) noexcept;
+  Var to_var(Node node) noexcept;
 
   // copy node.child(start ... end-1) to new local variables,
   // and append such variables to vars.
-  Compiler &to_vars(const Node &node, uint32_t start, uint32_t end, //
+  Compiler &to_vars(Node node, uint32_t start, uint32_t end, //
                     Vector<Expr> &vars) noexcept;
 
   // add an already compiled node to compiled list
   Compiler &add(const Node &node) noexcept;
 
   // compile a node, then add it to compiled list
-  Compiler &compile_add(const Node &node, Flag flags) noexcept {
+  Compiler &compile_add(const Node &node, Flags flags) noexcept {
     return add(compile(node, flags));
   }
 
@@ -123,7 +140,7 @@ private:
   // add a compile error
   Compiler &error(const Node &where, Chars msg) noexcept;
 
-  // add an out-of-memory error
+  // add an out of memory error
   Compiler &out_of_memory(const Node &where) noexcept;
 
 private:
@@ -135,7 +152,7 @@ private:
   Vector<Label> fallthrough_; // stack of 'fallthrough' destination labels
   Vector<Node> node_;
   Vector<Error> error_;
-  bool good_; // good_ = false means out-of-memory
+  bool good_; // !good_ means out of memory
 };
 
 } // namespace onejit

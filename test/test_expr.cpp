@@ -29,6 +29,13 @@
 
 namespace onejit {
 
+void Test::arch() {
+  static const Chars archstring[] = {"NOARCH", "X64", "X86", "ARM64", "ARM"};
+  for (ArchId archid = ArchId(0); archid < ARCHID_N; archid = ArchId(archid + 1)) {
+    TEST(to_string(archid), ==, archstring[archid]);
+  }
+}
+
 void Test::kind() {
   for (uint8_t i = 0; i <= eArchFlags; i++) {
     Kind k{i};
@@ -111,7 +118,7 @@ void Test::simple_expr() {
   for (uint8_t i = eVoid; i <= eArchFlags; i++) {
     Kind k = Kind(i);
     Expr v = Var{func, k};
-    Node node = Binary{func, ADD2, v, c};
+    Node node = Tuple{func, ADD, v, c};
 
     TEST(v.type(), ==, VAR);
     TEST(v.kind(), ==, k);
@@ -139,23 +146,25 @@ void Test::simple_expr() {
     TEST(bool(v.is<Var>()), ==, true);
     TEST(bool(v.is<Tuple>()), ==, false);
 
-    TEST(node.type(), ==, BINARY);
+    TEST(node.type(), ==, TUPLE);
     TEST(node.kind(), ==, k);
-    TEST(node.op(), ==, ADD2);
+    TEST(node.op(), ==, ADD);
     TEST(node.children(), ==, 2);
     TEST(node.child(0), ==, v);
     TEST(node.child(1), ==, c);
     TEST(node.is<Node>(), ==, node);
     TEST(node.is<Expr>(), ==, node);
-    TEST(node.is<Binary>(), ==, node);
+    TEST(node.is<Binary>(), ==, Binary{});
     TEST(node.is<Const>(), ==, Const{});
+    TEST(node.is<Tuple>(), ==, node);
     TEST(node.is<Stmt>(), ==, Stmt{});
     TEST(bool(node), ==, true);
     TEST(bool(node.is<Node>()), ==, true);
     TEST(bool(node.is<Expr>()), ==, true);
-    TEST(bool(node.is<Binary>()), ==, true);
+    TEST(bool(node.is<Binary>()), ==, false);
     TEST(bool(node.is<Const>()), ==, false);
     TEST(bool(node.is<Stmt>()), ==, false);
+    TEST(bool(node.is<Tuple>()), ==, true);
 
     Local local1 = v.to<Var>().local();
     Local local2 = Local::parse_direct(local1.direct());
@@ -176,8 +185,8 @@ void Test::nested_expr() {
     Expr v1 = Var{func, k};
     Expr v2 = Var{func, k};
 
-    Expr b1 = Binary{func, ADD2, c1, v1};
-    Expr b2 = Binary{func, MUL2, c2, v2};
+    Expr b1 = Tuple{func, ADD, c1, v1};
+    Expr b2 = Tuple{func, MUL, c2, v2};
     Expr b3 = Binary{func, SHL, b1, b2};
     Expr u1 = Unary{func, XOR1, b3};
 

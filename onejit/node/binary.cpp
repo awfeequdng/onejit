@@ -44,8 +44,10 @@ Node Binary::create(Func &func, Op2 op, const Expr &left, const Expr &right) {
                                {left, right});
 }
 
-const Fmt &Binary::format(const Fmt &out, size_t /*depth*/) const {
-  return out << '(' << op() << ' ' << x() << ' ' << y() << ')';
+const Fmt &Binary::format(const Fmt &out, Syntax syntax, size_t depth) const {
+  out << '(' << op() << ' ';
+  x().format(out, syntax, depth + 1) << ' ';
+  return y().format(out, syntax, depth + 1) << ')';
 }
 
 } // namespace onejit

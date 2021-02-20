@@ -30,7 +30,7 @@
 namespace onejit {
 
 enum {
-  BAD_ID = 0,
+  BAD_VARID = 0,
   FIRST_VARID = 0x1000,
 };
 
@@ -42,11 +42,15 @@ Func::Func() noexcept
 Func &Func::reset(Code *holder, Name name, FuncType ftype) noexcept {
   holder_ = holder;
   body_var_n_ = 0;
+  compiled_var_n_ = 0;
   ftype_ = ftype;
   vars_.clear();
   labels_.clear();
   name_ = name;
-  compiled_ = body_ = Node{};
+  body_ = Node{};
+  for (size_t i = 0; i < ARCHID_N; i++) {
+    compiled_[i] = Node{};
+  }
 
   bool ok = bool(*this);
   for (size_t i = 0, n = ftype.param_n(); ok && i < n; i++) {
@@ -72,23 +76,46 @@ Func::~Func() noexcept {
 
 // convert Func to Label
 Label Func::label() const noexcept {
-  return labels_.empty() ? Label{} : labels_[0];
+  // return labels_[0], or Label{} if labels_ is empty
+  return labels_.get(0);
 }
 
-/// \return i-th result, or Var{} if out-of-bounds
+/// \return i-th param, or Var{} if out-of-bounds
 Var Func::param(uint16_t i) const noexcept {
-  if (i < param_n_ && i < vars_.size()) {
-    return vars_[i];
+  if (i < param_n_) {
+    return vars_.get(i);
   }
   return Var{};
 }
 
 /// \return i-th result, or Var{} if out-of-bounds
 Var Func::result(uint16_t i) const noexcept {
-  if (i < result_n_ && size_t(i) + param_n_ < vars_.size()) {
-    return vars_[i + param_n_];
+  if (i < result_n_) {
+    return vars_.get(size_t(i) + param_n_);
   }
   return Var{};
+}
+
+Node Func::get_compiled(ArchId archid) const noexcept {
+  if (archid < ARCHID_N) {
+    return compiled_[archid];
+  } else {
+    return Node{};
+  }
+}
+
+Func &Func::set_compiled(ArchId archid, const Node &compiled) noexcept {
+  if (archid < ARCHID_N) {
+    compiled_[archid] = compiled;
+    if (archid == NOARCH) {
+      compiled_var_n_ = vars_.size();
+    } else {
+      // do not keep vars created by compile_<ARCH>()
+      // otherwise different archs would interfere with each other
+      vars_.truncate(compiled_var_n_);
+    }
+  }
+  return *this;
 }
 
 Label Func::new_label() noexcept {

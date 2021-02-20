@@ -42,18 +42,14 @@ enum Op1 : uint16_t {
   BITCOPY = 5, // copy float bits to integer or viceversa
 };
 
+// see OpN for + * & | ^
 enum Op2 : uint16_t {
   BAD2 = 0,
-  ADD2, // +
-  SUB,  // -
-  MUL2, // *
-  QUO,  // /
-  REM,  // %
-  AND2, // &
-  OR2,  // |
-  XOR2, // ^
-  SHL,  // <<
-  SHR,  // >>
+  SUB, // -
+  QUO, // /
+  REM, // %
+  SHL, // <<
+  SHR, // >>
 
   LAND, // &&
   LOR,  // ||
@@ -74,8 +70,8 @@ enum OpN : uint16_t {
   XOR, // ^
   MAX,
   MIN,
-  CALL,
   COMMA,
+  CALL,
   MEM_OP,
 
   // numeric values of the OpN enum constants below this line MAY CHANGE WITHOUT WARNING
@@ -105,8 +101,6 @@ constexpr OpN operator-(OpN op, int delta) noexcept {
   return OpN(int(op) - delta);
 }
 
-bool is_associative(Op2 op) noexcept;
-bool is_commutative(Op2 op) noexcept;
 constexpr bool is_comparison(Op2 op) noexcept {
   return op >= LSS && op <= GEQ;
 }
@@ -115,8 +109,11 @@ Op2 swap_comparison(Op2 op) noexcept;
 // change < to >=, <= to >, != to ==, == to !=, > to <= and >= to <
 Op2 not_comparison(Op2 op) noexcept;
 
+constexpr bool is_arithmetic(OpN op) noexcept {
+  return op >= ADD && op <= COMMA;
+}
 constexpr bool is_associative(OpN op) noexcept {
-  return op >= ADD && op <= MIN;
+  return op >= ADD && op <= COMMA;
 }
 constexpr bool is_commutative(OpN op) noexcept {
   return op >= ADD && op <= MIN;

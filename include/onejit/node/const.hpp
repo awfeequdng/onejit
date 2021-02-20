@@ -116,7 +116,7 @@ public:
     return imm();
   }
 
-  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+  const Fmt &format(const Fmt &out, Syntax syntax = Syntax::Default, size_t depth = 0) const;
 
 private:
   // downcast Node to Const
@@ -153,15 +153,15 @@ constexpr inline Const Zero(Kind kind) noexcept {
 }
 
 // return a Const value = 1 with specified Kind
-// equivalent to Const{func, Value{uint16_t(1)}.cast(kind)}
+// equivalent to Const{func, Value{1}.cast(kind)}
 Const One(Func &func, Kind kind) noexcept;
 
 // return a Const value = 2 with specified Kind
-// equivalent to Const{func, Value{uint16_t(2)}.cast(kind)}
+// equivalent to Const{func, Value{2}.cast(kind)}
 Const Two(Func &func, Kind kind) noexcept;
 
 // return a Const value = -2 with specified Kind
-// equivalent to Const{func, Value{int64_t(-1)}.cast(kind)}
+// equivalent to Const{func, Value{-1}.cast(kind)}
 Const MinusOne(Func &func, Kind kind) noexcept;
 
 } // namespace onejit

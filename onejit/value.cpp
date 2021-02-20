@@ -226,7 +226,25 @@ Value Value::min(Kind kind) noexcept {
 }
 
 // return the identity element for specified operation and kind
-Value Value::identity(OpN op, Kind kind) noexcept {
+Value Value::identity(Kind kind, Op2 op) noexcept {
+  uint64_t i;
+  switch (op) {
+  case SUB:
+  case SHL:
+  case SHR:
+    i = 0;
+    break;
+  case QUO:
+    i = 1;
+    break;
+  default:
+    return Value{};
+  }
+  return Value{i}.cast(kind);
+}
+
+// return the identity element for specified operation and kind
+Value Value::identity(Kind kind, OpN op) noexcept {
   if (is_bitwise(op) && kind.is_float()) {
     return Value{};
   }
@@ -247,6 +265,9 @@ Value Value::identity(OpN op, Kind kind) noexcept {
     return min(kind);
   case MIN:
     return max(kind);
+  case COMMA:
+    i = 0;
+    break;
   default:
     return Value{};
   }
@@ -254,7 +275,7 @@ Value Value::identity(OpN op, Kind kind) noexcept {
 }
 
 // return the absorbing element for specified operation and kind
-Value Value::absorbing(OpN op, Kind kind) noexcept {
+Value Value::absorbing(Kind kind, OpN op) noexcept {
   if (is_bitwise(op) && kind.is_float()) {
     return Value{};
   }

@@ -17,35 +17,25 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * stmt1.cpp
+ * syntax.hpp
  *
- *  Created on Jan 18, 2021
+ *  Created on Feb 19, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/code.hpp>
-#include <onejit/func.hpp>
-#include <onejit/node/stmt1.hpp>
+#ifndef ONEJIT_NODE_SYNTAX_HPP
+#define ONEJIT_NODE_SYNTAX_HPP
+
+#include <cstdint>
 
 namespace onejit {
 
-// ============================  Stmt1  ========================================
-
-ONEJIT_NOINLINE Node Stmt1::create(Func &func, Expr arg, OpStmt1 op) noexcept {
-  return Base::create_indirect(func,                                   //
-                               NodeHeader{STMT_1, Void, uint16_t(op)}, //
-                               Nodes{&arg, 1});
-}
-
-const Fmt &Stmt1::format(const Fmt &out, Syntax syntax, size_t depth) const {
-  out << '(' << op() << ' ';
-  return child(0).format(out, syntax, depth + 1) << ')';
-}
-
-// ============================  Goto  ==================================
-
-// ============================  Inc  ===================================
-
-// ============================  Dec  ===================================
+// Syntax passed to to_string(Node) and Node::format()
+enum class Syntax : uint8_t {
+  Default = 0,
+  CapstoneCompat = 1, // compatible with capstone disassembly
+};
 
 } // namespace onejit
+
+#endif // ONEJIT_NODE_SYNTAX_HPP

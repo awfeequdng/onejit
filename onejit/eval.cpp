@@ -26,6 +26,7 @@
 #include <onejit/eval.hpp>
 #include <onejit/node/binary.hpp>
 #include <onejit/node/const.hpp>
+#include <onejit/node/tuple.hpp>
 #include <onejit/node/unary.hpp>
 #include <onestl/view.hpp>
 
@@ -47,6 +48,18 @@ bool is_const(Expr expr) noexcept {
     }
     case CONST:
       return true;
+    case TUPLE: {
+      Tuple te = expr.is<Tuple>();
+      if (te.type() != TUPLE || !is_arithmetic(te.op())) {
+        break;
+      }
+      for (size_t i = 0, n = te.children(); i < n; i++) {
+        if (!is_const(te.arg(i))) {
+          break;
+        }
+      }
+      return true;
+    }
     default:
       break;
     }
@@ -68,14 +81,27 @@ Value eval(Expr expr) noexcept {
     Value y = eval(be.y());
     return eval_binary(be.op(), x, y);
   }
+  case TUPLE: {
+    Tuple te = expr.is<Tuple>();
+    if (te.type() != TUPLE || !is_arithmetic(te.op())) {
+      break;
+    }
+    Value v = Value::identity(te.kind(), te.op());
+    for (size_t i = 0, n = te.children(); v.is_valid() && i < n; i++) {
+      Value vi = eval(te.arg(i));
+      v = eval_tuple(te.kind(), te.op(), {v, vi});
+    }
+    return v;
+  }
   case CONST:
     return expr.is<Const>().val();
   default:
-    return Value{};
+    break;
   }
+  return Value{};
 }
 
-Value eval_unary(Kind to, Op1 op, Value x) noexcept {
+Value eval_unary(Kind kind, Op1 op, Value x) noexcept {
   switch (op) {
   case XOR1:
     x = ~x;
@@ -87,10 +113,10 @@ Value eval_unary(Kind to, Op1 op, Value x) noexcept {
     x = -x;
     break;
   case CAST:
-    x = x.cast(to);
+    x = x.cast(kind);
     break;
   case BITCOPY:
-    x = x.bitcopy(to);
+    x = x.bitcopy(kind);
     break;
   default:
     x = Value{};
@@ -101,29 +127,14 @@ Value eval_unary(Kind to, Op1 op, Value x) noexcept {
 
 Value eval_binary(Op2 op, Value x, Value y) noexcept {
   switch (op) {
-  case ADD2:
-    x = x + y;
-    break;
   case SUB:
     x = x - y;
-    break;
-  case MUL2:
-    x = x * y;
     break;
   case QUO:
     x = x / y;
     break;
   case REM:
     x = x % y;
-    break;
-  case AND2:
-    x = x & y;
-    break;
-  case OR2:
-    x = x | y;
-    break;
-  case XOR2:
-    x = x ^ y;
     break;
   case SHL:
     x = x << y;
@@ -162,16 +173,12 @@ Value eval_binary(Op2 op, Value x, Value y) noexcept {
   return x;
 }
 
-Value eval_tuple(OpN op, std::initializer_list<Value> vs) noexcept {
-  return eval_tuple(op, Values{vs.begin(), vs.size()});
+Value eval_tuple(Kind kind, OpN op, std::initializer_list<Value> vs) noexcept {
+  return eval_tuple(kind, op, Values{vs.begin(), vs.size()});
 }
 
-Value eval_tuple(OpN op, Values vs) noexcept {
-  if (vs.empty()) {
-    return Value{};
-  }
-  Value x = vs[0];
-  vs = vs.view(1, vs.size());
+Value eval_tuple(Kind kind, OpN op, Values vs) noexcept {
+  Value x = Value::identity(kind, op);
   switch (op) {
   case ADD:
     for (const Value &v : vs) {
@@ -198,8 +205,37 @@ Value eval_tuple(OpN op, Values vs) noexcept {
       x ^= v;
     }
     break;
+  case MAX:
+    for (const Value &v : vs) {
+      Value cmp = x < v;
+      if (cmp.is_valid()) {
+        x = cmp ? v : x;
+      } else {
+        return Value{};
+      }
+    }
+    break;
+  case MIN:
+    for (const Value &v : vs) {
+      Value cmp = x < v;
+      if (cmp.is_valid()) {
+        x = cmp ? x : v;
+      } else {
+        return Value{};
+      }
+    }
+    break;
+  case COMMA:
+    if (size_t n = vs.size()) {
+      for (const Value &v : vs) {
+        if (!v.is_valid()) {
+          return Value{};
+        }
+      }
+      x = vs[n - 1];
+    }
+    break;
   default:
-    x = Value{};
     break;
   }
   return x;

@@ -51,7 +51,7 @@ void Test::x64_expr() {
   {
     x64::Mem mem{f, Int32, -67890};
 
-    Chars expected = "(x86_mem32 -67890)";
+    Chars expected = "(x86_mem_i -67890)";
     TEST(to_string(mem), ==, expected);
   }
 
@@ -105,7 +105,7 @@ void Test::x64_expr() {
         continue;
       }
 
-      // (mem8,16,32,64 offset)
+      // (mem_ub,us,ui,ul offset)
       for (int32_t offset : {0x7f, 0x77665544}) {
         x64::Mem mem{f, kind, offset};
 
@@ -118,7 +118,7 @@ void Test::x64_expr() {
           i = x64::RIP;
         }
 
-        // (mem8,16,32,64 offset base)
+        // (mem_ub,us,ui,ul offset base)
         {
           x64::Reg base{Uint64, i};
           for (int32_t offset : {0x7f, 0x77665544}) {
@@ -134,7 +134,7 @@ void Test::x64_expr() {
           continue;
         }
 
-        // (mem8,16,32,64 offset _ index scale)
+        // (mem_ub,us,ui,ul offset _ index scale)
         if (i != x64::RSP) {
           // cannot encode RSP as index register
           x64::Reg index{Uint64, i};
@@ -149,7 +149,7 @@ void Test::x64_expr() {
           }
         }
 
-        // (mem8,16,32,64 offset base index scale)
+        // (mem_ub,us,ui,ul offset base index scale)
         for (x64::RegId j = x64::RAX; j <= x64::R15; j = j + 1) {
           if (j == x64::RSP) {
             // cannot encode RSP as index register
@@ -175,15 +175,15 @@ void Test::x64_expr() {
 
   {
     x64::Reg base{Uint64, x64::RAX}, index{Uint64, x64::RCX};
-    x64::Mem mem{f, Label{f}, 12345, Var{base}, Var{index}, x64::Scale8};
+    x64::Mem mem{f, Ptr, Label{f}, 12345, Var{base}, Var{index}, x64::Scale8};
     Stmt1 st{f, mem, X86_CALL};
 
     assembler.x64(st);
 
-    Chars expected = "(x86_mem64 label_1 12345 rax rcx 8)";
+    Chars expected = "(x86_mem_p label_1 12345 rax rcx 8)";
     TEST(to_string(mem), ==, expected);
 
-    expected = "(x86_call (x86_mem64 label_1 12345 rax rcx 8))";
+    expected = "(x86_call (x86_mem_p label_1 12345 rax rcx 8))";
     TEST(to_string(st), ==, expected);
 
     TEST(assembler.size(), ==, 7);

@@ -31,6 +31,7 @@
 #include <onejit/node/label.hpp>
 #include <onejit/node/stmt.hpp>
 #include <onejit/opstmt.hpp>
+#include <onejit/x64/fwd.hpp>
 #include <onestl/view.hpp>
 
 #include <initializer_list>
@@ -44,6 +45,7 @@ class Stmt2 : public Stmt {
   friend class Default;
   friend class Node;
   friend class Func;
+  friend class x64::Compiler;
 
 public:
   /**
@@ -68,7 +70,7 @@ public:
     return 2;
   }
 
-  const Fmt &format(const Fmt &out, size_t depth = 0) const;
+  const Fmt &format(const Fmt &out, Syntax syntax = Syntax::Default, size_t depth = 0) const;
 
 protected:
   // downcast Node to Stmt2
@@ -135,7 +137,7 @@ private:
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op >= ADD_ASSIGN && op <= ASSIGN;
+    return is_assign(OpStmt2(op));
   }
 
   static constexpr bool child_result_is_used(uint32_t /*i*/) noexcept {

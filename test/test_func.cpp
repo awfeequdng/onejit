@@ -49,14 +49,14 @@ void Test::func_fib() {
    * }
    */
 
-  f.set_body(                                                  //
-      If{f, Binary{f, GTR, n, two},                            //
-         Return{f,                                             //
-                Binary{f,                                      //
-                       ADD2,                                   //
-                       Call{f, f, {Binary{f, SUB, n, one}}},   //
-                       Call{f, f, {Binary{f, SUB, n, two}}}}}, //
-         Return{f, one}});                                     //
+  f.set_body(                                                 //
+      If{f, Binary{f, GTR, n, two},                           //
+         Return{f,                                            //
+                Tuple{f,                                      //
+                      ADD,                                    //
+                      Call{f, f, {Binary{f, SUB, n, one}}},   //
+                      Call{f, f, {Binary{f, SUB, n, two}}}}}, //
+         Return{f, one}});                                    //
 
   Chars expected = "(if (> var1000_ul 2)\n\
     (return (+ (call label_0 (- var1000_ul 1)) (call label_0 (- var1000_ul 2))))\n\
@@ -79,7 +79,9 @@ void Test::func_fib() {
     (= var1001_ul 1)\n\
     (return var1001_ul)\n\
     label_2)";
-  TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
+
+  Fmt{stdout} << "fib[x64] = " << f.get_compiled(X64) << '\n';
 
   // dump_and_clear_code();
   holder.clear();
@@ -138,7 +140,7 @@ void Test::func_loop() {
     (asm_jb label_1)\n\
     label_3\n\
     (return var1001_ul))";
-  TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
@@ -179,7 +181,8 @@ void Test::func_switch1() {
                     n,
                     {Case{f, zero, Assign{f, ASSIGN, ret, one}}, //
                      Case{f, one, Assign{f, ASSIGN, ret, two}},  //
-                     Default{f, Assign{f, ASSIGN, ret, Binary{f, ADD2, n, one}}}}},
+                     Default{f, Assign{f, ASSIGN, ret,           //
+                                       Tuple{f, ADD, n, one}}}}},
              Return{f, ret}}});
 
   Chars expected = "(block\n\
@@ -209,7 +212,7 @@ void Test::func_switch1() {
     (= var1001_ul (+ var1000_ul 1))\n\
     label_1\n\
     (return var1001_ul))";
-  TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
@@ -248,9 +251,10 @@ void Test::func_switch2() {
       Block{f,
             {Switch{f,
                     n,
-                    {Case{f, zero, Assign{f, ASSIGN, ret, one}},                  //
-                     Default{f, Assign{f, ASSIGN, ret, Binary{f, ADD2, n, one}}}, //
-                     Case{f, one, Assign{f, ASSIGN, ret, two}}}},                 //
+                    {Case{f, zero, Assign{f, ASSIGN, ret, one}},  //
+                     Default{f, Assign{f, ASSIGN, ret,            //
+                                       Tuple{f, ADD, n, one}}},   //
+                     Case{f, one, Assign{f, ASSIGN, ret, two}}}}, //
              Return{f, ret}}});
 
   Chars expected = "(block\n\
@@ -281,7 +285,7 @@ void Test::func_switch2() {
     (= var1001_ul 2)\n\
     label_1\n\
     (return var1001_ul))";
-  TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
@@ -315,9 +319,9 @@ void Test::func_cond() {
   f.set_body( //
       Block{f,
             {Cond{f,
-                  {Binary{f, EQL, n, zero}, Assign{f, ASSIGN, ret, one},        //
-                   Binary{f, EQL, n, one}, Assign{f, ASSIGN, ret, two},         //
-                   TrueExpr, Assign{f, ASSIGN, ret, Binary{f, ADD2, n, one}}}}, //
+                  {Binary{f, EQL, n, zero}, Assign{f, ASSIGN, ret, one},      //
+                   Binary{f, EQL, n, one}, Assign{f, ASSIGN, ret, two},       //
+                   TrueExpr, Assign{f, ASSIGN, ret, Tuple{f, ADD, n, one}}}}, //
              Return{f, ret}}});
 
   Chars expected = "(block\n\
@@ -347,7 +351,7 @@ void Test::func_cond() {
     (= var1001_ul (+ var1000_ul 1))\n\
     label_1\n\
     (return var1001_ul))";
-  TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
@@ -368,30 +372,30 @@ void Test::func_and_or() {
    * }
    */
 
-  f.set_body(Return{f, Binary{f, XOR2,                 //
-                              Binary{f, LAND, ma, mb}, //
-                              Binary{f, LOR, ma, mb}}});
+  f.set_body(Return{f, Tuple{f, XOR,                  //
+                             Binary{f, LAND, ma, mb}, //
+                             Binary{f, LOR, ma, mb}}});
 
-  Chars expected = "(return (^ (&& (mem1 var1000_p) (mem1 var1001_p)) \
-(|| (mem1 var1000_p) (mem1 var1001_p))))";
+  Chars expected = "(return (^ (&& (mem_e var1000_p) (mem_e var1001_p)) "
+                   "(|| (mem_e var1000_p) (mem_e var1001_p))))";
   TEST(to_string(f.get_body()), ==, expected);
 
   compile(f);
 
   expected = "(block\n\
-    (= var1003_e (mem1 var1000_p))\n\
+    (= var1003_e (mem_e var1000_p))\n\
     (asm_cmp var1003_e false)\n\
     (asm_je label_1)\n\
-    (= var1003_e (mem1 var1001_p))\n\
+    (= var1003_e (mem_e var1001_p))\n\
     label_1\n\
-    (= var1004_e (mem1 var1000_p))\n\
+    (= var1004_e (mem_e var1000_p))\n\
     (asm_cmp var1004_e false)\n\
     (asm_jne label_2)\n\
-    (= var1004_e (mem1 var1001_p))\n\
+    (= var1004_e (mem_e var1001_p))\n\
     label_2\n\
     (= var1002_e (^ var1003_e var1004_e))\n\
     (return var1002_e))";
-  TEST(to_string(f.get_compiled()), ==, expected);
+  TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();

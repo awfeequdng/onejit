@@ -97,7 +97,7 @@ public:
   // add an assembler error
   Assembler &error(const Node &where, Chars msg) noexcept;
 
-  // add an out-of-memory error
+  // add an out of memory error
   Assembler &out_of_memory(const Node &where) noexcept;
 
 private:

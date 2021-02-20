@@ -25,8 +25,8 @@
 
 #include <onejit/code.hpp>
 #include <onejit/func.hpp>
-#include <onejit/space.hpp>
 #include <onejit/node/stmt3.hpp>
+#include <onejit/space.hpp>
 #include <onestl/chars.hpp>
 
 namespace onejit {
@@ -39,12 +39,12 @@ ONEJIT_NOINLINE Node Stmt3::create(Func &func, Nodes children, OpStmt3 op) noexc
                                children);
 }
 
-const Fmt &Stmt3::format(const Fmt &out, size_t depth) const {
+const Fmt &Stmt3::format(const Fmt &out, Syntax syntax, size_t depth) const {
   ++depth;
   out << '(' << op() << ' ';
-  child(0).format(out, depth) << '\n' << Space{depth * 4};
-  child(1).format(out, depth) << '\n' << Space{depth * 4};
-  child(2).format(out, depth) << ')';
+  child(0).format(out, syntax, depth) << '\n' << Space{depth * 4};
+  child(1).format(out, syntax, depth) << '\n' << Space{depth * 4};
+  child(2).format(out, syntax, depth) << ')';
   return out;
 }
 

@@ -30,9 +30,19 @@
 
 namespace onejit {
 
+// truncate to uint16_t with saturation
+constexpr inline uint16_t saturate_uint16(uint64_t a) noexcept {
+  return uint16_t(a) == a ? uint16_t(a) : uint16_t(-1);
+}
+
 // truncate to uint32_t with saturation
 constexpr inline uint32_t saturate_uint32(uint64_t a) noexcept {
   return uint32_t(a) == a ? uint32_t(a) : uint32_t(-1);
+}
+
+// subtract a - b with saturation to uint16_t
+constexpr inline uint16_t sub_uint16(uint64_t a, uint64_t b) noexcept {
+  return a >= b ? saturate_uint16(a - b) : 0;
 }
 
 // add uint32_t a + b with saturation

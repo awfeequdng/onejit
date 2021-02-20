@@ -42,7 +42,7 @@ enum Type : uint8_t {
 
   // Expr
   VAR = 6,
-  MEM = 7,
+  MEM = 7, // subclass of Tuple
   UNARY = 8,
   BINARY = 9,
   TUPLE = 10,

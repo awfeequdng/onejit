@@ -17,13 +17,13 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * check.hpp
+ * test_tiny.hpp
  *
  *  Created on Jan 09, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONESTL_CHECK_TINY_HPP
-#define ONESTL_CHECK_TINY_HPP
+#ifndef ONESTL_TEST_TINY_HPP
+#define ONESTL_TEST_TINY_HPP
 
 #include <onestl/fwd.hpp>
 
@@ -43,4 +43,4 @@ void ONESTL_NORETURN throw_bounds_failed();
 
 } // namespace onestl
 
-#endif // ONESTL_CHECK_TINY_HPP
+#endif // ONESTL_TEST_TINY_HPP

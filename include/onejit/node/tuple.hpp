@@ -54,18 +54,30 @@ public:
   constexpr Tuple() noexcept : Base{} {
   }
 
-  constexpr OpN op() const noexcept {
-    return OpN(Base::op());
+  Tuple(Func &func, OpN op, Node x, Node y) noexcept //
+      : Base{create(func, x.kind(), op, {x, y})} {
   }
 
-  const Fmt &format(const Fmt &out, size_t depth = 0) const;
-
-private:
-  // used by Compiler::compile(Tuple) and Optimizer::partial_eval(Tuple)
   Tuple(Func &func, Kind kind, OpN op, Nodes nodes) noexcept //
       : Base{create(func, kind, op, nodes)} {
   }
 
+  Tuple(Func &func, Kind kind, OpN op, std::initializer_list<Node> nodes) noexcept //
+      : Base{create(func, kind, op, nodes)} {
+  }
+
+  constexpr OpN op() const noexcept {
+    return OpN(Base::op());
+  }
+
+  // shortcut for child_is<Expr>(i)
+  Expr arg(uint32_t i) noexcept {
+    return child_is<Expr>(i);
+  }
+
+  const Fmt &format(const Fmt &out, Syntax syntax = Syntax::Default, size_t depth = 0) const;
+
+private:
   // downcast Node to Tuple
   constexpr explicit Tuple(const Node &node) noexcept : Base{node} {
   }
@@ -80,6 +92,10 @@ private:
   }
 
   static Node create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept;
+
+  static Node create(Func &func, Kind kind, OpN op, std::initializer_list<Node> nodes) noexcept {
+    return create(func, kind, op, Nodes{nodes.begin(), nodes.size()});
+  }
 };
 
 } // namespace onejit

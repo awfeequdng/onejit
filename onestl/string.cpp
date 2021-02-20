@@ -31,7 +31,8 @@ template class Vector<char>;
 
 // ensure data() is terminated by '\0' then return it
 const char *String::c_str() noexcept {
-  if (cap_ > size_ && data_[size_] == '\0') {
+  if (cap_ > size_) {
+    data()[size_] = '\0';
     return data_;
   } else if (cap_ == 0 || !append('\0')) {
     return "";

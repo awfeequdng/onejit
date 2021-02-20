@@ -80,6 +80,10 @@ public:
   constexpr explicit Hex(uint64_t val) noexcept : val_{val} {
   }
 
+  explicit Hex(const void *val) noexcept //
+      : val_{reinterpret_cast<size_t>(val)} {
+  }
+
   constexpr uint64_t val() const noexcept {
     return val_;
   }
@@ -94,6 +98,15 @@ const Fmt &operator<<(const Fmt &fmt, char arg);
 const Fmt &operator<<(const Fmt &fmt, int64_t arg);
 const Fmt &operator<<(const Fmt &fmt, uint64_t arg);
 const Fmt &operator<<(const Fmt &fmt, double arg);
+const Fmt &operator<<(const Fmt &fmt, Hex arg);
+const Fmt &operator<<(const Fmt &fmt, std::nullptr_t);
+
+/**
+ * operator<<(Fmt, const void *) is not defined.
+ * to print an address in hexadecimal format, use: fmt << "0x" << Hex(address)
+ * to print the content of a C string (i.e. const char *) use: fmt << Chars{c_str}
+ */
+const Fmt &operator<<(const Fmt &fmt, const void *arg) = delete;
 
 inline const Fmt &operator<<(const Fmt &fmt, int8_t arg) {
   return fmt << int64_t(arg);
@@ -116,6 +129,7 @@ inline const Fmt &operator<<(const Fmt &fmt, uint32_t arg) {
 inline const Fmt &operator<<(const Fmt &fmt, float arg) {
   return fmt << double(arg);
 }
+
 inline const Fmt &operator<<(const Fmt &fmt, View<char> arg) {
   return fmt.write(arg.data(), arg.size());
 }
@@ -125,10 +139,6 @@ inline const Fmt &operator<<(const Fmt &fmt, View<int8_t> arg) {
 inline const Fmt &operator<<(const Fmt &fmt, View<uint8_t> arg) {
   return fmt.write(reinterpret_cast<const char *>(arg.data()), arg.size());
 }
-const Fmt &operator<<(const Fmt &fmt, const void *arg);
-const Fmt &operator<<(const Fmt &fmt, std::nullptr_t);
-const Fmt &operator<<(const Fmt &fmt, const char *c_str); /// c_str must be '\0' terminated
-const Fmt &operator<<(const Fmt &fmt, Hex arg);
 
 template <size_t N> const Fmt &operator<<(const Fmt &fmt, const char (&addr)[N]) {
   return fmt.write(addr, N - 1);

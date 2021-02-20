@@ -36,13 +36,12 @@ static const Chars kstring[] = {
     "ptr",     "archflags", "?",                 //
 };
 
-static const Chars kstringsuffix[] = {
-    "?",  "v",   "e",        //
-    "b",  "s",   "i",  "l",  //
-    "ub", "us",  "ui", "ul", //
-    "hf", "f",   "lf",       //
-    "p",  "cmp",             //
-};
+static const char kstringsuffix[] = //
+    "\1?\0\1v\0\1e\0"
+    "\1b\0\1s\0\1i\0\1l\0"
+    "\2ub\2us\2ui\2ul"
+    "\2hf\1f\0\2lf"
+    "\1p\0\003cmp";
 
 static const Bits kbits[] = {
     Bits0,  Bits0,  Bits1,          // Bad, Void, Bool
@@ -75,7 +74,8 @@ const Chars Kind::stringsuffix() const noexcept {
   if (i >= n) {
     i = 0;
   }
-  return kstringsuffix[i];
+  const char *str = &kstringsuffix[i * 3];
+  return Chars{str + 1, uint8_t(str[0])};
 }
 
 Bits Kind::bits() const noexcept {
@@ -94,17 +94,13 @@ Group Kind::group() const noexcept {
   return kgroup[i];
 }
 
-ONEJIT_NOINLINE const Fmt &operator<<(const Fmt &out, Kind kind) {
+const Fmt &operator<<(const Fmt &out, Kind kind) {
   out << kind.string();
   const size_t n = kind.simdn().val();
   if (n != 1) {
     out << 'x' << n;
   }
   return out;
-}
-
-const Fmt &operator<<(const Fmt &out, eKind ekind) {
-  return out << Kind{ekind};
 }
 
 } // namespace onejit

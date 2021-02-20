@@ -27,7 +27,7 @@
 #define ONEJIT_ONEJIT_HPP
 
 #include <onejit/archid.hpp>
-#include <onejit/check.hpp>
+#include <onejit/test.hpp>
 #include <onejit/code.hpp>
 #include <onejit/codeparser.hpp>
 #include <onejit/compiler.hpp>

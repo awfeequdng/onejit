@@ -23,7 +23,6 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/check.hpp>
 #include <onejit/code.hpp>
 #include <onejit/func.hpp>
 #include <onejit/node/binary.hpp>
@@ -42,6 +41,7 @@
 #include <onejit/node/tuple.hpp>
 #include <onejit/node/unary.hpp>
 #include <onejit/node/var.hpp>
+#include <onejit/test.hpp>
 #include <onestl/chars.hpp>
 
 namespace onejit {
@@ -71,37 +71,36 @@ Node Node::child(uint32_t i) const noexcept {
 
   // item low bits can be:
   // 0b***1 => direct CONST
-  // 0b**00 => relative offset of indirect Node
+  // 0b**00 => indirect Node. item is relative offset
   // 0b*010 => direct VAR
-  // 0b0110 => unused
+  // 0b0110 => direct Stmt0
   // 0b1110 => NodeHeader
 
   if (item == 0) {
     // nothing to do
   } else if (item < 4) {
-    // special case: Stmt0 is always direct,
-    // only four values exist: BadStmt (handled above) Break Continue Fallthrough
+    // special case. Stmt0, one of:
+    // BadStmt (handled above) Break Continue Fallthrough
     header = NodeHeader{STMT_0, Void, uint16_t(item)};
   } else if ((item & 1) != 0) {
-    // direct Imm
+    // direct Const
     offset_or_direct = item;
     header = NodeHeader{CONST, Imm::parse_direct_kind(item), 0};
   } else if ((item & 7) == 2) {
     // direct Local
     offset_or_direct = item;
     header = NodeHeader{VAR, Local::parse_direct_kind(item), 0};
-#if 0 // unused
-  } else if ((item & 0xF) == 0xE) {
+  } else if ((item & 0xF) == 6) {
+    // direct Stmt0
     offset_or_direct = item;
-    header = NodeHeader{???, ???::parse_direct_kind(item), 0};
-#endif
+    header = NodeHeader{STMT_0, Void, Stmt0::parse_direct_op(item)};
   } else if ((item & 3) == 0) {
     // indirect Node: item is relative offset between parent and child
     offset_or_direct = off_or_dir_ + item;
     header = NodeHeader{code_->get(offset_or_direct)};
     code = code_; // only indirect Nodes need code
   } else {
-    // NodeHeader or tag 0b0110: should not appear here,
+    // NodeHeader or tag 0b1110: should not appear here,
     // => return an invalid node
   }
   return Node{header, offset_or_direct, code};
@@ -152,47 +151,138 @@ Node Node::create_indirect(Func &func, NodeHeader header, Nodes children) noexce
   return Node{};
 }
 
-const Fmt &Node::format(const Fmt &out, const size_t depth) const {
+constexpr bool is_allowed(Type t, uint16_t op, Allow allow_mask) noexcept {
+  return ((allow_mask & AllowDivision) || t != BINARY || Op2(op) < QUO || Op2(op) > REM) &&
+         ((allow_mask & AllowMemAccess) || t != MEM) &&
+         ((allow_mask & AllowCall) || t != TUPLE || OpN(op) != CALL);
+}
+
+bool Node::deep_equal(const Node &other, Allow allow_mask) noexcept {
+  if (is_direct() != other.is_direct() || header() != other.header() ||
+      !is_allowed(type(), op(), allow_mask)) {
+    return false;
+  }
+  if (is_direct()) {
+    // direct nodes have no children. compare only their direct data
+    return offset_or_direct() == other.offset_or_direct();
+  }
+  if (code() == other.code() && offset_or_direct() == other.offset_or_direct()) {
+    // nodes are identical, i.e. the same node
+    return true;
+  }
+  const size_t n = children();
+  if (n != other.children()) {
+    return false;
+  }
+  for (size_t i = 0; i < n; i++) {
+    if (!child(i).deep_equal(other.child(i), allow_mask)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+static constexpr int compare(size_t a, size_t b) noexcept {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+int Node::deep_compare(const Node &other) const noexcept {
+  if (header() != other.header()) {
+    return header() < other.header() ? -1 : 1;
+  }
+  if (is_direct() != other.is_direct()) {
+    // direct nodes are "less" than indirect nodes
+    return is_direct() ? -1 : 1;
+  }
+  if (is_direct()) {
+    // direct nodes have no children. compare only their direct data
+    return compare(offset_or_direct(), other.offset_or_direct());
+  }
+  if (code() == other.code() && offset_or_direct() == other.offset_or_direct()) {
+    // nodes are identical, i.e. the same node
+    return 0;
+  }
+  const size_t n1 = children();
+  const size_t n2 = other.children();
+  const size_t n = n1 < n2 ? n1 : n2;
+  for (size_t i = 0; i < n; i++) {
+    if (int cmp = child(i).deep_compare(other.child(i))) {
+      return cmp;
+    }
+  }
+  // children up to min(n1,n2) are equal.
+  // last comparison: nodes with fewer children are "less"
+  return compare(n1, n2);
+}
+
+bool Node::deep_pure(Allow allow_mask) const noexcept {
+  Node node = *this;
+  for (;;) {
+    Type t = node.type();
+    if (t == VAR || t >= LABEL) {
+      return true;
+    } else if (t <= STMT_N || !is_allowed(t, node.op(), allow_mask)) {
+      // statements exist for their side effects
+      return false;
+    } else if (const size_t n = node.children()) {
+      // is_allowed() above already checked whether the type and operation are allowed
+      for (size_t i = 0; i + 1 < n; i++) {
+        if (!node.child(i).deep_pure(allow_mask)) {
+          return false;
+        }
+      }
+      node = node.child(n - 1);
+      continue;
+    } else {
+      return true; // no children
+    }
+    return false;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const Fmt &Node::format(const Fmt &out, Syntax syntax, const size_t depth) const {
   const Type t = type();
   switch (t) {
   case STMT_0:
-    return is<Stmt0>().format(out, depth);
+    return is<Stmt0>().format(out, syntax, depth);
   case STMT_1:
-    return is<Stmt1>().format(out, depth);
+    return is<Stmt1>().format(out, syntax, depth);
   case STMT_2:
-    return is<Stmt2>().format(out, depth);
+    return is<Stmt2>().format(out, syntax, depth);
   case STMT_3:
-    return is<Stmt3>().format(out, depth);
+    return is<Stmt3>().format(out, syntax, depth);
   case STMT_4:
-    return is<Stmt4>().format(out, depth);
+    return is<Stmt4>().format(out, syntax, depth);
   case STMT_N:
-    return is<StmtN>().format(out, depth);
+    return is<StmtN>().format(out, syntax, depth);
   case VAR:
-    return is<Var>().format(out, depth);
+    return is<Var>().format(out, syntax, depth);
   case MEM:
-    return is<Mem>().format(out, depth);
+    return is<Mem>().format(out, syntax, depth);
   case UNARY:
-    return is<Unary>().format(out, depth);
+    return is<Unary>().format(out, syntax, depth);
   case BINARY:
-    return is<Binary>().format(out, depth);
+    return is<Binary>().format(out, syntax, depth);
   case TUPLE:
-    return is<Tuple>().format(out, depth);
+    return is<Tuple>().format(out, syntax, depth);
   case LABEL:
-    return is<Label>().format(out, depth);
+    return is<Label>().format(out, syntax, depth);
   case CONST:
-    return is<Const>().format(out, depth);
+    return is<Const>().format(out, syntax, depth);
   case FTYPE:
-    return is<FuncType>().format(out, depth);
+    return is<FuncType>().format(out, syntax, depth);
   case NAME:
-    return is<Name>().format(out, depth);
+    return is<Name>().format(out, syntax, depth);
   default:
     return out << to_string(t);
   }
 }
 
-String to_string(Node node) {
+String to_string(Node node, Syntax syntax, size_t depth) {
   String str;
-  Fmt{&str} << node;
+  node.format(Fmt{&str}, syntax, depth);
   return str;
 }
 

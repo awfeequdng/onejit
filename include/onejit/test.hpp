@@ -1,7 +1,7 @@
 /*
- * onejit - in-memory assembler
+ * onejit - JIT compiler in C++
  *
- * Copyright (C) 2021 Massimiliano Ghilardi
+ * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,24 +17,18 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * x64.hpp - include all onejit/x64/ in one fell swoop
+ * test.hpp
  *
- *  Created on Feb 01, 2021
+ *  Created on Jan 19, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONEJIT_X64_HPP
-#define ONEJIT_X64_HPP
+#ifndef ONEJIT_TEST_HPP
+#define ONEJIT_TEST_HPP
 
-#include <onejit/x64/arg.hpp>
-#include <onejit/x64/asm.hpp>
-#include <onejit/x64/compiler.hpp>
-#include <onejit/x64/fwd.hpp>
-#include <onejit/x64/inst.hpp>
-#include <onejit/x64/mem.hpp>
-// #include <onejit/x64/reg.hpp>   // redundant
-// #include <onejit/x64/regid.hpp> // redundant
-#include <onejit/x64/rex_byte.hpp>
-// #include <onejit/x64/scale.hpp> // redundant
-#include <onejit/x64/util.hpp>
+#include <onestl/test.hpp>
 
-#endif // ONEJIT_X64_HPP
+#define ONEJIT_BOUNDS(lhs, op, rhs) ONESTL_BOUNDS(lhs, op, rhs)
+#define ONEJIT_CHECK(lhs, op, rhs) ONESTL_CHECK(lhs, op, rhs)
+#define ONEJIT_TEST(lhs, op, rhs) ONESTL_TEST(lhs, op, rhs)
+
+#endif // ONEJIT_TEST_HPP

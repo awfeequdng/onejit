@@ -43,33 +43,73 @@ static bool all_are(Nodes nodes) noexcept {
   return true;
 }
 
-Expr Optimizer::partial_eval_tuple(Tuple expr, Span<Node> children) noexcept {
+Expr Optimizer::optimize(Tuple expr, bool optimize_children) noexcept {
+  Expr ret;
+  if (expr && (flags_ & OptSimplifyExpr)) {
+    size_t orig_n = nodes_.size();
+    if (flatten_children_tobuf(expr, optimize_children)) {
+      NodeRange children{&nodes_, orig_n, nodes_.size() - orig_n};
+      ret = partial_eval_tuple(expr, children);
+    }
+    nodes_.truncate(orig_n);
+  }
+  return ret ? ret : expr;
+}
+
+bool Optimizer::flatten_children_tobuf(Node node, bool optimize_children) noexcept {
+  bool ok = true;
+  for (size_t i = 0, n = node.children(); ok && i < n; i++) {
+    Node child = node.child(i);
+    // compare type, kind, op
+    if (child.header() == node.header()) {
+      ok = flatten_children_tobuf(child, optimize_children);
+    } else {
+      if (optimize_children) {
+        child = optimize(child);
+      }
+      if (child.header() == node.header()) {
+        ok = flatten_children_tobuf(child, optimize_children);
+      } else {
+        ok = bool(nodes_.append(child));
+      }
+    }
+  }
+  return ok;
+}
+
+Expr Optimizer::partial_eval_tuple(Tuple expr, NodeRange &noderange) noexcept {
+  Span<Node> children = noderange.span();
   OpN op = expr.op();
   Kind kind = expr.kind();
-  if (is_associative(op) && is_commutative(op) && (flags_ & FastMath || !kind.is_float())) {
-    Value identity = Value::identity(op, kind);
+  if (is_associative(op) && (flags_ & OptFastMath || !kind.is_float())) {
+    Value identity = Value::identity(kind, op);
     size_t n = children.size();
     if (n == 0) {
       return Const{*func_, identity};
-    } else if (n > 1) {
+    } else if (n > 1 && is_commutative(op)) {
       // also put constants as last
-      std::sort(children.begin(), children.end(),
-                [](const Node &lhs, const Node &rhs) { return lhs.type() < rhs.type(); });
+      std::sort(children.begin(), children.end(),      //
+                [](const Node &lhs, const Node &rhs) { //
+                  return lhs.deep_compare(rhs) < 0;
+                });
     }
     Value v = identity;
-    for (; n != 0; --n) {
-      if (Const c = children[n - 1].is<Const>()) {
-        v = eval_tuple(op, {c.val(), v});
-      } else {
-        break;
+    if (flags_ & OptFoldConstant) {
+      for (; n != 0; --n) {
+        if (Const c = children[n - 1].is<Const>()) {
+          v = eval_tuple(kind, op, {c.val(), v});
+        } else {
+          break;
+        }
       }
-    }
-    if (n < children.size() && v != identity) {
-      Const c{*func_, v};
-      if (v == Value::absorbing(op, kind) && all_are<Var>(children.view(0, n))) {
-        return c;
+      if (n < children.size() && v != identity) {
+        Const c{*func_, v};
+        if (v == Value::absorbing(kind, op) && all_are<Var>(children.view(0, n))) {
+          return c;
+        }
+        children[n++] = c;
       }
-      children[n++] = c;
+      children.truncate(n);
     }
     switch (n) {
     case 0:
@@ -77,10 +117,13 @@ Expr Optimizer::partial_eval_tuple(Tuple expr, Span<Node> children) noexcept {
     case 1:
       return children[0].is<Expr>();
     default:
-      return Tuple{*func_, kind, op, children.view(0, n)};
+      break;
     }
   }
-  return Expr{};
+  if (same_children(expr, children)) {
+    return expr;
+  }
+  return Tuple{*func_, kind, op, children};
 }
 
 } // namespace onejit

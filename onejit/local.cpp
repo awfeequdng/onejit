@@ -98,10 +98,10 @@ const Fmt &operator<<(const Fmt &out, Local local) {
   Id id = local.id();
   Kind kind = local.kind();
 
-  switch (eArchId(id.val() >> 8)) {
-  case eArchId::X64:
+  switch (ArchId(id.val() >> 8)) {
+  case ArchId::X64:
     return format_reg_x64(out, id, kind);
-  case eArchId::ARM64:
+  case ArchId::ARM64:
     return format_reg_arm64(out, id, kind);
   default:
     return format_reg_noarch(out, id, kind);

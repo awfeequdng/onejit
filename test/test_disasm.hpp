@@ -23,7 +23,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/check.hpp>
+#include <onejit/test.hpp>
 #include <onejit/fwd.hpp>
 #include <onejit_config.h> // HAVE_LIBCAPSTONE
 

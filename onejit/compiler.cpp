@@ -40,7 +40,7 @@
 
 namespace onejit {
 
-enum Compiler::Flag : uint8_t {
+enum Compiler::Flags : uint8_t {
   SimplifyNone = 0,
   SimplifyCall = 1 << 0,
   SimplifyLandLor = 1 << 1,
@@ -48,33 +48,34 @@ enum Compiler::Flag : uint8_t {
   SimplifyDefault = SimplifyLandLor,
 };
 
-constexpr inline Compiler::Flag operator~(Compiler::Flag a) noexcept {
-  return Compiler::Flag(~unsigned(a));
+constexpr inline Compiler::Flags operator~(Compiler::Flags a) noexcept {
+  return Compiler::Flags(~unsigned(a));
 }
-constexpr inline Compiler::Flag operator&(Compiler::Flag a, Compiler::Flag b) noexcept {
-  return Compiler::Flag(unsigned(a) & unsigned(b));
+constexpr inline Compiler::Flags operator&(Compiler::Flags a, Compiler::Flags b) noexcept {
+  return Compiler::Flags(unsigned(a) & unsigned(b));
 }
-constexpr inline Compiler::Flag operator|(Compiler::Flag a, Compiler::Flag b) noexcept {
-  return Compiler::Flag(unsigned(a) | unsigned(b));
+constexpr inline Compiler::Flags operator|(Compiler::Flags a, Compiler::Flags b) noexcept {
+  return Compiler::Flags(unsigned(a) | unsigned(b));
 }
-constexpr inline Compiler::Flag operator^(Compiler::Flag a, Compiler::Flag b) noexcept {
-  return Compiler::Flag(unsigned(a) ^ unsigned(b));
+constexpr inline Compiler::Flags operator^(Compiler::Flags a, Compiler::Flags b) noexcept {
+  return Compiler::Flags(unsigned(a) ^ unsigned(b));
 }
 
-inline Compiler::Flag &operator&=(Compiler::Flag &a, Compiler::Flag b) noexcept {
+inline Compiler::Flags &operator&=(Compiler::Flags &a, Compiler::Flags b) noexcept {
   return a = a & b;
 }
-inline Compiler::Flag &operator|=(Compiler::Flag &a, Compiler::Flag b) noexcept {
+inline Compiler::Flags &operator|=(Compiler::Flags &a, Compiler::Flags b) noexcept {
   return a = a | b;
 }
-inline Compiler::Flag &operator^=(Compiler::Flag &a, Compiler::Flag b) noexcept {
+inline Compiler::Flags &operator^=(Compiler::Flags &a, Compiler::Flags b) noexcept {
   return a = a ^ b;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Compiler::Compiler() noexcept
-    : optimizer_{}, func_{}, break_{}, continue_{}, fallthrough_{}, node_{}, error_{}, good_{true} {
+    : optimizer_{}, func_{}, break_{}, continue_{}, fallthrough_{}, //
+      node_{}, error_{}, good_{true} {
 }
 
 Compiler::~Compiler() noexcept {
@@ -84,7 +85,12 @@ Compiler::operator bool() const noexcept {
   return good_ && func_ && *func_;
 }
 
-Compiler &Compiler::compile(Func &func, Optimizer::Flag flags) noexcept {
+Compiler &Compiler::compile(Func &func, Opt flags) noexcept {
+  if (func.get_compiled(NOARCH)) {
+    // already compiled
+    return *this;
+  }
+
   func_ = &func;
   break_.clear();
   continue_.clear();
@@ -106,20 +112,20 @@ Compiler &Compiler::finish() noexcept {
       compiled = VoidConst;
       break;
     case 1:
-      compiled = node_[0];
+      compiled = node_.get(0);
       break;
     default:
       compiled = Block{*func_, node_};
       break;
     }
-    func_->set_compiled(compiled);
+    func_->set_compiled(NOARCH, compiled);
   }
   return *this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Node Compiler::compile(Node node, Flag flags) noexcept {
+Node Compiler::compile(Node node, Flags flags) noexcept {
   const Type t = node.type();
   switch (t) {
   case STMT_0:
@@ -135,14 +141,14 @@ Node Compiler::compile(Node node, Flag flags) noexcept {
   case STMT_N:
     return compile(node.is<StmtN>(), flags);
   default:
-    if (const Expr expr = node.is<Expr>()) {
+    if (Expr expr = node.is<Expr>()) {
       return compile(expr, flags);
     }
     return node;
   }
 }
 
-Expr Compiler::compile(Expr expr, Flag) noexcept {
+Expr Compiler::compile(Expr expr, Flags) noexcept {
   const Type t = expr.type();
   switch (t) {
   case UNARY:
@@ -160,7 +166,7 @@ Expr Compiler::compile(Expr expr, Flag) noexcept {
   }
 }
 
-Expr Compiler::compile(Unary expr, Flag) noexcept {
+Expr Compiler::compile(Unary expr, Flags) noexcept {
   Expr x = expr.x();
   Expr comp_x = compile(x, SimplifyAll);
   if (x != comp_x) {
@@ -169,7 +175,7 @@ Expr Compiler::compile(Unary expr, Flag) noexcept {
   return expr;
 }
 
-Expr Compiler::compile(Binary expr, Flag flags) noexcept {
+Expr Compiler::compile(Binary expr, Flags flags) noexcept {
   Expr x = expr.x(), y = expr.y();
   Op2 op = expr.op();
   Expr comp_x = compile(x, SimplifyAll);
@@ -255,7 +261,7 @@ Expr Compiler::simplify_lor(Expr x, Expr y) noexcept {
   return dst;
 }
 
-Expr Compiler::compile(Tuple expr, Flag flags) noexcept {
+Expr Compiler::compile(Tuple expr, Flags flags) noexcept {
   if (Call call = expr.is<Call>()) {
     return compile(call, flags);
   }
@@ -268,7 +274,8 @@ Expr Compiler::compile(Tuple expr, Flag flags) noexcept {
   bool changed = false;
   for (size_t i = 0; i < n; i++) {
     Node child = expr.child(i);
-    Node comp_child = nodes[i] = compile(child, flags);
+    Node comp_child = compile(child, flags);
+    nodes.set(i, comp_child);
     changed = changed || child != comp_child;
   }
   if (changed) {
@@ -277,7 +284,7 @@ Expr Compiler::compile(Tuple expr, Flag flags) noexcept {
   return expr;
 }
 
-Expr Compiler::compile(Call call, Flag flags) noexcept {
+Expr Compiler::compile(Call call, Flags flags) noexcept {
   const uint32_t n = call.children();
 
   if (!call.children_are<Var>(2, n)) {
@@ -302,7 +309,7 @@ Expr Compiler::compile(Call call, Flag flags) noexcept {
 
 // ===============================  compile(Stmt0)  ============================
 
-Node Compiler::compile(Stmt0 st, Flag) noexcept {
+Node Compiler::compile(Stmt0 st, Flags) noexcept {
   switch (st.op()) {
   case BREAK:
     if (Label l = label_break()) {
@@ -336,11 +343,11 @@ Node Compiler::compile(Stmt0 st, Flag) noexcept {
 
 // ===============================  compile(Stmt1)  ============================
 
-Node Compiler::compile(Stmt1 st, Flag) noexcept {
-  Node body = st.body();
-  Node comp_body = compile(body, SimplifyDefault);
-  if (body != comp_body) {
-    st = Stmt1{*func_, comp_body, st.op()};
+Node Compiler::compile(Stmt1 st, Flags) noexcept {
+  Expr expr = st.arg();
+  Expr comp_expr = compile(expr, SimplifyDefault);
+  if (expr != comp_expr) {
+    st = Stmt1{*func_, comp_expr, st.op()};
   }
   add(st);
   // all compile(Stmt*) must return VoidConst
@@ -349,7 +356,7 @@ Node Compiler::compile(Stmt1 st, Flag) noexcept {
 
 // ===============================  compile(Stmt2)  ============================
 
-Node Compiler::compile(Stmt2 st, Flag flags) noexcept {
+Node Compiler::compile(Stmt2 st, Flags flags) noexcept {
   switch (st.op()) {
   case CASE:
     error(st, "misplaced Case");
@@ -360,7 +367,7 @@ Node Compiler::compile(Stmt2 st, Flag flags) noexcept {
   case JUMP_IF:
     return compile(st.is<JumpIf>(), flags);
   default:
-    if (auto assign = st.is<Assign>()) {
+    if (Assign assign = st.is<Assign>()) {
       return compile(assign, flags);
     }
     break;
@@ -370,7 +377,7 @@ Node Compiler::compile(Stmt2 st, Flag flags) noexcept {
   return VoidConst;
 }
 
-Node Compiler::compile(Assign assign, Flag) noexcept {
+Node Compiler::compile(Assign assign, Flags) noexcept {
   Expr src = assign.src();
   Expr dst = assign.dst();
   // compile src first: its side effects, if any, must be applied before dst
@@ -411,7 +418,7 @@ static OpStmt1 comparison_to_condjump(Op2 op2, bool is_signed) noexcept {
   return op;
 }
 
-Node Compiler::compile(JumpIf jump_if, Flag) noexcept {
+Node Compiler::compile(JumpIf jump_if, Flags) noexcept {
   Label to = jump_if.to();
   // preserve any binary comparison, it's optimized below
   Expr test = compile(jump_if.test(), SimplifyAll & ~SimplifyLandLor);
@@ -460,7 +467,7 @@ Node Compiler::compile(JumpIf jump_if, Flag) noexcept {
 
 // ===============================  compile(Stmt3)  ============================
 
-Node Compiler::compile(Stmt3 st, Flag flags) noexcept {
+Node Compiler::compile(Stmt3 st, Flags flags) noexcept {
   switch (st.op()) {
   case IF:
     return compile(st.is<If>(), flags);
@@ -470,7 +477,7 @@ Node Compiler::compile(Stmt3 st, Flag flags) noexcept {
   }
 }
 
-Node Compiler::compile(If st, Flag) noexcept {
+Node Compiler::compile(If st, Flags) noexcept {
   Node then = st.then();
   Node else_ = st.else_();
   Expr test = compile(st.test(), SimplifyDefault);
@@ -498,7 +505,7 @@ Node Compiler::compile(If st, Flag) noexcept {
 
 // ===============================  compile(Stmt4)  ============================
 
-Node Compiler::compile(Stmt4 st, Flag flags) noexcept {
+Node Compiler::compile(Stmt4 st, Flags flags) noexcept {
   switch (st.op()) {
   case FOR:
     return compile(st.is<For>(), flags);
@@ -508,7 +515,7 @@ Node Compiler::compile(Stmt4 st, Flag flags) noexcept {
   }
 }
 
-Node Compiler::compile(For st, Flag) noexcept {
+Node Compiler::compile(For st, Flags) noexcept {
   compile_add(st.init(), SimplifyDefault);
 
   Expr test = st.test();
@@ -546,7 +553,7 @@ Node Compiler::compile(For st, Flag) noexcept {
 
 // ===============================  compile(StmtN)  ============================
 
-Node Compiler::compile(StmtN st, Flag flags) noexcept {
+Node Compiler::compile(StmtN st, Flags flags) noexcept {
   switch (st.op()) {
   case ASSIGN_CALL:
     return compile(st.is<AssignCall>(), flags);
@@ -564,7 +571,7 @@ Node Compiler::compile(StmtN st, Flag flags) noexcept {
   }
 }
 
-Node Compiler::compile(AssignCall st, Flag) noexcept {
+Node Compiler::compile(AssignCall st, Flags) noexcept {
   while (const size_t n = st.children()) {
     Call call = st.child(n - 1).is<Call>();
     Call comp_call = compile(call, SimplifyDefault).is<Call>();
@@ -580,14 +587,14 @@ Node Compiler::compile(AssignCall st, Flag) noexcept {
   return VoidConst;
 }
 
-Node Compiler::compile(Block st, Flag) noexcept {
+Node Compiler::compile(Block st, Flags) noexcept {
   for (size_t i = 0, n = st.children(); i < n; i++) {
     compile(st.child(i), SimplifyDefault);
   }
   return VoidConst;
 }
 
-Node Compiler::compile(Cond st, Flag) noexcept {
+Node Compiler::compile(Cond st, Flags) noexcept {
   const size_t n = st.children();
   if (n == 0) {
     // nothing to do
@@ -613,10 +620,10 @@ Node Compiler::compile(Cond st, Flag) noexcept {
   return VoidConst;
 }
 
-Node Compiler::compile(Return st, Flag) noexcept {
+Node Compiler::compile(Return st, Flags) noexcept {
   const size_t n = st.children();
   if (n != func_->result_n()) {
-    error(st, "bad number of return values");
+    error(st, "number of return values does not match function signature");
     add(st);
     return VoidConst;
   }
@@ -633,6 +640,9 @@ Node Compiler::compile(Return st, Flag) noexcept {
   for (size_t i = 0; i < n; i++) {
     Var var = func_->result(i);
     Expr expr = st.child_is<Expr>(i);
+    if (var.kind() != expr.kind()) {
+      error(st, "return value kind does not match function signature");
+    }
     if (expr != var) {
       // compile expression and copy its result
       // to expected location func_->result(i)
@@ -648,7 +658,7 @@ Node Compiler::compile(Return st, Flag) noexcept {
   return VoidConst;
 }
 
-Node Compiler::compile(Switch st, Flag) noexcept {
+Node Compiler::compile(Switch st, Flags) noexcept {
   const size_t n = st.children();
   bool have_default = false;
 
@@ -767,7 +777,7 @@ Compiler &Compiler::exit_loop() noexcept {
   return *this;
 }
 
-Var Compiler::to_var(const Node &node) noexcept {
+Var Compiler::to_var(Node node) noexcept {
   Expr e = node.is<Expr>();
   Var v = node.is<Var>();
   if (e && !v) {
@@ -778,13 +788,13 @@ Var Compiler::to_var(const Node &node) noexcept {
   return v;
 }
 
-Compiler &Compiler::to_vars(const Node &node, uint32_t start, uint32_t end,
+Compiler &Compiler::to_vars(Node node, uint32_t start, uint32_t end, //
                             Vector<Expr> &vars) noexcept {
   if (!vars.resize(end > start ? end - start : 0)) {
     return out_of_memory(node);
   }
   for (size_t i = start; i < end; i++) {
-    vars[i - start] = to_var(node.child(i));
+    vars.set(i - start, to_var(node.child(i)));
   }
   return *this;
 }

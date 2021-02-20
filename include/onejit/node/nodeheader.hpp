@@ -91,7 +91,15 @@ public:
     return val_ != other.val_;
   }
 
+  constexpr bool operator<(const NodeHeader &other) const noexcept {
+    return order() < other.order();
+  }
+
 private:
+  constexpr uint32_t order() const noexcept {
+    return uint32_t(type()) << 24 | uint32_t(kind().val()) << 16 | op();
+  }
+
   union {
     CodeItem val_;
 #ifdef ONEJIT_LITTLE_ENDIAN

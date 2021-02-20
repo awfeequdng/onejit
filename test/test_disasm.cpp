@@ -73,14 +73,14 @@ const Fmt &TestDisasm::disasm(const Fmt &out, Bytes bytes) {
 }
 
 const Fmt &TestDisasm::format(const Fmt &out, const cs_insn *insn) {
-  out << "(x86_" << cs_insn_name(handle_, insn->id);
+  out << "(x86_" << Chars(cs_insn_name(handle_, insn->id));
 
   cs_detail *detail = insn->detail;
   for (size_t i = 0, n = detail->x86.op_count; i < n; i++) {
     cs_x86_op *op = detail->x86.operands + i;
     switch (op->type) {
     case X86_OP_REG:
-      out << ' ' << cs_reg_name(handle_, op->reg);
+      out << ' ' << Chars(cs_reg_name(handle_, op->reg));
       break;
     case X86_OP_IMM:
       out << ' ' << fix_immediate(insn, op->imm);
@@ -91,10 +91,10 @@ const Fmt &TestDisasm::format(const Fmt &out, const cs_insn *insn) {
         out << ' ' << op->mem.disp;
       }
       if (op->mem.base != X86_REG_INVALID) {
-        out << ' ' << cs_reg_name(handle_, op->mem.base);
+        out << ' ' << Chars(cs_reg_name(handle_, op->mem.base));
       }
       if (op->mem.index != X86_REG_INVALID) {
-        out << ' ' << cs_reg_name(handle_, op->mem.index);
+        out << ' ' << Chars(cs_reg_name(handle_, op->mem.index));
         out << ' ' << op->mem.scale;
       }
       out << ')';
@@ -157,7 +157,7 @@ void TestDisasm::test_asm_disasm_x64(const Node &node, Assembler &assembler) {
   String disassembled;
   disasm(Fmt{&disassembled}, assembler.bytes());
 
-  TEST(to_string(node), ==, disassembled);
+  TEST(to_string(node, Syntax::CapstoneCompat), ==, disassembled);
 }
 
 #else // !HAVE_LIBCAPSTONE

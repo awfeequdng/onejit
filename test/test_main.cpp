@@ -53,13 +53,14 @@ FuncType Test::ftype() {
 }
 
 void Test::run() {
+  arch();
   kind();
   const_expr();
   simple_expr();
   nested_expr();
   x64_expr();
   eval_expr();
-  optimize_expr();
+  optimize();
   func_fib();
   func_loop();
   func_switch1();
@@ -71,7 +72,8 @@ void Test::run() {
 }
 
 void Test::compile(Func &f) {
-  comp.compile(f);
+  // implies comp.compile(f, OptAll);
+  comp.compile_x64(f, OptAll);
 }
 
 void Test::dump_and_clear_code() {

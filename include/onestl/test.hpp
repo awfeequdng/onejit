@@ -17,15 +17,15 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * check.hpp
+ * test.hpp
  *
  *  Created on Jan 09, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONESTL_CHECK_HPP
-#define ONESTL_CHECK_HPP
+#ifndef ONESTL_TEST_HPP
+#define ONESTL_TEST_HPP
 
-#include <onestl/check_tiny.hpp>
+#include <onestl/test_tiny.hpp>
 #include <onestl/fmt.hpp>
 #include <onestl/fwd.hpp>
 #include <onestl/string.hpp>
@@ -91,4 +91,4 @@ inline String to_string(String &&val) noexcept {
 
 } // namespace onestl
 
-#endif // ONESTL_CHECK_HPP
+#endif // ONESTL_TEST_HPP
