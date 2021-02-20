@@ -214,12 +214,14 @@ void Test::optimize_assign_kind(Kind kind) {
   Fmt{&expected} << "(-- " << x << ")";
   TEST(to_string(optimized), ==, expected);
 
-  // optimize() on (&= x (% x x)) should return (= x 0)
-  st = Assign{f, AND_ASSIGN, x, Binary{f, REM, x, x}};
-  optimized = opt.optimize(f, st);
-  expected.clear();
-  Fmt{&expected} << "(= " << x << " 0)";
-  TEST(to_string(optimized), ==, expected);
+  if (!kind.is_float()) {
+    // optimize() on (&= x (% x x)) should return (= x 0)
+    st = Assign{f, AND_ASSIGN, x, Binary{f, REM, x, x}};
+    optimized = opt.optimize(f, st);
+    expected.clear();
+    Fmt{&expected} << "(= " << x << " 0)";
+    TEST(to_string(optimized), ==, expected);
+  }
 }
 
 } // namespace onejit
