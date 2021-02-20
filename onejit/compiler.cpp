@@ -140,7 +140,7 @@ Node Compiler::compile(Node node, Flags flags) noexcept {
   case STMT_N:
     return compile(node.is<StmtN>(), flags);
   default:
-    if (const Expr expr = node.is<Expr>()) {
+    if (Expr expr = node.is<Expr>()) {
       return compile(expr, flags);
     }
     return node;
@@ -343,10 +343,10 @@ Node Compiler::compile(Stmt0 st, Flags) noexcept {
 // ===============================  compile(Stmt1)  ============================
 
 Node Compiler::compile(Stmt1 st, Flags) noexcept {
-  Node body = st.body();
-  Node comp_body = compile(body, SimplifyDefault);
-  if (body != comp_body) {
-    st = Stmt1{*func_, comp_body, st.op()};
+  Expr expr = st.arg();
+  Expr comp_expr = compile(expr, SimplifyDefault);
+  if (expr != comp_expr) {
+    st = Stmt1{*func_, comp_expr, st.op()};
   }
   add(st);
   // all compile(Stmt*) must return VoidConst
@@ -366,7 +366,7 @@ Node Compiler::compile(Stmt2 st, Flags flags) noexcept {
   case JUMP_IF:
     return compile(st.is<JumpIf>(), flags);
   default:
-    if (auto assign = st.is<Assign>()) {
+    if (Assign assign = st.is<Assign>()) {
       return compile(assign, flags);
     }
     break;
@@ -776,7 +776,7 @@ Compiler &Compiler::exit_loop() noexcept {
   return *this;
 }
 
-Var Compiler::to_var(const Node &node) noexcept {
+Var Compiler::to_var(Node node) noexcept {
   Expr e = node.is<Expr>();
   Var v = node.is<Var>();
   if (e && !v) {
@@ -787,7 +787,7 @@ Var Compiler::to_var(const Node &node) noexcept {
   return v;
 }
 
-Compiler &Compiler::to_vars(const Node &node, uint32_t start, uint32_t end,
+Compiler &Compiler::to_vars(Node node, uint32_t start, uint32_t end, //
                             Vector<Expr> &vars) noexcept {
   if (!vars.resize(end > start ? end - start : 0)) {
     return out_of_memory(node);

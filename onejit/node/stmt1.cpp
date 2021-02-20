@@ -31,10 +31,10 @@ namespace onejit {
 
 // ============================  Stmt1  ========================================
 
-ONEJIT_NOINLINE Node Stmt1::create(Func &func, Node body, OpStmt1 op) noexcept {
+ONEJIT_NOINLINE Node Stmt1::create(Func &func, Expr arg, OpStmt1 op) noexcept {
   return Base::create_indirect(func,                                   //
                                NodeHeader{STMT_1, Void, uint16_t(op)}, //
-                               Nodes{&body, 1});
+                               Nodes{&arg, 1});
 }
 
 const Fmt &Stmt1::format(const Fmt &out, Syntax syntax, size_t depth) const {

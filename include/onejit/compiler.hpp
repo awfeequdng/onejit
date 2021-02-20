@@ -118,11 +118,11 @@ private:
 
   // copy expression result to a new local variable.
   // if node is already a Var, does nothing and returns it
-  Var to_var(const Node &node) noexcept;
+  Var to_var(Node node) noexcept;
 
   // copy node.child(start ... end-1) to new local variables,
   // and append such variables to vars.
-  Compiler &to_vars(const Node &node, uint32_t start, uint32_t end, //
+  Compiler &to_vars(Node node, uint32_t start, uint32_t end, //
                     Vector<Expr> &vars) noexcept;
 
   // add an already compiled node to compiled list

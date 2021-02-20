@@ -30,6 +30,7 @@
 #include <onejit/node/label.hpp>
 #include <onejit/node/stmt.hpp>
 #include <onejit/opstmt.hpp>
+#include <onejit/x64/fwd.hpp>
 
 namespace onejit {
 
@@ -40,6 +41,7 @@ class Stmt1 : public Stmt {
   friend class Func;
   friend class Node;
   friend class Test;
+  friend class x64::Compiler;
 
 public:
   /**
@@ -64,9 +66,9 @@ public:
     return 1;
   }
 
-  // shortcut for child(0)
-  Node body() const noexcept {
-    return child(0);
+  // shortcut for child_is<Expr>(0)
+  Expr arg() const noexcept {
+    return child_is<Expr>(0);
   }
 
   const Fmt &format(const Fmt &out, Syntax syntax = Syntax::Default, size_t depth = 0) const;
@@ -81,8 +83,8 @@ protected:
     return t == STMT_1;
   }
 
-  // used by subclasses and by Compiler::compile(JumpIf)
-  Stmt1(Func &func, Node body, OpStmt1 op) noexcept : Base{create(func, body, op)} {
+  // used by subclasses and by Compiler::compile()
+  Stmt1(Func &func, Expr arg, OpStmt1 op) noexcept : Base{create(func, arg, op)} {
   }
 
 private:
@@ -90,7 +92,7 @@ private:
     return true;
   }
 
-  static Node create(Func &func, Node body, OpStmt1 op) noexcept;
+  static Node create(Func &func, Expr arg, OpStmt1 op) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

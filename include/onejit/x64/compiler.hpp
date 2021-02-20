@@ -40,8 +40,10 @@ class Compiler {
   friend class ::onejit::Compiler;
 
 public:
-  constexpr Compiler() noexcept : func_{}, node_{}, error_{}, good_{true} {
+  constexpr Compiler() noexcept //
+      : func_{}, node_{}, error_{}, flags_{}, good_{true} {
   }
+
   Compiler(Compiler &&other) noexcept = default;
   Compiler &operator=(Compiler &&other) noexcept = default;
 
@@ -54,11 +56,33 @@ private:
   // private, use onejit::Compiler::x64() instead
   Compiler &compile(Func &func, Vector<Node> &node, Vector<Error> &error, Opt flags) noexcept;
 
+  Compiler &compile(AssignCall stmt) noexcept;
+  Compiler &compile(Expr expr) noexcept;
+  Compiler &compile(Node node) noexcept;
+  Compiler &compile(Return stmt) noexcept;
+  Compiler &compile(Stmt1 stmt) noexcept;
+  Compiler &compile(Stmt2 stmt) noexcept;
+  Compiler &compile(StmtN stmt) noexcept;
+
+  Expr simplify(Expr expr) noexcept;
+
+  // copy expression result to a new local variable.
+  // if node is already a Var, does nothing and returns it
+  Var to_var(Node node) noexcept;
+
+  // add an already compiled node to compiled list
+  Compiler &add(const Node &node) noexcept;
+
+  // store compiled code into function.compiled_arch(ArchId::X64)
+  // invoked by compile(Func)
+  Compiler &finish() noexcept;
+
   Compiler &error(const Node &where, Chars msg) noexcept;
 
   Func *func_;
   Vector<Node> *node_;
   Vector<Error> *error_;
+  Opt flags_;
   bool good_; // !good_ means out of memory
 };
 
