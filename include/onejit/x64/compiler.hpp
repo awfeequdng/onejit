@@ -64,11 +64,23 @@ private:
   Compiler &compile(Stmt2 stmt) noexcept;
   Compiler &compile(StmtN stmt) noexcept;
 
+  Expr simplify(Binary expr) noexcept;
   Expr simplify(Expr expr) noexcept;
+  Expr simplify(onejit::Mem expr) noexcept;
+  Expr simplify(Tuple expr) noexcept;
+  Expr simplify(Unary expr) noexcept;
 
-  // copy expression result to a new local variable.
-  // if node is already a Var, does nothing and returns it
-  Var to_var(Node node) noexcept;
+  // if expr is a Var, does nothing and returns it.
+  // otherwise copies expression result to a new local variable and returns it.
+  Var to_var(Expr expr) noexcept;
+
+  // if expr is a Var or Const, does nothing and returns it
+  // otherwise copies expression result to a new local variable and returns it.
+  Expr to_var_const(Expr expr) noexcept;
+
+  // if expr is a Var, Mem or Const, does nothing and returns it
+  // otherwise copies expression result to a new local variable and returns it.
+  Expr to_var_mem_const(Expr expr) noexcept;
 
   // add an already compiled node to compiled list
   Compiler &add(const Node &node) noexcept;

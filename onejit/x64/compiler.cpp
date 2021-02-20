@@ -25,11 +25,7 @@
 
 #include <onejit/compiler.hpp>
 #include <onejit/func.hpp>
-#include <onejit/node/call.hpp>
-#include <onejit/node/expr.hpp>
-#include <onejit/node/stmt1.hpp>
-#include <onejit/node/stmt2.hpp>
-#include <onejit/node/stmtn.hpp>
+#include <onejit/node.hpp>
 #include <onejit/x64/compiler.hpp>
 
 namespace onejit {
@@ -96,54 +92,69 @@ Compiler &Compiler::compile(Expr expr) noexcept {
 }
 
 Expr Compiler::simplify(Expr expr) noexcept {
+  switch (expr.type()) {
+  case VAR:
+  case LABEL:
+  case CONST:
+    return expr;
+  case MEM:
+    return simplify(expr.is<onejit::Mem>());
+  case UNARY:
+    return simplify(expr.is<Unary>());
+  case BINARY:
+    return simplify(expr.is<Binary>());
+  case TUPLE:
+    return simplify(expr.is<Tuple>());
+  default:
+    error(expr, "unexpected Expr");
+    return expr;
+  }
+}
+
+Expr Compiler::simplify(onejit::Mem expr) noexcept {
+  return expr; // TODO
+}
+
+Expr Compiler::simplify(Unary expr) noexcept {
+  Expr x = expr.x();
+  Expr simpl_x = to_var_mem_const(simplify(x));
+  if (simpl_x != x) {
+    return Unary{*func_, expr.kind(), expr.op(), simpl_x};
+  }
+  return expr;
+}
+
+Expr Compiler::simplify(Binary expr) noexcept {
+  Expr x = expr.x(), y = expr.y();
+  Expr simpl_x = to_var_mem_const(simplify(x));
+  Expr simpl_y = to_var_mem_const(simplify(y));
+  if (simpl_x.type() == MEM && simpl_y.type() == MEM) {
+    // both arguments are memory.
+    // not supported by x86_64 assembly, force one to register
+    simpl_y = to_var(simpl_y);
+  }
+  if (simpl_x != x || simpl_y != y) {
+    return Binary{*func_, expr.op(), simpl_x, simpl_y};
+  }
+  return expr;
+}
+
+Expr Compiler::simplify(Tuple expr) noexcept {
   return expr; // TODO
 }
 
 // ===============================  compile(Stmt1)  ============================
 
 Compiler &Compiler::compile(Stmt1 st) noexcept {
+  static const OpStmt1 gen_st1[] = {X86_JMP, X86_INC, X86_DEC};
+  static const OpStmt1 cond_jump[] = {X86_JA, X86_JAE, X86_JB, X86_JBE, X86_JE,
+                                      X86_JG, X86_JGE, X86_JL, X86_JLE, X86_JNE};
   OpStmt1 op = st.op();
-  switch (op) {
-  case GOTO:
-    op = X86_JMP;
-    break;
-  case INC:
-    op = X86_INC;
-    break;
-  case DEC:
-    op = X86_DEC;
-    break;
-  case ASM_JA:
-    op = X86_JA;
-    break;
-  case ASM_JAE:
-    op = X86_JAE;
-    break;
-  case ASM_JB:
-    op = X86_JB;
-    break;
-  case ASM_JBE:
-    op = X86_JBE;
-    break;
-  case ASM_JE:
-    op = X86_JE;
-    break;
-  case ASM_JG:
-    op = X86_JG;
-    break;
-  case ASM_JGE:
-    op = X86_JGE;
-    break;
-  case ASM_JL:
-    op = X86_JL;
-    break;
-  case ASM_JLE:
-    op = X86_JLE;
-    break;
-  case ASM_JNE:
-    op = X86_JNE;
-    break;
-  default:
+  if (op >= GOTO && op <= DEC) {
+    op = gen_st1[op - GOTO];
+  } else if (op >= ASM_JA && op <= ASM_JNE) {
+    op = cond_jump[op - ASM_JA];
+  } else {
     return error(st, "unexpected Stmt1 operation");
   }
   Expr expr = simplify(st.arg());
@@ -187,15 +198,37 @@ Compiler &Compiler::compile(Return st) noexcept {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Var Compiler::to_var(Node node) noexcept {
-  Expr e = node.is<Expr>();
-  Var v = node.is<Var>();
-  if (e && !v) {
+Var Compiler::to_var(Expr expr) noexcept {
+  Var v = expr.is<Var>();
+  if (expr && !v) {
     // copy Expr result to a Var
-    v = Var{*func_, e.kind()};
-    compile(Assign{*func_, ASSIGN, v, e});
+    v = Var{*func_, expr.kind()};
+    compile(Assign{*func_, ASSIGN, v, expr});
   }
   return v;
+}
+
+Expr Compiler::to_var_const(Expr expr) noexcept {
+  switch (expr.type()) {
+  case VAR:
+  case CONST:
+  case LABEL:
+    return expr;
+  default:
+    return to_var(expr);
+  }
+}
+
+Expr Compiler::to_var_mem_const(Expr expr) noexcept {
+  switch (expr.type()) {
+  case VAR:
+  case MEM:
+  case CONST:
+  case LABEL:
+    return expr;
+  default:
+    return to_var(expr);
+  }
 }
 
 Compiler &Compiler::add(const Node &node) noexcept {
