@@ -29,6 +29,13 @@
 
 namespace onejit {
 
+void Test::arch() {
+  static const Chars archstring[] = {"NOARCH", "X64", "X86", "ARM64", "ARM"};
+  for (ArchId archid = ArchId(0); archid < ARCHID_N; archid = ArchId(archid + 1)) {
+    TEST(to_string(archid), ==, archstring[archid]);
+  }
+}
+
 void Test::kind() {
   for (uint8_t i = 0; i <= eArchFlags; i++) {
     Kind k{i};

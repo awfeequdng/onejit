@@ -36,7 +36,7 @@ using Writer = ::onestl::Writer;
 
 const Fmt &operator<<(const Fmt &out, ArchId);
 const Fmt &operator<<(const Fmt &out, Bits);
-const Fmt &operator<<(const Fmt &out, eArchId);
+const Fmt &operator<<(const Fmt &out, ArchId);
 const Fmt &operator<<(const Fmt &out, eKind);
 const Fmt &operator<<(const Fmt &out, Group);
 const Fmt &operator<<(const Fmt &out, Kind);

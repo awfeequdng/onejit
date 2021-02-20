@@ -43,6 +43,7 @@ private:
   void dump_and_clear_code();
 
   // called by run()
+  void arch();
   void kind();
   void const_expr() const;
   void simple_expr();

@@ -34,7 +34,7 @@ enum RegId : uint32_t {
   // use onejit::Id{256...511}
   // 0 is reserved for onejit::NOID
   // 512...767 are reserved for arm64::RegId
-  RAX = uint32_t(eArchId::X64) << 8,
+  RAX = uint32_t(ArchId::X64) << 8,
   RCX,
   RDX,
   RBX,

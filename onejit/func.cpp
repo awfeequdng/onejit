@@ -97,18 +97,16 @@ Var Func::result(uint16_t i) const noexcept {
 }
 
 Node Func::get_compiled(ArchId archid) const noexcept {
-  size_t id = size_t(archid.val());
-  if (id < ARCHID_N) {
-    return compiled_[id];
+  if (archid < ARCHID_N) {
+    return compiled_[archid];
   } else {
     return Node{};
   }
 }
 
 Func &Func::set_compiled(ArchId archid, const Node &compiled) noexcept {
-  size_t id = size_t(archid.val());
-  if (id < ARCHID_N) {
-    compiled_[id] = compiled;
+  if (archid < ARCHID_N) {
+    compiled_[archid] = compiled;
     if (archid == NOARCH) {
       compiled_var_n_ = vars_.size();
     } else {

@@ -43,8 +43,6 @@ class Func {
   friend class Label;
   friend class Var;
 
-  enum : size_t { ARCHID_N = size_t(eArchId::COUNT) };
-
 public:
   /**
    * construct an invalid Func.

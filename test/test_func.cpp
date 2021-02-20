@@ -81,7 +81,7 @@ void Test::func_fib() {
     label_2)";
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
-  Fmt{stdout} << f.get_compiled(X64) << '\n';
+  Fmt{stdout} << "fib[x64] = " << f.get_compiled(X64) << '\n';
 
   // dump_and_clear_code();
   holder.clear();

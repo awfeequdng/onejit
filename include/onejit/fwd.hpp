@@ -49,7 +49,7 @@ template <class T> using View = ::onestl::View<T>;
 using Writer = ::onestl::Writer;
 
 enum Allow : uint8_t;
-class ArchId;
+enum ArchId : uint8_t;
 class Assembler;
 class Assign;
 class AssignCall;
@@ -71,7 +71,6 @@ union Float64Bits;
 class Imm;
 class Continue;
 class Default;
-enum class eArchId : uint8_t;
 enum eBits : uint8_t;
 enum eKind : uint8_t;
 class Error;

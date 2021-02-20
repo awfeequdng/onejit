@@ -28,20 +28,24 @@
 
 namespace onejit {
 
-static const Chars archstring[] = {
-    "NOARCH", "X64", "ARM64", "ARM", "X86",
-};
+static const char archstring[] = //
+    "\6NOARCH\0"
+    "\3X64\0\0\0\0"
+    "\3X86\0\0\0\0"
+    "\5ARM64\0\0"
+    "\3ARM";
 
-Chars ArchId::string() const noexcept {
+Chars to_string(ArchId archid) noexcept {
   size_t i = 0;
-  if (size_t(val_) < ONEJIT_N_OF(archstring)) {
-    i = size_t(val_);
+  if (archid < ARCHID_N) {
+    i = archid;
   }
-  return archstring[i];
+  const char *str = &archstring[i * 8];
+  return Chars{str + 1, uint8_t(str[0])};
 }
 
 const Fmt &operator<<(const Fmt &out, ArchId archid) {
-  return out << archid.string();
+  return out << to_string(archid);
 }
 
 } // namespace onejit

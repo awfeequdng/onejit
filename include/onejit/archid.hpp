@@ -32,51 +32,20 @@
 
 namespace onejit {
 
-enum class eArchId : uint8_t {
+enum ArchId : uint8_t {
   NOARCH = 0,
   X64 = 1, // alias for x86_64, amd64
-  ARM64 = 2,
-  X86 = 3, // 32-bit i386, i486, i586 ...
+  X86 = 2, // alias for i386, i486, i586, i686, ix86
+  ARM64 = 3,
   ARM = 4,
 
-  COUNT
+  ARCHID_N,
 };
 
-class ArchId {
-public:
-  constexpr /*implicit*/ ArchId(eArchId val) noexcept : val_{val} {
-  }
-
-  Chars string() const noexcept;
-
-  constexpr eArchId val() const noexcept {
-    return val_;
-  }
-
-private:
-  eArchId val_;
-};
-
-constexpr bool operator==(ArchId a, ArchId b) noexcept {
-  return a.val() == b.val();
-}
-
-constexpr bool operator!=(ArchId a, ArchId b) noexcept {
-  return a.val() != b.val();
-}
+Chars to_string(ArchId a) noexcept;
 
 const Fmt &operator<<(const Fmt &out, ArchId archid);
 
-inline const Fmt &operator<<(const Fmt &out, eArchId earchid) {
-  return out << ArchId{earchid};
-}
-
-constexpr const ArchId NOARCH{eArchId::NOARCH};
-constexpr const ArchId X64{eArchId::X64};
-constexpr const ArchId ARM64{eArchId::ARM64};
-constexpr const ArchId X86{eArchId::X86};
-constexpr const ArchId ARM{eArchId::ARM};
-
-}; // namespace onejit
+} // namespace onejit
 
 #endif // ONEJIT_ARCHID_HPP

@@ -34,7 +34,7 @@ enum RegId : uint32_t {
   // use onejit::Id{512...1023}
   // 0 is reserved for onejit::NOID
   // 256...511 are reserved for x64::RegId
-  X0 = uint32_t(eArchId::ARM64) << 8,
+  X0 = uint32_t(ArchId::ARM64) << 8,
   X1,
   X2,
   X3,
