@@ -71,6 +71,7 @@ private:
   Expr simplify(onejit::Mem expr) noexcept;
   Expr simplify(Tuple expr) noexcept;
   Expr simplify(Unary expr) noexcept;
+  Node simplify_assign(Assign st, Expr dst, Expr src) noexcept;
   void simplify_binary(Expr &x, Expr &y) noexcept;
 
   // if expr is a Var, does nothing and returns it.

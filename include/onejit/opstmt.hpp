@@ -128,7 +128,7 @@ enum OpStmt1 : uint16_t {
       x(JS, js)        /* jump if sign */                                                          \
       x(JMP, jmp)      /* unconditional jump. argument is relative offset, register or memory */   \
       x(NEG, neg)      /* negate (i.e. -x) register or memory */                                   \
-      x(NOT, not )     /* invert (i.e. ^x) register or memory */                                   \
+      x(NOT, not)      /* invert (i.e. ^x) register or memory */                                   \
       x(POP, pop)      /* pop 2 or 8 bytes from stack into register or memory */                   \
       x(PUSH, push)    /* push 2 or 8 bytes to stack from register or memory */                    \
       x(RDTSC, rdtsc)  /* read timestamp counter into %rdx:%rax */                                 \
@@ -228,7 +228,7 @@ enum OpStmt2 : uint16_t {
       x(IMUL, imul)             /* signed multiply %rdx:%rax by argument */                        \
       x(LEA, lea)               /* load effective address */                                       \
       x(LODS, lods)             /* load string from %rsi into %al/%ax/%eax/%rax */                 \
-      x(MOV, move)              /* general purpose move register, memory or immediate */           \
+      x(MOV, mov)               /* general purpose move register, memory or immediate */           \
       x(MOVNTI, movnti) /* store 4 or 8 bytes register to memory, with non-temporal hint */        \
       x(MOVS, movs)   /* move 1,2,4 or 8 bytes from mem at %rsi to mem at %rdi, and update both */ \
       x(MOVSX, movsx) /* sign-extend register or memory */                                         \

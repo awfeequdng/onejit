@@ -221,17 +221,30 @@ Compiler &Compiler::compile(Assign st) noexcept {
   // simplify src first: its side effects, if any, must be applied before dst
   //
   // FIXME: to_var_mem_const(simplify(src)) creates redundant Vars
-  Expr simpl_src = simplify(src);
-  Expr simpl_dst = to_var_mem_const(simplify(dst));
-  if (simpl_src.type() == MEM && simpl_dst.type() == MEM) {
+  src = simplify(src);
+  dst = to_var_mem_const(simplify(dst));
+  if (src.type() == MEM && dst.type() == MEM) {
     // both arguments are memory.
     // not supported by x86_64 assembly, force one to register
-    simpl_src = to_var(simpl_src);
+    src = to_var(src);
   }
-  if (simpl_src != src || simpl_dst != dst) {
-    st = Assign{*func_, st.op(), simpl_dst, simpl_src};
+  return add(simplify_assign(st, dst, src));
+}
+
+Node Compiler::simplify_assign(Assign st, Expr dst, Expr src) noexcept {
+  OpStmt2 op = st.op();
+  if (op >= ADD_ASSIGN && op <= SHR_ASSIGN) {
+    static const OpStmt2 xop[] =
+        // FIXME X86_DIV computes both quotient and remainder
+        {X86_ADD, X86_SUB, X86_MUL, X86_DIV, X86_DIV, //
+         X86_AND, X86_OR,  X86_XOR, X86_SHL, X86_SHR};
+    op = xop[op - ADD_ASSIGN];
+  } else if (op == ASSIGN) {
+    op = X86_MOV;
+  } else {
+    error(st, "unexpected Assign operation");
   }
-  return add(st);
+  return Stmt2{*func_, dst, src, op};
 }
 
 // ===============================  compile(StmtN)  ============================
@@ -261,7 +274,7 @@ Compiler &Compiler::compile(AssignCall st) noexcept {
 }
 
 Compiler &Compiler::compile(Return st) noexcept {
-  return add(st).add(Stmt0{X86_RET});
+  return add(st);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

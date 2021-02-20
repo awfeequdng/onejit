@@ -102,6 +102,7 @@ Node Node::child(uint32_t i) const noexcept {
   } else {
     // NodeHeader or tag 0b1110: should not appear here,
     // => return an invalid node
+    return Node{};
   }
   return Node{header, offset_or_direct, code};
 }
