@@ -82,7 +82,7 @@ Compiler::~Compiler() noexcept {
 }
 
 Compiler::operator bool() const noexcept {
-  return good_ && func_ && *func_;
+  return good_ && (!func_ || *func_);
 }
 
 Compiler &Compiler::compile(Func &func, Opt flags) noexcept {
@@ -112,7 +112,7 @@ Compiler &Compiler::finish() noexcept {
       compiled = VoidConst;
       break;
     case 1:
-      compiled = node_.get(0);
+      compiled = node_[0];
       break;
     default:
       compiled = Block{*func_, node_};

@@ -57,9 +57,9 @@ namespace onestl {
  * The following methods may change the size, but always preserve the capacity:
  *   clear truncate
  *
- * For increased safety, Vector does not have operator[] - which returns a reference
- * that could be invalidated by one of the methods above - and only provides methods
- * get() and set()
+ * For increased safety, Vector::operator[] returns T by value, not by reference.
+ * Reason: references can be invalidated by one of the methods above.
+ * To overwrite Vector elements, use Vector::set()
  */
 template <class T> class Vector : protected Span<T> {
   static_assert(std::is_nothrow_default_constructible<T>::value,
@@ -147,21 +147,14 @@ public:
   using Base::data;
   using Base::empty;
   using Base::end;
-  using Base::get;
   using Base::set;
   using Base::operator==;
+  using Base::operator[];
   using Base::clear;
   using Base::size;
   using Base::span;
   using Base::truncate;
   using Base::view;
-
-  /*
-   * For increased safety, vector does not have operator[] - which returns a reference
-   * that could be invalidated by resizing the vector. Use get() and set() instead.
-   */
-  T &operator[](size_t index) noexcept = delete;
-  const T &operator[](size_t index) const noexcept = delete;
 
   Vector<T> &operator=(Vector<T> &&other) noexcept {
     swap(other);

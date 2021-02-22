@@ -77,7 +77,7 @@ Compiler &Compiler::finish() noexcept {
       compiled = VoidConst;
       break;
     case 1:
-      compiled = node_->get(0);
+      compiled = (*node_)[0];
       break;
     default:
       compiled = Block{*func_, *node_};
@@ -275,7 +275,7 @@ Compiler &Compiler::compile(AssignCall st) noexcept {
 }
 
 Compiler &Compiler::compile(Return st) noexcept {
-  return add(st);
+  return add(StmtN{*func_, ChildRange{st, 0, st.children()}, X86_RET});
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -182,6 +182,33 @@ private:
   Arg3 arg_; // allowed argument combinations
 };
 
+////////////////////////////////////////////////////////////////////////////////
+// N-argument x86 instruction
+class InstN : public Inst {
+  using Base = Inst;
+
+public:
+  template <uint8_t N>
+  constexpr explicit InstN(const char (&chars)[N],
+                           Eflags eflags = EFnone) noexcept //
+      : Base{B0, eflags},                                   //
+        bytes_len_{uint8_t(N - 1)},                         //
+        bytes_{
+            uint8_t(chars[0]),
+            uint8_t(N >= 2 ? chars[1] : '\0'),
+            uint8_t(N >= 3 ? chars[2] : '\0'),
+        } {
+  }
+
+  constexpr const Bytes bytes() const noexcept {
+    return Bytes{bytes_, bytes_len_};
+  }
+
+private:
+  uint8_t bytes_len_;
+  uint8_t bytes_[3];
+};
+
 } // namespace x64
 } // namespace onejit
 

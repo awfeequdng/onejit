@@ -77,13 +77,13 @@ Func::~Func() noexcept {
 // convert Func to Label
 Label Func::label() const noexcept {
   // return labels_[0], or Label{} if labels_ is empty
-  return labels_.get(0);
+  return labels_[0];
 }
 
 /// \return i-th param, or Var{} if out-of-bounds
 Var Func::param(uint16_t i) const noexcept {
   if (i < param_n_) {
-    return vars_.get(i);
+    return vars_[i];
   }
   return Var{};
 }
@@ -91,7 +91,7 @@ Var Func::param(uint16_t i) const noexcept {
 /// \return i-th result, or Var{} if out-of-bounds
 Var Func::result(uint16_t i) const noexcept {
   if (i < result_n_) {
-    return vars_.get(size_t(i) + param_n_);
+    return vars_[size_t(i) + param_n_];
   }
   return Var{};
 }

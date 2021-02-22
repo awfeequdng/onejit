@@ -71,6 +71,16 @@ private:
   static const Inst3 &find(OpStmt3 op) noexcept;
 };
 
+////////////////////////////////////////////////////////////////////////////////
+class AsmN {
+  friend class onejit::Assembler;
+
+private:
+  static Assembler &emit(Assembler &dst, const StmtN &st) noexcept;
+  static Assembler &emit(Assembler &dst, const InstN &inst) noexcept;
+  static const InstN &find(OpStmtN op) noexcept;
+};
+
 } // namespace x64
 } // namespace onejit
 

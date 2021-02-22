@@ -71,7 +71,6 @@ public:
   using Base::data;
   using Base::empty;
   using Base::end;
-  using Base::get;
   using Base::operator==;
   using Base::operator[];
   using Base::clear;
@@ -81,11 +80,6 @@ public:
 
   T *data() noexcept {
     return const_cast<T *>(data_);
-  }
-
-  // unchecked element access
-  T &operator[](size_t index) noexcept {
-    return data()[index];
   }
 
   // checked element access:

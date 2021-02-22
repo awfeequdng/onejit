@@ -55,7 +55,7 @@ enum OpStmt0 : uint16_t {
       x(PUSHF, pushf)       /* push 8 bytes (4 on 32bit) to stack from EFLAGS */                   \
       x(REP, rep)           /* repeat prefix for following instruction */                          \
       x(REPNE, repne)       /* repeat prefix for following instruction */                          \
-      x(RET, ret)           /* return from function call  */                                       \
+      /*x(RET, ret)*/       /* return from function call. not here, see ONEJIT_OPSTMTN_X86 */      \
       x(STC, stc)           /* set carry flag             */                                       \
       x(STD, std)           /* set direction flag         */                                       \
       x(SYSCALL, syscall)   /* fast system call           */                                       \
@@ -346,6 +346,10 @@ enum OpStmt3 : uint16_t {
       x(EXTRACTPS, extractps) /* extract one float from packed floats */                           \
       x(INSERTPS, insertps)   /* insert one float into packed floats */                            \
       x(PINSR, pinsr)         /* insert 1,2,4 or 8 bytes from register or memory to %xmm */
+
+#define ONEJIT_X(NAME, name) X86_##NAME,
+  ONEJIT_OPSTMT3_X86(ONEJIT_X)
+#undef ONEJIT_X
 };
 
 enum OpStmt4 : uint16_t {
@@ -360,6 +364,15 @@ enum OpStmtN : uint16_t {
   COND = 3, // n-ary IF ... [ELSEIF* ... [ELSE ...]]
   RETURN = 4,
   SWITCH = 5,
+
+// numeric values of the OpStmtN enum constants below this line MAY CHANGE WITHOUT WARNING
+
+#define ONEJIT_OPSTMTN_X86(x) /*                                                                */ \
+  x(RET, ret)                 /* return from function call */
+
+#define ONEJIT_X(NAME, name) X86_##NAME,
+  ONEJIT_OPSTMTN_X86(ONEJIT_X)
+#undef ONEJIT_X
 };
 
 constexpr OpStmt0 operator+(OpStmt0 op, int delta) noexcept {

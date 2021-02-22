@@ -17,30 +17,47 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * fwd.hpp
+ * childrange.hpp
  *
- *  Created on Jan 22, 2021
+ *  Created on Feb 22, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_X64_FWD_HPP
-#define ONEJIT_X64_FWD_HPP
+#ifndef ONEJIT_NODE_CHILDRANGE_HPP
+#define ONEJIT_NODE_CHILDRANGE_HPP
+
+#include <onejit/node/node.hpp>
 
 namespace onejit {
-namespace x64 {
 
-class Compiler;
-class Emit;
-class Inst;
-class Inst0;
-class Inst1;
-class Inst2;
-class Inst3;
-class InstN;
-class Mem;
-class Reg;
+////////////////////////////////////////////////////////////////////////////////
+// range of children inside a Node.
+class ChildRange {
+public:
+  constexpr ChildRange() noexcept : node_{}, start_{}, size_{} {
+  }
 
-} // namespace x64
+  constexpr ChildRange(Node node, uint32_t start, uint32_t size) noexcept
+      : node_{node}, start_{start}, size_{size} {
+  }
+
+  uint32_t constexpr size() const noexcept {
+    return size_;
+  }
+
+  explicit operator bool() const noexcept;
+
+  // checked element access:
+  // return i-th Node by value, or Node{} if index is out of bounds
+  Node operator[](uint32_t i) const noexcept {
+    return i < size_ ? node_.child(i + start_) : Node{};
+  }
+
+private:
+  Node node_;
+  uint32_t start_, size_;
+};
+
 } // namespace onejit
 
-#endif // ONEJIT_X64_FWD_HPP
+#endif // ONEJIT_NODE_CHILDRANGE_HPP

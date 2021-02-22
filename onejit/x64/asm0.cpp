@@ -45,7 +45,6 @@ static const Inst0 inst0_vec[] = {
     Inst0{"\x9c", EFread},  /* pushf    push 8 bytes (4 on 32bit) to stack from EFLAGS */
     Inst0{"\xf3"},          /* rep      repeat prefix for following instruction */
     Inst0{"\xf2"},          /* repne    repeat prefix for following instruction */
-    Inst0{"\xc3"},          /* ret      return from function call             */
     Inst0{"\xf9", EFwrite}, /* stc      set carry flag                        */
     Inst0{"\xfd", EFwrite}, /* std      set direction flag                    */
     Inst0{"\x0f\x05"},      /* syscall  fast system call                      */
@@ -66,10 +65,11 @@ static const Inst0 inst0_vec[] = {
 };
 
 const Inst0 &Asm0::find(OpStmt0 op) noexcept {
-  if (op < X86_CLC || op > X86_XTEST) {
-    op = X86_UD2;
+  size_t i = X86_UD2 - X86_CLC;
+  if (op >= X86_CLC && op <= X86_XTEST) {
+    i = op - X86_CLC;
   }
-  return inst0_vec[op - X86_CLC];
+  return inst0_vec[i];
 }
 
 Assembler &Asm0::emit(Assembler &dst, const Inst0 &inst) noexcept {

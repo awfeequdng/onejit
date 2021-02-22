@@ -266,7 +266,17 @@ const Fmt &operator<<(const Fmt &out, OpStmt4 op) {
 
 // ============================  OpStmtN  ======================================
 
-static const Chars op_stmt_n_string[] = {"?", "=tuple", "block", "cond", "return", "switch"};
+static const Chars op_stmt_n_string[] = { //
+    "?",
+    "=tuple",
+    "block",
+    "cond",
+    "return",
+    "switch",
+#define ONEJIT_X(NAME, name) "x86_" #name,
+    ONEJIT_OPSTMTN_X86(ONEJIT_X)
+#undef ONEJIT_X
+};
 
 const Chars to_string(OpStmtN op) noexcept {
   size_t i = op;

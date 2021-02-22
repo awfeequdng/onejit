@@ -17,38 +17,42 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * asm.cpp
+ * asmn.cpp
  *
- *  Created on Feb 01, 2021
+ *  Created on Feb 20, 2021
  *      Author Massimiliano Ghilardi
  */
 
 #include <onejit/assembler.hpp>
-#include <onejit/node/stmt0.hpp>
-#include <onejit/node/stmt1.hpp>
-#include <onejit/node/stmt2.hpp>
-#include <onejit/node/stmt3.hpp>
 #include <onejit/node/stmtn.hpp>
 #include <onejit/x64/asm.hpp>
+#include <onejit/x64/inst.hpp>
 
 namespace onejit {
+namespace x64 {
 
-// declared in onejit/assembler.hpp
-Assembler &Assembler::x64(const Node &node) noexcept {
-  switch (node.type()) {
-  case STMT_0:
-    return onejit::x64::Asm0::emit(*this, node.is<Stmt0>());
-  case STMT_1:
-    return onejit::x64::Asm1::emit(*this, node.is<Stmt1>());
-  case STMT_2:
-    return onejit::x64::Asm2::emit(*this, node.is<Stmt2>());
-  case STMT_3:
-    return onejit::x64::Asm3::emit(*this, node.is<Stmt3>());
-  case STMT_N:
-    return onejit::x64::AsmN::emit(*this, node.is<StmtN>());
-  default:
-    return error(node, "unexpected node type in Assembler::x64, expecting Stmt[0123N]");
+using namespace onejit;
+
+static const InstN instn_vec[] = {
+    InstN{"\x0f\x0b"}, /* ud2      undefined instruction, causes SIGILL  */
+    InstN{"\xc3"},     /* ret      return from function call             */
+};
+
+const InstN &AsmN::find(OpStmtN op) noexcept {
+  size_t i = 0;
+  if (op >= X86_RET && op <= X86_RET) {
+    i = size_t(op) - X86_RET + 1;
   }
+  return instn_vec[i];
 }
 
+Assembler &AsmN::emit(Assembler &dst, const InstN &inst) noexcept {
+  return dst.add(inst.bytes());
+}
+
+Assembler &AsmN::emit(Assembler &dst, const StmtN &st) noexcept {
+  return emit(dst, find(st.op()));
+}
+
+} // namespace x64
 } // namespace onejit

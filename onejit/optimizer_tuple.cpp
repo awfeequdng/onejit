@@ -48,7 +48,7 @@ Expr Optimizer::optimize(Tuple expr, bool optimize_children) noexcept {
   if (expr && (flags_ & OptSimplifyExpr)) {
     size_t orig_n = nodes_.size();
     if (flatten_children_tobuf(expr, optimize_children)) {
-      NodeRange children{&nodes_, orig_n, nodes_.size() - orig_n};
+      Range<Node> children{&nodes_, orig_n, nodes_.size() - orig_n};
       ret = partial_eval_tuple(expr, children);
     }
     nodes_.truncate(orig_n);
@@ -77,7 +77,7 @@ bool Optimizer::flatten_children_tobuf(Node node, bool optimize_children) noexce
   return ok;
 }
 
-Expr Optimizer::partial_eval_tuple(Tuple expr, NodeRange &noderange) noexcept {
+Expr Optimizer::partial_eval_tuple(Tuple expr, Range<Node> &noderange) noexcept {
   Span<Node> children = noderange.span();
   OpN op = expr.op();
   Kind kind = expr.kind();
@@ -107,7 +107,7 @@ Expr Optimizer::partial_eval_tuple(Tuple expr, NodeRange &noderange) noexcept {
         if (v == Value::absorbing(kind, op) && all_are<Var>(children.view(0, n))) {
           return c;
         }
-        children[n++] = c;
+        children.set(n++, c);
       }
       children.truncate(n);
     }

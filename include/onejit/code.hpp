@@ -57,7 +57,7 @@ public:
   // checked element access:
   // returns 0 if byte_offset is out of bounds
   T get(Offset byte_offset) const noexcept {
-    return Base::get(byte_offset / sizeof(T));
+    return Base::operator[](byte_offset / sizeof(T));
   }
 
   // returns 0 if byte_offset is out of bounds
@@ -122,6 +122,8 @@ public:
     }
     return *this;
   }
+
+  Code &add(const ChildRange &nodes, Offset parent_offset) noexcept;
 
   // return Code length, in CodeItems
   using Base::size;

@@ -29,6 +29,7 @@
 // #include <onejit/node/allow.hpp>      // redundant
 #include <onejit/node/binary.hpp>
 #include <onejit/node/call.hpp>
+#include <onejit/node/childrange.hpp>
 #include <onejit/node/comma.hpp>
 #include <onejit/node/const.hpp>
 // #include <onejit/node/expr.hpp>       // redundant
@@ -37,7 +38,7 @@
 #include <onejit/node/mem.hpp>
 // #include <onejit/node/node.hpp>       // redundant
 // #include <onejit/node/nodeheader.hpp> // redundant
-#include <onejit/node/noderange.hpp>
+#include <onestl/range.hpp>
 // #include <onejit/node/stmt.hpp>       // redundant
 #include <onejit/node/stmt0.hpp>
 #include <onejit/node/stmt1.hpp>

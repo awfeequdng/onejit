@@ -42,6 +42,12 @@ Node StmtN::create(Func &func, const Nodes nodes, OpStmtN op) noexcept {
                                nodes);
 }
 
+Node StmtN::create(Func &func, const ChildRange &childrange, OpStmtN op) noexcept {
+  return Base::create_indirect(func,                                   //
+                               NodeHeader{STMT_N, Void, uint16_t(op)}, //
+                               childrange);
+}
+
 const Fmt &StmtN::format(const Fmt &out, Syntax syntax, size_t depth) const {
   ++depth;
   const OpStmtN op = this->op();

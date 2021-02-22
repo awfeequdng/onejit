@@ -87,11 +87,6 @@ public:
     return size_ == 0;
   }
 
-  // unchecked element access
-  constexpr const T &operator[](size_t index) const noexcept {
-    return data_[index];
-  }
-
   // checked element access:
   // throws if index is out of bounds
   const T &at(size_t index) const {
@@ -101,7 +96,7 @@ public:
 
   // checked element access:
   // returns i-th element by value, or T{} if index is out of bounds
-  constexpr T get(size_t index) const
+  constexpr T operator[](size_t index) const
       noexcept(noexcept(T{}) && std::is_nothrow_copy_constructible<T>::value) {
     return index < size_ ? data_[index] : T{};
   }

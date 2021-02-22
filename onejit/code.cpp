@@ -25,6 +25,7 @@
 
 #include <onejit/code.hpp>
 #include <onejit/local.hpp>
+#include <onejit/node/childrange.hpp>
 #include <onejit/node/nodeheader.hpp>
 
 #include <cstring>
@@ -134,6 +135,15 @@ Code &Code::add(const Node &node, Offset parent_offset) noexcept {
     offset -= parent_offset;
   }
   return add_item(offset);
+}
+
+Code &Code::add(const ChildRange &nodes, Offset parent_offset) noexcept {
+  for (size_t i = 0, n = nodes.size(); i < n; i++) {
+    if (!add(nodes[i], parent_offset)) {
+      break;
+    }
+  }
+  return *this;
 }
 
 } // namespace onejit

@@ -86,7 +86,8 @@ public:
   }
 
   Node &operator=(const Node &other) &noexcept = default;
-  // forbid assignment to temporary Node
+  // forbid assignment to temporary Node: we want
+  // Vector<Node>::operator[](size_t) = expression to fail at compile time
   Node &operator=(const Node &other) &&noexcept = delete;
 
   // return true if this Node is valid
@@ -226,6 +227,9 @@ private:
                               std::initializer_list<Node> children) noexcept {
     return create_indirect(func, header, Nodes{children.begin(), children.size()});
   }
+
+  // used by subclasses' create() method
+  static Node create_indirect(Func &func, NodeHeader header, const ChildRange &children) noexcept;
 
   NodeHeader header_;
   CodeItem off_or_dir_;

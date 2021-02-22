@@ -78,14 +78,14 @@ Node Optimizer::optimize(Node node) noexcept {
     return optimize(node.is<Tuple>(), true);
   }
 
+  size_t orig_n = nodes_.size();
   Node new_node;
-  // use a NodeRange on nodes_ because a span or view would be invalidated
+  // use a Range<Node> on nodes_ because a span or view would be invalidated
   // by try_optimize() calling back optimize() which may resize nodes_
   // and change its data()
-  NodeRange children = {nullptr, 0, 0};
-  size_t orig_n = nodes_.size();
+  Range<Node> children = optimize_children(node);
 
-  if (!optimize_children(node, children)) {
+  if (!children) {
     nodes_.truncate(orig_n);
     return node;
   } else if (Unary unary = node.is<Unary>()) {
@@ -103,24 +103,23 @@ Node Optimizer::optimize(Node node) noexcept {
   return new_node ? new_node : node;
 }
 
-bool Optimizer::optimize_children(Node node, NodeRange &children) noexcept {
+Range<Node> Optimizer::optimize_children(Node node) noexcept {
   size_t n = node.children();
   size_t orig_n = nodes_.size();
 
   if (!nodes_.resize(n + orig_n)) {
-    return false;
+    return Range<Node>{};
   }
   for (size_t i = 0; i < n; i++) {
     // optimize() may resize nodes_ and change its data()
     // => do not take references to nodes_.data() before calling optimize(),
-    // as operator[] would do
+    // as STL operator[] would do
     nodes_.set(i + orig_n, optimize(node.child(i)));
   }
-  children = NodeRange{&nodes_, orig_n, n};
-  return true;
+  return Range<Node>{&nodes_, orig_n, n};
 }
 
-Node Optimizer::try_optimize(Unary expr, const NodeRange &children) noexcept {
+Node Optimizer::try_optimize(Unary expr, const Range<Node> &children) noexcept {
   Expr x;
   if (expr && children.size() == 1 && (x = children[0].is<Expr>())) {
     Kind kind = expr.kind();
@@ -174,7 +173,7 @@ Expr Optimizer::simplify_unary(Kind kind, Op1 op, Expr x) noexcept {
   return Expr{};
 }
 
-Node Optimizer::try_optimize(Assign st, const NodeRange &children) noexcept {
+Node Optimizer::try_optimize(Assign st, const Range<Node> &children) noexcept {
   return try_optimize(st.op(), children[0].is<Expr>(), children[1].is<Expr>());
 }
 

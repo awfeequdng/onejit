@@ -26,6 +26,7 @@
 #include <onejit/code.hpp>
 #include <onejit/func.hpp>
 #include <onejit/node/binary.hpp>
+#include <onejit/node/childrange.hpp>
 #include <onejit/node/const.hpp>
 #include <onejit/node/functype.hpp>
 #include <onejit/node/label.hpp>
@@ -134,6 +135,25 @@ Offset Node::length_items() const noexcept {
 }
 
 Node Node::create_indirect(Func &func, NodeHeader header, Nodes children) noexcept {
+  Code *holder = func.code();
+  const size_t n = children.size();
+  while (holder && n == uint32_t(n)) {
+    CodeItem offset = holder->length();
+
+    if (holder->add(header)) {
+      if (!is_list(header.type()) || holder->add_uint32(n)) {
+        if (holder->add(children, offset)) {
+          return Node{header, offset, holder};
+        }
+      }
+      holder->truncate(offset);
+      break;
+    }
+  }
+  return Node{};
+}
+
+Node Node::create_indirect(Func &func, NodeHeader header, const ChildRange &children) noexcept {
   Code *holder = func.code();
   const size_t n = children.size();
   while (holder && n == uint32_t(n)) {

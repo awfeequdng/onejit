@@ -28,7 +28,9 @@
 
 #include <onejit/fmt.hpp>
 #include <onejit/node/stmt.hpp>
+#include <onejit/node/stmt2.hpp> // onejit::Case
 #include <onejit/opstmt.hpp>
+#include <onejit/x64/fwd.hpp>
 
 namespace onejit {
 
@@ -37,6 +39,7 @@ class StmtN : public Stmt {
   using Base = Stmt;
   friend class Node;
   friend class Func;
+  friend class x64::Compiler;
 
 public:
   /**
@@ -73,12 +76,18 @@ protected:
   StmtN(Func &func, const Nodes nodes, OpStmtN op) noexcept : Base{create(func, nodes, op)} {
   }
 
+  // used by x64::Compiler::compile(Return)
+  StmtN(Func &func, const ChildRange &childrange, OpStmtN op) noexcept
+      : Base{create(func, childrange, op)} {
+  }
+
 private:
   constexpr bool child_result_is_used(uint32_t i) const noexcept {
     return op() == BLOCK ? false : op() == COND ? (i & 1) == 0 : true;
   }
 
   static Node create(Func &func, const Nodes nodes, OpStmtN op) noexcept;
+  static Node create(Func &func, const ChildRange &childrange, OpStmtN op) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -34,7 +34,7 @@
 
 namespace onejit {
 
-Node Optimizer::try_optimize(Binary expr, const NodeRange &children) noexcept {
+Node Optimizer::try_optimize(Binary expr, const Range<Node> &children) noexcept {
   Expr x, y;
   if (expr && children.size() == 2 //
       && (x = children[0].is<Expr>()) && (y = children[1].is<Expr>())) {
@@ -123,7 +123,7 @@ Expr Optimizer::partial_eval_binary(Op2 op, Expr x, Expr y) noexcept {
       if (v.is_valid() && (c = Const{*func_, v})) {
         // optimize() may resize nodes_ and change its data()
         // => it invalidates spans and views on it!
-        // only NodeRange on nodes_ remains valid.
+        // only Range<Node> on nodes_ remains valid.
         return optimize(Tuple{*func_, ADD, x, c}, false);
       }
     }

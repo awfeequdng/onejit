@@ -28,8 +28,8 @@
 
 #include <onejit/check.hpp>
 #include <onejit/node/node.hpp>
-#include <onejit/node/noderange.hpp>
 #include <onestl/buffer.hpp>
+#include <onestl/range.hpp>
 
 namespace onejit {
 
@@ -79,14 +79,14 @@ private:
   Node optimize(Node node) noexcept;
   Expr optimize(Tuple expr, bool optimize_children) noexcept;
 
-  Node try_optimize(Assign st, const NodeRange &children) noexcept;
-  Node try_optimize(Binary expr, const NodeRange &children) noexcept;
-  Node try_optimize(Unary expr, const NodeRange &children) noexcept;
+  Node try_optimize(Assign st, const Range<Node> &children) noexcept;
+  Node try_optimize(Binary expr, const Range<Node> &children) noexcept;
+  Node try_optimize(Unary expr, const Range<Node> &children) noexcept;
   // called by try_optimize(Assign) above
   Node try_optimize(OpStmt2 assign_op, Expr dst, Expr src) noexcept;
 
-  // recursively call optimize() on node's children and append them to children_out
-  bool optimize_children(Node node, NodeRange &children_out) noexcept;
+  // recursively call optimize() on node's children and return them
+  Range<Node> optimize_children(Node node) noexcept;
   // recursively append (optionally) optimized children of node to this->nodes_
   bool flatten_children_tobuf(Node node, bool optimize_children) noexcept;
 
@@ -97,7 +97,7 @@ private:
   Expr simplify_binary(Op2 op, Expr x, Expr y) noexcept;
   Expr simplify_unary(Kind kind, Op1 op, Expr x) noexcept;
   Expr partial_eval_binary(Op2 op, Expr x, Expr y) noexcept;
-  Expr partial_eval_tuple(Tuple expr, NodeRange &children) noexcept;
+  Expr partial_eval_tuple(Tuple expr, Range<Node> &children) noexcept;
 
   Expr simplify_sub(Expr x, Expr y) noexcept;
   Expr simplify_quo(Expr x, Expr y) noexcept;
