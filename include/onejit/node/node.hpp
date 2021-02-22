@@ -229,7 +229,8 @@ private:
   }
 
   // used by subclasses' create() method
-  static Node create_indirect(Func &func, NodeHeader header, const ChildRange &children) noexcept;
+  static Node create_indirect_from_ranges(Func &func, NodeHeader header,
+                                          const ChildRanges &children) noexcept;
 
   NodeHeader header_;
   CodeItem off_or_dir_;

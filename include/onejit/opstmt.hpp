@@ -368,7 +368,8 @@ enum OpStmtN : uint16_t {
 // numeric values of the OpStmtN enum constants below this line MAY CHANGE WITHOUT WARNING
 
 #define ONEJIT_OPSTMTN_X86(x) /*                                                                */ \
-  x(RET, ret)                 /* return from function call */
+  x(CALL_, call_) /* call function. 1st argument is destination, others are formal registers */    \
+      x(RET, ret) /* return from function call. arguments are formal registers  */
 
 #define ONEJIT_X(NAME, name) X86_##NAME,
   ONEJIT_OPSTMTN_X86(ONEJIT_X)

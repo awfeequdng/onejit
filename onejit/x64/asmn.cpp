@@ -34,7 +34,7 @@ namespace x64 {
 using namespace onejit;
 
 static const InstN instn_vec[] = {
-    InstN{"\x0f\x0b"}, /* ud2      undefined instruction, causes SIGILL  */
+    InstN{"\x0f\x0b"}, /* call_    undefined instruction. 'call' should be assembled instead */
     InstN{"\xc3"},     /* ret      return from function call             */
 };
 

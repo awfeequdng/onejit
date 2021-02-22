@@ -137,10 +137,13 @@ Code &Code::add(const Node &node, Offset parent_offset) noexcept {
   return add_item(offset);
 }
 
-Code &Code::add(const ChildRange &nodes, Offset parent_offset) noexcept {
-  for (size_t i = 0, n = nodes.size(); i < n; i++) {
-    if (!add(nodes[i], parent_offset)) {
-      break;
+Code &Code::add_ranges(const ChildRanges &nodes, Offset parent_offset) noexcept {
+  for (size_t i = 0, ni = nodes.size(); i < ni; i++) {
+    ChildRange range = nodes[i];
+    for (size_t j = 0, nj = range.size(); j < nj; j++) {
+      if (!add(range[j], parent_offset)) {
+        return *this;
+      }
     }
   }
   return *this;

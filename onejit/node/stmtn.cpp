@@ -36,16 +36,16 @@ namespace onejit {
 
 // ============================  StmtN  ========================================
 
-Node StmtN::create(Func &func, const Nodes nodes, OpStmtN op) noexcept {
+Node StmtN::create(Func &func, const Nodes children, OpStmtN op) noexcept {
   return Base::create_indirect(func,                                   //
                                NodeHeader{STMT_N, Void, uint16_t(op)}, //
-                               nodes);
+                               children);
 }
 
-Node StmtN::create(Func &func, const ChildRange &childrange, OpStmtN op) noexcept {
-  return Base::create_indirect(func,                                   //
-                               NodeHeader{STMT_N, Void, uint16_t(op)}, //
-                               childrange);
+Node StmtN::create(Func &func, const ChildRanges &children, OpStmtN op) noexcept {
+  return Base::create_indirect_from_ranges(func,                                   //
+                                           NodeHeader{STMT_N, Void, uint16_t(op)}, //
+                                           children);
 }
 
 const Fmt &StmtN::format(const Fmt &out, Syntax syntax, size_t depth) const {

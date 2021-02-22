@@ -26,7 +26,6 @@
 #include <onejit/code.hpp>
 #include <onejit/func.hpp>
 #include <onejit/node/binary.hpp>
-#include <onejit/node/childrange.hpp>
 #include <onejit/node/const.hpp>
 #include <onejit/node/functype.hpp>
 #include <onejit/node/label.hpp>
@@ -153,7 +152,8 @@ Node Node::create_indirect(Func &func, NodeHeader header, Nodes children) noexce
   return Node{};
 }
 
-Node Node::create_indirect(Func &func, NodeHeader header, const ChildRange &children) noexcept {
+Node Node::create_indirect_from_ranges(Func &func, NodeHeader header,
+                                       const ChildRanges &children) noexcept {
   Code *holder = func.code();
   const size_t n = children.size();
   while (holder && n == uint32_t(n)) {
@@ -161,7 +161,7 @@ Node Node::create_indirect(Func &func, NodeHeader header, const ChildRange &chil
 
     if (holder->add(header)) {
       if (!is_list(header.type()) || holder->add_uint32(n)) {
-        if (holder->add(children, offset)) {
+        if (holder->add_ranges(children, offset)) {
           return Node{header, offset, holder};
         }
       }

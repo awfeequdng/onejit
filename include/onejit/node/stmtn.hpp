@@ -73,12 +73,13 @@ protected:
   }
 
   // used by subclasses
-  StmtN(Func &func, const Nodes nodes, OpStmtN op) noexcept : Base{create(func, nodes, op)} {
+  StmtN(Func &func, Nodes children, OpStmtN op) noexcept //
+      : Base{create(func, children, op)} {
   }
 
   // used by x64::Compiler::compile(Return)
-  StmtN(Func &func, const ChildRange &childrange, OpStmtN op) noexcept
-      : Base{create(func, childrange, op)} {
+  StmtN(Func &func, const ChildRanges &children, OpStmtN op) noexcept //
+      : Base{create(func, children, op)} {
   }
 
 private:
@@ -86,8 +87,8 @@ private:
     return op() == BLOCK ? false : op() == COND ? (i & 1) == 0 : true;
   }
 
-  static Node create(Func &func, const Nodes nodes, OpStmtN op) noexcept;
-  static Node create(Func &func, const ChildRange &childrange, OpStmtN op) noexcept;
+  static Node create(Func &func, Nodes children, OpStmtN op) noexcept;
+  static Node create(Func &func, const ChildRanges &children, OpStmtN op) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

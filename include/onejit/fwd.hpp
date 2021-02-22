@@ -126,6 +126,7 @@ using SimdN = Bits;
 
 using Cases = View<Case>;
 using CodeItems = View<CodeItem>;
+using ChildRanges = View<ChildRange>;
 using Errors = View<Error>;
 using Exprs = View<Expr>;
 using Kinds = View<Kind>;
