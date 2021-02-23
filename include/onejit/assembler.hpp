@@ -97,10 +97,10 @@ public:
   }
 
   // add an assembler error
-  Assembler &error(const Node &where, Chars msg) noexcept;
+  Assembler &error(Node where, Chars msg) noexcept;
 
   // add an out of memory error
-  Assembler &out_of_memory(const Node &where) noexcept;
+  Assembler &out_of_memory(Node where) noexcept;
 
 private:
   // hide Base::append()

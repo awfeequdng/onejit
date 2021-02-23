@@ -38,12 +38,12 @@ Assembler &Assembler::add_relocation(Label l) noexcept {
   return *this;
 }
 
-Assembler &Assembler::error(const Node &where, Chars msg) noexcept {
+Assembler &Assembler::error(Node where, Chars msg) noexcept {
   good_ = good_ && error_.append(Error{where, msg});
   return *this;
 }
 
-Assembler &Assembler::out_of_memory(const Node &where) noexcept {
+Assembler &Assembler::out_of_memory(Node where) noexcept {
   // always set good_ to false
   good_ = good_ && error_.append(Error{where, "out of memory"}) && false;
   return *this;

@@ -61,12 +61,14 @@ public:
   }
   // constexpr Range(const Range<T> &range) noexcept = default;
 
-  constexpr Range(Span<T> *span, size_t start, size_t size) noexcept : Base{span, start, size} {
+  constexpr Range(Span<T> *span, size_t a_start, size_t a_size) noexcept
+      : Base{span, a_start, a_size} {
   }
-  constexpr Range(Vector<T> *vec, size_t start, size_t size) noexcept : Base{vec, start, size} {
+  constexpr Range(Vector<T> *vec, size_t a_start, size_t a_size) noexcept
+      : Base{vec, a_start, a_size} {
   }
-  constexpr Range(const Range<T> &range, size_t start, size_t size) noexcept //
-      : Base{range.impl_, range.start_ + start, size} {
+  constexpr Range(const Range<T> &range, size_t a_start, size_t a_size) noexcept //
+      : Base{range.impl_, range.start_ + a_start, size} {
   }
 
   using Base::set_bounds;
@@ -96,7 +98,7 @@ protected:
   using Base::size_;
   using Base::start_;
 
-  constexpr Span<T> *impl() noexcept {
+  constexpr Span<T> *impl() const noexcept {
     return const_cast<Span<T> *>(static_cast<const Span<T> *>(impl_));
   }
 };
@@ -109,8 +111,8 @@ constexpr CRange<T>::CRange(const Range<T> &range) noexcept
 
 // requires Range type to be complete
 template <class T>
-constexpr CRange<T>::CRange(const Range<T> &range, size_t start, size_t size) noexcept
-    : impl_{range.impl_}, start_{range.start_ + start}, size_{size} {
+constexpr CRange<T>::CRange(const Range<T> &range, size_t a_start, size_t a_size) noexcept
+    : impl_{range.impl_}, start_{range.start_ + a_start}, size_{a_size} {
 }
 
 } // namespace onestl

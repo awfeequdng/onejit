@@ -371,19 +371,19 @@ Expr Compiler::to_var_mem_const(Expr expr) noexcept {
   }
 }
 
-Compiler &Compiler::add(const Node &node) noexcept {
+Compiler &Compiler::add(Node node) noexcept {
   if (node != VoidConst) {
     good_ = good_ && node_ && node_->append(node);
   }
   return *this;
 }
 
-Compiler &Compiler::error(const Node &where, Chars msg) noexcept {
+Compiler &Compiler::error(Node where, Chars msg) noexcept {
   good_ = good_ && error_ && error_->append(Error{where, msg});
   return *this;
 }
 
-Compiler &Compiler::out_of_memory(const Node &where) noexcept {
+Compiler &Compiler::out_of_memory(Node where) noexcept {
   // always set good_ to false
   good_ = good_ && error_ && error_->append(Error{where, "out of memory"}) && false;
   return *this;

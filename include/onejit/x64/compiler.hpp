@@ -98,17 +98,17 @@ private:
   Expr to_var_mem_const(Expr expr) noexcept;
 
   // add an already compiled node to compiled list
-  Compiler &add(const Node &node) noexcept;
+  Compiler &add(Node node) noexcept;
 
   // store compiled code into function.set_compiled(X64)
   // invoked by compile(Func)
   Compiler &finish() noexcept;
 
   // add a compile error
-  Compiler &error(const Node &where, Chars msg) noexcept;
+  Compiler &error(Node where, Chars msg) noexcept;
 
   // add an out of memory error
-  Compiler &out_of_memory(const Node &where) noexcept;
+  Compiler &out_of_memory(Node where) noexcept;
 
   Func *func_;
   Vector<Node> *node_;

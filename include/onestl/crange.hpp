@@ -63,17 +63,17 @@ public:
   // defined in range.hpp
   constexpr explicit CRange(const Range<T> &range) noexcept;
 
-  constexpr CRange(const View<T> *view, size_t start, size_t size) noexcept
-      : impl_{view}, start_{start}, size_{size} {
+  constexpr CRange(const View<T> *view, size_t a_start, size_t a_size) noexcept
+      : impl_{view}, start_{a_start}, size_{a_size} {
   }
-  constexpr CRange(const Span<T> *span, size_t start, size_t size) noexcept
-      : impl_{span}, start_{start}, size_{size} {
+  constexpr CRange(const Span<T> *span, size_t a_start, size_t a_size) noexcept
+      : impl_{span}, start_{a_start}, size_{a_size} {
   }
-  constexpr CRange(const Vector<T> *vec, size_t start, size_t size) noexcept
-      : impl_{vec}, start_{start}, size_{size} {
+  constexpr CRange(const Vector<T> *vec, size_t a_start, size_t a_size) noexcept
+      : impl_{vec}, start_{a_start}, size_{a_size} {
   }
   // defined in range.hpp
-  constexpr CRange(const Range<T> &range, size_t start, size_t size) noexcept;
+  constexpr CRange(const Range<T> &range, size_t a_start, size_t a_size) noexcept;
 
   constexpr size_t start() const noexcept {
     return start_;

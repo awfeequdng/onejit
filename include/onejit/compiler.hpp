@@ -146,10 +146,10 @@ private:
   Compiler &finish() noexcept;
 
   // add a compile error
-  Compiler &error(const Node &where, Chars msg) noexcept;
+  Compiler &error(Node where, Chars msg) noexcept;
 
   // add an out of memory error
-  Compiler &out_of_memory(const Node &where) noexcept;
+  Compiler &out_of_memory(Node where) noexcept;
 
 private:
   Optimizer optimizer_;
