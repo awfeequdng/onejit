@@ -25,6 +25,7 @@
 #ifndef ONEJIT_X64_HPP
 #define ONEJIT_X64_HPP
 
+#include <onejit/x64/address.hpp>
 #include <onejit/x64/arg.hpp>
 #include <onejit/x64/asm.hpp>
 #include <onejit/x64/compiler.hpp>

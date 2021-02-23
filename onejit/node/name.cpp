@@ -46,7 +46,7 @@ Node Name::create(Code *holder, Chars str) noexcept {
 
 Chars Name::chars() const noexcept {
   if (const Code *code = Base::code()) {
-    const Offset start = sum_uint32(Base::offset_or_direct(), 4);
+    const Offset start = add_uint32(Base::offset_or_direct(), 4);
     const Offset end = code->length();
     const Offset len = size();
     if (end >= start && end - start >= (len + 3) / 4) {

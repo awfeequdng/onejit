@@ -36,7 +36,7 @@ namespace onejit {
 
 // shortcut for child(i + 2).is<Expr>()
 Expr Call::arg(uint32_t i) const noexcept {
-  return child(sum_uint32(2, i)).is<Expr>();
+  return child(add_uint32(2, i)).is<Expr>();
 }
 
 Node Call::create(Func &caller, const FuncType &ftype, const Label &flabel, Exprs args) noexcept {
@@ -46,7 +46,7 @@ Node Call::create(Func &caller, const FuncType &ftype, const Label &flabel, Expr
     const NodeHeader header{TUPLE, ftype.param_n() == 0 ? Void : ftype.param(0), CALL};
     CodeItem offset = holder->length();
 
-    if (holder->add(header) && holder->add_uint32(sum_uint32(2, n)) && //
+    if (holder->add(header) && holder->add_uint32(add_uint32(2, n)) && //
         holder->add(ftype, offset) && holder->add(flabel, offset) &&   //
         holder->add(args, offset)) {
       return Node{header, offset, holder};

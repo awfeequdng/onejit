@@ -29,6 +29,7 @@
 namespace onejit {
 namespace x64 {
 
+class Address;
 class Compiler;
 class Emit;
 class Inst;

@@ -28,18 +28,19 @@
 #include <onestl/fwd.hpp>
 
 #define ONESTL_BOUNDS_TINY(lhs, op, rhs)                                                           \
-  (((lhs) /**/ op /**/ (rhs)) ? (void)0                                                            \
-                              : ONESTL_THROW_ERROR_TINY(lhs, op, rhs, throw_bounds_failed))
+  (((lhs) /**/ op /**/ (rhs)) ? (void)0 : ONESTL_THROW_BOUNDS_FAILED())
 
 #define ONESTL_CHECK_TINY(lhs, op, rhs)                                                            \
-  (((lhs) /**/ op /**/ (rhs)) ? (void)0 : ONESTL_THROW_ERROR_TINY(lhs, op, rhs, throw_check_failed))
+  (((lhs) /**/ op /**/ (rhs)) ? (void)0 : ONESTL_THROW_CHECK_FAILED())
 
+#define ONESTL_THROW_BOUNDS_FAILED() (::onestl::throw_bounds_failed())
+#define ONESTL_THROW_CHECK_FAILED() (::onestl::throw_check_failed())
 #define ONESTL_THROW_ERROR_TINY(lhs, op, rhs, throw_func) (::onestl::throw_func())
 
 namespace onestl {
 
-void ONESTL_NORETURN throw_check_failed();
 void ONESTL_NORETURN throw_bounds_failed();
+void ONESTL_NORETURN throw_check_failed();
 
 } // namespace onestl
 

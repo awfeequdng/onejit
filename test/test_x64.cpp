@@ -49,7 +49,7 @@ void Test::x64_expr() {
   Func &f = func.reset(&holder, Name{&holder, "x64_expr"}, FuncType{&holder, {}, {}});
 
   {
-    x64::Mem mem{f, Int32, -67890};
+    x64::Mem mem{f, Int32, x64::Address{-67890}};
 
     Chars expected = "(x86_mem_i -67890)";
     TEST(to_string(mem), ==, expected);
@@ -107,7 +107,7 @@ void Test::x64_expr() {
 
       // (mem_ub,us,ui,ul offset)
       for (int32_t offset : {0x7f, 0x77665544}) {
-        x64::Mem mem{f, kind, offset};
+        x64::Mem mem{f, kind, x64::Address{offset}};
 
         Stmt1 st{f, mem, op};
         test_asm_disasm_x64(st, assembler);
@@ -122,7 +122,7 @@ void Test::x64_expr() {
         {
           x64::Reg base{Uint64, i};
           for (int32_t offset : {0x7f, 0x77665544}) {
-            x64::Mem mem{f, kind, offset, Var{base}};
+            x64::Mem mem{f, kind, x64::Address{offset, Var{base}}};
 
             Stmt1 st{f, mem, op};
             test_asm_disasm_x64(st, assembler);
@@ -141,7 +141,7 @@ void Test::x64_expr() {
 
           for (x64::Scale scale = x64::Scale1; scale <= x64::Scale8; scale <<= 1) {
             for (int32_t offset : {0x7f, 0x77665544}) {
-              x64::Mem mem{f, kind, offset, Var{}, Var{index}, scale};
+              x64::Mem mem{f, kind, x64::Address{offset, Var{}, Var{index}, scale}};
 
               Stmt1 st{f, mem, op};
               test_asm_disasm_x64(st, assembler);
@@ -158,7 +158,7 @@ void Test::x64_expr() {
           x64::Reg base{Uint64, i}, index{Uint64, j};
           for (x64::Scale scale = x64::Scale1; scale <= x64::Scale8; scale <<= 1) {
             for (int32_t offset : {0x7f, 0x77665544}) {
-              x64::Mem mem{f, kind, offset, Var{base}, Var{index}, scale};
+              x64::Mem mem{f, kind, x64::Address{offset, Var{base}, Var{index}, scale}};
 
               Stmt1 st{f, mem, op};
 
@@ -175,7 +175,7 @@ void Test::x64_expr() {
 
   {
     x64::Reg base{Uint64, x64::RAX}, index{Uint64, x64::RCX};
-    x64::Mem mem{f, Ptr, Label{f}, 12345, Var{base}, Var{index}, x64::Scale8};
+    x64::Mem mem{f, Ptr, x64::Address{Label{f}, 12345, Var{base}, Var{index}, x64::Scale8}};
     Stmt1 st{f, mem, X86_CALL};
 
     assembler.x64(st);

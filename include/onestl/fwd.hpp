@@ -39,17 +39,19 @@
 
 namespace onestl {
 
-template <class T> class Buffer;
 class Chars;
 class Fmt;
 class Hex;
+class String;
+class VectorHelper;
+class Writer;
+
+template <class T> class Buffer;
+template <class T> class CRange;
 template <class T> class Range;
 template <class T> class Span;
-class String;
 template <class T> class Vector;
-class VectorHelper;
 template <class T> class View;
-class Writer;
 
 typedef View<uint8_t> Bytes;
 

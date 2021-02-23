@@ -99,6 +99,8 @@ Compiler &Compiler::compile(Func &func, Opt flags) noexcept {
   error_.clear();
   good_ = bool(func);
 
+  add_prologue(func);
+
   Node node = optimizer_.optimize(func, func.get_body(), flags);
 
   return compile_add(node, SimplifyDefault).finish();
@@ -797,6 +799,16 @@ Compiler &Compiler::to_vars(Node node, uint32_t start, uint32_t end, //
     vars.set(i - start, to_var(node.child(i)));
   }
   return *this;
+}
+
+Compiler &Compiler::add_prologue(Func &func) noexcept {
+  const uint16_t n = func.param_n();
+  Vars vars = func.vars();
+  add(func.label());
+  if (n == 0 || vars.size() < n) {
+    return *this;
+  }
+  return add(StmtN{*func_, Nodes{vars.data(), n}, SET_});
 }
 
 Compiler &Compiler::add(const Node &node) noexcept {

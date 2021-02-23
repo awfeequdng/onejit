@@ -32,11 +32,12 @@
 #include <onejit/node/tuple.hpp>
 #include <onejit/node/unary.hpp>
 #include <onejit/optimizer.hpp>
+#include <onestl/range.hpp>
 #include <onestl/vector.hpp>
 
 namespace onejit {
 
-Optimizer::Optimizer() noexcept : func_{nullptr}, nodes_{}, check_{CheckNone}, flags_{OptNone} {
+Optimizer::Optimizer() noexcept : func_{}, nodes_{}, check_{CheckNone}, flags_{OptNone} {
 }
 
 Optimizer::~Optimizer() noexcept {

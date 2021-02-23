@@ -273,6 +273,7 @@ static const Chars op_stmt_n_string[] = { //
     "cond",
     "return",
     "switch",
+    "_set",
 #define ONEJIT_X(NAME, name) "x86_" #name,
     ONEJIT_OPSTMTN_X86(ONEJIT_X)
 #undef ONEJIT_X

@@ -25,10 +25,10 @@
 #ifndef ONESTL_TEST_HPP
 #define ONESTL_TEST_HPP
 
-#include <onestl/test_tiny.hpp>
 #include <onestl/fmt.hpp>
 #include <onestl/fwd.hpp>
 #include <onestl/string.hpp>
+#include <onestl/test_tiny.hpp>
 
 #include <utility> // std::move()
 
@@ -62,8 +62,8 @@ public:
          const char *opstr, const char *lstr, const char *rstr, //
          const char *file, int line) noexcept;
 
-  void ONESTL_NORETURN throw_check_failed() const;
   void ONESTL_NORETURN throw_bounds_failed() const;
+  void ONESTL_NORETURN throw_check_failed() const;
 
 private:
   String lhs_;

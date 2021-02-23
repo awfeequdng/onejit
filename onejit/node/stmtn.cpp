@@ -25,7 +25,7 @@
 
 #include <onejit/code.hpp>
 #include <onejit/func.hpp>
-#include <onejit/node/call.hpp> // Call
+#include <onejit/node/call.hpp>
 #include <onejit/node/expr.hpp>
 #include <onejit/node/stmt2.hpp> // Case
 #include <onejit/node/stmtn.hpp>
@@ -42,18 +42,22 @@ Node StmtN::create(Func &func, const Nodes children, OpStmtN op) noexcept {
                                children);
 }
 
-Node StmtN::create(Func &func, const ChildRanges &children, OpStmtN op) noexcept {
+ONEJIT_NOINLINE Node StmtN::create(Func &func, const ChildRanges &children, OpStmtN op) noexcept {
   return Base::create_indirect_from_ranges(func,                                   //
                                            NodeHeader{STMT_N, Void, uint16_t(op)}, //
                                            children);
 }
 
 const Fmt &StmtN::format(const Fmt &out, Syntax syntax, size_t depth) const {
-  ++depth;
   const OpStmtN op = this->op();
-  out << '(' << op;
 
-  for (size_t i = 0, n = children(); i < n; i++) {
+  out << '(' << op;
+  ++depth;
+
+  const bool is_call = op == X86_CALL_;
+
+  // if op == X86_CALL_, skip child(0) i.e. FuncType
+  for (size_t i = size_t(is_call), n = children(); i < n; i++) {
     if (op == BLOCK || op == COND || op == SWITCH) {
       out << '\n' << Space{depth * 4};
     } else {
@@ -73,7 +77,7 @@ Node AssignCall::create(Func &func, Exprs assign_to, const Call &call) noexcept 
     const NodeHeader header{STMT_N, Void, ASSIGN_CALL};
     CodeItem offset = holder->length();
 
-    if (holder->add(header) && holder->add_uint32(sum_uint32(1, n)) &&
+    if (holder->add(header) && holder->add_uint32(add_uint32(1, n)) &&
         holder->add(assign_to, offset) && holder->add(call, offset)) {
       return Node{header, offset, holder};
     }
@@ -105,7 +109,7 @@ Node Switch::create(Func &func, const Expr &expr, const Cases cases) noexcept {
     const NodeHeader header{STMT_N, Void, SWITCH};
     CodeItem offset = holder->length();
 
-    if (holder->add(header) && holder->add_uint32(sum_uint32(1, n)) && //
+    if (holder->add(header) && holder->add_uint32(add_uint32(1, n)) && //
         holder->add(expr, offset) && holder->add(cases, offset)) {
       return Node{header, offset, holder};
     }
@@ -116,7 +120,7 @@ Node Switch::create(Func &func, const Expr &expr, const Cases cases) noexcept {
 }
 
 Case Switch::case_(uint32_t i) const noexcept {
-  return child_is<Case>(sum_uint32(1, i));
+  return child_is<Case>(add_uint32(1, i));
 }
 
 } // namespace onejit

@@ -34,6 +34,8 @@ template <class T> class Span : protected View<T> {
 private:
   typedef View<T> Base;
 
+  template <class T2> friend class CRange;
+
 protected:
   using Base::data_;
   using Base::size_;

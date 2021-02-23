@@ -28,6 +28,7 @@
 #include <onejit/node/tuple.hpp>
 #include <onejit/node/var.hpp>
 #include <onejit/optimizer.hpp>
+#include <onestl/range.hpp>
 
 #include <algorithm>
 

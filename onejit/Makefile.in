@@ -120,11 +120,12 @@ am_libonejit_a_OBJECTS = archid.$(OBJEXT) assembler.$(OBJEXT) \
 	node/nodeheader.$(OBJEXT) node/stmt0.$(OBJEXT) \
 	node/stmt1.$(OBJEXT) node/stmt2.$(OBJEXT) node/stmt3.$(OBJEXT) \
 	node/stmt4.$(OBJEXT) node/stmtn.$(OBJEXT) node/tuple.$(OBJEXT) \
-	node/unary.$(OBJEXT) node/var.$(OBJEXT) x64/arg.$(OBJEXT) \
-	x64/asm0.$(OBJEXT) x64/asm1.$(OBJEXT) x64/asm2.$(OBJEXT) \
-	x64/asm3.$(OBJEXT) x64/asmn.$(OBJEXT) x64/assembler.$(OBJEXT) \
-	x64/compiler.$(OBJEXT) x64/mem.$(OBJEXT) \
-	x64/rex_byte.$(OBJEXT) x64/scale.$(OBJEXT) x64/util.$(OBJEXT)
+	node/unary.$(OBJEXT) node/var.$(OBJEXT) x64/address.$(OBJEXT) \
+	x64/arg.$(OBJEXT) x64/asm0.$(OBJEXT) x64/asm1.$(OBJEXT) \
+	x64/asm2.$(OBJEXT) x64/asm3.$(OBJEXT) x64/asmn.$(OBJEXT) \
+	x64/assembler.$(OBJEXT) x64/compiler.$(OBJEXT) \
+	x64/mem.$(OBJEXT) x64/rex_byte.$(OBJEXT) x64/scale.$(OBJEXT) \
+	x64/util.$(OBJEXT)
 libonejit_a_OBJECTS = $(am_libonejit_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -161,12 +162,13 @@ am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/assembler.Po \
 	node/$(DEPDIR)/stmt3.Po node/$(DEPDIR)/stmt4.Po \
 	node/$(DEPDIR)/stmtn.Po node/$(DEPDIR)/tuple.Po \
 	node/$(DEPDIR)/unary.Po node/$(DEPDIR)/var.Po \
-	x64/$(DEPDIR)/arg.Po x64/$(DEPDIR)/asm0.Po \
-	x64/$(DEPDIR)/asm1.Po x64/$(DEPDIR)/asm2.Po \
-	x64/$(DEPDIR)/asm3.Po x64/$(DEPDIR)/asmn.Po \
-	x64/$(DEPDIR)/assembler.Po x64/$(DEPDIR)/compiler.Po \
-	x64/$(DEPDIR)/mem.Po x64/$(DEPDIR)/rex_byte.Po \
-	x64/$(DEPDIR)/scale.Po x64/$(DEPDIR)/util.Po
+	x64/$(DEPDIR)/address.Po x64/$(DEPDIR)/arg.Po \
+	x64/$(DEPDIR)/asm0.Po x64/$(DEPDIR)/asm1.Po \
+	x64/$(DEPDIR)/asm2.Po x64/$(DEPDIR)/asm3.Po \
+	x64/$(DEPDIR)/asmn.Po x64/$(DEPDIR)/assembler.Po \
+	x64/$(DEPDIR)/compiler.Po x64/$(DEPDIR)/mem.Po \
+	x64/$(DEPDIR)/rex_byte.Po x64/$(DEPDIR)/scale.Po \
+	x64/$(DEPDIR)/util.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -370,7 +372,7 @@ libonejit_a_SOURCES = \
         node/stmt0.cpp node/stmt1.cpp node/stmt2.cpp node/stmt3.cpp node/stmt4.cpp node/stmtn.cpp \
         node/tuple.cpp node/unary.cpp node/var.cpp \
         \
-        x64/arg.cpp x64/asm0.cpp x64/asm1.cpp x64/asm2.cpp x64/asm3.cpp x64/asmn.cpp \
+        x64/address.cpp x64/arg.cpp x64/asm0.cpp x64/asm1.cpp x64/asm2.cpp x64/asm3.cpp x64/asmn.cpp \
         x64/assembler.cpp x64/compiler.cpp x64/mem.cpp x64/rex_byte.cpp x64/scale.cpp x64/util.cpp
 
 EXTRA_libonejit_a_DEPENDENCIES = 
@@ -466,6 +468,8 @@ x64/$(am__dirstamp):
 x64/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) x64/$(DEPDIR)
 	@: > x64/$(DEPDIR)/$(am__dirstamp)
+x64/address.$(OBJEXT): x64/$(am__dirstamp) \
+	x64/$(DEPDIR)/$(am__dirstamp)
 x64/arg.$(OBJEXT): x64/$(am__dirstamp) x64/$(DEPDIR)/$(am__dirstamp)
 x64/asm0.$(OBJEXT): x64/$(am__dirstamp) x64/$(DEPDIR)/$(am__dirstamp)
 x64/asm1.$(OBJEXT): x64/$(am__dirstamp) x64/$(DEPDIR)/$(am__dirstamp)
@@ -538,6 +542,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/tuple.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/unary.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/var.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/address.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/arg.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/asm0.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/asm1.Po@am__quote@ # am--include-marker
@@ -817,6 +822,7 @@ distclean: distclean-recursive
 	-rm -f node/$(DEPDIR)/tuple.Po
 	-rm -f node/$(DEPDIR)/unary.Po
 	-rm -f node/$(DEPDIR)/var.Po
+	-rm -f x64/$(DEPDIR)/address.Po
 	-rm -f x64/$(DEPDIR)/arg.Po
 	-rm -f x64/$(DEPDIR)/asm0.Po
 	-rm -f x64/$(DEPDIR)/asm1.Po
@@ -917,6 +923,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f node/$(DEPDIR)/tuple.Po
 	-rm -f node/$(DEPDIR)/unary.Po
 	-rm -f node/$(DEPDIR)/var.Po
+	-rm -f x64/$(DEPDIR)/address.Po
 	-rm -f x64/$(DEPDIR)/arg.Po
 	-rm -f x64/$(DEPDIR)/asm0.Po
 	-rm -f x64/$(DEPDIR)/asm1.Po

@@ -38,6 +38,7 @@ const Fmt &operator<<(const Fmt &out, ArchId);
 const Fmt &operator<<(const Fmt &out, Bits);
 const Fmt &operator<<(const Fmt &out, ArchId);
 const Fmt &operator<<(const Fmt &out, eKind);
+const Fmt &operator<<(const Fmt &out, const Error &);
 const Fmt &operator<<(const Fmt &out, Group);
 const Fmt &operator<<(const Fmt &out, Kind);
 const Fmt &operator<<(const Fmt &out, Id);

@@ -365,7 +365,9 @@ enum OpStmtN : uint16_t {
   RETURN = 4,
   SWITCH = 5,
 
-// numeric values of the OpStmtN enum constants below this line MAY CHANGE WITHOUT WARNING
+  // numeric values of the OpStmtN enum constants below this line MAY CHANGE WITHOUT WARNING
+
+  SET_ = 6, // arguments are formal registers to set. used in function prologue and in calls.
 
 #define ONEJIT_OPSTMTN_X86(x) /*                                                                */ \
   x(CALL_, call_) /* call function. 1st argument is destination, others are formal registers */    \

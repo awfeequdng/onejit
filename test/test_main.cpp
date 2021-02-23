@@ -74,6 +74,12 @@ void Test::run() {
 void Test::compile(Func &f) {
   // implies comp.compile(f, OptAll);
   comp.compile_x64(f, OptAll);
+
+  CRange<Error> errors = comp.errors();
+  if (errors) {
+    Fmt{stdout} << f.name() << " compile errors:\n" << errors;
+    ONEJIT_THROW_CHECK_FAILED();
+  }
 }
 
 void Test::dump_and_clear_code() {

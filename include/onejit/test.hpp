@@ -31,4 +31,7 @@
 #define ONEJIT_CHECK(lhs, op, rhs) ONESTL_CHECK(lhs, op, rhs)
 #define ONEJIT_TEST(lhs, op, rhs) ONESTL_TEST(lhs, op, rhs)
 
+#define ONEJIT_THROW_BOUNDS_FAILED() ONESTL_THROW_BOUNDS_FAILED()
+#define ONEJIT_THROW_CHECK_FAILED() ONESTL_THROW_CHECK_FAILED()
+
 #endif // ONEJIT_TEST_HPP

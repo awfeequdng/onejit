@@ -52,21 +52,20 @@ public:
   constexpr Mem() noexcept : Base{} {
   }
 
-  Mem(Func &func, Kind kind,    //
-      const int32_t offset = 0, //
-      const Var &base = Var{},  //
-      const Var &index = Var{}, //
-      Scale scale = Scale0) noexcept
-      : Base{create(func, kind, Label{}, offset, base, index, scale)} {
+  Mem(Func &func, Kind kind, const Address &address) noexcept //
+      : Base{create(func, kind, address)} {
   }
 
-  Mem(Func &func, Kind kind,    //
-      const Label &label,       //
-      const int32_t offset = 0, //
-      const Var &base = Var{},  //
-      const Var &index = Var{}, //
-      Scale scale = Scale0) noexcept
-      : Base{create(func, kind, label, offset, base, index, scale)} {
+  // try to create x64::Mem whose address is the sum of all children.
+  // return invalid x64::Mem if it fails.
+  Mem(Compiler &comp, Kind kind, Exprs children) noexcept //
+      : Base{create(comp, kind, children)} {
+  }
+
+  // try to create x64::Mem whose address is the sum of all children.
+  // return invalid x64::Mem if it fails.
+  Mem(Compiler &comp, Kind kind, const ChildRange &children) noexcept
+      : Base{create(comp, kind, children)} {
   }
 
   static constexpr OpN op() noexcept {
@@ -100,8 +99,9 @@ private:
     return op == X86_MEM;
   }
 
-  static Node create(Func &func, Kind kind, const Label &label, const int32_t offset,
-                     const Var &base, const Var &index, Scale scale) noexcept;
+  static Node create(Func &func, Kind kind, const Address &address) noexcept;
+  static Node create(Compiler &comp, Kind kind, Exprs children) noexcept;
+  static Node create(Compiler &comp, Kind kind, const ChildRange &children) noexcept;
 
 }; // class Mem
 

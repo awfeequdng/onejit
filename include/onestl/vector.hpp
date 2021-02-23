@@ -71,6 +71,8 @@ template <class T> class Vector : protected Span<T> {
 
   typedef Span<T> Base;
   friend class VectorHelper;
+  template <class T2> friend class CRange;
+  template <class T2> friend class Range;
 
   // do not implement. reason: any allocation failure would not be visible
   Vector<T> &operator=(const Vector<T> &other) noexcept = delete;

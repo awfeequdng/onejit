@@ -24,9 +24,34 @@
  */
 
 #include <onejit/error.hpp>
+#include <onejit/fmt.hpp>
+#include <onestl/crange.hpp>
+#include <onestl/view.hpp>
 
 namespace onejit {
 
-//
+const Fmt &operator<<(const Fmt &out, const Error &error) {
+  return out << error.msg() << ": " << error.where();
+}
+
+const Fmt &operator<<(const Fmt &out, const Errors &errors) {
+  if (errors) {
+    out << "errors:\n";
+    for (const Error &err : errors) {
+      out << "    " << err << '\n';
+    }
+  }
+  return out;
+}
+
+const Fmt &operator<<(const Fmt &out, const CRange<Error> &errors) {
+  if (errors) {
+    out << "errors:\n";
+    for (size_t i = 0, n = errors.size(); i < n; i++) {
+      out << "    " << errors[i] << '\n';
+    }
+  }
+  return out;
+}
 
 } // namespace onejit

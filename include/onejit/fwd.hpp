@@ -37,17 +37,19 @@
 
 namespace onejit {
 
-template <class T> using Buffer = ::onestl::Buffer<T>;
 using Bytes = ::onestl::Bytes;
 using Chars = ::onestl::Chars;
 using Fmt = ::onestl::Fmt;
 using Hex = ::onestl::Hex;
+using String = ::onestl::String;
+using Writer = ::onestl::Writer;
+
+template <class T> using Buffer = ::onestl::Buffer<T>;
+template <class T> using CRange = ::onestl::CRange<T>;
 template <class T> using Range = ::onestl::Range<T>;
 template <class T> using Span = ::onestl::Span<T>;
-using String = ::onestl::String;
 template <class T> using Vector = ::onestl::Vector<T>;
 template <class T> using View = ::onestl::View<T>;
-using Writer = ::onestl::Writer;
 
 enum Allow : uint8_t;
 enum ArchId : uint8_t;
@@ -132,6 +134,7 @@ using Exprs = View<Expr>;
 using Kinds = View<Kind>;
 using Nodes = View<Node>;
 using Values = View<Value>;
+using Vars = View<Var>;
 
 } // namespace onejit
 

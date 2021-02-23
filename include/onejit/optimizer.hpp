@@ -29,7 +29,7 @@
 #include <onejit/check.hpp>
 #include <onejit/node/node.hpp>
 #include <onestl/buffer.hpp>
-#include <onestl/range.hpp>
+#include <onestl/crange.hpp>
 
 namespace onejit {
 

@@ -46,9 +46,9 @@ const Fmt &Tuple::format(const Fmt &out, Syntax syntax, size_t depth) const {
     // may happen, Mem is a subclass of Tuple
     return is<Mem>().format(out, syntax, depth);
   }
-
   OpN op = this->op();
   out << '(' << op;
+
   const bool is_call = op == CALL;
   // if op == CALL, skip child(0) i.e. FuncType
   for (size_t i = size_t(is_call), n = children(); i < n; i++) {

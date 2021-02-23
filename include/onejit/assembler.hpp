@@ -29,6 +29,7 @@
 #include <onejit/error.hpp>
 #include <onejit/node/label.hpp>
 #include <onestl/buffer.hpp>
+#include <onestl/crange.hpp>
 
 namespace onejit {
 
@@ -90,8 +91,9 @@ public:
   // does nothing if label is invalid i.e. bool(l) == false
   Assembler &add_relocation(Label l) noexcept;
 
-  constexpr Errors get_errors() const noexcept {
-    return error_;
+  // return current assembler errors
+  constexpr CRange<Error> errors() const noexcept {
+    return CRange<Error>{&error_};
   }
 
   // add an assembler error

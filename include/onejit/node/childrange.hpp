@@ -37,6 +37,12 @@ public:
   constexpr ChildRange() noexcept : node_{}, start_{}, size_{} {
   }
 
+  // construct a ChildRange containing all children of Node
+  explicit ChildRange(Node node) noexcept //
+      : node_{node}, start_{0}, size_{node.children()} {
+  }
+
+  // construct a ChildRange containing a subse of Node's children
   constexpr ChildRange(Node node, uint32_t start, uint32_t size) noexcept
       : node_{node}, start_{start}, size_{size} {
   }

@@ -27,6 +27,7 @@
 #include <onejit/func.hpp>
 #include <onejit/node.hpp>
 #include <onejit/x64/compiler.hpp>
+#include <onejit/x64/mem.hpp>
 
 namespace onejit {
 
@@ -220,7 +221,7 @@ Compiler &Compiler::compile(Assign st) noexcept {
   Expr src = st.src(), dst = st.dst();
   // simplify src first: its side effects, if any, must be applied before dst
   //
-  // FIXME: to_var_mem_const(simplify(src)) creates redundant Vars
+  // do not call to_var_mem_const(simplify(src)): it creates redundant Vars
   src = simplify(src);
   dst = to_var_mem_const(simplify(dst));
   if (src.type() == MEM && dst.type() == MEM) {
@@ -240,12 +241,65 @@ Node Compiler::simplify_assign(Assign st, Expr dst, Expr src) noexcept {
         {X86_ADD, X86_SUB, X86_MUL, X86_DIV, REM_ASSIGN, //
          X86_AND, X86_OR,  X86_XOR, X86_SHL, X86_SHR};
     op = xop[op - ADD_ASSIGN];
+    src = to_var_mem_const(src);
   } else if (op == ASSIGN) {
-    op = X86_MOV;
+    switch (src.type()) {
+    case VAR:
+    case MEM:
+    case CONST:
+    case LABEL:
+      op = X86_MOV;
+      break;
+    case UNARY:
+      return simplify_assign(st, dst, src.is<Unary>());
+    case BINARY:
+      return simplify_assign(st, dst, src.is<Binary>());
+    case TUPLE:
+      return simplify_assign(st, dst, src.is<Tuple>());
+    default:
+      error(st, "unexpected Assign right argument");
+      break;
+    }
   } else {
     error(st, "unexpected Assign operation");
   }
   return Stmt2{*func_, dst, src, op};
+}
+
+Node Compiler::simplify_assign(Assign st, Expr dst, Unary src) noexcept {
+  // TODO
+  (void)dst;
+  (void)src;
+  return st;
+}
+
+Node Compiler::simplify_assign(Assign st, Expr dst, Tuple src) noexcept {
+  switch (src.op()) {
+  case ADD:
+    if (dst.type() == VAR) {
+      if (Mem mem{*this, Ptr, ChildRange{src}}) {
+        return Stmt2{*func_, dst, mem, X86_LEA};
+      }
+    }
+    break;
+  case CALL: {
+    StmtN set{*func_, Nodes{&dst, 1}, SET_};
+    ChildRange ranges[] = {ChildRange{src, 0, 2},          // ftype, label
+                           ChildRange{Block{*func_, set}}, // (set_ dst)
+                           ChildRange{src, 2, sub_uint32(src.children(), 2)}};
+    return StmtN{*func_, ChildRanges{ranges, 3}, X86_CALL_};
+  }
+  default:
+    break;
+  } // switch
+  return st;
+}
+
+Node Compiler::simplify_assign(Assign st, Expr dst, Binary src) noexcept {
+  // TODO
+  (void)dst;
+  (void)src;
+  return st;
 }
 
 // ===============================  compile(StmtN)  ============================
@@ -258,6 +312,8 @@ Compiler &Compiler::compile(StmtN st) noexcept {
     return compile(st.is<Block>());
   case RETURN:
     return compile(st.is<Return>());
+  case SET_: // used in function prologue
+    return add(st);
   default:
     return error(st, "unexpected StmtN");
   }
@@ -271,7 +327,7 @@ Compiler &Compiler::compile(Block st) noexcept {
 }
 
 Compiler &Compiler::compile(AssignCall st) noexcept {
-  return add(st); // TODO?
+  return add(st); // TODO
 }
 
 Compiler &Compiler::compile(Return st) noexcept {
@@ -324,6 +380,12 @@ Compiler &Compiler::add(const Node &node) noexcept {
 
 Compiler &Compiler::error(const Node &where, Chars msg) noexcept {
   good_ = good_ && error_ && error_->append(Error{where, msg});
+  return *this;
+}
+
+Compiler &Compiler::out_of_memory(const Node &where) noexcept {
+  // always set good_ to false
+  good_ = good_ && error_ && error_->append(Error{where, "out of memory"}) && false;
   return *this;
 }
 

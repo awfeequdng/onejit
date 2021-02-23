@@ -43,6 +43,7 @@ private:
   size_t size_;
 };
 
+// write space.size() spaces
 const Fmt &operator<<(const Fmt &out, Space space);
 
 } // namespace onejit

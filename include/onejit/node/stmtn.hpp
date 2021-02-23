@@ -37,8 +37,9 @@ namespace onejit {
 ////////////////////////////////////////////////////////////////////////////////
 class StmtN : public Stmt {
   using Base = Stmt;
-  friend class Node;
+  friend class Compiler;
   friend class Func;
+  friend class Node;
   friend class x64::Compiler;
 
 public:
@@ -77,7 +78,7 @@ protected:
       : Base{create(func, children, op)} {
   }
 
-  // used by x64::Compiler::compile(Return)
+  // used by x64::Compiler
   StmtN(Func &func, const ChildRanges &children, OpStmtN op) noexcept //
       : Base{create(func, children, op)} {
   }

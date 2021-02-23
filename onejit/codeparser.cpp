@@ -34,7 +34,7 @@ Node CodeParser::next() noexcept {
     return Node{};
   }
   Node node{NodeHeader{code_->get(offset_)}, offset_, code_};
-  offset_ = sum_uint32(offset_, node.length_bytes());
+  offset_ = add_uint32(offset_, node.length_bytes());
   return node;
 }
 

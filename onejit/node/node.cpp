@@ -26,6 +26,7 @@
 #include <onejit/code.hpp>
 #include <onejit/func.hpp>
 #include <onejit/node/binary.hpp>
+#include <onejit/node/childrange.hpp>
 #include <onejit/node/const.hpp>
 #include <onejit/node/functype.hpp>
 #include <onejit/node/label.hpp>
@@ -108,7 +109,7 @@ Node Node::child(uint32_t i) const noexcept {
 }
 
 Offset Node::length_items() const noexcept {
-  Offset len = sum_uint32(1, children());
+  Offset len = add_uint32(1, children());
   Offset plus = 0;
   switch (type()) {
   case VAR:
@@ -130,7 +131,7 @@ Offset Node::length_items() const noexcept {
     }
     break;
   }
-  return sum_uint32(len, plus);
+  return add_uint32(len, plus);
 }
 
 Node Node::create_indirect(Func &func, NodeHeader header, Nodes children) noexcept {
@@ -155,12 +156,18 @@ Node Node::create_indirect(Func &func, NodeHeader header, Nodes children) noexce
 Node Node::create_indirect_from_ranges(Func &func, NodeHeader header,
                                        const ChildRanges &children) noexcept {
   Code *holder = func.code();
-  const size_t n = children.size();
-  while (holder && n == uint32_t(n)) {
+  const size_t ni = children.size();
+  while (holder) {
+    size_t n = 0;
+    const bool islist = is_list(header.type());
+    if (islist) {
+      for (size_t i = 0; i < ni; i++) {
+        n += children[i].size();
+      }
+    }
     CodeItem offset = holder->length();
-
-    if (holder->add(header)) {
-      if (!is_list(header.type()) || holder->add_uint32(n)) {
+    if (n == uint32_t(n) && holder->add(header)) {
+      if (!islist || holder->add_uint32(n)) {
         if (holder->add_ranges(children, offset)) {
           return Node{header, offset, holder};
         }

@@ -31,6 +31,7 @@
 #include <onejit/node/const.hpp>
 #include <onejit/node/tuple.hpp>
 #include <onejit/optimizer.hpp>
+#include <onestl/range.hpp>
 
 namespace onejit {
 
@@ -116,7 +117,7 @@ Expr Optimizer::partial_eval_binary(Op2 op, Expr x, Expr y) noexcept {
       // optimize (op x identity) to x
       return x;
     }
-    if (op == SUB && y.kind().is_signed()) {
+    if (op == SUB) {
       // optimize (x - const) to (x + (-const))
       // because + is easier to optimize further
       Value v = -c.val();

@@ -30,6 +30,7 @@
 #include <onejit/node/label.hpp>
 #include <onejit/node/node.hpp>
 #include <onejit/optimizer.hpp>
+#include <onestl/crange.hpp>
 #include <onestl/vector.hpp>
 
 namespace onejit {
@@ -70,6 +71,11 @@ public:
   // return the configured checks that compiled code must perform at runtime.
   constexpr Check check() const noexcept {
     return optimizer_.check();
+  }
+
+  // return current compile errors
+  constexpr CRange<Error> errors() const noexcept {
+    return CRange<Error>{&error_};
   }
 
 private:
@@ -124,6 +130,8 @@ private:
   // and append such variables to vars.
   Compiler &to_vars(Node node, uint32_t start, uint32_t end, //
                     Vector<Expr> &vars) noexcept;
+
+  Compiler &add_prologue(Func &func) noexcept;
 
   // add an already compiled node to compiled list
   Compiler &add(const Node &node) noexcept;

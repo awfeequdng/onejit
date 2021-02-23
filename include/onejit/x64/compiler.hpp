@@ -38,6 +38,8 @@ namespace x64 {
 // usually not invoked directly - the public API is onejit::Compiler::x64()
 class Compiler {
   friend class ::onejit::Compiler;
+  friend class Address;
+  friend class Mem;
 
 public:
   constexpr Compiler() noexcept //
@@ -71,8 +73,17 @@ private:
   Expr simplify(onejit::Mem expr) noexcept;
   Expr simplify(Tuple expr) noexcept;
   Expr simplify(Unary expr) noexcept;
+
   Node simplify_assign(Assign st, Expr dst, Expr src) noexcept;
+  Node simplify_assign(Assign st, Expr dst, Unary src) noexcept;
+  Node simplify_assign(Assign st, Expr dst, Binary src) noexcept;
+  Node simplify_assign(Assign st, Expr dst, Tuple src) noexcept;
+
   void simplify_binary(Expr &x, Expr &y) noexcept;
+
+  constexpr Func *func() const noexcept {
+    return func_;
+  }
 
   // if expr is a Var, does nothing and returns it.
   // otherwise copies expression result to a new local variable and returns it.
@@ -93,7 +104,11 @@ private:
   // invoked by compile(Func)
   Compiler &finish() noexcept;
 
+  // add a compile error
   Compiler &error(const Node &where, Chars msg) noexcept;
+
+  // add an out of memory error
+  Compiler &out_of_memory(const Node &where) noexcept;
 
   Func *func_;
   Vector<Node> *node_;

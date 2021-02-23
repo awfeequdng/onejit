@@ -40,6 +40,7 @@
 namespace onejit {
 
 class Func {
+  friend class Compiler;
   friend class Label;
   friend class Var;
 
@@ -123,6 +124,11 @@ private:
   // create a new local variable. called by Var{Func&, Kind}
   // and internally calls Var::create()
   Var new_var(Kind kind) noexcept;
+
+  // return all local variables
+  constexpr Vars vars() const noexcept {
+    return vars_;
+  }
 
 private:
   Code *holder_;

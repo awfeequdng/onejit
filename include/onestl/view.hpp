@@ -101,6 +101,10 @@ public:
     return index < size_ ? data_[index] : T{};
   }
 
+  constexpr explicit operator bool() const noexcept {
+    return size_ != 0;
+  }
+
   constexpr const T *data() const noexcept {
     return data_;
   }

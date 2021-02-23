@@ -38,7 +38,7 @@ public:
   constexpr Error() noexcept : where_{}, msg_{} {
   }
 
-  constexpr Error(const Node &where, Chars msg) noexcept : where_{where}, msg_{msg} {
+  constexpr Error(Node where, Chars msg) noexcept : where_{where}, msg_{msg} {
   }
 
   ~Error() noexcept = default;
@@ -55,6 +55,10 @@ private:
   Node where_;
   Chars msg_;
 };
+
+const Fmt &operator<<(const Fmt &out, const Error &error);
+const Fmt &operator<<(const Fmt &out, const Errors &errors);
+const Fmt &operator<<(const Fmt &out, const CRange<Error> &errors);
 
 } // namespace onejit
 

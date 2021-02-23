@@ -23,41 +23,64 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/node/childrange.hpp>
 #include <onejit/node/const.hpp>
+#include <onejit/node/label.hpp>
+#include <onejit/node/tuple.hpp>
+#include <onejit/node/var.hpp>
+#include <onejit/x64/address.hpp>
+#include <onejit/x64/compiler.hpp>
 #include <onejit/x64/mem.hpp>
 
 namespace onejit {
 namespace x64 {
 
-Node Mem::create(Func &func, Kind kind, const Label &label, const int32_t offset, const Var &base,
-                 const Var &index, Scale scale) noexcept {
+Node Mem::create(Func &func, Kind kind, const Address &address) noexcept {
   do {
     Expr args[5] = {};
     size_t len = 0;
-    if (label) {
-      args[0] = label;
+    if (address.label) {
+      args[0] = address.label;
       len = 1;
     }
-    if (offset != 0) {
-      args[1] = Const{func, offset};
+    if (address.offset != 0) {
+      args[1] = Const{func, address.offset};
       if (!args[1]) {
         break;
       }
       len = 2;
     }
-    if (base) {
-      args[2] = base;
+    if (address.base) {
+      args[2] = address.base;
       len = 3;
     }
-    if (index && scale != Scale0) {
-      args[3] = index;
-      args[4] = Const{Uint8, uint16_t(scale.val())};
+    if (address.index && address.scale) {
+      args[3] = address.index;
+      args[4] = Const{Uint8, uint16_t(address.scale.val())};
       len = 5;
     }
     return Base::create(func, kind, X86_MEM, Exprs{args, len});
 
   } while (false);
   return Mem{};
+}
+
+Node Mem::create(Compiler &comp, Kind kind, Exprs children) noexcept {
+  Func *func = comp.func();
+  Address address;
+  if (func && address.insert(comp, children)) {
+    return create(*func, kind, address);
+  }
+  return Node{};
+}
+
+Node Mem::create(Compiler &comp, Kind kind, const ChildRange &children) noexcept {
+  Func *func = comp.func();
+  Address address;
+  if (func && address.insert(comp, children)) {
+    return create(*func, kind, address);
+  }
+  return Node{};
 }
 
 // shortcut for child_is<Const>(1).val().int32()
