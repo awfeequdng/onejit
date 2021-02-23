@@ -68,7 +68,7 @@ public:
       : Base{vec, a_start, a_size} {
   }
   constexpr Range(const Range<T> &range, size_t a_start, size_t a_size) noexcept //
-      : Base{range.impl_, range.start_ + a_start, size} {
+      : Base{range.impl_, range.start_ + a_start, a_size} {
   }
 
   using Base::set_bounds;
