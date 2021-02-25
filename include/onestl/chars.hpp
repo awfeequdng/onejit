@@ -25,7 +25,7 @@
 #ifndef ONESTL_CHARS_HPP
 #define ONESTL_CHARS_HPP
 
-#include <onestl/vector.hpp>
+#include <onestl/array.hpp>
 
 namespace onestl {
 
@@ -52,7 +52,7 @@ public:
   }
   constexpr Chars(const Span<T> &other) noexcept : Base{other} {
   }
-  constexpr Chars(const Vector<T> &other) noexcept : Base{other} {
+  constexpr Chars(const Array<T> &other) noexcept : Base{other} {
   }
   // defined in string.hpp
   constexpr Chars(const String &other) noexcept;

@@ -27,7 +27,7 @@
 
 namespace onestl {
 
-template class Vector<char>;
+template class Array<char>;
 
 // ensure data() is terminated by '\0' then return it
 const char *String::c_str() noexcept {

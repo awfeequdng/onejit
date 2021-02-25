@@ -267,7 +267,7 @@ Expr Compiler::compile(Tuple expr, Flags flags) noexcept {
   if (Call call = expr.is<Call>()) {
     return compile(call, flags);
   }
-  Vector<Node> nodes;
+  Array<Node> nodes;
   const size_t n = expr.children();
   if (!nodes.resize(n)) {
     out_of_memory(expr);
@@ -290,7 +290,7 @@ Expr Compiler::compile(Call call, Flags flags) noexcept {
   const uint32_t n = call.children();
 
   if (!call.children_are<Var>(2, n)) {
-    Vector<Expr> vargs;
+    Array<Expr> vargs;
     // convert all call arguments to Var
     to_vars(call, 2, n, vargs);
     call = Call{*func_, call.ftype(), call.label(), vargs};
@@ -580,7 +580,7 @@ Node Compiler::compile(AssignCall st, Flags) noexcept {
     if (call == comp_call && st.children_are<Var>(0, n - 1)) {
       break;
     }
-    Vector<Expr> vars;
+    Array<Expr> vars;
     to_vars(st, 0, n - 1, vars);
     st = AssignCall{*func_, vars, comp_call};
     break;
@@ -791,7 +791,7 @@ Var Compiler::to_var(Node node) noexcept {
 }
 
 Compiler &Compiler::to_vars(Node node, uint32_t start, uint32_t end, //
-                            Vector<Expr> &vars) noexcept {
+                            Array<Expr> &vars) noexcept {
   if (!vars.resize(end > start ? end - start : 0)) {
     return out_of_memory(node);
   }

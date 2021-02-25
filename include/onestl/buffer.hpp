@@ -25,19 +25,19 @@
 #ifndef ONESTL_BUFFER_HPP
 #define ONESTL_BUFFER_HPP
 
-#include <onestl/vector.hpp>
+#include <onestl/array.hpp>
 
 namespace onestl {
 
 // dynamically resizeable buffer of arbitrary type T,
 // which keeps track of allocation failures.
 //
-// It has the same constraints as Vector<T>:
+// It has the same constraints as Array<T>:
 // 1. T must have trivial copy constructor, destructor and assignment operator
 // 2. zero-initializing T must be produce a valid T instance
-template <class T> class Buffer : public Vector<T> {
+template <class T> class Buffer : public Array<T> {
 
-  typedef Vector<T> Base;
+  typedef Array<T> Base;
 
 public:
   constexpr Buffer() noexcept : Base{}, good_{true} {
@@ -52,7 +52,7 @@ public:
   }
   explicit Buffer(const Span<T> &other) noexcept : Base{}, good_{Base::dup(other)} {
   }
-  explicit Buffer(const Vector<T> &other) noexcept : Base{}, good_{Base::dup(other)} {
+  explicit Buffer(const Array<T> &other) noexcept : Base{}, good_{Base::dup(other)} {
   }
   explicit Buffer(const Buffer<T> &other) noexcept : Base{}, good_{Base::dup(other)} {
   }

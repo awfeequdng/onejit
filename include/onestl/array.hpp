@@ -17,17 +17,17 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * vector.hpp - adapted from twin/include/stl/vector.h
+ * array.hpp - adapted from twin/include/stl/vector.h
  *
  *  Created on Jan 11, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONESTL_VECTOR_HPP
-#define ONESTL_VECTOR_HPP
+#ifndef ONESTL_ARRAY_HPP
+#define ONESTL_ARRAY_HPP
 
+#include <onestl/arrayhelper.hpp>
 #include <onestl/mem.hpp>
 #include <onestl/span.hpp>
-#include <onestl/vectorhelper.hpp>
 
 #include <cstdint>     // uint32_t
 #include <type_traits> // std::is_trivial<T>
@@ -57,25 +57,25 @@ namespace onestl {
  * The following methods may change the size, but always preserve the capacity:
  *   clear truncate
  *
- * For increased safety, Vector::operator[] returns T by value, not by reference.
+ * For increased safety, Array::operator[] returns T by value, not by reference.
  * Reason: references can be invalidated by one of the methods above.
- * To overwrite Vector elements, use Vector::set()
+ * To overwrite Array elements, use Array::set()
  */
-template <class T> class Vector : protected Span<T> {
+template <class T> class Array : protected Span<T> {
   static_assert(std::is_nothrow_default_constructible<T>::value,
-                "Vector<T>: element type T default constructor must be nothrow");
+                "Array<T>: element type T default constructor must be nothrow");
   static_assert(std::is_trivially_copyable<T>::value,
-                "Vector<T>: element type T must be trivially copyable");
+                "Array<T>: element type T must be trivially copyable");
   static_assert(std::is_trivially_destructible<T>::value,
-                "Vector<T>: element type T must be trivially destructible");
+                "Array<T>: element type T must be trivially destructible");
 
   typedef Span<T> Base;
-  friend class VectorHelper;
+  friend class ArrayHelper;
   template <class T2> friend class CRange;
   template <class T2> friend class Range;
 
   // do not implement. reason: any allocation failure would not be visible
-  Vector<T> &operator=(const Vector<T> &other) noexcept = delete;
+  Array<T> &operator=(const Array<T> &other) noexcept = delete;
 
 protected:
   using Base::data_;
@@ -83,7 +83,7 @@ protected:
   size_t cap_;
 
   bool init(size_t n) noexcept {
-    return VectorHelper::cast(*this).init(n, sizeof(T));
+    return ArrayHelper::cast(*this).init(n, sizeof(T));
   }
 
   void destroy() noexcept {
@@ -96,11 +96,11 @@ protected:
     if (cap_ >= n) {
       return true;
     }
-    return VectorHelper::cast(*this).grow_capacity(n, sizeof(T));
+    return ArrayHelper::cast(*this).grow_capacity(n, sizeof(T));
   }
 
   bool grow(size_t n, bool zerofill) noexcept {
-    return VectorHelper::cast(*this).grow(n, sizeof(T), zerofill);
+    return ArrayHelper::cast(*this).grow(n, sizeof(T), zerofill);
   }
 
 public:
@@ -114,30 +114,30 @@ public:
   typedef const T *const_pointer;
   typedef const T *const_iterator;
 
-  constexpr Vector() noexcept : Base{}, cap_{0} {
+  constexpr Array() noexcept : Base{}, cap_{0} {
   }
-  Vector(const T *addr, size_t n) noexcept : Base{}, cap_{0} {
+  Array(const T *addr, size_t n) noexcept : Base{}, cap_{0} {
     dup(addr, n);
   }
   // all one-argument constructors are explicit because they allocate,
   // thus they mail fail => we require users to explicitly invoke them.
-  explicit Vector(size_t n) noexcept : Base{}, cap_{0} {
+  explicit Array(size_t n) noexcept : Base{}, cap_{0} {
     init(n);
   }
-  explicit Vector(const View<T> &other) noexcept : Base{}, cap_{0} {
+  explicit Array(const View<T> &other) noexcept : Base{}, cap_{0} {
     dup(other.data(), other.size());
   }
-  explicit Vector(const Span<T> &other) noexcept : Base{}, cap_{0} {
+  explicit Array(const Span<T> &other) noexcept : Base{}, cap_{0} {
     dup(other.data(), other.size());
   }
-  explicit Vector(const Vector<T> &other) noexcept : Base{}, cap_{0} {
+  explicit Array(const Array<T> &other) noexcept : Base{}, cap_{0} {
     dup(other.data(), other.size());
   }
-  Vector(Vector<T> &&other) noexcept : Base{}, cap_{} {
+  Array(Array<T> &&other) noexcept : Base{}, cap_{} {
     swap(other);
   }
 
-  ~Vector() noexcept {
+  ~Array() noexcept {
     destroy();
   }
 
@@ -158,7 +158,7 @@ public:
   using Base::truncate;
   using Base::view;
 
-  Vector<T> &operator=(Vector<T> &&other) noexcept {
+  Array<T> &operator=(Array<T> &&other) noexcept {
     swap(other);
     return *this;
   }
@@ -168,7 +168,7 @@ public:
       size_ = 0;
       return true;
     }
-    return VectorHelper::cast(*this).dup(addr, n, sizeof(T));
+    return ArrayHelper::cast(*this).dup(addr, n, sizeof(T));
   }
   bool dup(View<T> other) noexcept {
     return dup(other.data(), other.size());
@@ -186,44 +186,44 @@ public:
     if (newcap <= cap_) {
       return true;
     }
-    return VectorHelper::cast(*this).reserve(newcap, sizeof(T));
+    return ArrayHelper::cast(*this).reserve(newcap, sizeof(T));
   }
 
   bool append(const T &src) noexcept {
     return append(View<T>{&src, 1});
   }
   bool append(View<T> src) noexcept {
-    return VectorHelper::cast(*this).append(src.data(), src.size(), sizeof(T));
+    return ArrayHelper::cast(*this).append(src.data(), src.size(), sizeof(T));
   }
 
-  void swap(Vector<T> &other) noexcept {
-    VectorHelper &h_this = VectorHelper::cast(*this);
-    VectorHelper &h_other = VectorHelper::cast(other);
-    VectorHelper h_tmp = h_this;
+  void swap(Array<T> &other) noexcept {
+    ArrayHelper &h_this = ArrayHelper::cast(*this);
+    ArrayHelper &h_other = ArrayHelper::cast(other);
+    ArrayHelper h_tmp = h_this;
     h_this = h_other;
     h_other = h_tmp;
   }
 };
 
-extern template class Vector<char>;     // defined in onestl/string.cpp
-extern template class Vector<uint32_t>; // defined in onestl/vector.cpp
+extern template class Array<char>;     // defined in onestl/string.cpp
+extern template class Array<uint32_t>; // defined in onestl/vector.cpp
 
-template <class T> void swap(Vector<T> &left, Vector<T> &right) noexcept {
+template <class T> void swap(Array<T> &left, Array<T> &right) noexcept {
   left.swap(right);
 }
 
-// ------------- View<T> methods requiring complete type Vector<T> ---------------
+// ------------- View<T> methods requiring complete type Array<T> ---------------
 
 template <class T>
-constexpr View<T>::View(const Vector<T> &other) noexcept //
+constexpr View<T>::View(const Array<T> &other) noexcept //
     : data_{other.data()}, size_{other.size()} {
 }
 
-template <class T> void View<T>::ref(const Vector<T> &other) noexcept {
+template <class T> void View<T>::ref(const Array<T> &other) noexcept {
   data_ = other.data();
   size_ = other.size();
 }
 
 } // namespace onestl
 
-#endif // ONESTL_VECTOR_HPP
+#endif // ONESTL_ARRAY_HPP

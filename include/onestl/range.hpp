@@ -32,17 +32,17 @@ namespace onestl {
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
- * range of elements inside a Vector<T> or Span<T>.
- * it remains valid even after the Vector is resized or changes capacity,
+ * range of elements inside a Array<T> or Span<T>.
+ * it remains valid even after the Array is resized or changes capacity,
  * or after the Span is reassigned with ref(), swap() or operator=
  *
  * Range start and size can be changed at any time with set_bounds(),
- * even to values out of bounds from the underlying Span or Vector.
+ * even to values out of bounds from the underlying Span or Array.
  *
  * Range operator bool, operator[], set(), span() and view() will check if start and size
- * are out of bounds with respect to the underlying Span or Vector size *in that moment*
+ * are out of bounds with respect to the underlying Span or Array size *in that moment*
  * (the size of underlying Span can change by reassigning it as described above,
- * and the size of underlying Vector can change by resizing it).
+ * and the size of underlying Array can change by resizing it).
  */
 template <class T> class Range : protected CRange<T> {
   typedef CRange<T> Base;
@@ -57,15 +57,15 @@ public:
 
   constexpr explicit Range(Span<T> *span) noexcept : Base{span} {
   }
-  constexpr explicit Range(Vector<T> *vec) noexcept : Base{vec} {
+  constexpr explicit Range(Array<T> *arr) noexcept : Base{arr} {
   }
   // constexpr Range(const Range<T> &range) noexcept = default;
 
   constexpr Range(Span<T> *span, size_t a_start, size_t a_size) noexcept
       : Base{span, a_start, a_size} {
   }
-  constexpr Range(Vector<T> *vec, size_t a_start, size_t a_size) noexcept
-      : Base{vec, a_start, a_size} {
+  constexpr Range(Array<T> *arr, size_t a_start, size_t a_size) noexcept
+      : Base{arr, a_start, a_size} {
   }
   constexpr Range(const Range<T> &range, size_t a_start, size_t a_size) noexcept //
       : Base{range.impl_, range.start_ + a_start, a_size} {
@@ -88,7 +88,7 @@ public:
 
   // convert this Range to a Span. Note: the returned object WILL BE INVALIDATED
   // if the underlying Span is reassigned with ref(), swap() or operator=
-  // or the underlying Vector is resized or changes capacity
+  // or the underlying Array is resized or changes capacity
   Span<T> span() noexcept {
     return bool(*this) ? Span<T>{const_cast<T *>(impl_->data()) + start_, size_} : Span<T>{};
   }

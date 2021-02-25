@@ -33,7 +33,7 @@
 #include <onejit/node/unary.hpp>
 #include <onejit/optimizer.hpp>
 #include <onestl/range.hpp>
-#include <onestl/vector.hpp>
+#include <onestl/array.hpp>
 
 namespace onejit {
 

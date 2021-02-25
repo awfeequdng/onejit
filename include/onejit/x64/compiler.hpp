@@ -26,7 +26,7 @@
 #define ONEJIT_X64_COMPILER_HPP
 
 #include <onejit/error.hpp>
-#include <onestl/vector.hpp>
+#include <onestl/array.hpp>
 
 namespace onejit {
 namespace x64 {
@@ -56,7 +56,7 @@ public:
 
 private:
   // private, use onejit::Compiler::x64() instead
-  Compiler &compile(Func &func, Vector<Node> &node, Vector<Error> &error, Opt flags) noexcept;
+  Compiler &compile(Func &func, Array<Node> &node, Array<Error> &error, Opt flags) noexcept;
 
   Compiler &compile(Assign stmt) noexcept;
   Compiler &compile(AssignCall stmt) noexcept;
@@ -111,8 +111,8 @@ private:
   Compiler &out_of_memory(Node where) noexcept;
 
   Func *func_;
-  Vector<Node> *node_;
-  Vector<Error> *error_;
+  Array<Node> *node_;
+  Array<Error> *error_;
   Opt flags_;
   bool good_; // !good_ means out of memory
 };

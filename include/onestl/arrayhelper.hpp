@@ -17,13 +17,13 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * vectorhelper.hpp
+ * arrayhelper.hpp
  *
  *  Created on Jan 24, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONESTL_VECTORHELPER_HPP
-#define ONESTL_VECTORHELPER_HPP
+#ifndef ONESTL_ARRAYHELPER_HPP
+#define ONESTL_ARRAYHELPER_HPP
 
 #include <onestl/fwd.hpp>
 
@@ -31,16 +31,16 @@
 
 namespace onestl {
 
-class VectorHelper {
+class ArrayHelper {
 
-  template <class T> friend class Vector;
+  template <class T> friend class Array;
 
 private:
-  template <class T> static VectorHelper &cast(Vector<T> &v) noexcept {
-    static_assert(sizeof(Vector<T>) == sizeof(VectorHelper),
-                  "Vector<T> and VectorHelper must have the same sizeof()");
+  template <class T> static ArrayHelper &cast(Array<T> &v) noexcept {
+    static_assert(sizeof(Array<T>) == sizeof(ArrayHelper),
+                  "Array<T> and ArrayHelper must have the same sizeof()");
 
-    return reinterpret_cast<VectorHelper &>(v);
+    return reinterpret_cast<ArrayHelper &>(v);
   }
 
   bool init(size_t n, size_t sizeofT) noexcept;
@@ -63,4 +63,4 @@ private:
 
 } // namespace onestl
 
-#endif // ONESTL_VECTORHELPER_HPP
+#endif // ONESTL_ARRAYHELPER_HPP

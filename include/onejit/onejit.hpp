@@ -27,7 +27,6 @@
 #define ONEJIT_ONEJIT_HPP
 
 #include <onejit/archid.hpp>
-#include <onejit/test.hpp>
 #include <onejit/code.hpp>
 #include <onejit/codeparser.hpp>
 #include <onejit/compiler.hpp>
@@ -39,6 +38,7 @@
 #include <onejit/mem.hpp>
 #include <onejit/node.hpp>       // includes all onejit/node/
 #include <onejit/node/const.hpp> // redundant
+#include <onejit/test.hpp>
 // #include <onejit/group.hpp>   // redundant
 // #include <onejit/imm.hpp>     // redundant
 // #include <onejit/kind.hpp>    // redundant
@@ -50,8 +50,8 @@
 // #include <onejit/type.hpp>    // redundant
 #include <onejit/x64.hpp> //     // includes all onejit/x64/
 
+#include <onestl/array.hpp>
 #include <onestl/chars.hpp>
 #include <onestl/string.hpp>
-#include <onestl/vector.hpp>
 
 #endif // ONEJIT_ONEJIT_HPP

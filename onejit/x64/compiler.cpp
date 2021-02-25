@@ -48,7 +48,7 @@ Compiler::operator bool() const noexcept {
   return good_ && func_ && *func_;
 }
 
-Compiler &Compiler::compile(Func &func, Vector<Node> &node_vec, Vector<Error> &error_vec,
+Compiler &Compiler::compile(Func &func, Array<Node> &node_vec, Array<Error> &error_vec,
                             Opt flags) noexcept {
   if (func.get_compiled(X64)) {
     // already compiled for x86_64

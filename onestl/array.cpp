@@ -23,10 +23,10 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onestl/vector.hpp>
+#include <onestl/array.hpp>
 
 namespace onestl {
 
-template class Vector<uint32_t>;
+template class Array<uint32_t>;
 
 } // namespace onestl

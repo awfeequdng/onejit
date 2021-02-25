@@ -44,11 +44,11 @@ using Hex = ::onestl::Hex;
 using String = ::onestl::String;
 using Writer = ::onestl::Writer;
 
+template <class T> using Array = ::onestl::Array<T>;
 template <class T> using Buffer = ::onestl::Buffer<T>;
 template <class T> using CRange = ::onestl::CRange<T>;
 template <class T> using Range = ::onestl::Range<T>;
 template <class T> using Span = ::onestl::Span<T>;
-template <class T> using Vector = ::onestl::Vector<T>;
 template <class T> using View = ::onestl::View<T>;
 
 enum Allow : uint8_t;

@@ -26,23 +26,23 @@
 #ifndef ONESTL_CRANGE_HPP
 #define ONESTL_CRANGE_HPP
 
-#include <onestl/vector.hpp>
+#include <onestl/array.hpp>
 
 namespace onestl {
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
- * read-only range of elements inside an underlying View<T>, Span<T> or Vector<T>
+ * read-only range of elements inside an underlying View<T>, Span<T> or Array<T>
  * it remains valid even after the View or Span is reassigned with ref(), swap() or operator=
- * or the Vector is resized or changes capacity.
+ * or the Array is resized or changes capacity.
  *
  * CRange start and size can be changed at any time with set_bounds(),
- * even to values out of bounds from the underlying View, Span or Vector.
+ * even to values out of bounds from the underlying View, Span or Array.
  *
  * CRange operator bool, operator[], and view() will check if start and size
- * are out of bounds with respect to the underlying View, Span or Vector size *in that moment*
+ * are out of bounds with respect to the underlying View, Span or Array size *in that moment*
  * (the size of underlying View or Span can change by reassigning it as described above,
- * and the size of underlying Vector can change by resizing it).
+ * and the size of underlying Array can change by resizing it).
  */
 template <class T> class CRange {
 public:
@@ -57,8 +57,8 @@ public:
   constexpr explicit CRange(const Span<T> *span) noexcept
       : impl_{span}, start_{0}, size_{span ? span->size() : 0} {
   }
-  constexpr explicit CRange(const Vector<T> *vec) noexcept
-      : impl_{vec}, start_{0}, size_{vec ? vec->size() : 0} {
+  constexpr explicit CRange(const Array<T> *arr) noexcept
+      : impl_{arr}, start_{0}, size_{arr ? arr->size() : 0} {
   }
   // defined in range.hpp
   constexpr explicit CRange(const Range<T> &range) noexcept;
@@ -69,8 +69,8 @@ public:
   constexpr CRange(const Span<T> *span, size_t a_start, size_t a_size) noexcept
       : impl_{span}, start_{a_start}, size_{a_size} {
   }
-  constexpr CRange(const Vector<T> *vec, size_t a_start, size_t a_size) noexcept
-      : impl_{vec}, start_{a_start}, size_{a_size} {
+  constexpr CRange(const Array<T> *arr, size_t a_start, size_t a_size) noexcept
+      : impl_{arr}, start_{a_start}, size_{a_size} {
   }
   // defined in range.hpp
   constexpr CRange(const Range<T> &range, size_t a_start, size_t a_size) noexcept;
@@ -105,7 +105,7 @@ public:
 
   // convert this CRange to a View. Note: the returned object WILL BE INVALIDATED
   // if the underlying View/Span is reassigned with ref(), swap() or operator=
-  // or the underlying Vector is resized or changes capacity
+  // or the underlying Array is resized or changes capacity
   constexpr View<T> view() const noexcept {
     return bool(*this) ? View<T>{impl_->data() + start_, size_} : View<T>{};
   }

@@ -87,7 +87,7 @@ public:
 
   Node &operator=(const Node &other) &noexcept = default;
   // forbid assignment to temporary Node: we want
-  // Vector<Node>::operator[](size_t) = expression to fail at compile time
+  // Array<Node>::operator[](size_t) = expression to fail at compile time
   Node &operator=(const Node &other) &&noexcept = delete;
 
   // return true if this Node is valid

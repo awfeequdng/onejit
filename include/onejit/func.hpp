@@ -35,7 +35,7 @@
 #include <onejit/op.hpp>
 #include <onestl/chars.hpp>
 #include <onestl/string.hpp>
-#include <onestl/vector.hpp>
+#include <onestl/array.hpp>
 
 namespace onejit {
 
@@ -138,8 +138,8 @@ private:
   uint32_t compiled_var_n_; // # local vars used by compiled_[NOARCH]
 
   FuncType ftype_;
-  Vector<Var> vars_;
-  Vector<Label> labels_;
+  Array<Var> vars_;
+  Array<Label> labels_;
   Name name_;
   Node body_;
   Node compiled_[ARCHID_N]; // compiled code. index is archid

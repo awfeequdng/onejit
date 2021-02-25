@@ -106,8 +106,8 @@ private:
   // hide Base::append()
   void append(...) noexcept;
 
-  Vector<Relocation> relocation_;
-  Vector<Error> error_;
+  Array<Relocation> relocation_;
+  Array<Error> error_;
 
 }; // class Assembler
 

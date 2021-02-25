@@ -55,14 +55,14 @@ public:
   }
   constexpr Span(T *addr, size_t n) noexcept : Base{addr, n} {
   }
-  constexpr Span(Vector<T> &other) noexcept : Base{other} {
+  constexpr Span(Array<T> &other) noexcept : Base{other} {
   }
 
   // Span(const Span&) = default;
   // ~Span() = default;
   // operator=(const Span&) = default;
 
-  Span &operator=(Vector<T> &other) noexcept {
+  Span &operator=(Array<T> &other) noexcept {
     ref(other);
     return *this;
   }
@@ -134,7 +134,7 @@ public:
     data_ = other.data_;
     size_ = other.size_;
   }
-  void ref(Vector<T> &other) noexcept {
+  void ref(Array<T> &other) noexcept {
     Base::ref(other);
   }
 };

@@ -26,15 +26,15 @@
 #define ONESTL_STRING_HPP
 
 #include <onestl/chars.hpp>
-#include <onestl/vector.hpp>
+#include <onestl/array.hpp>
 
 namespace onestl {
 
 /** resizeable vector of char */
-class String : public Vector<char> {
+class String : public Array<char> {
 private:
   typedef char T;
-  typedef Vector<char> Base;
+  typedef Array<char> Base;
 
 public:
   constexpr String() noexcept : Base{} {
@@ -47,7 +47,7 @@ public:
   }
   explicit String(const Span<T> &other) noexcept : Base{other} {
   }
-  explicit String(const Vector<T> &other) noexcept : Base{other} {
+  explicit String(const Array<T> &other) noexcept : Base{other} {
   }
   explicit String(const String &other) noexcept : Base{other} {
   }

@@ -58,8 +58,8 @@ public:
   }
   // defined in span.hpp
   constexpr View(const Span<T> &other) noexcept;
-  // defined in vector.hpp
-  constexpr View(const Vector<T> &other) noexcept;
+  // defined in array.hpp
+  constexpr View(const Array<T> &other) noexcept;
 
   // View(const View&) = default;
   // ~View() = default;
@@ -70,7 +70,7 @@ public:
     return *this;
   }
 
-  View &operator=(const Vector<T> &other) noexcept {
+  View &operator=(const Array<T> &other) noexcept {
     ref(other);
     return *this;
   }
@@ -133,7 +133,7 @@ public:
     size_ = other.size_;
   }
   void ref(const Span<T> &other) noexcept;
-  void ref(const Vector<T> &other) noexcept;
+  void ref(const Array<T> &other) noexcept;
 
   void swap(View &other) noexcept {
     View temp = *this;

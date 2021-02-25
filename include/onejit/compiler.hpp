@@ -31,7 +31,7 @@
 #include <onejit/node/node.hpp>
 #include <onejit/optimizer.hpp>
 #include <onestl/crange.hpp>
-#include <onestl/vector.hpp>
+#include <onestl/array.hpp>
 
 namespace onejit {
 
@@ -129,7 +129,7 @@ private:
   // copy node.child(start ... end-1) to new local variables,
   // and append such variables to vars.
   Compiler &to_vars(Node node, uint32_t start, uint32_t end, //
-                    Vector<Expr> &vars) noexcept;
+                    Array<Expr> &vars) noexcept;
 
   Compiler &add_prologue(Func &func) noexcept;
 
@@ -155,11 +155,11 @@ private:
   Optimizer optimizer_;
   Func *func_;
 
-  Vector<Label> break_;       // stack of 'break' destination labels
-  Vector<Label> continue_;    // stack of 'continue' destination labels
-  Vector<Label> fallthrough_; // stack of 'fallthrough' destination labels
-  Vector<Node> node_;
-  Vector<Error> error_;
+  Array<Label> break_;       // stack of 'break' destination labels
+  Array<Label> continue_;    // stack of 'continue' destination labels
+  Array<Label> fallthrough_; // stack of 'fallthrough' destination labels
+  Array<Node> node_;
+  Array<Error> error_;
   bool good_; // !good_ means out of memory
 };
 
