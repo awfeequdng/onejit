@@ -39,6 +39,7 @@
 
 namespace onestl {
 
+class BitSet;
 class Chars;
 class Fmt;
 class Hex;

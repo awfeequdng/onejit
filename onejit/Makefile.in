@@ -108,10 +108,11 @@ am__dirstamp = $(am__leading_dot)dirstamp
 am_libonejit_a_OBJECTS = archid.$(OBJEXT) assembler.$(OBJEXT) \
 	bits.$(OBJEXT) code.$(OBJEXT) codeparser.$(OBJEXT) \
 	compiler.$(OBJEXT) imm.$(OBJEXT) error.$(OBJEXT) \
-	eval.$(OBJEXT) func.$(OBJEXT) group.$(OBJEXT) kind.$(OBJEXT) \
-	op.$(OBJEXT) opstmt.$(OBJEXT) optimizer.$(OBJEXT) \
-	optimizer_binary.$(OBJEXT) optimizer_tuple.$(OBJEXT) \
-	space.$(OBJEXT) type.$(OBJEXT) local.$(OBJEXT) value.$(OBJEXT) \
+	eval.$(OBJEXT) func.$(OBJEXT) group.$(OBJEXT) id.$(OBJEXT) \
+	kind.$(OBJEXT) op.$(OBJEXT) opstmt.$(OBJEXT) \
+	optimizer.$(OBJEXT) optimizer_binary.$(OBJEXT) \
+	optimizer_tuple.$(OBJEXT) regallocator.$(OBJEXT) \
+	space.$(OBJEXT) type.$(OBJEXT) value.$(OBJEXT) \
 	value_fmt.$(OBJEXT) node/binary.$(OBJEXT) node/call.$(OBJEXT) \
 	node/childrange.$(OBJEXT) node/comma.$(OBJEXT) \
 	node/const.$(OBJEXT) node/expr.$(OBJEXT) \
@@ -146,11 +147,11 @@ am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/assembler.Po \
 	./$(DEPDIR)/bits.Po ./$(DEPDIR)/code.Po \
 	./$(DEPDIR)/codeparser.Po ./$(DEPDIR)/compiler.Po \
 	./$(DEPDIR)/error.Po ./$(DEPDIR)/eval.Po ./$(DEPDIR)/func.Po \
-	./$(DEPDIR)/group.Po ./$(DEPDIR)/imm.Po ./$(DEPDIR)/kind.Po \
-	./$(DEPDIR)/local.Po ./$(DEPDIR)/op.Po ./$(DEPDIR)/opstmt.Po \
+	./$(DEPDIR)/group.Po ./$(DEPDIR)/id.Po ./$(DEPDIR)/imm.Po \
+	./$(DEPDIR)/kind.Po ./$(DEPDIR)/op.Po ./$(DEPDIR)/opstmt.Po \
 	./$(DEPDIR)/optimizer.Po ./$(DEPDIR)/optimizer_binary.Po \
-	./$(DEPDIR)/optimizer_tuple.Po ./$(DEPDIR)/space.Po \
-	./$(DEPDIR)/type.Po ./$(DEPDIR)/value.Po \
+	./$(DEPDIR)/optimizer_tuple.Po ./$(DEPDIR)/regallocator.Po \
+	./$(DEPDIR)/space.Po ./$(DEPDIR)/type.Po ./$(DEPDIR)/value.Po \
 	./$(DEPDIR)/value_fmt.Po node/$(DEPDIR)/binary.Po \
 	node/$(DEPDIR)/call.Po node/$(DEPDIR)/childrange.Po \
 	node/$(DEPDIR)/comma.Po node/$(DEPDIR)/const.Po \
@@ -362,9 +363,9 @@ AM_CPPFLAGS = -I$(top_srcdir)/include
 # libonejit_a_CXXFLAGS =
 libonejit_a_SOURCES = \
         archid.cpp assembler.cpp bits.cpp code.cpp codeparser.cpp \
-        compiler.cpp imm.cpp error.cpp eval.cpp func.cpp group.cpp kind.cpp  \
+        compiler.cpp imm.cpp error.cpp eval.cpp func.cpp group.cpp id.cpp kind.cpp \
         op.cpp opstmt.cpp optimizer.cpp optimizer_binary.cpp optimizer_tuple.cpp \
-        space.cpp type.cpp local.cpp value.cpp value_fmt.cpp \
+        regallocator.cpp space.cpp type.cpp value.cpp value_fmt.cpp \
         \
         node/binary.cpp node/call.cpp node/childrange.cpp node/comma.cpp node/const.cpp \
         node/expr.cpp node/functype.cpp node/label.cpp node/mem.cpp node/name.cpp \
@@ -509,14 +510,15 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eval.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/func.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/group.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/id.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imm.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kind.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/local.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/op.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opstmt.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/optimizer.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/optimizer_binary.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/optimizer_tuple.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regallocator.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/space.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/type.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/value.Po@am__quote@ # am--include-marker
@@ -789,14 +791,15 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/eval.Po
 	-rm -f ./$(DEPDIR)/func.Po
 	-rm -f ./$(DEPDIR)/group.Po
+	-rm -f ./$(DEPDIR)/id.Po
 	-rm -f ./$(DEPDIR)/imm.Po
 	-rm -f ./$(DEPDIR)/kind.Po
-	-rm -f ./$(DEPDIR)/local.Po
 	-rm -f ./$(DEPDIR)/op.Po
 	-rm -f ./$(DEPDIR)/opstmt.Po
 	-rm -f ./$(DEPDIR)/optimizer.Po
 	-rm -f ./$(DEPDIR)/optimizer_binary.Po
 	-rm -f ./$(DEPDIR)/optimizer_tuple.Po
+	-rm -f ./$(DEPDIR)/regallocator.Po
 	-rm -f ./$(DEPDIR)/space.Po
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f ./$(DEPDIR)/value.Po
@@ -890,14 +893,15 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/eval.Po
 	-rm -f ./$(DEPDIR)/func.Po
 	-rm -f ./$(DEPDIR)/group.Po
+	-rm -f ./$(DEPDIR)/id.Po
 	-rm -f ./$(DEPDIR)/imm.Po
 	-rm -f ./$(DEPDIR)/kind.Po
-	-rm -f ./$(DEPDIR)/local.Po
 	-rm -f ./$(DEPDIR)/op.Po
 	-rm -f ./$(DEPDIR)/opstmt.Po
 	-rm -f ./$(DEPDIR)/optimizer.Po
 	-rm -f ./$(DEPDIR)/optimizer_binary.Po
 	-rm -f ./$(DEPDIR)/optimizer_tuple.Po
+	-rm -f ./$(DEPDIR)/regallocator.Po
 	-rm -f ./$(DEPDIR)/space.Po
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f ./$(DEPDIR)/value.Po

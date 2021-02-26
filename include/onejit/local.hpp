@@ -27,48 +27,10 @@
 #define ONEJIT_LOCAL_HPP
 
 #include <onejit/endian.hpp>
-#include <onejit/node/node.hpp>
-#include <onejit/x64/fwd.hpp>
+#include <onejit/id.hpp>
+#include <onejit/type.hpp>
 
 namespace onejit {
-
-// index of a local variable or register.
-class Id {
-  friend class Func;
-  friend class Local;
-  friend class Var;
-  friend class VarHelper;
-  friend class x64::Reg;
-
-public:
-  constexpr Id() noexcept : val_{} {
-  }
-
-  constexpr uint32_t val() const noexcept {
-    return val_;
-  }
-
-private:
-  constexpr explicit Id(uint32_t val) noexcept : val_{val & 0xFFFFFF} {
-  }
-
-  // only 24 bits are used
-  uint32_t val_;
-};
-
-constexpr inline bool operator==(Id a, Id b) noexcept {
-  return a.val() == b.val();
-}
-
-constexpr inline bool operator!=(Id a, Id b) noexcept {
-  return a.val() != b.val();
-}
-
-constexpr const Id NOID = Id{};
-
-const Fmt &operator<<(const Fmt &out, Id id);
-
-////////////////////////////////////////////////////////////////////////////////
 
 // a local variable or register.
 class Local {
@@ -99,6 +61,10 @@ public:
 
   constexpr explicit operator bool() const noexcept {
     return uint8_t(val_) != eBad;
+  }
+
+  const Fmt &format(const Fmt &out) const {
+    return id().format(out, kind());
   }
 
 protected:
@@ -153,7 +119,9 @@ constexpr inline bool operator!=(Local a, Local b) noexcept {
   return a.kind() != b.kind() || a.id() != b.id();
 }
 
-const Fmt &operator<<(const Fmt &out, Local local);
+inline const Fmt &operator<<(const Fmt &out, Local local) {
+  return local.format(out);
+}
 
 } // namespace onejit
 

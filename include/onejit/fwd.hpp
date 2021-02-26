@@ -37,6 +37,7 @@
 
 namespace onejit {
 
+using BitSet = ::onestl::BitSet;
 using Bytes = ::onestl::Bytes;
 using Chars = ::onestl::Chars;
 using Fmt = ::onestl::Fmt;

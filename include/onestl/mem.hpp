@@ -32,12 +32,17 @@ namespace onestl {
 namespace mem {
 
 void *alloc_bytes(size_t n_bytes) noexcept;
+void *alloc_clear_bytes(size_t n_bytes) noexcept;
 void clear_bytes(void *addr, size_t n_bytes) noexcept;
 void free_bytes(void *addr) noexcept;
 void *realloc_bytes(void *addr, size_t new_n_bytes) noexcept;
 
 template <class T> T *alloc(size_t n_elements) noexcept {
   return reinterpret_cast<T *>(alloc_bytes(n_elements * sizeof(T)));
+}
+
+template <class T> T *alloc_clear(size_t n_elements) noexcept {
+  return reinterpret_cast<T *>(alloc_clear_bytes(n_elements * sizeof(T)));
 }
 
 template <class T> void clear(T *addr, size_t n_elements) noexcept {

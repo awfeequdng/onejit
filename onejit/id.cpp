@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * local.cpp
+ * id.cpp
  *
  *  Created on Jan 13, 2021
  *      Author Massimiliano Ghilardi
@@ -26,7 +26,7 @@
 #include <onejit/archid.hpp>
 #include <onejit/arm64/regid.hpp>
 #include <onejit/fmt.hpp>
-#include <onejit/local.hpp>
+#include <onejit/id.hpp>
 #include <onejit/x64/regid.hpp>
 #include <onestl/chars.hpp>
 
@@ -90,14 +90,7 @@ static const Fmt &format_reg_arm64(const Fmt &out, Id id, Kind kind) {
 
 // -----------------------------------------------------------------------------
 
-const Fmt &operator<<(const Fmt &out, Id id) {
-  return out << "id" << Hex(id.val());
-}
-
-const Fmt &operator<<(const Fmt &out, Local local) {
-  Id id = local.id();
-  Kind kind = local.kind();
-
+const Fmt &Id::format(const Fmt &out, Id id, Kind kind) {
   switch (ArchId(id.val() >> 8)) {
   case ArchId::X64:
     return format_reg_x64(out, id, kind);

@@ -35,23 +35,23 @@
 namespace onestl {
 
 /**
- * Dynamically resizeable vector of arbitrary type T, with two constraints:
+ * Dynamically resizeable array of arbitrary type T, with two constraints:
  * 1. T must have trivial copy constructor, destructor and assignment operator
  * 2. zero-initializing T must be produce a valid T instance
  *
  * Iterator invalidation:
  *
  * The following methods always invalidate *all* references, pointers, iterators,
- * spans and views to the vector elements:
+ * spans and views to the array elements:
  *   operator=  dup  swap
  *
  * The following methods will invalidate *all* references, pointers, iterators,
- * spans and views to the vector elements *only* if they change the vector's capacity:
+ * spans and views to the array elements *only* if they change the array's capacity:
  *   append reserve resize
  *
- * Some methods may change the vector's size, while preserving its capacity.
+ * Some methods may change the array's size, while preserving its capacity.
  * Doing so invalidates the references, pointers, iterators, spans and views
- * to the vector elements *at or after* the minimum between the old and new size.
+ * to the array elements *at or after* the minimum between the old and new size.
  * The following methods may change the size, and either preserve or change the capacity:
  *   append resize
  * The following methods may change the size, but always preserve the capacity:
@@ -90,13 +90,6 @@ protected:
     if (data_ != NULL) {
       mem::free(data());
     }
-  }
-
-  bool grow_capacity(size_t n) noexcept {
-    if (cap_ >= n) {
-      return true;
-    }
-    return ArrayHelper::cast(*this).grow_capacity(n, sizeof(T));
   }
 
   bool grow(size_t n, bool zerofill) noexcept {
@@ -206,7 +199,7 @@ public:
 };
 
 extern template class Array<char>;     // defined in onestl/string.cpp
-extern template class Array<uint32_t>; // defined in onestl/vector.cpp
+extern template class Array<uint32_t>; // defined in onestl/array.cpp
 
 template <class T> void swap(Array<T> &left, Array<T> &right) noexcept {
   left.swap(right);

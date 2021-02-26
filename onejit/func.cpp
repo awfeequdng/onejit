@@ -29,11 +29,6 @@
 
 namespace onejit {
 
-enum {
-  BAD_VARID = 0,
-  FIRST_VARID = 0x1000,
-};
-
 Func::Func() noexcept
     : holder_{}, param_n_{}, result_n_{}, body_var_n_{}, //
       ftype_{}, vars_{}, labels_{}, name_{}, body_{} {
@@ -132,7 +127,7 @@ Label Func::new_label() noexcept {
 
 Var Func::new_var(Kind kind) noexcept {
   if (kind != Bad) {
-    const size_t n = vars_.size() + FIRST_VARID;
+    const size_t n = vars_.size() + Id::FIRST;
     const Id id(n); // Id is limited to 24 bits
     if (kind == Void || id.val() == n) {
       const Local local{kind, kind == Void ? Id{} : id};
