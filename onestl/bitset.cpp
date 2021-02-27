@@ -60,13 +60,11 @@ void BitSet::set(size_t index, bool value) noexcept {
   if (index >= size_) {
     return;
   }
-  const size_t mask = size_t(1) << (index % bitsPerT);
+  const T fillmask = (T)1 << (index % bitsPerT);
+  const T keepmask = (T)~fillmask;
+  const T pattern  = (T)-(T)value; // 0 or 0xff..ff
   T &ref = data_[index / bitsPerT];
-  if (value) {
-    ref |= mask;
-  } else {
-    ref &= ~mask;
-  }
+  ref = (ref & keepmask) | (pattern & fillmask);
 }
 
 void BitSet::fill(size_t start, size_t end, bool value) noexcept {
@@ -76,7 +74,7 @@ void BitSet::fill(size_t start, size_t end, bool value) noexcept {
   if (start >= end) {
     return;
   }
-  const size_t pattern = -T(value); // 0 or 0xffff....ffff
+  const size_t pattern = (T)-(T)value; // 0 or 0xff..ff
 
   {
     size_t nstart = start / bitsPerT;
@@ -84,17 +82,17 @@ void BitSet::fill(size_t start, size_t end, bool value) noexcept {
     if (nstart == nend) {
       // fill a single T or a fragment of it
       size_t head = start % bitsPerT;
-      size_t fillmask1 = ~T(0) << head; // n high bits set
-      size_t keepmask1 = ~fillmask1;    // n'=head low bits set
+      T fillmask1 = (T)~(T)0 << head; // n high bits set
+      T keepmask1 = (T)~fillmask1;    // n'=head low bits set
 
       size_t tail = end % bitsPerT;
-      size_t keepmask2 = ~T(0) << tail; // n high bits set
-      size_t fillmask2 = ~keepmask2;    // n'=tail low bits set
+      T keepmask2 = (T)~(T)0 << tail; // n high bits set
+      T fillmask2 = (T)~keepmask2;    // n'=tail low bits set
 
-      size_t keepmask = keepmask1 | keepmask2;
-      size_t fillmask = fillmask1 & fillmask2;
+      T keepmask = keepmask1 | keepmask2;
+      T fillmask = fillmask1 & fillmask2;
 
-      size_t &ref = data_[start / bitsPerT];
+      T &ref = data_[start / bitsPerT];
       ref = (ref & keepmask) | (pattern & fillmask);
       return;
     }
@@ -102,9 +100,9 @@ void BitSet::fill(size_t start, size_t end, bool value) noexcept {
 
   if (size_t head = start % bitsPerT) {
     // fill unaligned head fragment
-    size_t fillmask = ~T(0) << head; // n high bits set
-    size_t keepmask = ~fillmask;     // n'=head low bits set
-    size_t &ref = data_[start / bitsPerT];
+    T fillmask = (T)~(T)0 << head; // n high bits set
+    T keepmask = (T)~fillmask;     // n'=head low bits set
+    T &ref = data_[start / bitsPerT];
     ref = (ref & keepmask) | (pattern & fillmask);
     start = start - head + bitsPerT;
   }
@@ -121,9 +119,9 @@ void BitSet::fill(size_t start, size_t end, bool value) noexcept {
   // start is still a multiple of bitsPerT
   if (size_t tail = end % bitsPerT) {
     // fill unaligned tail fragment
-    size_t keepmask = ~T(0) << tail; // n high bits set
-    size_t fillmask = ~keepmask;     // n'=tail low bits set
-    size_t &ref = data_[end / bitsPerT];
+    T keepmask = (T)~(T)0 << tail; // n high bits set
+    T fillmask = (T)~keepmask;     // n'=tail low bits set
+    T &ref = data_[end / bitsPerT];
     ref = (ref & keepmask) | (pattern & fillmask);
   }
 }

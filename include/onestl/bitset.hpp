@@ -36,7 +36,7 @@ namespace onestl {
 class BitSet {
 
 protected:
-  typedef size_t T;
+  typedef uint8_t T;
 
   enum : size_t {
     sizeofT = sizeof(T),

@@ -58,12 +58,11 @@ void Graph::set(size_t a, size_t b, bool value) noexcept {
   if (b < size()) {
     size_t offset = a + b * (b + 1) / 2;
     bool prev = bits_[offset];
-    if (prev != value) {
-      uint32_t delta = value ? 1 : -1;
-      edges_.inc(a, delta);
-      edges_.inc(b, delta); // even if a == b
+    if (uint32_t delta = uint32_t(value) - uint32_t(prev)) {
+      bits_.set(offset, value);
+      edges_.data()[a] += delta;
+      edges_.data()[b] += delta; // even if a == b
     }
-    bits_.set(offset, value);
   }
 }
 
