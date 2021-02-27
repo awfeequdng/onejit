@@ -19,7 +19,7 @@
  *
  * bitset.hpp
  *
- *  Created on Jan 09, 2021
+ *  Created on Feb 26, 2021
  *      Author Massimiliano Ghilardi
  */
 #ifndef ONESTL_BITSET_HPP

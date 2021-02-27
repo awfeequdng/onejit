@@ -6,8 +6,8 @@ noinst_LIBRARIES       = libonestl.a
 AM_CPPFLAGS            = -I$(top_srcdir)/include
 # libonestl_a_CPPFLAGS =
 
-libonestl_a_SOURCES    = array.cpp arrayhelper.cpp bitset.cpp chars.cpp fmt.cpp mem.cpp \
-                         string.cpp test.cpp writer_cstdio.cpp writer_string.cpp
+libonestl_a_SOURCES    = array.cpp arrayhelper.cpp bitset.cpp chars.cpp fmt.cpp graph.cpp \
+                         mem.cpp string.cpp test.cpp writer_cstdio.cpp writer_string.cpp
 
 
 # libonestl_a_LDFLAGS  =
