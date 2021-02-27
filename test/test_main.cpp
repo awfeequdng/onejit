@@ -53,6 +53,7 @@ FuncType Test::ftype() {
 }
 
 void Test::run() {
+  stl();
   arch();
   kind();
   const_expr();

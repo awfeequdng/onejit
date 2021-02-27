@@ -17,57 +17,36 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * test.hpp
+ * test_stl.cpp
  *
- *  Created on Jan 08, 2021
+ *  Created on Feb 27, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/compiler.hpp>
-#include <onejit/func.hpp>
-#include <onejit/optimizer.hpp>
+#include "test.hpp"
 
-#include "test_disasm.hpp"
+#include <onestl/bitset.hpp>
 
 namespace onejit {
 
-class Test : public TestDisasm {
-public:
-  Test();
-  ~Test();
+void Test::stl() {
+  size_t i, x, y, n = 3 * 8 * sizeof(size_t);
+  BitSet s{n};
+  for (i = 0; i < n; i++) {
+    TEST(s[i], ==, false);
+  }
+  TEST(s[n], ==, false); // test out of bounds [n]
 
-  void run();
+  s.fill(x = 3, y = n - 3, true);
+  for (i = 0; i < n; i++) {
+    TEST(s[i], ==, i >= x && i < y);
+  }
+  TEST(s[n], ==, false); // test out of bounds [n]
 
-private:
-  FuncType ftype();
-  void dump_and_clear_code();
-
-  // called by run()
-  void stl(); // test onestl classes
-  void arch();
-  void kind();
-  void const_expr() const;
-  void simple_expr();
-  void nested_expr();
-  void x64_expr();
-  void eval_expr();
-  void eval_expr_kind(Kind kind);
-  void func_fib();
-  void func_loop();
-  void func_switch1();
-  void func_switch2();
-  void func_cond();
-  void func_and_or();
-  void optimize();
-  void optimize_expr_kind(Kind kind);
-  void optimize_assign_kind(Kind kind);
-
-  void compile(Func &func);
-
-  Code holder;
-  Func func;
-  Compiler comp;
-  Optimizer opt;
-};
+  for (i = 0; i < n; i++) {
+    s.set(i, i & 1);
+    TEST(s[i], ==, i & 1);
+  }
+}
 
 } // namespace onejit

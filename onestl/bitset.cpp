@@ -84,12 +84,12 @@ void BitSet::fill(size_t start, size_t end, bool value) noexcept {
     if (nstart == nend) {
       // fill a single T or a fragment of it
       size_t head = start % bitsPerT;
-      size_t fillmask1 = ~T(0) >> head; // n low bits set
-      size_t keepmask1 = ~fillmask1;    // n'=head high bits set
+      size_t fillmask1 = ~T(0) << head; // n high bits set
+      size_t keepmask1 = ~fillmask1;    // n'=head low bits set
 
       size_t tail = end % bitsPerT;
-      size_t keepmask2 = ~T(0) >> tail; // n low bits set
-      size_t fillmask2 = ~keepmask2;    // n'=tail high bits set
+      size_t keepmask2 = ~T(0) << tail; // n high bits set
+      size_t fillmask2 = ~keepmask2;    // n'=tail low bits set
 
       size_t keepmask = keepmask1 | keepmask2;
       size_t fillmask = fillmask1 & fillmask2;
@@ -102,8 +102,8 @@ void BitSet::fill(size_t start, size_t end, bool value) noexcept {
 
   if (size_t head = start % bitsPerT) {
     // fill unaligned head fragment
-    size_t fillmask = ~T(0) >> head; // n low bits set
-    size_t keepmask = ~fillmask;     // n'=head high bits set
+    size_t fillmask = ~T(0) << head; // n high bits set
+    size_t keepmask = ~fillmask;     // n'=head low bits set
     size_t &ref = data_[start / bitsPerT];
     ref = (ref & keepmask) | (pattern & fillmask);
     start = start - head + bitsPerT;
@@ -114,15 +114,15 @@ void BitSet::fill(size_t start, size_t end, bool value) noexcept {
     size_t nstart = start / bitsPerT;
     size_t nend = end / bitsPerT;
     if (nstart < nend) {
-      std::memset(data_ + nstart * sizeofT, uint8_t(pattern), (nend - nstart) * sizeofT);
+      std::memset(data_ + nstart, uint8_t(pattern), (nend - nstart) * sizeofT);
       start = nend * bitsPerT;
     }
   }
   // start is still a multiple of bitsPerT
   if (size_t tail = end % bitsPerT) {
     // fill unaligned tail fragment
-    size_t keepmask = ~T(0) >> tail; // n low bits set
-    size_t fillmask = ~keepmask;     // n'=tail high bits set
+    size_t keepmask = ~T(0) << tail; // n high bits set
+    size_t fillmask = ~keepmask;     // n'=tail low bits set
     size_t &ref = data_[end / bitsPerT];
     ref = (ref & keepmask) | (pattern & fillmask);
   }

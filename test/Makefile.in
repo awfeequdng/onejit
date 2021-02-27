@@ -101,7 +101,7 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_test_jit_OBJECTS = test_disasm.$(OBJEXT) test_expr.$(OBJEXT) \
 	test_eval.$(OBJEXT) test_func.$(OBJEXT) test_main.$(OBJEXT) \
-	test_optimize.$(OBJEXT) test_x64.$(OBJEXT)
+	test_optimize.$(OBJEXT) test_stl.$(OBJEXT) test_x64.$(OBJEXT)
 test_jit_OBJECTS = $(am_test_jit_OBJECTS)
 am__DEPENDENCIES_1 =
 test_jit_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
@@ -124,7 +124,8 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/test_disasm.Po \
 	./$(DEPDIR)/test_eval.Po ./$(DEPDIR)/test_expr.Po \
 	./$(DEPDIR)/test_func.Po ./$(DEPDIR)/test_main.Po \
-	./$(DEPDIR)/test_optimize.Po ./$(DEPDIR)/test_x64.Po
+	./$(DEPDIR)/test_optimize.Po ./$(DEPDIR)/test_stl.Po \
+	./$(DEPDIR)/test_x64.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -315,7 +316,7 @@ SUBDIRS =
 AM_CPPFLAGS = -I$(top_srcdir)/include
 AM_CXXFLAGS = $(CAPSTONE_CFLAGS)
 test_jit_SOURCES = test_disasm.cpp test_expr.cpp test_eval.cpp test_func.cpp test_main.cpp \
-                         test_optimize.cpp test_x64.cpp
+                         test_optimize.cpp test_stl.cpp test_x64.cpp
 
 # test_jit_CXXFLAGS    =
 EXTRA_test_jit_DEPENDENCIES = $(LIBONEJIT) $(LIBONESTL)
@@ -412,6 +413,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_func.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_main.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_optimize.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stl.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_x64.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -642,6 +644,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/test_func.Po
 	-rm -f ./$(DEPDIR)/test_main.Po
 	-rm -f ./$(DEPDIR)/test_optimize.Po
+	-rm -f ./$(DEPDIR)/test_stl.Po
 	-rm -f ./$(DEPDIR)/test_x64.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -694,6 +697,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/test_func.Po
 	-rm -f ./$(DEPDIR)/test_main.Po
 	-rm -f ./$(DEPDIR)/test_optimize.Po
+	-rm -f ./$(DEPDIR)/test_stl.Po
 	-rm -f ./$(DEPDIR)/test_x64.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic

@@ -135,7 +135,7 @@ private:
   bool realloc(size_t newcap) noexcept;
 
   static constexpr bool get(const T *data, size_t index) noexcept {
-    return bool(data[index / bitsPerT] >> (index % bitsPerT));
+    return bool(1 & (data[index / bitsPerT] >> (index % bitsPerT)));
   }
 };
 
