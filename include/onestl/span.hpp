@@ -99,6 +99,22 @@ public:
     }
   }
 
+  // checked element access:
+  // increment i-th element by delta, or do nothing if index is out of bounds
+  void inc(size_t index, T delta) noexcept(noexcept(delta += delta)) {
+    if (index < size_) {
+      data()[index] += delta;
+    }
+  }
+
+  // checked element access:
+  // decrement i-th element by delta, or do nothing if index is out of bounds
+  void dec(size_t index, T delta) noexcept(noexcept(delta -= delta)) {
+    if (index < size_) {
+      data()[index] -= delta;
+    }
+  }
+
   T *begin() noexcept {
     return data();
   }

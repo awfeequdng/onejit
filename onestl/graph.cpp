@@ -24,35 +24,52 @@
  */
 
 #include <onestl/graph.hpp>
+#include <onestl/mem.hpp>
 
 namespace onestl {
 
 bool Graph::reset(size_t nodes) noexcept {
-  if (!bits_.resize(nodes * (nodes + 1) / 2)) {
-    return false;
+  size_t oldn = edges_.size();
+  if (edges_.resize(nodes)) {
+    if (bits_.resize(nodes * (nodes + 1) / 2)) {
+      bits_.fill(0, bits_.size(), false);
+      std::memset(edges_.data(), '\0', nodes * sizeof(uint32_t));
+      return true;
+    }
+    edges_.resize(oldn);
   }
-  n_ = nodes;
-  bits_.fill(0, bits_.size(), false);
-  return true;
+  return false;
 }
 
-bool Graph::operator()(size_t i, size_t j) const noexcept {
-  if (i > j) {
-    std::swap(i, j);
+bool Graph::operator()(size_t a, size_t b) const noexcept {
+  if (a > b) {
+    mem::swap(a, b);
   }
-  if (j >= n_) {
+  if (b >= size()) {
     return false;
   }
-  return bits_[i + j * (j + 1) / 2];
+  return bits_[a + b * (b + 1) / 2];
 }
 
-void Graph::set(size_t i, size_t j, bool value) noexcept {
-  if (i > j) {
-    std::swap(i, j);
+void Graph::set(size_t a, size_t b, bool value) noexcept {
+  if (a > b) {
+    mem::swap(a, b);
   }
-  if (j < n_) {
-    bits_.set(i + j * (j + 1) / 2, value);
+  if (b < size()) {
+    size_t offset = a + b * (b + 1) / 2;
+    bool prev = bits_[offset];
+    if (prev != value) {
+      uint32_t delta = value ? 1 : -1;
+      edges_.inc(a, delta);
+      edges_.inc(b, delta); // even if a == b
+    }
+    bits_.set(offset, value);
   }
+}
+
+void Graph::swap(Graph &other) noexcept {
+  bits_.swap(other.bits_);
+  edges_.swap(other.edges_);
 }
 
 } // namespace onestl

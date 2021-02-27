@@ -43,7 +43,8 @@ private:
   void dump_and_clear_code();
 
   // called by run()
-  void stl(); // test onestl classes
+  void stl_bitset(); // test onestl::BitSet
+  void stl_graph();  // test onestl::Graph
   void arch();
   void kind();
   void const_expr() const;

@@ -127,6 +127,8 @@ public:
   using Base::operator==;
   using Base::operator[];
   using Base::clear;
+  using Base::dec;
+  using Base::inc;
   using Base::size;
   using Base::span;
   using Base::truncate;

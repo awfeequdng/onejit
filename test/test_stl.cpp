@@ -26,26 +26,82 @@
 #include "test.hpp"
 
 #include <onestl/bitset.hpp>
+#include <onestl/graph.hpp>
 
 namespace onejit {
 
-void Test::stl() {
-  size_t i, x, y, n = 3 * 8 * sizeof(size_t);
+void Test::stl_bitset() {
+  size_t i, lo, hi, n = 3 * 8 * sizeof(size_t);
   BitSet s{n};
   for (i = 0; i < n; i++) {
     TEST(s[i], ==, false);
   }
   TEST(s[n], ==, false); // test out of bounds [n]
 
-  s.fill(x = 3, y = n - 3, true);
+  s.fill(lo = 3, hi = n - 3, true);
   for (i = 0; i < n; i++) {
-    TEST(s[i], ==, i >= x && i < y);
+    TEST(s[i], ==, i >= lo && i < hi);
   }
   TEST(s[n], ==, false); // test out of bounds [n]
 
   for (i = 0; i < n; i++) {
     s.set(i, i & 1);
     TEST(s[i], ==, i & 1);
+  }
+}
+
+void Test::stl_graph() {
+  size_t a, b, n = 32;
+  Graph g{n};
+  for (a = 0; a < n; a++) {
+    TEST(g.degree(a), ==, 0);
+    for (b = 0; b < n; b++) {
+      TEST(g(a, b), ==, false);
+    }
+  }
+  for (a = 0; a < n; a++) {
+    for (b = a; b < n; b++) {
+      size_t degree_a = g.degree(a);
+      size_t degree_b = g.degree(b);
+
+      TEST(g(a, b), ==, false);
+      TEST(g(b, a), ==, false);
+      g.set(a, b, true);
+      TEST(g(a, b), ==, true);
+      TEST(g(b, a), ==, true);
+      if (a == b) {
+        TEST(g.degree(a), ==, degree_a + 2);
+      } else {
+        TEST(g.degree(a), ==, degree_a + 1);
+        TEST(g.degree(b), ==, degree_b + 1);
+      }
+    }
+  }
+
+  for (a = 0; a < n; a++) {
+    for (b = a; b < n; b++) {
+      size_t degree_a = g.degree(a);
+      size_t degree_b = g.degree(b);
+
+      TEST(g(a, b), ==, true);
+      TEST(g(b, a), ==, true);
+      g.set(a, b, false);
+      TEST(g(a, b), ==, false);
+      TEST(g(b, a), ==, false);
+      if (a == b) {
+        TEST(g.degree(a), ==, degree_a - 2);
+      } else {
+        TEST(g.degree(a), ==, degree_a - 1);
+        TEST(g.degree(b), ==, degree_b - 1);
+      }
+    }
+  }
+
+  for (a = 0; a < n; a++) {
+    TEST(g.degree(a), ==, 0);
+    for (b = 0; b < n; b++) {
+      TEST(g(a, b), ==, false);
+    }
   }
 }
 
