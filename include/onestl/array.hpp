@@ -77,25 +77,6 @@ template <class T> class Array : protected Span<T> {
   // do not implement. reason: any allocation failure would not be visible
   Array<T> &operator=(const Array<T> &other) noexcept = delete;
 
-protected:
-  using Base::data_;
-  using Base::size_;
-  size_t cap_;
-
-  bool init(size_t n) noexcept {
-    return ArrayHelper::cast(*this).init(n, sizeof(T));
-  }
-
-  void destroy() noexcept {
-    if (data_ != NULL) {
-      mem::free(data());
-    }
-  }
-
-  bool grow(size_t n, bool zerofill) noexcept {
-    return ArrayHelper::cast(*this).grow(n, sizeof(T), zerofill);
-  }
-
 public:
   typedef size_t size_type;
   typedef ptrdiff_t difference_type;
@@ -196,6 +177,25 @@ public:
     h_this = h_other;
     h_other = h_tmp;
   }
+
+protected:
+  bool init(size_t n) noexcept {
+    return ArrayHelper::cast(*this).init(n, sizeof(T));
+  }
+
+  void destroy() noexcept {
+    if (data_ != NULL) {
+      mem::free(data());
+    }
+  }
+
+  bool grow(size_t n, bool zerofill) noexcept {
+    return ArrayHelper::cast(*this).grow(n, sizeof(T), zerofill);
+  }
+
+  using Base::data_;
+  using Base::size_;
+  size_t cap_;
 };
 
 extern template class Array<char>;     // defined in onestl/string.cpp

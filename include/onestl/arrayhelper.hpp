@@ -45,7 +45,7 @@ private:
 
   bool init(size_t n, size_t sizeofT) noexcept;
 
-  bool grow_capacity(size_t mincap, size_t sizeofT) noexcept;
+  bool grow_cap(size_t mincap, size_t sizeofT) noexcept;
 
   bool reserve(size_t newcap, size_t sizeofT) noexcept;
 

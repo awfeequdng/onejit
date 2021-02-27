@@ -26,6 +26,8 @@
 #include <onestl/bitset.hpp>
 #include <onestl/mem.hpp>
 
+#include <cstring>
+
 namespace onestl {
 
 BitSet::BitSet(BitSet &&other) noexcept //
@@ -67,30 +69,98 @@ void BitSet::set(size_t index, bool value) noexcept {
   }
 }
 
-bool BitSet::grow(size_t newsize) noexcept {
-  if (!realloc(newsize)) {
+void BitSet::fill(size_t start, size_t end, bool value) noexcept {
+  if (end > size_) {
+    end = size_;
+  }
+  if (start >= end) {
+    return;
+  }
+  const size_t pattern = -T(value); // 0 or 0xffff....ffff
+
+  {
+    size_t nstart = start / bitsPerT;
+    size_t nend = end / bitsPerT;
+    if (nstart == nend) {
+      // fill a single T or a fragment of it
+      size_t head = start % bitsPerT;
+      size_t fillmask1 = ~T(0) >> head; // n low bits set
+      size_t keepmask1 = ~fillmask1;    // n'=head high bits set
+
+      size_t tail = end % bitsPerT;
+      size_t keepmask2 = ~T(0) >> tail; // n low bits set
+      size_t fillmask2 = ~keepmask2;    // n'=tail high bits set
+
+      size_t keepmask = keepmask1 | keepmask2;
+      size_t fillmask = fillmask1 & fillmask2;
+
+      size_t &ref = data_[start / bitsPerT];
+      ref = (ref & keepmask) | (pattern & fillmask);
+      return;
+    }
+  }
+
+  if (size_t head = start % bitsPerT) {
+    // fill unaligned head fragment
+    size_t fillmask = ~T(0) >> head; // n low bits set
+    size_t keepmask = ~fillmask;     // n'=head high bits set
+    size_t &ref = data_[start / bitsPerT];
+    ref = (ref & keepmask) | (pattern & fillmask);
+    start = start - head + bitsPerT;
+  }
+  // start is now a multiple of bitsPerT
+  {
+    // fill bulk
+    size_t nstart = start / bitsPerT;
+    size_t nend = end / bitsPerT;
+    if (nstart < nend) {
+      std::memset(data_ + nstart * sizeofT, uint8_t(pattern), (nend - nstart) * sizeofT);
+      start = nend * bitsPerT;
+    }
+  }
+  // start is still a multiple of bitsPerT
+  if (size_t tail = end % bitsPerT) {
+    // fill unaligned tail fragment
+    size_t keepmask = ~T(0) >> tail; // n low bits set
+    size_t fillmask = ~keepmask;     // n'=tail high bits set
+    size_t &ref = data_[end / bitsPerT];
+    ref = (ref & keepmask) | (pattern & fillmask);
+  }
+}
+
+bool BitSet::grow(size_t newsize, bool zerofill) noexcept {
+  if (!grow_cap(newsize)) {
     return false;
   }
+  const size_t oldsize = size_;
   size_ = newsize;
+  if (zerofill && newsize > oldsize) {
+    fill(oldsize, newsize, false);
+  }
   return true;
 }
 
-bool BitSet::realloc(size_t newcap) noexcept {
-  if (newcap < bitsPerT) {
-    newcap = bitsPerT;
+bool BitSet::grow_cap(size_t mincap) noexcept {
+  if (cap_ >= mincap) {
+    return true;
   }
-  if (newcap < cap_ * 2) {
-    newcap = cap_ * 2;
-  }
-  const size_t oldn = cap_ / bitsPerT;
+  const size_t cap2 = cap_ >= bitsPerT ? cap_ * 2 : bitsPerT;
+  return realloc(mincap >= cap2 ? mincap : cap2);
+}
+
+ONESTL_NOINLINE bool BitSet::realloc(size_t newcap) noexcept {
+  const size_t oldn = (cap_ + bitsPerT - 1) / bitsPerT;
   const size_t n = (newcap + bitsPerT - 1) / bitsPerT;
-  T *data = mem::realloc(data_, n);
-  if (!data) {
-    return false;
+  if (n > oldn) {
+    T *newdata = mem::realloc(data_, n);
+    if (!newdata) {
+      return false;
+    }
+    data_ = newdata;
+    cap_ = n * bitsPerT;
+  } else {
+    cap_ = oldn * bitsPerT;
   }
-  mem::clear(data + oldn, n - oldn);
-  data_ = data;
-  cap_ = n * bitsPerT;
   return true;
 }
 

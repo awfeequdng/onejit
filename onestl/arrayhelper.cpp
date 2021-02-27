@@ -43,10 +43,28 @@ ONESTL_NOINLINE bool ArrayHelper::init(size_t n, size_t sizeofT) noexcept {
   return true;
 }
 
+ONESTL_NOINLINE bool ArrayHelper::grow(size_t n, size_t sizeofT, bool zerofill) noexcept {
+  if (!grow_cap(n, sizeofT)) {
+    return false;
+  }
+  if (zerofill && n > size_) {
+    mem::clear<char>(data_ + size_ * sizeofT, (n - size_) * sizeofT);
+  }
+  size_ = n;
+  return true;
+}
+
+bool ArrayHelper::grow_cap(size_t mincap, size_t sizeofT) noexcept {
+  if (cap_ >= mincap) {
+    return true;
+  }
+  const size_t cap2 = cap_ >= 10 ? cap_ * 2 : 10;
+  return reserve(mincap >= cap2 ? mincap : cap2, sizeofT);
+}
+
 ONESTL_NOINLINE bool ArrayHelper::reserve(size_t newcap, size_t sizeofT) noexcept {
   if (newcap > cap_) {
-    char *olddata = data_;
-    char *newdata = mem::realloc<char>(olddata, newcap * sizeofT);
+    char *newdata = mem::realloc<char>(data_, newcap * sizeofT);
     if (!newdata) {
       if (cap_ == 0) {
         data_ = NULL;
@@ -59,28 +77,9 @@ ONESTL_NOINLINE bool ArrayHelper::reserve(size_t newcap, size_t sizeofT) noexcep
   return true;
 }
 
-ONESTL_NOINLINE bool ArrayHelper::grow_capacity(size_t mincap, size_t sizeofT) noexcept {
-  if (cap_ >= mincap) {
-    return true;
-  }
-  const size_t cap2 = cap_ >= 10 ? cap_ * 2 : 10;
-  return reserve(mincap >= cap2 ? mincap : cap2, sizeofT);
-}
-
-ONESTL_NOINLINE bool ArrayHelper::grow(size_t n, size_t sizeofT, bool zerofill) noexcept {
-  if (!grow_capacity(n, sizeofT)) {
-    return false;
-  }
-  if (zerofill && n > size_) {
-    mem::clear<char>(data_ + size_ * sizeofT, (n - size_) * sizeofT);
-  }
-  size_ = n;
-  return true;
-}
-
 ONESTL_NOINLINE bool ArrayHelper::dup(const void *addr, size_t n, size_t sizeofT) noexcept {
   if (n != 0) {
-    if (!grow_capacity(n, sizeofT)) {
+    if (!grow_cap(n, sizeofT)) {
       return false;
     }
     std::memcpy(data_, addr, n * sizeofT);

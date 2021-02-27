@@ -103,14 +103,17 @@ public:
   // set or clear i-th bit. does nothing if index is out of bounds.
   void set(size_t index, bool value) noexcept;
 
+  // set or clear all bits from start to end.
+  void fill(size_t start, size_t end, bool value) noexcept;
+
   // resize bitset, changing its size.
   // return false if out of memory.
   bool resize(size_t n) noexcept {
-    if (n <= cap_) {
+    if (size_ >= n) {
       size_ = n;
       return true;
     }
-    return grow(n);
+    return grow(n, true);
   }
 
   // increase bitset capacity.
@@ -127,7 +130,8 @@ public:
 private:
   bool init(size_t size) noexcept;
   void destroy() noexcept;
-  bool grow(size_t newsize) noexcept;
+  bool grow(size_t newsize, bool zerofill) noexcept;
+  bool grow_cap(size_t mincap) noexcept;
   bool realloc(size_t newcap) noexcept;
 
   static constexpr bool get(const T *data, size_t index) noexcept {
