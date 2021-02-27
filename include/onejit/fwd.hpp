@@ -41,6 +41,7 @@ using BitSet = ::onestl::BitSet;
 using Bytes = ::onestl::Bytes;
 using Chars = ::onestl::Chars;
 using Fmt = ::onestl::Fmt;
+using Graph = ::onestl::Graph;
 using Hex = ::onestl::Hex;
 using String = ::onestl::String;
 using Writer = ::onestl::Writer;

@@ -42,6 +42,7 @@ namespace onestl {
 class BitSet;
 class Chars;
 class Fmt;
+class Graph;
 class Hex;
 class String;
 class ArrayHelper;
