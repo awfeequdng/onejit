@@ -26,21 +26,18 @@
 #ifndef ONEJIT_REGALLOCATOR_HPP
 #define ONEJIT_REGALLOCATOR_HPP
 
-#include <onejit/idset.hpp>
-
 namespace onejit {
 
 // register allocator. uses register interference graph and Chaitin algorithm.
 class RegAllocator {
 
 public:
-  constexpr RegAllocator() noexcept : set_{} {
+  constexpr RegAllocator() noexcept {
   }
 
   ~RegAllocator() noexcept;
 
 private:
-  IdSet set_;
 }; // class RegAllocator
 
 } // namespace onejit
