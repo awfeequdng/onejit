@@ -96,4 +96,16 @@ void Graph::remove(Node node) noexcept {
   }
 }
 
+bool Graph::dup(const Graph &other) noexcept {
+  if (this == &other) {
+    return true;
+  }
+  if (!reset(other.size())) {
+    return false;
+  }
+  bits_.copy(other.bits_);     // noexcept
+  degree_.copy(other.degree_); // noexcept
+  return true;
+}
+
 } // namespace onestl

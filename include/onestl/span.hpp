@@ -133,7 +133,9 @@ public:
   // throws if this and src have different sizes.
   void copy(View<T> src) {
     ONESTL_BOUNDS_TINY(src.size(), ==, size());
-    std::memcpy(data(), src.data(), size() * sizeof(T));
+    if (data() != src.data()) {
+      std::memcpy(data(), src.data(), size() * sizeof(T));
+    }
   }
 
   void swap(Span &other) noexcept {

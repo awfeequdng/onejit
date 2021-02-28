@@ -186,4 +186,11 @@ ONESTL_NOINLINE bool BitSet::realloc(size_t newcap) noexcept {
   return true;
 }
 
+void BitSet::copy(const BitSet &src) {
+  if (this != &src) {
+    ONESTL_BOUNDS_TINY(src.size(), ==, size());
+    std::memcpy(data_, src.data_, (size_ + bitsPerT - 1) / bitsPerT * sizeofT);
+  }
+}
+
 } // namespace onestl

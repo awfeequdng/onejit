@@ -134,6 +134,9 @@ public:
     return realloc(newcap);
   }
 
+  // throws if this and src have different sizes.
+  void copy(const BitSet &src);
+
   void swap(BitSet &other) noexcept {
     mem::swap(data_, other.data_);
     mem::swap(size_, other.size_);
