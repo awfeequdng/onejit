@@ -22,9 +22,10 @@ PKG_CHECK_MODULES([CAPSTONE], [capstone >= 4.0.0],
                   [true])
 
 # Checks for library functions.
+AC_CHECK_FUNCS([ffs ffsl])
 
 # Checks for header files.
-AC_CHECK_HEADERS([cerrno cstddef cstdint cstdio cstring])
+AC_CHECK_HEADERS([cerrno cstddef cstdint cstdio cstring strings.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 

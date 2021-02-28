@@ -15,6 +15,12 @@
 /* Define to 1 if you have the <cstring> header file. */
 #undef HAVE_CSTRING
 
+/* Define to 1 if you have the `ffs' function. */
+#undef HAVE_FFS
+
+/* Define to 1 if you have the `ffsl' function. */
+#undef HAVE_FFSL
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 

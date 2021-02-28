@@ -23,13 +23,74 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit_config.h> // HAVE_*
 #include <onestl/bitset.hpp>
-#include <onestl/bitutil.hpp>
 #include <onestl/mem.hpp>
 
 #include <cstring>
 
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
+
 namespace onestl {
+
+#ifdef HAVE_FFS
+inline unsigned find_first_set(unsigned i) noexcept {
+  return unsigned(::ffs(int(i)));
+}
+#else  // !HAVE_FFS
+static unsigned find_first_set(unsigned i) noexcept {
+  unsigned ret = 0;
+  while (i) {
+    if (uint8_t(i)) {
+      while ((i & 1) == 0) {
+        ret++;
+        i >>= 1;
+      }
+      return ret;
+    } else {
+      ret += 8;
+      i >>= 8;
+    }
+  }
+  return 0;
+}
+#endif // HAVE_FFS
+
+#if defined(HAVE_FFSL)
+inline unsigned find_first_set(unsigned long i) {
+  return unsigned(::ffsl(long(i)));
+}
+#elif defined(HAVE_FFS)
+inline unsigned find_first_set(unsigned long i) {
+  if (int lo = ::ffs(int(i))) {
+    return unsigned(lo);
+  }
+  unsigned shift = 8 * sizeof(int);
+  if (int hi = ::ffs(int(i >> shift))) {
+    return unsigned(hi) + shift;
+  }
+  return 0;
+}
+#else
+static unsigned find_first_set(unsigned long i) noexcept {
+  unsigned ret = 0;
+  while (i) {
+    if (uint8_t(i)) {
+      while ((i & 1) == 0) {
+        ret++;
+        i >>= 1;
+      }
+      return ret;
+    } else {
+      ret += 8;
+      i >>= 8;
+    }
+  }
+  return 0;
+}
+#endif // !HAVE_FFSL
 
 BitSet::BitSet(BitSet &&other) noexcept //
     : data_(other.data_), size_(other.size_), cap_(other.cap_) {
