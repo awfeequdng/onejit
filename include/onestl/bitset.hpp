@@ -51,7 +51,7 @@ private:
 public:
   typedef size_t Index;
 
-  enum : size_t { NoIndex = size_t(-1) };
+  enum : size_t { NoPos = size_t(-1) };
 
   constexpr BitSet() noexcept : data_(NULL), size_(0), cap_(0) {
   }
@@ -108,9 +108,9 @@ public:
   // set or clear i-th bit. does nothing if index is out of bounds.
   void set(Index index, bool value) noexcept;
 
-  // return index of first non-zero bit, starting at 'from'
-  // return NoIndex if there are no further non-zero bits
-  Index first_set(Index from = 0) const noexcept;
+  // return index of first non-zero bit between 'start' and 'end'-1
+  // return NoPos if all bits in such range are zero
+  Index first_set(Index start = 0, Index end = NoPos) const noexcept;
 
   // set or clear all bits from start to end.
   void fill(Index start, Index end, bool value) noexcept;

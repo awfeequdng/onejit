@@ -37,12 +37,13 @@ class Graph {
 public:
   typedef uint32_t Degree;
   typedef size_t Node;
+  enum : size_t { NoPos = BitSet::NoPos };
 
   constexpr Graph() noexcept : bits_(), degree_() {
   }
 
   explicit Graph(size_t nodes) noexcept //
-      : bits_(nodes * (nodes + 1) / 2), degree_(nodes) {
+      : bits_(nodes * nodes), degree_(nodes) {
   }
 
   Graph(const Graph &other) = delete;
@@ -76,18 +77,12 @@ public:
     return degree_[node];
   }
 
-#if 0  // TODO
-  // return first node connected with an edge to specified node,
-  // or Node(-1) if node has no edges
-  Node first_neighbor(Node node) const noexcept;
-
-  // return next node connected with an edge to specified node,
-  // or Node(-1) if node has no further edges
-  Node next_neighbor(Node node, Node other) const noexcept;
+  // search among edges of specified node, and return first connected node >= first_neighbor.
+  // return NoPos if node has no edges connecting to nodes >= first_neighbor
+  Node first_set(Node node, Node first_neighbor = Node(0)) const noexcept;
 
   // remove specified node and all its edges
   void remove(Node node) noexcept;
-#endif // 0
 
   // copy content of other Graph into this graph.
   // return false if out of memory.

@@ -68,22 +68,27 @@ void BitSet::set(Index index, bool value) noexcept {
   ref = (ref & keepmask) | (pattern & fillmask);
 }
 
-BitSet::Index BitSet::first_set(Index from) const noexcept {
-  if (from < size_) {
-    T bits = data_[from / bitsPerT] >> (from % bitsPerT);
+BitSet::Index BitSet::first_set(Index start, Index end) const noexcept {
+  if (end > size_) {
+    end = size_;
+  }
+  if (start < end) {
+    T bits = data_[start / bitsPerT] >> (start % bitsPerT);
     if (bits) {
-      return from + find_first_set(bits) - 1;
+      start += find_first_set(bits) - 1;
+      return start < end ? start : NoPos;
     }
-    from = bitsPerT + from / bitsPerT * bitsPerT;
-    while (from < size_) {
-      bits = data_[from / bitsPerT];
+    start = bitsPerT + start / bitsPerT * bitsPerT;
+    while (start < end) {
+      bits = data_[start / bitsPerT];
       if (bits) {
-        return from | (find_first_set(bits) - 1);
+        start |= find_first_set(bits) - 1;
+        return start < end ? start : NoPos;
       }
-      from += bitsPerT;
+      start += bitsPerT;
     }
   }
-  return NoIndex;
+  return NoPos;
 }
 
 void BitSet::fill(Index start, Index end, bool value) noexcept {

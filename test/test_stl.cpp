@@ -35,7 +35,7 @@ void Test::stl_bitset() {
   BitSet s{n};
   for (i = 0; i < n; i++) {
     TEST(s[i], ==, false);
-    TEST(s.first_set(i), ==, BitSet::NoIndex);
+    TEST(s.first_set(i), ==, BitSet::NoPos);
   }
   TEST(s[n], ==, false); // test out of bounds [n]
 
@@ -50,7 +50,7 @@ void Test::stl_bitset() {
   }
   for (i = hi; i < n; i++) {
     TEST(s[i], ==, false);
-    TEST(s.first_set(i), ==, BitSet::NoIndex);
+    TEST(s.first_set(i), ==, BitSet::NoPos);
   }
 
   TEST(s[n], ==, false); // test out of bounds [n]
@@ -77,9 +77,16 @@ void Test::stl_graph() {
 
       TEST(g(a, b), ==, false);
       TEST(g(b, a), ==, false);
+      TEST(g.first_set(a, b), ==, Graph::NoPos);
+      TEST(g.first_set(b, a), ==, Graph::NoPos);
+
       g.set(a, b, true);
+
       TEST(g(a, b), ==, true);
       TEST(g(b, a), ==, true);
+      TEST(g.first_set(a, b), ==, b);
+      TEST(g.first_set(b, a), ==, a);
+
       if (a == b) {
         TEST(g.degree(a), ==, degree_a + 2);
       } else {
@@ -96,9 +103,16 @@ void Test::stl_graph() {
 
       TEST(g(a, b), ==, true);
       TEST(g(b, a), ==, true);
+      TEST(g.first_set(a, b), ==, b);
+      TEST(g.first_set(b, a), ==, a);
+
       g.set(a, b, false);
+
       TEST(g(a, b), ==, false);
       TEST(g(b, a), ==, false);
+      TEST(g.first_set(a, b), >, b);
+      TEST(g.first_set(b, a), >, a);
+
       if (a == b) {
         TEST(g.degree(a), ==, degree_a - 2);
       } else {

@@ -31,8 +31,7 @@
 namespace onestl {
 
 ONESTL_NOINLINE bool ArrayHelper::init(size_t n, size_t sizeofT) noexcept {
-  n *= sizeofT;
-  data_ = mem::alloc_clear<char>(n);
+  data_ = mem::alloc_clear<char>(n * sizeofT);
   if (n && !data_) {
     // mem::alloc() failed
     data_ = NULL;
