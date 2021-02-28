@@ -27,10 +27,59 @@
 
 namespace onejit {
 
-RegAllocator::RegAllocator() noexcept : g_{}, g2_{}, stack_{} {
+RegAllocator::RegAllocator() noexcept : g_{}, g2_{}, colors_{} {
+}
+
+RegAllocator::RegAllocator(size_t num_regs) noexcept //
+    : g_{num_regs}, g2_{num_regs}, colors_{num_regs} {
+
+  std::memset(colors_.data(), 0xff, colors_.size() * sizeof(Color));
 }
 
 RegAllocator::~RegAllocator() noexcept {
+}
+
+bool RegAllocator::reset(size_t num_regs) noexcept {
+  if (g_.reset(num_regs) && g2_.reset(num_regs) && colors_.resize(num_regs)) {
+    std::memset(colors_.data(), 0xff, colors_.size() * sizeof(Color));
+    return true;
+  }
+  return false;
+}
+
+void RegAllocator::allocate_regs(Color num_colors) noexcept {
+  g2_.dup(g_); // cannot fail
+  for (;;) {
+    Reg reg;
+    while ((reg = find_degree_less(num_colors)) != NoReg) {
+      colors_.set(reg, NoColor);
+      g_.remove(reg);
+    }
+    if ((reg = pick()) == NoReg) {
+      break;
+    }
+    colors_.set(reg, NoColor);
+    g_.remove(reg);
+  }
+}
+
+RegAllocator::Reg RegAllocator::find_degree_less(Color degree) const noexcept {
+  for (size_t i = 0, n = g_.size(); i < n; i++) {
+    Graph::Degree deg_i = g_.degree(i);
+    if (deg_i > 0 && deg_i < Graph::Degree(degree)) {
+      return Reg(i);
+    }
+  }
+  return NoReg;
+}
+
+RegAllocator::Reg RegAllocator::pick() const noexcept {
+  for (size_t i = 0, n = g_.size(); i < n; i++) {
+    if (g_.degree(i) != 0) {
+      return Reg(i);
+    }
+  }
+  return NoReg;
 }
 
 } // namespace onejit

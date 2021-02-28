@@ -36,13 +36,47 @@ namespace onejit {
 class RegAllocator {
 
 public:
+  using Reg = uint32_t;
+  using Color = int32_t;
+
+  enum : Reg { NoReg = Reg(-1) };
+  enum : Color { NoColor = Color(-1) };
+
   RegAllocator() noexcept;
+  explicit RegAllocator(size_t num_regs) noexcept;
+
+  RegAllocator(RegAllocator &&other) = default;
+  RegAllocator(const RegAllocator &other) = delete;
+
   ~RegAllocator() noexcept;
 
+  // reset RegAllocator and reinitialize it
+  // for a (possibly) different number of registers.
+  // return false if out of memory.
+  bool reset(size_t num_regs) noexcept;
+
+  Graph &graph() {
+    return g_;
+  }
+
+  constexpr const Graph &graph() const {
+    return g_;
+  }
+
+  // choose a color for each Reg present in graph()
+  // spilled Regs will have color < 0
+  void allocate_regs(Color num_colors) noexcept;
+
 private:
+  // find a register in g_ with degree less than specified degree
+  Reg find_degree_less(Color degree) const noexcept;
+
+  // pick a register in g_ to be spilled
+  Reg pick() const noexcept;
+
   Graph g_;
   Graph g2_;
-  Array<uint32_t> stack_;
+  Array<Color> colors_;
 
 }; // class RegAllocator
 
