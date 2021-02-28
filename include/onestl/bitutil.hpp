@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - Tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -17,35 +17,27 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * regallocator.hpp
+ * bitutil.hpp
  *
- *  Created on Feb 26, 2021
+ *  Created on Feb 28, 2021
  *      Author Massimiliano Ghilardi
  */
+#ifndef ONESTL_BITUTIL_HPP
+#define ONESTL_BITUTIL_HPP
 
-#ifndef ONEJIT_REGALLOCATOR_HPP
-#define ONEJIT_REGALLOCATOR_HPP
+#include <string.h>
+#include <strings.h>
 
-#include <onejit/fwd.hpp>
-#include <onestl/array.hpp>
-#include <onestl/graph.hpp>
+namespace onestl {
 
-namespace onejit {
+inline unsigned find_first_set(unsigned i) {
+  return ::ffs(int(i));
+}
 
-// register allocator. uses register interference graph and Chaitin algorithm.
-class RegAllocator {
+inline unsigned find_first_set(unsigned long i) {
+  return ::ffsl(long(i));
+}
 
-public:
-  RegAllocator() noexcept;
-  ~RegAllocator() noexcept;
+} // namespace onestl
 
-private:
-  Graph g_;
-  Graph g2_;
-  Array<uint32_t> stack_;
-
-}; // class RegAllocator
-
-} // namespace onejit
-
-#endif // ONEJIT_REGALLOCATOR_HPP
+#endif // ONESTL_BITUTIL_HPP

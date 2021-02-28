@@ -173,11 +173,9 @@ public:
   }
 
   void swap(Array<T> &other) noexcept {
-    ArrayHelper &h_this = ArrayHelper::cast(*this);
-    ArrayHelper &h_other = ArrayHelper::cast(other);
-    ArrayHelper h_tmp = h_this;
-    h_this = h_other;
-    h_other = h_tmp;
+    mem::swap(data_, other.data_);
+    mem::swap(size_, other.size_);
+    mem::swap(cap_, other.cap_);
   }
 
 protected:

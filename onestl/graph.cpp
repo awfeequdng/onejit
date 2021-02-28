@@ -29,19 +29,19 @@
 namespace onestl {
 
 bool Graph::reset(size_t nodes) noexcept {
-  size_t oldn = edges_.size();
-  if (edges_.resize(nodes)) {
+  size_t oldn = degree_.size();
+  if (degree_.resize(nodes)) {
     if (bits_.resize(nodes * (nodes + 1) / 2)) {
       bits_.fill(0, bits_.size(), false);
-      std::memset(edges_.data(), '\0', nodes * sizeof(uint32_t));
+      std::memset(degree_.data(), '\0', nodes * sizeof(Degree));
       return true;
     }
-    edges_.resize(oldn);
+    degree_.resize(oldn);
   }
   return false;
 }
 
-bool Graph::operator()(size_t a, size_t b) const noexcept {
+bool Graph::operator()(Node a, Node b) const noexcept {
   if (a > b) {
     mem::swap(a, b);
   }
@@ -51,24 +51,32 @@ bool Graph::operator()(size_t a, size_t b) const noexcept {
   return bits_[a + b * (b + 1) / 2];
 }
 
-void Graph::set(size_t a, size_t b, bool value) noexcept {
+void Graph::set(Node a, Node b, bool value) noexcept {
   if (a > b) {
     mem::swap(a, b);
   }
   if (b < size()) {
     size_t offset = a + b * (b + 1) / 2;
     bool prev = bits_[offset];
-    if (uint32_t delta = uint32_t(value) - uint32_t(prev)) {
+    if (Degree delta = Degree(value) - Degree(prev)) {
+      degree_.data()[a] += delta;
+      degree_.data()[b] += delta; // even if a == b
       bits_.set(offset, value);
-      edges_.data()[a] += delta;
-      edges_.data()[b] += delta; // even if a == b
     }
   }
 }
 
-void Graph::swap(Graph &other) noexcept {
-  bits_.swap(other.bits_);
-  edges_.swap(other.edges_);
+#if 0  // TODO
+Graph::Node Graph::first_neighbor(Node node) const noexcept {
+  if (degree(node) != 0) {
+  }
+  return Node(-1);
 }
+
+void Graph::remove(Node node) noexcept {
+  Degree deg = degree(node);
+  Node other = Node(-1);
+}
+#endif // 0
 
 } // namespace onestl

@@ -24,6 +24,7 @@
  */
 
 #include <onestl/bitset.hpp>
+#include <onestl/bitutil.hpp>
 #include <onestl/mem.hpp>
 
 #include <cstring>
@@ -60,11 +61,29 @@ void BitSet::set(size_t index, bool value) noexcept {
   if (index >= size_) {
     return;
   }
-  const T fillmask = (T)1 << (index % bitsPerT);
-  const T keepmask = (T)~fillmask;
-  const T pattern  = (T)-(T)value; // 0 or 0xff..ff
+  const T fillmask = T(1) << (index % bitsPerT);
+  const T keepmask = T(~fillmask);
+  const T pattern = T(-T(value)); // 0 or 0xff..ff
   T &ref = data_[index / bitsPerT];
   ref = (ref & keepmask) | (pattern & fillmask);
+}
+
+size_t BitSet::next(size_t from) const noexcept {
+  if (from < size_) {
+    T bits = data_[from / bitsPerT] >> (from % bitsPerT);
+    if (bits) {
+      return from + find_first_set(bits) - 1;
+    }
+    from = bitsPerT + from / bitsPerT * bitsPerT;
+    while (from < size_) {
+      bits = data_[from / bitsPerT];
+      if (bits) {
+        return from | (find_first_set(bits) - 1);
+      }
+      from += bitsPerT;
+    }
+  }
+  return size_t(-1);
 }
 
 void BitSet::fill(size_t start, size_t end, bool value) noexcept {
@@ -74,7 +93,7 @@ void BitSet::fill(size_t start, size_t end, bool value) noexcept {
   if (start >= end) {
     return;
   }
-  const size_t pattern = (T)-(T)value; // 0 or 0xff..ff
+  const size_t pattern = T(-T(value)); // 0 or 0xff..ff
 
   {
     size_t nstart = start / bitsPerT;
@@ -82,12 +101,12 @@ void BitSet::fill(size_t start, size_t end, bool value) noexcept {
     if (nstart == nend) {
       // fill a single T or a fragment of it
       size_t head = start % bitsPerT;
-      T fillmask1 = (T)~(T)0 << head; // n high bits set
-      T keepmask1 = (T)~fillmask1;    // n'=head low bits set
+      T fillmask1 = T(~T(0)) << head; // n high bits set
+      T keepmask1 = T(~fillmask1);    // n'=head low bits set
 
       size_t tail = end % bitsPerT;
-      T keepmask2 = (T)~(T)0 << tail; // n high bits set
-      T fillmask2 = (T)~keepmask2;    // n'=tail low bits set
+      T keepmask2 = T(~T(0)) << tail; // n high bits set
+      T fillmask2 = T(~keepmask2);    // n'=tail low bits set
 
       T keepmask = keepmask1 | keepmask2;
       T fillmask = fillmask1 & fillmask2;
@@ -100,8 +119,8 @@ void BitSet::fill(size_t start, size_t end, bool value) noexcept {
 
   if (size_t head = start % bitsPerT) {
     // fill unaligned head fragment
-    T fillmask = (T)~(T)0 << head; // n high bits set
-    T keepmask = (T)~fillmask;     // n'=head low bits set
+    T fillmask = T(~T(0)) << head; // n high bits set
+    T keepmask = T(~fillmask);     // n'=head low bits set
     T &ref = data_[start / bitsPerT];
     ref = (ref & keepmask) | (pattern & fillmask);
     start = start - head + bitsPerT;
@@ -119,8 +138,8 @@ void BitSet::fill(size_t start, size_t end, bool value) noexcept {
   // start is still a multiple of bitsPerT
   if (size_t tail = end % bitsPerT) {
     // fill unaligned tail fragment
-    T keepmask = (T)~(T)0 << tail; // n high bits set
-    T fillmask = (T)~keepmask;     // n'=tail low bits set
+    T keepmask = T(~T(0)) << tail; // n high bits set
+    T fillmask = T(~keepmask);     // n'=tail low bits set
     T &ref = data_[end / bitsPerT];
     ref = (ref & keepmask) | (pattern & fillmask);
   }
@@ -160,14 +179,6 @@ ONESTL_NOINLINE bool BitSet::realloc(size_t newcap) noexcept {
     cap_ = oldn * bitsPerT;
   }
   return true;
-}
-
-void BitSet::swap(BitSet &other) noexcept {
-  if (this != &other) {
-    mem::swap(data_, other.data_);
-    mem::swap(size_, other.size_);
-    mem::swap(cap_, other.cap_);
-  }
 }
 
 } // namespace onestl

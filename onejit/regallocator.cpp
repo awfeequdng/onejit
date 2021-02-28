@@ -27,6 +27,9 @@
 
 namespace onejit {
 
+RegAllocator::RegAllocator() noexcept : g_{}, g2_{}, stack_{} {
+}
+
 RegAllocator::~RegAllocator() noexcept {
 }
 

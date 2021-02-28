@@ -26,6 +26,7 @@
 #define ONESTL_BITSET_HPP
 
 #include <onestl/fwd.hpp>
+#include <onestl/mem.hpp>
 #include <onestl/test_tiny.hpp>
 
 #include <cstddef> // size_t
@@ -35,8 +36,8 @@ namespace onestl {
 /** resizeable bit sequence */
 class BitSet {
 
-protected:
-  typedef uint8_t T;
+private:
+  typedef size_t T;
 
   enum : size_t {
     sizeofT = sizeof(T),
@@ -44,8 +45,8 @@ protected:
   };
 
   T *data_;
-  size_t size_;
-  size_t cap_;
+  size_t size_; // in bits
+  size_t cap_;  // in bits
 
 public:
   constexpr BitSet() noexcept : data_(NULL), size_(0), cap_(0) {
@@ -103,6 +104,15 @@ public:
   // set or clear i-th bit. does nothing if index is out of bounds.
   void set(size_t index, bool value) noexcept;
 
+  // return index of first non-zero bit
+  size_t first() const noexcept {
+    return next(0);
+  }
+
+  // return index of first non-zero bit, starting at 'from'
+  // return size_t(-1) if there are no further non-zero bits
+  size_t next(size_t from) const noexcept;
+
   // set or clear all bits from start to end.
   void fill(size_t start, size_t end, bool value) noexcept;
 
@@ -125,7 +135,11 @@ public:
     return realloc(newcap);
   }
 
-  void swap(BitSet &other) noexcept;
+  void swap(BitSet &other) noexcept {
+    mem::swap(data_, other.data_);
+    mem::swap(size_, other.size_);
+    mem::swap(cap_, other.cap_);
+  }
 
 private:
   bool init(size_t size) noexcept;

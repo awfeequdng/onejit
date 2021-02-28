@@ -35,11 +35,14 @@ namespace onestl {
 class Graph {
 
 public:
-  constexpr Graph() noexcept : bits_(), edges_() {
+  typedef uint32_t Degree;
+  typedef size_t Node;
+
+  constexpr Graph() noexcept : bits_(), degree_() {
   }
 
   explicit Graph(size_t nodes) noexcept //
-      : bits_(nodes * (nodes + 1) / 2), edges_(nodes) {
+      : bits_(nodes * (nodes + 1) / 2), degree_(nodes) {
   }
 
   Graph(const Graph &other) = delete;
@@ -54,7 +57,7 @@ public:
   }
 
   constexpr size_t size() const noexcept {
-    return edges_.size();
+    return degree_.size();
   }
 
   // resize Graph and remove all edges
@@ -62,22 +65,42 @@ public:
 
   // return true if nodes a and b are connected,
   // or false if a or b are out of bounds
-  bool operator()(size_t a, size_t b) const noexcept;
+  bool operator()(Node a, Node b) const noexcept;
 
   // add or remove an edge betwen nodes a and b.
   // does nothing if a or b are out of bounds
-  void set(size_t a, size_t b, bool value) noexcept;
+  void set(Node a, Node b, bool value) noexcept;
 
-  // return number of edges connected to node a.
-  uint32_t degree(size_t a) noexcept {
-    return edges_[a];
+  // return number of edges connected to specified node.
+  constexpr Degree degree(Node node) const noexcept {
+    return degree_[node];
   }
 
-  void swap(Graph &other) noexcept;
+#if 0  // TODO
+  // return first node connected with an edge to specified node,
+  // or Node(-1) if node has no edges
+  Node first_neighbor(Node node) const noexcept;
+
+  // return next node connected with an edge to specified node,
+  // or Node(-1) if node has no further edges
+  Node next_neighbor(Node node, Node other) const noexcept;
+
+  // remove specified node and all its edges
+  void remove(Node node) noexcept;
+#endif // 0
+
+  // copy content of other Graph into this graph.
+  // return false if out of memory.
+  bool dup(const Graph &other) noexcept;
+
+  void swap(Graph &other) noexcept {
+    bits_.swap(other.bits_);
+    degree_.swap(other.degree_);
+  }
 
 private:
   BitSet bits_;
-  Array<uint32_t> edges_;
+  Array<Degree> degree_;
 };
 
 inline void swap(Graph &left, Graph &right) noexcept {
