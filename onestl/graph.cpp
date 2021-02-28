@@ -86,11 +86,14 @@ Graph::Node Graph::first_set(Node node, Node first_neighbor) const noexcept {
   return offset;
 }
 
-#if 0  // TODO
 void Graph::remove(Node node) noexcept {
   Degree deg = degree(node);
-  Node other = NoPos;
+  Node other = Node(0);
+  while (deg && (other = first_set(node, other)) != NoPos) {
+    set(node, other, false);
+    --deg;
+    ++other;
+  }
 }
-#endif // 0
 
 } // namespace onestl

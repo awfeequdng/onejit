@@ -71,7 +71,7 @@ void Test::stl_graph() {
     }
   }
   for (a = 0; a < n; a++) {
-    for (b = a; b < n; b++) {
+    for (b = 0; b <= a; b++) {
       size_t degree_a = g.degree(a);
       size_t degree_b = g.degree(b);
 
@@ -97,7 +97,7 @@ void Test::stl_graph() {
   }
 
   for (a = 0; a < n; a++) {
-    for (b = a; b < n; b++) {
+    for (b = 0; b <= a; b++) {
       size_t degree_a = g.degree(a);
       size_t degree_b = g.degree(b);
 
@@ -124,9 +124,23 @@ void Test::stl_graph() {
 
   for (a = 0; a < n; a++) {
     TEST(g.degree(a), ==, 0);
+    TEST(g.first_set(a), ==, Graph::NoPos);
     for (b = 0; b < n; b++) {
       TEST(g(a, b), ==, false);
     }
+  }
+
+  for (a = 0; a < n; a++) {
+    for (b = 0; b <= a; b++) {
+      g.set(a, b, true);
+    }
+  }
+  for (a = 0; a < n; a++) {
+    TEST(g.degree(a), !=, 0);
+    TEST(g.first_set(a), !=, Graph::NoPos);
+    g.remove(a);
+    TEST(g.degree(a), ==, 0);
+    TEST(g.first_set(a), ==, Graph::NoPos);
   }
 }
 
