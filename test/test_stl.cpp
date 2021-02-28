@@ -35,13 +35,24 @@ void Test::stl_bitset() {
   BitSet s{n};
   for (i = 0; i < n; i++) {
     TEST(s[i], ==, false);
+    TEST(s.first_set(i), ==, BitSet::NoIndex);
   }
   TEST(s[n], ==, false); // test out of bounds [n]
 
   s.fill(lo = 3, hi = n - 3, true);
-  for (i = 0; i < n; i++) {
-    TEST(s[i], ==, i >= lo && i < hi);
+  for (i = 0; i < lo; i++) {
+    TEST(s[i], ==, false);
+    TEST(s.first_set(i), ==, lo);
   }
+  for (i = lo; i < hi; i++) {
+    TEST(s[i], ==, true);
+    TEST(s.first_set(i), ==, i);
+  }
+  for (i = hi; i < n; i++) {
+    TEST(s[i], ==, false);
+    TEST(s.first_set(i), ==, BitSet::NoIndex);
+  }
+
   TEST(s[n], ==, false); // test out of bounds [n]
 
   for (i = 0; i < n; i++) {

@@ -57,7 +57,7 @@ ONESTL_NOINLINE void BitSet::destroy() noexcept {
   mem::free(data);
 }
 
-void BitSet::set(size_t index, bool value) noexcept {
+void BitSet::set(Index index, bool value) noexcept {
   if (index >= size_) {
     return;
   }
@@ -68,7 +68,7 @@ void BitSet::set(size_t index, bool value) noexcept {
   ref = (ref & keepmask) | (pattern & fillmask);
 }
 
-size_t BitSet::next(size_t from) const noexcept {
+BitSet::Index BitSet::first_set(Index from) const noexcept {
   if (from < size_) {
     T bits = data_[from / bitsPerT] >> (from % bitsPerT);
     if (bits) {
@@ -83,17 +83,17 @@ size_t BitSet::next(size_t from) const noexcept {
       from += bitsPerT;
     }
   }
-  return size_t(-1);
+  return NoIndex;
 }
 
-void BitSet::fill(size_t start, size_t end, bool value) noexcept {
+void BitSet::fill(Index start, Index end, bool value) noexcept {
   if (end > size_) {
     end = size_;
   }
   if (start >= end) {
     return;
   }
-  const size_t pattern = T(-T(value)); // 0 or 0xff..ff
+  const T pattern = T(-T(value)); // 0 or 0xff..ff
 
   {
     size_t nstart = start / bitsPerT;

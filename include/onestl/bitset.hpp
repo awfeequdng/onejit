@@ -49,6 +49,10 @@ private:
   size_t cap_;  // in bits
 
 public:
+  typedef size_t Index;
+
+  enum : size_t { NoIndex = size_t(-1) };
+
   constexpr BitSet() noexcept : data_(NULL), size_(0), cap_(0) {
   }
   explicit BitSet(size_t size) noexcept {
@@ -97,24 +101,19 @@ public:
 
   // checked element access:
   // return i-th bit, or false if index is out of bounds
-  constexpr bool operator[](size_t index) const noexcept {
+  constexpr bool operator[](Index index) const noexcept {
     return index < size_ ? get(data_, index) : false;
   }
 
   // set or clear i-th bit. does nothing if index is out of bounds.
-  void set(size_t index, bool value) noexcept;
-
-  // return index of first non-zero bit
-  size_t first() const noexcept {
-    return next(0);
-  }
+  void set(Index index, bool value) noexcept;
 
   // return index of first non-zero bit, starting at 'from'
-  // return size_t(-1) if there are no further non-zero bits
-  size_t next(size_t from) const noexcept;
+  // return NoIndex if there are no further non-zero bits
+  Index first_set(Index from = 0) const noexcept;
 
   // set or clear all bits from start to end.
-  void fill(size_t start, size_t end, bool value) noexcept;
+  void fill(Index start, Index end, bool value) noexcept;
 
   // resize bitset, changing its size.
   // return false if out of memory.
@@ -148,7 +147,7 @@ private:
   bool grow_cap(size_t mincap) noexcept;
   bool realloc(size_t newcap) noexcept;
 
-  static constexpr bool get(const T *data, size_t index) noexcept {
+  static constexpr bool get(const T *data, Index index) noexcept {
     return bool(1 & (data[index / bitsPerT] >> (index % bitsPerT)));
   }
 };
