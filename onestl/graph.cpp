@@ -28,6 +28,9 @@
 
 namespace onestl {
 
+Graph::~Graph() noexcept {
+}
+
 bool Graph::reset(size_t nodes) noexcept {
   size_t oldn = degree_.size();
   if (degree_.resize(nodes)) {

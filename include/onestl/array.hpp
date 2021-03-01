@@ -184,9 +184,7 @@ protected:
   }
 
   void destroy() noexcept {
-    if (data_ != NULL) {
-      mem::free(data());
-    }
+    mem::free(data());
   }
 
   bool grow(size_t n, bool zerofill) noexcept {

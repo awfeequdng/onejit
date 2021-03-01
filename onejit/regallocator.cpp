@@ -33,7 +33,7 @@ RegAllocator::RegAllocator() noexcept : g_{}, g2_{}, colors_{} {
 RegAllocator::RegAllocator(size_t num_regs) noexcept //
     : g_{num_regs}, g2_{num_regs}, colors_{num_regs} {
 
-  std::memset(colors_.data(), 0xff, colors_.size() * sizeof(Color));
+  unset_colors();
 }
 
 RegAllocator::~RegAllocator() noexcept {
@@ -41,17 +41,22 @@ RegAllocator::~RegAllocator() noexcept {
 
 bool RegAllocator::reset(size_t num_regs) noexcept {
   if (g_.reset(num_regs) && g2_.reset(num_regs) && colors_.resize(num_regs)) {
-    std::memset(colors_.data(), 0xff, colors_.size() * sizeof(Color));
+    unset_colors();
     return true;
   }
   return false;
+}
+
+// fill colors_ with UnsetColor
+void RegAllocator::unset_colors() noexcept {
+  std::memset(colors_.data(), 0xff, colors_.size() * sizeof(Color));
 }
 
 void RegAllocator::allocate_regs(Color num_colors) noexcept {
   g2_.dup(g_); // cannot fail
   for (;;) {
     Reg reg;
-    while ((reg = find_degree_less(num_colors)) != NoReg) {
+    while ((reg = find_degree_less_than(num_colors)) != NoReg) {
       colors_.set(reg, NoColor);
       g_.remove(reg);
     }
@@ -63,23 +68,28 @@ void RegAllocator::allocate_regs(Color num_colors) noexcept {
   }
 }
 
-RegAllocator::Reg RegAllocator::find_degree_less(Color degree) const noexcept {
+RegAllocator::Reg RegAllocator::find_degree_less_than(Degree degree) const noexcept {
   for (size_t i = 0, n = g_.size(); i < n; i++) {
-    Graph::Degree deg_i = g_.degree(i);
-    if (deg_i > 0 && deg_i < Graph::Degree(degree)) {
+    Degree deg_i = g_.degree(i);
+    if (deg_i > 0 && deg_i < Degree(degree)) {
       return Reg(i);
     }
   }
   return NoReg;
 }
 
+// pick a register in g_ to be spilled. currently picks the register with highest degree
 RegAllocator::Reg RegAllocator::pick() const noexcept {
+  Reg reg = NoReg;
+  Degree deg = 0;
   for (size_t i = 0, n = g_.size(); i < n; i++) {
-    if (g_.degree(i) != 0) {
-      return Reg(i);
+    Degree deg_i = g_.degree(i);
+    if (deg_i > deg) {
+      reg = Reg(i);
+      deg = deg_i;
     }
   }
-  return NoReg;
+  return reg;
 }
 
 } // namespace onejit

@@ -49,7 +49,7 @@ public:
   Graph(const Graph &other) = delete;
   Graph(Graph &&other) noexcept = default;
 
-  ~Graph() noexcept = default;
+  ~Graph() noexcept;
 
   Graph &operator=(const Graph &other) = delete;
   Graph &operator=(Graph &&other) noexcept {

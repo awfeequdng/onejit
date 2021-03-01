@@ -36,11 +36,12 @@ namespace onejit {
 class RegAllocator {
 
 public:
-  using Reg = uint32_t;
-  using Color = int32_t;
+  using Degree = Graph::Degree;
+  using Reg = Degree;
+  using Color = Degree;
 
   enum : Reg { NoReg = Reg(-1) };
-  enum : Color { NoColor = Color(-1) };
+  enum : Color { UnsetColor = Color(-1), NoColor = Color(-2) };
 
   RegAllocator() noexcept;
   explicit RegAllocator(size_t num_regs) noexcept;
@@ -64,12 +65,15 @@ public:
   }
 
   // choose a color for each Reg present in graph()
-  // spilled Regs will have color < 0
+  // spilled Regs will have color >= num_colors
   void allocate_regs(Color num_colors) noexcept;
 
 private:
+  // fill colors_ with UnsetColor
+  void unset_colors() noexcept;
+
   // find a register in g_ with degree less than specified degree
-  Reg find_degree_less(Color degree) const noexcept;
+  Reg find_degree_less_than(Degree degree) const noexcept;
 
   // pick a register in g_ to be spilled
   Reg pick() const noexcept;

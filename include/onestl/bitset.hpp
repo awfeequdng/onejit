@@ -51,7 +51,7 @@ private:
 public:
   typedef size_t Index;
 
-  enum : size_t { NoPos = size_t(-1) };
+  enum Pos : Index { NoPos = size_t(-1) };
 
   constexpr BitSet() noexcept : data_(NULL), size_(0), cap_(0) {
   }
@@ -145,7 +145,9 @@ public:
 
 private:
   bool init(size_t size) noexcept;
-  void destroy() noexcept;
+  void destroy() noexcept {
+    mem::free(data_);
+  }
   bool grow(size_t newsize, bool zerofill) noexcept;
   bool grow_cap(size_t mincap) noexcept;
   bool realloc(size_t newcap) noexcept;

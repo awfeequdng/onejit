@@ -98,7 +98,7 @@ BitSet::BitSet(BitSet &&other) noexcept //
   other.cap_ = other.size_ = 0;
 }
 
-ONESTL_NOINLINE bool BitSet::init(size_t size) noexcept {
+bool BitSet::init(size_t size) noexcept {
   const size_t n = (size + bitsPerT - 1) / bitsPerT;
   data_ = NULL;
   if (n && !(data_ = mem::alloc_clear<T>(n))) {
@@ -109,13 +109,6 @@ ONESTL_NOINLINE bool BitSet::init(size_t size) noexcept {
   size_ = size;
   cap_ = n * bitsPerT;
   return true;
-}
-
-ONESTL_NOINLINE void BitSet::destroy() noexcept {
-  T *data = data_;
-  data_ = NULL;
-  cap_ = size_ = 0;
-  mem::free(data);
 }
 
 void BitSet::set(Index index, bool value) noexcept {
