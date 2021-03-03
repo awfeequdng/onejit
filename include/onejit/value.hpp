@@ -235,7 +235,7 @@ private:
 
 // ----------------------------- formatting ------------------------------------
 
-const Fmt &operator<<(const Fmt &out, const Value &value);
+const Fmt &operator<<(const Fmt &fmt, const Value &value);
 
 // ----------------------------- binary operators ------------------------------
 

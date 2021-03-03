@@ -78,7 +78,7 @@ public:
     return child_is<Expr>(1);
   }
 
-  const Fmt &format(const Fmt &out, Syntax syntax = Syntax::Default, size_t depth = 0) const;
+  const Fmt &format(const Fmt &fmt, Syntax syntax = Syntax::Default, size_t depth = 0) const;
 
 private:
   // downcast Node to Unary

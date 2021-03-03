@@ -460,12 +460,12 @@ const Chars to_string(OpStmt3 op) noexcept;
 const Chars to_string(OpStmt4 op) noexcept;
 const Chars to_string(OpStmtN op) noexcept;
 
-const Fmt &operator<<(const Fmt &out, OpStmt0 op);
-const Fmt &operator<<(const Fmt &out, OpStmt1 op);
-const Fmt &operator<<(const Fmt &out, OpStmt2 op);
-const Fmt &operator<<(const Fmt &out, OpStmt3 op);
-const Fmt &operator<<(const Fmt &out, OpStmt4 op);
-const Fmt &operator<<(const Fmt &out, OpStmtN op);
+const Fmt &operator<<(const Fmt &fmt, OpStmt0 op);
+const Fmt &operator<<(const Fmt &fmt, OpStmt1 op);
+const Fmt &operator<<(const Fmt &fmt, OpStmt2 op);
+const Fmt &operator<<(const Fmt &fmt, OpStmt3 op);
+const Fmt &operator<<(const Fmt &fmt, OpStmt4 op);
+const Fmt &operator<<(const Fmt &fmt, OpStmtN op);
 
 } // namespace onejit
 

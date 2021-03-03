@@ -41,24 +41,24 @@ Node Tuple::create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept {
                                nodes);
 }
 
-const Fmt &Tuple::format(const Fmt &out, Syntax syntax, size_t depth) const {
+const Fmt &Tuple::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
   if (type() == MEM) {
     // may happen, Mem is a subclass of Tuple
-    return is<Mem>().format(out, syntax, depth);
+    return is<Mem>().format(fmt, syntax, depth);
   }
   OpN op = this->op();
-  out << '(' << op;
+  fmt << '(' << op;
 
   const bool is_call = op == CALL;
   // if op == CALL, skip child(0) i.e. FuncType
   for (size_t i = size_t(is_call), n = children(); i < n; i++) {
     Node node = child(i);
     if (node) {
-      out << ' ';
-      node.format(out, syntax, depth + 1);
+      fmt << ' ';
+      node.format(fmt, syntax, depth + 1);
     }
   }
-  return out << ')';
+  return fmt << ')';
 }
 
 } // namespace onejit

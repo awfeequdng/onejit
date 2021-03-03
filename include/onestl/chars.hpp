@@ -29,8 +29,8 @@
 
 namespace onestl {
 
-/** read-only view of char[] */
-class Chars : public View<char> {
+/** non-owning, read-only view of char[] */
+class Chars final : public View<char> {
 private:
   typedef char T;
   typedef View<T> Base;
@@ -50,15 +50,20 @@ public:
   }
   constexpr Chars(const View<T> &other) noexcept : Base{other} {
   }
-  constexpr Chars(const Span<T> &other) noexcept : Base{other} {
-  }
-  constexpr Chars(const Array<T> &other) noexcept : Base{other} {
-  }
-  // defined in string.hpp
-  constexpr Chars(const String &other) noexcept;
+
+  constexpr Chars(const Chars &) noexcept = default;
+  constexpr Chars(Chars &&) noexcept = default;
+
+  // Chars is final: no subclass can change the ownership semantic of data_,
+  // so exposing assignment operator is safe.
+  //
+  // Unlike View<T>, which has the subclass Array<T> which changes the semantic
+  // of data_ from non-owned to owned.
+  Chars &operator=(const Chars &) noexcept = default;
+  Chars &operator=(Chars &&) noexcept = default;
 
   Chars view(size_t start, size_t end) const noexcept {
-    return Chars(Base::view(start, end));
+    return Chars{Base::view(start, end)};
   }
 };
 

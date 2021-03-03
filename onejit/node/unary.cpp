@@ -48,14 +48,14 @@ ONEJIT_NOINLINE Node Unary::create(Func &func, Op1 op, Expr child) noexcept {
   return create(func, kind, op, child);
 }
 
-const Fmt &Unary::format(const Fmt &out, Syntax syntax, size_t depth) const {
+const Fmt &Unary::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
   Op1 op = this->op();
-  out << '(' << op;
+  fmt << '(' << op;
   if (op == CAST || op == BITCOPY) {
-    out << ' ' << kind();
+    fmt << ' ' << kind();
   }
-  out << ' ';
-  return x().format(out, syntax, depth + 1) << ')';
+  fmt << ' ';
+  return x().format(fmt, syntax, depth + 1) << ')';
 }
 
 } // namespace onejit

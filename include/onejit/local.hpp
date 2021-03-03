@@ -63,8 +63,8 @@ public:
     return uint8_t(val_) != eBad;
   }
 
-  const Fmt &format(const Fmt &out) const {
-    return id().format(out, kind());
+  const Fmt &format(const Fmt &fmt) const {
+    return id().format(fmt, kind());
   }
 
 protected:
@@ -119,8 +119,8 @@ constexpr inline bool operator!=(Local a, Local b) noexcept {
   return a.kind() != b.kind() || a.id() != b.id();
 }
 
-inline const Fmt &operator<<(const Fmt &out, Local local) {
-  return local.format(out);
+inline const Fmt &operator<<(const Fmt &fmt, Local local) {
+  return local.format(fmt);
 }
 
 } // namespace onejit

@@ -54,23 +54,12 @@ public:
   constexpr explicit CRange(const View<T> *view) noexcept
       : impl_{view}, start_{0}, size_{view ? view->size() : 0} {
   }
-  constexpr explicit CRange(const Span<T> *span) noexcept
-      : impl_{span}, start_{0}, size_{span ? span->size() : 0} {
-  }
-  constexpr explicit CRange(const Array<T> *arr) noexcept
-      : impl_{arr}, start_{0}, size_{arr ? arr->size() : 0} {
-  }
+
   // defined in range.hpp
   constexpr explicit CRange(const Range<T> &range) noexcept;
 
   constexpr CRange(const View<T> *view, size_t a_start, size_t a_size) noexcept
       : impl_{view}, start_{a_start}, size_{a_size} {
-  }
-  constexpr CRange(const Span<T> *span, size_t a_start, size_t a_size) noexcept
-      : impl_{span}, start_{a_start}, size_{a_size} {
-  }
-  constexpr CRange(const Array<T> *arr, size_t a_start, size_t a_size) noexcept
-      : impl_{arr}, start_{a_start}, size_{a_size} {
   }
   // defined in range.hpp
   constexpr CRange(const Range<T> &range, size_t a_start, size_t a_size) noexcept;

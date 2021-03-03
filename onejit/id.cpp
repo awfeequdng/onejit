@@ -34,8 +34,8 @@ namespace onejit {
 
 // ----------------------------------- noarch -----------------------------------
 
-static const Fmt &format_reg_noarch(const Fmt &out, Id id, Kind kind) {
-  return out << "var" << Hex(id.val()) //
+static const Fmt &format_reg_noarch(const Fmt &fmt, Id id, Kind kind) {
+  return fmt << "var" << Hex(id.val()) //
              << '_' << kind.stringsuffix();
 }
 
@@ -51,7 +51,7 @@ static const char string_reg_x64[4 * 4 * 16] =         //
     "rax\0rcx\0rdx\0rbx\0rsp\0rbp\0rsi\0rdi\0"         //
     "r8\0\0r9\0\0r10\0r11\0r12\0r13\0r14\0r15";
 
-static const Fmt &format_reg_x64(const Fmt &out, Id id, Kind kind) {
+static const Fmt &format_reg_x64(const Fmt &fmt, Id id, Kind kind) {
   eBits ebits = kind.bits().ebits();
   uint32_t x = id.val();
   if (x >= x64::RAX && x <= x64::R15) {
@@ -60,44 +60,44 @@ static const Fmt &format_reg_x64(const Fmt &out, Id id, Kind kind) {
     }
     const char *addr = string_reg_x64 + (id.val() & 0xF) * 4 + (ebits - eBits8) * 64;
     size_t len = addr[3] ? 4 : addr[2] ? 3 : 2;
-    return out << Chars{addr, len};
+    return fmt << Chars{addr, len};
 
   } else if (x == x64::RIP) {
-    return out << Chars{ebits <= eBits32 ? "eip" : "rip", 3};
+    return fmt << Chars{ebits <= eBits32 ? "eip" : "rip", 3};
 
   } else if (x >= x64::XMM0 && x <= x64::XMM31) {
-    return out << Chars{ebits <= eBits128 ? "xmm" : ebits == eBits256 ? "ymm" : "zmm", 3}
+    return fmt << Chars{ebits <= eBits128 ? "xmm" : ebits == eBits256 ? "ymm" : "zmm", 3}
                << (x - x64::XMM0);
   } else {
-    return format_reg_noarch(out, id, kind);
+    return format_reg_noarch(fmt, id, kind);
   }
 }
 
 // ----------------------------------- arm64 -----------------------------------
 
-static const Fmt &format_reg_arm64(const Fmt &out, Id id, Kind kind) {
+static const Fmt &format_reg_arm64(const Fmt &fmt, Id id, Kind kind) {
   eBits ebits = kind.bits().ebits();
   uint32_t x = id.val();
   if (x >= arm64::X0 && x <= arm64::X31) {
-    return out << ((ebits <= eBits32) ? 'w' : 'x') << (x - arm64::X0);
+    return fmt << ((ebits <= eBits32) ? 'w' : 'x') << (x - arm64::X0);
   } else if (x >= arm64::V0 && x <= arm64::V31) {
     size_t i = (ebits <= eBits8) ? 0 : (ebits >= eBits128) ? 4 : ebits - eBits8;
-    return out << "bhsdq"[i] << (x - arm64::V0);
+    return fmt << "bhsdq"[i] << (x - arm64::V0);
   } else {
-    return format_reg_noarch(out, id, kind);
+    return format_reg_noarch(fmt, id, kind);
   }
 }
 
 // -----------------------------------------------------------------------------
 
-const Fmt &Id::format(const Fmt &out, Id id, Kind kind) {
+const Fmt &Id::format(const Fmt &fmt, Id id, Kind kind) {
   switch (ArchId(id.val() >> 8)) {
   case ArchId::X64:
-    return format_reg_x64(out, id, kind);
+    return format_reg_x64(fmt, id, kind);
   case ArchId::ARM64:
-    return format_reg_arm64(out, id, kind);
+    return format_reg_arm64(fmt, id, kind);
   default:
-    return format_reg_noarch(out, id, kind);
+    return format_reg_noarch(fmt, id, kind);
   }
 }
 

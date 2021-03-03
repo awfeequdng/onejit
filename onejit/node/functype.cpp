@@ -35,12 +35,12 @@ uint16_t FuncType::param_n() const noexcept {
   return sub_uint16(children(), result_n());
 }
 
-/// \return kind of i-th parameter, or Bad if out-of-bounds
+/// \return kind of i-th parameter, or Bad if fmt-of-bounds
 Kind FuncType::param(uint16_t i) const noexcept {
   return child(i + result_n()).kind();
 }
 
-/// \return kind of i-th result, or Bad if out-of-bounds
+/// \return kind of i-th result, or Bad if fmt-of-bounds
 Kind FuncType::result(uint16_t i) const noexcept {
   return i >= result_n() ? Bad : child(i).kind();
 }
@@ -69,22 +69,22 @@ Node FuncType::create(Code *holder, Kinds params, Kinds results) noexcept {
   return Node{};
 }
 
-const Fmt &FuncType::format(const Fmt &out, Syntax /*syntax*/, size_t /*depth*/) const {
-  out << '(' << type() << " (";
+const Fmt &FuncType::format(const Fmt &fmt, Syntax /*syntax*/, size_t /*depth*/) const {
+  fmt << '(' << type() << " (";
   for (size_t i = 0, n = param_n(); i < n; i++) {
     if (i) {
-      out << ' ';
+      fmt << ' ';
     }
-    out << param(i);
+    fmt << param(i);
   }
-  out << ") -> (";
+  fmt << ") -> (";
   for (size_t i = 0, n = result_n(); i < n; i++) {
     if (i) {
-      out << ' ';
+      fmt << ' ';
     }
-    out << result(i);
+    fmt << result(i);
   }
-  return out << "))";
+  return fmt << "))";
 }
 
 } // namespace onejit

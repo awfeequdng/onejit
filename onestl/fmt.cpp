@@ -37,15 +37,15 @@ ONESTL_NOINLINE const Fmt &Fmt::write(const char *chars, size_t n) const {
   return *this;
 }
 
-ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, bool val) {
+const Fmt &operator<<(const Fmt &fmt, bool val) {
   return fmt << (val ? Chars("true") : Chars("false"));
 }
 
-ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, char ch) {
+const Fmt &operator<<(const Fmt &fmt, char ch) {
   return fmt.write(&ch, 1);
 }
 
-ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, int64_t val) {
+const Fmt &operator<<(const Fmt &fmt, int64_t val) {
   if (val < 0) {
     fmt.write("-", 1);
     val = -val;
@@ -53,7 +53,7 @@ ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, int64_t val) {
   return fmt << uint64_t(val);
 }
 
-ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, uint64_t val) {
+const Fmt &operator<<(const Fmt &fmt, uint64_t val) {
   if (!fmt || !fmt.writer().func()) {
     return fmt;
   }
@@ -69,7 +69,7 @@ ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, uint64_t val) {
   return fmt.write(buf + i, sizeof(buf) - i);
 }
 
-ONESTL_NOINLINE const Fmt &operator<<(const Fmt &fmt, double val) {
+const Fmt &operator<<(const Fmt &fmt, double val) {
   if (!fmt || !fmt.writer().func()) {
     return fmt;
   }

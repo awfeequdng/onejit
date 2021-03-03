@@ -48,7 +48,7 @@ public:
     return testcount_;
   }
 
-  const Fmt &disasm(const Fmt &out, Bytes bytes);
+  const Fmt &disasm(const Fmt &fmt, Bytes bytes);
 
   // assemble instruction, then disassemble it with capstone
   // and compare its text representation
@@ -58,7 +58,7 @@ private:
   mutable size_t testcount_;
 
 #ifdef HAVE_LIBCAPSTONE
-  const Fmt &format(const Fmt &out, const cs_insn *insn);
+  const Fmt &format(const Fmt &fmt, const cs_insn *insn);
   static int64_t fix_immediate(const cs_insn *insn, int64_t imm) noexcept;
 
   csh handle_;

@@ -75,7 +75,7 @@ public:
     return child_is<Expr>(i);
   }
 
-  const Fmt &format(const Fmt &out, Syntax syntax = Syntax::Default, size_t depth = 0) const;
+  const Fmt &format(const Fmt &fmt, Syntax syntax = Syntax::Default, size_t depth = 0) const;
 
 private:
   // downcast Node to Tuple

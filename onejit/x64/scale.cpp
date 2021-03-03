@@ -39,12 +39,12 @@ const Chars Scale::string() const noexcept {
   return Chars{sstring + i, 1};
 }
 
-ONEJIT_NOINLINE const Fmt &operator<<(const Fmt &out, Scale scale) {
-  return out << scale.string();
+ONEJIT_NOINLINE const Fmt &operator<<(const Fmt &fmt, Scale scale) {
+  return fmt << scale.string();
 }
 
-const Fmt &operator<<(const Fmt &out, eScale escale) {
-  return out << Scale{escale};
+const Fmt &operator<<(const Fmt &fmt, eScale escale) {
+  return fmt << Scale{escale};
 }
 
 } // namespace x64

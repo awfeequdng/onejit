@@ -37,9 +37,9 @@ ONEJIT_NOINLINE Node Stmt1::create(Func &func, Expr arg, OpStmt1 op) noexcept {
                                Nodes{&arg, 1});
 }
 
-const Fmt &Stmt1::format(const Fmt &out, Syntax syntax, size_t depth) const {
-  out << '(' << op() << ' ';
-  return child(0).format(out, syntax, depth + 1) << ')';
+const Fmt &Stmt1::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
+  fmt << '(' << op() << ' ';
+  return child(0).format(fmt, syntax, depth + 1) << ')';
 }
 
 // ============================  Goto  ==================================

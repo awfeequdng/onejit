@@ -39,13 +39,13 @@ ONEJIT_NOINLINE Node Stmt3::create(Func &func, Nodes children, OpStmt3 op) noexc
                                children);
 }
 
-const Fmt &Stmt3::format(const Fmt &out, Syntax syntax, size_t depth) const {
+const Fmt &Stmt3::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
   ++depth;
-  out << '(' << op() << ' ';
-  child(0).format(out, syntax, depth) << '\n' << Space{depth * 4};
-  child(1).format(out, syntax, depth) << '\n' << Space{depth * 4};
-  child(2).format(out, syntax, depth) << ')';
-  return out;
+  fmt << '(' << op() << ' ';
+  child(0).format(fmt, syntax, depth) << '\n' << Space{depth * 4};
+  child(1).format(fmt, syntax, depth) << '\n' << Space{depth * 4};
+  child(2).format(fmt, syntax, depth) << ')';
+  return fmt;
 }
 
 // ============================  If  =======================================

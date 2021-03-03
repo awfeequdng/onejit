@@ -44,8 +44,8 @@ Chars to_string(ArchId archid) noexcept {
   return Chars{str + 1, uint8_t(str[0])};
 }
 
-const Fmt &operator<<(const Fmt &out, ArchId archid) {
-  return out << to_string(archid);
+const Fmt &operator<<(const Fmt &fmt, ArchId archid) {
+  return fmt << to_string(archid);
 }
 
 } // namespace onejit

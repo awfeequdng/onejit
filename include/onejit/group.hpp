@@ -44,7 +44,7 @@ enum Group : uint8_t {
 
 const Chars &to_string(Group g) noexcept;
 
-const Fmt &operator<<(const Fmt &out, Group g);
+const Fmt &operator<<(const Fmt &fmt, Group g);
 
 } // namespace onejit
 

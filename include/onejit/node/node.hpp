@@ -171,7 +171,7 @@ public:
     return true;
   }
 
-  const Fmt &format(const Fmt &out, Syntax syntax = Syntax::Default, size_t depth = 0) const;
+  const Fmt &format(const Fmt &fmt, Syntax syntax = Syntax::Default, size_t depth = 0) const;
 
 protected:
   constexpr Node(NodeHeader header, CodeItem offset_or_direct, const Code *code) noexcept
@@ -239,8 +239,8 @@ private:
 
 String to_string(Node node, Syntax syntax = Syntax::Default, size_t depth = 0);
 
-inline const Fmt &operator<<(const Fmt &out, const Node &node) {
-  return node.format(out);
+inline const Fmt &operator<<(const Fmt &fmt, const Node &node) {
+  return node.format(fmt);
 }
 
 } // namespace onejit

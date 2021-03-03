@@ -30,28 +30,28 @@
 
 namespace onejit {
 
-const Fmt &operator<<(const Fmt &out, const Error &error) {
-  return out << error.msg() << ": " << error.where();
+const Fmt &operator<<(const Fmt &fmt, const Error &error) {
+  return fmt << error.msg() << ": " << error.where();
 }
 
-const Fmt &operator<<(const Fmt &out, const Errors &errors) {
+const Fmt &operator<<(const Fmt &fmt, const Errors &errors) {
   if (errors) {
-    out << "errors:\n";
+    fmt << "errors:\n";
     for (const Error &err : errors) {
-      out << "    " << err << '\n';
+      fmt << "    " << err << '\n';
     }
   }
-  return out;
+  return fmt;
 }
 
-const Fmt &operator<<(const Fmt &out, const CRange<Error> &errors) {
+const Fmt &operator<<(const Fmt &fmt, const CRange<Error> &errors) {
   if (errors) {
-    out << "errors:\n";
+    fmt << "errors:\n";
     for (size_t i = 0, n = errors.size(); i < n; i++) {
-      out << "    " << errors[i] << '\n';
+      fmt << "    " << errors[i] << '\n';
     }
   }
-  return out;
+  return fmt;
 }
 
 } // namespace onejit

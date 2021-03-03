@@ -25,12 +25,12 @@
 #ifndef ONESTL_STRING_HPP
 #define ONESTL_STRING_HPP
 
-#include <onestl/chars.hpp>
 #include <onestl/array.hpp>
+#include <onestl/chars.hpp>
 
 namespace onestl {
 
-/** resizeable vector of char */
+/** resizeable array of char */
 class String : public Array<char> {
 private:
   typedef char T;
@@ -43,17 +43,14 @@ public:
   }
   String(const T *addr, size_t n) noexcept : Base{addr, n} {
   }
+  // also catches Span<T> and Chars
   explicit String(const View<T> &other) noexcept : Base{other} {
-  }
-  explicit String(const Span<T> &other) noexcept : Base{other} {
-  }
-  explicit String(const Array<T> &other) noexcept : Base{other} {
   }
   explicit String(const String &other) noexcept : Base{other} {
   }
-  ~String() noexcept = default;
-
   String(String &&other) noexcept = default;
+
+  ~String() noexcept = default;
 
   String &operator=(String &&other) noexcept {
     Base::operator=(std::move(other));
@@ -61,23 +58,14 @@ public:
   }
 
   Chars view(size_t start, size_t end) const noexcept {
-    return Chars(Base::view(start, end));
+    return Chars{Base::view(start, end)};
   }
 
   // ensure data() is terminated by '\0' then return it
   const char *c_str() noexcept;
 
   using Base::dup;
-  bool dup(const Chars &other) noexcept {
-    return Base::dup(other);
-  }
 }; // class String
-
-// -------------- Chars methods requiring complete type String -----------------
-
-constexpr Chars::Chars(const String &other) noexcept //
-    : Base{other} {
-}
 
 } // namespace onestl
 

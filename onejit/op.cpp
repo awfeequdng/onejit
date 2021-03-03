@@ -42,8 +42,8 @@ const Chars to_string(Op1 op) noexcept {
   return Chars{addr + 1, uint8_t(addr[0])};
 }
 
-const Fmt &operator<<(const Fmt &out, Op1 op) {
-  return out << to_string(op);
+const Fmt &operator<<(const Fmt &fmt, Op1 op) {
+  return fmt << to_string(op);
 }
 
 // ============================  Op2  ==========================================
@@ -94,8 +94,8 @@ const Chars to_string(Op2 op) noexcept {
   return Chars{addr + 1, uint8_t(addr[0])};
 }
 
-const Fmt &operator<<(const Fmt &out, Op2 op) {
-  return out << to_string(op);
+const Fmt &operator<<(const Fmt &fmt, Op2 op) {
+  return fmt << to_string(op);
 }
 
 // ============================  OpN  ==========================================
@@ -112,8 +112,8 @@ const Chars to_string(OpN op) noexcept {
   return Chars{&"?+*&|^"[op], 1};
 }
 
-const Fmt &operator<<(const Fmt &out, OpN op) {
-  return out << to_string(op);
+const Fmt &operator<<(const Fmt &fmt, OpN op) {
+  return fmt << to_string(op);
 }
 
 } // namespace onejit

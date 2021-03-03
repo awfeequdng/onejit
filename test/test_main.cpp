@@ -85,11 +85,11 @@ void Test::compile(Func &f) {
 }
 
 void Test::dump_and_clear_code() {
-  Fmt out{stdout};
+  Fmt fmt{stdout};
   for (CodeItem item : holder) {
-    out << "0x" << Hex{item} << ' ';
+    fmt << "0x" << Hex{item} << ' ';
   }
-  out << '\n';
+  fmt << '\n';
 
 #ifdef __unix__
   {
@@ -104,7 +104,7 @@ void Test::dump_and_clear_code() {
   CodeParser parser{&holder};
   while (parser) {
     Node node = parser.next();
-    out << node << '\n';
+    fmt << node << '\n';
   }
 
   holder.clear();

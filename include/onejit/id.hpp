@@ -52,15 +52,15 @@ public:
     return val_;
   }
 
-  const Fmt &format(const Fmt &out, Kind kind) const {
-    return format(out, *this, kind);
+  const Fmt &format(const Fmt &fmt, Kind kind) const {
+    return format(fmt, *this, kind);
   }
 
 private:
   constexpr explicit Id(uint32_t val) noexcept : val_{val & 0xFFFFFF} {
   }
 
-  static const Fmt &format(const Fmt &out, Id id, Kind kind);
+  static const Fmt &format(const Fmt &fmt, Id id, Kind kind);
 
   // only 24 bits are used
   uint32_t val_;
@@ -76,8 +76,8 @@ constexpr inline bool operator!=(Id a, Id b) noexcept {
 
 constexpr const Id NOID{};
 
-inline const Fmt &operator<<(const Fmt &out, Id id) {
-  return id.format(out, Ptr);
+inline const Fmt &operator<<(const Fmt &fmt, Id id) {
+  return id.format(fmt, Ptr);
 }
 
 } // namespace onejit

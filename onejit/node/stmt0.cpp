@@ -29,8 +29,8 @@ namespace onejit {
 
 // ============================  Stmt0  ========================================
 
-const Fmt &Stmt0::format(const Fmt &out, Syntax /*syntax*/, size_t /*depth*/) const {
-  return out << op();
+const Fmt &Stmt0::format(const Fmt &fmt, Syntax /*syntax*/, size_t /*depth*/) const {
+  return fmt << op();
 }
 
 } // namespace onejit

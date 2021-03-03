@@ -37,10 +37,6 @@ namespace onestl {
 /** non-owning, read-only view of T[] */
 template <class T> class View {
 
-protected:
-  const T *data_;
-  size_t size_;
-
 public:
   typedef size_t size_type;
   typedef ptrdiff_t difference_type;
@@ -56,24 +52,10 @@ public:
   }
   constexpr View(const T *addr, size_t n) noexcept : data_(addr), size_(n) {
   }
-  // defined in span.hpp
-  constexpr View(const Span<T> &other) noexcept;
-  // defined in array.hpp
-  constexpr View(const Array<T> &other) noexcept;
 
-  // View(const View&) = default;
-  // ~View() = default;
-  // operator=(const View&) = default;
-
-  View &operator=(const Span<T> &other) noexcept {
-    ref(other);
-    return *this;
-  }
-
-  View &operator=(const Array<T> &other) noexcept {
-    ref(other);
-    return *this;
-  }
+  View(const View<T> &) = default;
+  View(View<T> &&) = default;
+  ~View() = default;
 
   constexpr size_t capacity() const noexcept {
     return size_;
@@ -85,13 +67,6 @@ public:
 
   constexpr bool empty() const noexcept {
     return size_ == 0;
-  }
-
-  // checked element access:
-  // throws if index is out of bounds
-  const T &at(size_t index) const {
-    ONESTL_BOUNDS_TINY(index, <, size_);
-    return data_[index];
   }
 
   // checked element access:
@@ -117,28 +92,9 @@ public:
     return data_ + size_;
   }
 
-  // throws if start or end are out of bounds
-  View view(size_t start, size_t end) const {
-    ONESTL_BOUNDS_TINY(start, <=, end);
-    ONESTL_BOUNDS_TINY(end, <=, size_);
-    return View(data_ + start, end - start);
-  }
-
-  void ref(const T *addr, size_t n) noexcept {
-    data_ = addr;
-    size_ = n;
-  }
-  void ref(const View<T> &other) noexcept {
-    data_ = other.data_;
-    size_ = other.size_;
-  }
-  void ref(const Span<T> &other) noexcept;
-  void ref(const Array<T> &other) noexcept;
-
-  void swap(View &other) noexcept {
-    View temp = *this;
-    *this = other;
-    other = temp;
+  // return sub-view of this view. returns View{} if start or end are out of bounds.
+  constexpr View<T> view(size_t start, size_t end) const noexcept {
+    return start <= end && end <= size_ ? View<T>{data_ + start, end - start} : View<T>{};
   }
 
   void clear() noexcept {
@@ -157,15 +113,29 @@ public:
         sizeof(value_type) == sizeof(typename VEC::value_type),
         "onestl::View<T>::operator==(VEC) mismatched sizes of value_type and VEC::value_type");
 
-    return size_ == other.size() && !std::memcmp(data(), other.data(), size_ * sizeof(value_type));
+    const void *vdata = static_cast<const void *>(data_);
+    const void *votherdata = static_cast<const void *>(other.data());
+
+    return size_ == other.size()   //
+           && (vdata == votherdata //
+               || !std::memcmp(vdata, votherdata, size_ * sizeof(value_type)));
   }
+
+protected:
+  // cannot expose assignment operator. reason: if dynamic type is Array<T>
+  // assigning from another View may replace an owned data_ with a non-owned one
+  View<T> &operator=(const View<T> &) noexcept = default;
+  View<T> &operator=(View<T> &&) noexcept = default;
+
+  static constexpr size_t min2(size_t a, size_t b) noexcept {
+    return a < b ? a : b;
+  }
+
+  const T *data_;
+  size_t size_;
 };
 
 typedef View<uint8_t> Bytes;
-
-template <class T> void swap(View<T> &left, View<T> &right) noexcept {
-  left.swap(right);
-}
 
 } // namespace onestl
 

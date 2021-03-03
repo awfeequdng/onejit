@@ -40,14 +40,14 @@ ONEJIT_NOINLINE Node Stmt4::create(Func &func, const Node &child0, const Node &c
                                {child0, child1, child2, child3});
 }
 
-const Fmt &Stmt4::format(const Fmt &out, Syntax syntax, size_t depth) const {
+const Fmt &Stmt4::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
   ++depth;
-  out << '(' << op() << ' ';
-  child(0).format(out, syntax, depth) << ' ';
-  child(1).format(out, syntax, depth) << ' ';
-  child(2).format(out, syntax, depth) << '\n' << Space{depth * 4};
-  child(3).format(out, syntax, depth) << ')';
-  return out;
+  fmt << '(' << op() << ' ';
+  child(0).format(fmt, syntax, depth) << ' ';
+  child(1).format(fmt, syntax, depth) << ' ';
+  child(2).format(fmt, syntax, depth) << '\n' << Space{depth * 4};
+  child(3).format(fmt, syntax, depth) << ')';
+  return fmt;
 }
 
 // ============================  For  =======================================

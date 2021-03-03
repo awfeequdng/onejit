@@ -31,7 +31,7 @@
 
 namespace onestl {
 
-template <> Writer Writer::make<FILE *>(FILE *out) noexcept;
+template <> Writer Writer::make<FILE *>(FILE *file) noexcept;
 
 } // namespace onestl
 

@@ -53,57 +53,57 @@ TestDisasm::~TestDisasm() noexcept {
   cs_close(&handle_);
 }
 
-const Fmt &TestDisasm::disasm(const Fmt &out, Bytes bytes) {
+const Fmt &TestDisasm::disasm(const Fmt &fmt, Bytes bytes) {
   if (err_ != CS_ERR_OK) {
-    return out << "capstone initialization error";
+    return fmt << "capstone initialization error";
   }
   cs_insn *insn = nullptr;
   size_t count = cs_disasm(handle_, bytes.data(), bytes.size(), 0x0, 0, &insn);
   if (count <= 0) {
-    return out << "capstone disassemble error";
+    return fmt << "capstone disassemble error";
   }
   for (size_t i = 0; i < count; i++) {
     if (i) {
-      out << '\n';
+      fmt << '\n';
     }
-    format(out, insn + i);
+    format(fmt, insn + i);
   }
   cs_free(insn, count);
-  return out;
+  return fmt;
 }
 
-const Fmt &TestDisasm::format(const Fmt &out, const cs_insn *insn) {
-  out << "(x86_" << Chars(cs_insn_name(handle_, insn->id));
+const Fmt &TestDisasm::format(const Fmt &fmt, const cs_insn *insn) {
+  fmt << "(x86_" << Chars(cs_insn_name(handle_, insn->id));
 
   cs_detail *detail = insn->detail;
   for (size_t i = 0, n = detail->x86.op_count; i < n; i++) {
     cs_x86_op *op = detail->x86.operands + i;
     switch (op->type) {
     case X86_OP_REG:
-      out << ' ' << Chars(cs_reg_name(handle_, op->reg));
+      fmt << ' ' << Chars(cs_reg_name(handle_, op->reg));
       break;
     case X86_OP_IMM:
-      out << ' ' << fix_immediate(insn, op->imm);
+      fmt << ' ' << fix_immediate(insn, op->imm);
       break;
     case X86_OP_MEM:
-      out << " (x86_mem" << (op->size * 8);
+      fmt << " (x86_mem" << (op->size * 8);
       if (op->mem.disp != 0) {
-        out << ' ' << op->mem.disp;
+        fmt << ' ' << op->mem.disp;
       }
       if (op->mem.base != X86_REG_INVALID) {
-        out << ' ' << Chars(cs_reg_name(handle_, op->mem.base));
+        fmt << ' ' << Chars(cs_reg_name(handle_, op->mem.base));
       }
       if (op->mem.index != X86_REG_INVALID) {
-        out << ' ' << Chars(cs_reg_name(handle_, op->mem.index));
-        out << ' ' << op->mem.scale;
+        fmt << ' ' << Chars(cs_reg_name(handle_, op->mem.index));
+        fmt << ' ' << op->mem.scale;
       }
-      out << ')';
+      fmt << ')';
       break;
     default:
       break;
     }
   }
-  return out << ')';
+  return fmt << ')';
 }
 
 static bool is_jump(cs_group_type group) noexcept {
@@ -168,9 +168,9 @@ TestDisasm::TestDisasm() noexcept : testcount_{}, err_{1} {
 TestDisasm::~TestDisasm() noexcept {
 }
 
-const Fmt &TestDisasm::disasm(const Fmt &out, Bytes bytes) {
+const Fmt &TestDisasm::disasm(const Fmt &fmt, Bytes bytes) {
   (void)bytes;
-  return out << "capstone support non compiled";
+  return fmt << "capstone support non compiled";
 }
 
 void TestDisasm::test_asm_disasm_x64(const Node &node, Assembler &assembler) {

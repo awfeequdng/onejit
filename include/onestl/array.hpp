@@ -61,7 +61,7 @@ namespace onestl {
  * Reason: references can be invalidated by one of the methods above.
  * To overwrite Array elements, use Array::set()
  */
-template <class T> class Array : protected Span<T> {
+template <class T> class Array : public Span<T> {
   static_assert(std::is_nothrow_default_constructible<T>::value,
                 "Array<T>: element type T default constructor must be nothrow");
   static_assert(std::is_trivially_copyable<T>::value,
@@ -98,10 +98,8 @@ public:
   explicit Array(size_t n) noexcept : Base{}, cap_{0} {
     init(n);
   }
+  // also catches Span<T> and Chars
   explicit Array(const View<T> &other) noexcept : Base{}, cap_{0} {
-    dup(other.data(), other.size());
-  }
-  explicit Array(const Span<T> &other) noexcept : Base{}, cap_{0} {
     dup(other.data(), other.size());
   }
   explicit Array(const Array<T> &other) noexcept : Base{}, cap_{0} {
@@ -201,18 +199,6 @@ extern template class Array<uint32_t>; // defined in onestl/array.cpp
 
 template <class T> void swap(Array<T> &left, Array<T> &right) noexcept {
   left.swap(right);
-}
-
-// ------------- View<T> methods requiring complete type Array<T> ---------------
-
-template <class T>
-constexpr View<T>::View(const Array<T> &other) noexcept //
-    : data_{other.data()}, size_{other.size()} {
-}
-
-template <class T> void View<T>::ref(const Array<T> &other) noexcept {
-  data_ = other.data();
-  size_ = other.size();
 }
 
 } // namespace onestl

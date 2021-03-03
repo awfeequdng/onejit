@@ -29,46 +29,46 @@
 
 namespace onejit {
 
-const Fmt &operator<<(const Fmt &out, const Value &value) {
+const Fmt &operator<<(const Fmt &fmt, const Value &value) {
   const Kind kind = value.kind();
   switch (kind.nosimd().val()) {
   case eVoid:
-    out << "void";
+    fmt << "void";
     break;
   case eBool:
-    out << (value.boolean() ? Chars("true") : Chars("false"));
+    fmt << (value.boolean() ? Chars("true") : Chars("false"));
     break;
   case eInt8:
   case eInt16:
   case eInt32:
   case eInt64:
-    out << value.int64();
+    fmt << value.int64();
     break;
   case eUint8:
   case eUint16:
   case eUint32:
   case eUint64:
   case eArchFlags:
-    out << value.uint64();
+    fmt << value.uint64();
     break;
   case eFloat32:
-    out << value.float32();
+    fmt << value.float32();
     break;
   case eFloat64:
-    out << value.float64();
+    fmt << value.float64();
     break;
   case ePtr:
-    out << "0x" << Hex{value.ptr()};
+    fmt << "0x" << Hex{value.ptr()};
     break;
   default:
-    out << '?';
+    fmt << '?';
     break;
   }
   const size_t n = kind.simdn().val();
   if (n > 1) {
-    out << '_' << kind.stringsuffix() << 'x' << n;
+    fmt << '_' << kind.stringsuffix() << 'x' << n;
   }
-  return out;
+  return fmt;
 }
 
 } // namespace onejit

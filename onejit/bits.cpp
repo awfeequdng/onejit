@@ -28,8 +28,8 @@
 
 namespace onejit {
 
-const Fmt &operator<<(const Fmt &out, Bits bits) {
-  return out << bits.val();
+const Fmt &operator<<(const Fmt &fmt, Bits bits) {
+  return fmt << bits.val();
 }
 
 } // namespace onejit

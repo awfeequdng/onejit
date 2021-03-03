@@ -51,8 +51,8 @@ const Chars to_string(OpStmt0 op) noexcept {
   return op_stmt_0_string[i];
 }
 
-const Fmt &operator<<(const Fmt &out, OpStmt0 op) {
-  return out << to_string(op);
+const Fmt &operator<<(const Fmt &fmt, OpStmt0 op) {
+  return fmt << to_string(op);
 }
 
 // ============================  OpStmt1  ======================================
@@ -110,8 +110,8 @@ const Chars to_string(OpStmt1 op) noexcept {
   return op_stmt_1_string[i];
 }
 
-const Fmt &operator<<(const Fmt &out, OpStmt1 op) {
-  return out << to_string(op);
+const Fmt &operator<<(const Fmt &fmt, OpStmt1 op) {
+  return fmt << to_string(op);
 }
 
 // ============================  OpStmt2  ======================================
@@ -222,8 +222,8 @@ const Chars to_string(OpStmt2 op) noexcept {
   return op_stmt_2_string[i];
 }
 
-const Fmt &operator<<(const Fmt &out, OpStmt2 op) {
-  return out << to_string(op);
+const Fmt &operator<<(const Fmt &fmt, OpStmt2 op) {
+  return fmt << to_string(op);
 }
 
 // ============================  OpStmt3  ======================================
@@ -244,8 +244,8 @@ const Chars to_string(OpStmt3 op) noexcept {
   return op_stmt_3_string[i];
 }
 
-const Fmt &operator<<(const Fmt &out, OpStmt3 op) {
-  return out << to_string(op);
+const Fmt &operator<<(const Fmt &fmt, OpStmt3 op) {
+  return fmt << to_string(op);
 }
 
 // ============================  OpStmt4  ======================================
@@ -260,8 +260,8 @@ const Chars to_string(OpStmt4 op) noexcept {
   return op_stmt_4_string[i];
 }
 
-const Fmt &operator<<(const Fmt &out, OpStmt4 op) {
-  return out << to_string(op);
+const Fmt &operator<<(const Fmt &fmt, OpStmt4 op) {
+  return fmt << to_string(op);
 }
 
 // ============================  OpStmtN  ======================================
@@ -287,8 +287,8 @@ const Chars to_string(OpStmtN op) noexcept {
   return op_stmt_n_string[i];
 }
 
-const Fmt &operator<<(const Fmt &out, OpStmtN op) {
-  return out << to_string(op);
+const Fmt &operator<<(const Fmt &fmt, OpStmtN op) {
+  return fmt << to_string(op);
 }
 
 } // namespace onejit

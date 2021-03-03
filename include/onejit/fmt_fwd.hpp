@@ -34,26 +34,26 @@ using Fmt = ::onestl::Fmt;
 using Hex = ::onestl::Hex;
 using Writer = ::onestl::Writer;
 
-const Fmt &operator<<(const Fmt &out, ArchId);
-const Fmt &operator<<(const Fmt &out, Bits);
-const Fmt &operator<<(const Fmt &out, ArchId);
-const Fmt &operator<<(const Fmt &out, eKind);
-const Fmt &operator<<(const Fmt &out, const Error &);
-const Fmt &operator<<(const Fmt &out, Group);
-const Fmt &operator<<(const Fmt &out, Kind);
-const Fmt &operator<<(const Fmt &out, Id);
-const Fmt &operator<<(const Fmt &out, Local);
-const Fmt &operator<<(const Fmt &out, const Node &);
-const Fmt &operator<<(const Fmt &out, Op1);
-const Fmt &operator<<(const Fmt &out, Op2);
-const Fmt &operator<<(const Fmt &out, OpN);
-const Fmt &operator<<(const Fmt &out, OpStmt0);
-const Fmt &operator<<(const Fmt &out, OpStmt1);
-const Fmt &operator<<(const Fmt &out, OpStmt2);
-const Fmt &operator<<(const Fmt &out, OpStmt3);
-const Fmt &operator<<(const Fmt &out, OpStmt4);
-const Fmt &operator<<(const Fmt &out, OpStmtN);
-const Fmt &operator<<(const Fmt &out, const Value &);
+const Fmt &operator<<(const Fmt &fmt, ArchId);
+const Fmt &operator<<(const Fmt &fmt, Bits);
+const Fmt &operator<<(const Fmt &fmt, ArchId);
+const Fmt &operator<<(const Fmt &fmt, eKind);
+const Fmt &operator<<(const Fmt &fmt, const Error &);
+const Fmt &operator<<(const Fmt &fmt, Group);
+const Fmt &operator<<(const Fmt &fmt, Kind);
+const Fmt &operator<<(const Fmt &fmt, Id);
+const Fmt &operator<<(const Fmt &fmt, Local);
+const Fmt &operator<<(const Fmt &fmt, const Node &);
+const Fmt &operator<<(const Fmt &fmt, Op1);
+const Fmt &operator<<(const Fmt &fmt, Op2);
+const Fmt &operator<<(const Fmt &fmt, OpN);
+const Fmt &operator<<(const Fmt &fmt, OpStmt0);
+const Fmt &operator<<(const Fmt &fmt, OpStmt1);
+const Fmt &operator<<(const Fmt &fmt, OpStmt2);
+const Fmt &operator<<(const Fmt &fmt, OpStmt3);
+const Fmt &operator<<(const Fmt &fmt, OpStmt4);
+const Fmt &operator<<(const Fmt &fmt, OpStmtN);
+const Fmt &operator<<(const Fmt &fmt, const Value &);
 
 } // namespace onejit
 

@@ -270,41 +270,41 @@ bool Node::deep_pure(Allow allow_mask) const noexcept {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const Fmt &Node::format(const Fmt &out, Syntax syntax, const size_t depth) const {
+const Fmt &Node::format(const Fmt &fmt, Syntax syntax, const size_t depth) const {
   const Type t = type();
   switch (t) {
   case STMT_0:
-    return is<Stmt0>().format(out, syntax, depth);
+    return is<Stmt0>().format(fmt, syntax, depth);
   case STMT_1:
-    return is<Stmt1>().format(out, syntax, depth);
+    return is<Stmt1>().format(fmt, syntax, depth);
   case STMT_2:
-    return is<Stmt2>().format(out, syntax, depth);
+    return is<Stmt2>().format(fmt, syntax, depth);
   case STMT_3:
-    return is<Stmt3>().format(out, syntax, depth);
+    return is<Stmt3>().format(fmt, syntax, depth);
   case STMT_4:
-    return is<Stmt4>().format(out, syntax, depth);
+    return is<Stmt4>().format(fmt, syntax, depth);
   case STMT_N:
-    return is<StmtN>().format(out, syntax, depth);
+    return is<StmtN>().format(fmt, syntax, depth);
   case VAR:
-    return is<Var>().format(out, syntax, depth);
+    return is<Var>().format(fmt, syntax, depth);
   case MEM:
-    return is<Mem>().format(out, syntax, depth);
+    return is<Mem>().format(fmt, syntax, depth);
   case UNARY:
-    return is<Unary>().format(out, syntax, depth);
+    return is<Unary>().format(fmt, syntax, depth);
   case BINARY:
-    return is<Binary>().format(out, syntax, depth);
+    return is<Binary>().format(fmt, syntax, depth);
   case TUPLE:
-    return is<Tuple>().format(out, syntax, depth);
+    return is<Tuple>().format(fmt, syntax, depth);
   case LABEL:
-    return is<Label>().format(out, syntax, depth);
+    return is<Label>().format(fmt, syntax, depth);
   case CONST:
-    return is<Const>().format(out, syntax, depth);
+    return is<Const>().format(fmt, syntax, depth);
   case FTYPE:
-    return is<FuncType>().format(out, syntax, depth);
+    return is<FuncType>().format(fmt, syntax, depth);
   case NAME:
-    return is<Name>().format(out, syntax, depth);
+    return is<Name>().format(fmt, syntax, depth);
   default:
-    return out << to_string(t);
+    return fmt << to_string(t);
   }
 }
 

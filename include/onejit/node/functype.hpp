@@ -79,7 +79,7 @@ public:
   /// \return kind of i-th result, or Bad if out-of-bounds
   Kind result(uint16_t i) const noexcept;
 
-  const Fmt &format(const Fmt &out, Syntax syntax = Syntax::Default, size_t depth = 0) const;
+  const Fmt &format(const Fmt &fmt, Syntax syntax = Syntax::Default, size_t depth = 0) const;
 
 private:
   // downcast Node to FuncType

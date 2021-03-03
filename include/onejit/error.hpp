@@ -56,9 +56,9 @@ private:
   Chars msg_;
 };
 
-const Fmt &operator<<(const Fmt &out, const Error &error);
-const Fmt &operator<<(const Fmt &out, const Errors &errors);
-const Fmt &operator<<(const Fmt &out, const CRange<Error> &errors);
+const Fmt &operator<<(const Fmt &fmt, const Error &error);
+const Fmt &operator<<(const Fmt &fmt, const Errors &errors);
+const Fmt &operator<<(const Fmt &fmt, const CRange<Error> &errors);
 
 } // namespace onejit
 

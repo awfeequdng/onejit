@@ -59,8 +59,8 @@ const Chars to_string(Type t) noexcept {
   return tstring[i];
 }
 
-const Fmt &operator<<(const Fmt &out, Type t) {
-  return out << to_string(t);
+const Fmt &operator<<(const Fmt &fmt, Type t) {
+  return fmt << to_string(t);
 }
 
 } // namespace onejit

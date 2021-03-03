@@ -126,9 +126,9 @@ const Chars to_string(Op1 op) noexcept;
 const Chars to_string(Op2 op) noexcept;
 const Chars to_string(OpN op) noexcept;
 
-const Fmt &operator<<(const Fmt &out, Op1 op);
-const Fmt &operator<<(const Fmt &out, Op2 op);
-const Fmt &operator<<(const Fmt &out, OpN op);
+const Fmt &operator<<(const Fmt &fmt, Op1 op);
+const Fmt &operator<<(const Fmt &fmt, Op2 op);
+const Fmt &operator<<(const Fmt &fmt, OpN op);
 
 } // namespace onejit
 

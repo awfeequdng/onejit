@@ -49,12 +49,6 @@ public:
   using Base::operator bool;
 
   // checked element access:
-  // throws if byte_offset is out of bounds
-  const T &at(Offset byte_offset) const {
-    return Base::at(byte_offset / sizeof(T));
-  }
-
-  // checked element access:
   // returns 0 if byte_offset is out of bounds
   T get(Offset byte_offset) const noexcept {
     return Base::operator[](byte_offset / sizeof(T));

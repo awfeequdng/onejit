@@ -44,8 +44,8 @@ const Chars &to_string(Group g) noexcept {
   return gstring[i];
 }
 
-const Fmt &operator<<(const Fmt &out, Group g) {
-  return out << to_string(g);
+const Fmt &operator<<(const Fmt &fmt, Group g) {
+  return fmt << to_string(g);
 }
 
 } // namespace onejit

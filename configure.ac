@@ -34,8 +34,8 @@ AC_CHECK_HEADERS([cerrno cstddef cstdint cstdio cstring strings.h])
 # C++ flags '-g -O2' are already tested by AC_PROG_CXX
 # C++ flags '-p -pg' are incompatible with -fomit-frame-pointer
 initial_CXXFLAGS="$CXXFLAGS"
-for try_flag in -Os -std=c++11 -fomit-frame-pointer -pipe -Wall -W -Wextra -Wshadow \
-                -Wundef -Wcast-qual -Wcast-align -Wpointer-arith -Wsign-compare
+for try_flag in -Os -std=c++11 -fomit-frame-pointer -pipe -Wall -W -Wextra -Wshadow -Wundef \
+                -Wcast-qual -Wcast-align -Wpointer-arith -Wsign-compare -Wno-type-limits
 do
   save_CXXFLAGS="$CXXFLAGS"
   CXXFLAGS="$CXXFLAGS $try_flag"

@@ -81,7 +81,9 @@ ONESTL_NOINLINE bool ArrayHelper::dup(const void *addr, size_t n, size_t sizeofT
     if (!grow_cap(n, sizeofT)) {
       return false;
     }
-    std::memcpy(data_, addr, n * sizeofT);
+    if (data_ != addr) {
+      std::memmove(data_, addr, n * sizeofT);
+    }
   }
   size_ = n;
   return true;

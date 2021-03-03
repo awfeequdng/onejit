@@ -82,8 +82,8 @@ Const MinusOne(Func &func, Kind kind) noexcept {
   return Const{func, Value{-1}.cast(kind)};
 }
 
-const Fmt &Const::format(const Fmt &out, Syntax /*syntax*/, size_t /*depth*/) const {
-  return out << imm();
+const Fmt &Const::format(const Fmt &fmt, Syntax /*syntax*/, size_t /*depth*/) const {
+  return fmt << imm();
 }
 
 } // namespace onejit

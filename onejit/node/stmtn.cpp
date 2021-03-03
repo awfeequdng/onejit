@@ -48,10 +48,10 @@ ONEJIT_NOINLINE Node StmtN::create(Func &func, const ChildRanges &children, OpSt
                                            children);
 }
 
-const Fmt &StmtN::format(const Fmt &out, Syntax syntax, size_t depth) const {
+const Fmt &StmtN::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
   const OpStmtN op = this->op();
 
-  out << '(' << op;
+  fmt << '(' << op;
   ++depth;
 
   const bool is_call = op == X86_CALL_;
@@ -59,13 +59,13 @@ const Fmt &StmtN::format(const Fmt &out, Syntax syntax, size_t depth) const {
   // if op == X86_CALL_, skip child(0) i.e. FuncType
   for (size_t i = size_t(is_call), n = children(); i < n; i++) {
     if (op == BLOCK || op == COND || op == SWITCH) {
-      out << '\n' << Space{depth * 4};
+      fmt << '\n' << Space{depth * 4};
     } else {
-      out << ' ';
+      fmt << ' ';
     }
-    child(i).format(out, syntax, depth);
+    child(i).format(fmt, syntax, depth);
   }
-  return out << ')';
+  return fmt << ')';
 }
 
 // ============================  AssignCall  ===================================

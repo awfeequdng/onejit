@@ -56,8 +56,8 @@ Chars Name::chars() const noexcept {
   return Chars{};
 }
 
-const Fmt &Name::format(const Fmt &out, Syntax /*syntax*/, size_t /*depth*/) const {
-  return out << '"' << chars() << '"';
+const Fmt &Name::format(const Fmt &fmt, Syntax /*syntax*/, size_t /*depth*/) const {
+  return fmt << '"' << chars() << '"';
 }
 
 } // namespace onejit

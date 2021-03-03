@@ -63,7 +63,7 @@ uint32_t to_children(Type t) noexcept;
 
 const Chars to_string(Type t) noexcept;
 
-const Fmt &operator<<(const Fmt &out, Type t);
+const Fmt &operator<<(const Fmt &fmt, Type t);
 
 } // namespace onejit
 

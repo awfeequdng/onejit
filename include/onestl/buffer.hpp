@@ -50,12 +50,6 @@ public:
   }
   explicit Buffer(const View<T> &other) noexcept : Base{}, good_{Base::dup(other)} {
   }
-  explicit Buffer(const Span<T> &other) noexcept : Base{}, good_{Base::dup(other)} {
-  }
-  explicit Buffer(const Array<T> &other) noexcept : Base{}, good_{Base::dup(other)} {
-  }
-  explicit Buffer(const Buffer<T> &other) noexcept : Base{}, good_{Base::dup(other)} {
-  }
   Buffer(Buffer<T> &&other) noexcept : Base{}, good_{true} {
     swap(other);
   }

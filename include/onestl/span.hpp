@@ -30,15 +30,9 @@
 namespace onestl {
 
 /** non-owning, read-write span of T[] */
-template <class T> class Span : protected View<T> {
+template <class T> class Span : public View<T> {
 private:
   typedef View<T> Base;
-
-  template <class T2> friend class CRange;
-
-protected:
-  using Base::data_;
-  using Base::size_;
 
 public:
   typedef size_t size_type;
@@ -55,19 +49,11 @@ public:
   }
   constexpr Span(T *addr, size_t n) noexcept : Base{addr, n} {
   }
-  constexpr Span(Array<T> &other) noexcept : Base{other} {
-  }
 
-  // Span(const Span&) = default;
-  // ~Span() = default;
-  // operator=(const Span&) = default;
+  Span(const Span<T> &) = default;
+  Span(Span<T> &&) = default;
+  ~Span() = default;
 
-  Span &operator=(Array<T> &other) noexcept {
-    ref(other);
-    return *this;
-  }
-
-  using Base::at;
   using Base::begin;
   using Base::capacity;
   using Base::data;
@@ -85,15 +71,8 @@ public:
   }
 
   // checked element access:
-  // throws if index is out of bounds
-  T &at(size_t index) {
-    ONESTL_BOUNDS_TINY(index, <, size_);
-    return data()[index];
-  }
-
-  // checked element access:
   // set i-th element, or do nothing if index is out of bounds
-  void set(size_t index, T elem) noexcept(std::is_nothrow_move_assignable<T>::value) {
+  void set(size_t index, T elem) noexcept(noexcept(elem = std::move(elem))) {
     if (index < size_) {
       data()[index] = std::move(elem);
     }
@@ -123,55 +102,34 @@ public:
     return data() + size_;
   }
 
-  // throws if start or end are out of bounds
-  Span<T> span(size_t start, size_t end) {
-    ONESTL_BOUNDS_TINY(start, <=, end);
-    ONESTL_BOUNDS_TINY(end, <=, size_);
-    return Span<T>(data() + start, end - start);
+  // return a sub-span of this Span. returns Span{} if start or end are out of bounds.
+  /*constexpr*/ Span<T> span(size_t start, size_t end) noexcept {
+    return Span<T>{Base::view(start, end)};
   }
 
-  // throws if this and src have different sizes.
-  void copy(View<T> src) {
-    ONESTL_BOUNDS_TINY(src.size(), ==, size());
+  // copy elements from src to this.
+  // number of copied elements is the minimum between size() and src.size()
+  void copy(View<T> src) noexcept {
     if (data() != src.data()) {
-      std::memcpy(data(), src.data(), size() * sizeof(T));
+      const size_t n = min2(size(), src.size());
+      std::memmove(data(), src.data(), n * sizeof(T));
     }
   }
 
-  void swap(Span &other) noexcept {
-    Span temp = *this;
-    *this = other;
-    other = temp;
+protected:
+  // cannot expose assignment operator. reason: if dynamic type is Array<T>
+  // assigning from another Span may replace an owned data_ with a non-owned one
+  Span<T> &operator=(const Span<T> &) noexcept = default;
+  Span<T> &operator=(Span<T> &&) noexcept = default;
+
+  // used *only* by span(start, end)
+  constexpr explicit Span(const View<T> &other) noexcept : Base{other} {
   }
 
-  void ref(T *addr, size_t n) noexcept {
-    data_ = addr;
-    size_ = n;
-  }
-  void ref(Span<T> &other) noexcept {
-    data_ = other.data_;
-    size_ = other.size_;
-  }
-  void ref(Array<T> &other) noexcept {
-    Base::ref(other);
-  }
+  using Base::data_;
+  using Base::min2;
+  using Base::size_;
 };
-
-template <class T> void swap(Span<T> &left, Span<T> &right) noexcept {
-  left.swap(right);
-}
-
-// ------------- View<T> methods requiring complete type Span<T> ---------------
-
-template <class T>
-constexpr View<T>::View(const Span<T> &other) noexcept //
-    : data_{other.data()}, size_{other.size()} {
-}
-
-template <class T> void View<T>::ref(const Span<T> &other) noexcept {
-  data_ = other.data();
-  size_ = other.size();
-}
 
 } // namespace onestl
 

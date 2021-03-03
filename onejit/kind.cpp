@@ -94,13 +94,13 @@ Group Kind::group() const noexcept {
   return kgroup[i];
 }
 
-const Fmt &operator<<(const Fmt &out, Kind kind) {
-  out << kind.string();
+const Fmt &operator<<(const Fmt &fmt, Kind kind) {
+  fmt << kind.string();
   const size_t n = kind.simdn().val();
   if (n != 1) {
-    out << 'x' << n;
+    fmt << 'x' << n;
   }
-  return out;
+  return fmt;
 }
 
 } // namespace onejit

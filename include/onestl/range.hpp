@@ -57,15 +57,10 @@ public:
 
   constexpr explicit Range(Span<T> *span) noexcept : Base{span} {
   }
-  constexpr explicit Range(Array<T> *arr) noexcept : Base{arr} {
-  }
   // constexpr Range(const Range<T> &range) noexcept = default;
 
   constexpr Range(Span<T> *span, size_t a_start, size_t a_size) noexcept
       : Base{span, a_start, a_size} {
-  }
-  constexpr Range(Array<T> *arr, size_t a_start, size_t a_size) noexcept
-      : Base{arr, a_start, a_size} {
   }
   constexpr Range(const Range<T> &range, size_t a_start, size_t a_size) noexcept //
       : Base{range.impl_, range.start_ + a_start, a_size} {

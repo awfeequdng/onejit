@@ -147,7 +147,7 @@ constexpr const Bits Bits16{eBits16};
 constexpr const Bits Bits32{eBits32};
 constexpr const Bits Bits64{eBits64};
 
-const Fmt &operator<<(const Fmt &out, Bits bits);
+const Fmt &operator<<(const Fmt &fmt, Bits bits);
 
 } // namespace onejit
 

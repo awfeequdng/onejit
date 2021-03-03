@@ -221,16 +221,16 @@ Expr Compiler::simplify_land(Expr x, Expr y) noexcept {
     return Expr{}; // no simplification
   }
   Var dst{*func_, Bool};
-  Label out{*func_};
+  Label label{*func_};
   if (x.type() == BINARY && is_comparison(Op2(x.op()))) {
     add(Assign{*func_, ASSIGN, dst, FalseExpr});
-    compile_add(JumpIf{*func_, out, Unary{*func_, NOT1, x}}, SimplifyDefault);
+    compile_add(JumpIf{*func_, label, Unary{*func_, NOT1, x}}, SimplifyDefault);
   } else {
     add(Assign{*func_, ASSIGN, dst, x});
-    compile_add(JumpIf{*func_, out, Unary{*func_, NOT1, dst}}, SimplifyDefault);
+    compile_add(JumpIf{*func_, label, Unary{*func_, NOT1, dst}}, SimplifyDefault);
   }
   compile_add(Assign{*func_, ASSIGN, dst, y}, SimplifyDefault);
-  add(out);
+  add(label);
   return dst;
 }
 
@@ -250,16 +250,16 @@ Expr Compiler::simplify_lor(Expr x, Expr y) noexcept {
     return Expr{}; // no simplification
   }
   Var dst{*func_, Bool};
-  Label out{*func_};
+  Label label{*func_};
   if (x.type() == BINARY && is_comparison(Op2(x.op()))) {
     add(Assign{*func_, ASSIGN, dst, TrueExpr});
-    compile_add(JumpIf{*func_, out, x}, SimplifyDefault);
+    compile_add(JumpIf{*func_, label, x}, SimplifyDefault);
   } else {
     add(Assign{*func_, ASSIGN, dst, x});
-    compile_add(JumpIf{*func_, out, dst}, SimplifyDefault);
+    compile_add(JumpIf{*func_, label, dst}, SimplifyDefault);
   }
   compile_add(Assign{*func_, ASSIGN, dst, y}, SimplifyDefault);
-  add(out);
+  add(label);
   return dst;
 }
 

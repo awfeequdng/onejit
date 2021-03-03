@@ -111,8 +111,8 @@ constexpr const Scale Scale2{eScale2};
 constexpr const Scale Scale4{eScale4};
 constexpr const Scale Scale8{eScale8}; // x86_64 only
 
-const Fmt &operator<<(const Fmt &out, eScale escale);
-const Fmt &operator<<(const Fmt &out, Scale scale);
+const Fmt &operator<<(const Fmt &fmt, eScale escale);
+const Fmt &operator<<(const Fmt &fmt, Scale scale);
 
 } // namespace x64
 } // namespace onejit

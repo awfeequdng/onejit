@@ -34,18 +34,18 @@ static const Chars str = "                                                      
                          "                                                                "
                          "                                                                ";
 
-const Fmt &operator<<(const Fmt &out, Space space) {
+const Fmt &operator<<(const Fmt &fmt, Space space) {
   const size_t n = str.size();
   size_t left = space.size();
 
   while (left >= n) {
-    out << str;
+    fmt << str;
     left -= n;
   }
   if (left) {
-    out << str.view(0, left);
+    fmt << str.view(0, left);
   }
-  return out;
+  return fmt;
 }
 
 } // namespace onejit

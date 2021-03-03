@@ -44,7 +44,7 @@ enum ArchId : uint8_t {
 
 Chars to_string(ArchId a) noexcept;
 
-const Fmt &operator<<(const Fmt &out, ArchId archid);
+const Fmt &operator<<(const Fmt &fmt, ArchId archid);
 
 } // namespace onejit
 

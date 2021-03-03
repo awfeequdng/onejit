@@ -38,12 +38,12 @@ ONEJIT_NOINLINE Node Stmt2::create(Func &func, Node child0, Node child1, OpStmt2
                                {child0, child1});
 }
 
-const Fmt &Stmt2::format(const Fmt &out, Syntax syntax, size_t depth) const {
-  out << '(' << op() << ' ';
+const Fmt &Stmt2::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
+  fmt << '(' << op() << ' ';
   if (op() != DEFAULT) {
-    child(0).format(out, syntax, depth + 1) << ' ';
+    child(0).format(fmt, syntax, depth + 1) << ' ';
   }
-  return child(1).format(out, syntax, depth + 1) << ')';
+  return child(1).format(fmt, syntax, depth + 1) << ')';
 }
 
 // ============================  Assign  ===================================
