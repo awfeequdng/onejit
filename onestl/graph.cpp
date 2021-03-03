@@ -35,7 +35,7 @@ bool Graph::reset(size_t nodes) noexcept {
   size_t oldn = degree_.size();
   if (degree_.resize(nodes)) {
     if (bits_.resize(nodes * nodes)) {
-      bits_.fill(0, bits_.size(), false);
+      bits_.fill(false);
       std::memset(degree_.data(), '\0', nodes * sizeof(Degree));
       return true;
     }

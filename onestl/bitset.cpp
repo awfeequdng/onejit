@@ -92,6 +92,8 @@ static unsigned find_first_set(unsigned long i) noexcept {
 }
 #endif // !HAVE_FFSL
 
+////////////////////////////////////////////////////////////////////////////////
+
 BitSet::BitSet(BitSet &&other) noexcept //
     : data_(other.data_), size_(other.size_), cap_(other.cap_) {
   other.data_ = NULL;
@@ -145,7 +147,30 @@ BitSet::Index BitSet::first_set(Index start, Index end) const noexcept {
   return NoPos;
 }
 
-void BitSet::fill(Index start, Index end, bool value) noexcept {
+BitSet::Index BitSet::first_unset(Index start, Index end) const noexcept {
+  if (end > size_) {
+    end = size_;
+  }
+  if (start < end) {
+    T bits = ~data_[start / bitsPerT] >> (start % bitsPerT);
+    if (bits) {
+      start += find_first_set(bits) - 1;
+      return start < end ? start : NoPos;
+    }
+    start = bitsPerT + start / bitsPerT * bitsPerT;
+    while (start < end) {
+      bits = ~data_[start / bitsPerT];
+      if (bits) {
+        start |= find_first_set(bits) - 1;
+        return start < end ? start : NoPos;
+      }
+      start += bitsPerT;
+    }
+  }
+  return NoPos;
+}
+
+void BitSet::fill(bool value, Index start, Index end) noexcept {
   if (end > size_) {
     end = size_;
   }
@@ -211,7 +236,7 @@ bool BitSet::grow(size_t newsize, bool zerofill) noexcept {
   const size_t oldsize = size_;
   size_ = newsize;
   if (zerofill && newsize > oldsize) {
-    fill(oldsize, newsize, false);
+    fill(false, oldsize, newsize);
   }
   return true;
 }

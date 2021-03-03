@@ -40,8 +40,13 @@ public:
   using Reg = Degree;
   using Color = Degree;
 
+  struct Pair {
+    Reg reg;
+    Color color;
+  };
+
   enum : Reg { NoReg = Reg(-1) };
-  enum : Color { UnsetColor = Color(-1), NoColor = Color(-2) };
+  enum : Color { NoColor = Color(-1) };
 
   RegAllocator() noexcept;
   explicit RegAllocator(size_t num_regs) noexcept;
@@ -69,8 +74,8 @@ public:
   void allocate_regs(Color num_colors) noexcept;
 
 private:
-  // fill colors_ with UnsetColor
-  void unset_colors() noexcept;
+  // called by allocate_regs()
+  void init() noexcept;
 
   // find a register in g_ with degree less than specified degree
   Reg find_degree_less_than(Degree degree) const noexcept;
@@ -78,9 +83,14 @@ private:
   // pick a register in g_ to be spilled
   Reg pick() const noexcept;
 
+  // pop registers from stack_ and color them
+  // in the lowest color not used by some neighbor
+  void assign_colors() noexcept;
+
   Graph g_;
   Graph g2_;
-  Array<Color> colors_;
+  Array<Pair> stack_;
+  BitSet colors_;
 
 }; // class RegAllocator
 

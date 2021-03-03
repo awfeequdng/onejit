@@ -112,8 +112,12 @@ public:
   // return NoPos if all bits in such range are zero
   Index first_set(Index start = 0, Index end = NoPos) const noexcept;
 
-  // set or clear all bits from start to end.
-  void fill(Index start, Index end, bool value) noexcept;
+  // return index of first zero bit between 'start' and 'end'-1
+  // return NoPos if all bits in such range are non-zero
+  Index first_unset(Index start = 0, Index end = NoPos) const noexcept;
+
+  // set or clear all bits between 'start' and 'end'-1
+  void fill(bool value, Index start = 0, Index end = NoPos) noexcept;
 
   // resize bitset, changing its size.
   // return false if out of memory.

@@ -39,7 +39,7 @@ void Test::stl_bitset() {
   }
   TEST(s[n], ==, false); // test out of bounds [n]
 
-  s.fill(lo = 3, hi = n - 3, true);
+  s.fill(true, lo = 3, hi = n - 3);
   for (i = 0; i < lo; i++) {
     TEST(s[i], ==, false);
     TEST(s.first_set(i), ==, lo);
