@@ -62,6 +62,7 @@ private:
   void optimize();
   void optimize_expr_kind(Kind kind);
   void optimize_assign_kind(Kind kind);
+  void regallocator();
 
   void compile(Func &func);
 

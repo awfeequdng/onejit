@@ -35,15 +35,22 @@ namespace onestl {
 class Graph {
 
 public:
+  // the following three typedefs are guaranteed to be the same type
   typedef uint32_t Degree;
-  typedef size_t Node;
-  enum : size_t { NoPos = BitSet::NoPos };
+  typedef uint32_t Node;
+  typedef uint32_t Size;
+
+  enum : Size {
+    // be careful: Graph::NoPos is uint32_t(-1),
+    // while BitSet::NoPos is size_t(-1)
+    NoPos = Size(-1),
+  };
 
   constexpr Graph() noexcept : bits_(), degree_() {
   }
 
-  explicit Graph(size_t nodes) noexcept //
-      : bits_(nodes * nodes), degree_(nodes) {
+  explicit Graph(Size size) noexcept //
+      : bits_(size_t(size) * size), degree_(size) {
   }
 
   Graph(const Graph &other) = delete;
@@ -57,12 +64,12 @@ public:
     return *this;
   }
 
-  constexpr size_t size() const noexcept {
+  constexpr Size size() const noexcept {
     return degree_.size();
   }
 
   // resize Graph and remove all edges
-  bool reset(size_t nodes) noexcept;
+  bool reset(Size size) noexcept;
 
   // return true if nodes a and b are connected, otherwise false.
   // return false also if a or b are out of bounds

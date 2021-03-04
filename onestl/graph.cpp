@@ -31,12 +31,13 @@ namespace onestl {
 Graph::~Graph() noexcept {
 }
 
-bool Graph::reset(size_t nodes) noexcept {
+bool Graph::reset(Size nodes) noexcept {
+  size_t newn = nodes;
   size_t oldn = degree_.size();
-  if (degree_.resize(nodes)) {
-    if (bits_.resize(nodes * nodes)) {
+  if (degree_.resize(newn)) {
+    if (bits_.resize(newn * newn)) {
       bits_.fill(false);
-      std::memset(degree_.data(), '\0', nodes * sizeof(Degree));
+      std::memset(degree_.data(), '\0', newn * sizeof(Degree));
       return true;
     }
     degree_.resize(oldn);
@@ -48,7 +49,7 @@ bool Graph::operator()(Node a, Node b) const noexcept {
   if (a < b) {
     mem::swap(a, b);
   }
-  const size_t n = size();
+  const Size n = size();
   if (a >= n) {
     return false;
   }
@@ -59,7 +60,7 @@ void Graph::set(Node a, Node b, bool value) noexcept {
   if (a < b) {
     mem::swap(a, b);
   }
-  const size_t n = size();
+  const size_t n = size(); // not Size, "* n" below could overflow
   if (a < n) {
     size_t offset = a + b * n;
     bool prev = bits_[offset];
@@ -76,14 +77,15 @@ void Graph::set(Node a, Node b, bool value) noexcept {
 }
 
 Graph::Node Graph::first_set(Node node, Node first_neighbor) const noexcept {
-  size_t n = size();
+  size_t n = size(); // not Size, "* n" below could overflow
   if (first_neighbor >= n || degree(node) == 0) {
     // degree(node) == 0 also catches node >= n
     return NoPos;
   }
   size_t y_offset = node * n;
-  size_t offset = bits_.first_set(y_offset + first_neighbor, y_offset + n);
-  if (offset != NoPos) {
+  size_t offset = bits_.find(true, y_offset + first_neighbor, y_offset + n);
+  // NoPos is uint32_t(-1), while BitSet::NoPos is size_t(-1)
+  if (offset != BitSet::NoPos) {
     offset -= y_offset;
   }
   return offset;

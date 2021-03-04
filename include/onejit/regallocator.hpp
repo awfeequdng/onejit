@@ -37,19 +37,15 @@ class RegAllocator {
 
 public:
   using Degree = Graph::Degree;
-  using Reg = Degree;
-  using Color = Degree;
+  using Reg = Graph::Node;
+  using Size = Graph::Size;
+  using Color = Reg;
 
-  struct Pair {
-    Reg reg;
-    Color color;
-  };
-
-  enum : Reg { NoReg = Reg(-1) };
-  enum : Color { NoColor = Color(-1) };
+  enum : Reg { NoReg = Graph::NoPos };
+  enum : Color { NoColor = Graph::NoPos };
 
   RegAllocator() noexcept;
-  explicit RegAllocator(size_t num_regs) noexcept;
+  explicit RegAllocator(Size num_regs) noexcept;
 
   RegAllocator(RegAllocator &&other) = default;
   RegAllocator(const RegAllocator &other) = delete;
@@ -59,7 +55,7 @@ public:
   // reset RegAllocator and reinitialize it
   // for a (possibly) different number of registers.
   // return false if out of memory.
-  bool reset(size_t num_regs) noexcept;
+  bool reset(Size num_regs) noexcept;
 
   Graph &graph() {
     return g_;
@@ -70,10 +66,19 @@ public:
   }
 
   // choose a color for each Reg present in graph()
-  // spilled Regs will have color >= num_colors
   void allocate_regs(Color num_colors) noexcept;
 
+  // return colors chosen by allocate_regs()
+  // spilled Regs will have color >= num_colors
+  constexpr View<Color> get_colors() const noexcept {
+    return colors_;
+  }
+
 private:
+  constexpr Size size() const noexcept {
+    return g_.size();
+  }
+
   // called by allocate_regs()
   void init() noexcept;
 
@@ -89,8 +94,9 @@ private:
 
   Graph g_;
   Graph g2_;
-  Array<Pair> stack_;
-  BitSet colors_;
+  Array<Reg> stack_;
+  Array<Color> colors_;
+  BitSet avail_colors_;
 
 }; // class RegAllocator
 

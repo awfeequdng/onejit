@@ -124,42 +124,20 @@ void BitSet::set(Index index, bool value) noexcept {
   ref = (ref & keepmask) | (pattern & fillmask);
 }
 
-BitSet::Index BitSet::first_set(Index start, Index end) const noexcept {
+BitSet::Index BitSet::find(bool value, Index start, Index end) const noexcept {
   if (end > size_) {
     end = size_;
   }
   if (start < end) {
-    T bits = data_[start / bitsPerT] >> (start % bitsPerT);
+    const T xor_pattern = T(value) - 1; // 0 or 0xff..ff
+    T bits = xor_pattern ^ (data_[start / bitsPerT] >> (start % bitsPerT));
     if (bits) {
       start += find_first_set(bits) - 1;
       return start < end ? start : NoPos;
     }
     start = bitsPerT + start / bitsPerT * bitsPerT;
     while (start < end) {
-      bits = data_[start / bitsPerT];
-      if (bits) {
-        start |= find_first_set(bits) - 1;
-        return start < end ? start : NoPos;
-      }
-      start += bitsPerT;
-    }
-  }
-  return NoPos;
-}
-
-BitSet::Index BitSet::first_unset(Index start, Index end) const noexcept {
-  if (end > size_) {
-    end = size_;
-  }
-  if (start < end) {
-    T bits = ~data_[start / bitsPerT] >> (start % bitsPerT);
-    if (bits) {
-      start += find_first_set(bits) - 1;
-      return start < end ? start : NoPos;
-    }
-    start = bitsPerT + start / bitsPerT * bitsPerT;
-    while (start < end) {
-      bits = ~data_[start / bitsPerT];
+      bits = xor_pattern ^ data_[start / bitsPerT];
       if (bits) {
         start |= find_first_set(bits) - 1;
         return start < end ? start : NoPos;
