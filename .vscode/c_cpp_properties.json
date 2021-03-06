@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/include/capstone"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c99",
+            "intelliSenseMode": "linux-gcc-x64",
+            "cppStandard": "c++11"
+        }
+    ],
+    "version": 4
+}
