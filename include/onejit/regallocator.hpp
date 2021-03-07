@@ -65,6 +65,11 @@ public:
     return g_;
   }
 
+  // enable hints and store preferred Reg->Color into them.
+  // Note: hints are disabled in newly-constructed instances,
+  // and reset() disables them too.
+  void add_hint(Reg reg, Color color) noexcept;
+
   // choose a color for each Reg present in graph()
   void allocate_regs(Color num_colors) noexcept;
 
@@ -90,12 +95,16 @@ private:
 
   // pop registers from stack_ and color them
   // in the lowest color not used by some neighbor
-  void assign_colors() noexcept;
+  void assign_colors(Color num_colors) noexcept;
 
-  Graph g_;
-  Graph g2_;
+  // try to find an alternate color for Reg that satisfies hints
+  Color try_satisfy_hints(Reg reg) noexcept;
+
+  Graph g_;  // index is reg
+  Graph g2_; // index is reg
   Array<Reg> stack_;
-  Array<Color> colors_;
+  Array<Color> hints_;  // index is reg
+  Array<Color> colors_; // index is reg
   BitSet avail_colors_;
 
 }; // class RegAllocator

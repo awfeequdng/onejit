@@ -116,6 +116,14 @@ public:
     }
   }
 
+  // set all elements to 'value'
+  void fill(T value) noexcept(noexcept(value = value)) {
+    T *addr = data();
+    for (size_t i = 0, n = size_; i < n; i++) {
+      addr[i] = value;
+    }
+  }
+
 protected:
   // cannot expose assignment operator. reason: if dynamic type is Array<T>
   // assigning from another Span may replace an owned data_ with a non-owned one

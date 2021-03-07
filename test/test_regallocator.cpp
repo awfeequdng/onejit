@@ -100,6 +100,14 @@ void Test::regallocator() {
   run_allocator(result, allocator, Color(6));
   expected = "3 2 5 1 0 4 3 2 1 0 ";
   TEST(result, ==, expected);
+
+  // test hints
+  allocator.add_hint(Reg(0), Color(0));
+  allocator.add_hint(Reg(1), Color(1));
+  allocator.add_hint(Reg(3), Color(2));
+  run_allocator(result, allocator, Color(5));
+  expected = "0 1 5 2 4 3 1 0 4 2 ";
+  TEST(result, ==, expected);
 }
 
 } // namespace onejit

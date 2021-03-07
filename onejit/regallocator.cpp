@@ -30,17 +30,28 @@ namespace onejit {
 RegAllocator::RegAllocator() noexcept : g_{}, g2_{}, stack_{}, colors_{} {
 }
 
-RegAllocator::RegAllocator(Size num_regs) noexcept //
-    : g_{num_regs}, g2_{num_regs}, stack_{num_regs}, colors_{num_regs}, avail_colors_{num_regs} {
+RegAllocator::RegAllocator(Size num_regs) noexcept   //
+    : g_{num_regs}, g2_{num_regs}, stack_{num_regs}, //
+      hints_{}, colors_{num_regs}, avail_colors_{num_regs} {
+  hints_.reserve(num_regs);
 }
 
 RegAllocator::~RegAllocator() noexcept {
 }
 
 bool RegAllocator::reset(Size num_regs) noexcept {
+  hints_.clear();
   return g_.reset(num_regs) && g2_.reset(num_regs)              //
-         && stack_.resize(num_regs) && colors_.resize(num_regs) //
-         && avail_colors_.resize(num_regs);
+         && stack_.resize(num_regs) && hints_.reserve(num_regs) //
+         && colors_.resize(num_regs) && avail_colors_.resize(num_regs);
+}
+
+void RegAllocator::add_hint(Reg reg, Color color) noexcept {
+  if (!hints_) {
+    hints_.resize(size()); // cannot fail
+    hints_.fill(NoColor);
+  }
+  hints_.set(reg, color);
 }
 
 void RegAllocator::allocate_regs(Color num_colors) noexcept {
@@ -57,7 +68,7 @@ void RegAllocator::allocate_regs(Color num_colors) noexcept {
     stack_.append(reg); // cannot fail
     g_.remove(reg);
   }
-  assign_colors();
+  assign_colors(num_colors);
 }
 
 void RegAllocator::init() noexcept {
@@ -96,7 +107,7 @@ RegAllocator::Reg RegAllocator::pick() const noexcept {
   return reg;
 }
 
-void RegAllocator::assign_colors() noexcept {
+void RegAllocator::assign_colors(Color num_colors) noexcept {
   for (Size n = stack_.size(), i = n; i != 0; i--) {
     Reg reg = stack_[i - 1];
 
@@ -121,8 +132,35 @@ void RegAllocator::assign_colors() noexcept {
 
     // use lowest available color. it may be >= num_colors i.e. spilled
     Color color = avail_colors_.find(true);
+    if (hints_) {
+      Color alt_color = try_satisfy_hints(reg);
+      if (alt_color != NoColor && (alt_color < num_colors || color >= num_colors)) {
+        color = alt_color;
+      }
+    }
     colors_.set(reg, color);
   }
+}
+
+RegAllocator::Color RegAllocator::try_satisfy_hints(Reg reg) noexcept {
+  Color hint_color = hints_[reg];
+  // if a hint for this reg is present, try to honor it
+  if (hint_color != NoColor && avail_colors_[hint_color]) {
+    return hint_color;
+  }
+
+  // if a hint for a connected reg is present, try not to clobber it
+  Reg neighbor = 0;
+  while ((neighbor = g2_.first_set(reg, neighbor)) != NoReg) {
+    if (colors_[neighbor] == NoColor) {
+      Color hint_neighbor_color = hints_[neighbor];
+      if (hint_neighbor_color != NoColor) {
+        avail_colors_.set(hint_neighbor_color, false);
+      }
+    }
+    ++neighbor;
+  }
+  return avail_colors_.find(true);
 }
 
 } // namespace onejit
