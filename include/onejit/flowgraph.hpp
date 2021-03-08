@@ -40,11 +40,14 @@ public:
   ~FlowGraph() noexcept;
 
   // return false if out of memory
-  bool compute(Nodes nodes) noexcept;
+  bool compute(const Nodes *nodes) noexcept;
 
 private:
+  static bool is_label(Node node) noexcept;
+  static bool is_jump(Node node) noexcept;
+
   Array<BasicBlock> bb_;
-  Array<BasicBlock *> jump_;
+  Array<BasicBlock *> link_;
 
 }; // class FlowGraph
 
