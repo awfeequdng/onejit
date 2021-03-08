@@ -17,38 +17,46 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * liveness.hpp
+ * basicblock.hpp
  *
  *  Created on Mar 08, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_REG_LIVENESS_HPP
-#define ONEJIT_REG_LIVENESS_HPP
+#ifndef ONEJIT_BASICBLOCK_HPP
+#define ONEJIT_BASICBLOCK_HPP
 
 #include <onejit/fwd.hpp>
-#include <onestl/bitset.hpp>
+#include <onestl/crange.hpp>
 
 namespace onejit {
-namespace reg {
 
-// perform register liveness analysis
-class Liveness {
+// range of nodes without internal labels or jumps:
+// labels can only be at the beginning, and jumps can only be at the end
+// => a BasicBlock execution is always sequential, from first to last node
+class BasicBlock : public CRange<Node> {
+  using Base = CRange<Node>;
 
 public:
-  Liveness() noexcept;
+  constexpr BasicBlock() noexcept : Base{}, prev_{}, next_{} {
+  }
 
-  Liveness(Liveness &&) = default;
-  Liveness(const Liveness &) = delete;
+  constexpr explicit BasicBlock(const Nodes *nodes) noexcept : Base{nodes}, prev_{}, next_{} {
+  }
 
-  ~Liveness() noexcept;
+  constexpr BasicBlock(const Nodes *nodes, size_t a_start, size_t a_size) noexcept
+      : Base{nodes, a_start, a_size}, prev_{}, next_{} {
+  }
 
-  Liveness &operator=(Liveness &&) = default;
-  Liveness &operator=(const Liveness &) = delete;
+  // redundant
+  // ~BasicBlock() noexcept = default;
 
-}; // class Liveness
+private:
+  CRange<BasicBlock *> prev_; // predecessors
+  CRange<BasicBlock *> next_; // successors
 
-} // namespace reg
+}; // class BasicBlock
+
 } // namespace onejit
 
-#endif // ONEJIT_REG_LIVENESS_HPP
+#endif // ONEJIT_BASICBLOCK_HPP

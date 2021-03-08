@@ -17,38 +17,25 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * liveness.hpp
+ * flowgraph.cpp
  *
  *  Created on Mar 08, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_REG_LIVENESS_HPP
-#define ONEJIT_REG_LIVENESS_HPP
-
-#include <onejit/fwd.hpp>
-#include <onestl/bitset.hpp>
+#include <onejit/flowgraph.hpp>
+#include <onejit/node.hpp>
 
 namespace onejit {
-namespace reg {
 
-// perform register liveness analysis
-class Liveness {
+FlowGraph::FlowGraph() noexcept : bb_{}, jump_{} {
+}
 
-public:
-  Liveness() noexcept;
+FlowGraph::~FlowGraph() noexcept {
+}
 
-  Liveness(Liveness &&) = default;
-  Liveness(const Liveness &) = delete;
+bool compute(Nodes nodes) noexcept {
+  return bool(nodes);
+}
 
-  ~Liveness() noexcept;
-
-  Liveness &operator=(Liveness &&) = default;
-  Liveness &operator=(const Liveness &) = delete;
-
-}; // class Liveness
-
-} // namespace reg
 } // namespace onejit
-
-#endif // ONEJIT_REG_LIVENESS_HPP

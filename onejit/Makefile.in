@@ -108,13 +108,14 @@ am__dirstamp = $(am__leading_dot)dirstamp
 am_libonejit_a_OBJECTS = archid.$(OBJEXT) assembler.$(OBJEXT) \
 	bits.$(OBJEXT) code.$(OBJEXT) codeparser.$(OBJEXT) \
 	compiler.$(OBJEXT) imm.$(OBJEXT) error.$(OBJEXT) \
-	eval.$(OBJEXT) func.$(OBJEXT) group.$(OBJEXT) id.$(OBJEXT) \
-	kind.$(OBJEXT) op.$(OBJEXT) opstmt.$(OBJEXT) \
-	optimizer.$(OBJEXT) optimizer_binary.$(OBJEXT) \
-	optimizer_tuple.$(OBJEXT) space.$(OBJEXT) type.$(OBJEXT) \
-	value.$(OBJEXT) value_fmt.$(OBJEXT) node/binary.$(OBJEXT) \
-	node/call.$(OBJEXT) node/childrange.$(OBJEXT) \
-	node/comma.$(OBJEXT) node/const.$(OBJEXT) node/expr.$(OBJEXT) \
+	eval.$(OBJEXT) flowgraph.$(OBJEXT) func.$(OBJEXT) \
+	group.$(OBJEXT) id.$(OBJEXT) kind.$(OBJEXT) op.$(OBJEXT) \
+	opstmt.$(OBJEXT) optimizer.$(OBJEXT) \
+	optimizer_binary.$(OBJEXT) optimizer_tuple.$(OBJEXT) \
+	space.$(OBJEXT) type.$(OBJEXT) value.$(OBJEXT) \
+	value_fmt.$(OBJEXT) node/binary.$(OBJEXT) node/call.$(OBJEXT) \
+	node/childrange.$(OBJEXT) node/comma.$(OBJEXT) \
+	node/const.$(OBJEXT) node/expr.$(OBJEXT) \
 	node/functype.$(OBJEXT) node/label.$(OBJEXT) \
 	node/mem.$(OBJEXT) node/name.$(OBJEXT) node/node.$(OBJEXT) \
 	node/nodeheader.$(OBJEXT) node/stmt0.$(OBJEXT) \
@@ -146,7 +147,8 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/assembler.Po \
 	./$(DEPDIR)/bits.Po ./$(DEPDIR)/code.Po \
 	./$(DEPDIR)/codeparser.Po ./$(DEPDIR)/compiler.Po \
-	./$(DEPDIR)/error.Po ./$(DEPDIR)/eval.Po ./$(DEPDIR)/func.Po \
+	./$(DEPDIR)/error.Po ./$(DEPDIR)/eval.Po \
+	./$(DEPDIR)/flowgraph.Po ./$(DEPDIR)/func.Po \
 	./$(DEPDIR)/group.Po ./$(DEPDIR)/id.Po ./$(DEPDIR)/imm.Po \
 	./$(DEPDIR)/kind.Po ./$(DEPDIR)/op.Po ./$(DEPDIR)/opstmt.Po \
 	./$(DEPDIR)/optimizer.Po ./$(DEPDIR)/optimizer_binary.Po \
@@ -363,7 +365,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/include
 # libonejit_a_CXXFLAGS =
 libonejit_a_SOURCES = \
         archid.cpp assembler.cpp bits.cpp code.cpp codeparser.cpp \
-        compiler.cpp imm.cpp error.cpp eval.cpp func.cpp group.cpp id.cpp kind.cpp \
+        compiler.cpp imm.cpp error.cpp eval.cpp flowgraph.cpp func.cpp group.cpp id.cpp kind.cpp \
         op.cpp opstmt.cpp optimizer.cpp optimizer_binary.cpp optimizer_tuple.cpp \
         space.cpp type.cpp value.cpp value_fmt.cpp \
         \
@@ -519,6 +521,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/compiler.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/error.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eval.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flowgraph.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/func.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/group.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/id.Po@am__quote@ # am--include-marker
@@ -802,6 +805,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/compiler.Po
 	-rm -f ./$(DEPDIR)/error.Po
 	-rm -f ./$(DEPDIR)/eval.Po
+	-rm -f ./$(DEPDIR)/flowgraph.Po
 	-rm -f ./$(DEPDIR)/func.Po
 	-rm -f ./$(DEPDIR)/group.Po
 	-rm -f ./$(DEPDIR)/id.Po
@@ -904,6 +908,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/compiler.Po
 	-rm -f ./$(DEPDIR)/error.Po
 	-rm -f ./$(DEPDIR)/eval.Po
+	-rm -f ./$(DEPDIR)/flowgraph.Po
 	-rm -f ./$(DEPDIR)/func.Po
 	-rm -f ./$(DEPDIR)/group.Po
 	-rm -f ./$(DEPDIR)/id.Po

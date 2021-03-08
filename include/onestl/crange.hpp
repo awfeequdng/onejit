@@ -64,6 +64,9 @@ public:
   // defined in range.hpp
   constexpr CRange(const Range<T> &range, size_t a_start, size_t a_size) noexcept;
 
+  // redundant
+  // ~CRange() noexcept = default;
+
   constexpr size_t start() const noexcept {
     return start_;
   }
