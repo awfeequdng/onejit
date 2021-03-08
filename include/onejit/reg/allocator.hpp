@@ -17,42 +17,39 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * regallocator.hpp
+ * allocator.hpp
  *
  *  Created on Feb 26, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_REGALLOCATOR_HPP
-#define ONEJIT_REGALLOCATOR_HPP
+#ifndef ONEJIT_REG_ALLOCATOR_HPP
+#define ONEJIT_REG_ALLOCATOR_HPP
 
 #include <onejit/fwd.hpp>
+#include <onejit/reg/fwd.hpp>
 #include <onestl/array.hpp>
 #include <onestl/graph.hpp>
 
 namespace onejit {
+namespace reg {
 
 // register allocator. uses register interference graph and Chaitin algorithm.
-class RegAllocator {
+class Allocator {
 
 public:
-  using Degree = Graph::Degree;
-  using Reg = Graph::Node;
-  using Size = Graph::Size;
-  using Color = Reg;
+  Allocator() noexcept;
+  explicit Allocator(Size num_regs) noexcept;
 
-  enum : Reg { NoReg = Graph::NoPos };
-  enum : Color { NoColor = Graph::NoPos };
+  Allocator(Allocator &&) = default;
+  Allocator(const Allocator &) = delete;
 
-  RegAllocator() noexcept;
-  explicit RegAllocator(Size num_regs) noexcept;
+  ~Allocator() noexcept;
 
-  RegAllocator(RegAllocator &&other) = default;
-  RegAllocator(const RegAllocator &other) = delete;
+  Allocator &operator=(Allocator &&) = default;
+  Allocator &operator=(const Allocator &) = delete;
 
-  ~RegAllocator() noexcept;
-
-  // reset RegAllocator and reinitialize it
+  // reset Allocator and reinitialize it
   // for a (possibly) different number of registers.
   // return false if out of memory.
   bool reset(Size num_regs) noexcept;
@@ -77,6 +74,13 @@ public:
   // spilled Regs will have color >= num_colors
   constexpr View<Color> get_colors() const noexcept {
     return colors_;
+  }
+
+  // return a bitset with size() == num_regs.
+  // can be resized and used as buffer by user code,
+  // as long as its size is again num_regs when allocate_regs() is called.
+  BitSet &get_bitset() noexcept {
+    return avail_colors_;
   }
 
 private:
@@ -107,8 +111,9 @@ private:
   Array<Color> colors_; // index is reg
   BitSet avail_colors_;
 
-}; // class RegAllocator
+}; // class Allocator
 
+} // namespace reg
 } // namespace onejit
 
-#endif // ONEJIT_REGALLOCATOR_HPP
+#endif // ONEJIT_REG_ALLOCATOR_HPP

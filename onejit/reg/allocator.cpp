@@ -23,30 +23,31 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/regallocator.hpp>
+#include <onejit/reg/allocator.hpp>
 
 namespace onejit {
+namespace reg {
 
-RegAllocator::RegAllocator() noexcept : g_{}, g2_{}, stack_{}, colors_{} {
+Allocator::Allocator() noexcept : g_{}, g2_{}, stack_{}, colors_{} {
 }
 
-RegAllocator::RegAllocator(Size num_regs) noexcept   //
+Allocator::Allocator(Size num_regs) noexcept         //
     : g_{num_regs}, g2_{num_regs}, stack_{num_regs}, //
       hints_{}, colors_{num_regs}, avail_colors_{num_regs} {
   hints_.reserve(num_regs);
 }
 
-RegAllocator::~RegAllocator() noexcept {
+Allocator::~Allocator() noexcept {
 }
 
-bool RegAllocator::reset(Size num_regs) noexcept {
+bool Allocator::reset(Size num_regs) noexcept {
   hints_.clear();
   return g_.reset(num_regs) && g2_.reset(num_regs)              //
          && stack_.resize(num_regs) && hints_.reserve(num_regs) //
          && colors_.resize(num_regs) && avail_colors_.resize(num_regs);
 }
 
-void RegAllocator::add_hint(Reg reg, Color color) noexcept {
+void Allocator::add_hint(Reg reg, Color color) noexcept {
   if (!hints_) {
     hints_.resize(size()); // cannot fail
     hints_.fill(NoColor);
@@ -54,7 +55,7 @@ void RegAllocator::add_hint(Reg reg, Color color) noexcept {
   hints_.set(reg, color);
 }
 
-void RegAllocator::allocate_regs(Color num_colors) noexcept {
+void Allocator::allocate_regs(Color num_colors) noexcept {
   init();
   for (;;) {
     Reg reg;
@@ -71,7 +72,7 @@ void RegAllocator::allocate_regs(Color num_colors) noexcept {
   assign_colors(num_colors);
 }
 
-void RegAllocator::init() noexcept {
+void Allocator::init() noexcept {
   stack_.clear();
   for (Reg reg = 0, n = size(); reg < n; ++reg) {
     // add self-connections: needed to have g_.degree(reg) != 0
@@ -82,7 +83,7 @@ void RegAllocator::init() noexcept {
   g2_.dup(g_); // cannot fail
 }
 
-RegAllocator::Reg RegAllocator::find_degree_less_than(Degree degree) const noexcept {
+Reg Allocator::find_degree_less_than(Degree degree) const noexcept {
   for (Reg i = 0, n = size(); i < n; i++) {
     Degree deg_i = g_.degree(i);
     // deg_i is increased by 2 due to self-connections
@@ -94,7 +95,7 @@ RegAllocator::Reg RegAllocator::find_degree_less_than(Degree degree) const noexc
 }
 
 // pick a register in g_ to be spilled. currently picks the register with highest degree
-RegAllocator::Reg RegAllocator::pick() const noexcept {
+Reg Allocator::pick() const noexcept {
   Reg reg = NoReg;
   Degree deg = 0;
   for (Reg i = 0, n = size(); i < n; i++) {
@@ -107,7 +108,7 @@ RegAllocator::Reg RegAllocator::pick() const noexcept {
   return reg;
 }
 
-void RegAllocator::assign_colors(Color num_colors) noexcept {
+void Allocator::assign_colors(Color num_colors) noexcept {
   for (Size n = stack_.size(), i = n; i != 0; i--) {
     Reg reg = stack_[i - 1];
 
@@ -142,7 +143,7 @@ void RegAllocator::assign_colors(Color num_colors) noexcept {
   }
 }
 
-RegAllocator::Color RegAllocator::try_satisfy_hints(Reg reg) noexcept {
+Color Allocator::try_satisfy_hints(Reg reg) noexcept {
   Color hint_color = hints_[reg];
   // if a hint for this reg is present, try to honor it
   if (hint_color != NoColor && avail_colors_[hint_color]) {
@@ -163,4 +164,5 @@ RegAllocator::Color RegAllocator::try_satisfy_hints(Reg reg) noexcept {
   return avail_colors_.find(true);
 }
 
+} // namespace reg
 } // namespace onejit

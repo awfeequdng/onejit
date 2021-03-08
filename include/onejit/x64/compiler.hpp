@@ -26,6 +26,7 @@
 #define ONEJIT_X64_COMPILER_HPP
 
 #include <onejit/error.hpp>
+#include <onejit/reg/fwd.hpp>
 #include <onestl/array.hpp>
 
 namespace onejit {
@@ -43,7 +44,7 @@ class Compiler {
 
 public:
   constexpr Compiler() noexcept //
-      : func_{}, node_{}, error_{}, flags_{}, good_{true} {
+      : func_{}, allocator_{}, node_{}, error_{}, flags_{}, good_{true} {
   }
 
   Compiler(Compiler &&other) noexcept = default;
@@ -56,7 +57,8 @@ public:
 
 private:
   // private, use onejit::Compiler::x64() instead
-  Compiler &compile(Func &func, Array<Node> &node, Array<Error> &error, Opt flags) noexcept;
+  Compiler &compile(Func &func, reg::Allocator &allocator, //
+                    Array<Node> &node, Array<Error> &error, Opt flags) noexcept;
 
   Compiler &compile(Assign stmt) noexcept;
   Compiler &compile(AssignCall stmt) noexcept;
@@ -100,6 +102,13 @@ private:
   // add an already compiled node to compiled list
   Compiler &add(Node node) noexcept;
 
+  // perform register allocation
+  Compiler &allocate_regs() noexcept;
+
+  Compiler &fill_interference_graph() noexcept;
+
+  static void update_live_regs(BitSet &live, Node node) noexcept;
+
   // store compiled code into function.set_compiled(X64)
   // invoked by compile(Func)
   Compiler &finish() noexcept;
@@ -111,6 +120,7 @@ private:
   Compiler &out_of_memory(Node where) noexcept;
 
   Func *func_;
+  reg::Allocator *allocator_;
   Array<Node> *node_;
   Array<Error> *error_;
   Opt flags_;

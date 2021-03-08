@@ -25,14 +25,13 @@
 
 #include "test.hpp"
 
-#include <onejit/regallocator.hpp>
+#include <onejit/reg/allocator.hpp>
 
 #include <cstdio>
 
 namespace onejit {
 
-using Color = RegAllocator::Color;
-using Reg = RegAllocator::Reg;
+using namespace ::onejit::reg;
 
 static void to_string(String &result, View<Color> colors) {
   result.clear();
@@ -42,14 +41,14 @@ static void to_string(String &result, View<Color> colors) {
   }
 }
 
-static void run_allocator(String &result, RegAllocator &allocator, Color num_colors) {
+static void run_allocator(String &result, Allocator &allocator, Color num_colors) {
   allocator.allocate_regs(num_colors);
   to_string(result, allocator.get_colors());
 }
 
 void Test::regallocator() {
   enum : size_t { nreg = 10 };
-  RegAllocator allocator{nreg};
+  Allocator allocator{nreg};
   Graph &graph = allocator.graph();
   // connect registers 0..4 together,
   for (Reg r1 = 0; r1 <= 4; r1++) {

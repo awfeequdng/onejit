@@ -111,17 +111,17 @@ am_libonejit_a_OBJECTS = archid.$(OBJEXT) assembler.$(OBJEXT) \
 	eval.$(OBJEXT) func.$(OBJEXT) group.$(OBJEXT) id.$(OBJEXT) \
 	kind.$(OBJEXT) op.$(OBJEXT) opstmt.$(OBJEXT) \
 	optimizer.$(OBJEXT) optimizer_binary.$(OBJEXT) \
-	optimizer_tuple.$(OBJEXT) regallocator.$(OBJEXT) \
-	space.$(OBJEXT) type.$(OBJEXT) value.$(OBJEXT) \
-	value_fmt.$(OBJEXT) node/binary.$(OBJEXT) node/call.$(OBJEXT) \
-	node/childrange.$(OBJEXT) node/comma.$(OBJEXT) \
-	node/const.$(OBJEXT) node/expr.$(OBJEXT) \
+	optimizer_tuple.$(OBJEXT) space.$(OBJEXT) type.$(OBJEXT) \
+	value.$(OBJEXT) value_fmt.$(OBJEXT) node/binary.$(OBJEXT) \
+	node/call.$(OBJEXT) node/childrange.$(OBJEXT) \
+	node/comma.$(OBJEXT) node/const.$(OBJEXT) node/expr.$(OBJEXT) \
 	node/functype.$(OBJEXT) node/label.$(OBJEXT) \
 	node/mem.$(OBJEXT) node/name.$(OBJEXT) node/node.$(OBJEXT) \
 	node/nodeheader.$(OBJEXT) node/stmt0.$(OBJEXT) \
 	node/stmt1.$(OBJEXT) node/stmt2.$(OBJEXT) node/stmt3.$(OBJEXT) \
 	node/stmt4.$(OBJEXT) node/stmtn.$(OBJEXT) node/tuple.$(OBJEXT) \
-	node/unary.$(OBJEXT) node/var.$(OBJEXT) x64/address.$(OBJEXT) \
+	node/unary.$(OBJEXT) node/var.$(OBJEXT) \
+	reg/allocator.$(OBJEXT) x64/address.$(OBJEXT) \
 	x64/arg.$(OBJEXT) x64/asm0.$(OBJEXT) x64/asm1.$(OBJEXT) \
 	x64/asm2.$(OBJEXT) x64/asm3.$(OBJEXT) x64/asmn.$(OBJEXT) \
 	x64/assembler.$(OBJEXT) x64/compiler.$(OBJEXT) \
@@ -150,8 +150,8 @@ am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/assembler.Po \
 	./$(DEPDIR)/group.Po ./$(DEPDIR)/id.Po ./$(DEPDIR)/imm.Po \
 	./$(DEPDIR)/kind.Po ./$(DEPDIR)/op.Po ./$(DEPDIR)/opstmt.Po \
 	./$(DEPDIR)/optimizer.Po ./$(DEPDIR)/optimizer_binary.Po \
-	./$(DEPDIR)/optimizer_tuple.Po ./$(DEPDIR)/regallocator.Po \
-	./$(DEPDIR)/space.Po ./$(DEPDIR)/type.Po ./$(DEPDIR)/value.Po \
+	./$(DEPDIR)/optimizer_tuple.Po ./$(DEPDIR)/space.Po \
+	./$(DEPDIR)/type.Po ./$(DEPDIR)/value.Po \
 	./$(DEPDIR)/value_fmt.Po node/$(DEPDIR)/binary.Po \
 	node/$(DEPDIR)/call.Po node/$(DEPDIR)/childrange.Po \
 	node/$(DEPDIR)/comma.Po node/$(DEPDIR)/const.Po \
@@ -163,13 +163,13 @@ am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/assembler.Po \
 	node/$(DEPDIR)/stmt3.Po node/$(DEPDIR)/stmt4.Po \
 	node/$(DEPDIR)/stmtn.Po node/$(DEPDIR)/tuple.Po \
 	node/$(DEPDIR)/unary.Po node/$(DEPDIR)/var.Po \
-	x64/$(DEPDIR)/address.Po x64/$(DEPDIR)/arg.Po \
-	x64/$(DEPDIR)/asm0.Po x64/$(DEPDIR)/asm1.Po \
-	x64/$(DEPDIR)/asm2.Po x64/$(DEPDIR)/asm3.Po \
-	x64/$(DEPDIR)/asmn.Po x64/$(DEPDIR)/assembler.Po \
-	x64/$(DEPDIR)/compiler.Po x64/$(DEPDIR)/mem.Po \
-	x64/$(DEPDIR)/rex_byte.Po x64/$(DEPDIR)/scale.Po \
-	x64/$(DEPDIR)/util.Po
+	reg/$(DEPDIR)/allocator.Po x64/$(DEPDIR)/address.Po \
+	x64/$(DEPDIR)/arg.Po x64/$(DEPDIR)/asm0.Po \
+	x64/$(DEPDIR)/asm1.Po x64/$(DEPDIR)/asm2.Po \
+	x64/$(DEPDIR)/asm3.Po x64/$(DEPDIR)/asmn.Po \
+	x64/$(DEPDIR)/assembler.Po x64/$(DEPDIR)/compiler.Po \
+	x64/$(DEPDIR)/mem.Po x64/$(DEPDIR)/rex_byte.Po \
+	x64/$(DEPDIR)/scale.Po x64/$(DEPDIR)/util.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -365,13 +365,15 @@ libonejit_a_SOURCES = \
         archid.cpp assembler.cpp bits.cpp code.cpp codeparser.cpp \
         compiler.cpp imm.cpp error.cpp eval.cpp func.cpp group.cpp id.cpp kind.cpp \
         op.cpp opstmt.cpp optimizer.cpp optimizer_binary.cpp optimizer_tuple.cpp \
-        regallocator.cpp space.cpp type.cpp value.cpp value_fmt.cpp \
+        space.cpp type.cpp value.cpp value_fmt.cpp \
         \
         node/binary.cpp node/call.cpp node/childrange.cpp node/comma.cpp node/const.cpp \
         node/expr.cpp node/functype.cpp node/label.cpp node/mem.cpp node/name.cpp \
         node/node.cpp node/nodeheader.cpp \
         node/stmt0.cpp node/stmt1.cpp node/stmt2.cpp node/stmt3.cpp node/stmt4.cpp node/stmtn.cpp \
         node/tuple.cpp node/unary.cpp node/var.cpp \
+        \
+        reg/allocator.cpp \
         \
         x64/address.cpp x64/arg.cpp x64/asm0.cpp x64/asm1.cpp x64/asm2.cpp x64/asm3.cpp x64/asmn.cpp \
         x64/assembler.cpp x64/compiler.cpp x64/mem.cpp x64/rex_byte.cpp x64/scale.cpp x64/util.cpp
@@ -463,6 +465,14 @@ node/unary.$(OBJEXT): node/$(am__dirstamp) \
 	node/$(DEPDIR)/$(am__dirstamp)
 node/var.$(OBJEXT): node/$(am__dirstamp) \
 	node/$(DEPDIR)/$(am__dirstamp)
+reg/$(am__dirstamp):
+	@$(MKDIR_P) reg
+	@: > reg/$(am__dirstamp)
+reg/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) reg/$(DEPDIR)
+	@: > reg/$(DEPDIR)/$(am__dirstamp)
+reg/allocator.$(OBJEXT): reg/$(am__dirstamp) \
+	reg/$(DEPDIR)/$(am__dirstamp)
 x64/$(am__dirstamp):
 	@$(MKDIR_P) x64
 	@: > x64/$(am__dirstamp)
@@ -495,6 +505,7 @@ libonejit.a: $(libonejit_a_OBJECTS) $(libonejit_a_DEPENDENCIES) $(EXTRA_liboneji
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f node/*.$(OBJEXT)
+	-rm -f reg/*.$(OBJEXT)
 	-rm -f x64/*.$(OBJEXT)
 
 distclean-compile:
@@ -518,7 +529,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/optimizer.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/optimizer_binary.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/optimizer_tuple.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regallocator.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/space.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/type.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/value.Po@am__quote@ # am--include-marker
@@ -544,6 +554,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/tuple.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/unary.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/var.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@reg/$(DEPDIR)/allocator.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/address.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/arg.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/asm0.Po@am__quote@ # am--include-marker
@@ -770,6 +781,8 @@ distclean-generic:
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
 	-rm -f node/$(DEPDIR)/$(am__dirstamp)
 	-rm -f node/$(am__dirstamp)
+	-rm -f reg/$(DEPDIR)/$(am__dirstamp)
+	-rm -f reg/$(am__dirstamp)
 	-rm -f x64/$(DEPDIR)/$(am__dirstamp)
 	-rm -f x64/$(am__dirstamp)
 
@@ -799,7 +812,6 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/optimizer.Po
 	-rm -f ./$(DEPDIR)/optimizer_binary.Po
 	-rm -f ./$(DEPDIR)/optimizer_tuple.Po
-	-rm -f ./$(DEPDIR)/regallocator.Po
 	-rm -f ./$(DEPDIR)/space.Po
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f ./$(DEPDIR)/value.Po
@@ -825,6 +837,7 @@ distclean: distclean-recursive
 	-rm -f node/$(DEPDIR)/tuple.Po
 	-rm -f node/$(DEPDIR)/unary.Po
 	-rm -f node/$(DEPDIR)/var.Po
+	-rm -f reg/$(DEPDIR)/allocator.Po
 	-rm -f x64/$(DEPDIR)/address.Po
 	-rm -f x64/$(DEPDIR)/arg.Po
 	-rm -f x64/$(DEPDIR)/asm0.Po
@@ -901,7 +914,6 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/optimizer.Po
 	-rm -f ./$(DEPDIR)/optimizer_binary.Po
 	-rm -f ./$(DEPDIR)/optimizer_tuple.Po
-	-rm -f ./$(DEPDIR)/regallocator.Po
 	-rm -f ./$(DEPDIR)/space.Po
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f ./$(DEPDIR)/value.Po
@@ -927,6 +939,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f node/$(DEPDIR)/tuple.Po
 	-rm -f node/$(DEPDIR)/unary.Po
 	-rm -f node/$(DEPDIR)/var.Po
+	-rm -f reg/$(DEPDIR)/allocator.Po
 	-rm -f x64/$(DEPDIR)/address.Po
 	-rm -f x64/$(DEPDIR)/arg.Po
 	-rm -f x64/$(DEPDIR)/asm0.Po

@@ -36,14 +36,14 @@ class Graph {
 
 public:
   // the following three typedefs are guaranteed to be the same type
-  typedef uint32_t Degree;
-  typedef uint32_t Node;
-  typedef uint32_t Size;
+  typedef graph::Degree Degree;
+  typedef graph::Node Node;
+  typedef graph::Size Size;
 
   enum : Size {
     // be careful: Graph::NoPos is uint32_t(-1),
     // while BitSet::NoPos is size_t(-1)
-    NoPos = Size(-1),
+    NoPos = graph::NoPos,
   };
 
   constexpr Graph() noexcept : bits_(), degree_() {

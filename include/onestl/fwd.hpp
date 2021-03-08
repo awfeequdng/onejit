@@ -57,6 +57,20 @@ template <class T> class View;
 
 typedef View<uint8_t> Bytes;
 
+namespace graph {
+// the following three typedefs are guaranteed to be the same type
+typedef uint32_t Degree;
+typedef uint32_t Node;
+typedef uint32_t Size;
+
+enum : Size {
+  // be careful: graph::NoPos is uint32_t(-1),
+  // while BitSet::NoPos is size_t(-1)
+  NoPos = Size(-1),
+};
+
+} // namespace graph
+
 } // namespace onestl
 
 #endif // ONESTL_FWD_HPP

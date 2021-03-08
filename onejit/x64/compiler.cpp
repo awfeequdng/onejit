@@ -35,7 +35,7 @@ Compiler &Compiler::compile_x64(Func &func, Opt flags) noexcept {
   compile(func, flags);
   if (*this && error_.empty()) {
     // pass our internal buffers node_ and error_ to x64::Compiler
-    onejit::x64::Compiler{}.compile(func, node_, error_, flags);
+    onejit::x64::Compiler{}.compile(func, allocator_, node_, error_, flags);
   }
   return *this;
 }
@@ -48,8 +48,8 @@ Compiler::operator bool() const noexcept {
   return good_ && func_ && *func_;
 }
 
-Compiler &Compiler::compile(Func &func, Array<Node> &node_vec, Array<Error> &error_vec,
-                            Opt flags) noexcept {
+Compiler &Compiler::compile(Func &func, reg::Allocator &allocator, //
+                            Array<Node> &node_vec, Array<Error> &error_vec, Opt flags) noexcept {
   if (func.get_compiled(X64)) {
     // already compiled for x86_64
     return *this;
@@ -62,12 +62,37 @@ Compiler &Compiler::compile(Func &func, Array<Node> &node_vec, Array<Error> &err
 
   node_vec.clear();
   func_ = &func;
+  allocator_ = &allocator;
   node_ = &node_vec;
   error_ = &error_vec;
   flags_ = flags;
   good_ = bool(func);
 
-  return compile(node).finish();
+  return compile(node).allocate_regs().finish();
+}
+
+Compiler &Compiler::allocate_regs() noexcept {
+  Vars vars = func_->vars();
+  if (allocator_->reset(vars.size())) {
+    fill_interference_graph();
+    // x86_64 has 16 general registers, we reserve RSP and RBX
+    allocator_->allocate_regs(14);
+  }
+  return *this;
+}
+
+Compiler &Compiler::fill_interference_graph() noexcept {
+  BitSet &live = allocator_->get_bitset();
+  live.fill(false);
+  // TODO propagate liveness analysis across jumps
+  for (size_t i = node_->size(); i > 0; i--) {
+    Node node = (*node_)[i - 1];
+    update_live_regs(live, node);
+  }
+  return *this;
+}
+
+void Compiler::update_live_regs(BitSet & /*live*/, Node /*node*/) noexcept {
 }
 
 Compiler &Compiler::finish() noexcept {

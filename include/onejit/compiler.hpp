@@ -30,8 +30,9 @@
 #include <onejit/node/label.hpp>
 #include <onejit/node/node.hpp>
 #include <onejit/optimizer.hpp>
-#include <onestl/crange.hpp>
+#include <onejit/reg/allocator.hpp>
 #include <onestl/array.hpp>
+#include <onestl/crange.hpp>
 
 namespace onejit {
 
@@ -153,6 +154,7 @@ private:
 
 private:
   Optimizer optimizer_;
+  reg::Allocator allocator_;
   Func *func_;
 
   Array<Label> break_;       // stack of 'break' destination labels

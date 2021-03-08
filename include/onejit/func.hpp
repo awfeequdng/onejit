@@ -33,9 +33,10 @@
 #include <onejit/node/name.hpp>
 #include <onejit/node/var.hpp>
 #include <onejit/op.hpp>
+#include <onejit/x64/fwd.hpp>
+#include <onestl/array.hpp>
 #include <onestl/chars.hpp>
 #include <onestl/string.hpp>
-#include <onestl/array.hpp>
 
 namespace onejit {
 
@@ -43,6 +44,7 @@ class Func {
   friend class Compiler;
   friend class Label;
   friend class Var;
+  friend class x64::Compiler;
 
 public:
   /**
