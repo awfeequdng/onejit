@@ -23,6 +23,7 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/ir/label.hpp>
 #include <onejit/ir/node.hpp>
 #include <onejit/ir/util.hpp>
 
@@ -96,6 +97,14 @@ bool is_cond_jump(Node node) noexcept {
     break;
   }
   return false;
+}
+
+Label jump_label(Node node) noexcept {
+  Label label;
+  if (node.type() != STMT_N) {
+    label = node.child_is<Label>(0);
+  }
+  return label;
 }
 
 } // namespace ir
