@@ -29,6 +29,7 @@
 #include <cstdint>
 
 namespace onejit {
+namespace node {
 
 // Syntax passed to to_string(Node) and Node::format()
 enum class Syntax : uint8_t {
@@ -36,6 +37,7 @@ enum class Syntax : uint8_t {
   CapstoneCompat = 1, // compatible with capstone disassembly
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_SYNTAX_HPP

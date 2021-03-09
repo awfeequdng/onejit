@@ -30,12 +30,13 @@
 #include <onejit/op.hpp>
 
 namespace onejit {
+namespace node {
 
 // a binary expression: Op2 and two arguments
 class Binary : public Expr {
   using Base = Expr;
 
-  friend class Func;
+  friend class ::onejit::Func;
   friend class Node;
 
 public:
@@ -98,6 +99,7 @@ private:
   static Node create(Func &func, Op2 op, const Expr &left, const Expr &right);
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_BINARY_HPP

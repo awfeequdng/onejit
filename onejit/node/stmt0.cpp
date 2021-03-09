@@ -26,6 +26,7 @@
 #include <onejit/node/stmt0.hpp>
 
 namespace onejit {
+namespace node {
 
 // ============================  Stmt0  ========================================
 
@@ -33,4 +34,5 @@ const Fmt &Stmt0::format(const Fmt &fmt, Syntax /*syntax*/, size_t /*depth*/) co
   return fmt << op();
 }
 
+} // namespace node
 } // namespace onejit

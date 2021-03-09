@@ -30,12 +30,13 @@
 #include <onejit/node/expr.hpp>
 
 namespace onejit {
+namespace node {
 
 // an expression containing a constant
 class Const : public Expr {
   using Base = Expr;
 
-  friend class Func;
+  friend class ::onejit::Func;
   friend class Node;
 
 public:
@@ -52,7 +53,7 @@ public:
   /* construct a Bool Const */
   constexpr explicit Const(bool val) noexcept
       : Base{Node{
-            NodeHeader{CONST, Bool, 0},
+            Header{CONST, Bool, 0},
             Imm::Direct{uint16_t(val), eBool},
             nullptr,
         }} {
@@ -64,7 +65,7 @@ public:
    */
   constexpr explicit Const(Kind kind, uint16_t val = 0) noexcept
       : Base{Node{
-            NodeHeader{CONST, kind.nosimd(), 0},
+            Header{CONST, kind.nosimd(), 0},
             Imm::Direct{val, kind.val()},
             nullptr,
         }} {
@@ -76,7 +77,7 @@ public:
    */
   constexpr Const(Kind kind, int16_t val) noexcept
       : Base{Node{
-            NodeHeader{CONST, kind.nosimd(), 0},
+            Header{CONST, kind.nosimd(), 0},
             Imm::Direct{val, kind.val()},
             nullptr,
         }} {
@@ -164,6 +165,7 @@ Const Two(Func &func, Kind kind) noexcept;
 // equivalent to Const{func, Value{-1}.cast(kind)}
 Const MinusOne(Func &func, Kind kind) noexcept;
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_CONST_HPP

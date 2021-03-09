@@ -31,14 +31,15 @@
 #include <onestl/view.hpp>
 
 namespace onejit {
+namespace node {
 
 ////////////////////////////////////////////////////////////////////////////////
 class Tuple : public Expr {
   using Base = Expr;
   friend class Call;
   friend class Comma;
-  friend class Compiler;
-  friend class Func;
+  friend class ::onejit::Compiler;
+  friend class ::onejit::Func;
   friend class Mem;
   friend class Node;
   friend class Optimizer;
@@ -98,6 +99,7 @@ private:
   }
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_TUPLE_HPP

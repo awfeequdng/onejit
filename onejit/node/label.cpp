@@ -28,6 +28,7 @@
 #include <onejit/node/label.hpp>
 
 namespace onejit {
+namespace node {
 
 static constexpr uint16_t trivial_hash(uint32_t val) noexcept {
   return uint16_t(val ^ (val >> 16)) | 1;
@@ -45,7 +46,7 @@ Label Label::create(Code *holder, uint64_t address, uint16_t index) noexcept {
     if (!index && address) {
       index = trivial_hash(address);
     }
-    const NodeHeader header{LABEL, Void, index};
+    const Header header{LABEL, Void, index};
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add_uint64(address)) {
@@ -61,4 +62,5 @@ const Fmt &Label::format(const Fmt &fmt, Syntax /*syntax*/, size_t /*depth*/) co
   return fmt << type() << '_' << index();
 }
 
+} // namespace node
 } // namespace onejit

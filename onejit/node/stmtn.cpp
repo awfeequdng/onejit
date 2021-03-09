@@ -33,18 +33,19 @@
 #include <onestl/chars.hpp>
 
 namespace onejit {
+namespace node {
 
 // ============================  StmtN  ========================================
 
 Node StmtN::create(Func &func, const Nodes children, OpStmtN op) noexcept {
   return Base::create_indirect(func,                                   //
-                               NodeHeader{STMT_N, Void, uint16_t(op)}, //
+                               Header{STMT_N, Void, uint16_t(op)}, //
                                children);
 }
 
 ONEJIT_NOINLINE Node StmtN::create(Func &func, const ChildRanges &children, OpStmtN op) noexcept {
   return Base::create_indirect_from_ranges(func,                                   //
-                                           NodeHeader{STMT_N, Void, uint16_t(op)}, //
+                                           Header{STMT_N, Void, uint16_t(op)}, //
                                            children);
 }
 
@@ -74,7 +75,7 @@ Node AssignCall::create(Func &func, Exprs assign_to, const Call &call) noexcept 
   const size_t n = assign_to.size();
   Code *holder = func.code();
   while (holder && n == uint32_t(n)) {
-    const NodeHeader header{STMT_N, Void, ASSIGN_CALL};
+    const Header header{STMT_N, Void, ASSIGN_CALL};
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add_uint32(add_uint32(1, n)) &&
@@ -95,7 +96,7 @@ Node AssignCall::create(Func &func, Exprs assign_to, const Call &call) noexcept 
 
 Node Return::create(Func &func, Exprs exprs) noexcept {
   return Node::create_indirect(func,                             //
-                               NodeHeader{STMT_N, Void, RETURN}, //
+                               Header{STMT_N, Void, RETURN}, //
                                Nodes{exprs.data(), exprs.size()});
 }
 
@@ -106,7 +107,7 @@ Node Switch::create(Func &func, const Expr &expr, const Cases cases) noexcept {
   const size_t n = cases.size();
   Code *holder = func.code();
   while (holder && n == uint32_t(n)) {
-    const NodeHeader header{STMT_N, Void, SWITCH};
+    const Header header{STMT_N, Void, SWITCH};
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add_uint32(add_uint32(1, n)) && //
@@ -123,4 +124,5 @@ Case Switch::case_(uint32_t i) const noexcept {
   return child_is<Case>(add_uint32(1, i));
 }
 
+} // namespace node
 } // namespace onejit

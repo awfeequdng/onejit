@@ -36,8 +36,8 @@ class Imm : public Value {
   using Base = Value;
 
   friend class Func;
-  friend class Node;
-  friend class Const;
+  friend class node::Node;
+  friend class node::Const;
 
 public:
   // construct an invalid imm.

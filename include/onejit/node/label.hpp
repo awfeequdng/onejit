@@ -29,6 +29,7 @@
 #include <onejit/node/expr.hpp>
 
 namespace onejit {
+namespace node {
 
 ////////////////////////////////////////////////////////////////////////////////
 // jump destination. it contains an uint64_t that linker will set to
@@ -36,7 +37,7 @@ namespace onejit {
 class Label : public Expr {
   using Base = Expr;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Func;
 
 public:
   /**
@@ -97,6 +98,7 @@ struct Relocation {
   Label label;
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_LABEL_HPP

@@ -28,10 +28,11 @@
 #include <onejit/node/mem.hpp>
 
 namespace onejit {
+namespace node {
 
 Node Mem::create(Func &func, Kind kind, OpN op, Exprs args) noexcept {
   return Base::create_indirect(func,                      //
-                               NodeHeader{MEM, kind, op}, //
+                               Header{MEM, kind, op}, //
                                Nodes{args.data(), args.size()});
 }
 
@@ -51,4 +52,5 @@ const Fmt &Mem::format(const Fmt &fmt, Syntax syntax, size_t /*depth*/) const {
   return fmt << ')';
 }
 
+} // namespace node
 } // namespace onejit

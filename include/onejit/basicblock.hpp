@@ -27,33 +27,36 @@
 #define ONEJIT_BASICBLOCK_HPP
 
 #include <onejit/fwd.hpp>
+#include <onejit/node/node.hpp>
 #include <onestl/crange.hpp>
+#include <onestl/view.hpp>
 
 namespace onejit {
 
-// range of nodes without internal labels or jumps:
+// interval of nodes without internal labels or jumps:
 // labels can only be at the beginning, and jumps can only be at the end
 // => a BasicBlock execution is always sequential, from first to last node
-class BasicBlock : public CRange<Node> {
-  using Base = CRange<Node>;
+class BasicBlock : public Nodes {
+  using Base = Nodes;
 
 public:
   constexpr BasicBlock() noexcept : Base{}, prev_{}, next_{} {
   }
 
-  constexpr explicit BasicBlock(const Nodes *nodes) noexcept : Base{nodes}, prev_{}, next_{} {
+  constexpr explicit BasicBlock(Nodes nodes) noexcept //
+      : Base{nodes}, prev_{}, next_{} {
   }
 
-  constexpr BasicBlock(const Nodes *nodes, size_t a_start, size_t a_size) noexcept
-      : Base{nodes, a_start, a_size}, prev_{}, next_{} {
+  constexpr BasicBlock(Nodes nodes, size_t start, size_t size) noexcept
+      : Base{nodes.view(start, size)} {
   }
 
   // redundant
   // ~BasicBlock() noexcept = default;
 
 private:
-  CRange<BasicBlock *> prev_; // predecessors
-  CRange<BasicBlock *> next_; // successors
+  CRange<BasicBlock *> prev_;
+  CRange<BasicBlock *> next_;
 
 }; // class BasicBlock
 

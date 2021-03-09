@@ -42,8 +42,8 @@ namespace onejit {
 
 class Func {
   friend class Compiler;
-  friend class Label;
-  friend class Var;
+  friend class node::Label;
+  friend class node::Var;
   friend class x64::Compiler;
 
 public:

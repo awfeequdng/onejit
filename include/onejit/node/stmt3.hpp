@@ -33,11 +33,11 @@
 #include <onejit/opstmt.hpp>
 
 namespace onejit {
+namespace node {
 
 ////////////////////////////////////////////////////////////////////////////////
 class Stmt3 : public Stmt {
   using Base = Stmt;
-  friend class Func;
   friend class Node;
 
 public:
@@ -85,7 +85,7 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 class If : public Stmt3 {
   using Base = Stmt3;
-  friend class Func;
+  friend class ::onejit::Func;
   friend class Node;
   friend class Stmt3;
 
@@ -143,6 +143,7 @@ private:
   static Node create(Func &func, const Expr &test, const Node &then, const Node &else_) noexcept;
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_STMT3_HPP

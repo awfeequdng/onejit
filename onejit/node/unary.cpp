@@ -28,10 +28,11 @@
 #include <onejit/node/unary.hpp>
 
 namespace onejit {
+namespace node {
 
 ONEJIT_NOINLINE Node Unary::create(Func &func, Kind kind, Op1 op, Expr child) noexcept {
   return Base::create_indirect(func,                        //
-                               NodeHeader{UNARY, kind, op}, //
+                               Header{UNARY, kind, op}, //
                                {child});
 }
 
@@ -58,4 +59,5 @@ const Fmt &Unary::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
   return x().format(fmt, syntax, depth + 1) << ')';
 }
 
+} // namespace node
 } // namespace onejit

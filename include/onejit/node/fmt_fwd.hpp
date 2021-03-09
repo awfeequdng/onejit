@@ -17,16 +17,27 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * nodeheader.cpp
+ * fmt_fwd.hpp
  *
- *  Created on Jan 12, 2021
+ *  Created on Mar 09, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/node/nodeheader.hpp>
+#ifndef ONEJIT_NODE_FMT_FWD_HPP
+#define ONEJIT_NODE_FMT_FWD_HPP
+
+#include <onejit/node/fwd.hpp>
 
 namespace onejit {
+namespace node {
 
-// nothing to do
+using Fmt = ::onestl::Fmt;
+using Hex = ::onestl::Hex;
+using Writer = ::onestl::Writer;
 
+const Fmt &operator<<(const Fmt &fmt, const Node &);
+
+} // namespace node
 } // namespace onejit
+
+#endif // ONEJIT_NODE_FMT_FWD_HPP

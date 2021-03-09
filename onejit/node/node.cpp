@@ -46,6 +46,7 @@
 #include <onestl/chars.hpp>
 
 namespace onejit {
+namespace node {
 
 ONEJIT_NOINLINE uint32_t Node::uint32(Offset byte_offset) const noexcept {
   return code_ ? code_->uint32(off_or_dir_ + byte_offset) : 0;
@@ -63,10 +64,10 @@ Node Node::child(uint32_t i) const noexcept {
   if (i >= children()) {
     return Node{};
   }
-  // skip NodeHeader and child count
+  // skip Header and child count
   const CodeItem item = get(sizeof(CodeItem) * (size_t(i) + (is_list(type()) ? 2 : 1)));
 
-  NodeHeader header;
+  Header header;
   uint32_t offset_or_direct = 0;
   const Code *code = nullptr;
 
@@ -75,33 +76,33 @@ Node Node::child(uint32_t i) const noexcept {
   // 0b**00 => indirect Node. item is relative offset
   // 0b*010 => direct VAR
   // 0b0110 => direct Stmt0
-  // 0b1110 => NodeHeader
+  // 0b1110 => Header
 
   if (item == 0) {
     // nothing to do
   } else if (item < 4) {
     // special case. Stmt0, one of:
     // BadStmt (handled above) Break Continue Fallthrough
-    header = NodeHeader{STMT_0, Void, uint16_t(item)};
+    header = Header{STMT_0, Void, uint16_t(item)};
   } else if ((item & 1) != 0) {
     // direct Const
     offset_or_direct = item;
-    header = NodeHeader{CONST, Imm::parse_direct_kind(item), 0};
+    header = Header{CONST, Imm::parse_direct_kind(item), 0};
   } else if ((item & 7) == 2) {
     // direct Local
     offset_or_direct = item;
-    header = NodeHeader{VAR, Local::parse_direct_kind(item), 0};
+    header = Header{VAR, Local::parse_direct_kind(item), 0};
   } else if ((item & 0xF) == 6) {
     // direct Stmt0
     offset_or_direct = item;
-    header = NodeHeader{STMT_0, Void, Stmt0::parse_direct_op(item)};
+    header = Header{STMT_0, Void, Stmt0::parse_direct_op(item)};
   } else if ((item & 3) == 0) {
     // indirect Node: item is relative offset between parent and child
     offset_or_direct = off_or_dir_ + item;
-    header = NodeHeader{code_->get(offset_or_direct)};
+    header = Header{code_->get(offset_or_direct)};
     code = code_; // only indirect Nodes need code
   } else {
-    // NodeHeader or tag 0b1110: should not appear here,
+    // Header or tag 0b1110: should not appear here,
     // => return an invalid node
     return Node{};
   }
@@ -134,7 +135,7 @@ Offset Node::length_items() const noexcept {
   return add_uint32(len, plus);
 }
 
-Node Node::create_indirect(Func &func, NodeHeader header, Nodes children) noexcept {
+Node Node::create_indirect(Func &func, Header header, Nodes children) noexcept {
   Code *holder = func.code();
   const size_t n = children.size();
   while (holder && n == uint32_t(n)) {
@@ -153,7 +154,7 @@ Node Node::create_indirect(Func &func, NodeHeader header, Nodes children) noexce
   return Node{};
 }
 
-Node Node::create_indirect_from_ranges(Func &func, NodeHeader header,
+Node Node::create_indirect_from_ranges(Func &func, Header header,
                                        const ChildRanges &children) noexcept {
   Code *holder = func.code();
   const size_t ni = children.size();
@@ -314,4 +315,5 @@ String to_string(Node node, Syntax syntax, size_t depth) {
   return str;
 }
 
+} // namespace node
 } // namespace onejit

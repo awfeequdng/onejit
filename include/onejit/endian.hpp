@@ -28,7 +28,7 @@
 /**
  * this can detect endianness only on some compilers, including gcc/g++ and clang/clang++
  * not a problem, as it's only used to help debugging, showing more readable values
- * in debuggers as gdb when printing onejit::NodeHeader and onejit::Local values
+ * in debuggers as gdb when printing onejit::Header and onejit::Local values
  * on little endian machines.
  *
  * thus there is no need to check for <endian.h>, include it if exists, and use its macros.

@@ -26,7 +26,7 @@
 #include <onejit/code.hpp>
 #include <onejit/local.hpp>
 #include <onejit/node/childrange.hpp>
-#include <onejit/node/nodeheader.hpp>
+#include <onejit/node/header.hpp>
 
 #include <cstring>
 
@@ -45,7 +45,7 @@ Code::Code(size_t capacity) noexcept : Base{} {
 }
 
 Code::~Code() noexcept {
-  static_assert(sizeof(NodeHeader) == 4, "sizeof(NodeHeader) must be 4");
+  static_assert(sizeof(Header) == 4, "sizeof(Header) must be 4");
   static_assert(sizeof(CodeItem) == 4, "sizeof(CodeItem) must be 4");
   static_assert(sizeof(Offset) == 4, "sizeof(Offset) must be 4");
   static_assert(sizeof(uint32_t) == 4, "sizeof(uint32_t) must be 4");
@@ -56,7 +56,7 @@ Code::~Code() noexcept {
 
 Code &Code::init() noexcept {
   // add magic signature {CONST uint8x4 "1JIT"} in case Code is saved to file
-  return add(NodeHeader{CONST, Uint8.simdn(4), 0}) //
+  return add(Header{CONST, Uint8.simdn(4), 0}) //
       .add_uint32(0x54494A31);
 }
 

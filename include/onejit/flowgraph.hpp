@@ -31,7 +31,7 @@
 
 namespace onejit {
 
-// compute (global) control flow graph of a function
+// compute global control flow graph of a function
 class FlowGraph {
 
 public:
@@ -40,7 +40,7 @@ public:
   ~FlowGraph() noexcept;
 
   // return false if out of memory
-  bool compute(const Nodes *nodes) noexcept;
+  bool compute(Nodes nodes) noexcept;
 
 private:
   static bool is_label(Node node) noexcept;

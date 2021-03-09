@@ -37,14 +37,15 @@
 #include <initializer_list>
 
 namespace onejit {
+namespace node {
 
 ////////////////////////////////////////////////////////////////////////////////
 class Stmt2 : public Stmt {
   using Base = Stmt;
-  friend class Compiler;
   friend class Default;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Compiler;
+  friend class ::onejit::Func;
   friend class x64::Compiler;
 
 public:
@@ -99,7 +100,6 @@ private:
 class Assign : public Stmt2 {
   using Base = Stmt2;
   friend class Node;
-  friend class Func;
 
 public:
   /**
@@ -149,7 +149,6 @@ private:
 class Case : public Stmt2 {
   using Base = Stmt2;
   friend class Node;
-  friend class Func;
 
 public:
   /**
@@ -207,7 +206,6 @@ private:
 class Default : public Case {
   using Base = Case;
   friend class Node;
-  friend class Func;
 
 public:
   /**
@@ -253,7 +251,6 @@ private:
 class JumpIf : public Stmt2 {
   using Base = Stmt2;
   friend class Node;
-  friend class Func;
 
 public:
   /**
@@ -299,6 +296,7 @@ private:
   }
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_STMT2_HPP

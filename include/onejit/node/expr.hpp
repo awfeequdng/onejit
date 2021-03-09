@@ -29,6 +29,7 @@
 #include <onejit/node/node.hpp>
 
 namespace onejit {
+namespace node {
 
 // base class of Binary, Const, Label, Mem, Tuple, Unary, Var
 class Expr : public Node {
@@ -58,6 +59,7 @@ protected:
   }
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_EXPR_HPP

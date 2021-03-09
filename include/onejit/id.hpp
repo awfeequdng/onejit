@@ -36,8 +36,8 @@ namespace onejit {
 class Id {
   friend class Func;
   friend class Local;
-  friend class Var;
-  friend class VarHelper;
+  friend class node::Var;
+  friend class node::VarHelper;
   friend class x64::Reg;
 
 public:

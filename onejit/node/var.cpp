@@ -28,12 +28,13 @@
 #include <onejit/node/var.hpp>
 
 namespace onejit {
+namespace node {
 
 Var::Var(Func &func, Kind kind) noexcept : Var{func.new_var(kind)} {
 }
 
 Var Var::create(Code *holder, Local local) noexcept {
-  const NodeHeader header{VAR, local.kind(), 0};
+  const Header header{VAR, local.kind(), 0};
   if (local.is_direct()) {
     return Var{Node{header, local.direct(), nullptr}};
   }
@@ -61,4 +62,5 @@ const Fmt &Var::format(const Fmt &fmt, Syntax /*syntax*/, size_t /*depth*/) cons
   return fmt << local();
 }
 
+} // namespace node
 } // namespace onejit

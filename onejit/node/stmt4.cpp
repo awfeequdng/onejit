@@ -30,13 +30,14 @@
 #include <onestl/chars.hpp>
 
 namespace onejit {
+namespace node {
 
 // ============================  Stmt4  ========================================
 
 ONEJIT_NOINLINE Node Stmt4::create(Func &func, const Node &child0, const Node &child1,
                                    const Node &child2, const Node &child3, OpStmt4 op) noexcept {
   return Base::create_indirect(func,                                   //
-                               NodeHeader{STMT_4, Void, uint16_t(op)}, //
+                               Header{STMT_4, Void, uint16_t(op)}, //
                                {child0, child1, child2, child3});
 }
 
@@ -52,4 +53,5 @@ const Fmt &Stmt4::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
 
 // ============================  For  =======================================
 
+} // namespace node
 } // namespace onejit

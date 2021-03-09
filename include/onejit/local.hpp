@@ -36,11 +36,11 @@ namespace onejit {
 class Local {
   friend class Code;
   friend class Func;
-  friend class FuncType;
-  friend class Node;
   friend class Test;
-  friend class Var;
-  friend class VarHelper;
+  friend class node::FuncType;
+  friend class node::Node;
+  friend class node::Var;
+  friend class node::VarHelper;
 
 public:
   // create an invalid Local.

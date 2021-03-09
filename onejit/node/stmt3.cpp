@@ -30,12 +30,13 @@
 #include <onestl/chars.hpp>
 
 namespace onejit {
+namespace node {
 
 // ============================  Stmt3  ========================================
 
 ONEJIT_NOINLINE Node Stmt3::create(Func &func, Nodes children, OpStmt3 op) noexcept {
   return Base::create_indirect(func,                                   //
-                               NodeHeader{STMT_3, Void, uint16_t(op)}, //
+                               Header{STMT_3, Void, uint16_t(op)}, //
                                children);
 }
 
@@ -55,4 +56,5 @@ Node If::create(Func &func, const Expr &test, const Node &then, const Node &else
   return Stmt3::create(func, Nodes{buf, 3}, IF);
 }
 
+} // namespace node
 } // namespace onejit

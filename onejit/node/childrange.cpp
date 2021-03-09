@@ -26,10 +26,12 @@
 #include <onejit/node/childrange.hpp>
 
 namespace onejit {
+namespace node {
 
 ChildRange::operator bool() const noexcept {
   uint32_t n = node_.children();
   return node_ && size_ && size_ <= n && start_ <= n - size_;
 }
 
+} // namespace node
 } // namespace onejit

@@ -29,6 +29,7 @@
 #include <onestl/chars.hpp>
 
 namespace onejit {
+namespace node {
 
 /// \return number of parameters
 uint16_t FuncType::param_n() const noexcept {
@@ -54,7 +55,7 @@ Node FuncType::create(Code *holder, Kinds params, Kinds results) noexcept {
   const size_t param_n = params.size();
   const size_t result_n = results.size();
   while (holder && functype_can_represent(param_n, result_n)) {
-    const NodeHeader header{FTYPE, results.empty() ? Void : results[0], uint16_t(result_n)};
+    const Header header{FTYPE, results.empty() ? Void : results[0], uint16_t(result_n)};
     CodeItem offset = holder->length();
 
     // put results first, as expected by param(uint32_t) and result(uint32_t)
@@ -87,4 +88,5 @@ const Fmt &FuncType::format(const Fmt &fmt, Syntax /*syntax*/, size_t /*depth*/)
   return fmt << "))";
 }
 
+} // namespace node
 } // namespace onejit

@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * fmt.hpp
+ * fmt_fwd.hpp
  *
  *  Created on Jan 09, 2021
  *      Author Massimiliano Ghilardi
@@ -27,6 +27,7 @@
 #define ONEJIT_FMT_FWD_HPP
 
 #include <onejit/fwd.hpp>
+#include <onejit/node/fmt_fwd.hpp>
 
 namespace onejit {
 
@@ -43,7 +44,6 @@ const Fmt &operator<<(const Fmt &fmt, Group);
 const Fmt &operator<<(const Fmt &fmt, Kind);
 const Fmt &operator<<(const Fmt &fmt, Id);
 const Fmt &operator<<(const Fmt &fmt, Local);
-const Fmt &operator<<(const Fmt &fmt, const Node &);
 const Fmt &operator<<(const Fmt &fmt, Op1);
 const Fmt &operator<<(const Fmt &fmt, Op2);
 const Fmt &operator<<(const Fmt &fmt, OpN);

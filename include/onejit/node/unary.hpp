@@ -31,12 +31,13 @@
 #include <onejit/op.hpp>
 
 namespace onejit {
+namespace node {
 
 // an unary expression: Op1 and a single argument
 class Unary : public Expr {
   using Base = Expr;
 
-  friend class Func;
+  friend class ::onejit::Func;
   friend class Node;
 
 public:
@@ -97,6 +98,7 @@ private:
   static Node create(Func &func, Kind kind, Op1 op, Expr child) noexcept;
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_UNARY_HPP

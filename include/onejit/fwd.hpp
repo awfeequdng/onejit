@@ -26,16 +26,14 @@
 #ifndef ONEJIT_FWD_HPP
 #define ONEJIT_FWD_HPP
 
+#include <onejit/node/fwd.hpp>
 #include <onestl/fwd.hpp>
 
 #include <cstdint> // uint*_t
 
-#define ONEJIT_NOINLINE ONESTL_NOINLINE
-#define ONEJIT_NORETURN ONESTL_NORETURN
-
-#define ONEJIT_N_OF(array) (sizeof(array) / sizeof(array[0]))
-
 namespace onejit {
+
+using namespace ::onejit::node;
 
 using BitSet = ::onestl::BitSet;
 using Bytes = ::onestl::Bytes;
@@ -51,54 +49,29 @@ template <class T> using Buffer = ::onestl::Buffer<T>;
 template <class T> using CRange = ::onestl::CRange<T>;
 template <class T> using Range = ::onestl::Range<T>;
 template <class T> using Span = ::onestl::Span<T>;
-template <class T> using View = ::onestl::View<T>;
+// template <class T> using View = ::onestl::View<T>; // already in onejit::node
 
-enum Allow : uint8_t;
 enum ArchId : uint8_t;
 class Assembler;
-class Assign;
-class AssignCall;
+
 class Bits;
 class BasicBlock;
-class Block;
-class Binary;
-class Break;
-class Call;
-class Case;
 enum Check : uint8_t;
-class ChildRange;
 class Code;
 class CodeParser;
-class Comma;
 class Compiler;
-class Cond;
-class Const;
 union Float32Bits;
 union Float64Bits;
 class FlowGraph;
-class Imm;
-class Continue;
-class Default;
 enum eBits : uint8_t;
 enum eKind : uint8_t;
 class Error;
-class Expr;
-class Fallthrough;
-class For;
 class Func;
-class FuncType;
-class Goto;
 enum Group : uint8_t;
-class If;
 class Id;
-class Local;
-class JumpIf;
-class Label;
+class Imm;
 class Kind;
-class Mem;
-class Name;
-class Node;
-class NodeHeader;
+class Local;
 enum Op1 : uint16_t;
 enum Op2 : uint16_t;
 enum OpN : uint16_t;
@@ -110,35 +83,17 @@ enum OpStmt4 : uint16_t;
 enum OpStmtN : uint16_t;
 enum Opt : uint16_t;
 class Optimizer;
-class Return;
-class Stmt0;
-class Stmt1;
-class Stmt2;
-class Stmt3;
-class Stmt4;
-class StmtN;
-class Switch;
-enum class Syntax : uint8_t;
 class Test;
-class Tuple;
-class Unary;
 class Value;
-class Var;
-class VarHelper;
 
 using CodeItem = uint32_t;
 using Offset = uint32_t;
 using SimdN = Bits;
 
-using Cases = View<Case>;
 using CodeItems = View<CodeItem>;
-using ChildRanges = View<ChildRange>;
 using Errors = View<Error>;
-using Exprs = View<Expr>;
 using Kinds = View<Kind>;
-using Nodes = View<Node>;
 using Values = View<Value>;
-using Vars = View<Var>;
 
 } // namespace onejit
 

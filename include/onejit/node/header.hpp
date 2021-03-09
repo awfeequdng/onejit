@@ -17,14 +17,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * nodeheader.hpp
+ * header.hpp
  *
  *  Created on Jan 12, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_NODE_NODEHEADER_HPP
-#define ONEJIT_NODE_NODEHEADER_HPP
+#ifndef ONEJIT_NODE_HEADER_HPP
+#define ONEJIT_NODE_HEADER_HPP
 
 #include <onejit/endian.hpp>
 #include <onejit/fwd.hpp>
@@ -33,28 +33,29 @@
 #include <onejit/type.hpp>
 
 namespace onejit {
+namespace node {
 
 ////////////////////////////////////////////////////////////////////////////////
 // first CodeItem contained in Binary, Unary, Stmt*
-class NodeHeader {
+class Header {
 
 public:
   /**
-   * construct an invalid NodeHeader.
-   * exists only to allow placing NodeHeader in containers
+   * construct an invalid Header.
+   * exists only to allow placing Header in containers
    * and similar uses that require a default constructor.
    *
-   * to create a valid NodeHeader, use one of the other constructors.
+   * to create a valid Header, use one of the other constructors.
    */
-  constexpr NodeHeader() noexcept //
-      : NodeHeader{STMT_0, Bad, BAD} {
+  constexpr Header() noexcept //
+      : Header{STMT_0, Bad, BAD} {
   }
 
-  constexpr explicit NodeHeader(CodeItem item) noexcept //
+  constexpr explicit Header(CodeItem item) noexcept //
       : val_{((item >> 4) & 0x0F) | (item & ~0xFF)} {
   }
 
-  constexpr NodeHeader(Type type, Kind kind, uint16_t op) noexcept
+  constexpr Header(Type type, Kind kind, uint16_t op) noexcept
       : val_{(type & 0x0F) | uint32_t(kind.val()) << 8 | uint32_t(op) << 16} {
   }
 
@@ -82,16 +83,16 @@ public:
     return kind() == Bad;
   }
 
-  // true if this and other NodeHeader have the same type, kind and op.
-  constexpr bool operator==(const NodeHeader &other) const noexcept {
+  // true if this and other Header have the same type, kind and op.
+  constexpr bool operator==(const Header &other) const noexcept {
     return val_ == other.val_;
   }
 
-  constexpr bool operator!=(const NodeHeader &other) const noexcept {
+  constexpr bool operator!=(const Header &other) const noexcept {
     return val_ != other.val_;
   }
 
-  constexpr bool operator<(const NodeHeader &other) const noexcept {
+  constexpr bool operator<(const Header &other) const noexcept {
     return order() < other.order();
   }
 
@@ -113,6 +114,7 @@ private:
   };
 };
 
+} // namespace node
 } // namespace onejit
 
-#endif // ONEJIT_NODE_NODEHEADER_HPP
+#endif // ONEJIT_NODE_HEADER_HPP

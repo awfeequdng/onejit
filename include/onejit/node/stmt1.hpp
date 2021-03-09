@@ -33,14 +33,15 @@
 #include <onejit/x64/fwd.hpp>
 
 namespace onejit {
+namespace node {
 
 ////////////////////////////////////////////////////////////////////////////////
 class Stmt1 : public Stmt {
   using Base = Stmt;
-  friend class Compiler;
-  friend class Func;
   friend class Node;
-  friend class Test;
+  friend class ::onejit::Compiler;
+  friend class ::onejit::Func;
+  friend class ::onejit::Test;
   friend class x64::Compiler;
 
 public:
@@ -99,7 +100,7 @@ private:
 class Goto : public Stmt1 {
   using Base = Stmt1;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Func;
 
 public:
   /**
@@ -141,7 +142,7 @@ private:
 class Inc : public Stmt1 {
   using Base = Stmt1;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Func;
 
 public:
   /**
@@ -184,7 +185,7 @@ private:
 class Dec : public Stmt1 {
   using Base = Stmt1;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Func;
 
 public:
   /**
@@ -221,6 +222,8 @@ private:
     return op == DEC;
   }
 };
+
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_STMT1_HPP

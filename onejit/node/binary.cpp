@@ -28,6 +28,7 @@
 #include <onejit/node/binary.hpp>
 
 namespace onejit {
+namespace node {
 
 // autodetect kind
 Node Binary::create(Func &func, Op2 op, const Expr &left, const Expr &right) {
@@ -40,7 +41,7 @@ Node Binary::create(Func &func, Op2 op, const Expr &left, const Expr &right) {
   }
 
   return Base::create_indirect(func,                         //
-                               NodeHeader{BINARY, kind, op}, //
+                               Header{BINARY, kind, op}, //
                                {left, right});
 }
 
@@ -50,4 +51,5 @@ const Fmt &Binary::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
   return y().format(fmt, syntax, depth + 1) << ')';
 }
 
+} // namespace node
 } // namespace onejit

@@ -23,14 +23,10 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/node/binary.hpp>
-#include <onejit/node/call.hpp>
-#include <onejit/node/expr.hpp>
-#include <onejit/node/mem.hpp>
-#include <onejit/node/unary.hpp>
-
 namespace onejit {
+namespace node {
 
-//
+/* nothing to do */
 
+} // namespace node
 } // namespace onejit

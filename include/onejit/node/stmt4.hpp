@@ -32,12 +32,13 @@
 #include <onejit/opstmt.hpp>
 
 namespace onejit {
+namespace node {
 
 ////////////////////////////////////////////////////////////////////////////////
 class Stmt4 : public Stmt {
   using Base = Stmt;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Func;
 
 public:
   /**
@@ -93,7 +94,7 @@ private:
 class For : public Stmt4 {
   using Base = Stmt4;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Func;
 
 public:
   /**
@@ -149,6 +150,7 @@ private:
   }
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_STMT4_HPP

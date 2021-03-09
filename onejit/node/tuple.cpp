@@ -32,12 +32,13 @@
 #include <onestl/buffer.hpp>
 
 namespace onejit {
+namespace node {
 
 // ============================  Tuple  ====================================
 
 Node Tuple::create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept {
   return Base::create_indirect(func,                        //
-                               NodeHeader{TUPLE, kind, op}, //
+                               Header{TUPLE, kind, op}, //
                                nodes);
 }
 
@@ -61,4 +62,5 @@ const Fmt &Tuple::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
   return fmt << ')';
 }
 
+} // namespace node
 } // namespace onejit

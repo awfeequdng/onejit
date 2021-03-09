@@ -31,12 +31,13 @@
 #include <onestl/view.hpp>
 
 namespace onejit {
+namespace node {
 
 ////////////////////////////////////////////////////////////////////////////////
 class Call : public Tuple {
   using Base = Tuple;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Func;
 
 public:
   /**
@@ -100,6 +101,7 @@ private:
   static Node create(Func &caller, const FuncType &ftype, const Label &flabel, Exprs args) noexcept;
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_CALL_HPP

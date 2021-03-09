@@ -17,47 +17,18 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * stmt.hpp
+ * header.cpp
  *
- *  Created on Jan 18, 2021
+ *  Created on Jan 12, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_NODE_STMT_HPP
-#define ONEJIT_NODE_STMT_HPP
-
-#include <onejit/node/node.hpp>
-#include <onejit/opstmt.hpp>
+#include <onejit/node/header.hpp>
 
 namespace onejit {
 namespace node {
 
-// base class of Stmt0, Stmt1, Stmt2, Stmt3, Stmt4, StmtN
-class Stmt : public Node {
-  using Base = Node;
-  friend class Node;
-  friend class Stmt0;
-
-public:
-  constexpr Stmt() noexcept : Base{} {
-  }
-
-  static constexpr Kind kind() noexcept {
-    return Void;
-  }
-
-protected:
-  // downcast Node to Stmt
-  constexpr explicit Stmt(const Node &node) noexcept : Base{node} {
-  }
-
-  // downcast helper
-  static constexpr bool is_allowed_type(Type t) noexcept {
-    return t >= STMT_0 && t <= STMT_N;
-  }
-};
+// nothing to do
 
 } // namespace node
 } // namespace onejit
-
-#endif // ONEJIT_NODE_STMT_HPP

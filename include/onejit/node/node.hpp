@@ -29,30 +29,27 @@
 #include <onejit/fmt.hpp>
 #include <onejit/math.hpp>
 #include <onejit/node/allow.hpp>
-#include <onejit/node/nodeheader.hpp>
+#include <onejit/node/header.hpp>
 #include <onejit/node/syntax.hpp>
 #include <onejit/test.hpp>
 
 #include <type_traits> // std::is_base_of<>
 
 namespace onejit {
+namespace node {
 
 ////////////////////////////////////////////////////////////////////////////////
-// base class of Binary, Const, Unary, Var, Stmt*
+// base class of all nodes: Binary, Const, FuncType, Label, Name, Unary, Var, Stmt*
 class Node {
 
   friend class AssignCall;
   friend class Binary;
   friend class Call;
-  friend class Code;
-  friend class CodeParser;
   friend class Const;
-  friend class Func;
   friend class FuncType;
   friend class Label;
   friend class Mem;
   friend class Name;
-  friend class Optimizer;
   friend class Return;
   friend class Stmt0;
   friend class Stmt1;
@@ -64,6 +61,10 @@ class Node {
   friend class Tuple;
   friend class Unary;
   friend class Var;
+  friend class ::onejit::Code;
+  friend class ::onejit::CodeParser;
+  friend class ::onejit::Func;
+  friend class ::onejit::Optimizer;
 
 public:
   constexpr Node() noexcept : header_{}, off_or_dir_{0}, code_{nullptr} {
@@ -81,7 +82,7 @@ public:
     return header_.op();
   }
 
-  constexpr NodeHeader header() const noexcept {
+  constexpr Header header() const noexcept {
     return header_;
   }
 
@@ -174,7 +175,7 @@ public:
   const Fmt &format(const Fmt &fmt, Syntax syntax = Syntax::Default, size_t depth = 0) const;
 
 protected:
-  constexpr Node(NodeHeader header, CodeItem offset_or_direct, const Code *code) noexcept
+  constexpr Node(Header header, CodeItem offset_or_direct, const Code *code) noexcept
       : header_{header}, off_or_dir_{offset_or_direct}, code_{code} {
   }
 
@@ -220,19 +221,19 @@ private:
   bool child_result_is_used(uint32_t i) const noexcept;
 
   // used by Optimizer and by subclasses' create() method
-  static Node create_indirect(Func &func, NodeHeader header, Nodes children) noexcept;
+  static Node create_indirect(Func &func, Header header, Nodes children) noexcept;
 
   // used by subclasses' create() method
-  static Node create_indirect(Func &func, NodeHeader header,
+  static Node create_indirect(Func &func, Header header,
                               std::initializer_list<Node> children) noexcept {
     return create_indirect(func, header, Nodes{children.begin(), children.size()});
   }
 
   // used by subclasses' create() method
-  static Node create_indirect_from_ranges(Func &func, NodeHeader header,
+  static Node create_indirect_from_ranges(Func &func, Header header,
                                           const ChildRanges &children) noexcept;
 
-  NodeHeader header_;
+  Header header_;
   CodeItem off_or_dir_;
   const Code *code_;
 };
@@ -243,6 +244,7 @@ inline const Fmt &operator<<(const Fmt &fmt, const Node &node) {
   return node.format(fmt);
 }
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_NODE_HPP

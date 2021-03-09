@@ -30,13 +30,14 @@
 #include <onestl/view.hpp>
 
 namespace onejit {
+namespace node {
 
 ////////////////////////////////////////////////////////////////////////////////
 // function type signature
 class FuncType : public Node {
   using Base = Node;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Func;
 
 public:
   /**
@@ -99,6 +100,7 @@ private:
   static Node create(Code *holder, Kinds params, Kinds results) noexcept;
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_FUNCTYPE_HPP

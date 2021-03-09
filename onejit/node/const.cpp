@@ -28,6 +28,7 @@
 #include <onejit/node/const.hpp>
 
 namespace onejit {
+namespace node {
 
 Imm Const::imm() const noexcept {
   if (is_direct()) {
@@ -39,7 +40,7 @@ Imm Const::imm() const noexcept {
 
 Node Const::create(Func &func, const Imm &imm) noexcept {
   if (imm.is_valid()) {
-    const NodeHeader header{CONST, imm.kind(), 0};
+    const Header header{CONST, imm.kind(), 0};
 
     if (imm.is_direct()) {
       return Node{header, imm.direct(), nullptr};
@@ -86,4 +87,5 @@ const Fmt &Const::format(const Fmt &fmt, Syntax /*syntax*/, size_t /*depth*/) co
   return fmt << imm();
 }
 
+} // namespace node
 } // namespace onejit

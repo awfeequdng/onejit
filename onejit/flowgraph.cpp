@@ -35,23 +35,23 @@ FlowGraph::FlowGraph() noexcept : bb_{}, link_{} {
 FlowGraph::~FlowGraph() noexcept {
 }
 
-bool FlowGraph::compute(const Nodes *nodes) noexcept {
+bool FlowGraph::compute(Nodes nodes) noexcept {
   bb_.clear();
   link_.clear();
 
-  if (!nodes || !*nodes) {
+  if (!nodes) {
     return true;
   }
   size_t start = 0, i = 0;
-  const size_t n = nodes->size();
+  const size_t n = nodes.size();
   Node node;
   bool ok = true;
 
   while (ok && i < n) {
-    while (i < n && is_label(node = (*nodes)[i])) {
+    while (i < n && is_label(node = nodes[i])) {
       i++;
     }
-    while (i < n && !is_jump(node = (*nodes)[i])) {
+    while (i < n && !is_jump(node = nodes[i])) {
       i++;
     }
     ok = bb_.append(BasicBlock{nodes, start, i - start});

@@ -27,6 +27,7 @@
 #include <onejit/node/expr.hpp>
 
 namespace onejit {
+namespace node {
 
 // ============================  Comma  ====================================
 
@@ -35,4 +36,5 @@ Node Comma::create(Func &func, Exprs args) noexcept {
                       Nodes{args.begin(), args.size()});
 }
 
+} // namespace node
 } // namespace onejit

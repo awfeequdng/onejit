@@ -29,6 +29,7 @@
 #include <cstdint>
 
 namespace onejit {
+namespace node {
 
 // Flags passed to Node::deep_equal(), Node::deep_compare(), Node::deep_pure()
 // Intentionally uses the same numerical values as enum Check.
@@ -64,6 +65,7 @@ inline Allow &operator^=(Allow &a, Allow b) noexcept {
   return a = a ^ b;
 }
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_ALLOW_HPP

@@ -28,11 +28,12 @@
 #include <onestl/chars.hpp>
 
 namespace onejit {
+namespace node {
 
 Node Name::create(Code *holder, Chars str) noexcept {
   const size_t n = str.size();
   while (holder && n <= 0xFFFF) {
-    const NodeHeader header{NAME, Void, uint16_t(n)};
+    const Header header{NAME, Void, uint16_t(n)};
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add(str)) {
@@ -60,4 +61,5 @@ const Fmt &Name::format(const Fmt &fmt, Syntax /*syntax*/, size_t /*depth*/) con
   return fmt << '"' << chars() << '"';
 }
 
+} // namespace node
 } // namespace onejit

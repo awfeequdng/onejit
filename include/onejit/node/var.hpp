@@ -31,12 +31,13 @@
 #include <onejit/node/expr.hpp>
 
 namespace onejit {
+namespace node {
 
 // an expression containing only a local variable or register.
 class Var : public Expr {
   using Base = Expr;
 
-  friend class Func;
+  friend class ::onejit::Func;
   friend class Node;
   friend class VarHelper;
 
@@ -57,7 +58,7 @@ public:
   // create a Var for an existing local variable, which MUST be direct.
   // use with care!
   constexpr explicit Var(Local local) noexcept
-      : Base{Node{NodeHeader{VAR, local.kind(), 0}, local.direct(), nullptr}} {
+      : Base{Node{Header{VAR, local.kind(), 0}, local.direct(), nullptr}} {
   }
 
   static constexpr Type type() noexcept {
@@ -103,6 +104,7 @@ public:
 // Var representing architectural flags register: EFLAGS on x86/x64, APSR on arm/arm64 ...
 constexpr const Var FlagsVar = VarHelper::Flags;
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_VAR_HPP

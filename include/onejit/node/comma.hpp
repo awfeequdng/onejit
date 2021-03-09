@@ -30,6 +30,7 @@
 #include <onestl/view.hpp>
 
 namespace onejit {
+namespace node {
 
 ////////////////////////////////////////////////////////////////////////////////
 // evaluate N-1 expressions only for their side effects,
@@ -37,7 +38,7 @@ namespace onejit {
 class Comma : public Tuple {
   using Base = Tuple;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Func;
 
 public:
   /**
@@ -79,6 +80,7 @@ private:
   static Node create(Func &func, Exprs args) noexcept;
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_COMMA_HPP

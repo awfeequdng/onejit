@@ -98,7 +98,7 @@ public:
 
   Code &add_item(CodeItem data) noexcept; // same as add_uint32()
   Code &add(CodeItems data) noexcept;
-  Code &add(NodeHeader header) noexcept {
+  Code &add(Header header) noexcept {
     return add_item(header.item());
   }
   Code &add(const Kind kind) noexcept;

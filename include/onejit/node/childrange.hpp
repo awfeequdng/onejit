@@ -29,6 +29,7 @@
 #include <onejit/node/node.hpp>
 
 namespace onejit {
+namespace node {
 
 ////////////////////////////////////////////////////////////////////////////////
 // range of children inside a Node.
@@ -64,6 +65,7 @@ private:
   uint32_t start_, size_;
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_CHILDRANGE_HPP

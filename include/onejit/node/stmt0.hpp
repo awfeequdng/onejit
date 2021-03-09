@@ -31,6 +31,7 @@
 #include <onejit/opstmt.hpp>
 
 namespace onejit {
+namespace node {
 
 ////////////////////////////////////////////////////////////////////////////////
 class Stmt0 : public Stmt {
@@ -87,7 +88,7 @@ protected:
   }
 
   static constexpr Node create(OpStmt0 op) noexcept {
-    return Node{NodeHeader{STMT_0, Void, op}, direct(op), nullptr};
+    return Node{Header{STMT_0, Void, op}, direct(op), nullptr};
   }
 
   static constexpr CodeItem direct(OpStmt0 op) noexcept {
@@ -195,6 +196,7 @@ private:
   }
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_STMT0_HPP

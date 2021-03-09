@@ -29,12 +29,13 @@
 #include <onejit/node/stmt2.hpp>
 
 namespace onejit {
+namespace node {
 
 // ============================  Stmt2  ========================================
 
 ONEJIT_NOINLINE Node Stmt2::create(Func &func, Node child0, Node child1, OpStmt2 op) noexcept {
   return Base::create_indirect(func,                                   //
-                               NodeHeader{STMT_2, Void, uint16_t(op)}, //
+                               Header{STMT_2, Void, uint16_t(op)}, //
                                {child0, child1});
 }
 
@@ -54,4 +55,5 @@ const Fmt &Stmt2::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
 
 // ============================  JumpIf  ==================================
 
+} // namespace node
 } // namespace onejit

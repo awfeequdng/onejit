@@ -33,13 +33,14 @@
 #include <onejit/x64/fwd.hpp>
 
 namespace onejit {
+namespace node {
 
 ////////////////////////////////////////////////////////////////////////////////
 class StmtN : public Stmt {
   using Base = Stmt;
-  friend class Compiler;
-  friend class Func;
   friend class Node;
+  friend class ::onejit::Compiler;
+  friend class ::onejit::Func;
   friend class x64::Compiler;
 
 public:
@@ -98,7 +99,7 @@ private:
 class AssignCall : public StmtN {
   using Base = StmtN;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Func;
 
 public:
   /**
@@ -148,7 +149,7 @@ private:
 class Block : public StmtN {
   using Base = StmtN;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Func;
 
 public:
   /**
@@ -201,7 +202,7 @@ private:
 class Cond : public StmtN {
   using Base = StmtN;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Func;
 
 public:
   /**
@@ -246,7 +247,7 @@ private:
 class Return : public StmtN {
   using Base = StmtN;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Func;
 
 public:
   /**
@@ -300,7 +301,7 @@ private:
 class Switch : public StmtN {
   using Base = StmtN;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Func;
 
 public:
   /**
@@ -353,6 +354,7 @@ private:
   static Node create(Func &func, const Expr &expr, const Cases cases) noexcept;
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_STMTN_HPP

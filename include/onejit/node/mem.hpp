@@ -32,13 +32,14 @@
 #include <onejit/x64/fwd.hpp>
 
 namespace onejit {
+namespace node {
 
 // a memory dereference, either read or write.
 // the memory address is (usually) the arguments' sum
 class Mem : public Tuple {
   using Base = Tuple;
 
-  friend class Func;
+  friend class ::onejit::Func;
   friend class Node;
   friend class x64::Mem;
 
@@ -93,6 +94,7 @@ private:
   static Node create(Func &func, Kind kind, OpN op, Exprs args) noexcept;
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_MEM_HPP

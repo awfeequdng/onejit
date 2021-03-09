@@ -29,13 +29,14 @@
 #include <onejit/node/node.hpp>
 
 namespace onejit {
+namespace node {
 
 ////////////////////////////////////////////////////////////////////////////////
 // persistent string. used for name of function/globalconst/globalvar
 class Name : public Node {
   using Base = Node;
   friend class Node;
-  friend class Func;
+  friend class ::onejit::Func;
 
 public:
   /**
@@ -84,6 +85,7 @@ private:
   static Node create(Code *holder, Chars str) noexcept;
 };
 
+} // namespace node
 } // namespace onejit
 
 #endif // ONEJIT_NODE_NAME_HPP
