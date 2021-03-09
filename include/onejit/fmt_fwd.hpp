@@ -27,7 +27,7 @@
 #define ONEJIT_FMT_FWD_HPP
 
 #include <onejit/fwd.hpp>
-#include <onejit/node/fmt_fwd.hpp>
+#include <onejit/ir/fmt_fwd.hpp>
 
 namespace onejit {
 

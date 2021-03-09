@@ -25,7 +25,7 @@
 
 #include <onejit/compiler.hpp>
 #include <onejit/func.hpp>
-#include <onejit/node.hpp>
+#include <onejit/ir.hpp>
 #include <onejit/x64/compiler.hpp>
 #include <onejit/x64/mem.hpp>
 

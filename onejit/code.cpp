@@ -25,8 +25,8 @@
 
 #include <onejit/code.hpp>
 #include <onejit/local.hpp>
-#include <onejit/node/childrange.hpp>
-#include <onejit/node/header.hpp>
+#include <onejit/ir/childrange.hpp>
+#include <onejit/ir/header.hpp>
 
 #include <cstring>
 

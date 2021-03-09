@@ -26,7 +26,7 @@
 #ifndef ONEJIT_CHECK_HPP
 #define ONEJIT_CHECK_HPP
 
-#include <onejit/node/allow.hpp>
+#include <onejit/ir/allow.hpp>
 
 namespace onejit {
 

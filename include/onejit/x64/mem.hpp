@@ -25,10 +25,10 @@
 #ifndef ONEJIT_X64_MEM_HPP
 #define ONEJIT_X64_MEM_HPP
 
-#include <onejit/node/const.hpp>
-#include <onejit/node/label.hpp>
-#include <onejit/node/mem.hpp>
-#include <onejit/node/var.hpp>
+#include <onejit/ir/const.hpp>
+#include <onejit/ir/label.hpp>
+#include <onejit/ir/mem.hpp>
+#include <onejit/ir/var.hpp>
 #include <onejit/x64/scale.hpp>
 
 namespace onejit {

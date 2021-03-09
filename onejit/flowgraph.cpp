@@ -24,7 +24,8 @@
  */
 
 #include <onejit/flowgraph.hpp>
-#include <onejit/node/node.hpp>
+#include <onejit/ir/node.hpp>
+#include <onejit/ir/util.hpp>
 #include <onejit/type.hpp>
 
 namespace onejit {
@@ -35,7 +36,7 @@ FlowGraph::FlowGraph() noexcept : bb_{}, link_{} {
 FlowGraph::~FlowGraph() noexcept {
 }
 
-bool FlowGraph::compute(Nodes nodes) noexcept {
+bool FlowGraph::build(Span<Node> nodes) noexcept {
   bb_.clear();
   link_.clear();
 
@@ -43,7 +44,8 @@ bool FlowGraph::compute(Nodes nodes) noexcept {
     return true;
   }
   size_t start = 0, i = 0;
-  const size_t n = nodes.size();
+  size_t n = nodes.size();
+  size_t links = 0;
   Node node;
   bool ok = true;
 
@@ -51,81 +53,30 @@ bool FlowGraph::compute(Nodes nodes) noexcept {
     while (i < n && is_label(node = nodes[i])) {
       i++;
     }
-    while (i < n && !is_jump(node = nodes[i])) {
-      i++;
+    while (i < n) {
+      node = nodes[i];
+      if (ir::is_uncond_jump(node)) {
+        links++;
+        break;
+      } else if (ir::is_cond_jump(node)) {
+        links += 2;
+        break;
+      } else {
+        i++;
+      }
     }
     ok = bb_.append(BasicBlock{nodes, start, i - start});
     start = i;
+  }
+  ok = ok && link_.resize(links * 2);
+  if (!ok) {
+    return ok;
   }
   return ok;
 }
 
 bool FlowGraph::is_label(Node node) noexcept {
   return node.type() == LABEL;
-}
-
-bool FlowGraph::is_jump(Node node) noexcept {
-  switch (node.type()) {
-  case STMT_1:
-    switch (OpStmt1(node.op())) {
-    case GOTO:
-
-    case ASM_JA:
-    case ASM_JAE:
-    case ASM_JB:
-    case ASM_JBE:
-    case ASM_JE:
-    case ASM_JG:
-    case ASM_JGE:
-    case ASM_JL:
-    case ASM_JNE:
-
-    case X86_JA:
-    case X86_JAE:
-    case X86_JB:
-    case X86_JBE:
-    case X86_JE:
-    case X86_JG:
-    case X86_JGE:
-    case X86_JL:
-    case X86_JNE:
-    case X86_JNO:
-    case X86_JNP:
-    case X86_JNS:
-    case X86_JO:
-    case X86_JP:
-    case X86_JS:
-
-    case X86_JMP:
-      return true;
-    default:
-      break;
-    }
-    break;
-
-  case STMT_2:
-    switch (OpStmt2(node.op())) {
-    case JUMP_IF:
-    case X86_XBEGIN:
-      return true;
-    default:
-      break;
-    }
-    break;
-
-  case STMT_N:
-    switch (OpStmtN(node.op())) {
-    case RETURN:
-    case X86_RET:
-      return true;
-    default:
-      break;
-    }
-    break;
-  default:
-    break;
-  }
-  return false;
 }
 
 } // namespace onejit

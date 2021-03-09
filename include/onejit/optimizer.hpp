@@ -27,7 +27,7 @@
 #define ONEJIT_OPTIMIZER_HPP
 
 #include <onejit/check.hpp>
-#include <onejit/node/node.hpp>
+#include <onejit/ir/node.hpp>
 #include <onestl/buffer.hpp>
 #include <onestl/crange.hpp>
 

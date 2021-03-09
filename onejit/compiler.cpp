@@ -26,17 +26,17 @@
 #include <onejit/compiler.hpp>
 #include <onejit/eval.hpp>
 #include <onejit/func.hpp>
-#include <onejit/node/binary.hpp>
-#include <onejit/node/call.hpp>
-#include <onejit/node/const.hpp>
-#include <onejit/node/mem.hpp>
-#include <onejit/node/stmt0.hpp>
-#include <onejit/node/stmt1.hpp>
-#include <onejit/node/stmt2.hpp>
-#include <onejit/node/stmt3.hpp>
-#include <onejit/node/stmt4.hpp>
-#include <onejit/node/stmtn.hpp>
-#include <onejit/node/unary.hpp>
+#include <onejit/ir/binary.hpp>
+#include <onejit/ir/call.hpp>
+#include <onejit/ir/const.hpp>
+#include <onejit/ir/mem.hpp>
+#include <onejit/ir/stmt0.hpp>
+#include <onejit/ir/stmt1.hpp>
+#include <onejit/ir/stmt2.hpp>
+#include <onejit/ir/stmt3.hpp>
+#include <onejit/ir/stmt4.hpp>
+#include <onejit/ir/stmtn.hpp>
+#include <onejit/ir/unary.hpp>
 
 namespace onejit {
 

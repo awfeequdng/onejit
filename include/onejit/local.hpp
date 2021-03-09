@@ -37,10 +37,10 @@ class Local {
   friend class Code;
   friend class Func;
   friend class Test;
-  friend class node::FuncType;
-  friend class node::Node;
-  friend class node::Var;
-  friend class node::VarHelper;
+  friend class ir::FuncType;
+  friend class ir::Node;
+  friend class ir::Var;
+  friend class ir::VarHelper;
 
 public:
   // create an invalid Local.

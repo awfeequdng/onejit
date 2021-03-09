@@ -24,11 +24,11 @@
  */
 
 #include <onejit/assembler.hpp>
-#include <onejit/node/stmt0.hpp>
-#include <onejit/node/stmt1.hpp>
-#include <onejit/node/stmt2.hpp>
-#include <onejit/node/stmt3.hpp>
-#include <onejit/node/stmtn.hpp>
+#include <onejit/ir/stmt0.hpp>
+#include <onejit/ir/stmt1.hpp>
+#include <onejit/ir/stmt2.hpp>
+#include <onejit/ir/stmt3.hpp>
+#include <onejit/ir/stmtn.hpp>
 #include <onejit/x64/asm.hpp>
 
 namespace onejit {

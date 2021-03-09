@@ -26,7 +26,7 @@
 #ifndef ONEJIT_IMM_HPP
 #define ONEJIT_IMM_HPP
 
-#include <onejit/node/node.hpp>
+#include <onejit/ir/node.hpp>
 #include <onejit/value.hpp>
 
 namespace onejit {
@@ -36,8 +36,8 @@ class Imm : public Value {
   using Base = Value;
 
   friend class Func;
-  friend class node::Node;
-  friend class node::Const;
+  friend class ir::Node;
+  friend class ir::Const;
 
 public:
   // construct an invalid imm.

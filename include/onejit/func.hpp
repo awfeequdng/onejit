@@ -28,10 +28,10 @@
 
 #include <onejit/archid.hpp>
 #include <onejit/code.hpp>
-#include <onejit/node/functype.hpp>
-#include <onejit/node/label.hpp>
-#include <onejit/node/name.hpp>
-#include <onejit/node/var.hpp>
+#include <onejit/ir/functype.hpp>
+#include <onejit/ir/label.hpp>
+#include <onejit/ir/name.hpp>
+#include <onejit/ir/var.hpp>
 #include <onejit/op.hpp>
 #include <onejit/x64/fwd.hpp>
 #include <onestl/array.hpp>
@@ -42,8 +42,8 @@ namespace onejit {
 
 class Func {
   friend class Compiler;
-  friend class node::Label;
-  friend class node::Var;
+  friend class ir::Label;
+  friend class ir::Var;
   friend class x64::Compiler;
 
 public:

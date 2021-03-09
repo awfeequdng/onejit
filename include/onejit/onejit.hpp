@@ -36,8 +36,8 @@
 #include <onejit/fmt.hpp>
 #include <onejit/func.hpp>
 #include <onejit/mem.hpp>
-#include <onejit/node.hpp>       // includes all onejit/node/
-#include <onejit/node/const.hpp> // redundant
+#include <onejit/ir.hpp>       // includes all onejit/ir/
+#include <onejit/ir/const.hpp> // redundant
 #include <onejit/test.hpp>
 // #include <onejit/group.hpp>   // redundant
 // #include <onejit/imm.hpp>     // redundant

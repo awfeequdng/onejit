@@ -113,15 +113,14 @@ am_libonejit_a_OBJECTS = archid.$(OBJEXT) assembler.$(OBJEXT) \
 	opstmt.$(OBJEXT) optimizer.$(OBJEXT) \
 	optimizer_binary.$(OBJEXT) optimizer_tuple.$(OBJEXT) \
 	space.$(OBJEXT) type.$(OBJEXT) value.$(OBJEXT) \
-	value_fmt.$(OBJEXT) node/binary.$(OBJEXT) node/call.$(OBJEXT) \
-	node/childrange.$(OBJEXT) node/comma.$(OBJEXT) \
-	node/const.$(OBJEXT) node/expr.$(OBJEXT) \
-	node/functype.$(OBJEXT) node/label.$(OBJEXT) \
-	node/header.$(OBJEXT) node/mem.$(OBJEXT) node/name.$(OBJEXT) \
-	node/node.$(OBJEXT) node/stmt0.$(OBJEXT) node/stmt1.$(OBJEXT) \
-	node/stmt2.$(OBJEXT) node/stmt3.$(OBJEXT) node/stmt4.$(OBJEXT) \
-	node/stmtn.$(OBJEXT) node/tuple.$(OBJEXT) node/unary.$(OBJEXT) \
-	node/var.$(OBJEXT) reg/allocator.$(OBJEXT) \
+	value_fmt.$(OBJEXT) ir/binary.$(OBJEXT) ir/call.$(OBJEXT) \
+	ir/childrange.$(OBJEXT) ir/comma.$(OBJEXT) ir/const.$(OBJEXT) \
+	ir/expr.$(OBJEXT) ir/functype.$(OBJEXT) ir/label.$(OBJEXT) \
+	ir/header.$(OBJEXT) ir/mem.$(OBJEXT) ir/name.$(OBJEXT) \
+	ir/node.$(OBJEXT) ir/stmt0.$(OBJEXT) ir/stmt1.$(OBJEXT) \
+	ir/stmt2.$(OBJEXT) ir/stmt3.$(OBJEXT) ir/stmt4.$(OBJEXT) \
+	ir/stmtn.$(OBJEXT) ir/tuple.$(OBJEXT) ir/unary.$(OBJEXT) \
+	ir/util.$(OBJEXT) ir/var.$(OBJEXT) reg/allocator.$(OBJEXT) \
 	x64/address.$(OBJEXT) x64/arg.$(OBJEXT) x64/asm0.$(OBJEXT) \
 	x64/asm1.$(OBJEXT) x64/asm2.$(OBJEXT) x64/asm3.$(OBJEXT) \
 	x64/asmn.$(OBJEXT) x64/assembler.$(OBJEXT) \
@@ -153,17 +152,17 @@ am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/assembler.Po \
 	./$(DEPDIR)/optimizer.Po ./$(DEPDIR)/optimizer_binary.Po \
 	./$(DEPDIR)/optimizer_tuple.Po ./$(DEPDIR)/space.Po \
 	./$(DEPDIR)/type.Po ./$(DEPDIR)/value.Po \
-	./$(DEPDIR)/value_fmt.Po node/$(DEPDIR)/binary.Po \
-	node/$(DEPDIR)/call.Po node/$(DEPDIR)/childrange.Po \
-	node/$(DEPDIR)/comma.Po node/$(DEPDIR)/const.Po \
-	node/$(DEPDIR)/expr.Po node/$(DEPDIR)/functype.Po \
-	node/$(DEPDIR)/header.Po node/$(DEPDIR)/label.Po \
-	node/$(DEPDIR)/mem.Po node/$(DEPDIR)/name.Po \
-	node/$(DEPDIR)/node.Po node/$(DEPDIR)/stmt0.Po \
-	node/$(DEPDIR)/stmt1.Po node/$(DEPDIR)/stmt2.Po \
-	node/$(DEPDIR)/stmt3.Po node/$(DEPDIR)/stmt4.Po \
-	node/$(DEPDIR)/stmtn.Po node/$(DEPDIR)/tuple.Po \
-	node/$(DEPDIR)/unary.Po node/$(DEPDIR)/var.Po \
+	./$(DEPDIR)/value_fmt.Po ir/$(DEPDIR)/binary.Po \
+	ir/$(DEPDIR)/call.Po ir/$(DEPDIR)/childrange.Po \
+	ir/$(DEPDIR)/comma.Po ir/$(DEPDIR)/const.Po \
+	ir/$(DEPDIR)/expr.Po ir/$(DEPDIR)/functype.Po \
+	ir/$(DEPDIR)/header.Po ir/$(DEPDIR)/label.Po \
+	ir/$(DEPDIR)/mem.Po ir/$(DEPDIR)/name.Po ir/$(DEPDIR)/node.Po \
+	ir/$(DEPDIR)/stmt0.Po ir/$(DEPDIR)/stmt1.Po \
+	ir/$(DEPDIR)/stmt2.Po ir/$(DEPDIR)/stmt3.Po \
+	ir/$(DEPDIR)/stmt4.Po ir/$(DEPDIR)/stmtn.Po \
+	ir/$(DEPDIR)/tuple.Po ir/$(DEPDIR)/unary.Po \
+	ir/$(DEPDIR)/util.Po ir/$(DEPDIR)/var.Po \
 	reg/$(DEPDIR)/allocator.Po x64/$(DEPDIR)/address.Po \
 	x64/$(DEPDIR)/arg.Po x64/$(DEPDIR)/asm0.Po \
 	x64/$(DEPDIR)/asm1.Po x64/$(DEPDIR)/asm2.Po \
@@ -368,11 +367,11 @@ libonejit_a_SOURCES = \
         op.cpp opstmt.cpp optimizer.cpp optimizer_binary.cpp optimizer_tuple.cpp \
         space.cpp type.cpp value.cpp value_fmt.cpp \
         \
-        node/binary.cpp node/call.cpp node/childrange.cpp node/comma.cpp node/const.cpp \
-        node/expr.cpp node/functype.cpp node/label.cpp node/header.cpp node/mem.cpp node/name.cpp \
-        node/node.cpp \
-        node/stmt0.cpp node/stmt1.cpp node/stmt2.cpp node/stmt3.cpp node/stmt4.cpp node/stmtn.cpp \
-        node/tuple.cpp node/unary.cpp node/var.cpp \
+        ir/binary.cpp ir/call.cpp ir/childrange.cpp ir/comma.cpp ir/const.cpp \
+        ir/expr.cpp ir/functype.cpp ir/label.cpp ir/header.cpp ir/mem.cpp ir/name.cpp \
+        ir/node.cpp \
+        ir/stmt0.cpp ir/stmt1.cpp ir/stmt2.cpp ir/stmt3.cpp ir/stmt4.cpp ir/stmtn.cpp \
+        ir/tuple.cpp ir/unary.cpp ir/util.cpp ir/var.cpp \
         \
         reg/allocator.cpp \
         \
@@ -418,54 +417,35 @@ $(am__aclocal_m4_deps):
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-node/$(am__dirstamp):
-	@$(MKDIR_P) node
-	@: > node/$(am__dirstamp)
-node/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) node/$(DEPDIR)
-	@: > node/$(DEPDIR)/$(am__dirstamp)
-node/binary.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/call.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/childrange.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/comma.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/const.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/expr.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/functype.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/label.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/header.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/mem.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/name.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/node.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/stmt0.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/stmt1.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/stmt2.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/stmt3.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/stmt4.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/stmtn.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/tuple.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/unary.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
-node/var.$(OBJEXT): node/$(am__dirstamp) \
-	node/$(DEPDIR)/$(am__dirstamp)
+ir/$(am__dirstamp):
+	@$(MKDIR_P) ir
+	@: > ir/$(am__dirstamp)
+ir/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ir/$(DEPDIR)
+	@: > ir/$(DEPDIR)/$(am__dirstamp)
+ir/binary.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/call.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/childrange.$(OBJEXT): ir/$(am__dirstamp) \
+	ir/$(DEPDIR)/$(am__dirstamp)
+ir/comma.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/const.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/expr.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/functype.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/label.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/header.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/mem.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/name.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/node.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/stmt0.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/stmt1.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/stmt2.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/stmt3.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/stmt4.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/stmtn.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/tuple.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/unary.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/util.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
+ir/var.$(OBJEXT): ir/$(am__dirstamp) ir/$(DEPDIR)/$(am__dirstamp)
 reg/$(am__dirstamp):
 	@$(MKDIR_P) reg
 	@: > reg/$(am__dirstamp)
@@ -505,7 +485,7 @@ libonejit.a: $(libonejit_a_OBJECTS) $(libonejit_a_DEPENDENCIES) $(EXTRA_liboneji
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f node/*.$(OBJEXT)
+	-rm -f ir/*.$(OBJEXT)
 	-rm -f reg/*.$(OBJEXT)
 	-rm -f x64/*.$(OBJEXT)
 
@@ -535,27 +515,28 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/type.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/value.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/value_fmt.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/call.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/childrange.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/comma.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/const.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/expr.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/functype.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/header.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/label.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/mem.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/name.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/node.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/stmt0.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/stmt1.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/stmt2.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/stmt3.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/stmt4.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/stmtn.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/tuple.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/unary.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@node/$(DEPDIR)/var.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/binary.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/call.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/childrange.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/comma.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/const.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/expr.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/functype.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/header.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/label.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/mem.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/name.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/node.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/stmt0.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/stmt1.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/stmt2.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/stmt3.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/stmt4.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/stmtn.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/tuple.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/unary.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/util.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@ir/$(DEPDIR)/var.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@reg/$(DEPDIR)/allocator.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/address.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/arg.Po@am__quote@ # am--include-marker
@@ -781,8 +762,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f node/$(DEPDIR)/$(am__dirstamp)
-	-rm -f node/$(am__dirstamp)
+	-rm -f ir/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ir/$(am__dirstamp)
 	-rm -f reg/$(DEPDIR)/$(am__dirstamp)
 	-rm -f reg/$(am__dirstamp)
 	-rm -f x64/$(DEPDIR)/$(am__dirstamp)
@@ -819,27 +800,28 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f ./$(DEPDIR)/value.Po
 	-rm -f ./$(DEPDIR)/value_fmt.Po
-	-rm -f node/$(DEPDIR)/binary.Po
-	-rm -f node/$(DEPDIR)/call.Po
-	-rm -f node/$(DEPDIR)/childrange.Po
-	-rm -f node/$(DEPDIR)/comma.Po
-	-rm -f node/$(DEPDIR)/const.Po
-	-rm -f node/$(DEPDIR)/expr.Po
-	-rm -f node/$(DEPDIR)/functype.Po
-	-rm -f node/$(DEPDIR)/header.Po
-	-rm -f node/$(DEPDIR)/label.Po
-	-rm -f node/$(DEPDIR)/mem.Po
-	-rm -f node/$(DEPDIR)/name.Po
-	-rm -f node/$(DEPDIR)/node.Po
-	-rm -f node/$(DEPDIR)/stmt0.Po
-	-rm -f node/$(DEPDIR)/stmt1.Po
-	-rm -f node/$(DEPDIR)/stmt2.Po
-	-rm -f node/$(DEPDIR)/stmt3.Po
-	-rm -f node/$(DEPDIR)/stmt4.Po
-	-rm -f node/$(DEPDIR)/stmtn.Po
-	-rm -f node/$(DEPDIR)/tuple.Po
-	-rm -f node/$(DEPDIR)/unary.Po
-	-rm -f node/$(DEPDIR)/var.Po
+	-rm -f ir/$(DEPDIR)/binary.Po
+	-rm -f ir/$(DEPDIR)/call.Po
+	-rm -f ir/$(DEPDIR)/childrange.Po
+	-rm -f ir/$(DEPDIR)/comma.Po
+	-rm -f ir/$(DEPDIR)/const.Po
+	-rm -f ir/$(DEPDIR)/expr.Po
+	-rm -f ir/$(DEPDIR)/functype.Po
+	-rm -f ir/$(DEPDIR)/header.Po
+	-rm -f ir/$(DEPDIR)/label.Po
+	-rm -f ir/$(DEPDIR)/mem.Po
+	-rm -f ir/$(DEPDIR)/name.Po
+	-rm -f ir/$(DEPDIR)/node.Po
+	-rm -f ir/$(DEPDIR)/stmt0.Po
+	-rm -f ir/$(DEPDIR)/stmt1.Po
+	-rm -f ir/$(DEPDIR)/stmt2.Po
+	-rm -f ir/$(DEPDIR)/stmt3.Po
+	-rm -f ir/$(DEPDIR)/stmt4.Po
+	-rm -f ir/$(DEPDIR)/stmtn.Po
+	-rm -f ir/$(DEPDIR)/tuple.Po
+	-rm -f ir/$(DEPDIR)/unary.Po
+	-rm -f ir/$(DEPDIR)/util.Po
+	-rm -f ir/$(DEPDIR)/var.Po
 	-rm -f reg/$(DEPDIR)/allocator.Po
 	-rm -f x64/$(DEPDIR)/address.Po
 	-rm -f x64/$(DEPDIR)/arg.Po
@@ -922,27 +904,28 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/type.Po
 	-rm -f ./$(DEPDIR)/value.Po
 	-rm -f ./$(DEPDIR)/value_fmt.Po
-	-rm -f node/$(DEPDIR)/binary.Po
-	-rm -f node/$(DEPDIR)/call.Po
-	-rm -f node/$(DEPDIR)/childrange.Po
-	-rm -f node/$(DEPDIR)/comma.Po
-	-rm -f node/$(DEPDIR)/const.Po
-	-rm -f node/$(DEPDIR)/expr.Po
-	-rm -f node/$(DEPDIR)/functype.Po
-	-rm -f node/$(DEPDIR)/header.Po
-	-rm -f node/$(DEPDIR)/label.Po
-	-rm -f node/$(DEPDIR)/mem.Po
-	-rm -f node/$(DEPDIR)/name.Po
-	-rm -f node/$(DEPDIR)/node.Po
-	-rm -f node/$(DEPDIR)/stmt0.Po
-	-rm -f node/$(DEPDIR)/stmt1.Po
-	-rm -f node/$(DEPDIR)/stmt2.Po
-	-rm -f node/$(DEPDIR)/stmt3.Po
-	-rm -f node/$(DEPDIR)/stmt4.Po
-	-rm -f node/$(DEPDIR)/stmtn.Po
-	-rm -f node/$(DEPDIR)/tuple.Po
-	-rm -f node/$(DEPDIR)/unary.Po
-	-rm -f node/$(DEPDIR)/var.Po
+	-rm -f ir/$(DEPDIR)/binary.Po
+	-rm -f ir/$(DEPDIR)/call.Po
+	-rm -f ir/$(DEPDIR)/childrange.Po
+	-rm -f ir/$(DEPDIR)/comma.Po
+	-rm -f ir/$(DEPDIR)/const.Po
+	-rm -f ir/$(DEPDIR)/expr.Po
+	-rm -f ir/$(DEPDIR)/functype.Po
+	-rm -f ir/$(DEPDIR)/header.Po
+	-rm -f ir/$(DEPDIR)/label.Po
+	-rm -f ir/$(DEPDIR)/mem.Po
+	-rm -f ir/$(DEPDIR)/name.Po
+	-rm -f ir/$(DEPDIR)/node.Po
+	-rm -f ir/$(DEPDIR)/stmt0.Po
+	-rm -f ir/$(DEPDIR)/stmt1.Po
+	-rm -f ir/$(DEPDIR)/stmt2.Po
+	-rm -f ir/$(DEPDIR)/stmt3.Po
+	-rm -f ir/$(DEPDIR)/stmt4.Po
+	-rm -f ir/$(DEPDIR)/stmtn.Po
+	-rm -f ir/$(DEPDIR)/tuple.Po
+	-rm -f ir/$(DEPDIR)/unary.Po
+	-rm -f ir/$(DEPDIR)/util.Po
+	-rm -f ir/$(DEPDIR)/var.Po
 	-rm -f reg/$(DEPDIR)/allocator.Po
 	-rm -f x64/$(DEPDIR)/address.Po
 	-rm -f x64/$(DEPDIR)/arg.Po

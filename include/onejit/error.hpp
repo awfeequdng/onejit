@@ -27,7 +27,7 @@
 #define ONEJIT_ERROR_HPP
 
 #include <onejit/fwd.hpp>
-#include <onejit/node/node.hpp>
+#include <onejit/ir/node.hpp>
 #include <onestl/chars.hpp>
 
 namespace onejit {

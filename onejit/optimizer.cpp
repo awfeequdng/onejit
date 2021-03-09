@@ -25,12 +25,12 @@
 
 #include <onejit/eval.hpp>
 #include <onejit/func.hpp>
-#include <onejit/node/binary.hpp>
-#include <onejit/node/const.hpp>
-#include <onejit/node/stmt1.hpp>
-#include <onejit/node/stmt2.hpp>
-#include <onejit/node/tuple.hpp>
-#include <onejit/node/unary.hpp>
+#include <onejit/ir/binary.hpp>
+#include <onejit/ir/const.hpp>
+#include <onejit/ir/stmt1.hpp>
+#include <onejit/ir/stmt2.hpp>
+#include <onejit/ir/tuple.hpp>
+#include <onejit/ir/unary.hpp>
 #include <onejit/optimizer.hpp>
 #include <onestl/range.hpp>
 #include <onestl/array.hpp>

@@ -24,9 +24,9 @@
  */
 
 #include <onejit/eval.hpp>
-#include <onejit/node/const.hpp>
-#include <onejit/node/tuple.hpp>
-#include <onejit/node/var.hpp>
+#include <onejit/ir/const.hpp>
+#include <onejit/ir/tuple.hpp>
+#include <onejit/ir/var.hpp>
 #include <onejit/optimizer.hpp>
 #include <onestl/range.hpp>
 

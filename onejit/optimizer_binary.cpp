@@ -26,10 +26,10 @@
 #include <onejit/eval.hpp>
 #include <onejit/func.hpp>
 #include <onejit/mem.hpp>
-#include <onejit/node/binary.hpp>
-#include <onejit/node/comma.hpp>
-#include <onejit/node/const.hpp>
-#include <onejit/node/tuple.hpp>
+#include <onejit/ir/binary.hpp>
+#include <onejit/ir/comma.hpp>
+#include <onejit/ir/const.hpp>
+#include <onejit/ir/tuple.hpp>
 #include <onejit/optimizer.hpp>
 #include <onestl/range.hpp>
 

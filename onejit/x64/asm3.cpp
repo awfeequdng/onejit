@@ -24,7 +24,7 @@
  */
 
 #include <onejit/assembler.hpp>
-#include <onejit/node/stmt3.hpp>
+#include <onejit/ir/stmt3.hpp>
 #include <onejit/x64/asm.hpp>
 #include <onejit/x64/inst.hpp>
 

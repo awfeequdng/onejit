@@ -27,7 +27,7 @@
 #define ONEJIT_BASICBLOCK_HPP
 
 #include <onejit/fwd.hpp>
-#include <onejit/node/node.hpp>
+#include <onejit/ir/node.hpp>
 #include <onestl/crange.hpp>
 #include <onestl/view.hpp>
 
@@ -53,6 +53,14 @@ public:
 
   // redundant
   // ~BasicBlock() noexcept = default;
+
+  void set_prev(const CRange<BasicBlock *> &prev) noexcept {
+    prev_ = prev;
+  }
+
+  void set_next(const CRange<BasicBlock *> &next) noexcept {
+    next_ = next;
+  }
 
 private:
   CRange<BasicBlock *> prev_;

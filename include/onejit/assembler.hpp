@@ -27,7 +27,7 @@
 #define ONEJIT_ASSEMBLER_HPP
 
 #include <onejit/error.hpp>
-#include <onejit/node/label.hpp>
+#include <onejit/ir/label.hpp>
 #include <onestl/buffer.hpp>
 #include <onestl/crange.hpp>
 

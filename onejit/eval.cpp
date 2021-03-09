@@ -24,10 +24,10 @@
  */
 
 #include <onejit/eval.hpp>
-#include <onejit/node/binary.hpp>
-#include <onejit/node/const.hpp>
-#include <onejit/node/tuple.hpp>
-#include <onejit/node/unary.hpp>
+#include <onejit/ir/binary.hpp>
+#include <onejit/ir/const.hpp>
+#include <onejit/ir/tuple.hpp>
+#include <onejit/ir/unary.hpp>
 #include <onestl/view.hpp>
 
 namespace onejit {

@@ -27,8 +27,8 @@
 #define ONEJIT_COMPILER_HPP
 
 #include <onejit/error.hpp>
-#include <onejit/node/label.hpp>
-#include <onejit/node/node.hpp>
+#include <onejit/ir/label.hpp>
+#include <onejit/ir/node.hpp>
 #include <onejit/optimizer.hpp>
 #include <onejit/reg/allocator.hpp>
 #include <onestl/array.hpp>

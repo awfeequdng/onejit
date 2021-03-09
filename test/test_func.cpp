@@ -26,7 +26,7 @@
 #include "test.hpp"
 
 #include <onejit/func.hpp>
-#include <onejit/node.hpp>
+#include <onejit/ir.hpp>
 
 namespace onejit {
 

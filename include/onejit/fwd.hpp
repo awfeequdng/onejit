@@ -26,14 +26,14 @@
 #ifndef ONEJIT_FWD_HPP
 #define ONEJIT_FWD_HPP
 
-#include <onejit/node/fwd.hpp>
+#include <onejit/ir/fwd.hpp>
 #include <onestl/fwd.hpp>
 
 #include <cstdint> // uint*_t
 
 namespace onejit {
 
-using namespace ::onejit::node;
+using namespace ::onejit::ir;
 
 using BitSet = ::onestl::BitSet;
 using Bytes = ::onestl::Bytes;
@@ -49,7 +49,7 @@ template <class T> using Buffer = ::onestl::Buffer<T>;
 template <class T> using CRange = ::onestl::CRange<T>;
 template <class T> using Range = ::onestl::Range<T>;
 template <class T> using Span = ::onestl::Span<T>;
-// template <class T> using View = ::onestl::View<T>; // already in onejit::node
+// template <class T> using View = ::onestl::View<T>; // already in onejit::ir
 
 enum ArchId : uint8_t;
 class Assembler;

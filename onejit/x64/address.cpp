@@ -23,11 +23,11 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit/node/childrange.hpp>
-#include <onejit/node/const.hpp>
-#include <onejit/node/label.hpp>
-#include <onejit/node/tuple.hpp>
-#include <onejit/node/var.hpp>
+#include <onejit/ir/childrange.hpp>
+#include <onejit/ir/const.hpp>
+#include <onejit/ir/label.hpp>
+#include <onejit/ir/tuple.hpp>
+#include <onejit/ir/var.hpp>
 #include <onejit/x64/address.hpp>
 #include <onejit/x64/compiler.hpp>
 
