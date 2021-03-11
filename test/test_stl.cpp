@@ -62,7 +62,7 @@ void Test::stl_bitset() {
 }
 
 void Test::stl_graph() {
-  Graph::Node a, b, n = 32;
+  Graph::Node a, b, n = 14;
   Graph g{n};
   for (a = 0; a < n; a++) {
     TEST(g.degree(a), ==, 0);

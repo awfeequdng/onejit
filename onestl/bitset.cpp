@@ -207,22 +207,26 @@ void BitSet::fill(bool value, Index start, Index end) noexcept {
   }
 }
 
-bool BitSet::grow(size_t newsize, bool zerofill) noexcept {
-  if (!grow_cap(newsize)) {
+static constexpr size_t min2(size_t a, size_t b) noexcept {
+  return a < b ? a : b;
+}
+
+bool BitSet::grow(size_t newsize) noexcept {
+  const size_t oldcap = cap_;
+  if (oldcap < newsize && !grow_cap(newsize)) {
     return false;
   }
   const size_t oldsize = size_;
   size_ = newsize;
-  if (zerofill && newsize > oldsize) {
-    fill(false, oldsize, newsize);
+  // data beyond oldcap is already zero-filled by realloc()
+  const size_t toclear_end = min2(newsize, oldcap);
+  if (oldsize < toclear_end) {
+    fill(false, oldsize, toclear_end);
   }
   return true;
 }
 
 bool BitSet::grow_cap(size_t mincap) noexcept {
-  if (cap_ >= mincap) {
-    return true;
-  }
   const size_t cap2 = cap_ >= bitsPerT ? cap_ * 2 : bitsPerT;
   return realloc(mincap >= cap2 ? mincap : cap2);
 }
@@ -231,9 +235,15 @@ ONESTL_NOINLINE bool BitSet::realloc(size_t newcap) noexcept {
   const size_t oldn = (cap_ + bitsPerT - 1) / bitsPerT;
   const size_t n = (newcap + bitsPerT - 1) / bitsPerT;
   if (n > oldn) {
-    T *newdata = mem::realloc(data_, n);
+    T *newdata = data_ ? mem::realloc<T>(data_, n) : mem::alloc_clear<T>(n);
     if (!newdata) {
       return false;
+    }
+    if (data_) {
+      // eagerly fill with zeroes, because fill() called by resize()
+      // *reads* uninitialized data before writing it,
+      // which triggers valgrind errors
+      mem::clear(newdata + oldn, n - oldn);
     }
     data_ = newdata;
     cap_ = n * bitsPerT;

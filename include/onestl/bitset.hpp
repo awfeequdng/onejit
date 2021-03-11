@@ -122,7 +122,7 @@ public:
       size_ = n;
       return true;
     }
-    return grow(n, true);
+    return grow(n);
   }
 
   // increase bitset capacity.
@@ -148,7 +148,7 @@ private:
   void destroy() noexcept {
     mem::free(data_);
   }
-  bool grow(size_t newsize, bool zerofill) noexcept;
+  bool grow(size_t newsize) noexcept;
   bool grow_cap(size_t mincap) noexcept;
   bool realloc(size_t newcap) noexcept;
 
