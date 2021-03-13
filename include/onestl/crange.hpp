@@ -58,11 +58,11 @@ public:
   // defined in range.hpp
   constexpr explicit CRange(const Range<T> &range) noexcept;
 
-  constexpr CRange(const View<T> *view, size_t a_start, size_t a_size) noexcept
-      : impl_{view}, start_{a_start}, size_{a_size} {
+  constexpr CRange(const View<T> *view, size_t a_start, size_t a_end) noexcept
+      : impl_{view}, start_{a_start}, size_{a_end > a_start ? a_end - a_start : 0} {
   }
   // defined in range.hpp
-  constexpr CRange(const Range<T> &range, size_t a_start, size_t a_size) noexcept;
+  constexpr CRange(const Range<T> &range, size_t a_start, size_t a_end) noexcept;
 
   // redundant
   // ~CRange() noexcept = default;
@@ -80,9 +80,9 @@ public:
   }
 
   // change start() and size().
-  void set_bounds(size_t start, size_t size) noexcept {
-    start_ = start;
-    size_ = size;
+  void set_bounds(size_t a_start, size_t a_end) noexcept {
+    start_ = a_start;
+    size_ = a_end > a_start ? a_end - a_start : 0;
   }
 
   constexpr explicit operator bool() const noexcept {

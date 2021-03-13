@@ -35,7 +35,7 @@ Compiler &Compiler::compile_x64(Func &func, Opt flags) noexcept {
   compile(func, flags);
   if (*this && error_.empty()) {
     // pass our internal buffers node_ and error_ to x64::Compiler
-    onejit::x64::Compiler{}.compile(func, allocator_, node_, error_, flags);
+    onejit::x64::Compiler{}.compile(func, allocator_, node_, flowgraph_, error_, flags);
   }
   return *this;
 }
@@ -48,8 +48,8 @@ Compiler::operator bool() const noexcept {
   return good_ && func_ && *func_;
 }
 
-Compiler &Compiler::compile(Func &func, reg::Allocator &allocator, //
-                            Array<Node> &node_vec, Array<Error> &error_vec, Opt flags) noexcept {
+Compiler &Compiler::compile(Func &func, reg::Allocator &allocator, Array<Node> &node_vec,
+                            FlowGraph &flowgraph, Array<Error> &error_vec, Opt flags) noexcept {
   if (func.get_compiled(X64)) {
     // already compiled for x86_64
     return *this;
@@ -64,6 +64,7 @@ Compiler &Compiler::compile(Func &func, reg::Allocator &allocator, //
   func_ = &func;
   allocator_ = &allocator;
   node_ = &node_vec;
+  flowgraph_ = &flowgraph;
   error_ = &error_vec;
   flags_ = flags;
   good_ = bool(func);
@@ -82,6 +83,10 @@ Compiler &Compiler::allocate_regs() noexcept {
 }
 
 Compiler &Compiler::fill_interference_graph() noexcept {
+  if (!flowgraph_->build(*node_)) {
+    good_ = false;
+    return *this;
+  }
   BitSet &live = allocator_->get_bitset();
   live.fill(false);
   // TODO propagate liveness analysis across jumps

@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - Tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -17,49 +17,26 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * codeparser.hpp
+ * algorithm.hpp
  *
- *  Created on Jan 18, 2021
+ *  Created on Mar 13, 2021
  *      Author Massimiliano Ghilardi
  */
+#ifndef ONESTL_ALGORITHM_HPP
+#define ONESTL_ALGORITHM_HPP
 
-#ifndef ONEJIT_CODEPARSER_HPP
-#define ONEJIT_CODEPARSER_HPP
+#include <cstddef> // size_t
 
-#include <onejit/code.hpp>
+namespace onestl {
 
-namespace onejit {
+constexpr size_t max2(size_t a, size_t b) noexcept {
+  return b < a ? a : b;
+}
 
-class CodeParser {
+constexpr size_t min2(size_t a, size_t b) noexcept {
+  return a < b ? a : b;
+}
 
-public:
-  constexpr CodeParser() noexcept : code_(nullptr), offset_(0) {
-  }
+} // namespace onestl
 
-  constexpr explicit CodeParser(const Code *code) noexcept : code_(code), offset_(0) {
-  }
-
-  // ~CodeParser() noexcept = default;
-
-  constexpr explicit operator bool() const noexcept {
-    return code_ != nullptr && offset_ < code_->length();
-  }
-
-  constexpr Offset tell() const noexcept {
-    return offset_;
-  }
-
-  void seek(Offset to) noexcept {
-    offset_ = to;
-  }
-
-  Node next() noexcept;
-
-private:
-  const Code *code_;
-  Offset offset_;
-};
-
-} // namespace onejit
-
-#endif // ONEJIT_CODEPARSER_HPP
+#endif // ONESTL_ALGORITHM_HPP

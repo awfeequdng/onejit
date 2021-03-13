@@ -38,13 +38,13 @@ class Liveness {
 public:
   Liveness() noexcept;
 
-  Liveness(Liveness &&) = default;
-  Liveness(const Liveness &) = delete;
+  Liveness(Liveness &&) noexcept = default;
+  Liveness(const Liveness &) noexcept = delete;
 
   ~Liveness() noexcept;
 
-  Liveness &operator=(Liveness &&) = default;
-  Liveness &operator=(const Liveness &) = delete;
+  Liveness &operator=(Liveness &&) noexcept = default;
+  Liveness &operator=(const Liveness &) noexcept = delete;
 
 }; // class Liveness
 

@@ -49,6 +49,7 @@ template <class T> using Buffer = ::onestl::Buffer<T>;
 template <class T> using CRange = ::onestl::CRange<T>;
 template <class T> using Range = ::onestl::Range<T>;
 template <class T> using Span = ::onestl::Span<T>;
+template <class T> using SSpan = ::onestl::SSpan<T>;
 // template <class T> using View = ::onestl::View<T>; // already in onejit::ir
 
 enum ArchId : uint8_t;

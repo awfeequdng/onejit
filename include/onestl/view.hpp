@@ -25,6 +25,7 @@
 #ifndef ONESTL_VIEW_HPP
 #define ONESTL_VIEW_HPP
 
+#include <onestl/algorithm.hpp>
 #include <onestl/fwd.hpp>
 #include <onestl/test_tiny.hpp>
 
@@ -53,8 +54,8 @@ public:
   constexpr View(const T *addr, size_t n) noexcept : data_(addr), size_(n) {
   }
 
-  View(const View<T> &) = default;
-  View(View<T> &&) = default;
+  constexpr View(const View<T> &) noexcept = default;
+  constexpr View(View<T> &&) noexcept = default;
   ~View() = default;
 
   constexpr size_t capacity() const noexcept {
@@ -126,10 +127,6 @@ protected:
   // assigning from another View may replace an owned data_ with a non-owned one
   View<T> &operator=(const View<T> &) noexcept = default;
   View<T> &operator=(View<T> &&) noexcept = default;
-
-  static constexpr size_t min2(size_t a, size_t b) noexcept {
-    return a < b ? a : b;
-  }
 
   const T *data_;
   size_t size_;

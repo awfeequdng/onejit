@@ -52,6 +52,7 @@ template <class T> class Array;
 template <class T> class Buffer;
 template <class T> class CRange;
 template <class T> class Range;
+template <class T> class SSpan;
 template <class T> class Span;
 template <class T> class View;
 

@@ -44,7 +44,7 @@ class Compiler {
 
 public:
   constexpr Compiler() noexcept //
-      : func_{}, allocator_{}, node_{}, error_{}, flags_{}, good_{true} {
+      : func_{}, allocator_{}, node_{}, flowgraph_{}, error_{}, flags_{}, good_{true} {
   }
 
   Compiler(Compiler &&other) noexcept = default;
@@ -57,8 +57,8 @@ public:
 
 private:
   // private, use onejit::Compiler::x64() instead
-  Compiler &compile(Func &func, reg::Allocator &allocator, //
-                    Array<Node> &node, Array<Error> &error, Opt flags) noexcept;
+  Compiler &compile(Func &func, reg::Allocator &allocator, Array<Node> &node, //
+                    FlowGraph &flowgraph, Array<Error> &error, Opt flags) noexcept;
 
   Compiler &compile(Assign stmt) noexcept;
   Compiler &compile(AssignCall stmt) noexcept;
@@ -122,6 +122,7 @@ private:
   Func *func_;
   reg::Allocator *allocator_;
   Array<Node> *node_;
+  FlowGraph *flowgraph_;
   Array<Error> *error_;
   Opt flags_;
   bool good_; // !good_ means out of memory

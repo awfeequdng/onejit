@@ -50,9 +50,9 @@ public:
   constexpr Span(T *addr, size_t n) noexcept : Base{addr, n} {
   }
 
-  Span(const Span<T> &) = default;
-  Span(Span<T> &&) = default;
-  ~Span() = default;
+  constexpr Span(const Span<T> &) noexcept = default;
+  constexpr Span(Span<T> &&) noexcept = default;
+  ~Span() noexcept = default;
 
   using Base::begin;
   using Base::capacity;
@@ -130,12 +130,11 @@ protected:
   Span<T> &operator=(const Span<T> &) noexcept = default;
   Span<T> &operator=(Span<T> &&) noexcept = default;
 
-  // used *only* by span(start, end)
+  // used *only* by method span(start, end)
   constexpr explicit Span(const View<T> &other) noexcept : Base{other} {
   }
 
   using Base::data_;
-  using Base::min2;
   using Base::size_;
 };
 

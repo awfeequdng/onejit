@@ -28,43 +28,48 @@
 
 #include <onejit/fwd.hpp>
 #include <onejit/ir/node.hpp>
-#include <onestl/crange.hpp>
-#include <onestl/view.hpp>
+#include <onestl/sspan.hpp>
 
 namespace onejit {
 
 // interval of nodes without internal labels or jumps:
 // labels can only be at the beginning, and jumps can only be at the end
 // => a BasicBlock execution is always sequential, from first to last node
-class BasicBlock : public Nodes {
-  using Base = Nodes;
+class BasicBlock : public Span<Node> {
+  using Base = Span<Node>;
 
 public:
   constexpr BasicBlock() noexcept : Base{}, prev_{}, next_{} {
   }
 
-  constexpr explicit BasicBlock(Nodes nodes) noexcept //
+  constexpr explicit BasicBlock(Span<Node> nodes) noexcept //
       : Base{nodes}, prev_{}, next_{} {
   }
 
-  constexpr BasicBlock(Nodes nodes, size_t start, size_t size) noexcept
-      : Base{nodes.view(start, size)} {
+  /*constexpr*/ BasicBlock(Span<Node> nodes, size_t a_start, size_t a_end) noexcept
+      : Base{nodes.span(a_start, a_end)} {
   }
 
   // redundant
   // ~BasicBlock() noexcept = default;
 
-  void set_prev(const CRange<BasicBlock *> &prev) noexcept {
-    prev_ = prev;
+  constexpr SSpan<BasicBlock *> prev() const noexcept {
+    return prev_;
+  }
+  constexpr SSpan<BasicBlock *> next() const noexcept {
+    return next_;
   }
 
-  void set_next(const CRange<BasicBlock *> &next) noexcept {
+  void set_prev(SSpan<BasicBlock *> prev) noexcept {
+    prev_ = prev;
+  }
+  void set_next(SSpan<BasicBlock *> next) noexcept {
     next_ = next;
   }
 
 private:
-  CRange<BasicBlock *> prev_;
-  CRange<BasicBlock *> next_;
+  SSpan<BasicBlock *> prev_;
+  SSpan<BasicBlock *> next_;
 
 }; // class BasicBlock
 

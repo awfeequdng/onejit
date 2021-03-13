@@ -27,6 +27,7 @@
 #define ONEJIT_COMPILER_HPP
 
 #include <onejit/error.hpp>
+#include <onejit/flowgraph.hpp>
 #include <onejit/ir/label.hpp>
 #include <onejit/ir/node.hpp>
 #include <onejit/optimizer.hpp>
@@ -161,6 +162,7 @@ private:
   Array<Label> continue_;    // stack of 'continue' destination labels
   Array<Label> fallthrough_; // stack of 'fallthrough' destination labels
   Array<Node> node_;
+  FlowGraph flowgraph_;
   Array<Error> error_;
   bool good_; // !good_ means out of memory
 };

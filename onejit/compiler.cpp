@@ -74,8 +74,8 @@ inline Compiler::Flags &operator^=(Compiler::Flags &a, Compiler::Flags b) noexce
 ////////////////////////////////////////////////////////////////////////////////
 
 Compiler::Compiler() noexcept
-    : optimizer_{}, allocator_{}, func_{}, break_{}, //
-      continue_{}, fallthrough_{}, node_{}, error_{}, good_{true} {
+    : optimizer_{}, allocator_{}, func_{}, break_{}, continue_{}, fallthrough_{}, //
+      node_{}, flowgraph_{}, error_{}, good_{true} {
 }
 
 Compiler::~Compiler() noexcept {

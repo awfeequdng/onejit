@@ -41,13 +41,13 @@ public:
   Allocator() noexcept;
   explicit Allocator(Size num_regs) noexcept;
 
-  Allocator(Allocator &&) = default;
-  Allocator(const Allocator &) = delete;
+  Allocator(Allocator &&) noexcept = default;
+  Allocator(const Allocator &) noexcept = delete;
 
   ~Allocator() noexcept;
 
-  Allocator &operator=(Allocator &&) = default;
-  Allocator &operator=(const Allocator &) = delete;
+  Allocator &operator=(Allocator &&) noexcept = default;
+  Allocator &operator=(const Allocator &) noexcept = delete;
 
   // reset Allocator and reinitialize it
   // for a (possibly) different number of registers.
