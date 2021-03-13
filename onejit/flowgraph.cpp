@@ -24,6 +24,7 @@
  */
 
 #include <onejit/algorithm.hpp>
+#include <onejit/error.hpp>
 #include <onejit/flowgraph.hpp>
 #include <onejit/ir/label.hpp>
 #include <onejit/ir/node.hpp>
@@ -34,28 +35,23 @@
 
 namespace onejit {
 
-FlowGraph::FlowGraph() noexcept : basicblocks_{}, links_{}, label_n_{}, link_avail_{} {
+FlowGraph::FlowGraph() noexcept : basicblocks_{}, links_{}, error_{}, label_n_{}, link_avail_{} {
 }
 
 FlowGraph::~FlowGraph() noexcept {
 }
 
-bool FlowGraph::build(Span<Node> nodes) noexcept {
+bool FlowGraph::build(Span<Node> nodes, Array<Error> &error) noexcept {
   basicblocks_.clear();
   links_.clear();
+  error_ = &error;
   link_avail_ = label_n_ = 0;
 
   if (!nodes) {
     return true;
   }
-  if (!build_basicblocks(nodes)) {
-    return false;
-  }
-  resolve_labels();
-  resolve_next();
-  resolve_prev();
-  // Fmt{stdout} << *this;
-  return true;
+  return build_basicblocks(nodes) && resolve_labels() //
+         && resolve_next() && resolve_prev();
 }
 
 bool FlowGraph::is_label(Node node) noexcept {
@@ -78,6 +74,7 @@ bool FlowGraph::build_basicblocks(Span<Node> nodes) noexcept {
     while (i < n) {
       node = nodes[i];
       if (is_label(node)) {
+        jumps++;
         break;
       }
       i++;
@@ -86,11 +83,12 @@ bool FlowGraph::build_basicblocks(Span<Node> nodes) noexcept {
         break;
       } else if (ir::is_cond_jump(node)) {
         if (i == n) {
-          // invalid nodes: they end with a conditional jump
-          // where should it fallthrough when it does NOT jump?
-          return false;
+          // nodes end with a conditional jump:
+          // it is either unreachable or followed by an implicit RETURN
+          jumps++;
+        } else {
+          jumps += 2;
         }
-        jumps += 2;
         break;
       }
     }
@@ -101,7 +99,7 @@ bool FlowGraph::build_basicblocks(Span<Node> nodes) noexcept {
   return ok && links_.resize(1 + label_max + jumps * 2);
 }
 
-void FlowGraph::resolve_labels() noexcept {
+bool FlowGraph::resolve_labels() noexcept {
   for (BasicBlock &bb : basicblocks_) {
     for (Node node : bb) {
       if (!is_label(node)) {
@@ -111,19 +109,22 @@ void FlowGraph::resolve_labels() noexcept {
       links_.set(index, &bb);
     }
   }
+  return true;
 }
 
-void FlowGraph::resolve_next() noexcept {
+bool FlowGraph::resolve_next() noexcept {
   size_t link_start = label_n_;
   size_t link_end = link_start;
+  size_t i = 0, n = basicblocks_.size();
   for (BasicBlock &bb : basicblocks_) {
+    i++;
     const size_t node_n = bb.size();
     if (node_n == 0) {
       continue;
     }
     Node node = bb[node_n - 1];
     const bool is_uncond_jump = ir::is_uncond_jump(node);
-    if (!is_uncond_jump) {
+    if (!is_uncond_jump && i < n) {
       // either a conditional jump, or no jump at all
       // => basicblock may fallthrough to next basicblock
       links_.set(link_end++, &bb + 1);
@@ -131,17 +132,24 @@ void FlowGraph::resolve_next() noexcept {
     if (is_uncond_jump || ir::is_cond_jump(node)) {
       Label label = ir::jump_label(node);
       const size_t index = label.index();
-      if (label && index < label_n_) {
-        links_.set(link_end++, links_[index]);
+      if (!label) {
+        // RETURN, X86_RET or similar
+      } else if (index >= label_n_) {
+        return error(node, "invalid label");
+      } else if (BasicBlock *to = links_[index]) {
+        links_.set(link_end++, to);
+      } else {
+        return error(node, "label not found");
       }
     }
     bb.set_next(links_.span(link_start, link_end));
     link_start = link_end;
   }
   link_avail_ = link_end;
+  return true;
 }
 
-void FlowGraph::resolve_prev() noexcept {
+bool FlowGraph::resolve_prev() noexcept {
   size_t link_start = link_avail_;
   size_t link_end = link_start;
   // this is O(n^2) where n = basicblocks_.size()
@@ -162,6 +170,22 @@ void FlowGraph::resolve_prev() noexcept {
     }
   }
   link_avail_ = link_end;
+  return true;
+}
+
+bool FlowGraph::error(Node where, Chars msg) noexcept {
+  if (error_) {
+    error_->append(Error{where, msg});
+  }
+  return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+String to_string(const FlowGraph &flowgraph) {
+  String str;
+  Fmt{&str} << flowgraph;
+  return str;
 }
 
 const Fmt &FlowGraph::format(const Fmt &fmt) const {
@@ -191,7 +215,7 @@ const Fmt &FlowGraph::format(const Fmt &fmt) const {
     }
     fmt << "\n    )";
   }
-  return fmt << "\n)\n";
+  return fmt << "\n)";
 }
 
 } // namespace onejit

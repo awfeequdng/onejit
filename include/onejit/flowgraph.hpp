@@ -43,7 +43,7 @@ public:
   FlowGraph &operator=(FlowGraph &&) noexcept = default;
 
   // return false if out of memory
-  bool build(Span<Node> nodes) noexcept;
+  bool build(Span<Node> nodes, Array<Error> &error) noexcept;
 
   const Fmt &format(const Fmt &fmt) const;
 
@@ -52,21 +52,27 @@ private:
   bool build_basicblocks(Span<Node> nodes) noexcept;
   // for every label in basicblocks_,
   // set links_[label.index()] to the basic block containing label
-  void resolve_labels() noexcept;
+  bool resolve_labels() noexcept;
   // for every jump in basicblocks_, find the basicblocks it may jump to,
   // fill links_ accordingly, and assign a slice of it to basicblocks_[i].next_
-  void resolve_next() noexcept;
+  bool resolve_next() noexcept;
   // using basicblocks_[*].next_, compute basicblocks_[*].prev_
-  void resolve_prev() noexcept;
+  bool resolve_prev() noexcept;
 
   static bool is_label(Node node) noexcept;
 
+  // always returns false
+  bool error(Node where, Chars msg) noexcept;
+
   Array<BasicBlock> basicblocks_;
   Array<BasicBlock *> links_;
+  Array<Error> *error_;
   size_t label_n_;
   size_t link_avail_;
 
 }; // class FlowGraph
+
+String to_string(const FlowGraph &flowgraph);
 
 inline const Fmt &operator<<(const Fmt &fmt, const FlowGraph &flowgraph) {
   return flowgraph.format(fmt);

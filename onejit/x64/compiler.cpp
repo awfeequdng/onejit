@@ -83,7 +83,7 @@ Compiler &Compiler::allocate_regs() noexcept {
 }
 
 Compiler &Compiler::fill_interference_graph() noexcept {
-  if (!flowgraph_->build(*node_)) {
+  if (!flowgraph_->build(*node_, *error_)) {
     good_ = false;
     return *this;
   }

@@ -40,6 +40,7 @@ const Fmt &operator<<(const Fmt &fmt, Bits);
 const Fmt &operator<<(const Fmt &fmt, ArchId);
 const Fmt &operator<<(const Fmt &fmt, eKind);
 const Fmt &operator<<(const Fmt &fmt, const Error &);
+const Fmt &operator<<(const Fmt &fmt, const FlowGraph &);
 const Fmt &operator<<(const Fmt &fmt, Group);
 const Fmt &operator<<(const Fmt &fmt, Kind);
 const Fmt &operator<<(const Fmt &fmt, Id);

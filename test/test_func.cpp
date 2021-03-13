@@ -25,6 +25,7 @@
 
 #include "test.hpp"
 
+#include <onejit/fmt_fwd.hpp>
 #include <onejit/func.hpp>
 #include <onejit/ir.hpp>
 
@@ -103,6 +104,50 @@ void Test::func_fib() {
     label_2)";
   TEST(to_string(f.get_compiled(X64)), ==, expected);
 
+  expected = "(flowgraph\n\
+    (bb_0\n\
+        (nodes\n\
+            label_0\n\
+            (_set var1000_ul)\n\
+            (x86_cmp var1000_ul 2)\n\
+            (x86_jbe label_1)\n\
+        )\n\
+        (next bb_1 bb_3)\n\
+    )\n\
+    (bb_1\n\
+        (prev bb_0)\n\
+        (nodes\n\
+            (x86_lea var1002_ul (x86_mem_p -1 var1000_ul))\n\
+            (x86_call_ label_0 (_set var1003_ul) var1002_ul)\n\
+            (x86_lea var1004_ul (x86_mem_p -2 var1000_ul))\n\
+            (x86_call_ label_0 (_set var1005_ul) var1004_ul)\n\
+            (x86_lea var1001_ul (x86_mem_p var1003_ul var1005_ul 1))\n\
+            (x86_ret var1001_ul)\n\
+        )\n\
+    )\n\
+    (bb_2\n\
+        (nodes\n\
+            (x86_jmp label_2)\n\
+        )\n\
+        (next bb_4)\n\
+    )\n\
+    (bb_3\n\
+        (prev bb_0)\n\
+        (nodes\n\
+            label_1\n\
+            (x86_mov var1001_ul 1)\n\
+            (x86_ret var1001_ul)\n\
+        )\n\
+    )\n\
+    (bb_4\n\
+        (prev bb_2)\n\
+        (nodes\n\
+            label_2\n\
+        )\n\
+    )\n\
+)";
+  TEST(to_string(comp.flowgraph_), ==, expected);
+
   // dump_and_clear_code();
   holder.clear();
 }
@@ -163,6 +208,45 @@ void Test::func_loop() {
     label_3\n\
     (return var1001_ul))";
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
+
+  expected = "(flowgraph\n\
+    (bb_0\n\
+        (nodes\n\
+            label_0\n\
+            (_set var1000_ul)\n\
+            (x86_mov var1001_ul 0)\n\
+            (x86_mov var1002_ul 0)\n\
+            (x86_jmp label_2)\n\
+        )\n\
+        (next bb_2)\n\
+    )\n\
+    (bb_1\n\
+        (prev bb_2)\n\
+        (nodes\n\
+            label_1\n\
+            (x86_add var1001_ul var1002_ul)\n\
+            (x86_inc var1002_ul)\n\
+        )\n\
+        (next bb_2)\n\
+    )\n\
+    (bb_2\n\
+        (prev bb_0 bb_1)\n\
+        (nodes\n\
+            label_2\n\
+            (x86_cmp var1002_ul var1000_ul)\n\
+            (x86_jb label_1)\n\
+        )\n\
+        (next bb_3 bb_1)\n\
+    )\n\
+    (bb_3\n\
+        (prev bb_2)\n\
+        (nodes\n\
+            label_3\n\
+            (x86_ret var1001_ul)\n\
+        )\n\
+    )\n\
+)";
+  TEST(to_string(comp.flowgraph_), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
@@ -237,6 +321,61 @@ void Test::func_switch1() {
     label_1\n\
     (return var1001_ul))";
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
+
+  expected = "(flowgraph\n\
+    (bb_0\n\
+        (nodes\n\
+            label_0\n\
+            (_set var1000_ul)\n\
+            (x86_cmp var1000_ul 0)\n\
+            (x86_jne label_2)\n\
+        )\n\
+        (next bb_1 bb_2)\n\
+    )\n\
+    (bb_1\n\
+        (prev bb_0)\n\
+        (nodes\n\
+            (x86_mov var1001_ul 1)\n\
+            (x86_jmp label_1)\n\
+        )\n\
+        (next bb_5)\n\
+    )\n\
+    (bb_2\n\
+        (prev bb_0)\n\
+        (nodes\n\
+            label_2\n\
+            (x86_cmp var1000_ul 1)\n\
+            (x86_jne label_4)\n\
+        )\n\
+        (next bb_3 bb_4)\n\
+    )\n\
+    (bb_3\n\
+        (prev bb_2)\n\
+        (nodes\n\
+            label_3\n\
+            (x86_mov var1001_ul 2)\n\
+            (x86_jmp label_1)\n\
+        )\n\
+        (next bb_5)\n\
+    )\n\
+    (bb_4\n\
+        (prev bb_2)\n\
+        (nodes\n\
+            label_4\n\
+            label_5\n\
+            (x86_lea var1001_ul (x86_mem_p 1 var1000_ul))\n\
+        )\n\
+        (next bb_5)\n\
+    )\n\
+    (bb_5\n\
+        (prev bb_1 bb_3 bb_4)\n\
+        (nodes\n\
+            label_1\n\
+            (x86_ret var1001_ul)\n\
+        )\n\
+    )\n\
+)";
+  TEST(to_string(comp.flowgraph_), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
@@ -313,6 +452,68 @@ void Test::func_switch2() {
     (return var1001_ul))";
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
+  expected = "(flowgraph\n\
+    (bb_0\n\
+        (nodes\n\
+            label_0\n\
+            (_set var1000_ul)\n\
+            (x86_cmp var1000_ul 0)\n\
+            (x86_jne label_2)\n\
+        )\n\
+        (next bb_1 bb_2)\n\
+    )\n\
+    (bb_1\n\
+        (prev bb_0)\n\
+        (nodes\n\
+            (x86_mov var1001_ul 1)\n\
+            (x86_jmp label_1)\n\
+        )\n\
+        (next bb_6)\n\
+    )\n\
+    (bb_2\n\
+        (prev bb_0)\n\
+        (nodes\n\
+            label_2\n\
+            (x86_jmp label_4)\n\
+        )\n\
+        (next bb_4)\n\
+    )\n\
+    (bb_3\n\
+        (prev bb_4)\n\
+        (nodes\n\
+            label_3\n\
+            (x86_lea var1001_ul (x86_mem_p 1 var1000_ul))\n\
+            (x86_jmp label_1)\n\
+        )\n\
+        (next bb_6)\n\
+    )\n\
+    (bb_4\n\
+        (prev bb_2)\n\
+        (nodes\n\
+            label_4\n\
+            (x86_cmp var1000_ul 1)\n\
+            (x86_jne label_3)\n\
+        )\n\
+        (next bb_5 bb_3)\n\
+    )\n\
+    (bb_5\n\
+        (prev bb_4)\n\
+        (nodes\n\
+            label_5\n\
+            (x86_mov var1001_ul 2)\n\
+        )\n\
+        (next bb_6)\n\
+    )\n\
+    (bb_6\n\
+        (prev bb_1 bb_3 bb_5)\n\
+        (nodes\n\
+            label_1\n\
+            (x86_ret var1001_ul)\n\
+        )\n\
+    )\n\
+)";
+  TEST(to_string(comp.flowgraph_), ==, expected);
+
   // dump_and_clear_code();
   holder.clear();
 }
@@ -380,6 +581,59 @@ void Test::func_cond() {
     label_1\n\
     (return var1001_ul))";
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
+
+  expected = "(flowgraph\n\
+    (bb_0\n\
+        (nodes\n\
+            label_0\n\
+            (_set var1000_ul)\n\
+            (x86_cmp var1000_ul 0)\n\
+            (x86_jne label_2)\n\
+        )\n\
+        (next bb_1 bb_2)\n\
+    )\n\
+    (bb_1\n\
+        (prev bb_0)\n\
+        (nodes\n\
+            (x86_mov var1001_ul 1)\n\
+            (x86_jmp label_1)\n\
+        )\n\
+        (next bb_5)\n\
+    )\n\
+    (bb_2\n\
+        (prev bb_0)\n\
+        (nodes\n\
+            label_2\n\
+            (x86_cmp var1000_ul 1)\n\
+            (x86_jne label_3)\n\
+        )\n\
+        (next bb_3 bb_4)\n\
+    )\n\
+    (bb_3\n\
+        (prev bb_2)\n\
+        (nodes\n\
+            (x86_mov var1001_ul 2)\n\
+            (x86_jmp label_1)\n\
+        )\n\
+        (next bb_5)\n\
+    )\n\
+    (bb_4\n\
+        (prev bb_2)\n\
+        (nodes\n\
+            label_3\n\
+            (x86_lea var1001_ul (x86_mem_p 1 var1000_ul))\n\
+        )\n\
+        (next bb_5)\n\
+    )\n\
+    (bb_5\n\
+        (prev bb_1 bb_3 bb_4)\n\
+        (nodes\n\
+            label_1\n\
+            (x86_ret var1001_ul)\n\
+        )\n\
+    )\n\
+)";
+  TEST(to_string(comp.flowgraph_), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();
