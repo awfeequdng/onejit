@@ -53,17 +53,17 @@ public:
   // redundant
   // ~BasicBlock() noexcept = default;
 
-  constexpr SSpan<BasicBlock *> prev() const noexcept {
+  constexpr Span<BasicBlock *> prev() const noexcept {
     return prev_;
   }
-  constexpr SSpan<BasicBlock *> next() const noexcept {
+  constexpr Span<BasicBlock *> next() const noexcept {
     return next_;
   }
 
-  void set_prev(SSpan<BasicBlock *> prev) noexcept {
+  void set_prev(Span<BasicBlock *> prev) noexcept {
     prev_ = prev;
   }
-  void set_next(SSpan<BasicBlock *> next) noexcept {
+  void set_next(Span<BasicBlock *> next) noexcept {
     next_ = next;
   }
 

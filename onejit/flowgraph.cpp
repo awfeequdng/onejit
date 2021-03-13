@@ -30,6 +30,8 @@
 #include <onejit/ir/util.hpp>
 #include <onejit/type.hpp>
 
+#include <cstdio>
+
 namespace onejit {
 
 FlowGraph::FlowGraph() noexcept : basicblocks_{}, links_{}, label_n_{}, link_avail_{} {
@@ -52,6 +54,7 @@ bool FlowGraph::build(Span<Node> nodes) noexcept {
   resolve_labels();
   resolve_next();
   resolve_prev();
+  // Fmt{stdout} << *this;
   return true;
 }
 
@@ -73,7 +76,11 @@ bool FlowGraph::build_basicblocks(Span<Node> nodes) noexcept {
       label_max = max2(label_max, node.is<Label>().index());
     }
     while (i < n) {
-      node = nodes[i++];
+      node = nodes[i];
+      if (is_label(node)) {
+        break;
+      }
+      i++;
       if (ir::is_uncond_jump(node)) {
         jumps++;
         break;
@@ -115,19 +122,18 @@ void FlowGraph::resolve_next() noexcept {
       continue;
     }
     Node node = bb[node_n - 1];
-    const bool is_cond_jump = ir::is_cond_jump(node);
-    if (!is_cond_jump && !ir::is_uncond_jump(node)) {
-      continue;
-    }
-    Label label = ir::jump_label(node);
-    const size_t index = label.index();
-    if (!label || index >= label_n_) {
-      continue;
-    }
-    links_.set(link_end++, links_[index]);
-    if (is_cond_jump) {
-      // conditional jump may fallthrough to next basicblock
+    const bool is_uncond_jump = ir::is_uncond_jump(node);
+    if (!is_uncond_jump) {
+      // either a conditional jump, or no jump at all
+      // => basicblock may fallthrough to next basicblock
       links_.set(link_end++, &bb + 1);
+    }
+    if (is_uncond_jump || ir::is_cond_jump(node)) {
+      Label label = ir::jump_label(node);
+      const size_t index = label.index();
+      if (label && index < label_n_) {
+        links_.set(link_end++, links_[index]);
+      }
     }
     bb.set_next(links_.span(link_start, link_end));
     link_start = link_end;
@@ -156,6 +162,36 @@ void FlowGraph::resolve_prev() noexcept {
     }
   }
   link_avail_ = link_end;
+}
+
+const Fmt &FlowGraph::format(const Fmt &fmt) const {
+  fmt << "(flowgraph";
+  size_t i = 0;
+  for (const BasicBlock &bb : basicblocks_) {
+    fmt << "\n    (bb_" << (i++);
+    if (Span<BasicBlock *> span = bb.prev()) {
+      fmt << "\n        (prev";
+      for (const BasicBlock *prev : span) {
+        fmt << " bb_" << (prev - basicblocks_.data());
+      }
+      fmt << ')';
+    }
+    fmt << "\n        (nodes";
+    for (Node node : bb) {
+      fmt << "\n            ";
+      node.format(fmt, Syntax::Default, 3);
+    }
+    fmt << "\n        )";
+    if (Span<BasicBlock *> span = bb.next()) {
+      fmt << "\n        (next";
+      for (const BasicBlock *next : span) {
+        fmt << " bb_" << (next - basicblocks_.data());
+      }
+      fmt << ")";
+    }
+    fmt << "\n    )";
+  }
+  return fmt << "\n)\n";
 }
 
 } // namespace onejit

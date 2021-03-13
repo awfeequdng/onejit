@@ -45,6 +45,8 @@ public:
   // return false if out of memory
   bool build(Span<Node> nodes) noexcept;
 
+  const Fmt &format(const Fmt &fmt) const;
+
 private:
   // return false if out of memory
   bool build_basicblocks(Span<Node> nodes) noexcept;
@@ -65,6 +67,10 @@ private:
   size_t link_avail_;
 
 }; // class FlowGraph
+
+inline const Fmt &operator<<(const Fmt &fmt, const FlowGraph &flowgraph) {
+  return flowgraph.format(fmt);
+}
 
 } // namespace onejit
 
