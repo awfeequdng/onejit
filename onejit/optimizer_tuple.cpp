@@ -49,7 +49,7 @@ Expr Optimizer::optimize(Tuple expr, bool optimize_children) noexcept {
   if (expr && (flags_ & OptSimplifyExpr)) {
     size_t orig_n = nodes_.size();
     if (flatten_children_tobuf(expr, optimize_children)) {
-      Range<Node> children{&nodes_, orig_n, nodes_.size() - orig_n};
+      Range<Node> children{&nodes_, orig_n, nodes_.size()};
       ret = partial_eval_tuple(expr, children);
     }
     nodes_.truncate(orig_n);

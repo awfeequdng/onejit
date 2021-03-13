@@ -32,8 +32,8 @@
 #include <onejit/ir/tuple.hpp>
 #include <onejit/ir/unary.hpp>
 #include <onejit/optimizer.hpp>
-#include <onestl/range.hpp>
 #include <onestl/array.hpp>
+#include <onestl/range.hpp>
 
 namespace onejit {
 
@@ -117,7 +117,7 @@ Range<Node> Optimizer::optimize_children(Node node) noexcept {
     // as STL operator[] would do
     nodes_.set(i + orig_n, optimize(node.child(i)));
   }
-  return Range<Node>{&nodes_, orig_n, n};
+  return Range<Node>{&nodes_, orig_n, n + orig_n};
 }
 
 Node Optimizer::try_optimize(Unary expr, const Range<Node> &children) noexcept {
