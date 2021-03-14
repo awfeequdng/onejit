@@ -54,6 +54,11 @@ public:
   // return false if out of memory.
   bool reset(Size num_regs) noexcept;
 
+  // return the allocator size, i.e. the num_regs passed to constructor or reset()
+  constexpr Size size() const noexcept {
+    return g_.size();
+  }
+
   Graph &graph() {
     return g_;
   }
@@ -84,10 +89,6 @@ public:
   }
 
 private:
-  constexpr Size size() const noexcept {
-    return g_.size();
-  }
-
   // called by allocate_regs()
   void init() noexcept;
 

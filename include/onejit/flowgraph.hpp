@@ -45,6 +45,10 @@ public:
   // return false if out of memory
   bool build(Span<Node> nodes, Array<Error> &error) noexcept;
 
+  constexpr BasicBlocks view() const noexcept {
+    return basicblocks_;
+  }
+
   const Fmt &format(const Fmt &fmt) const;
 
 private:

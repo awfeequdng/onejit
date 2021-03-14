@@ -91,6 +91,7 @@ using CodeItem = uint32_t;
 using Offset = uint32_t;
 using SimdN = Bits;
 
+using BasicBlocks = View<BasicBlock>;
 using CodeItems = View<CodeItem>;
 using Errors = View<Error>;
 using Kinds = View<Kind>;
