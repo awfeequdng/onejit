@@ -59,13 +59,10 @@ const Fmt &operator<<(const Fmt &fmt, uint64_t val) {
   }
   char buf[24]; // [21] would suffice too
   unsigned i = sizeof(buf);
-  while (i) {
+  do {
     buf[--i] = '0' + (val % 10);
     val /= 10;
-    if (val == 0) {
-      break;
-    }
-  }
+  } while (i && val);
   return fmt.write(buf + i, sizeof(buf) - i);
 }
 
