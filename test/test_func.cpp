@@ -83,7 +83,8 @@ void Test::func_fib() {
     label_1\n\
     (= var1001_ul 1)\n\
     (return var1001_ul)\n\
-    label_2)";
+    label_2\n\
+    (return var1001_ul))";
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   expected = "(block\n\
@@ -101,7 +102,8 @@ void Test::func_fib() {
     label_1\n\
     (x86_mov var1001_ul 1)\n\
     (x86_ret var1001_ul)\n\
-    label_2)";
+    label_2\n\
+    (x86_ret var1001_ul))";
   TEST(to_string(f.get_compiled(X64)), ==, expected);
 
   expected = "(flowgraph\n\
@@ -143,6 +145,7 @@ void Test::func_fib() {
         (prev bb_2)\n\
         (nodes\n\
             label_2\n\
+            (x86_ret var1001_ul)\n\
         )\n\
     )\n\
 )";

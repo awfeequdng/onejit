@@ -136,6 +136,7 @@ private:
                     Array<Expr> &vars) noexcept;
 
   Compiler &add_prologue(Func &func) noexcept;
+  Compiler &add_epilogue(Func &func) noexcept;
 
   // add an already compiled node to compiled list
   Compiler &add(const Node &node) noexcept;

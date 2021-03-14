@@ -98,10 +98,25 @@ public:
     return result_n_;
   }
 
-  /// \return i-th parameter, or Var{} if out-of-bounds
-  Var param(uint16_t i) const noexcept;
-  /// \return i-th result, or Var{} if out-of-bounds
-  Var result(uint16_t i) const noexcept;
+  /// \return i-th function parameter
+  constexpr Var param(uint16_t i) const noexcept {
+    return params()[i];
+  }
+
+  /// \return i-th function result
+  constexpr Var result(uint16_t i) const noexcept {
+    return results()[i];
+  }
+
+  /// \return function parameters
+  constexpr Vars params() const noexcept {
+    return vars_.view(0, param_n_);
+  }
+
+  /// \return function results
+  constexpr Vars results() const noexcept {
+    return vars_.view(param_n_, param_n_ + result_n_);
+  }
 
   //////////////////////////////////////////////////////////////////////////////
 

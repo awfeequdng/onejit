@@ -35,13 +35,11 @@ bool is_jump(Node node) noexcept {
 }
 
 bool is_uncond_jump(Node node) noexcept {
-  Type t = node.type();
-  if (t == STMT_1) {
+  if (node.type() == STMT_1) {
     OpStmt1 op1 = OpStmt1(node.op());
     return op1 == GOTO || op1 == X86_JMP;
-  } else if (t == STMT_N) {
-    OpStmtN opn = OpStmtN(node.op());
-    return opn == RETURN || opn == X86_RET;
+  } else {
+    return is_return(node);
   }
   return false;
 }
@@ -95,6 +93,14 @@ bool is_cond_jump(Node node) noexcept {
 
   default:
     break;
+  }
+  return false;
+}
+
+bool is_return(Node node) noexcept {
+  if (node.type() == STMT_N) {
+    OpStmtN opn = OpStmtN(node.op());
+    return opn == RETURN || opn == X86_RET;
   }
   return false;
 }

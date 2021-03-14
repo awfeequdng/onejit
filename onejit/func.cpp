@@ -75,22 +75,6 @@ Label Func::label() const noexcept {
   return labels_[0];
 }
 
-/// \return i-th param, or Var{} if out-of-bounds
-Var Func::param(uint16_t i) const noexcept {
-  if (i < param_n_) {
-    return vars_[i];
-  }
-  return Var{};
-}
-
-/// \return i-th result, or Var{} if out-of-bounds
-Var Func::result(uint16_t i) const noexcept {
-  if (i < result_n_) {
-    return vars_[size_t(i) + param_n_];
-  }
-  return Var{};
-}
-
 Node Func::get_compiled(ArchId archid) const noexcept {
   if (archid < ARCHID_N) {
     return compiled_[archid];

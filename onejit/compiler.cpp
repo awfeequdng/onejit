@@ -37,6 +37,7 @@
 #include <onejit/ir/stmt4.hpp>
 #include <onejit/ir/stmtn.hpp>
 #include <onejit/ir/unary.hpp>
+#include <onejit/ir/util.hpp>
 
 namespace onejit {
 
@@ -103,7 +104,9 @@ Compiler &Compiler::compile(Func &func, Opt flags) noexcept {
 
   Node node = optimizer_.optimize(func, func.get_body(), flags);
 
-  return compile_add(node, SimplifyDefault).finish();
+  return compile_add(node, SimplifyDefault) //
+      .add_epilogue(func)
+      .finish();
 }
 
 Compiler &Compiler::finish() noexcept {
@@ -629,9 +632,12 @@ Node Compiler::compile(Return st, Flags) noexcept {
     add(st);
     return VoidConst;
   }
+  size_t i = 0;
   bool uses_func_result = true;
-  for (size_t i = 0; uses_func_result && i < n; i++) {
-    uses_func_result = st.child(i) == func_->result(i);
+  for (Var var : func_->results()) {
+    if (!(uses_func_result = (st.child(i++) == var))) {
+      break;
+    }
   }
   if (uses_func_result) {
     // nothing to do
@@ -639,9 +645,9 @@ Node Compiler::compile(Return st, Flags) noexcept {
     return VoidConst;
   }
   Buffer<Expr> vars;
-  for (size_t i = 0; i < n; i++) {
-    Var var = func_->result(i);
-    Expr expr = st.child_is<Expr>(i);
+  i = 0;
+  for (Var var : func_->results()) {
+    Expr expr = st.child_is<Expr>(i++);
     if (var.kind() != expr.kind()) {
       error(st, "return value kind does not match function signature");
     }
@@ -809,6 +815,15 @@ Compiler &Compiler::add_prologue(Func &func) noexcept {
     return *this;
   }
   return add(StmtN{*func_, Nodes{vars.data(), n}, SET_});
+}
+
+Compiler &Compiler::add_epilogue(Func &func) noexcept {
+  size_t n = node_.size();
+  if (n == 0 || !is_return(node_[n - 1])) {
+    Vars results = func.results();
+    add(Return{func, Exprs{results.data(), results.size()}});
+  }
+  return *this;
 }
 
 Compiler &Compiler::add(const Node &node) noexcept {

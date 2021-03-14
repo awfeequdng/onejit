@@ -34,6 +34,7 @@ namespace ir {
 bool is_jump(Node node) noexcept;
 bool is_cond_jump(Node node) noexcept;
 bool is_uncond_jump(Node node) noexcept;
+bool is_return(Node node) noexcept;
 
 // If node is a jump, return its destination label.
 // Note: RETURN, X86_RET, ARM64_RET etc. are jumps but have no destination label
