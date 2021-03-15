@@ -296,7 +296,7 @@ Expr Compiler::compile(Call call, Flags flags) noexcept {
     Array<Expr> vargs;
     // convert all call arguments to Var
     to_vars(call, 2, n, vargs);
-    call = Call{*func_, call.ftype(), call.label(), vargs};
+    call = Call{*func_, call.fheader(), vargs};
   }
 
   if (!(flags & SimplifyCall)) {
@@ -810,7 +810,7 @@ Compiler &Compiler::to_vars(Node node, uint32_t start, uint32_t end, //
 Compiler &Compiler::add_prologue(Func &func) noexcept {
   const uint16_t n = func.param_n();
   Vars vars = func.vars();
-  add(func.label());
+  add(func.address());
   if (n == 0 || vars.size() < n) {
     return *this;
   }

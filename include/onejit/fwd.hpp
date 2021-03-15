@@ -52,9 +52,9 @@ template <class T> using Span = ::onestl::Span<T>;
 template <class T> using SSpan = ::onestl::SSpan<T>;
 // template <class T> using View = ::onestl::View<T>; // already in onejit::ir
 
+enum Abi : uint32_t;
 enum ArchId : uint8_t;
 class Assembler;
-
 class Bits;
 class BasicBlock;
 enum Check : uint8_t;

@@ -29,19 +29,16 @@
 
 namespace onejit {
 
-Func::Func() noexcept
-    : holder_{}, param_n_{}, result_n_{}, body_var_n_{}, //
-      ftype_{}, vars_{}, labels_{}, name_{}, body_{} {
+Func::Func() noexcept //
+    : Base{}, holder_{}, body_var_n_{}, vars_{}, labels_{}, body_{} {
 }
 
 Func &Func::reset(Code *holder, Name name, FuncType ftype) noexcept {
   holder_ = holder;
   body_var_n_ = 0;
   compiled_var_n_ = 0;
-  ftype_ = ftype;
   vars_.clear();
   labels_.clear();
-  name_ = name;
   body_ = Node{};
   for (size_t i = 0; i < ARCHID_N; i++) {
     compiled_[i] = Node{};
@@ -57,22 +54,15 @@ Func &Func::reset(Code *holder, Name name, FuncType ftype) noexcept {
   // first label points to the function itself
   ok = ok && bool(new_label());
   if (ok) {
-    param_n_ = ftype.param_n();
-    result_n_ = ftype.result_n();
+    Base::reset(name, ftype, labels_[0]);
   } else {
-    result_n_ = param_n_ = 0;
+    Base::reset(Name{}, FuncType{}, Label{});
     holder_ = nullptr;
   }
   return *this;
 }
 
 Func::~Func() noexcept {
-}
-
-// convert Func to Label
-Label Func::label() const noexcept {
-  // return labels_[0], or Label{} if labels_ is empty
-  return labels_[0];
 }
 
 Node Func::get_compiled(ArchId archid) const noexcept {

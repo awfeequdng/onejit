@@ -59,8 +59,9 @@ public:
   FuncType(Code *holder, //
            std::initializer_list<Kind> params,
            std::initializer_list<Kind> results) noexcept
-      : Base{create(holder, //
-                    Kinds{params.begin(), params.size()}, Kinds{results.begin(), results.size()})} {
+      : Base{create(holder,                               //
+                    Kinds{params.begin(), params.size()}, //
+                    Kinds{results.begin(), results.size()})} {
   }
 
   static constexpr Type type() noexcept {

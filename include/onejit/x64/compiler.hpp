@@ -57,8 +57,9 @@ public:
 
 private:
   // private, use onejit::Compiler::x64() instead
-  Compiler &compile(Func &func, reg::Allocator &allocator, Array<Node> &node, //
-                    FlowGraph &flowgraph, Array<Error> &error, Opt flags) noexcept;
+  Compiler &compile(Func &func, reg::Allocator &allocator, Array<Node> &node,      //
+                    FlowGraph &flowgraph, Array<Error> &error, Opt flags, Abi abi) //
+      noexcept;
 
   Compiler &compile(Assign stmt) noexcept;
   Compiler &compile(AssignCall stmt) noexcept;
@@ -103,11 +104,14 @@ private:
   Compiler &add(Node node) noexcept;
 
   // perform register allocation
-  Compiler &allocate_regs() noexcept;
+  Compiler &allocate_regs(Abi abi) noexcept;
 
   Compiler &fill_interference_graph() noexcept;
 
   static void update_live_regs(BitSet &live, Node node) noexcept;
+
+  // set ABI register hints for function params and results
+  Compiler &set_reg_hints(Abi abi) noexcept;
 
   // store compiled code into function.set_compiled(X64)
   // invoked by compile(Func)

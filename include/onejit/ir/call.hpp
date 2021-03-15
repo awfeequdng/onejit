@@ -51,24 +51,13 @@ public:
   }
 
   // create a call to Func 'called'
-  Call(Func &caller, const Func &called, std::initializer_list<Expr> args) noexcept
-      : Base{create(caller, called.ftype(), called.label(), Exprs{args.begin(), args.size()})} {
+  Call(Func &caller, const FuncHeader &called, std::initializer_list<Expr> args) noexcept
+      : Base{create(caller, called.ftype(), called.address(), Exprs{args.begin(), args.size()})} {
   }
 
   // create a call to Func 'called'
-  Call(Func &caller, const Func &called, Exprs args) noexcept
-      : Base{create(caller, called.ftype(), called.label(), args)} {
-  }
-
-  // create a call to an arbitrary function, for example a Func or an already compiled C function
-  Call(Func &caller, const FuncType &ftype, const Label &flabel,
-       std::initializer_list<Expr> args) noexcept
-      : Base{create(caller, ftype, flabel, Exprs{args.begin(), args.size()})} {
-  }
-
-  // create a call to an arbitrary function, for example a Func or an already compiled C function
-  Call(Func &caller, const FuncType &ftype, const Label &flabel, Exprs args) noexcept
-      : Base{create(caller, ftype, flabel, args)} {
+  Call(Func &caller, const FuncHeader &called, Exprs args) noexcept
+      : Base{create(caller, called.ftype(), called.address(), args)} {
   }
 
   static constexpr OpN op() noexcept {
@@ -80,9 +69,13 @@ public:
     return child_is<FuncType>(0);
   }
 
-  // shortcut for child_is<Label>(1)
-  Label label() const noexcept {
-    return child_is<Label>(1);
+  // shortcut for child_is<Expr>(1)
+  Expr address() const noexcept {
+    return child_is<Expr>(1);
+  }
+
+  FuncHeader fheader() const noexcept {
+    return FuncHeader{Name{}, ftype(), address()};
   }
 
   // shortcut for child_is<Expr>(i+2)
@@ -98,7 +91,7 @@ private:
     return op == CALL;
   }
 
-  static Node create(Func &caller, const FuncType &ftype, const Label &flabel, Exprs args) noexcept;
+  static Node create(Func &caller, const FuncType &ftype, const Expr &address, Exprs args) noexcept;
 };
 
 } // namespace ir

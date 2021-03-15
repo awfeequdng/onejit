@@ -35,7 +35,8 @@ Compiler &Compiler::compile_x64(Func &func, Opt flags) noexcept {
   compile(func, flags);
   if (*this && error_.empty()) {
     // pass our internal buffers node_ and error_ to x64::Compiler
-    onejit::x64::Compiler{}.compile(func, allocator_, node_, flowgraph_, error_, flags);
+    onejit::x64::Compiler{}.compile(func, allocator_, node_, flowgraph_, error_, //
+                                    flags, abi_autodetect(abi_));
   }
   return *this;
 }
@@ -49,7 +50,8 @@ Compiler::operator bool() const noexcept {
 }
 
 Compiler &Compiler::compile(Func &func, reg::Allocator &allocator, Array<Node> &node_vec,
-                            FlowGraph &flowgraph, Array<Error> &error_vec, Opt flags) noexcept {
+                            FlowGraph &flowgraph, Array<Error> &error_vec, Opt flags,
+                            Abi abi) noexcept {
   if (func.get_compiled(X64)) {
     // already compiled for x86_64
     return *this;
@@ -69,13 +71,14 @@ Compiler &Compiler::compile(Func &func, reg::Allocator &allocator, Array<Node> &
   flags_ = flags;
   good_ = bool(func);
 
-  return compile(node).allocate_regs().finish();
+  return compile(node).allocate_regs(abi).finish();
 }
 
-Compiler &Compiler::allocate_regs() noexcept {
+Compiler &Compiler::allocate_regs(Abi abi) noexcept {
   Vars vars = func_->vars();
   if (allocator_->reset(vars.size())) {
     fill_interference_graph();
+    set_reg_hints(abi);
     // x86_64 has 16 general registers, we reserve RSP and RBX
     allocator_->allocate_regs(14);
   }
@@ -98,6 +101,11 @@ Compiler &Compiler::fill_interference_graph() noexcept {
 }
 
 void Compiler::update_live_regs(BitSet & /*live*/, Node /*node*/) noexcept {
+}
+
+Compiler &Compiler::set_reg_hints(Abi abi) noexcept {
+  (void)abi; // TODO implement
+  return *this;
 }
 
 Compiler &Compiler::finish() noexcept {

@@ -26,6 +26,7 @@
 #ifndef ONEJIT_COMPILER_HPP
 #define ONEJIT_COMPILER_HPP
 
+#include <onejit/abi.hpp>
 #include <onejit/error.hpp>
 #include <onejit/flowgraph.hpp>
 #include <onejit/ir/label.hpp>
@@ -58,9 +59,10 @@ public:
     return func_;
   }
 
-  // configure the checks that compiled code must perform at runtime.
-  // default is CheckNone
-  Compiler &configure(Check check) noexcept {
+  // configure the ABI and the checks that compiled code must perform at runtime.
+  // default is to CheckNone and Abi autodetect
+  Compiler &configure(Check check, Abi abi = Abi_auto) noexcept {
+    abi_ = abi_autodetect(abi);
     optimizer_.configure(check);
     return *this;
   }
@@ -167,6 +169,7 @@ private:
   Array<Node> node_;
   FlowGraph flowgraph_;
   Array<Error> error_;
+  Abi abi_;
   bool good_; // !good_ means out of memory
 };
 

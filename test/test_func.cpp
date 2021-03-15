@@ -50,14 +50,14 @@ void Test::func_fib() {
    * }
    */
 
-  f.set_body(                                                 //
-      If{f, Binary{f, GTR, n, two},                           //
-         Return{f,                                            //
-                Tuple{f,                                      //
-                      ADD,                                    //
-                      Call{f, f, {Binary{f, SUB, n, one}}},   //
-                      Call{f, f, {Binary{f, SUB, n, two}}}}}, //
-         Return{f, one}});                                    //
+  f.set_body(                                                           //
+      If{f, Binary{f, GTR, n, two},                                     //
+         Return{f,                                                      //
+                Tuple{f,                                                //
+                      ADD,                                              //
+                      Call{f, f.fheader(), {Binary{f, SUB, n, one}}},   //
+                      Call{f, f.fheader(), {Binary{f, SUB, n, two}}}}}, //
+         Return{f, one}});                                              //
 
   Chars expected = "(if (> var1000_ul 2)\n\
     (return (+ (call label_0 (- var1000_ul 1)) (call label_0 (- var1000_ul 2))))\n\

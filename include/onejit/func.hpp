@@ -28,6 +28,7 @@
 
 #include <onejit/archid.hpp>
 #include <onejit/code.hpp>
+#include <onejit/funcheader.hpp>
 #include <onejit/ir/functype.hpp>
 #include <onejit/ir/label.hpp>
 #include <onejit/ir/name.hpp>
@@ -40,7 +41,9 @@
 
 namespace onejit {
 
-class Func {
+class Func : private FuncHeader {
+  using Base = FuncHeader;
+
   friend class Compiler;
   friend class ir::Label;
   friend class ir::Var;
@@ -73,29 +76,19 @@ public:
     return holder_ && *holder_;
   }
 
-  // get function name
-  constexpr Name name() const noexcept {
-    return name_;
+  using Base::ftype;
+  using Base::name;
+  using Base::param_n;
+  using Base::result_n;
+
+  // get FuncHeader
+  constexpr const FuncHeader &fheader() const noexcept {
+    return *this;
   }
 
-  // reinitialize Func
-  Func &reset(Code *holder, Name name, FuncType ftype) noexcept;
-
-  // convert Func to Label.
-  Label label() const noexcept;
-
-  // get function type
-  constexpr FuncType ftype() const noexcept {
-    return ftype_;
-  }
-
-  // get number of params
-  constexpr uint16_t param_n() const noexcept {
-    return param_n_;
-  }
-  // get number of results
-  constexpr uint16_t result_n() const noexcept {
-    return result_n_;
+  // get function address. the returned label may be not resolved yet.
+  constexpr Label address() const noexcept {
+    return labels_[0];
   }
 
   /// \return i-th function parameter
@@ -110,13 +103,16 @@ public:
 
   /// \return function parameters
   constexpr Vars params() const noexcept {
-    return vars_.view(0, param_n_);
+    return vars_.view(0, param_n());
   }
 
   /// \return function results
   constexpr Vars results() const noexcept {
-    return vars_.view(param_n_, param_n_ + result_n_);
+    return vars_.view(param_n(), param_n() + result_n());
   }
+
+  // reinitialize Func
+  Func &reset(Code *holder, Name name, FuncType ftype) noexcept;
 
   //////////////////////////////////////////////////////////////////////////////
 
@@ -149,15 +145,11 @@ private:
 
 private:
   Code *holder_;
-  uint16_t param_n_;
-  uint16_t result_n_;
   uint32_t body_var_n_;     // # local vars used by body_
   uint32_t compiled_var_n_; // # local vars used by compiled_[NOARCH]
 
-  FuncType ftype_;
   Array<Var> vars_;
   Array<Label> labels_;
-  Name name_;
   Node body_;
   Node compiled_[ARCHID_N]; // compiled code. index is archid
 };

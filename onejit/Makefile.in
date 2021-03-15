@@ -105,27 +105,28 @@ am__v_AR_1 =
 libonejit_a_AR = $(AR) $(ARFLAGS)
 libonejit_a_DEPENDENCIES =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libonejit_a_OBJECTS = archid.$(OBJEXT) assembler.$(OBJEXT) \
-	bits.$(OBJEXT) code.$(OBJEXT) codeparser.$(OBJEXT) \
-	compiler.$(OBJEXT) imm.$(OBJEXT) error.$(OBJEXT) \
-	eval.$(OBJEXT) flowgraph.$(OBJEXT) func.$(OBJEXT) \
-	group.$(OBJEXT) id.$(OBJEXT) kind.$(OBJEXT) op.$(OBJEXT) \
-	opstmt.$(OBJEXT) optimizer.$(OBJEXT) \
-	optimizer_binary.$(OBJEXT) optimizer_tuple.$(OBJEXT) \
-	space.$(OBJEXT) type.$(OBJEXT) value.$(OBJEXT) \
-	value_fmt.$(OBJEXT) ir/binary.$(OBJEXT) ir/call.$(OBJEXT) \
-	ir/childrange.$(OBJEXT) ir/comma.$(OBJEXT) ir/const.$(OBJEXT) \
-	ir/expr.$(OBJEXT) ir/functype.$(OBJEXT) ir/label.$(OBJEXT) \
-	ir/header.$(OBJEXT) ir/mem.$(OBJEXT) ir/name.$(OBJEXT) \
-	ir/node.$(OBJEXT) ir/stmt0.$(OBJEXT) ir/stmt1.$(OBJEXT) \
-	ir/stmt2.$(OBJEXT) ir/stmt3.$(OBJEXT) ir/stmt4.$(OBJEXT) \
-	ir/stmtn.$(OBJEXT) ir/tuple.$(OBJEXT) ir/unary.$(OBJEXT) \
-	ir/util.$(OBJEXT) ir/var.$(OBJEXT) reg/allocator.$(OBJEXT) \
-	x64/address.$(OBJEXT) x64/arg.$(OBJEXT) x64/asm0.$(OBJEXT) \
-	x64/asm1.$(OBJEXT) x64/asm2.$(OBJEXT) x64/asm3.$(OBJEXT) \
-	x64/asmn.$(OBJEXT) x64/assembler.$(OBJEXT) \
-	x64/compiler.$(OBJEXT) x64/mem.$(OBJEXT) \
-	x64/rex_byte.$(OBJEXT) x64/scale.$(OBJEXT) x64/util.$(OBJEXT)
+am_libonejit_a_OBJECTS = abi.$(OBJEXT) archid.$(OBJEXT) \
+	assembler.$(OBJEXT) bits.$(OBJEXT) code.$(OBJEXT) \
+	codeparser.$(OBJEXT) compiler.$(OBJEXT) imm.$(OBJEXT) \
+	error.$(OBJEXT) eval.$(OBJEXT) flowgraph.$(OBJEXT) \
+	func.$(OBJEXT) funcheader.$(OBJEXT) group.$(OBJEXT) \
+	id.$(OBJEXT) kind.$(OBJEXT) op.$(OBJEXT) opstmt.$(OBJEXT) \
+	optimizer.$(OBJEXT) optimizer_binary.$(OBJEXT) \
+	optimizer_tuple.$(OBJEXT) space.$(OBJEXT) type.$(OBJEXT) \
+	value.$(OBJEXT) value_fmt.$(OBJEXT) ir/binary.$(OBJEXT) \
+	ir/call.$(OBJEXT) ir/childrange.$(OBJEXT) ir/comma.$(OBJEXT) \
+	ir/const.$(OBJEXT) ir/expr.$(OBJEXT) ir/functype.$(OBJEXT) \
+	ir/label.$(OBJEXT) ir/header.$(OBJEXT) ir/mem.$(OBJEXT) \
+	ir/name.$(OBJEXT) ir/node.$(OBJEXT) ir/stmt0.$(OBJEXT) \
+	ir/stmt1.$(OBJEXT) ir/stmt2.$(OBJEXT) ir/stmt3.$(OBJEXT) \
+	ir/stmt4.$(OBJEXT) ir/stmtn.$(OBJEXT) ir/tuple.$(OBJEXT) \
+	ir/unary.$(OBJEXT) ir/util.$(OBJEXT) ir/var.$(OBJEXT) \
+	reg/allocator.$(OBJEXT) x64/address.$(OBJEXT) \
+	x64/arg.$(OBJEXT) x64/asm0.$(OBJEXT) x64/asm1.$(OBJEXT) \
+	x64/asm2.$(OBJEXT) x64/asm3.$(OBJEXT) x64/asmn.$(OBJEXT) \
+	x64/assembler.$(OBJEXT) x64/compiler.$(OBJEXT) \
+	x64/mem.$(OBJEXT) x64/rex_byte.$(OBJEXT) x64/scale.$(OBJEXT) \
+	x64/util.$(OBJEXT)
 libonejit_a_OBJECTS = $(am_libonejit_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -142,11 +143,12 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/archid.Po ./$(DEPDIR)/assembler.Po \
-	./$(DEPDIR)/bits.Po ./$(DEPDIR)/code.Po \
-	./$(DEPDIR)/codeparser.Po ./$(DEPDIR)/compiler.Po \
-	./$(DEPDIR)/error.Po ./$(DEPDIR)/eval.Po \
-	./$(DEPDIR)/flowgraph.Po ./$(DEPDIR)/func.Po \
+am__depfiles_remade = ./$(DEPDIR)/abi.Po ./$(DEPDIR)/archid.Po \
+	./$(DEPDIR)/assembler.Po ./$(DEPDIR)/bits.Po \
+	./$(DEPDIR)/code.Po ./$(DEPDIR)/codeparser.Po \
+	./$(DEPDIR)/compiler.Po ./$(DEPDIR)/error.Po \
+	./$(DEPDIR)/eval.Po ./$(DEPDIR)/flowgraph.Po \
+	./$(DEPDIR)/func.Po ./$(DEPDIR)/funcheader.Po \
 	./$(DEPDIR)/group.Po ./$(DEPDIR)/id.Po ./$(DEPDIR)/imm.Po \
 	./$(DEPDIR)/kind.Po ./$(DEPDIR)/op.Po ./$(DEPDIR)/opstmt.Po \
 	./$(DEPDIR)/optimizer.Po ./$(DEPDIR)/optimizer_binary.Po \
@@ -362,9 +364,10 @@ noinst_LIBRARIES = libonejit.a
 AM_CPPFLAGS = -I$(top_srcdir)/include
 # libonejit_a_CXXFLAGS =
 libonejit_a_SOURCES = \
-        archid.cpp assembler.cpp bits.cpp code.cpp codeparser.cpp \
-        compiler.cpp imm.cpp error.cpp eval.cpp flowgraph.cpp func.cpp group.cpp id.cpp kind.cpp \
-        op.cpp opstmt.cpp optimizer.cpp optimizer_binary.cpp optimizer_tuple.cpp \
+        abi.cpp archid.cpp assembler.cpp bits.cpp code.cpp codeparser.cpp compiler.cpp \
+        imm.cpp error.cpp eval.cpp flowgraph.cpp func.cpp funcheader.cpp \
+        group.cpp id.cpp kind.cpp op.cpp opstmt.cpp \
+        optimizer.cpp optimizer_binary.cpp optimizer_tuple.cpp \
         space.cpp type.cpp value.cpp value_fmt.cpp \
         \
         ir/binary.cpp ir/call.cpp ir/childrange.cpp ir/comma.cpp ir/const.cpp \
@@ -492,6 +495,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/abi.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/archid.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/assembler.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bits.Po@am__quote@ # am--include-marker
@@ -502,6 +506,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eval.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flowgraph.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/func.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/funcheader.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/group.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/id.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imm.Po@am__quote@ # am--include-marker
@@ -777,7 +782,8 @@ clean: clean-recursive
 clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-recursive
-		-rm -f ./$(DEPDIR)/archid.Po
+		-rm -f ./$(DEPDIR)/abi.Po
+	-rm -f ./$(DEPDIR)/archid.Po
 	-rm -f ./$(DEPDIR)/assembler.Po
 	-rm -f ./$(DEPDIR)/bits.Po
 	-rm -f ./$(DEPDIR)/code.Po
@@ -787,6 +793,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/eval.Po
 	-rm -f ./$(DEPDIR)/flowgraph.Po
 	-rm -f ./$(DEPDIR)/func.Po
+	-rm -f ./$(DEPDIR)/funcheader.Po
 	-rm -f ./$(DEPDIR)/group.Po
 	-rm -f ./$(DEPDIR)/id.Po
 	-rm -f ./$(DEPDIR)/imm.Po
@@ -881,7 +888,8 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
-		-rm -f ./$(DEPDIR)/archid.Po
+		-rm -f ./$(DEPDIR)/abi.Po
+	-rm -f ./$(DEPDIR)/archid.Po
 	-rm -f ./$(DEPDIR)/assembler.Po
 	-rm -f ./$(DEPDIR)/bits.Po
 	-rm -f ./$(DEPDIR)/code.Po
@@ -891,6 +899,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/eval.Po
 	-rm -f ./$(DEPDIR)/flowgraph.Po
 	-rm -f ./$(DEPDIR)/func.Po
+	-rm -f ./$(DEPDIR)/funcheader.Po
 	-rm -f ./$(DEPDIR)/group.Po
 	-rm -f ./$(DEPDIR)/id.Po
 	-rm -f ./$(DEPDIR)/imm.Po

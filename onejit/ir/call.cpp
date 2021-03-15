@@ -40,7 +40,7 @@ Expr Call::arg(uint32_t i) const noexcept {
   return child(add_uint32(2, i)).is<Expr>();
 }
 
-Node Call::create(Func &caller, const FuncType &ftype, const Label &flabel, Exprs args) noexcept {
+Node Call::create(Func &caller, const FuncType &ftype, const Expr &address, Exprs args) noexcept {
   const size_t n = args.size();
   Code *holder = caller.code();
   while (holder && n == uint32_t(n)) {
@@ -48,7 +48,7 @@ Node Call::create(Func &caller, const FuncType &ftype, const Label &flabel, Expr
     CodeItem offset = holder->length();
 
     if (holder->add(header) && holder->add_uint32(add_uint32(2, n)) && //
-        holder->add(ftype, offset) && holder->add(flabel, offset) &&   //
+        holder->add(ftype, offset) && holder->add(address, offset) &&  //
         holder->add(args, offset)) {
       return Node{header, offset, holder};
     }
