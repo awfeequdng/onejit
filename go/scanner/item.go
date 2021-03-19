@@ -6,18 +6,19 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * main.go
+ * item.go
  *
  *  Created on: Mar 19, 2021
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package scanner
 
 import (
-	_ "github.com/cosmos72/onejit/go/jit_old"
-	_ "github.com/cosmos72/onejit/go/scanner"
+	"github.com/cosmos72/onejit/go/token"
 )
 
-func main() {
+type Item struct {
+	Tok token.Token
+	Lit string
 }

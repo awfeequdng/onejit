@@ -6,18 +6,23 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * main.go
+ * z_number_test.go
  *
  *  Created on: Mar 19, 2021
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package scanner
 
 import (
-	_ "github.com/cosmos72/onejit/go/jit_old"
-	_ "github.com/cosmos72/onejit/go/scanner"
+	"testing"
+
+	"github.com/cosmos72/onejit/go/token"
 )
 
-func main() {
+func TestDecimal(t *testing.T) {
+	v := TestCases{
+		TestCase{"0", Item{token.INT, "0"}},
+	}
+	v.run(t)
 }

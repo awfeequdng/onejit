@@ -6,18 +6,22 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * main.go
+ * utf8reader.go
  *
  *  Created on: Mar 19, 2021
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package scanner
 
 import (
-	_ "github.com/cosmos72/onejit/go/jit_old"
-	_ "github.com/cosmos72/onejit/go/scanner"
+	"io"
 )
 
-func main() {
+type readerAlwaysEof struct{}
+
+func (r readerAlwaysEof) Read(dst []byte) (int, error) {
+	return 0, io.EOF
 }
+
+var alwaysEof io.Reader = readerAlwaysEof{}
