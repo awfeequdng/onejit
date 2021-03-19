@@ -23,6 +23,10 @@ import (
 func TestDecimal(t *testing.T) {
 	v := TestCases{
 		TestCase{"0", Item{token.INT, "0"}},
+		TestCase{"1", Item{token.INT, "1"}},
+		TestCase{"1", Item{token.INT, "1"}},
+		TestCase{"3_7", Item{token.INT, "37"}},
+		TestCase{"789_123", Item{token.INT, "789123"}},
 	}
 	v.run(t)
 }
