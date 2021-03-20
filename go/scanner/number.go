@@ -21,6 +21,7 @@ import (
 )
 
 var errIntBadUnderscore = errors.New("'_' must separate successive digits")
+var errSyntaxErrorUnexpectedChar = errors.New("syntax error: unexpected character")
 
 var errIntHasNodigits = []error{
 	base2:  errors.New("binary literal has no digits"),
@@ -47,6 +48,7 @@ func (s *Scanner) number() {
 	base := base10
 	if ch == '0' {
 		b.WriteRune(ch)
+		addRune := true
 		switch ch = s.next(); ch {
 		case 'B', 'b':
 			base = base2
@@ -56,6 +58,11 @@ func (s *Scanner) number() {
 			base = base16
 		default:
 			base = base8
+			addRune = false
+		}
+		if addRune {
+			b.WriteRune(ch)
+			ch = s.next()
 		}
 	}
 	s.integer(ch, base)
@@ -64,18 +71,10 @@ func (s *Scanner) number() {
 func (s *Scanner) integer(ch rune, base intbase) {
 	b := &s.builder
 	lastIsUnderscore := false
-	if isSpace(ch) || isOperator(ch) {
-		s.Tok = token.INT
-		s.Lit = "0"
-		return
-	}
-	lastIsUnderscore = ch == '_'
-	if !lastIsUnderscore {
-		b.WriteRune(ch)
-	}
 	for {
-		ch := s.next()
-		if isIntDigit(ch, base) {
+		if isSpace(ch) || isOperator(ch) {
+			break
+		} else if isIntDigit(ch, base) {
 			b.WriteRune(ch)
 			lastIsUnderscore = false
 		} else if isIntDigit(ch, 10) {
@@ -86,8 +85,9 @@ func (s *Scanner) integer(ch rune, base intbase) {
 			}
 			lastIsUnderscore = true
 		} else {
-			break
+			panic(errSyntaxErrorUnexpectedChar)
 		}
+		ch = s.next()
 	}
 	if lastIsUnderscore {
 		panic(errIntBadUnderscore)
@@ -99,7 +99,7 @@ func (s *Scanner) integer(ch rune, base intbase) {
 }
 
 func checkValidInteger(str string, base intbase) {
-	if len(str) > 2 || str[0] != '0' {
+	if len(str) == 1 || len(str) > 2 || str[0] != '0' {
 		return
 	}
 	last := rune(str[1])

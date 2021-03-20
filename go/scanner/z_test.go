@@ -57,7 +57,11 @@ func (testcase *TestCase) expectItem(t *testing.T, s *Scanner, expected Item) {
 }
 
 func (testcase *TestCase) expectPanic(t *testing.T, s *Scanner, expected interface{}) {
+	fail := false
 	defer func() {
+		if fail {
+			return
+		}
 		actual := recover()
 		if actual != expected {
 			t.Errorf("scan %q panicked with:\n\t%#v\nexpecting panic with:\n\t%#v",
@@ -65,6 +69,7 @@ func (testcase *TestCase) expectPanic(t *testing.T, s *Scanner, expected interfa
 		}
 	}()
 	s.Scan()
-	t.Errorf("scan %q returned {%v %q}, expecting error %v",
+	t.Errorf("scan %q returned {%v %q}, expecting panic with:\n\t%#v",
 		testcase.In, s.Tok, s.Lit, expected)
+	fail = true
 }
