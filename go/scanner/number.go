@@ -20,13 +20,20 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
-var errNumberBadUnderscore = errors.New("'_' must separate successive digits")
+var errIntBadUnderscore = errors.New("'_' must separate successive digits")
 
 var errIntHasNodigits = []error{
 	base2:  errors.New("binary literal has no digits"),
 	base8:  errors.New("octal literal has no digits"),
 	base16: errors.New("hexadecimal literal has no digits"),
 	base10: errors.New("decimal literal has no digits"),
+}
+
+var errIntBadDigit = []error{
+	base2:  errors.New("invalid digit in binary literal"),
+	base8:  errors.New("invalid digit in octal literal"),
+	base16: errors.New("invalid digit in hexadecimal literal"),
+	base10: errors.New("invalid digit in decimal literal"),
 }
 
 func (s *Scanner) number() {
@@ -48,29 +55,34 @@ func (s *Scanner) number() {
 		case 'X', 'x':
 			base = base16
 		default:
-			if !isOctalDigit(ch) {
-				s.Tok = token.INT
-				s.Lit = "0"
-				return
-			}
 			base = base8
 		}
 	}
-	b.WriteRune(ch)
-	s.integer(base)
+	s.integer(ch, base)
 }
 
-func (s *Scanner) integer(base intbase) {
+func (s *Scanner) integer(ch rune, base intbase) {
 	b := &s.builder
 	lastIsUnderscore := false
+	if isSpace(ch) || isOperator(ch) {
+		s.Tok = token.INT
+		s.Lit = "0"
+		return
+	}
+	lastIsUnderscore = ch == '_'
+	if !lastIsUnderscore {
+		b.WriteRune(ch)
+	}
 	for {
 		ch := s.next()
 		if isIntDigit(ch, base) {
 			b.WriteRune(ch)
 			lastIsUnderscore = false
+		} else if isIntDigit(ch, 10) {
+			panic(errIntBadDigit[base])
 		} else if ch == '_' {
 			if lastIsUnderscore {
-				panic(errNumberBadUnderscore)
+				panic(errIntBadUnderscore)
 			}
 			lastIsUnderscore = true
 		} else {
@@ -78,7 +90,7 @@ func (s *Scanner) integer(base intbase) {
 		}
 	}
 	if lastIsUnderscore {
-		panic(errNumberBadUnderscore)
+		panic(errIntBadUnderscore)
 	}
 	str := b.String()
 	checkValidInteger(str, base)

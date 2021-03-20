@@ -27,6 +27,25 @@ const (
 	base10
 )
 
+const runeBOF rune = -2 // beginning of file i.e. no rune was read yet
+const runeEOF rune = -1 // end of file
+
+func isSpace(ch rune) bool {
+	switch ch {
+	case '\t', '\r', '\n', ' ', runeEOF:
+		return true
+	default:
+		return false
+	}
+}
+
+func isOperator(ch rune) bool {
+	return (ch >= '!' && ch <= '/') ||
+		(ch >= ':' && ch <= '@') ||
+		(ch >= '[' && ch <= '^') || ch == '`' ||
+		(ch >= '{' && ch <= '~')
+}
+
 func isLetter(ch rune) bool {
 	return unicode.IsLetter(ch)
 }

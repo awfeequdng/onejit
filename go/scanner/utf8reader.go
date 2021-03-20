@@ -20,8 +20,6 @@ import (
 	"unicode/utf8"
 )
 
-const chEOF rune = -1
-
 var ErrInvalidUtf8 = errors.New("invalid UTF-8 sequence")
 
 type utf8Reader struct {
@@ -32,10 +30,17 @@ type utf8Reader struct {
 }
 
 func (u *utf8Reader) init() {
-	u.ch = '\000'
+	u.ch = runeBOF
 	u.buf = make([]byte, 0, 65536)
 	u.start = 0
 	u.src = alwaysEof
+}
+
+// clear internal buffers
+func (u *utf8Reader) reset() {
+	u.ch = runeBOF
+	u.buf = u.buf[0:0:cap(u.buf)]
+	u.start = 0
 }
 
 func (u *utf8Reader) empty() bool {
@@ -47,8 +52,8 @@ func (u *utf8Reader) next() rune {
 	if u.empty() {
 		u.refill()
 		if u.empty() {
-			u.ch = chEOF
-			return chEOF
+			u.ch = runeEOF
+			return runeEOF
 		}
 	}
 	ch, size := utf8.DecodeRune(u.buf[u.start:])

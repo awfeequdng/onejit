@@ -17,8 +17,6 @@ package scanner
 import (
 	"io"
 	"strings"
-
-	"github.com/cosmos72/onejit/go/token"
 )
 
 type Scanner struct {
@@ -39,12 +37,20 @@ func NewScannerFrom(src io.Reader) *Scanner {
 	return s
 }
 
-func (s *Scanner) SetReader(src io.Reader) {
-	s.utf8Reader.src = src
-	s.next()
+// clear internal buffers
+func (s *Scanner) Reset() {
+	s.Item = Item{}
+	s.utf8Reader.reset()
+	s.builder.Reset()
 }
 
-func (s *Scanner) Scan() token.Token {
+func (s *Scanner) SetReader(src io.Reader) {
+	s.utf8Reader.src = src
+}
+
+func (s *Scanner) Scan() {
+	if s.ch == runeBOF {
+		s.next()
+	}
 	s.number()
-	return s.Tok
 }

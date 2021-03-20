@@ -15,9 +15,15 @@
 package main
 
 import (
+	"os"
+
 	_ "github.com/cosmos72/onejit/go/jit_old"
 	_ "github.com/cosmos72/onejit/go/scanner"
 )
 
 func main() {
+	println("hello from github.com/cosmos72/onejit/go")
+	println("press ENTER to quit")
+	os.Stdin.Read(make([]byte, 1))
+	println("bye")
 }

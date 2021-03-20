@@ -31,6 +31,7 @@ const (
 	CHAR   = Token(token.CHAR)
 	STRING = Token(token.STRING)
 
+	// Operators
 	ADD = Token(token.ADD)
 	SUB = Token(token.SUB)
 	MUL = Token(token.MUL)
