@@ -86,3 +86,14 @@ func isHexDigit(ch rune) bool {
 		(ch >= 'A' && ch <= 'F') ||
 		(ch >= 'a' && ch <= 'f')
 }
+
+func hexDigitToInt(ch rune) int {
+	if ch >= '0' && ch <= '9' {
+		return int(ch - '0')
+	} else if ch >= 'A' && ch <= 'F' {
+		return int(ch-'A') + 10
+	} else if ch >= 'a' && ch <= 'f' {
+		return int(ch-'a') + 10
+	}
+	return 0
+}

@@ -37,7 +37,7 @@ var errIntBadDigit = []error{
 	base10: errors.New("invalid digit in decimal literal"),
 }
 
-func (s *Scanner) number() {
+func (s *Scanner) scanNumber() {
 	ch := s.ch
 	if !isDecimalDigit(ch) {
 		return
@@ -65,19 +65,20 @@ func (s *Scanner) number() {
 			ch = s.next()
 		}
 	}
-	s.integer(ch, base)
+	s.scanInt(ch, base)
 }
 
-func (s *Scanner) integer(ch rune, base intbase) {
+func (s *Scanner) scanInt(ch rune, base intbase) {
 	b := &s.builder
 	lastIsUnderscore := false
 	for {
+		//! TODO: also parse floating point literals
 		if isSpace(ch) || isOperator(ch) {
 			break
 		} else if isIntDigit(ch, base) {
 			b.WriteRune(ch)
 			lastIsUnderscore = false
-		} else if isIntDigit(ch, 10) {
+		} else if isIntDigit(ch, base10) {
 			panic(errIntBadDigit[base])
 		} else if ch == '_' {
 			if lastIsUnderscore {
@@ -93,12 +94,12 @@ func (s *Scanner) integer(ch rune, base intbase) {
 		panic(errIntBadUnderscore)
 	}
 	str := b.String()
-	checkValidInteger(str, base)
+	checkValidInt(str, base)
 	s.Tok = token.INT
 	s.Lit = str
 }
 
-func checkValidInteger(str string, base intbase) {
+func checkValidInt(str string, base intbase) {
 	if len(str) == 1 || len(str) > 2 || str[0] != '0' {
 		return
 	}

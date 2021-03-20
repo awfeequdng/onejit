@@ -52,5 +52,5 @@ func (s *Scanner) Scan() {
 	if s.ch == runeBOF {
 		s.next()
 	}
-	s.number()
+	s.scanNumber()
 }
