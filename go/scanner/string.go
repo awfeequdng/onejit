@@ -26,6 +26,13 @@ var (
 	errInvalidCharInHexEscape              = errors.New("invalid character in hexadecimal escape")
 )
 
+func (s *Scanner) scanRune() {
+	ch := s.ch
+	if ch == '\'' {
+		s.scanRuneOrString(ch)
+	}
+}
+
 func (s *Scanner) scanString() {
 	ch := s.ch
 	if ch == '"' {
