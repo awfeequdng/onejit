@@ -27,7 +27,16 @@ func TestString(t *testing.T) {
 		TestCase{`"\a\b\f\n\r\t\v\"\\"`, Item{token.STRING, `"\a\b\f\n\r\t\v\"\\"`}, nil},
 		TestCase{"\"abc\n\"", Item{token.ILLEGAL, `"abc`}, errNewlineInString[0]},
 		TestCase{`"`, Item{token.ILLEGAL, `"`}, errSyntaxErrorUnterminatedString[0]},
-		TestCase{`"\xff\ucdef\U5678abcd"`, Item{token.STRING, `"\xff\ucdef\U5678abcd"`}, nil},
+		TestCase{`"\xff"`, Item{token.STRING, `"\xff"`}, nil},
+		TestCase{`"\uffff"`, Item{token.STRING, `"\uffff"`}, nil},
+		TestCase{`"\U0010ffff"`, Item{token.STRING, `"\U0010ffff"`}, nil},
+		TestCase{`"\xf."`, Item{token.ILLEGAL, `"\xf."`}, errInvalidCharInHexEscape},
+		TestCase{`"\u123"`, Item{token.ILLEGAL, `"\u123"`},
+			[]error{errInvalidCharInHexEscape, errSyntaxErrorUnterminatedString[0]},
+		},
+		TestCase{`"\U0003456"`, Item{token.ILLEGAL, `"\U0003456"`},
+			[]error{errInvalidCharInHexEscape, errSyntaxErrorUnterminatedString[0]},
+		},
 	}
 	v.run(t)
 }

@@ -68,8 +68,9 @@ func (s *Scanner) Scan() {
 	}
 }
 
-func (s *Scanner) error(err error) {
+func (s *Scanner) error(err error) bool {
 	s.err = append(s.err, err)
+	return false
 }
 
 func (s *Scanner) invalid(err error) bool {
@@ -79,6 +80,5 @@ func (s *Scanner) invalid(err error) bool {
 	}
 	s.Lit = s.builder.String()
 	s.next()
-	s.error(err)
-	return false
+	return s.error(err)
 }

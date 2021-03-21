@@ -22,7 +22,7 @@ import (
 type TestCase struct {
 	In  string
 	Out Item
-	Err error
+	Err interface{}
 }
 
 type TestCases []TestCase
@@ -45,16 +45,28 @@ func (testcase *TestCase) run(t *testing.T, s *Scanner, reader *strings.Reader) 
 
 func (testcase *TestCase) expect(t *testing.T, s *Scanner) {
 	s.Scan()
-	in := testcase.In
+
 	item := testcase.Out
-	if expected := testcase.Err; expected != nil {
-		if err := s.Errors(); len(err) != 1 {
-			t.Errorf("scan %q returned different errors than expected:\n\t%v\nexpecting instead error:\n\t%v",
-				in, err, expected)
-		}
-	}
 	if s.Tok != item.Tok || s.Lit != item.Lit {
 		t.Errorf("scan %q returned {%v %q}, expecting {%v %q}",
-			in, s.Tok, s.Lit, item.Tok, item.Lit)
+			testcase.In, s.Tok, s.Lit, item.Tok, item.Lit)
+	}
+
+	actual := s.Errors()
+	switch expected := testcase.Err.(type) {
+	case error:
+		testcase.expectErrors(t, actual, []error{expected})
+	case []error:
+		testcase.expectErrors(t, actual, expected)
+	default:
+		testcase.expectErrors(t, actual, nil)
+	}
+
+}
+
+func (testcase *TestCase) expectErrors(t *testing.T, actual []error, expected []error) {
+	if len(actual) != len(expected) {
+		t.Errorf("scan %q returned different errors than expected:\n\t%v\nexpecting instead errors:\n\t%v",
+			testcase.In, actual, expected)
 	}
 }

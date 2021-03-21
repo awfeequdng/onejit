@@ -16,6 +16,7 @@ package scanner
 
 import (
 	"errors"
+	"unicode/utf8"
 
 	"github.com/cosmos72/onejit/go/token"
 )
@@ -29,8 +30,9 @@ var (
 		errors.New("syntax error: unterminated string literal"),
 		errors.New("syntax error: unterminated rune literal"),
 	}
-	errUnknownEscape          = errors.New("unknown escape")
-	errInvalidCharInHexEscape = errors.New("invalid character in hexadecimal escape")
+	errUnknownEscape            = errors.New("unknown escape")
+	errInvalidCharInHexEscape   = errors.New("invalid character in hexadecimal escape")
+	errEscapeIsInvalidCodepoint = errors.New("escape is invalid Unicode code point")
 )
 
 type strKind rune
@@ -45,6 +47,15 @@ func (kind strKind) index() int {
 	}
 	return 1
 }
+
+func (kind strKind) token() token.Token {
+	if kind == '"' {
+		return token.STRING
+	}
+	return token.CHAR
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 func (s *Scanner) scanRune() {
 	ch := s.ch
@@ -64,9 +75,11 @@ func (s *Scanner) scanRuneOrString(delim rune) {
 	b := &s.builder
 	b.Reset()
 	b.WriteRune(delim)
+	errnum := len(s.err)
 	kind := strKind(delim)
+	cont := true
 	escape := false
-	for {
+	for cont {
 		ch := s.next()
 		if ch == runeEOF {
 			s.invalid(errSyntaxErrorUnterminatedString[kind.index()])
@@ -86,13 +99,13 @@ func (s *Scanner) scanRuneOrString(delim rune) {
 			switch ch {
 			case 'a', 'b', 'f', 'n', 'r', 't', 'v', '\\', delim:
 			case 'U':
-				s.scanUnicodeHexDigits(kind, ch, 8)
+				cont = s.scanUnicodeHexDigits(kind, ch, 8)
 				continue
 			case 'u':
-				s.scanUnicodeHexDigits(kind, ch, 4)
+				cont = s.scanUnicodeHexDigits(kind, ch, 4)
 				continue
 			case 'x':
-				s.scanUnicodeHexDigits(kind, ch, 2)
+				cont = s.scanUnicodeHexDigits(kind, ch, 2)
 				continue
 			default:
 				s.error(errUnknownEscape)
@@ -101,27 +114,36 @@ func (s *Scanner) scanRuneOrString(delim rune) {
 		}
 		b.WriteRune(ch)
 	}
-	if delim == '"' {
-		s.Tok = token.STRING
+	if len(s.err) > errnum {
+		s.Tok = token.ILLEGAL
 	} else {
-		s.Tok = token.CHAR
+		s.Tok = kind.token()
 	}
-	b.WriteRune(delim)
+	if cont {
+		b.WriteRune(delim)
+	}
 	s.Lit = b.String()
 }
 
-func (s *Scanner) scanUnicodeHexDigits(kind strKind, initial rune, n uint) {
+func (s *Scanner) scanUnicodeHexDigits(kind strKind, initial rune, n uint) bool {
 	b := &s.builder
 	b.WriteByte('\\')
 	b.WriteRune(initial)
-	for i := uint(0); i < n; i++ {
+	var x uint32
+	for n != 0 {
+		n--
 		ch := s.next()
 		if ch == runeEOF {
-			s.invalid(errSyntaxErrorUnterminatedString[kind.index()])
-			return
+			return s.error(errSyntaxErrorUnterminatedString[kind.index()])
 		} else if !isHexDigit(ch) {
 			s.error(errInvalidCharInHexEscape)
+		} else {
+			x |= uint32(hexDigitToInt(ch)) << (n * 4)
 		}
 		b.WriteRune(ch)
 	}
+	if (initial == 'U' || initial == 'u') && !utf8.ValidRune(rune(x)) {
+		s.error(errEscapeIsInvalidCodepoint)
+	}
+	return true
 }
