@@ -97,3 +97,18 @@ func hexDigitToInt(ch rune) int {
 	}
 	return 0
 }
+
+func trim(str string) string {
+	start, end := 0, len(str)
+	for ; start < end; start++ {
+		if !isSpace(rune(str[start])) {
+			break
+		}
+	}
+	for ; start < end; end-- {
+		if !isSpace(rune(str[end-1])) {
+			break
+		}
+	}
+	return str[start:end]
+}

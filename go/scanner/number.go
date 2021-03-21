@@ -76,36 +76,41 @@ func (s *Scanner) scanInt(ch rune, base intbase) {
 		if isSpace(ch) || isOperator(ch) {
 			break
 		} else if isIntDigit(ch, base) {
-			b.WriteRune(ch)
 			lastIsUnderscore = false
 		} else if isIntDigit(ch, base10) {
-			panic(errIntBadDigit[base])
+			s.invalid(errIntBadDigit[base])
+			return
 		} else if ch == '_' {
 			if lastIsUnderscore {
-				panic(errIntBadUnderscore)
+				s.invalid(errIntBadUnderscore)
+				return
 			}
 			lastIsUnderscore = true
 		} else {
-			panic(errSyntaxErrorUnexpectedChar)
+			s.invalid(errSyntaxErrorUnexpectedChar)
+			return
 		}
+		b.WriteRune(ch)
 		ch = s.next()
 	}
 	if lastIsUnderscore {
-		panic(errIntBadUnderscore)
+		s.invalid(errIntBadUnderscore)
+		return
 	}
 	str := b.String()
-	checkValidInt(str, base)
-	s.Tok = token.INT
-	s.Lit = str
+	if s.checkValidInt(str, base) {
+		s.Tok = token.INT
+		s.Lit = str
+	}
 }
 
-func checkValidInt(str string, base intbase) {
+func (s *Scanner) checkValidInt(str string, base intbase) bool {
 	if len(str) == 1 || len(str) > 2 || str[0] != '0' {
-		return
+		return true
 	}
 	last := rune(str[1])
 	if isIntDigit(last, base) {
-		return
+		return true
 	}
-	panic(errIntHasNodigits[base])
+	return s.invalid(errIntHasNodigits[base])
 }

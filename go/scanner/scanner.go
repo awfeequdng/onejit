@@ -17,6 +17,8 @@ package scanner
 import (
 	"io"
 	"strings"
+
+	"github.com/cosmos72/onejit/go/token"
 )
 
 type Scanner struct {
@@ -48,9 +50,28 @@ func (s *Scanner) SetReader(src io.Reader) {
 	s.utf8Reader.src = src
 }
 
+func (s *Scanner) Errors() []error {
+	return s.utf8Reader.err
+}
+
 func (s *Scanner) Scan() {
 	if s.ch == runeBOF {
 		s.next()
 	}
 	s.scanNumber()
+}
+
+func (s *Scanner) error(err error) {
+	s.err = append(s.err, err)
+}
+
+func (s *Scanner) invalid(err error) bool {
+	s.Tok = token.ILLEGAL
+	if !isSpace(s.ch) {
+		s.builder.WriteRune(s.ch)
+	}
+	s.Lit = s.builder.String()
+	s.next()
+	s.error(err)
+	return false
 }

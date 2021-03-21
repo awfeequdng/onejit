@@ -21,7 +21,8 @@ import (
 
 type TestCase struct {
 	In  string
-	Out interface{}
+	Out Item
+	Err error
 }
 
 type TestCases []TestCase
@@ -39,37 +40,21 @@ func (testcase *TestCase) run(t *testing.T, s *Scanner, reader *strings.Reader) 
 	reader.Reset(testcase.In)
 	s.SetReader(reader)
 
-	switch expected := testcase.Out.(type) {
-	case Item:
-		testcase.expectItem(t, s, expected)
-	default:
-		testcase.expectPanic(t, s, expected)
-	}
+	testcase.expect(t, s)
 }
 
-func (testcase *TestCase) expectItem(t *testing.T, s *Scanner, expected Item) {
+func (testcase *TestCase) expect(t *testing.T, s *Scanner) {
+	s.Scan()
 	in := testcase.In
-	s.Scan()
-	if s.Tok != expected.Tok || s.Lit != expected.Lit {
-		t.Errorf("scan %q returned {%v %q}, expecting {%v %q}",
-			in, s.Tok, s.Lit, expected.Tok, expected.Lit)
+	item := testcase.Out
+	if expected := testcase.Err; expected != nil {
+		if err := s.Errors(); len(err) != 1 {
+			t.Errorf("scan %q returned different errors than expected:\n\t%v\nexpecting instead error:\n\t%v",
+				in, err, expected)
+		}
 	}
-}
-
-func (testcase *TestCase) expectPanic(t *testing.T, s *Scanner, expected interface{}) {
-	fail := false
-	defer func() {
-		if fail {
-			return
-		}
-		actual := recover()
-		if actual != expected {
-			t.Errorf("scan %q panicked with:\n\t%#v\nexpecting panic with:\n\t%#v",
-				testcase.In, actual, expected)
-		}
-	}()
-	s.Scan()
-	t.Errorf("scan %q returned {%v %q}, expecting panic with:\n\t%#v",
-		testcase.In, s.Tok, s.Lit, expected)
-	fail = true
+	if s.Tok != item.Tok || s.Lit != item.Lit {
+		t.Errorf("scan %q returned {%v %q}, expecting {%v %q}",
+			in, s.Tok, s.Lit, item.Tok, item.Lit)
+	}
 }

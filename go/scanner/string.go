@@ -40,16 +40,18 @@ func (s *Scanner) scanString() {
 	}
 }
 
-func (s *Scanner) scanRuneOrString(runeEnd rune) {
+func (s *Scanner) scanRuneOrString(delim rune) {
 	b := &s.builder
 	b.Reset()
+	b.WriteRune(delim)
 	escape := false
 	for {
 		ch := s.next()
 		if ch == runeEOF {
-			panic(errSyntaxErrorUnterminatedRuneOrString)
+			s.invalid(errSyntaxErrorUnterminatedRuneOrString)
+			return
 		} else if !escape {
-			if ch == runeEnd {
+			if ch == delim {
 				break
 			} else if ch == '\\' {
 				escape = true
@@ -58,54 +60,43 @@ func (s *Scanner) scanRuneOrString(runeEnd rune) {
 		} else /*escape*/ {
 			escape = false
 			switch ch {
+			case 'a', 'b', 'f', 'n', 'r', 't', 'v', '\\', delim:
 			case 'U':
-				s.scanUnicodeHexDigits(8)
-			case 'a':
-				ch = '\a'
-			case 'b':
-				ch = '\b'
-			case 'f':
-				ch = '\f'
-			case 'n':
-				ch = '\n'
-			case 'r':
-				ch = '\r'
-			case 't':
-				ch = '\r'
+				s.scanUnicodeHexDigits(ch, 8)
+				continue
 			case 'u':
-				s.scanUnicodeHexDigits(2)
-			case 'v':
-				ch = '\v'
+				s.scanUnicodeHexDigits(ch, 4)
+				continue
 			case 'x':
-				s.scanUnicodeHexDigits(2)
-			case '\\':
-				ch = '\\'
-			case runeEnd: // either " or '
-				ch = runeEnd
+				s.scanUnicodeHexDigits(ch, 2)
+				continue
 			default:
-				panic(errUnknownEscape)
+				s.error(errUnknownEscape)
 			}
 		}
 		b.WriteRune(ch)
 	}
-	if runeEnd == '"' {
+	if delim == '"' {
 		s.Tok = token.STRING
 	} else {
 		s.Tok = token.CHAR
 	}
+	b.WriteRune(delim)
 	s.Lit = b.String()
 }
 
-func (s *Scanner) scanUnicodeHexDigits(n uint) {
-	x := 0
+func (s *Scanner) scanUnicodeHexDigits(initial rune, n uint) {
+	b := &s.builder
+	b.WriteByte('\\')
+	b.WriteRune(initial)
 	for i := uint(0); i < n; i++ {
 		ch := s.next()
 		if ch == runeEOF {
-			panic(errSyntaxErrorUnterminatedRuneOrString)
+			s.invalid(errSyntaxErrorUnterminatedRuneOrString)
+			return
 		} else if !isHexDigit(ch) {
-			panic(errInvalidCharInHexEscape)
+			s.error(errInvalidCharInHexEscape)
 		}
-		x = x | hexDigitToInt(ch)<<(i*8)
+		b.WriteRune(ch)
 	}
-	s.builder.WriteRune(rune(x))
 }

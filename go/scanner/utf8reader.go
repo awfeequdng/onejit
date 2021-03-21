@@ -27,6 +27,7 @@ type utf8Reader struct {
 	buf   []byte
 	start int // offset into buf
 	src   io.Reader
+	err   []error
 }
 
 func (u *utf8Reader) init() {
@@ -34,6 +35,7 @@ func (u *utf8Reader) init() {
 	u.buf = make([]byte, 0, 65536)
 	u.start = 0
 	u.src = alwaysEof
+	u.err = nil
 }
 
 // clear internal buffers
@@ -41,6 +43,7 @@ func (u *utf8Reader) reset() {
 	u.ch = runeBOF
 	u.buf = u.buf[0:0:cap(u.buf)]
 	u.start = 0
+	u.err = nil // do not overwrite pre-existing errors
 }
 
 func (u *utf8Reader) empty() bool {
@@ -49,20 +52,24 @@ func (u *utf8Reader) empty() bool {
 
 // read next rune and return it. also save it in u.ch
 func (u *utf8Reader) next() rune {
-	if u.empty() {
-		u.refill()
+	for {
 		if u.empty() {
-			u.ch = runeEOF
-			return runeEOF
+			u.refill()
+			if u.empty() {
+				u.ch = runeEOF
+				return runeEOF
+			}
 		}
+		ch, size := utf8.DecodeRune(u.buf[u.start:])
+		if ch == utf8.RuneError && size <= 1 {
+			u.err = append(u.err, ErrInvalidUtf8)
+			continue
+		}
+		u.start += size
+		u.ch = ch
+		break
 	}
-	ch, size := utf8.DecodeRune(u.buf[u.start:])
-	if ch == utf8.RuneError && size <= 1 {
-		panic(ErrInvalidUtf8)
-	}
-	u.start += size
-	u.ch = ch
-	return ch
+	return u.ch
 }
 
 func (u *utf8Reader) refill() {
@@ -78,7 +85,7 @@ func (u *utf8Reader) refill() {
 	if got > 0 {
 		u.buf = buf[0 : end+got : max]
 	} else if err != nil && !errors.Is(io.EOF, err) {
-		panic(err)
+		u.err = append(u.err, err)
 	}
 	// else EOF
 }
