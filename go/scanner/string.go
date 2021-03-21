@@ -32,6 +32,7 @@ var (
 	}
 	errEscapeUnknown          = errors.New("unknown escape")
 	errEscapeHexInvalidChar   = errors.New("invalid character in hexadecimal escape")
+	errEscapeOctalInvalidChar = errors.New("invalid character in octal escape")
 	errEscapeInvalidCodepoint = errors.New("escape is invalid Unicode code point")
 	errRuneEmpty              = errors.New("empty rune literal or unescaped '")
 	errRuneTooLong            = errors.New("more than one character in rune literal")
@@ -114,6 +115,11 @@ func (s *Scanner) scanRuneOrString(delim rune) {
 				size++
 				continue
 			default:
+				if isOctalDigit(ch) {
+					cont = s.scanOctalDigits(kind, ch, 3, 0xff)
+					size++
+					continue
+				}
 				s.error(errEscapeUnknown)
 			}
 			b.WriteByte('\\')
@@ -137,6 +143,7 @@ func (s *Scanner) scanRuneOrString(delim rune) {
 		b.WriteRune(delim)
 	}
 	s.Lit = b.String()
+	s.next()
 }
 
 func (s *Scanner) scanUnicodeHexDigits(kind strKind, initial rune, n uint) bool {
@@ -157,6 +164,30 @@ func (s *Scanner) scanUnicodeHexDigits(kind strKind, initial rune, n uint) bool 
 		b.WriteRune(ch)
 	}
 	if (initial == 'U' || initial == 'u') && !utf8.ValidRune(rune(x)) {
+		s.error(errEscapeInvalidCodepoint)
+	}
+	return true
+}
+
+func (s *Scanner) scanOctalDigits(kind strKind, ch rune, n uint, max uint32) bool {
+	b := &s.builder
+	b.WriteByte('\\')
+	var x uint32
+	for n != 0 {
+		n--
+		if ch == runeEOF {
+			return s.error(errStringUnterminated[kind.index()])
+		} else if !isOctalDigit(ch) {
+			s.error(errEscapeOctalInvalidChar)
+		} else {
+			x |= uint32(ch-'0') << (n * 3)
+		}
+		b.WriteRune(ch)
+		if n != 0 {
+			ch = s.next()
+		}
+	}
+	if x > max {
 		s.error(errEscapeInvalidCodepoint)
 	}
 	return true
