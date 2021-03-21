@@ -21,10 +21,30 @@ import (
 )
 
 var (
-	errSyntaxErrorUnterminatedRuneOrString = errors.New("syntax error: unterminated rune or string literal")
-	errUnknownEscape                       = errors.New("unknown escape")
-	errInvalidCharInHexEscape              = errors.New("invalid character in hexadecimal escape")
+	errNewlineInString = []error{
+		errors.New("newline in string literal"),
+		errors.New("newline in rune literal"),
+	}
+	errSyntaxErrorUnterminatedString = []error{
+		errors.New("syntax error: unterminated string literal"),
+		errors.New("syntax error: unterminated rune literal"),
+	}
+	errUnknownEscape          = errors.New("unknown escape")
+	errInvalidCharInHexEscape = errors.New("invalid character in hexadecimal escape")
 )
+
+type strKind rune
+
+func (kind strKind) rune() rune {
+	return rune(kind)
+}
+
+func (kind strKind) index() int {
+	if kind == '"' {
+		return 0
+	}
+	return 1
+}
 
 func (s *Scanner) scanRune() {
 	ch := s.ch
@@ -44,11 +64,15 @@ func (s *Scanner) scanRuneOrString(delim rune) {
 	b := &s.builder
 	b.Reset()
 	b.WriteRune(delim)
+	kind := strKind(delim)
 	escape := false
 	for {
 		ch := s.next()
 		if ch == runeEOF {
-			s.invalid(errSyntaxErrorUnterminatedRuneOrString)
+			s.invalid(errSyntaxErrorUnterminatedString[kind.index()])
+			return
+		} else if ch == '\n' {
+			s.invalid(errNewlineInString[kind.index()])
 			return
 		} else if !escape {
 			if ch == delim {
@@ -62,17 +86,18 @@ func (s *Scanner) scanRuneOrString(delim rune) {
 			switch ch {
 			case 'a', 'b', 'f', 'n', 'r', 't', 'v', '\\', delim:
 			case 'U':
-				s.scanUnicodeHexDigits(ch, 8)
+				s.scanUnicodeHexDigits(kind, ch, 8)
 				continue
 			case 'u':
-				s.scanUnicodeHexDigits(ch, 4)
+				s.scanUnicodeHexDigits(kind, ch, 4)
 				continue
 			case 'x':
-				s.scanUnicodeHexDigits(ch, 2)
+				s.scanUnicodeHexDigits(kind, ch, 2)
 				continue
 			default:
 				s.error(errUnknownEscape)
 			}
+			b.WriteByte('\\')
 		}
 		b.WriteRune(ch)
 	}
@@ -85,14 +110,14 @@ func (s *Scanner) scanRuneOrString(delim rune) {
 	s.Lit = b.String()
 }
 
-func (s *Scanner) scanUnicodeHexDigits(initial rune, n uint) {
+func (s *Scanner) scanUnicodeHexDigits(kind strKind, initial rune, n uint) {
 	b := &s.builder
 	b.WriteByte('\\')
 	b.WriteRune(initial)
 	for i := uint(0); i < n; i++ {
 		ch := s.next()
 		if ch == runeEOF {
-			s.invalid(errSyntaxErrorUnterminatedRuneOrString)
+			s.invalid(errSyntaxErrorUnterminatedString[kind.index()])
 			return
 		} else if !isHexDigit(ch) {
 			s.error(errInvalidCharInHexEscape)

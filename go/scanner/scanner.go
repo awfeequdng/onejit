@@ -55,10 +55,17 @@ func (s *Scanner) Errors() []error {
 }
 
 func (s *Scanner) Scan() {
-	if s.ch == runeBOF {
-		s.next()
+	ch := s.ch
+	if ch == runeBOF {
+		ch = s.next()
 	}
-	s.scanNumber()
+	if isDecimalDigit(ch) {
+		s.scanNumber()
+	} else if ch == '"' {
+		s.scanString()
+	} else if ch == '\'' {
+		s.scanRune()
+	}
 }
 
 func (s *Scanner) error(err error) {
