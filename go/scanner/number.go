@@ -101,6 +101,7 @@ func (s *Scanner) scanInt(ch rune, base intbase) {
 	if s.checkValidInt(str, base) {
 		s.Tok = token.INT
 		s.Lit = str
+		s.next()
 	}
 }
 

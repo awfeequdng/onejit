@@ -29,6 +29,7 @@ var (
 	errStringUnterminated = []error{
 		errors.New("string literal not terminated"),
 		errors.New("rune literal not terminated"),
+		errors.New("raw string literal not terminated"),
 	}
 	errEscapeUnknown          = errors.New("unknown escape")
 	errEscapeHexInvalidChar   = errors.New("invalid character in hexadecimal escape")
@@ -116,7 +117,7 @@ func (s *Scanner) scanRuneOrString(delim rune) {
 				continue
 			default:
 				if isOctalDigit(ch) {
-					cont = s.scanOctalDigits(kind, ch, 3, 0xff)
+					cont = s.scanUnicodeOctalDigits(kind, ch, 3, 0xff)
 					size++
 					continue
 				}
@@ -169,7 +170,7 @@ func (s *Scanner) scanUnicodeHexDigits(kind strKind, initial rune, n uint) bool 
 	return true
 }
 
-func (s *Scanner) scanOctalDigits(kind strKind, ch rune, n uint, max uint32) bool {
+func (s *Scanner) scanUnicodeOctalDigits(kind strKind, ch rune, n uint, max uint32) bool {
 	b := &s.builder
 	b.WriteByte('\\')
 	var x uint32
@@ -191,4 +192,34 @@ func (s *Scanner) scanOctalDigits(kind strKind, ch rune, n uint, max uint32) boo
 		s.error(errEscapeInvalidCodepoint)
 	}
 	return true
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+func (s *Scanner) scanRawString() {
+	ch := s.ch
+	if ch != '`' {
+		return
+	}
+	b := &s.builder
+	b.WriteRune(ch)
+	for {
+		ch = s.next()
+		if ch == runeEOF {
+			s.invalid(errStringUnterminated[2])
+			return
+		} else if ch == '\r' {
+			// Go specs: Carriage return characters ('\r') inside raw string
+			// literals are discarded from the raw string value.
+			continue
+		} else {
+			b.WriteRune(ch)
+			if ch == '`' {
+				break
+			}
+		}
+	}
+	s.Tok = token.STRING
+	s.Lit = b.String()
+	s.next()
 }

@@ -65,6 +65,8 @@ func (s *Scanner) Scan() {
 		s.scanString()
 	} else if ch == '\'' {
 		s.scanRune()
+	} else if ch == '`' {
+		s.scanRawString()
 	}
 }
 
