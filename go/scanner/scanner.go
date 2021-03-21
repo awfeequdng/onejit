@@ -67,6 +67,8 @@ func (s *Scanner) Scan() {
 		s.scanRune()
 	} else if ch == '`' {
 		s.scanRawString()
+	} else if isLetter(ch) {
+	        s.scanIdentifier()
 	}
 }
 
