@@ -65,8 +65,20 @@ func (testcase *TestCase) expect(t *testing.T, s *Scanner) {
 }
 
 func (testcase *TestCase) expectErrors(t *testing.T, actual []error, expected []error) {
-	if len(actual) != len(expected) {
+	if !sameErrors(actual, expected) {
 		t.Errorf("scan %q returned different errors than expected:\n\t%v\nexpecting instead errors:\n\t%v",
 			testcase.In, actual, expected)
 	}
+}
+
+func sameErrors(actual []error, expected []error) bool {
+	if len(actual) != len(expected) {
+		return false
+	}
+	for i, act_i := range actual {
+		if act_i != expected[i] {
+			return false
+		}
+	}
+	return true
 }

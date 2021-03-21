@@ -22,17 +22,19 @@ import (
 )
 
 var (
-	errNewlineInString = []error{
+	errStringContainsNewline = []error{
 		errors.New("newline in string literal"),
 		errors.New("newline in rune literal"),
 	}
-	errSyntaxErrorUnterminatedString = []error{
-		errors.New("syntax error: unterminated string literal"),
-		errors.New("syntax error: unterminated rune literal"),
+	errStringUnterminated = []error{
+		errors.New("string literal not terminated"),
+		errors.New("rune literal not terminated"),
 	}
-	errUnknownEscape            = errors.New("unknown escape")
-	errInvalidCharInHexEscape   = errors.New("invalid character in hexadecimal escape")
-	errEscapeIsInvalidCodepoint = errors.New("escape is invalid Unicode code point")
+	errEscapeUnknown          = errors.New("unknown escape")
+	errEscapeHexInvalidChar   = errors.New("invalid character in hexadecimal escape")
+	errEscapeInvalidCodepoint = errors.New("escape is invalid Unicode code point")
+	errRuneEmpty              = errors.New("empty rune literal or unescaped '")
+	errRuneTooLong            = errors.New("more than one character in rune literal")
 )
 
 type strKind rune
@@ -76,16 +78,17 @@ func (s *Scanner) scanRuneOrString(delim rune) {
 	b.Reset()
 	b.WriteRune(delim)
 	errnum := len(s.err)
+	size := 0
 	kind := strKind(delim)
 	cont := true
 	escape := false
 	for cont {
 		ch := s.next()
 		if ch == runeEOF {
-			s.invalid(errSyntaxErrorUnterminatedString[kind.index()])
+			s.invalid(errStringUnterminated[kind.index()])
 			return
 		} else if ch == '\n' {
-			s.invalid(errNewlineInString[kind.index()])
+			s.invalid(errStringContainsNewline[kind.index()])
 			return
 		} else if !escape {
 			if ch == delim {
@@ -100,22 +103,33 @@ func (s *Scanner) scanRuneOrString(delim rune) {
 			case 'a', 'b', 'f', 'n', 'r', 't', 'v', '\\', delim:
 			case 'U':
 				cont = s.scanUnicodeHexDigits(kind, ch, 8)
+				size++
 				continue
 			case 'u':
 				cont = s.scanUnicodeHexDigits(kind, ch, 4)
+				size++
 				continue
 			case 'x':
 				cont = s.scanUnicodeHexDigits(kind, ch, 2)
+				size++
 				continue
 			default:
-				s.error(errUnknownEscape)
+				s.error(errEscapeUnknown)
 			}
 			b.WriteByte('\\')
 		}
 		b.WriteRune(ch)
+		size++
 	}
 	if len(s.err) > errnum {
 		s.Tok = token.ILLEGAL
+	} else if delim == '\'' && size != 1 {
+		s.Tok = token.ILLEGAL
+		if size == 0 {
+			s.error(errRuneEmpty)
+		} else {
+			s.error(errRuneTooLong)
+		}
 	} else {
 		s.Tok = kind.token()
 	}
@@ -134,16 +148,16 @@ func (s *Scanner) scanUnicodeHexDigits(kind strKind, initial rune, n uint) bool 
 		n--
 		ch := s.next()
 		if ch == runeEOF {
-			return s.error(errSyntaxErrorUnterminatedString[kind.index()])
+			return s.error(errStringUnterminated[kind.index()])
 		} else if !isHexDigit(ch) {
-			s.error(errInvalidCharInHexEscape)
+			s.error(errEscapeHexInvalidChar)
 		} else {
 			x |= uint32(hexDigitToInt(ch)) << (n * 4)
 		}
 		b.WriteRune(ch)
 	}
 	if (initial == 'U' || initial == 'u') && !utf8.ValidRune(rune(x)) {
-		s.error(errEscapeIsInvalidCodepoint)
+		s.error(errEscapeInvalidCodepoint)
 	}
 	return true
 }
