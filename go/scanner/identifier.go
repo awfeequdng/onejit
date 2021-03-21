@@ -19,20 +19,19 @@ import (
 )
 
 func (s *Scanner) scanIdentifier() {
-     b := &s.builder
-     b.Reset()
-     b.WriteRune(s.ch)
-     ch := s.next()
-     for isLetter(ch) || isDigit(ch) {
-         b.WriteRune(ch)
-     	 ch = s.next()
-     }
-     str := b.String()
-     tok := token.Lookup(str)
-     if tok != token.IDENT {
-         str = ""
-     }
-     s.Tok = tok
-     s.Lit = str
+	b := &s.builder
+	b.Reset()
+	b.WriteRune(s.ch)
+	ch := s.next()
+	for isLetter(ch) || isDigit(ch) {
+		b.WriteRune(ch)
+		ch = s.next()
+	}
+	str := b.String()
+	tok := token.Lookup(str)
+	if tok != token.IDENT {
+		str = ""
+	}
+	s.Tok = tok
+	s.Lit = str
 }
-

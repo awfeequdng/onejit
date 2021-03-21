@@ -123,38 +123,38 @@ const (
 var operators = makeOperators()
 
 func makeOperators() map[string]Token {
-     lo, hi := ADD, COLON
-     m := make(map[string]Token, hi - lo + 1)
-     for op:= lo; op <= hi; op++ {
-         m[op.String()] = op
-     }
-     return m
+	lo, hi := ADD, COLON
+	m := make(map[string]Token, hi-lo+1)
+	for op := lo; op <= hi; op++ {
+		m[op.String()] = op
+	}
+	return m
 }
 
 func OpLookup(str string) Token {
-     return operators[str]
+	return operators[str]
 }
 
 func Lookup(str string) Token {
-     return Token(token.Lookup(str))
+	return Token(token.Lookup(str))
 }
 
 func (tok Token) IsKeyword() bool {
-     return token.Token(tok).IsKeyword()
+	return token.Token(tok).IsKeyword()
 }
 
 func (tok Token) IsLiteral() bool {
-     return token.Token(tok).IsLiteral()
+	return token.Token(tok).IsLiteral()
 }
 
 func (tok Token) IsOperator() bool {
-     return token.Token(tok).IsOperator()
+	return token.Token(tok).IsOperator()
 }
 
 func (tok Token) Precedence() int {
-     return token.Token(tok).Precedence()
+	return token.Token(tok).Precedence()
 }
 
 func (tok Token) String() string {
-     return token.Token(tok).String()
+	return token.Token(tok).String()
 }
