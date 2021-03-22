@@ -15,28 +15,9 @@
 package scanner
 
 import (
-	"errors"
 	"unicode/utf8"
 
 	"github.com/cosmos72/onejit/go/token"
-)
-
-var (
-	errStringContainsNewline = []error{
-		errors.New("newline in string literal"),
-		errors.New("newline in rune literal"),
-	}
-	errStringUnterminated = []error{
-		errors.New("string literal not terminated"),
-		errors.New("rune literal not terminated"),
-		errors.New("raw string literal not terminated"),
-	}
-	errEscapeUnknown          = errors.New("unknown escape")
-	errEscapeHexInvalidChar   = errors.New("invalid character in hexadecimal escape")
-	errEscapeOctalInvalidChar = errors.New("invalid character in octal escape")
-	errEscapeInvalidCodepoint = errors.New("escape is invalid Unicode code point")
-	errRuneEmpty              = errors.New("empty rune literal or unescaped '")
-	errRuneTooLong            = errors.New("more than one character in rune literal")
 )
 
 type strKind rune
@@ -76,9 +57,7 @@ func (s *Scanner) scanString() {
 }
 
 func (s *Scanner) scanRuneOrString(delim rune) {
-	b := &s.builder
-	b.Reset()
-	b.WriteRune(delim)
+	s.addRune(delim)
 	errnum := len(s.err)
 	size := 0
 	kind := strKind(delim)
@@ -123,34 +102,34 @@ func (s *Scanner) scanRuneOrString(delim rune) {
 				}
 				s.error(errEscapeUnknown)
 			}
-			b.WriteByte('\\')
+			s.addRune('\\')
 		}
-		b.WriteRune(ch)
+		s.addRune(ch)
 		size++
 	}
+	tok := token.ILLEGAL
 	if len(s.err) > errnum {
-		s.Tok = token.ILLEGAL
+		//
 	} else if delim == '\'' && size != 1 {
-		s.Tok = token.ILLEGAL
+		//
 		if size == 0 {
 			s.error(errRuneEmpty)
 		} else {
 			s.error(errRuneTooLong)
 		}
 	} else {
-		s.Tok = kind.token()
+		tok = kind.token()
 	}
 	if cont {
-		b.WriteRune(delim)
+		s.addRune(delim)
 	}
-	s.Lit = b.String()
+	s.setResult(tok)
 	s.next()
 }
 
 func (s *Scanner) scanUnicodeHexDigits(kind strKind, initial rune, n uint) bool {
-	b := &s.builder
-	b.WriteByte('\\')
-	b.WriteRune(initial)
+	s.addRune('\\')
+	s.addRune(initial)
 	var x uint32
 	for n != 0 {
 		n--
@@ -162,7 +141,7 @@ func (s *Scanner) scanUnicodeHexDigits(kind strKind, initial rune, n uint) bool 
 		} else {
 			x |= uint32(hexDigitToInt(ch)) << (n * 4)
 		}
-		b.WriteRune(ch)
+		s.addRune(ch)
 	}
 	if (initial == 'U' || initial == 'u') && !utf8.ValidRune(rune(x)) {
 		s.error(errEscapeInvalidCodepoint)
@@ -171,8 +150,7 @@ func (s *Scanner) scanUnicodeHexDigits(kind strKind, initial rune, n uint) bool 
 }
 
 func (s *Scanner) scanUnicodeOctalDigits(kind strKind, ch rune, n uint, max uint32) bool {
-	b := &s.builder
-	b.WriteByte('\\')
+	s.addRune('\\')
 	var x uint32
 	for n != 0 {
 		n--
@@ -183,7 +161,7 @@ func (s *Scanner) scanUnicodeOctalDigits(kind strKind, ch rune, n uint, max uint
 		} else {
 			x |= uint32(ch-'0') << (n * 3)
 		}
-		b.WriteRune(ch)
+		s.addRune(ch)
 		if n != 0 {
 			ch = s.next()
 		}
@@ -201,8 +179,7 @@ func (s *Scanner) scanRawString() {
 	if ch != '`' {
 		return
 	}
-	b := &s.builder
-	b.WriteRune(ch)
+	s.addRune(ch)
 	for {
 		ch = s.next()
 		if ch == runeEOF {
@@ -213,13 +190,12 @@ func (s *Scanner) scanRawString() {
 			// literals are discarded from the raw string value.
 			continue
 		} else {
-			b.WriteRune(ch)
+			s.addRune(ch)
 			if ch == '`' {
 				break
 			}
 		}
 	}
-	s.Tok = token.STRING
-	s.Lit = b.String()
+	s.setResult(token.STRING)
 	s.next()
 }

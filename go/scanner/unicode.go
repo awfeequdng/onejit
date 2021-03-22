@@ -21,14 +21,16 @@ import (
 type intbase int
 
 const (
-	base2 intbase = iota
+	baseAny intbase = iota
+	base2
 	base8
 	base16
 	base10
 )
 
-const runeBOF rune = -2 // beginning of file i.e. no rune was read yet
-const runeEOF rune = -1 // end of file
+const runeBOF rune = -2     // beginning of file i.e. no rune was read yet
+const runeBOM rune = 0xfeff // byte order marker
+const runeEOF rune = -1     // end of file
 
 func isSpace(ch rune) bool {
 	switch ch {
@@ -98,6 +100,7 @@ func hexDigitToInt(ch rune) int {
 	return 0
 }
 
+/*
 func trim(str string) string {
 	start, end := 0, len(str)
 	for ; start < end; start++ {
@@ -111,4 +114,12 @@ func trim(str string) string {
 		}
 	}
 	return str[start:end]
+}
+*/
+
+func lower(ch byte) byte {
+	if ch >= 'A' && ch <= 'Z' {
+		ch += 'a' - 'A'
+	}
+	return ch
 }

@@ -21,27 +21,27 @@ import (
 )
 
 func TestRune(t *testing.T) {
-	v := TestCases{
-		TestCase{"'", Item{token.ILLEGAL, "'"}, errStringUnterminated[1]},
-		TestCase{"''", Item{token.ILLEGAL, "''"}, errRuneEmpty},
-		TestCase{"'''", Item{token.ILLEGAL, "''"}, errRuneEmpty},
-		TestCase{`'x'`, Item{token.CHAR, `'x'`}, nil},
-		TestCase{`'\a'`, Item{token.CHAR, `'\a'`}, nil},
-		TestCase{`'\''`, Item{token.CHAR, `'\''`}, nil},
-		TestCase{`'\"'`, Item{token.ILLEGAL, `'\"'`}, errEscapeUnknown},
-		TestCase{`'ab'`, Item{token.ILLEGAL, `'ab'`}, errRuneTooLong},
-		TestCase{`'\377'`, Item{token.CHAR, `'\377'`}, nil},
-		TestCase{`'\378'`, Item{token.ILLEGAL, `'\378'`}, errEscapeOctalInvalidChar},
-		TestCase{`'\477'`, Item{token.ILLEGAL, `'\477'`}, errEscapeInvalidCodepoint},
-		TestCase{`'\xff'`, Item{token.CHAR, `'\xff'`}, nil},
-		TestCase{`'\xf.'`, Item{token.ILLEGAL, `'\xf.'`}, errEscapeHexInvalidChar},
-		TestCase{`'\x00\n'`, Item{token.ILLEGAL, `'\x00\n'`}, errRuneTooLong},
-		TestCase{`'\uffff'`, Item{token.CHAR, `'\uffff'`}, nil},
-		TestCase{`'\u123'`, Item{token.ILLEGAL, `'\u123'`},
+	v := SingleTests{
+		{"'", item{token.ILLEGAL, "'"}, errStringUnterminated[1]},
+		{"''", item{token.ILLEGAL, "''"}, errRuneEmpty},
+		{"'''", item{token.ILLEGAL, "''"}, errRuneEmpty},
+		{`'x'`, item{token.CHAR, `'x'`}, nil},
+		{`'\a'`, item{token.CHAR, `'\a'`}, nil},
+		{`'\''`, item{token.CHAR, `'\''`}, nil},
+		{`'\"'`, item{token.ILLEGAL, `'\"'`}, errEscapeUnknown},
+		{`'ab'`, item{token.ILLEGAL, `'ab'`}, errRuneTooLong},
+		{`'\377'`, item{token.CHAR, `'\377'`}, nil},
+		{`'\378'`, item{token.ILLEGAL, `'\378'`}, errEscapeOctalInvalidChar},
+		{`'\477'`, item{token.ILLEGAL, `'\477'`}, errEscapeInvalidCodepoint},
+		{`'\xff'`, item{token.CHAR, `'\xff'`}, nil},
+		{`'\xf.'`, item{token.ILLEGAL, `'\xf.'`}, errEscapeHexInvalidChar},
+		{`'\x00\n'`, item{token.ILLEGAL, `'\x00\n'`}, errRuneTooLong},
+		{`'\uffff'`, item{token.CHAR, `'\uffff'`}, nil},
+		{`'\u123'`, item{token.ILLEGAL, `'\u123'`},
 			[]error{errEscapeHexInvalidChar, errStringUnterminated[1]},
 		},
-		TestCase{`'\U0010ffff'`, Item{token.CHAR, `'\U0010ffff'`}, nil},
-		TestCase{`'\U0003456'`, Item{token.ILLEGAL, `'\U0003456'`},
+		{`'\U0010ffff'`, item{token.CHAR, `'\U0010ffff'`}, nil},
+		{`'\U0003456'`, item{token.ILLEGAL, `'\U0003456'`},
 			[]error{errEscapeHexInvalidChar, errStringUnterminated[1]},
 		},
 	}
@@ -49,24 +49,24 @@ func TestRune(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-	v := TestCases{
-		TestCase{`"`, Item{token.ILLEGAL, `"`}, errStringUnterminated[0]},
-		TestCase{`""`, Item{token.STRING, `""`}, nil},
-		TestCase{`"a b\"c d"`, Item{token.STRING, `"a b\"c d"`}, nil},
-		TestCase{`"\a\b\f\n\r\t\v\"\\"`, Item{token.STRING, `"\a\b\f\n\r\t\v\"\\"`}, nil},
-		TestCase{`"\'"`, Item{token.ILLEGAL, `"\'"`}, errEscapeUnknown},
-		TestCase{"\"abc\n\"", Item{token.ILLEGAL, `"abc`}, errStringContainsNewline[0]},
-		TestCase{`"\377"`, Item{token.STRING, `"\377"`}, nil},
-		TestCase{`"\378"`, Item{token.ILLEGAL, `"\378"`}, errEscapeOctalInvalidChar},
-		TestCase{`"\477"`, Item{token.ILLEGAL, `"\477"`}, errEscapeInvalidCodepoint},
-		TestCase{`"\xff"`, Item{token.STRING, `"\xff"`}, nil},
-		TestCase{`"\xf."`, Item{token.ILLEGAL, `"\xf."`}, errEscapeHexInvalidChar},
-		TestCase{`"\uffff"`, Item{token.STRING, `"\uffff"`}, nil},
-		TestCase{`"\u123"`, Item{token.ILLEGAL, `"\u123"`},
+	v := SingleTests{
+		{`"`, item{token.ILLEGAL, `"`}, errStringUnterminated[0]},
+		{`""`, item{token.STRING, `""`}, nil},
+		{`"a b\"c d"`, item{token.STRING, `"a b\"c d"`}, nil},
+		{`"\a\b\f\n\r\t\v\"\\"`, item{token.STRING, `"\a\b\f\n\r\t\v\"\\"`}, nil},
+		{`"\'"`, item{token.ILLEGAL, `"\'"`}, errEscapeUnknown},
+		{"\"abc\n\"", item{token.ILLEGAL, `"abc`}, errStringContainsNewline[0]},
+		{`"\377"`, item{token.STRING, `"\377"`}, nil},
+		{`"\378"`, item{token.ILLEGAL, `"\378"`}, errEscapeOctalInvalidChar},
+		{`"\477"`, item{token.ILLEGAL, `"\477"`}, errEscapeInvalidCodepoint},
+		{`"\xff"`, item{token.STRING, `"\xff"`}, nil},
+		{`"\xf."`, item{token.ILLEGAL, `"\xf."`}, errEscapeHexInvalidChar},
+		{`"\uffff"`, item{token.STRING, `"\uffff"`}, nil},
+		{`"\u123"`, item{token.ILLEGAL, `"\u123"`},
 			[]error{errEscapeHexInvalidChar, errStringUnterminated[0]},
 		},
-		TestCase{`"\U0010ffff"`, Item{token.STRING, `"\U0010ffff"`}, nil},
-		TestCase{`"\U0003456"`, Item{token.ILLEGAL, `"\U0003456"`},
+		{`"\U0010ffff"`, item{token.STRING, `"\U0010ffff"`}, nil},
+		{`"\U0003456"`, item{token.ILLEGAL, `"\U0003456"`},
 			[]error{errEscapeHexInvalidChar, errStringUnterminated[0]},
 		},
 	}
@@ -74,12 +74,12 @@ func TestString(t *testing.T) {
 }
 
 func TestRawString(t *testing.T) {
-	v := TestCases{
-		TestCase{"`", Item{token.ILLEGAL, "`"}, errStringUnterminated[2]},
-		TestCase{"``", Item{token.STRING, "``"}, nil},
-		TestCase{"`\r`", Item{token.STRING, "``"}, nil},     // '\r' is discarded
-		TestCase{"`\n`", Item{token.STRING, "`\n`"}, nil},   // '\n' is allowed
-		TestCase{"`\\x`", Item{token.STRING, "`\\x`"}, nil}, // '\\' is not interpreted
+	v := SingleTests{
+		{"`", item{token.ILLEGAL, "`"}, errStringUnterminated[2]},
+		{"``", item{token.STRING, "``"}, nil},
+		{"`\r`", item{token.STRING, "``"}, nil},     // '\r' is discarded
+		{"`\n`", item{token.STRING, "`\n`"}, nil},   // '\n' is allowed
+		{"`\\x`", item{token.STRING, "`\\x`"}, nil}, // '\\' is not interpreted
 	}
 	v.run(t)
 }

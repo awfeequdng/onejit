@@ -131,11 +131,15 @@ func makeOperators() map[string]Token {
 	return m
 }
 
-func OpLookup(str string) Token {
+func LookupOperator(str string) Token {
 	return operators[str]
 }
 
 func Lookup(str string) Token {
+	n := len(str)
+	if n < 2 || n > 11 { // len("fallthrough") == 11
+		return IDENT
+	}
 	return Token(token.Lookup(str))
 }
 
