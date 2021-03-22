@@ -83,11 +83,11 @@ func (test *MultiTest) run(t *testing.T, s *Scanner, reader *strings.Reader) {
 func (test *MultiTest) expect(t *testing.T, s *Scanner) {
 	var actual []item
 	for {
-		actual_i := makeItem(s.Scan())
-		if actual_i.tok == token.EOF {
+		tok, lit := s.Scan()
+		if tok == token.EOF {
 			break
 		}
-		actual = append(actual, actual_i)
+		actual = append(actual, makeItem(tok, lit))
 	}
 	expected := test.Out
 
