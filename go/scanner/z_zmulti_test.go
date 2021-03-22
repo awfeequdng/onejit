@@ -25,8 +25,10 @@ func TestMulti(t *testing.T) {
 		{"a + b", []item{{token.IDENT, "a"}, {token.ADD, ""}, {token.IDENT, "b"}}, nil},
 		{"1 * 'c' / 3i",
 			[]item{{token.INT, "1"}, {token.MUL, ""}, {token.CHAR, "'c'"}, {token.QUO, ""}, {token.IMAG, "3i"}}, nil},
-		{"package main\nimport ( \"fmt\" )\nfunc main() {}",
+		{"/* comment block */ // comment line \npackage main\nimport ( \"fmt\" )\nfunc main() {}",
 			[]item{
+				{token.COMMENT, "/* comment block */"},
+				{token.COMMENT, "// comment line "},
 				{token.PACKAGE, ""}, {token.IDENT, "main"},
 				{token.IMPORT, ""}, {token.LPAREN, ""}, {token.STRING, "\"fmt\""}, {token.RPAREN, ""},
 				{token.FUNC, ""}, {token.IDENT, "main"}, {token.LPAREN, ""}, {token.RPAREN, ""},

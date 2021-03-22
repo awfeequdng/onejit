@@ -48,5 +48,6 @@ func (s *Scanner) scanCommentBlock() {
 			star = ch == '*'
 		}
 	}
+	s.next()
 	s.setResult(token.COMMENT)
 }
