@@ -14,7 +14,11 @@
 
 package ast
 
-import "github.com/cosmos72/onejit/go/token"
+import (
+	"fmt"
+
+	"github.com/cosmos72/onejit/go/token"
+)
 
 type Atom struct {
 	Tok    token.Token
@@ -41,4 +45,16 @@ func (a *Atom) Pos() token.Pos {
 
 func (a *Atom) End() token.Pos {
 	return a.TokEnd
+}
+
+func (a *Atom) String() string {
+	return fmt.Sprintf("%v", a)
+}
+
+func (a *Atom) Format(f fmt.State, verb rune) {
+	if len(a.Lit) != 0 {
+		fmt.Fprintf(f, "(%v %q)", a.Tok, a.Lit)
+	} else {
+		fmt.Fprintf(f, "(%v)", a.Tok)
+	}
 }

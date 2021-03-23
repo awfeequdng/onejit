@@ -14,12 +14,19 @@
 
 package ast
 
-import "github.com/cosmos72/onejit/go/token"
+import (
+	"fmt"
+
+	"github.com/cosmos72/onejit/go/token"
+)
 
 type Bad struct {
+	// different order than Atom,
+	// to avoid explicit conversion between the two
 	Tok    token.Token
-	BadPos token.Pos
-	BadEnd token.Pos
+	TokPos token.Pos
+	TokEnd token.Pos
+	Lit    string
 }
 
 func (b *Bad) Op() token.Token {
@@ -35,9 +42,21 @@ func (b *Bad) Get(_ int) Node {
 }
 
 func (b *Bad) Pos() token.Pos {
-	return b.BadPos
+	return b.TokPos
 }
 
 func (b *Bad) End() token.Pos {
-	return b.BadEnd
+	return b.TokEnd
+}
+
+func (b *Bad) String() string {
+	return fmt.Sprintf("%v", b)
+}
+
+func (b *Bad) Format(f fmt.State, verb rune) {
+	if len(b.Lit) != 0 {
+		fmt.Fprintf(f, "(Bad %v %q)", b.Tok, b.Lit)
+	} else {
+		fmt.Fprintf(f, "(Bad %v)", b.Tok)
+	}
 }

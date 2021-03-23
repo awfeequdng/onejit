@@ -6,22 +6,18 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * node.go
+ * stmt.go
  *
  *  Created on: Mar 23, 2021
  *      Author: Massimiliano Ghilardi
  */
 
-package ast
+package parser
 
 import (
-	"github.com/cosmos72/onejit/go/token"
+	"github.com/cosmos72/onejit/go/ast"
 )
 
-type Node interface {
-	Op() token.Token
-	Size() int      // return number of children
-	Get(i int) Node // get i-th child
-	Pos() token.Pos
-	End() token.Pos
+func (p *Parser) parseStmt() (node ast.Node) {
+	return node // TODO
 }

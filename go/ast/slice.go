@@ -14,7 +14,11 @@
 
 package ast
 
-import "github.com/cosmos72/onejit/go/token"
+import (
+	"fmt"
+
+	"github.com/cosmos72/onejit/go/token"
+)
 
 type Slice struct {
 	Atom
@@ -35,4 +39,23 @@ func (s *Slice) End() token.Pos {
 	} else {
 		return s.Nodes[n-1].End()
 	}
+}
+
+func (s *Slice) String() string {
+	return fmt.Sprintf("%v", s)
+}
+
+func (s *Slice) Format(f fmt.State, verb rune) {
+	fmt.Fprintf(f, "[%v", s.Tok)
+	for _, node := range s.Nodes {
+		if formatter, ok := node.(fmt.Formatter); ok {
+			f.Write([]byte{' '})
+			formatter.Format(f, verb)
+		} else if node == nil {
+			f.Write([]byte(" nil"))
+		} else {
+			fmt.Fprintf(f, " %v", node)
+		}
+	}
+	f.Write([]byte{']'})
 }

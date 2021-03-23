@@ -24,7 +24,6 @@ const (
 	ILLEGAL = Token(token.ILLEGAL)
 	EOF     = Token(token.EOF)
 	COMMENT = Token(token.COMMENT)
-	FILE    = COMMENT + 1 // free value between COMMENT and IDENT
 
 	IDENT  = Token(token.IDENT)
 	INT    = Token(token.INT)
@@ -122,8 +121,10 @@ const (
 	VAR    = Token(token.VAR)
 
 	tok_counter Token = iota
-	IDENT_LIST  Token = VAR + iota - tok_counter
-	EXPR_LIST
+	EXPR_LIST   Token = VAR + iota - tok_counter
+	FILE
+	IDENT_LIST
+	IMPORT_SPEC
 	SPEC
 	SPEC_LIST
 )
@@ -168,5 +169,22 @@ func (tok Token) Precedence() int {
 }
 
 func (tok Token) String() string {
-	return token.Token(tok).String()
+	var ret string
+	switch tok {
+	case EXPR_LIST:
+		ret = "EXPR_LIST"
+	case FILE:
+		ret = "FILE"
+	case IDENT_LIST:
+		ret = "IDENT_LIST"
+	case IMPORT_SPEC:
+		ret = "IMPORT_SPEC"
+	case SPEC:
+		ret = "SPEC"
+	case SPEC_LIST:
+		ret = "SPEC_LIST"
+	default:
+		ret = token.Token(tok).String()
+	}
+	return ret
 }

@@ -19,7 +19,16 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
-func (p *Parser) parseIdentifierList() ast.Node {
+func (p *Parser) makeIdent() (node ast.Node) {
+	if p.tok != token.IDENT {
+		node = p.makeBad()
+	} else {
+		node = p.makeAtom()
+	}
+	return node
+}
+
+func (p *Parser) parseIdentList() ast.Node {
 	ret := &ast.Slice{
 		Atom: ast.Atom{
 			Tok:    token.IDENT_LIST,
@@ -27,16 +36,12 @@ func (p *Parser) parseIdentifierList() ast.Node {
 		},
 	}
 	var list []ast.Node
-	if p.tok != token.IDENT {
-		list = []ast.Node{p.parseBad()}
-	} else {
-		for {
-			list = append(list, p.parseAtom())
-			if p.next() != token.COMMA {
-				break
-			}
-			p.next()
+	for {
+		list = append(list, p.makeIdent())
+		if p.tok != token.IDENT || p.next() != token.COMMA {
+			break
 		}
+		p.next()
 	}
 	ret.Nodes = list
 	return ret

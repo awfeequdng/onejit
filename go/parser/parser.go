@@ -26,32 +26,61 @@ type Parser struct {
 	lit     string
 	pos     token.Pos
 	end     token.Pos
+	comment string
 	err     []error
 }
 
-func NewParser(s *scanner.Scanner) *Parser {
-	return &Parser{scanner: s}
+func (p *Parser) Init(s *scanner.Scanner) {
+	*p = Parser{scanner: s}
 }
 
 func (p *Parser) Parse() (node ast.Node) {
 	tok := p.next()
-	if isDecl(tok) {
-		node = p.parseTopLevelDecl()
+	switch tok {
+	case token.PACKAGE:
+		node = p.parsePackage()
+	case token.IMPORT:
+		node = p.parseImport()
+	default:
+		if isDecl(tok) {
+			node = p.parseTopLevelDecl()
+		} else {
+			node = p.parseStmt()
+		}
 	}
 	return node
 }
 
 func (p *Parser) next() token.Token {
 	s := p.scanner
-	p.tok, p.lit = s.Scan()
-	p.pos, p.end = s.PosEnd()
+	for {
+		p.tok, p.lit = s.Scan()
+		p.pos, p.end = s.PosEnd()
+		if p.tok != token.COMMENT {
+			break
+		}
+		p.comment = p.lit
+	}
 	return p.tok
 }
 
-func (p *Parser) parseAtom() *ast.Atom {
+func (p *Parser) makeAtom() *ast.Atom {
 	return &ast.Atom{Tok: p.tok, Lit: p.lit, TokPos: p.pos, TokEnd: p.end}
 }
 
-func (p *Parser) parseBad() *ast.Bad {
-	return &ast.Bad{Tok: p.tok, BadPos: p.pos, BadEnd: p.end}
+func (p *Parser) makeBad() *ast.Bad {
+	return &ast.Bad{Tok: p.tok, Lit: p.lit, TokPos: p.pos, TokEnd: p.end}
+}
+
+func (p *Parser) makeSlice() *ast.Slice {
+	return &ast.Slice{
+		Atom: ast.Atom{Tok: p.tok, Lit: p.lit, TokPos: p.pos, TokEnd: p.end},
+	}
+}
+
+func (p *Parser) parsePackage() ast.Node {
+	ret := p.makeSlice()
+	p.next()
+	ret.Nodes = []ast.Node{p.makeIdent()}
+	return ret
 }
