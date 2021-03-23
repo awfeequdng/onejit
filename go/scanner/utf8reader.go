@@ -18,19 +18,27 @@ import (
 	"errors"
 	"io"
 	"unicode/utf8"
+
+	"github.com/cosmos72/onejit/go/token"
 )
 
 type utf8Reader struct {
-	ch    rune // next rune
-	buf   []byte
-	start int // offset into buf
-	src   io.Reader
-	err   []error
+	ch rune // next rune
+	// if unread != runeBOF, will be consumed and returned
+	// by next() instead of reading from buf
+	unread rune
+	buf    []byte
+	start  int // endpos into buf
+	src    io.Reader
+	file   *token.File
+	endpos int
+	err    []error
 }
 
 // (re)initialize utf8Reader
-func (u *utf8Reader) reset(src io.Reader) {
+func (u *utf8Reader) init(file *token.File, src io.Reader) {
 	u.ch = runeBOF
+	u.unread = runeBOF
 	size := 65536
 	if cap(u.buf) != size {
 		u.buf = make([]byte, 0, size)
@@ -40,8 +48,11 @@ func (u *utf8Reader) reset(src io.Reader) {
 	u.start = 0
 	if src == nil {
 		src = alwaysEof
+	} else {
+		u.src = src
 	}
-	u.src = src
+	u.file = file
+	u.endpos = file.Base()
 	u.err = nil
 }
 
@@ -51,20 +62,31 @@ func (u *utf8Reader) empty() bool {
 
 // read next rune and return it. also save it in u.ch
 func (u *utf8Reader) next() rune {
+	if u.unread != runeBOF {
+		u.ch = u.unread
+		u.unread = runeBOF
+		return u.ch
+	}
+
 	for {
-		if u.empty() {
+		buf := u.buf[u.start:]
+		if !utf8.FullRune(buf) {
 			u.refill()
 			if u.empty() {
-				u.ch = runeEOF
-				return runeEOF
+				return u.foundEOF()
 			}
+			buf = u.buf[u.start:]
 		}
-		ch, size := utf8.DecodeRune(u.buf[u.start:])
+		ch, size := utf8.DecodeRune(buf)
 		if ch == utf8.RuneError && size <= 1 {
-			u.err = append(u.err, errInvalidUtf8)
+			u.foundInvalidUtf8()
 			continue
 		}
 		u.start += size
+		u.endpos += size
+		if ch == '\n' {
+			u.file.AddLine(u.endpos)
+		}
 		u.ch = ch
 		break
 	}
@@ -99,4 +121,17 @@ func (u *utf8Reader) shift() {
 	}
 	u.start = 0
 	u.buf = buf[0 : end-start : max]
+}
+
+func (u *utf8Reader) foundInvalidUtf8() {
+	u.err = append(u.err, errInvalidUtf8)
+	u.start++
+	u.endpos++
+}
+
+func (u *utf8Reader) foundEOF() rune {
+	f := u.file
+	f.SetSize(u.endpos - f.Base())
+	u.ch = runeEOF
+	return runeEOF
 }

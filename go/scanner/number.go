@@ -51,10 +51,17 @@ func (s *Scanner) scanInt(base intbase) {
 		return
 	}
 	ch := s.ch
-	if base == base16 && (ch == '.' || ch == 'p' || ch == 'P') {
+	if base == base16 && (ch == '.' || ch == 'P' || ch == 'p') {
 		// hexadecimal float
 		s.scanIntOrFloat(base, ch)
 		return
+	}
+	tok := token.INT
+	if ch == 'i' {
+		// imaginary integer
+		tok = token.IMAG
+		s.add()
+		ch = s.next()
 	}
 	if !isSpace(ch) && !isOperator(ch) {
 		s.invalid(errSyntaxErrorUnexpectedChar)
@@ -62,7 +69,7 @@ func (s *Scanner) scanInt(base intbase) {
 	}
 	str := s.getString()
 	if s.quickCheckValidInt(str, base) {
-		s.setResult(token.INT)
+		s.setResult(tok)
 		s.next()
 	}
 }
@@ -176,11 +183,16 @@ func (s *Scanner) scanFloatExponent() bool {
 }
 
 func (s *Scanner) quickCheckValidInt(str string, base intbase) bool {
-	if len(str) == 1 || len(str) > 2 || str[0] != '0' {
+	n := len(str)
+	if n > 0 && str[n-1] == 'i' {
+		str = str[:n-1]
+		n--
+	}
+	if n == 1 || n > 2 || str[0] != '0' {
 		return true
 	}
-	last := rune(str[1])
-	if isIntDigit(last, base) {
+	ch := rune(str[1])
+	if isIntDigit(ch, base) {
 		return true
 	}
 	return s.invalid(errNumberHasNodigits[base])

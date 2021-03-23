@@ -17,12 +17,14 @@ import (
 	"go/token"
 )
 
+// wraps go/token.Token
 type Token token.Token
 
 const (
 	ILLEGAL = Token(token.ILLEGAL)
 	EOF     = Token(token.EOF)
 	COMMENT = Token(token.COMMENT)
+	FILE    = COMMENT + 1 // free value between COMMENT and IDENT
 
 	IDENT  = Token(token.IDENT)
 	INT    = Token(token.INT)
@@ -118,6 +120,12 @@ const (
 	SWITCH = Token(token.SWITCH)
 	TYPE   = Token(token.TYPE)
 	VAR    = Token(token.VAR)
+
+	tok_counter Token = iota
+	IDENT_LIST  Token = VAR + iota - tok_counter
+	EXPR_LIST
+	SPEC
+	SPEC_LIST
 )
 
 var operators = makeOperators()

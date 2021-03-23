@@ -41,16 +41,16 @@ type (
 // --------------------------- SingleTest* -------------------------------------
 
 func (v *SingleTests) run(t *testing.T) {
+	var s Scanner
 	var reader strings.Reader
-	s := NewScanner()
 	for _, test := range *v {
-		test.run(t, s, &reader)
+		test.run(t, &s, &reader)
 	}
 }
 
 func (test *SingleTest) run(t *testing.T, s *Scanner, reader *strings.Reader) {
 	reader.Reset(test.In)
-	s.Reset(reader)
+	s.Init(nil, reader)
 
 	test.expect(t, s)
 }
@@ -66,16 +66,16 @@ func (test *SingleTest) expect(t *testing.T, s *Scanner) {
 // --------------------------- MultiTest* --------------------------------------
 
 func (v *MultiTests) run(t *testing.T) {
+	var s Scanner
 	var reader strings.Reader
-	s := NewScanner()
 	for _, test := range *v {
-		test.run(t, s, &reader)
+		test.run(t, &s, &reader)
 	}
 }
 
 func (test *MultiTest) run(t *testing.T, s *Scanner, reader *strings.Reader) {
 	reader.Reset(test.In)
-	s.Reset(reader)
+	s.Init(nil, reader)
 
 	test.expect(t, s)
 }

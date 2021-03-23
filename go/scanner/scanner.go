@@ -21,8 +21,19 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
+type tokenStatus int
+
+const (
+	tokenNormal tokenStatus = iota
+	tokenInsertSemi
+	tokenCached
+)
+
 type Scanner struct {
 	item
+	status         tokenStatus
+	lastNonComment token.Token
+	pos            int
 	utf8Reader
 	builder strings.Builder
 }
@@ -32,20 +43,13 @@ type item struct {
 	lit string
 }
 
-func NewScanner() *Scanner {
-	return NewScannerFrom(nil)
-}
-
-func NewScannerFrom(src io.Reader) *Scanner {
-	s := &Scanner{}
-	s.Reset(src)
-	return s
-}
-
-// clear internal buffers and accumulated errors, then change io.Reader
-func (s *Scanner) Reset(src io.Reader) {
+// (re)initialize internal buffers and accumulated errors, then set io.Reader
+func (s *Scanner) Init(file *token.File, src io.Reader) {
 	s.item = item{}
-	s.utf8Reader.reset(src)
+	s.status = tokenNormal
+	s.lastNonComment = token.ILLEGAL
+	s.pos = file.Base()
+	s.utf8Reader.init(file, src)
 	s.builder.Reset()
 	if s.next() == runeBOM {
 		s.next()
@@ -76,6 +80,9 @@ func (s *Scanner) clearString() {
 
 func (s *Scanner) setResult(tok token.Token) {
 	s.tok = tok
+	if tok != token.COMMENT {
+		s.lastNonComment = tok
+	}
 	s.lit = s.getString()
 }
 
@@ -83,13 +90,42 @@ func (s *Scanner) Errors() []error {
 	return s.utf8Reader.err
 }
 
-func (s *Scanner) Scan() (token.Token, string) {
-	s.clearString()
+// return position of begin and end of last returned token
+func (s *Scanner) PosEnd() (token.Pos, token.Pos) {
+	return token.Pos(s.pos), token.Pos(s.endpos)
+}
 
+func (s *Scanner) Scan() (token.Token, string) {
+	if s.status == tokenCached {
+		s.status = tokenNormal
+		return s.tok, s.lit
+	}
 	ch := s.ch
 	for ch != runeEOF && isSpace(ch) {
+		if ch == '\n' {
+			if s.needInsertSemi() {
+				s.next()
+				tok := token.SEMICOLON
+				s.lastNonComment = tok
+				return tok, ""
+			}
+		}
 		ch = s.next()
 	}
+	s.pos = s.endpos
+	s.scan()
+	if s.status == tokenInsertSemi {
+		s.status = tokenCached
+		tok := token.SEMICOLON
+		s.lastNonComment = tok
+		return tok, ""
+	}
+	return s.tok, s.lit
+}
+
+func (s *Scanner) scan() {
+	s.clearString()
+	ch := s.ch
 	if ch == runeEOF {
 		s.tok = token.EOF
 	} else if isDecimalDigit(ch) {
@@ -102,20 +138,19 @@ func (s *Scanner) Scan() (token.Token, string) {
 		s.scanRawString()
 	} else if ch == '.' {
 		s.scanDot()
-	} else if isLetter(ch) {
+	} else if ch == '_' || isLetter(ch) {
 		s.scanIdentifier()
 	} else if isOperator(ch) {
 		s.scanOperatorOrComment()
 	} else {
 		s.invalid(errInvalidCharacter)
 	}
-	return s.tok, s.lit
 }
 
 func (s *Scanner) scanIdentifier() {
 	s.add()
 	ch := s.next()
-	for isLetter(ch) || isDigit(ch) {
+	for ch == '_' || isLetter(ch) || isDigit(ch) {
 		s.addRune(ch)
 		ch = s.next()
 	}
@@ -178,16 +213,14 @@ func (s *Scanner) scanDot() {
 			return
 		}
 	}
-	// found "..""
+	// found ".."
 	ch = s.next()
 	if ch != '.' {
 		// found "..nondot"
-		s.addString("..")
-		if ch == runeEOF {
-			s.invalid(errUnexpectedEOF)
-		} else {
-			s.invalid(errInvalidOperator)
-		}
+		// unread the second dot and return the first one
+		s.unread = '.'
+		s.tok = token.PERIOD
+		s.lit = ""
 		return
 	}
 	// found "...""
@@ -208,5 +241,24 @@ func (s *Scanner) scanSlash() {
 		// found "/something"
 		s.addRune('/')
 		s.scanOperator(token.QUO)
+	}
+}
+
+func (s *Scanner) needInsertSemi() bool {
+	flag := false
+	if s.status == tokenNormal {
+		switch s.lastNonComment {
+		case token.IDENT, token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING,
+			token.BREAK, token.CONTINUE, token.FALLTHROUGH, token.RETURN,
+			token.INC, token.DEC, token.RPAREN, token.RBRACK, token.RBRACE:
+			flag = true
+		}
+	}
+	return flag
+}
+
+func (s *Scanner) autoInsertSemi() {
+	if s.needInsertSemi() {
+		s.status = tokenInsertSemi
 	}
 }

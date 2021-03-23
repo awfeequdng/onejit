@@ -19,8 +19,8 @@ import "github.com/cosmos72/onejit/go/token"
 // scan characters after "//"
 func (s *Scanner) scanCommentLine() {
 	s.addString("//")
+	ch := s.next()
 	for {
-		ch := s.next()
 		if ch == runeEOF || ch == '\n' {
 			break
 		}
@@ -28,6 +28,10 @@ func (s *Scanner) scanCommentLine() {
 		if ch != '\r' {
 			s.addRune(ch)
 		}
+		ch = s.next()
+	}
+	if ch == '\n' {
+		s.autoInsertSemi()
 	}
 	s.setResult(token.COMMENT)
 }
@@ -40,6 +44,8 @@ func (s *Scanner) scanCommentBlock() {
 		ch := s.next()
 		if ch == runeEOF {
 			break
+		} else if ch == '\n' {
+			s.autoInsertSemi()
 		}
 		s.addRune(ch)
 		if star && ch == '/' {
