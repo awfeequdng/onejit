@@ -33,7 +33,6 @@ type Scanner struct {
 	item
 	status         tokenStatus
 	lastNonComment token.Token
-	pos            int
 	utf8Reader
 	builder strings.Builder
 }
@@ -48,7 +47,6 @@ func (s *Scanner) Init(file *token.File, src io.Reader) {
 	s.item = item{}
 	s.status = tokenNormal
 	s.lastNonComment = token.ILLEGAL
-	s.pos = file.Base()
 	s.utf8Reader.init(file, src)
 	s.builder.Reset()
 	if s.next() == runeBOM {
@@ -86,8 +84,13 @@ func (s *Scanner) setResult(tok token.Token) {
 	s.lit = s.getString()
 }
 
-func (s *Scanner) Errors() []error {
+func (s *Scanner) Errors() []*Error {
 	return s.utf8Reader.err
+}
+
+// convert specified Pos to a Position
+func (s *Scanner) Position(pos token.Pos) token.Position {
+	return s.file.Position(pos)
 }
 
 // return position of begin and end of last returned token

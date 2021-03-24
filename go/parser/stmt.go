@@ -19,5 +19,5 @@ import (
 )
 
 func (p *Parser) parseStmt() (node ast.Node) {
-	return node // TODO
+	return nil // TODO
 }

@@ -88,18 +88,21 @@ func (f *File) Pos(offset int) Pos {
 
 // return the Position for the given position p
 func (f *File) Position(p Pos) Position {
-	var pos Position
+	pos := Position{Offset: int(p)}
 	if f != nil && p != NoPos {
 		base := f.line[0]
-		if int(p) < base || (f.size >= 0 && int(p)-base >= f.size) {
-			panic(fmt.Errorf("invalid Pos value %d", int(p)))
+		if f.size < 0 {
+			if int(p) < base {
+				panic(fmt.Errorf("invalid Pos value %d, expecting >= %d", int(p), base))
+			}
+		} else if int(p) < base || int(p)-base > f.size {
+			panic(fmt.Errorf("invalid Pos value %d, expecting %d...%d", int(p), base, base+f.size))
 		}
 		index := sort.SearchInts(f.line, int(p))
 		if index == len(f.line) || int(p) < f.line[index] {
 			index--
 		}
 		pos.Filename = f.name
-		pos.Offset = int(p)
 		pos.Line = 1 + index + f.skipLines
 		pos.Column = 1 + int(p) - f.line[index]
 	}

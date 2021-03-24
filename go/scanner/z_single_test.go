@@ -87,11 +87,11 @@ func TestRune(t *testing.T) {
 		{`'\x00\n'`, item{token.ILLEGAL, `'\x00\n'`}, errRuneTooLong},
 		{`'\uffff'`, item{token.CHAR, `'\uffff'`}, nil},
 		{`'\u123'`, item{token.ILLEGAL, `'\u123'`},
-			[]error{errEscapeHexInvalidChar, errStringUnterminated[1]},
+			[]string{errEscapeHexInvalidChar, errStringUnterminated[1]},
 		},
 		{`'\U0010ffff'`, item{token.CHAR, `'\U0010ffff'`}, nil},
 		{`'\U0003456'`, item{token.ILLEGAL, `'\U0003456'`},
-			[]error{errEscapeHexInvalidChar, errStringUnterminated[1]},
+			[]string{errEscapeHexInvalidChar, errStringUnterminated[1]},
 		},
 	}
 	v.run(t)
@@ -112,11 +112,11 @@ func TestString(t *testing.T) {
 		{`"\xf."`, item{token.ILLEGAL, `"\xf."`}, errEscapeHexInvalidChar},
 		{`"\uffff"`, item{token.STRING, `"\uffff"`}, nil},
 		{`"\u123"`, item{token.ILLEGAL, `"\u123"`},
-			[]error{errEscapeHexInvalidChar, errStringUnterminated[0]},
+			[]string{errEscapeHexInvalidChar, errStringUnterminated[0]},
 		},
 		{`"\U0010ffff"`, item{token.STRING, `"\U0010ffff"`}, nil},
 		{`"\U0003456"`, item{token.ILLEGAL, `"\U0003456"`},
-			[]error{errEscapeHexInvalidChar, errStringUnterminated[0]},
+			[]string{errEscapeHexInvalidChar, errStringUnterminated[0]},
 		},
 	}
 	v.run(t)

@@ -32,11 +32,17 @@ func (p *Parser) ParseFile() ast.Node {
 	if len(list) != 0 {
 		pos = list[0].Pos()
 	}
-	return &ast.Slice{
+	return &ast.List{
 		Atom: ast.Atom{
 			Tok:    token.FILE,
 			TokPos: pos,
 		},
 		Nodes: list,
 	}
+}
+
+func (p *Parser) parsePackage() *ast.Unary {
+	node := p.parseUnary()
+	node.X = p.parseIdent()
+	return node
 }

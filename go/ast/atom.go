@@ -21,22 +21,23 @@ import (
 )
 
 type Atom struct {
-	Tok    token.Token
-	Lit    string
-	TokPos token.Pos
-	TokEnd token.Pos
+	Tok     token.Token
+	Lit     string
+	TokPos  token.Pos
+	TokEnd  token.Pos
+	Comment []string
 }
 
 func (a *Atom) Op() token.Token {
 	return a.Tok
 }
 
-func (a *Atom) Size() int {
+func (a *Atom) Len() int {
 	return 0
 }
 
-func (a *Atom) Get(_ int) Node {
-	return ([]Node)(nil)[0]
+func (a *Atom) At(_ int) Node {
+	return outOfRange()
 }
 
 func (a *Atom) Pos() token.Pos {
@@ -47,14 +48,24 @@ func (a *Atom) End() token.Pos {
 	return a.TokEnd
 }
 
-func (a *Atom) String() string {
-	return fmt.Sprintf("%v", a)
+func (a *Atom) Comments() []string {
+	return a.Comment
 }
 
-func (a *Atom) Format(f fmt.State, verb rune) {
-	if len(a.Lit) != 0 {
-		fmt.Fprintf(f, "(%v %q)", a.Tok, a.Lit)
+func (a *Atom) String() string {
+	if a == nil {
+		return "nil"
 	} else {
-		fmt.Fprintf(f, "(%v)", a.Tok)
+		return fmt.Sprint(a)
+	}
+}
+
+func (a *Atom) Format(out fmt.State, verb rune) {
+	if a == nil {
+		out.Write(strNil)
+	} else if len(a.Lit) != 0 {
+		fmt.Fprintf(out, "(%v %q)", a.Tok, a.Lit)
+	} else {
+		fmt.Fprintf(out, "(%v)", a.Tok)
 	}
 }

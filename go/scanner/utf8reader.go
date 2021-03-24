@@ -31,8 +31,9 @@ type utf8Reader struct {
 	start  int // endpos into buf
 	src    io.Reader
 	file   *token.File
+	pos    int
 	endpos int
-	err    []error
+	err    []*Error
 }
 
 // (re)initialize utf8Reader
@@ -52,7 +53,9 @@ func (u *utf8Reader) init(file *token.File, src io.Reader) {
 		u.src = src
 	}
 	u.file = file
-	u.endpos = file.Base()
+	pos := file.Base()
+	u.pos = pos
+	u.endpos = pos
 	u.err = nil
 }
 
@@ -106,7 +109,7 @@ func (u *utf8Reader) refill() {
 	if got > 0 {
 		u.buf = buf[0 : end+got : max]
 	} else if err != nil && !errors.Is(io.EOF, err) {
-		u.err = append(u.err, err)
+		u.error(err.Error())
 	}
 	// else EOF
 }
@@ -124,7 +127,7 @@ func (u *utf8Reader) shift() {
 }
 
 func (u *utf8Reader) foundInvalidUtf8() {
-	u.err = append(u.err, errInvalidUtf8)
+	u.error(errInvalidUtf8)
 	u.start++
 	u.endpos++
 }

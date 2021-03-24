@@ -30,8 +30,7 @@ func isDecl(tok token.Token) bool {
 
 func isLeave(tok token.Token) bool {
 	switch tok {
-	case token.ILLEGAL, token.EOF, token.SEMICOLON,
-		token.RPAREN, token.RBRACK, token.RBRACE:
+	case token.ILLEGAL, token.EOF, token.RPAREN, token.RBRACK, token.RBRACE:
 		return true
 	default:
 		return false
@@ -39,118 +38,95 @@ func isLeave(tok token.Token) bool {
 }
 
 func (p *Parser) parseTopLevelDecl() (node ast.Node) {
-	switch p.tok {
+	switch p.tok() {
 	case token.CONST, token.VAR:
-		node = p.parseGenDecl()
+		node = p.parseValueDecl()
 	case token.FUNC:
 		node = p.parseFuncOrMethodDecl()
 	case token.TYPE:
 		node = p.parseTypeDecl()
 	default:
-		node = p.makeBad()
+		node = p.parseBad(errExpectingConstVarFuncOrType)
 	}
 	return node
 }
 
-func (p *Parser) parseGenDecl() ast.Node {
-	ret := p.makeSlice()
-	if p.next() == token.LPAREN {
-		ret.Nodes = p.parseGenSpecList()
-	} else {
-		ret.Nodes = []ast.Node{p.parseGenSpec()}
-	}
-	return ret
+func (p *Parser) parseValueDecl() *ast.List {
+	list := p.parseList()
+	list.Nodes = p.parseValueSpecList()
+	return list
 }
 
 func (p *Parser) parseImport() ast.Node {
-	ret := p.makeSlice()
-	if p.next() == token.LPAREN {
-		ret.Nodes = p.parseImportSpecList()
-	} else {
-		ret.Nodes = []ast.Node{p.parseImportSpec()}
-	}
-	return ret
-}
-
-func (p *Parser) parseGenSpecList() (list []ast.Node) {
-	p.next()
-	for {
-		if tok := p.tok; isLeave(tok) {
-			if tok != token.RPAREN {
-				list = append(list, p.makeBad())
-			}
-			break
-		}
-		list = append(list, p.parseGenSpec())
-
-		if p.tok == token.SEMICOLON {
-			p.next()
-		}
-	}
+	list := p.parseList()
+	list.Nodes = p.parseImportSpecList()
 	return list
 }
 
 func (p *Parser) parseImportSpecList() (list []ast.Node) {
-	p.next()
-	for {
-		if tok := p.tok; isLeave(tok) {
-			if tok != token.RPAREN {
-				list = append(list, p.makeBad())
-			}
-			break
-		}
-		list = append(list, p.parseImportSpec())
+	return p.parseAnySpecList((*Parser).parseImportSpec)
+}
 
-		if p.tok == token.SEMICOLON {
-			p.next()
+func (p *Parser) parseValueSpecList() (list []ast.Node) {
+	return p.parseAnySpecList((*Parser).parseValueSpec)
+}
+
+func (p *Parser) parseAnySpecList(parseSpec func(p *Parser) ast.Node) (list []ast.Node) {
+	if p.tok() != token.LPAREN {
+		return []ast.Node{parseSpec(p)}
+	}
+	p.next() // skip '('
+	for !isLeave(p.tok()) {
+		list = append(list, parseSpec(p))
+
+		if p.tok() == token.SEMICOLON {
+			p.next() // skip ';'
 		}
+	}
+	if p.tok() == token.RPAREN {
+		p.next() // skip ')'
+	} else {
+		list = append(list, p.makeBad(token.RPAREN.String()))
 	}
 	return list
 }
 
-func (p *Parser) parseGenSpec() ast.Node {
-	pos := p.pos
+func (p *Parser) parseValueSpec() ast.Node {
+	pos := p.pos()
 	identList := p.parseIdentList()
 	var typ ast.Node
-	var exprList ast.Node
-	if !isLeave(p.tok) {
-		if p.tok != token.ASSIGN {
+	var exprList *ast.List
+	if !isLeave(p.tok()) {
+		if p.tok() != token.ASSIGN {
 			typ = p.parseType()
 		}
-		if p.tok == token.ASSIGN {
+		if p.tok() == token.ASSIGN {
 			exprList = p.parseExprList()
 		}
 	}
-	if false {
-		typ = &ast.Slice{
-			Atom:  ast.Atom{Tok: token.TYPE},
-			Nodes: []ast.Node{typ},
-		}
-	}
-	return &ast.Slice{
+	return &ast.ValueSpec{
 		Atom: ast.Atom{
-			Tok:    token.SPEC,
+			Tok:    token.VALUE_SPEC,
 			TokPos: pos,
 		},
-		Nodes: []ast.Node{
-			identList, typ, exprList,
-		},
+		Names:  identList,
+		Type:   typ,
+		Values: exprList,
 	}
 }
 
 func (p *Parser) parseImportSpec() ast.Node {
-	pos := p.pos
+	pos := p.pos()
 	var alias, path ast.Node
-	if p.tok == token.IDENT {
-		alias = p.makeAtom()
-		p.next()
+	if p.tok() == token.IDENT {
+		alias = p.parseAtom(token.IDENT)
 	}
-	if p.tok == token.STRING {
-		path = p.makeAtom()
+	if p.tok() == token.STRING {
+		path = p.parseAtom(token.STRING)
 	} else {
-		path = p.makeBad()
+		path = p.makeBad(errExpectingString)
 	}
-	return &ast.Slice{
+	return &ast.List{
 		Atom: ast.Atom{
 			Tok:    token.IMPORT_SPEC,
 			TokPos: pos,

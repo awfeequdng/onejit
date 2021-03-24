@@ -121,13 +121,26 @@ const (
 	VAR    = Token(token.VAR)
 
 	tok_counter Token = iota
-	EXPR_LIST   Token = VAR + iota - tok_counter
+	ARRAY       Token = VAR + iota - tok_counter
+	BOTH_DIR
+	EXPRS
+	FIELD
 	FILE
-	IDENT_LIST
+	IDENTS
 	IMPORT_SPEC
-	SPEC
-	SPEC_LIST
+	PARAMS
+	RECV_DIR
+	RESULTS
+	SEND_DIR
+	SLICE
+	VALUE_SPEC
 )
+
+var tokens = [...]string{
+	"ARRAY", "BOTH_DIR", "EXPRS", "FIELD", "FILE",
+	"IDENTS", "IMPORT_SPEC", "PARAMS", "RECV_DIR", "RESULTS",
+	"SEND_DIR", "SLICE", "VALUE_SPEC",
+}
 
 var operators = makeOperators()
 
@@ -170,20 +183,9 @@ func (tok Token) Precedence() int {
 
 func (tok Token) String() string {
 	var ret string
-	switch tok {
-	case EXPR_LIST:
-		ret = "EXPR_LIST"
-	case FILE:
-		ret = "FILE"
-	case IDENT_LIST:
-		ret = "IDENT_LIST"
-	case IMPORT_SPEC:
-		ret = "IMPORT_SPEC"
-	case SPEC:
-		ret = "SPEC"
-	case SPEC_LIST:
-		ret = "SPEC_LIST"
-	default:
+	if tok >= ARRAY && tok <= VALUE_SPEC {
+		ret = tokens[tok-ARRAY]
+	} else {
 		ret = token.Token(tok).String()
 	}
 	return ret

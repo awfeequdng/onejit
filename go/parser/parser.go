@@ -22,12 +22,8 @@ import (
 
 type Parser struct {
 	scanner *scanner.Scanner
-	tok     token.Token
-	lit     string
-	pos     token.Pos
-	end     token.Pos
-	comment string
-	err     []error
+	curr    ast.Atom
+	err     []*scanner.Error
 }
 
 func (p *Parser) Init(s *scanner.Scanner) {
@@ -52,35 +48,111 @@ func (p *Parser) Parse() (node ast.Node) {
 }
 
 func (p *Parser) next() token.Token {
+	curr := &p.curr
+	curr.Comment = nil
 	s := p.scanner
 	for {
-		p.tok, p.lit = s.Scan()
-		p.pos, p.end = s.PosEnd()
-		if p.tok != token.COMMENT {
+		curr.Tok, curr.Lit = s.Scan()
+		if curr.Tok != token.COMMENT {
+			curr.TokPos, curr.TokEnd = s.PosEnd()
 			break
 		}
-		p.comment = p.lit
+		curr.Comment = append(curr.Comment, curr.Lit)
 	}
-	return p.tok
+	return curr.Tok
 }
 
-func (p *Parser) makeAtom() *ast.Atom {
-	return &ast.Atom{Tok: p.tok, Lit: p.lit, TokPos: p.pos, TokEnd: p.end}
+func (p *Parser) tok() token.Token {
+	return p.curr.Tok
 }
 
-func (p *Parser) makeBad() *ast.Bad {
-	return &ast.Bad{Tok: p.tok, Lit: p.lit, TokPos: p.pos, TokEnd: p.end}
+func (p *Parser) pos() token.Pos {
+	return p.curr.TokPos
 }
 
-func (p *Parser) makeSlice() *ast.Slice {
-	return &ast.Slice{
-		Atom: ast.Atom{Tok: p.tok, Lit: p.lit, TokPos: p.pos, TokEnd: p.end},
+func (p *Parser) makeAtom(tok token.Token) *ast.Atom {
+	atom := p.curr
+	atom.Tok = tok
+	p.curr.Comment = nil
+	return &atom
+}
+
+func (p *Parser) makeBad(msg string) (bad *ast.Bad) {
+	p.error(msg)
+	bad = &ast.Bad{Atom: p.curr}
+	p.curr.Comment = nil
+	return bad
+}
+
+func (p *Parser) makeBinary() (binary *ast.Binary) {
+	binary = &ast.Binary{Atom: p.curr}
+	p.curr.Comment = nil
+	return binary
+}
+
+func (p *Parser) makeBinaryBad(x ast.Node, expected token.Token) *ast.Binary {
+	binary := p.makeBinary()
+	binary.Tok = token.ILLEGAL
+	binary.TokPos = x.Pos()
+	binary.X = x
+	binary.Y = p.makeBad(expected.String())
+	return binary
+}
+
+func (p *Parser) makeIdent() (node ast.Node) {
+	if p.tok() == token.IDENT {
+		node = p.makeAtom(token.IDENT)
+	} else {
+		node = p.makeBad(errExpectingIdent)
 	}
+	p.curr.Comment = nil
+	return node
 }
 
-func (p *Parser) parsePackage() ast.Node {
-	ret := p.makeSlice()
+func (p *Parser) makeList() (list *ast.List) {
+	list = &ast.List{Atom: p.curr}
+	p.curr.Comment = nil
+	return list
+}
+
+func (p *Parser) makeUnary() (unary *ast.Unary) {
+	unary = &ast.Unary{Atom: p.curr}
+	p.curr.Comment = nil
+	return unary
+}
+
+func (p *Parser) parseAtom(tok token.Token) *ast.Atom {
+	node := p.makeAtom(tok)
 	p.next()
-	ret.Nodes = []ast.Node{p.makeIdent()}
-	return ret
+	return node
+}
+
+func (p *Parser) parseBad(msg string) *ast.Bad {
+	node := p.makeBad(msg)
+	p.next()
+	return node
+}
+
+func (p *Parser) parseBinary() *ast.Binary {
+	node := p.makeBinary()
+	p.next()
+	return node
+}
+
+func (p *Parser) parseIdent() ast.Node {
+	node := p.makeIdent()
+	p.next()
+	return node
+}
+
+func (p *Parser) parseList() *ast.List {
+	node := p.makeList()
+	p.next()
+	return node
+}
+
+func (p *Parser) parseUnary() *ast.Unary {
+	node := p.makeUnary()
+	p.next()
+	return node
 }
