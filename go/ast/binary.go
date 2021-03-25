@@ -30,25 +30,27 @@ func (b *Binary) Len() int {
 	return 2
 }
 
-func (b *Binary) At(i int) Node {
+func (b *Binary) At(i int) (ret Node) {
 	switch i {
 	case 0:
-		return b.X
+		ret = b.X
 	case 1:
-		return b.Y
+		ret = b.Y
 	default:
-		return outOfRange()
+		ret = outOfRange()
 	}
+	return ret
 }
 
-func (b *Binary) End() token.Pos {
+func (b *Binary) End() (pos token.Pos) {
 	if b.Y != nil {
-		return b.Y.End()
+		pos = b.Y.End()
 	} else if b.X != nil {
-		return b.X.End()
+		pos = b.X.End()
 	} else {
-		return b.Atom.End()
+		pos = b.Atom.End()
 	}
+	return pos
 }
 
 func (b *Binary) String() string {

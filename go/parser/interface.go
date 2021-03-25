@@ -59,8 +59,10 @@ func (p *Parser) parseInterfaceMethodOrEmbedded() *ast.Field {
 			head = p.makeBinaryBad(head, token.IDENT)
 		}
 		names := p.makeList()
+		names.Tok = token.NAMES
 		names.Nodes = []ast.Node{head}
-		field.Type = p.parseSignature()
+		field.Names = names
+		field.Type = p.parseSignature(p.pos())
 	}
 	return field
 }

@@ -38,11 +38,15 @@ func (p *Parser) parseTypeSpec() ast.Node {
 		p.next() // skip '='
 	}
 	typ := p.parseType()
-	return &ast.Binary{
+	binary := &ast.Binary{
 		Atom: ast.Atom{Tok: tok, TokPos: pos},
 		X:    name,
 		Y:    typ,
 	}
+	if tok == token.ASSIGN && p.mode&TypeAlias == 0 {
+		binary = p.makeBinaryBad(binary, errTypeAlias)
+	}
+	return binary
 }
 
 // parse a type
@@ -83,7 +87,7 @@ func (p *Parser) parseTypeMaybeEllipsis() (node ast.Node) {
 	if p.tok() != token.ELLIPSIS {
 		return p.parseType()
 	}
-	ellipsis := p.makeUnary()
+	ellipsis := p.parseUnary()
 	ellipsis.X = p.parseType()
 	return ellipsis
 }
@@ -98,7 +102,7 @@ func (p *Parser) parseArrayType() ast.Node {
 	case token.ELLIPSIS:
 		length = p.parseAtom(token.ELLIPSIS)
 	default:
-		length = p.parseExpr()
+		length = p.ParseExpr()
 	}
 	var elem ast.Node
 	if p.tok() != token.RBRACK {
@@ -106,12 +110,6 @@ func (p *Parser) parseArrayType() ast.Node {
 	} else {
 		p.next() // skip ']'
 		elem = p.parseType()
-	}
-	if length == nil {
-		return &ast.Unary{
-			Atom: ast.Atom{Tok: token.SLICE, TokPos: pos},
-			X:    elem,
-		}
 	}
 	return &ast.Binary{
 		Atom: ast.Atom{Tok: token.ARRAY, TokPos: pos},

@@ -19,24 +19,6 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
-func isDecl(tok token.Token) bool {
-	switch tok {
-	case token.CONST, token.FUNC, token.TYPE, token.VAR:
-		return true
-	default:
-		return false
-	}
-}
-
-func isLeave(tok token.Token) bool {
-	switch tok {
-	case token.ILLEGAL, token.EOF, token.RPAREN, token.RBRACK, token.RBRACE:
-		return true
-	default:
-		return false
-	}
-}
-
 func (p *Parser) parseTopLevelDecl() (node ast.Node) {
 	switch p.tok() {
 	case token.CONST, token.VAR:
@@ -93,6 +75,7 @@ func (p *Parser) parseAnySpecList(parseSpec func(p *Parser) ast.Node) (list []as
 
 func (p *Parser) parseValueSpec() ast.Node {
 	pos := p.pos()
+	comment := p.consumeComment()
 	identList := p.parseIdentList()
 	var typ ast.Node
 	var exprList *ast.List
@@ -101,13 +84,14 @@ func (p *Parser) parseValueSpec() ast.Node {
 			typ = p.parseType()
 		}
 		if p.tok() == token.ASSIGN {
-			exprList = p.parseExprList()
+			exprList = p.parseExprList(false)
 		}
 	}
 	return &ast.ValueSpec{
 		Atom: ast.Atom{
-			Tok:    token.VALUE_SPEC,
-			TokPos: pos,
+			Tok:     token.VALUE_SPEC,
+			TokPos:  pos,
+			Comment: comment,
 		},
 		Names:  identList,
 		Type:   typ,

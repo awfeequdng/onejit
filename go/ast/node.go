@@ -38,7 +38,7 @@ func choose2(i int, a Node, b Node) (ret Node) {
 	case 1:
 		ret = b
 	default:
-		outOfRange()
+		ret = outOfRange()
 	}
 	return ret
 }
@@ -52,7 +52,23 @@ func choose3(i int, a Node, b Node, c Node) (ret Node) {
 	case 2:
 		ret = c
 	default:
-		outOfRange()
+		ret = outOfRange()
+	}
+	return ret
+}
+
+func choose4(i int, a Node, b Node, c Node, d Node) (ret Node) {
+	switch i {
+	case 0:
+		ret = a
+	case 1:
+		ret = b
+	case 2:
+		ret = c
+	case 3:
+		ret = d
+	default:
+		ret = outOfRange()
 	}
 	return ret
 }

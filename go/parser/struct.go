@@ -92,7 +92,7 @@ func (p *Parser) parseFieldDecl() *ast.Field {
 		if head := names.Nodes[0]; head.Op() != token.IDENT {
 			names.Nodes[0] = p.makeBinaryBad(head, token.IDENT)
 		}
-		names.Tok = token.IDENTS
+		names.Tok = token.NAMES
 		names.Lit = ""
 		names.TokPos = names.Nodes[0].Pos()
 		field.Names = names

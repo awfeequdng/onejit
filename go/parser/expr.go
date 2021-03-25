@@ -23,7 +23,7 @@ import (
 func (p *Parser) parseIdentList() *ast.List {
 	ret := &ast.List{
 		Atom: ast.Atom{
-			Tok:    token.IDENTS,
+			Tok:    token.NAMES,
 			TokPos: p.pos(),
 		},
 	}
@@ -60,12 +60,202 @@ func (p *Parser) parseQualifiedIdent() (node ast.Node) {
 	return node
 }
 
-// parse an expression
-func (p *Parser) parseExpr() ast.Node {
-	return nil // TODO
+// parse a comma-separated expression list
+func (p *Parser) parseExprList(allowEllipsis bool) *ast.List {
+	pos := p.pos()
+	var list []ast.Node
+	for {
+		list = append(list, p.ParseExpr())
+		if p.tok() != token.COMMA {
+			break
+		}
+		p.next() // skip ','
+	}
+	if n := len(list); n != 0 && allowEllipsis && p.tok() == token.ELLIPSIS {
+		unary := p.parseUnary() // skips '...'
+		unary.X = list[n-1]
+		list[n-1] = unary
+	}
+	return &ast.List{
+		Atom:  ast.Atom{Tok: token.EXPRS, TokPos: pos},
+		Nodes: list,
+	}
 }
 
-// parse a comma-separated expression list
-func (p *Parser) parseExprList() *ast.List {
-	return nil // TODO
+func (p *Parser) ParseExpr() ast.Node {
+	return p.parseExprOrType(token.LowestPrec)
+}
+
+func (p *Parser) parseExprOrType(prec int) ast.Node {
+	node := p.parseUnaryExpr()
+	for {
+		tokPrec := p.tok().Precedence()
+		if tokPrec <= prec {
+			break
+		}
+		// found binary operator with higher precedence
+		binary := p.parseBinary()
+		binary.X = node
+		binary.Y = p.parseExprOrType(tokPrec)
+		node = binary
+	}
+	return node
+}
+
+func (p *Parser) parseUnaryExpr() ast.Node {
+	if !isUnary(p.tok()) {
+		return p.parsePrimaryExpr()
+	}
+	unary := p.parseUnary()
+	unary.X = p.parseUnaryExpr()
+	return unary
+}
+
+func (p *Parser) parsePrimaryExpr() ast.Node {
+	node := p.parseOperandExpr()
+	for {
+		switch p.tok() {
+		case token.LPAREN:
+			node = p.parseCallExpr(node)
+		case token.LBRACK:
+			node = p.parseIndexOrSlice(node)
+		case token.LBRACE:
+			node = p.parseCompositeLit(node)
+		case token.PERIOD:
+			// either node . identifier
+			// or node . ( type )
+			pos := p.pos()
+			switch p.next() {
+			case token.IDENT:
+				node = p.parseSelector(node, pos)
+				continue // loop
+			case token.LPAREN:
+				node = p.parseTypeAssert(node)
+			default:
+				node = p.makeBinaryBad(node, errExpectingIdentOrLparen)
+			}
+		default:
+		}
+		break
+	}
+	return node
+}
+
+func (p *Parser) parseOperandExpr() (node ast.Node) {
+	switch p.tok() {
+	case token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING:
+		node = p.parseAtom(p.tok())
+	case token.LPAREN:
+		p.next() // skip '('
+		node = p.ParseExpr()
+		if p.tok() == token.RPAREN {
+			p.next() // skip ')'
+		} else {
+			node = p.makeBinaryBad(node, token.RPAREN)
+		}
+	case token.IDENT:
+		node = p.parseIdent()
+	case token.FUNC:
+		node = p.parseFunctionLit()
+	case token.CHAN:
+		node = p.parseBad(errExpectingExprOrType)
+	default:
+		node = p.parseType()
+	}
+	return node
+}
+
+// last argument may be followed by '...'
+// if no '...' and arguments len = 1, may also be a type conversion
+func (p *Parser) parseCallExpr(fun ast.Node) *ast.Binary {
+	call := p.parseBinary() // skips '('
+	call.Tok = token.CALL
+	call.X = fun
+	args := p.parseExprList(true)
+	if p.tok() == token.RPAREN {
+		p.next() // skip ')'
+	} else {
+		args.Nodes = append(args.Nodes, p.makeBad(token.RPAREN))
+	}
+	call.Y = args
+	return call
+}
+
+func (p *Parser) parseCompositeLit(typ ast.Node) ast.Node {
+	return typ // TODO
+}
+
+func (p *Parser) parseIndexOrSlice(left ast.Node) *ast.Binary {
+	binary := p.parseBinary() // also skips '['
+	binary.X = left
+	list := p.makeList()
+	list.Tok = token.EXPRS
+	binary.Y = list
+
+	var nodes []ast.Node
+	var sep token.Token
+	for !isLeave(p.tok()) {
+		if p.tok() == token.COLON {
+			// no expression
+			if sep == token.COMMA {
+				break
+			}
+			nodes = append(nodes, nil)
+			sep = token.COLON
+			p.next() // skip ':'
+			continue
+		}
+		nodes = append(nodes, p.ParseExpr())
+		var want token.Token
+		if tok := p.tok(); tok == token.COMMA || tok == token.COLON {
+			want = tok
+			p.next() // skip ',' or ':'
+		} else {
+			break
+		}
+		if sep == 0 {
+			sep = want
+		} else if sep != want {
+			break
+		}
+	}
+	if nodes == nil {
+		nodes = []ast.Node{p.makeBad(errExpectingExpr)}
+	}
+	if p.tok() == token.RBRACK {
+		p.next() // skip ']'
+	} else {
+		nodes = append(nodes, p.makeBad(token.RBRACK))
+	}
+	if sep == token.COMMA {
+		binary.Tok = token.INDEX
+	} else {
+		binary.Tok = token.SLICE_EXPR
+	}
+	list.Nodes = nodes
+	return binary
+}
+
+func (p *Parser) parseSelector(left ast.Node, pos token.Pos) *ast.Binary {
+	return &ast.Binary{
+		Atom: ast.Atom{Tok: token.PERIOD, TokPos: pos},
+		X:    left,
+		Y:    p.parseIdent(),
+	}
+}
+
+func (p *Parser) parseTypeAssert(left ast.Node) *ast.Binary {
+	binary := p.makeBinary()
+	binary.Tok = token.TYPE_ASSERT
+	binary.X = left
+
+	p.next() // skip '('
+	typ := p.parseType()
+	if p.tok() == token.RPAREN {
+		p.next() // skip ')
+	} else {
+		typ = p.makeBinaryBad(typ, token.RPAREN)
+	}
+	binary.Y = typ
+	return binary
 }

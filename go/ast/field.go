@@ -28,10 +28,16 @@ type Field struct {
 }
 
 func (f *Field) Len() int {
+	if f.Tag == nil {
+		return 2
+	}
 	return 3
 }
 
 func (f *Field) At(i int) Node {
+	if i == 2 && f.Tag == nil {
+		return outOfRange()
+	}
 	return choose3(i, f.Names, f.Type, f.Tag)
 }
 

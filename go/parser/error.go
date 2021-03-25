@@ -15,20 +15,43 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/cosmos72/onejit/go/scanner"
 )
+
+type errText string
 
 const (
 	errExpectingConstVarFuncOrType = "'const' 'var' 'func' or 'type'"
 	errExpectingChan               = "chan"
+	errExpectingExpr               = "expression"
+	errExpectingExprOrType         = "expression or type"
 	errExpectingIdent              = "identifier"
+	errExpectingIdentOrLparen      = "identifier or ("
 	errExpectingString             = "string"
 	errExpectingType               = "type"
+	errTypeAlias                   = errText("type aliases are disabled, they requires parser.Mode = TypeAlias")
+	errParamsNamedUnnamed          = errText("syntax error: mixed named and unnamed function parameters")
+	errParamNonFinalEllipsis       = errText("syntax error: cannot use ... with non-final parameter")
 )
 
-func (p *Parser) error(msg string) {
+func (p *Parser) makeErrText(suffix string) errText {
+	return errText("syntax error: unexpected " + p.tok().String() + ", expecting " + suffix)
+}
+
+func (p *Parser) error(msg interface{}) {
+	var text errText
+	switch msg := msg.(type) {
+	case errText:
+		text = msg
+	case string:
+		text = p.makeErrText(msg)
+	default:
+		text = p.makeErrText(fmt.Sprint(msg))
+	}
 	p.err = append(p.err, &scanner.Error{
 		Pos: p.scanner.Position(p.pos()),
-		Msg: "syntax error: unexpected " + p.tok().String() + ", expecting " + msg,
+		Msg: string(text),
 	})
 }

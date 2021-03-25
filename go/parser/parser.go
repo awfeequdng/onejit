@@ -20,16 +20,30 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
+type Mode uint
+
+const (
+	TypeAlias Mode = 1 << iota // added in Go 1.9
+	Generics                   // added in Go 1.xy
+	Go1_9     = TypeAlias
+	Default   = ^Mode(0)
+)
+
 type Parser struct {
 	scanner *scanner.Scanner
 	curr    ast.Atom
+	mode    Mode
 	err     []*scanner.Error
 }
 
-func (p *Parser) Init(s *scanner.Scanner) {
-	*p = Parser{scanner: s}
+func (p *Parser) Init(s *scanner.Scanner, mode Mode) {
+	p.scanner = s
+	p.curr = ast.Atom{}
+	p.mode = mode
+	p.err = nil
 }
 
+// parse a single declaration, statement or expression
 func (p *Parser) Parse() (node ast.Node) {
 	tok := p.next()
 	switch tok {
@@ -41,12 +55,13 @@ func (p *Parser) Parse() (node ast.Node) {
 		if isDecl(tok) {
 			node = p.parseTopLevelDecl()
 		} else {
-			node = p.parseStmt()
+			node = p.ParseStmt()
 		}
 	}
 	return node
 }
 
+// get next non-comment token and store it in p.curr
 func (p *Parser) next() token.Token {
 	curr := &p.curr
 	curr.Comment = nil
@@ -70,6 +85,12 @@ func (p *Parser) pos() token.Pos {
 	return p.curr.TokPos
 }
 
+func (p *Parser) consumeComment() []string {
+	ret := p.curr.Comment
+	p.curr.Comment = nil
+	return ret
+}
+
 func (p *Parser) makeAtom(tok token.Token) *ast.Atom {
 	atom := p.curr
 	atom.Tok = tok
@@ -77,7 +98,7 @@ func (p *Parser) makeAtom(tok token.Token) *ast.Atom {
 	return &atom
 }
 
-func (p *Parser) makeBad(msg string) (bad *ast.Bad) {
+func (p *Parser) makeBad(msg interface{}) (bad *ast.Bad) {
 	p.error(msg)
 	bad = &ast.Bad{Atom: p.curr}
 	p.curr.Comment = nil
@@ -90,12 +111,12 @@ func (p *Parser) makeBinary() (binary *ast.Binary) {
 	return binary
 }
 
-func (p *Parser) makeBinaryBad(x ast.Node, expected token.Token) *ast.Binary {
+func (p *Parser) makeBinaryBad(x ast.Node, msg interface{}) *ast.Binary {
 	binary := p.makeBinary()
 	binary.Tok = token.ILLEGAL
 	binary.TokPos = x.Pos()
 	binary.X = x
-	binary.Y = p.makeBad(expected.String())
+	binary.Y = p.makeBad(msg)
 	return binary
 }
 
@@ -127,7 +148,7 @@ func (p *Parser) parseAtom(tok token.Token) *ast.Atom {
 	return node
 }
 
-func (p *Parser) parseBad(msg string) *ast.Bad {
+func (p *Parser) parseBad(msg interface{}) *ast.Bad {
 	node := p.makeBad(msg)
 	p.next()
 	return node

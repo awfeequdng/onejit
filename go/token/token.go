@@ -121,25 +121,34 @@ const (
 	VAR    = Token(token.VAR)
 
 	tok_counter Token = iota
-	ARRAY       Token = VAR + iota - tok_counter
+	// array or slice type. if first child is nil => slice type.
+	// otherwise first child is array length (possibly '...')
+	ARRAY Token = VAR + iota - tok_counter
+	BLOCK
 	BOTH_DIR
+	CALL
 	EXPRS
+	// struct field, interface element, function param or result.
+	// stored in *ast.Field
 	FIELD
 	FILE
-	IDENTS
 	IMPORT_SPEC
+	INDEX  // a[b,c,d] either array/map indexing or generic instantiation
+	LAMBDA // function literal. children are function type, function body
+	NAMES  // list of identifiers
 	PARAMS
 	RECV_DIR
 	RESULTS
 	SEND_DIR
-	SLICE
+	SLICE_EXPR // a[b:c] or a[b:c:d] slice expression
+	TYPE_ASSERT
 	VALUE_SPEC
 )
 
 var tokens = [...]string{
-	"ARRAY", "BOTH_DIR", "EXPRS", "FIELD", "FILE",
-	"IDENTS", "IMPORT_SPEC", "PARAMS", "RECV_DIR", "RESULTS",
-	"SEND_DIR", "SLICE", "VALUE_SPEC",
+	"ARRAY", "BLOCK", "BOTH_DIR", "CALL", "EXPRS", "FIELD", "FILE", "IMPORT_SPEC",
+	"INDEX", "LAMBDA", "NAMES", "PARAMS", "RECV_DIR", "RESULTS", "SEND_DIR",
+	"SLICE_EXPR", "TYPE_ASSERT", "VALUE_SPEC",
 }
 
 var operators = makeOperators()
@@ -176,6 +185,12 @@ func (tok Token) IsLiteral() bool {
 func (tok Token) IsOperator() bool {
 	return token.Token(tok).IsOperator()
 }
+
+const (
+	LowestPrec  = 0 // non-operators
+	UnaryPrec   = 6
+	HighestPrec = 7
+)
 
 func (tok Token) Precedence() int {
 	return token.Token(tok).Precedence()

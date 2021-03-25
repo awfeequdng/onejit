@@ -21,7 +21,7 @@ import (
 )
 
 type FuncType struct {
-	Atom
+	Atom    // always token.FUNC
 	Params  *List
 	Results *List
 }
@@ -53,6 +53,54 @@ func (f *FuncType) String() string {
 }
 
 func (f *FuncType) Format(out fmt.State, verb rune) {
+	if f == nil {
+		out.Write(strNil)
+	} else {
+		formatAsList(out, verb, f)
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+type FuncDecl struct {
+	Atom       // always token.FUNC
+	Recv *List // nil for functions, non-nil for methods
+	Name Node
+	Type *FuncType
+	Body *List
+}
+
+func (f *FuncDecl) Len() int {
+	return 4
+}
+
+func (f *FuncDecl) At(i int) Node {
+	return choose4(i, f.Recv, f.Name, f.Type, f.Body)
+}
+
+func (f *FuncDecl) End() token.Pos {
+	if f.Body != nil {
+		return f.Body.End()
+	} else if f.Type != nil {
+		return f.Type.End()
+	} else if f.Name != nil {
+		return f.Name.End()
+	} else if f.Recv != nil {
+		return f.Recv.End()
+	} else {
+		return f.Atom.End()
+	}
+}
+
+func (f *FuncDecl) String() string {
+	if f == nil {
+		return "nil"
+	} else {
+		return fmt.Sprint(f)
+	}
+}
+
+func (f *FuncDecl) Format(out fmt.State, verb rune) {
 	if f == nil {
 		out.Write(strNil)
 	} else {

@@ -30,7 +30,7 @@ func makeParser(str string) (*Parser, *strings.Reader) {
 	var p Parser
 	reader.Reset(str)
 	s.Init(token.NewFile("test.go", 0), &reader)
-	p.Init(&s)
+	p.Init(&s, Default)
 	return &p, &reader
 }
 
@@ -51,65 +51,131 @@ func TestImport(t *testing.T) {
 	compareNode(t, p.Parse(), `[import [IMPORT_SPEC (IDENT "_") (STRING "\"fmt\"")]]`)
 }
 
-func TestConst(t *testing.T) {
+func TestDeclConst(t *testing.T) {
 	p, _ := makeParser(`const a, b`)
-	compareNode(t, p.Parse(), `[const [VALUE_SPEC [IDENTS (IDENT "a") (IDENT "b")] nil nil]]`)
+	compareNode(t, p.Parse(), `[const [VALUE_SPEC [NAMES (IDENT "a") (IDENT "b")] nil nil]]`)
 }
 
-func TestConstTyped(t *testing.T) {
+func TestDeclConstTyped(t *testing.T) {
 	p, _ := makeParser(`const ( foo, bar *map[int]int )`)
-	compareNode(t, p.Parse(), `[const [VALUE_SPEC [IDENTS (IDENT "foo") (IDENT "bar")]`+
+	compareNode(t, p.Parse(), `[const [VALUE_SPEC [NAMES (IDENT "foo") (IDENT "bar")]`+
 		` [* [map (IDENT "int") (IDENT "int")]]`+ // type
 		` nil]]`) // expr list
 }
 
-func TestVar(t *testing.T) {
+func TestDeclVar(t *testing.T) {
 	p, _ := makeParser(`var a, b`)
-	compareNode(t, p.Parse(), `[var [VALUE_SPEC [IDENTS (IDENT "a") (IDENT "b")] nil nil]]`)
+	compareNode(t, p.Parse(), `[var [VALUE_SPEC [NAMES (IDENT "a") (IDENT "b")] nil nil]]`)
 }
 
-func TestVarTyped(t *testing.T) {
+func TestDeclVarTyped(t *testing.T) {
 	p, _ := makeParser(`var ( foo, bar <-chan <-chan int )`)
-	compareNode(t, p.Parse(), `[var [VALUE_SPEC [IDENTS (IDENT "foo") (IDENT "bar")]`+
+	compareNode(t, p.Parse(), `[var [VALUE_SPEC [NAMES (IDENT "foo") (IDENT "bar")]`+
 		` [chan (RECV_DIR) [chan (RECV_DIR) (IDENT "int")]]`+ // type
 		` nil]]`) // expr list
 }
 
-func TestType(t *testing.T) {
+func TestDeclType(t *testing.T) {
 	p, _ := makeParser("type ( Int int\n Rune rune )")
 	compareNode(t, p.Parse(), `[type`+
 		` [:= (IDENT "Int") (IDENT "int")]`+
 		` [:= (IDENT "Rune") (IDENT "rune")]]`)
 }
 
-func TestTypeAlias(t *testing.T) {
+func TestDeclTypeAlias(t *testing.T) {
 	p, _ := makeParser("type Byte = byte")
 	compareNode(t, p.Parse(), `[type [= (IDENT "Byte") (IDENT "byte")]]`)
 }
 
-func TestTypeStruct(t *testing.T) {
+func TestDeclTypeStruct(t *testing.T) {
 	p, _ := makeParser("type tuple struct { a, b int\nc float; e chan int } ")
 	compareNode(t, p.Parse(), `[type [:= (IDENT "tuple") [struct`+
-		` [FIELD [IDENTS (IDENT "a") (IDENT "b")] (IDENT "int") nil]`+
-		` [FIELD [IDENTS (IDENT "c")] (IDENT "float") nil]`+
-		` [FIELD [IDENTS (IDENT "e")] [chan nil (IDENT "int")] nil]]]]`)
+		` [FIELD [NAMES (IDENT "a") (IDENT "b")] (IDENT "int")]`+
+		` [FIELD [NAMES (IDENT "c")] (IDENT "float")]`+
+		` [FIELD [NAMES (IDENT "e")] [chan nil (IDENT "int")]]]]]`)
 }
 
-func TestTypeStructTag(t *testing.T) {
+func TestDeclTypeStructTag(t *testing.T) {
 	p, _ := makeParser(`type quirky = struct { int int "tag" } `) // field has name "int" and type "int"
 	compareNode(t, p.Parse(), `[type [= (IDENT "quirky") [struct`+
-		` [FIELD [IDENTS (IDENT "int")] (IDENT "int") (STRING "\"tag\"")]]]]`)
+		` [FIELD [NAMES (IDENT "int")] (IDENT "int") (STRING "\"tag\"")]]]]`)
 }
 
-func TestTypeStructEmbed(t *testing.T) {
+func TestDeclTypeStructEmbed(t *testing.T) {
 	p, _ := makeParser(`type embed = struct { int; *float } `) // two embedded fields
 	compareNode(t, p.Parse(), `[type [= (IDENT "embed") [struct`+
-		` [FIELD nil (IDENT "int") nil]`+
-		` [FIELD nil [* (IDENT "float")] nil]]]]`)
+		` [FIELD nil (IDENT "int")]`+
+		` [FIELD nil [* (IDENT "float")]]]]]`)
 }
 
-func TestTypeInterface(t *testing.T) {
-	p, _ := makeParser(`type fooer interface { Foo(int) } `)
+func TestDeclTypeFunc(t *testing.T) {
+	p, _ := makeParser(`type StateMachine func(env *Env) (next StateMachine, newEnv *Env)`)
+	compareNode(t, p.Parse(), `[type [:= (IDENT "StateMachine") [func `+
+		`[PARAMS`+
+		` [FIELD [NAMES (IDENT "env")] [* (IDENT "Env")]]] `+
+		`[RESULTS`+
+		` [FIELD [NAMES (IDENT "next")] (IDENT "StateMachine")]`+
+		` [FIELD [NAMES (IDENT "newEnv")] [* (IDENT "Env")]]]]]]`)
+}
+
+func TestDeclTypeFuncImpliedParamType(t *testing.T) {
+	p, _ := makeParser(`type add3 func(a int, b, c int) int`)
+	compareNode(t, p.Parse(), `[type [:= (IDENT "add3") [func `+
+		`[PARAMS`+
+		` [FIELD [NAMES (IDENT "a")] (IDENT "int")]`+
+		` [FIELD [NAMES (IDENT "b") (IDENT "c")] (IDENT "int")]] `+
+		`[RESULTS`+
+		` [FIELD nil (IDENT "int")]]]]]`)
+}
+
+func TestDeclTypeFuncVariadic(t *testing.T) {
+	p, _ := makeParser(`type addv func(n0 int, nv... int) int`)
+	compareNode(t, p.Parse(), `[type [:= (IDENT "addv") [func `+
+		`[PARAMS`+
+		` [FIELD [NAMES (IDENT "n0")] (IDENT "int")]`+
+		` [FIELD [NAMES (IDENT "nv")] [... (IDENT "int")]]] `+
+		`[RESULTS`+
+		` [FIELD nil (IDENT "int")]]]]]`)
+}
+
+func TestDeclTypeInterface(t *testing.T) {
+	p, _ := makeParser("type fooer interface { Foo(int)\nBar } ")
 	compareNode(t, p.Parse(), `[type [:= (IDENT "fooer") [interface`+
-		` [FIELD nil [func [PARAMS [FIELD nil (IDENT "int") nil]] nil] nil]]]]`)
+		` [FIELD [NAMES (IDENT "Foo")] [func [PARAMS [FIELD nil (IDENT "int")]] nil]]`+
+		` [FIELD nil (IDENT "Bar")]]]]`)
+}
+
+func TestDeclFunc(t *testing.T) {
+	p, _ := makeParser(`func swap(a,b float) (float float) { } `)
+	compareNode(t, p.Parse(), `[func nil (IDENT "swap") [func `+
+		`[PARAMS`+
+		` [FIELD [NAMES (IDENT "a") (IDENT "b")] (IDENT "float")]] `+
+		`[RESULTS`+
+		` [FIELD [NAMES (IDENT "float")] (IDENT "float")]]] `+
+		`[BLOCK]]`)
+}
+
+func TestExpr1(t *testing.T) {
+	p, _ := makeParser(`a + b`)
+	compareNode(t, p.Parse(), `[+ (IDENT "a") (IDENT "b")]`)
+}
+
+func TestExpr2(t *testing.T) {
+	p, _ := makeParser(`a + b * c + d`)
+	compareNode(t, p.Parse(), `[+ [+ (IDENT "a") [* (IDENT "b") (IDENT "c")]] (IDENT "d")]`)
+}
+
+func TestExpr3(t *testing.T) {
+	p, _ := makeParser("(a + b) + *c * <-d")
+	compareNode(t, p.Parse(), `[+ [+ (IDENT "a") (IDENT "b")] [* [* (IDENT "c")] [<- (IDENT "d")]]]`)
+}
+
+func TestExprIndex(t *testing.T) {
+	p, _ := makeParser("a[b,c]")
+	compareNode(t, p.Parse(), `[INDEX (IDENT "a") [EXPRS (IDENT "b") (IDENT "c")]]`)
+}
+
+func TestExprSlice(t *testing.T) {
+	p, _ := makeParser("a[b::c]")
+	compareNode(t, p.Parse(), `[SLICE_EXPR (IDENT "a") [EXPRS (IDENT "b") nil (IDENT "c")]]`)
 }
