@@ -169,7 +169,6 @@ func (p *Parser) fixParams(list []ast.Node) []ast.Node {
 		} else {
 			othersNameCount++
 		}
-
 	}
 	if !lastHasName {
 		// last field is unnamed => others must be unnamed too

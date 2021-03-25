@@ -31,9 +31,9 @@ const (
 	errExpectingIdentOrLparen      = "identifier or ("
 	errExpectingString             = "string"
 	errExpectingType               = "type"
-	errTypeAlias                   = errText("type aliases are disabled, they requires parser.Mode = TypeAlias")
 	errParamsNamedUnnamed          = errText("syntax error: mixed named and unnamed function parameters")
 	errParamNonFinalEllipsis       = errText("syntax error: cannot use ... with non-final parameter")
+	errTypeAlias                   = errText("type aliases are disabled, they requires parser.Mode = TypeAlias")
 )
 
 func (p *Parser) makeErrText(suffix string) errText {
