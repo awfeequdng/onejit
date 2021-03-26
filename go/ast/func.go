@@ -2,7 +2,7 @@
  * Copyright (C) 2021 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
- *     License, f. 2.0. If a copy of the MPL was not distributed with this
+ *     License, v. 2.0. If a copy of the MPL was not distributed with this
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
@@ -66,7 +66,7 @@ type FuncDecl struct {
 	Atom       // always token.FUNC
 	Recv *List // nil for functions, non-nil for methods
 	Name Node
-	Type *FuncType
+	Type Node // *ast.FunctType or *ast.GenericType
 	Body *List
 }
 

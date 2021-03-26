@@ -26,7 +26,7 @@ func (p *Parser) parseFuncOrMethodDecl() *ast.FuncDecl {
 		fun.Recv = p.parseParams(token.PARAMS)
 	}
 	fun.Name = p.parseIdent()
-	fun.Type = p.parseSignature(p.pos())
+	fun.Type = p.parseGenericSignature(p.pos())
 	fun.Body = p.parseBlock()
 	return fun
 }
@@ -45,6 +45,15 @@ func (p *Parser) parseFunctionType() *ast.FuncType {
 	return p.parseSignature(pos)
 }
 
+func (p *Parser) parseGenericSignature(funcpos token.Pos) ast.Node {
+	if p.tok() != token.LBRACK {
+		return p.parseSignature(funcpos)
+	}
+	gen := p.parseGenericParams(nil)
+	gen.Type = p.parseSignature(funcpos)
+	return gen
+}
+
 func (p *Parser) parseSignature(funcpos token.Pos) *ast.FuncType {
 	return &ast.FuncType{
 		Atom:    ast.Atom{Tok: token.FUNC, TokPos: funcpos, Comment: p.consumeComment()},
@@ -58,7 +67,7 @@ func (p *Parser) parseParams(paramsOrResults token.Token) *ast.List {
 		Atom: ast.Atom{Tok: paramsOrResults, TokPos: p.pos()},
 	}
 	if p.tok() != token.LPAREN {
-		list.Nodes = []ast.Node{p.parseBad(token.LPAREN.String())}
+		list.Nodes = []ast.Node{p.parseBad(token.LPAREN)}
 		return list
 	}
 	var nodes []ast.Node
@@ -74,12 +83,8 @@ func (p *Parser) parseParams(paramsOrResults token.Token) *ast.List {
 			break
 		}
 	}
-	if p.tok() == token.RPAREN {
-		p.next() // skip ')'
-	} else {
-		nodes = append(nodes, p.makeBad(token.RPAREN.String()))
-		all_ok = false
-	}
+	all_ok = all_ok && p.tok() == token.RPAREN
+	nodes = p.leave(nodes, token.RPAREN)
 	if all_ok {
 		nodes = p.fixParams(nodes)
 	}
@@ -100,12 +105,9 @@ func (p *Parser) parseParamDecl() (*ast.Field, bool) {
 	}
 	if head != nil && p.tok() != token.COMMA && !isLeave(p.tok()) {
 		// head is param name, it must be an unqualified identifier
-		var name ast.Node
-		if head.Op() == token.IDENT {
-			name = head
-		} else {
-			name = p.makeBinaryBad(head, token.IDENT)
-			ok = false
+		name := head
+		if ok = head.Op() == token.IDENT; !ok {
+			name = p.makeBadNode(name, token.IDENT)
 		}
 		field.Names = &ast.List{
 			Atom:  ast.Atom{Tok: token.NAMES, TokPos: name.Pos()},
@@ -159,7 +161,7 @@ func (p *Parser) fixParams(list []ast.Node) []ast.Node {
 		}
 		// only the last field can contain "..." in its type
 		if i+1 < n && field.Type.Op() == token.ELLIPSIS {
-			field.Type = p.makeBinaryBad(field.Type, errParamNonFinalEllipsis)
+			field.Type = p.makeBadNode(field.Type, errParamNonFinalEllipsis)
 			return list
 		}
 		if field.Names == nil {
@@ -186,7 +188,7 @@ func (p *Parser) fixParams(list []ast.Node) []ast.Node {
 				// an unqualified identifier, then save it in accumulated names
 				name := field.Type
 				if name.Op() != token.IDENT {
-					name = p.makeBinaryBad(name, token.IDENT)
+					name = p.makeBadNode(name, token.IDENT)
 				}
 				names = append(names, name)
 				continue
@@ -203,7 +205,7 @@ func (p *Parser) fixParams(list []ast.Node) []ast.Node {
 		// if the last field contains "..." in its type
 		// then it must have at most one name
 		if names := field.Names; names != nil && len(names.Nodes) > 1 {
-			field.Type = p.makeBinaryBad(field.Type, errParamNonFinalEllipsis)
+			field.Type = p.makeBadNode(field.Type, errParamNonFinalEllipsis)
 		}
 	}
 	return list

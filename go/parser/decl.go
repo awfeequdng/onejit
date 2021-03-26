@@ -19,10 +19,10 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
-func (p *Parser) parseTopLevelDecl() (node ast.Node) {
+func (p *Parser) ParseTopLevelDecl() (node ast.Node) {
 	switch p.tok() {
 	case token.CONST, token.VAR:
-		node = p.parseValueDecl()
+		node = p.parseConstOrVarDecl()
 	case token.FUNC:
 		node = p.parseFuncOrMethodDecl()
 	case token.TYPE:
@@ -33,7 +33,7 @@ func (p *Parser) parseTopLevelDecl() (node ast.Node) {
 	return node
 }
 
-func (p *Parser) parseValueDecl() *ast.List {
+func (p *Parser) parseConstOrVarDecl() *ast.List {
 	list := p.parseList()
 	list.Nodes = p.parseValueSpecList()
 	return list
@@ -65,12 +65,7 @@ func (p *Parser) parseAnySpecList(parseSpec func(p *Parser) ast.Node) (list []as
 			p.next() // skip ';'
 		}
 	}
-	if p.tok() == token.RPAREN {
-		p.next() // skip ')'
-	} else {
-		list = append(list, p.makeBad(token.RPAREN.String()))
-	}
-	return list
+	return p.leave(list, token.RPAREN)
 }
 
 func (p *Parser) parseValueSpec() ast.Node {

@@ -27,7 +27,7 @@ func (p *Parser) parseInterfaceType() *ast.List {
 
 func (p *Parser) parseInterfaceBody() (list []ast.Node) {
 	if p.tok() != token.LBRACE {
-		return []ast.Node{p.parseBad(token.LBRACE.String())}
+		return []ast.Node{p.parseBad(token.LBRACE)}
 	}
 	p.next() // skip '{'
 	for !isLeave(p.tok()) {
@@ -37,12 +37,7 @@ func (p *Parser) parseInterfaceBody() (list []ast.Node) {
 			p.next() // skip ';'
 		}
 	}
-	if p.tok() == token.RBRACE {
-		p.next() // skip '}'
-	} else {
-		list = append(list, p.makeBad(token.RBRACE.String()))
-	}
-	return list
+	return p.leave(list, token.RBRACE)
 }
 
 func (p *Parser) parseInterfaceMethodOrEmbedded() *ast.Field {
@@ -56,7 +51,7 @@ func (p *Parser) parseInterfaceMethodOrEmbedded() *ast.Field {
 	} else {
 		// head is method name, it must be an unqualified ident
 		if head.Op() != token.IDENT {
-			head = p.makeBinaryBad(head, token.IDENT)
+			head = p.makeBadNode(head, token.IDENT)
 		}
 		names := p.makeList()
 		names.Tok = token.NAMES

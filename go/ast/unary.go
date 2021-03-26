@@ -20,6 +20,10 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
+/**
+ * Node with one children. Used for unary expressions, types,
+ * DEC, DEFER, GO, GOTO, INC and other one-argument statements.
+ */
 type Unary struct {
 	Atom
 	X Node

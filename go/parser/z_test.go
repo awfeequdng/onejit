@@ -138,6 +138,16 @@ func TestDeclTypeFuncVariadic(t *testing.T) {
 		` [FIELD nil (IDENT "int")]]]]]`)
 }
 
+func TestDeclTypeGeneric(t *testing.T) {
+	p, _ := makeParser(`type pair[T1, T2 any] struct { first T1; second T2 }`)
+	compareNode(t, p.Parse(), `[type [:= (IDENT "pair") [GENERIC `+
+		`[PARAMS`+
+		` [FIELD [NAMES (IDENT "T1") (IDENT "T2")] (IDENT "any")]] `+
+		`[struct`+
+		` [FIELD [NAMES (IDENT "first")] (IDENT "T1")]`+
+		` [FIELD [NAMES (IDENT "second")] (IDENT "T2")]]]]]`)
+}
+
 func TestDeclTypeInterface(t *testing.T) {
 	p, _ := makeParser("type fooer interface { Foo(int)\nBar } ")
 	compareNode(t, p.Parse(), `[type [:= (IDENT "fooer") [interface`+
@@ -152,6 +162,26 @@ func TestDeclFunc(t *testing.T) {
 		` [FIELD [NAMES (IDENT "a") (IDENT "b")] (IDENT "float")]] `+
 		`[RESULTS`+
 		` [FIELD [NAMES (IDENT "float")] (IDENT "float")]]] `+
+		`[BLOCK]]`)
+}
+
+func TestDeclFuncBad1(t *testing.T) {
+	p, _ := makeParser(`func bad1(a ... float, b float) { } `)
+	compareNode(t, p.Parse(), `[func nil (IDENT "bad1") [func `+
+		`[PARAMS`+
+		` [FIELD [NAMES (IDENT "a")] (Bad [... (IDENT "float")])]`+
+		` [FIELD [NAMES (IDENT "b")] (IDENT "float")]] `+
+		`nil] `+ // results
+		`[BLOCK]]`)
+}
+
+func TestDeclFuncBad2(t *testing.T) {
+	p, _ := makeParser(`func bad2(a +int) { } `)
+	compareNode(t, p.Parse(), `[func nil (IDENT "bad2") [func `+
+		`[PARAMS`+
+		` [FIELD [NAMES (IDENT "a")] (Bad (+))]`+
+		` (Bad (IDENT "int"))] `+
+		`nil] `+ // results
 		`[BLOCK]]`)
 }
 

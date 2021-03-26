@@ -33,14 +33,14 @@ type Parser struct {
 	scanner *scanner.Scanner
 	curr    ast.Atom
 	mode    Mode
-	err     []*scanner.Error
+	errors  []*scanner.Error
 }
 
 func (p *Parser) Init(s *scanner.Scanner, mode Mode) {
 	p.scanner = s
 	p.curr = ast.Atom{}
 	p.mode = mode
-	p.err = nil
+	p.errors = nil
 }
 
 // parse a single declaration, statement or expression
@@ -53,7 +53,7 @@ func (p *Parser) Parse() (node ast.Node) {
 		node = p.parseImport()
 	default:
 		if isDecl(tok) {
-			node = p.parseTopLevelDecl()
+			node = p.ParseTopLevelDecl()
 		} else {
 			node = p.ParseStmt()
 		}
@@ -91,6 +91,45 @@ func (p *Parser) consumeComment() []string {
 	return ret
 }
 
+func (p *Parser) enter(list []ast.Node, tok token.Token) []ast.Node {
+	if p.tok() == tok {
+		p.next() // skip tok
+	} else {
+		list = append(list, p.makeBad(tok))
+	}
+	return list
+}
+
+// if current token != tok, report error and skip tokens
+// until specified token is found
+func (p *Parser) leave(list []ast.Node, tok token.Token) []ast.Node {
+	for p.tok() != tok {
+		list = append(list, p.parseBad(tok))
+		if p.tok() == token.EOF {
+			return list
+		}
+	}
+	p.next() // skip tok
+	return list
+}
+
+// if current token != tok, report error and skip tokens
+// until specified token is found
+func (p *Parser) leaveNode(node ast.Node, tok token.Token) ast.Node {
+	var badnode bool
+	for p.tok() != tok {
+		if !badnode {
+			badnode = true
+			node = p.makeBadNode(node, tok)
+		}
+		if p.tok() == token.EOF {
+			return node
+		}
+	}
+	p.next() // skip tok
+	return node
+}
+
 func (p *Parser) makeAtom(tok token.Token) *ast.Atom {
 	atom := p.curr
 	atom.Tok = tok
@@ -98,25 +137,33 @@ func (p *Parser) makeAtom(tok token.Token) *ast.Atom {
 	return &atom
 }
 
-func (p *Parser) makeBad(msg interface{}) (bad *ast.Bad) {
-	p.error(msg)
-	bad = &ast.Bad{Atom: p.curr}
+func (p *Parser) makeBad(msg interface{}) *ast.Bad {
+	err := p.error(msg)
+	tok := p.tok()
+	bad := &ast.Bad{
+		Atom: ast.Atom{Tok: tok, TokPos: p.pos()},
+		Node: p.makeAtom(tok),
+		Err:  err,
+	}
 	p.curr.Comment = nil
+	return bad
+}
+
+func (p *Parser) makeBadNode(x ast.Node, msg interface{}) *ast.Bad {
+	bad := p.makeBad(msg)
+	if tok, ok := msg.(token.Token); ok {
+		bad.Tok = tok
+	} else {
+		bad.Tok = x.Op()
+	}
+	bad.TokPos = x.Pos()
+	bad.Node = x
 	return bad
 }
 
 func (p *Parser) makeBinary() (binary *ast.Binary) {
 	binary = &ast.Binary{Atom: p.curr}
 	p.curr.Comment = nil
-	return binary
-}
-
-func (p *Parser) makeBinaryBad(x ast.Node, msg interface{}) *ast.Binary {
-	binary := p.makeBinary()
-	binary.Tok = token.ILLEGAL
-	binary.TokPos = x.Pos()
-	binary.X = x
-	binary.Y = p.makeBad(msg)
 	return binary
 }
 

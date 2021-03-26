@@ -19,10 +19,7 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
-func (p *Parser) parseStmtList() *ast.List {
-	list := p.makeList()
-	list.Tok = token.BLOCK
-
+func (p *Parser) parseStmtList() []ast.Node {
 	var nodes []ast.Node
 	for {
 		tok := p.tok()
@@ -36,10 +33,10 @@ func (p *Parser) parseStmtList() *ast.List {
 			break
 		}
 	}
-	list.Nodes = nodes
-	return list
+	return nodes
 }
 
+// parse a single statement. does NOT consume the following ';' if present
 func (p *Parser) ParseStmt() (node ast.Node) {
 	switch p.tok() {
 	case token.SEMICOLON:
@@ -47,21 +44,17 @@ func (p *Parser) ParseStmt() (node ast.Node) {
 	case token.LBRACE:
 		node = p.parseBlock()
 	case token.CONST, token.VAR:
-		node = p.parseValueDecl()
+		node = p.parseConstOrVarDecl()
 	case token.TYPE:
 		node = p.parseTypeDecl()
-	case token.BREAK:
-		node = p.parseBreak()
-	case token.CONTINUE:
-		node = p.parseContinue()
-	case token.DEFER:
-		node = p.parseDefer()
+	case token.BREAK, token.CONTINUE:
+		node = p.parseBreakOrContinue()
+	case token.DEFER, token.GO:
+		node = p.parseDeferOrGo()
 	case token.FALLTHROUGH:
 		node = p.parseFallthrough()
 	case token.FOR:
 		node = p.parseFor()
-	case token.GO:
-		node = p.parseGo()
 	case token.GOTO:
 		node = p.parseGoto()
 	case token.IF:
@@ -83,49 +76,42 @@ func (p *Parser) ParseStmt() (node ast.Node) {
 }
 
 func (p *Parser) parseBlock() *ast.List {
-	if p.tok() != token.LBRACE {
-		list := p.makeList()
-		list.Tok = token.BLOCK
-		list.Nodes = []ast.Node{p.makeBad(token.LBRACE)}
-		return list
-	}
-	p.next() // skip '{'
-	list := p.parseStmtList()
-
-	if p.tok() == token.RBRACE {
-		p.next() // skip '}'
-	} else {
-		list.Nodes = append(list.Nodes, p.makeBad(token.RBRACE))
+	list := p.makeList()
+	list.Tok = token.BLOCK
+	list.Nodes = p.enter(nil, token.LBRACE)
+	if list.Nodes == nil {
+		list.Nodes = p.parseStmtList()
+		list.Nodes = p.leave(list.Nodes, token.RBRACE)
 	}
 	return list
 }
 
-func (p *Parser) parseBreak() ast.Node {
-	return nil // TODO
+func (p *Parser) parseBreakOrContinue() *ast.Unary {
+	unary := p.parseUnary() // also skips 'break' or 'continue'
+	if p.tok() == token.IDENT {
+		unary.X = p.parseIdent() // label
+	}
+	return unary
 }
 
-func (p *Parser) parseContinue() ast.Node {
-	return nil // TODO
-}
-
-func (p *Parser) parseDefer() ast.Node {
-	return nil // TODO
+func (p *Parser) parseDeferOrGo() *ast.Unary {
+	unary := p.parseUnary() // also skips 'defer'
+	unary.X = p.ParseExpr()
+	return unary
 }
 
 func (p *Parser) parseFallthrough() ast.Node {
-	return nil // TODO
+	return p.parseAtom(p.tok())
 }
 
 func (p *Parser) parseFor() ast.Node {
 	return nil // TODO
 }
 
-func (p *Parser) parseGo() ast.Node {
-	return nil // TODO
-}
-
-func (p *Parser) parseGoto() ast.Node {
-	return nil // TODO
+func (p *Parser) parseGoto() *ast.Unary {
+	unary := p.parseUnary()  // also skips 'goto'
+	unary.X = p.parseIdent() // label
+	return unary
 }
 
 func (p *Parser) parseIf() ast.Node {

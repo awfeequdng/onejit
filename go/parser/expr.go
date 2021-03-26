@@ -132,7 +132,7 @@ func (p *Parser) parsePrimaryExpr() ast.Node {
 			case token.LPAREN:
 				node = p.parseTypeAssert(node)
 			default:
-				node = p.makeBinaryBad(node, errExpectingIdentOrLparen)
+				node = p.makeBadNode(node, errExpectingIdentOrLparen)
 			}
 		default:
 		}
@@ -148,11 +148,7 @@ func (p *Parser) parseOperandExpr() (node ast.Node) {
 	case token.LPAREN:
 		p.next() // skip '('
 		node = p.ParseExpr()
-		if p.tok() == token.RPAREN {
-			p.next() // skip ')'
-		} else {
-			node = p.makeBinaryBad(node, token.RPAREN)
-		}
+		node = p.leaveNode(node, token.RPAREN)
 	case token.IDENT:
 		node = p.parseIdent()
 	case token.FUNC:
@@ -172,11 +168,7 @@ func (p *Parser) parseCallExpr(fun ast.Node) *ast.Binary {
 	call.Tok = token.CALL
 	call.X = fun
 	args := p.parseExprList(true)
-	if p.tok() == token.RPAREN {
-		p.next() // skip ')'
-	} else {
-		args.Nodes = append(args.Nodes, p.makeBad(token.RPAREN))
-	}
+	args.Nodes = p.leave(args.Nodes, token.RPAREN)
 	call.Y = args
 	return call
 }
@@ -205,7 +197,7 @@ func (p *Parser) parseIndexOrSlice(left ast.Node) *ast.Binary {
 			p.next() // skip ':'
 			continue
 		}
-		nodes = append(nodes, p.ParseExpr())
+		nodes = append(nodes, p.parseExprOrType(token.LowestPrec))
 		var want token.Token
 		if tok := p.tok(); tok == token.COMMA || tok == token.COLON {
 			want = tok
@@ -222,11 +214,7 @@ func (p *Parser) parseIndexOrSlice(left ast.Node) *ast.Binary {
 	if nodes == nil {
 		nodes = []ast.Node{p.makeBad(errExpectingExpr)}
 	}
-	if p.tok() == token.RBRACK {
-		p.next() // skip ']'
-	} else {
-		nodes = append(nodes, p.makeBad(token.RBRACK))
-	}
+	nodes = p.leave(nodes, token.RBRACK)
 	if sep == token.COMMA {
 		binary.Tok = token.INDEX
 	} else {
@@ -245,17 +233,10 @@ func (p *Parser) parseSelector(left ast.Node, pos token.Pos) *ast.Binary {
 }
 
 func (p *Parser) parseTypeAssert(left ast.Node) *ast.Binary {
-	binary := p.makeBinary()
+	binary := p.parseBinary() // also skips '('
 	binary.Tok = token.TYPE_ASSERT
 	binary.X = left
-
-	p.next() // skip '('
 	typ := p.parseType()
-	if p.tok() == token.RPAREN {
-		p.next() // skip ')
-	} else {
-		typ = p.makeBinaryBad(typ, token.RPAREN)
-	}
-	binary.Y = typ
+	binary.Y = p.leaveNode(typ, token.RPAREN)
 	return binary
 }

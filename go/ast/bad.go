@@ -16,10 +16,33 @@ package ast
 
 import (
 	"fmt"
+
+	"github.com/cosmos72/onejit/go/token"
 )
 
 type Bad struct {
-	Atom
+	Atom // contains expected token
+	Node Node
+	Err  error
+}
+
+func (b *Bad) Len() int {
+	return 1
+}
+
+func (b *Bad) At(i int) Node {
+	if i == 0 {
+		return b.Node
+	}
+	return outOfRange()
+}
+
+func (b *Bad) End() token.Pos {
+	if b.Node != nil {
+		return b.Node.End()
+	} else {
+		return b.Atom.End()
+	}
 }
 
 func (b *Bad) String() string {
@@ -33,9 +56,15 @@ func (b *Bad) String() string {
 func (b *Bad) Format(out fmt.State, verb rune) {
 	if b == nil {
 		out.Write([]byte("Bad"))
-	} else if len(b.Lit) != 0 {
-		fmt.Fprintf(out, "(Bad %v %q)", b.Tok, b.Lit)
+	} else if b.Node == nil {
+		if len(b.Lit) == 0 {
+			fmt.Fprintf(out, "(Bad %v)", b.Tok)
+		} else {
+			fmt.Fprintf(out, "(Bad %v %v)", b.Tok, b.Lit)
+		}
+	} else if b.Tok == b.Node.Op() {
+		fmt.Fprintf(out, "(Bad %v)", b.Node)
 	} else {
-		fmt.Fprintf(out, "(Bad %v)", b.Tok)
+		fmt.Fprintf(out, "(Bad %v %v)", b.Tok, b.Node)
 	}
 }

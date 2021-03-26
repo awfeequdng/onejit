@@ -20,6 +20,14 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
+/**
+ * Node with two children. Used for binary expressions, closures, types,
+ * RANGE, SEND and other two-argument statements.
+ *
+ * LAMBDA content is: functype funcbody
+ * RANGE  content is: init block
+ * SEND   content is: channel expr
+ */
 type Binary struct {
 	Atom
 	X Node

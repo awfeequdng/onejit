@@ -31,16 +31,18 @@ const (
 	errExpectingIdentOrLparen      = "identifier or ("
 	errExpectingString             = "string"
 	errExpectingType               = "type"
+	errEmptyTypeParams             = errText("empty type parameter list")
 	errParamsNamedUnnamed          = errText("syntax error: mixed named and unnamed function parameters")
 	errParamNonFinalEllipsis       = errText("syntax error: cannot use ... with non-final parameter")
-	errTypeAlias                   = errText("type aliases are disabled, they requires parser.Mode = TypeAlias")
+	errTypeAlias                   = errText("type aliases are disabled, they require parser flag TypeAlias")
+	errGenerics                    = errText("generics are disabled, they require parser flag Generics")
 )
 
 func (p *Parser) makeErrText(suffix string) errText {
 	return errText("syntax error: unexpected " + p.tok().String() + ", expecting " + suffix)
 }
 
-func (p *Parser) error(msg interface{}) {
+func (p *Parser) error(msg interface{}) *scanner.Error {
 	var text errText
 	switch msg := msg.(type) {
 	case errText:
@@ -50,8 +52,10 @@ func (p *Parser) error(msg interface{}) {
 	default:
 		text = p.makeErrText(fmt.Sprint(msg))
 	}
-	p.err = append(p.err, &scanner.Error{
+	err := &scanner.Error{
 		Pos: p.scanner.Position(p.pos()),
 		Msg: string(text),
-	})
+	}
+	p.errors = append(p.errors, err)
+	return err
 }

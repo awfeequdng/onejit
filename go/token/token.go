@@ -132,9 +132,10 @@ const (
 	// stored in *ast.Field
 	FIELD
 	FILE
+	GENERIC // generic type parameters [T0 i0, T1 i1, ...]
 	IMPORT_SPEC
-	INDEX  // a[b,c,d] either array/map indexing or generic instantiation
-	LAMBDA // function literal. children are function type, function body
+	INDEX  // array/map/slice indexing a[b] or generic instantiation a[b,c...]
+	LAMBDA // function literal
 	NAMES  // list of identifiers
 	PARAMS
 	RECV_DIR
@@ -142,13 +143,14 @@ const (
 	SEND_DIR
 	SLICE_EXPR // a[b:c] or a[b:c:d] slice expression
 	TYPE_ASSERT
+	TYPES // list of types, used in generic instantiation [b,c...]
 	VALUE_SPEC
 )
 
 var tokens = [...]string{
-	"ARRAY", "BLOCK", "BOTH_DIR", "CALL", "EXPRS", "FIELD", "FILE", "IMPORT_SPEC",
-	"INDEX", "LAMBDA", "NAMES", "PARAMS", "RECV_DIR", "RESULTS", "SEND_DIR",
-	"SLICE_EXPR", "TYPE_ASSERT", "VALUE_SPEC",
+	"ARRAY", "BLOCK", "BOTH_DIR", "CALL", "EXPRS", "FIELD", "FILE", "GENERIC",
+	"IMPORT_SPEC", "INDEX", "LAMBDA", "NAMES", "PARAMS", "RECV_DIR", "RESULTS",
+	"SEND_DIR", "SLICE_EXPR", "TYPE_ASSERT", "TYPES", "VALUE_SPEC",
 }
 
 var operators = makeOperators()

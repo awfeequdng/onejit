@@ -25,24 +25,21 @@ func (p *Parser) parseStructType() *ast.List {
 	return list
 }
 
-func (p *Parser) parseFieldDeclList() (list []ast.Node) {
-	if p.tok() != token.LBRACE {
-		return []ast.Node{p.parseBad(token.LBRACE.String())}
+func (p *Parser) parseFieldDeclList() []ast.Node {
+	list := p.enter(nil, token.LBRACE)
+	if list != nil {
+		return list
 	}
-	p.next() // skip '{'
 	for !isLeave(p.tok()) {
 		list = append(list, p.parseFieldDecl())
 
 		if p.tok() == token.SEMICOLON {
 			p.next() // skip ';'
+		} else {
+			break
 		}
 	}
-	if p.tok() == token.RBRACE {
-		p.next() // skip '}'
-	} else {
-		list = append(list, p.makeBad(token.RBRACE.String()))
-	}
-	return list
+	return p.leave(list, token.RBRACE)
 }
 
 /*
@@ -90,7 +87,7 @@ func (p *Parser) parseFieldDecl() *ast.Field {
 	if names != nil {
 		// first name must be an unqualified identifier
 		if head := names.Nodes[0]; head.Op() != token.IDENT {
-			names.Nodes[0] = p.makeBinaryBad(head, token.IDENT)
+			names.Nodes[0] = p.makeBadNode(head, token.IDENT)
 		}
 		names.Tok = token.NAMES
 		names.Lit = ""
