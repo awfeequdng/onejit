@@ -78,7 +78,7 @@ func outOfRange() Node {
 }
 
 func formatAsList(f fmt.State, verb rune, list Node) {
-	fmt.Fprintf(f, "[%v", list.Op())
+	fmt.Fprintf(f, "(%v", list.Op())
 	for i, n := 0, list.Len(); i < n; i++ {
 		node := list.At(i)
 		if formatter, ok := node.(fmt.Formatter); ok {
@@ -90,5 +90,5 @@ func formatAsList(f fmt.State, verb rune, list Node) {
 			fmt.Fprintf(f, " %v", node)
 		}
 	}
-	f.Write([]byte{']'})
+	f.Write([]byte{')'})
 }

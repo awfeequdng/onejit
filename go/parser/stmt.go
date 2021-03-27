@@ -39,8 +39,6 @@ func (p *Parser) parseStmtList() []ast.Node {
 // parse a single statement. does NOT consume the following ';' if present
 func (p *Parser) ParseStmt() (node ast.Node) {
 	switch p.tok() {
-	case token.SEMICOLON:
-		// node = nil
 	case token.LBRACE:
 		node = p.parseBlock()
 	case token.CONST, token.VAR:
@@ -66,11 +64,7 @@ func (p *Parser) ParseStmt() (node ast.Node) {
 	case token.SWITCH:
 		node = p.parseSwitch()
 	default:
-		// TODO:
-		// parse SendStmt i.e. expr '<-' expr
-		// parse IncDecStmt, Assignment, ShortVarDecl
-		// parse LabeledStmt i.e. ident ':' statement
-		node = p.ParseExpr()
+		node = p.parseSimpleStmt()
 	}
 	return node
 }
@@ -84,6 +78,21 @@ func (p *Parser) parseBlock() *ast.List {
 		list.Nodes = p.leave(list.Nodes, token.RBRACE)
 	}
 	return list
+}
+
+func (p *Parser) parseSimpleStmt() (node ast.Node) {
+	if p.tok() == token.SEMICOLON {
+		// node = nil
+	} else {
+		// TODO:
+		// parse SendStmt i.e. expr '<-' expr
+		// parse IncDecStmt, Assignment, ShortVarDecl
+		// parse LabeledStmt i.e. ident ':' statement
+		// parse Assignment i.e. ident, ... '=' expr, ...
+		// parse ShortVarDecl i.e. ident, ... ':=' expr, ...
+		node = p.ParseExpr()
+	}
+	return node
 }
 
 func (p *Parser) parseBreakOrContinue() *ast.Unary {
@@ -114,18 +123,43 @@ func (p *Parser) parseGoto() *ast.Unary {
 	return unary
 }
 
-func (p *Parser) parseIf() ast.Node {
+func (p *Parser) parseIf() *ast.List {
+	list := p.parseList()
+	nodes := make([]ast.Node, 4)
+	init := p.parseSimpleStmt()
+	if p.tok() == token.SEMICOLON {
+		p.next()
+		nodes[0] = init
+		nodes[1] = p.ParseExpr()
+	} else {
+		nodes[1] = init // TODO check that it's an expression
+	}
+	nodes[2] = p.parseBlock()
+	if p.tok() == token.ELSE {
+		p.next()
+		if p.tok() == token.IF {
+			nodes[3] = p.parseIf()
+		} else {
+			nodes[3] = p.parseBlock()
+		}
+	}
+	list.Nodes = nodes
+	return list
+}
+
+func (p *Parser) parseReturn() *ast.List {
+	pos := p.pos()
+	p.next() // skip 'return'
+	list := p.parseExprList(nil, false)
+	list.Tok = token.RETURN
+	list.TokPos = pos
+	return list
+}
+
+func (p *Parser) parseSelect() *ast.List {
 	return nil // TODO
 }
 
-func (p *Parser) parseReturn() ast.Node {
-	return nil // TODO
-}
-
-func (p *Parser) parseSelect() ast.Node {
-	return nil // TODO
-}
-
-func (p *Parser) parseSwitch() ast.Node {
+func (p *Parser) parseSwitch() *ast.List {
 	return nil // TODO
 }

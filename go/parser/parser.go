@@ -125,6 +125,7 @@ func (p *Parser) leaveNode(node ast.Node, tok token.Token) ast.Node {
 		if p.tok() == token.EOF {
 			return node
 		}
+		p.next()
 	}
 	p.next() // skip tok
 	return node

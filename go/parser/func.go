@@ -31,10 +31,16 @@ func (p *Parser) parseFuncOrMethodDecl() *ast.FuncDecl {
 	return fun
 }
 
-func (p *Parser) parseFunctionLit() *ast.Binary {
+func (p *Parser) parseFunctionLitOrType() ast.Node {
+	pos := p.pos()
+	node := p.parseFunctionType()
+	if p.tok() != token.LBRACE {
+		return node
+	}
 	binary := p.makeBinary()
 	binary.Tok = token.LAMBDA
-	binary.X = p.parseFunctionType()
+	binary.TokPos = pos
+	binary.X = node
 	binary.Y = p.parseBlock()
 	return binary
 }

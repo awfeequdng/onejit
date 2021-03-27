@@ -51,20 +51,17 @@ func (p *Parser) parseTypeSpec() (node ast.Node) {
 }
 
 // parse a comma-separated list of types
-func (p *Parser) parseTypeList() *ast.List {
-	list := p.makeList()
-	list.Tok = token.TYPES
-	var types []ast.Node
+func (p *Parser) parseTypeList(prefix []ast.Node) []ast.Node {
+	nodes := prefix
 	for !isLeave(p.tok()) {
-		types = append(types, p.parseType())
+		nodes = append(nodes, p.parseType())
 		if p.tok() == token.COMMA {
 			p.next() // skip ','
 		} else {
 			break
 		}
 	}
-	list.Nodes = types
-	return list
+	return nodes
 }
 
 // parse a type
@@ -254,16 +251,15 @@ func (p *Parser) parseGenericParamDecl(t1 ast.Node) *ast.Field {
 }
 
 // parse the suffix '[T1, T2...]' in a generic type instantiation
-func (p *Parser) parseGenericInstantiation(typ ast.Node) ast.Node {
-	ret := p.makeBinary()
-	ret.Tok = token.INDEX
-	ret.X = typ
-	p.next() // skip '['
-	args := p.parseTypeList()
+func (p *Parser) parseGenericInstantiation(typ ast.Node) *ast.List {
+	list := p.parseList() // also skips '['
+	list.Tok = token.INDEX
+	nodes := []ast.Node{typ}
 	if p.mode&Generics == 0 {
-		args.Nodes = append([]ast.Node{p.makeBad(errGenerics)}, args.Nodes...)
+		nodes = append(nodes, p.makeBad(errGenerics))
 	}
-	args.Nodes = p.leave(args.Nodes, token.RBRACK)
-	ret.Y = args
-	return ret
+	nodes = p.parseTypeList(nodes)
+	nodes = p.leave(nodes, token.RBRACK)
+	list.Nodes = nodes
+	return list
 }

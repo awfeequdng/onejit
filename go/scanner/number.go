@@ -164,7 +164,8 @@ func (s *Scanner) scanIntOrFloat(base intbase, prevChar rune) {
 		}
 	}
 	s.setResult(tok)
-	s.next()
+	// do NOT advance, we are already at first character after the number
+	// s.next()
 }
 
 func (s *Scanner) scanFloatExponent() bool {

@@ -23,11 +23,13 @@ import (
 /**
  * List of nodes. Used for all variable-sized array of nodes,
  * and also for many fixed-size array of nodes, including:
- * BLOCK, FOR, IF, RETURN, SELECT, SWITCH.
+ * BLOCK, CALL, FOR, IF, INDEX, RETURN, SELECT, SWITCH.
  *
  * BLOCK  content is: [stmt0 [stmt1 [...]]
+ * CALL   content is: fun [arg0 [arg1 [...]]]
  * FOR    content is: init cond post block
  * IF     content is: init cond then else
+ * INDEX  content is: expr [arg0 [arg1 [...]]]
  * RETURN content is: [expr0 [expr1 [...]]]
  * SELECT content is: [clause0 [clause1 [...]]
  * SWITCH content is: init expr [case0 [case1 [...]]

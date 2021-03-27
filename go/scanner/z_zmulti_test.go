@@ -28,19 +28,27 @@ import (
 
 func TestMulti(t *testing.T) {
 	semi := item{token.SEMICOLON, ""}
+	lparen := item{token.LPAREN, ""}
+	rparen := item{token.RPAREN, ""}
 
 	v := MultiTests{
 		{"a + b", []item{{token.IDENT, "a"}, {token.ADD, ""}, {token.IDENT, "b"}}, nil},
 		{"1 * 'c' / 3i",
 			[]item{{token.INT, "1"}, {token.MUL, ""}, {token.CHAR, "'c'"}, {token.QUO, ""}, {token.IMAG, "3i"}}, nil},
-		{"/* comment block */\n\n// comment line \npackage main\n\nimport ( \"fmt\" )\n\nfunc main() {\n}\n",
+		{"(3)", []item{lparen, {token.INT, "3"}, rparen}, nil},
+		{"/* comment block */\n\n// comment line \npackage main\n\nimport ( \"fmt\" )\n\nfunc main() {\n}\n\n",
 			[]item{
 				{token.COMMENT, "/* comment block */"},
 				{token.COMMENT, "// comment line "},
 				{token.PACKAGE, ""}, {token.IDENT, "main"}, semi,
-				{token.IMPORT, ""}, {token.LPAREN, ""}, {token.STRING, "\"fmt\""}, {token.RPAREN, ""}, semi,
-				{token.FUNC, ""}, {token.IDENT, "main"}, {token.LPAREN, ""}, {token.RPAREN, ""},
+				{token.IMPORT, ""}, lparen, {token.STRING, "\"fmt\""}, rparen, semi,
+				{token.FUNC, ""}, {token.IDENT, "main"}, lparen, rparen,
 				{token.LBRACE, ""}, {token.RBRACE, ""}, semi,
+			}, nil},
+		{"(func ())(nil)",
+			[]item{
+				lparen, {token.FUNC, ""}, lparen, rparen, rparen,
+				lparen, {token.IDENT, "nil"}, rparen,
 			}, nil},
 	}
 	v.run(t)

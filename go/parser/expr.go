@@ -61,9 +61,12 @@ func (p *Parser) parseQualifiedIdent() (node ast.Node) {
 }
 
 // parse a comma-separated expression list
-func (p *Parser) parseExprList(allowEllipsis bool) *ast.List {
+func (p *Parser) parseExprList(expr0 ast.Node, allowEllipsis bool) *ast.List {
 	pos := p.pos()
 	var list []ast.Node
+	if expr0 != nil {
+		list = append(list, expr0)
+	}
 	for {
 		list = append(list, p.ParseExpr())
 		if p.tok() != token.COMMA {
@@ -152,9 +155,7 @@ func (p *Parser) parseOperandExpr() (node ast.Node) {
 	case token.IDENT:
 		node = p.parseIdent()
 	case token.FUNC:
-		node = p.parseFunctionLit()
-	case token.CHAN:
-		node = p.parseBad(errExpectingExprOrType)
+		node = p.parseFunctionLitOrType()
 	default:
 		node = p.parseType()
 	}
@@ -163,13 +164,11 @@ func (p *Parser) parseOperandExpr() (node ast.Node) {
 
 // last argument may be followed by '...'
 // if no '...' and arguments len = 1, may also be a type conversion
-func (p *Parser) parseCallExpr(fun ast.Node) *ast.Binary {
-	call := p.parseBinary() // skips '('
+func (p *Parser) parseCallExpr(fun ast.Node) *ast.List {
+	p.next() // skip '('
+	call := p.parseExprList(fun, true)
 	call.Tok = token.CALL
-	call.X = fun
-	args := p.parseExprList(true)
-	args.Nodes = p.leave(args.Nodes, token.RPAREN)
-	call.Y = args
+	call.Nodes = p.leave(call.Nodes, token.RPAREN)
 	return call
 }
 
@@ -177,14 +176,11 @@ func (p *Parser) parseCompositeLit(typ ast.Node) ast.Node {
 	return typ // TODO
 }
 
-func (p *Parser) parseIndexOrSlice(left ast.Node) *ast.Binary {
-	binary := p.parseBinary() // also skips '['
-	binary.X = left
-	list := p.makeList()
-	list.Tok = token.EXPRS
-	binary.Y = list
+func (p *Parser) parseIndexOrSlice(left ast.Node) *ast.List {
+	list := p.parseList() // also skips '['
+	list.Tok = token.INDEX
 
-	var nodes []ast.Node
+	nodes := []ast.Node{left}
 	var sep token.Token
 	for !isLeave(p.tok()) {
 		if p.tok() == token.COLON {
@@ -211,17 +207,18 @@ func (p *Parser) parseIndexOrSlice(left ast.Node) *ast.Binary {
 			break
 		}
 	}
-	if nodes == nil {
-		nodes = []ast.Node{p.makeBad(errExpectingExpr)}
+	if sep == token.COLON {
+		list.Tok = token.SLICE
+		for len(nodes) < 3 {
+			nodes = append(nodes, nil)
+		}
+	}
+	if len(nodes) == 1 {
+		nodes = append(nodes, p.makeBad(errExpectingExpr))
 	}
 	nodes = p.leave(nodes, token.RBRACK)
-	if sep == token.COMMA {
-		binary.Tok = token.INDEX
-	} else {
-		binary.Tok = token.SLICE_EXPR
-	}
 	list.Nodes = nodes
-	return binary
+	return list
 }
 
 func (p *Parser) parseSelector(left ast.Node, pos token.Pos) *ast.Binary {

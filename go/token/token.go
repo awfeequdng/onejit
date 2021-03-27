@@ -135,22 +135,22 @@ const (
 	GENERIC // generic type parameters [T0 i0, T1 i1, ...]
 	IMPORT_SPEC
 	INDEX  // array/map/slice indexing a[b] or generic instantiation a[b,c...]
+	LABEL  // label_name: note that following statement is not included
 	LAMBDA // function literal
 	NAMES  // list of identifiers
 	PARAMS
 	RECV_DIR
 	RESULTS
 	SEND_DIR
-	SLICE_EXPR // a[b:c] or a[b:c:d] slice expression
+	SLICE // slice expression a[b:c] or a[b:c:d]
 	TYPE_ASSERT
-	TYPES // list of types, used in generic instantiation [b,c...]
 	VALUE_SPEC
 )
 
 var tokens = [...]string{
 	"ARRAY", "BLOCK", "BOTH_DIR", "CALL", "EXPRS", "FIELD", "FILE", "GENERIC",
-	"IMPORT_SPEC", "INDEX", "LAMBDA", "NAMES", "PARAMS", "RECV_DIR", "RESULTS",
-	"SEND_DIR", "SLICE_EXPR", "TYPE_ASSERT", "TYPES", "VALUE_SPEC",
+	"IMPORT_SPEC", "INDEX", "LABEL", "LAMBDA", "NAMES", "PARAMS", "RECV_DIR",
+	"RESULTS", "SEND_DIR", "SLICE", "TYPE_ASSERT", "VALUE_SPEC",
 }
 
 var operators = makeOperators()

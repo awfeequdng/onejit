@@ -79,7 +79,7 @@ func (p *Parser) parseValueSpec() ast.Node {
 			typ = p.parseType()
 		}
 		if p.tok() == token.ASSIGN {
-			exprList = p.parseExprList(false)
+			exprList = p.parseExprList(nil, false)
 		}
 	}
 	return &ast.ValueSpec{
