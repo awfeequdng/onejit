@@ -60,8 +60,15 @@ func (p *Parser) parseQualifiedIdent() (node ast.Node) {
 	return node
 }
 
+type exprListFlag int
+
+const (
+	noEllipsis exprListFlag = iota
+	allowEllipsis
+)
+
 // parse a comma-separated expression list
-func (p *Parser) parseExprList(expr0 ast.Node, allowEllipsis bool) *ast.List {
+func (p *Parser) parseExprList(expr0 ast.Node, flag exprListFlag) *ast.List {
 	pos := p.pos()
 	var list []ast.Node
 	if expr0 != nil {
@@ -74,7 +81,7 @@ func (p *Parser) parseExprList(expr0 ast.Node, allowEllipsis bool) *ast.List {
 		}
 		p.next() // skip ','
 	}
-	if n := len(list); n != 0 && allowEllipsis && p.tok() == token.ELLIPSIS {
+	if n := len(list); n != 0 && flag == allowEllipsis && p.tok() == token.ELLIPSIS {
 		unary := p.parseUnary() // skips '...'
 		unary.X = list[n-1]
 		list[n-1] = unary
@@ -166,7 +173,7 @@ func (p *Parser) parseOperandExpr() (node ast.Node) {
 // if no '...' and arguments len = 1, may also be a type conversion
 func (p *Parser) parseCallExpr(fun ast.Node) *ast.List {
 	p.next() // skip '('
-	call := p.parseExprList(fun, true)
+	call := p.parseExprList(fun, allowEllipsis)
 	call.Tok = token.CALL
 	call.Nodes = p.leave(call.Nodes, token.RPAREN)
 	return call

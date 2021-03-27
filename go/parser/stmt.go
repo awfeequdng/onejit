@@ -64,7 +64,7 @@ func (p *Parser) ParseStmt() (node ast.Node) {
 	case token.SWITCH:
 		node = p.parseSwitch()
 	default:
-		node = p.parseSimpleStmt()
+		node = p.parseSimpleStmt(noRange)
 	}
 	return node
 }
@@ -80,7 +80,14 @@ func (p *Parser) parseBlock() *ast.List {
 	return list
 }
 
-func (p *Parser) parseSimpleStmt() (node ast.Node) {
+type simpleStmtFlag int
+
+const (
+	noRange simpleStmtFlag = iota
+	allowRange
+)
+
+func (p *Parser) parseSimpleStmt(flag simpleStmtFlag) (node ast.Node) {
 	if p.tok() == token.SEMICOLON {
 		// node = nil
 	} else {
@@ -90,6 +97,7 @@ func (p *Parser) parseSimpleStmt() (node ast.Node) {
 		// parse LabeledStmt i.e. ident ':' statement
 		// parse Assignment i.e. ident, ... '=' expr, ...
 		// parse ShortVarDecl i.e. ident, ... ':=' expr, ...
+		// parse RangeStmt i.e. ident, ... ':=' 'range' expr
 		node = p.ParseExpr()
 	}
 	return node
@@ -113,8 +121,36 @@ func (p *Parser) parseFallthrough() ast.Node {
 	return p.parseAtom(p.tok())
 }
 
-func (p *Parser) parseFor() ast.Node {
-	return nil // TODO
+func (p *Parser) parseFor() *ast.List {
+	list := p.parseList() // also skips 'for'
+	var init ast.Node
+	if p.tok() != token.LBRACE {
+		init = p.parseSimpleStmt(allowRange)
+		if init.Op() == token.RANGE {
+			list.Tok = token.RANGE
+			list.Nodes = []ast.Node{
+				init.At(0), init.At(1), p.parseBlock(),
+			}
+			return list
+		}
+	}
+	nodes := make([]ast.Node, 4)
+	if p.tok() == token.SEMICOLON {
+		p.next()
+		nodes[0] = init
+		nodes[1] = p.ParseExpr() // condition
+		if p.tok() == token.SEMICOLON {
+			p.next()
+			nodes[2] = p.parseSimpleStmt(noRange) // post
+		} else {
+			nodes[2] = p.parseBad(token.SEMICOLON)
+		}
+	} else {
+		nodes[1] = init // TODO check that it's nil or an expression
+	}
+	nodes[3] = p.parseBlock()
+	list.Nodes = nodes
+	return list
 }
 
 func (p *Parser) parseGoto() *ast.Unary {
@@ -124,9 +160,9 @@ func (p *Parser) parseGoto() *ast.Unary {
 }
 
 func (p *Parser) parseIf() *ast.List {
-	list := p.parseList()
+	list := p.parseList() // also skips 'if'
 	nodes := make([]ast.Node, 4)
-	init := p.parseSimpleStmt()
+	init := p.parseSimpleStmt(noRange)
 	if p.tok() == token.SEMICOLON {
 		p.next()
 		nodes[0] = init
@@ -150,7 +186,7 @@ func (p *Parser) parseIf() *ast.List {
 func (p *Parser) parseReturn() *ast.List {
 	pos := p.pos()
 	p.next() // skip 'return'
-	list := p.parseExprList(nil, false)
+	list := p.parseExprList(nil, noEllipsis)
 	list.Tok = token.RETURN
 	list.TokPos = pos
 	return list

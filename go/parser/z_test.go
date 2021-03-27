@@ -195,6 +195,26 @@ func TestStmtBlock2(t *testing.T) {
 	compareNode(t, p.Parse(), `(BLOCK (return (IDENT "a") (IDENT "b") (IDENT "c")))`)
 }
 
+func TestStmtFor(t *testing.T) {
+	p, _ := makeParser(`for { }`)
+	compareNode(t, p.Parse(), `(for nil nil nil (BLOCK))`)
+}
+
+func TestStmtForCond(t *testing.T) {
+	p, _ := makeParser(`for a == b { }`)
+	compareNode(t, p.Parse(), `(for nil (== (IDENT "a") (IDENT "b")) nil (BLOCK))`)
+}
+
+func TestStmtForInitCondPost(t *testing.T) {
+	p, _ := makeParser(`for init; cond; post { }`)
+	compareNode(t, p.Parse(), `(for (IDENT "init") (IDENT "cond") (IDENT "post") (BLOCK))`)
+}
+
+func TestStmtIf(t *testing.T) {
+	p, _ := makeParser(`if a { b } else if c { d }`)
+	compareNode(t, p.Parse(), `(if nil (IDENT "a") (BLOCK (IDENT "b")) (if nil (IDENT "c") (BLOCK (IDENT "d")) nil))`)
+}
+
 func TestExprParen(t *testing.T) {
 	p, _ := makeParser(`((((((((((9))))))))))`)
 	compareNode(t, p.Parse(), `(INT "9")`)
