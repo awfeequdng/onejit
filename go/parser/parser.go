@@ -55,7 +55,7 @@ func (p *Parser) Parse() (node ast.Node) {
 		if isDecl(tok) {
 			node = p.ParseTopLevelDecl()
 		} else {
-			node = p.ParseStmt()
+			node = p.parseStmt(allowCompositeLit)
 		}
 	}
 	return node

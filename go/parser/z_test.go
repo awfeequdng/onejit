@@ -68,11 +68,33 @@ func TestDeclVar(t *testing.T) {
 	compareNode(t, p.Parse(), `(var (VALUE_SPEC (NAMES (IDENT "a") (IDENT "b")) nil nil))`)
 }
 
+func TestDeclVarInit(t *testing.T) {
+	p, _ := makeParser(`var ( foo, bar = f1, f2 )`)
+	compareNode(t, p.Parse(), `(var (VALUE_SPEC`+
+		` (NAMES (IDENT "foo") (IDENT "bar"))`+ // ident list
+		` nil`+ // type
+		` (EXPRS (IDENT "f1") (IDENT "f2"))))`) // expr list
+}
+
 func TestDeclVarTyped(t *testing.T) {
 	p, _ := makeParser(`var ( foo, bar <-chan <-chan int )`)
-	compareNode(t, p.Parse(), `(var (VALUE_SPEC (NAMES (IDENT "foo") (IDENT "bar"))`+
+	compareNode(t, p.Parse(), `(var (VALUE_SPEC`+
+		` (NAMES (IDENT "foo") (IDENT "bar"))`+ // ident list
 		` (chan (RECV_DIR) (chan (RECV_DIR) (IDENT "int")))`+ // type
 		` nil))`) // expr list
+}
+
+func TestDeclVarTypedInit(t *testing.T) {
+	p, _ := makeParser(`var ( x, y, z type1 = e1; w type2 = e2; )`)
+	compareNode(t, p.Parse(), `(var `+
+		`(VALUE_SPEC`+
+		` (NAMES (IDENT "x") (IDENT "y") (IDENT "z"))`+ // ident list
+		` (IDENT "type1")`+ // type
+		` (EXPRS (IDENT "e1"))) `+
+		`(VALUE_SPEC`+
+		` (NAMES (IDENT "w"))`+ // ident list
+		` (IDENT "type2")`+ // type
+		` (EXPRS (IDENT "e2"))))`) // expr list
 }
 
 func TestDeclType(t *testing.T) {
@@ -185,6 +207,16 @@ func TestDeclFuncBad2(t *testing.T) {
 		`(BLOCK))`)
 }
 
+func TestStmtAssign1(t *testing.T) {
+	p, _ := makeParser(`a,b = f()`)
+	compareNode(t, p.Parse(), `(= (EXPRS (IDENT "a") (IDENT "b")) (EXPRS (CALL (IDENT "f"))))`)
+}
+
+func TestStmtAssign2(t *testing.T) {
+	p, _ := makeParser(`a,b := c,d`)
+	compareNode(t, p.Parse(), `(:= (EXPRS (IDENT "a") (IDENT "b")) (EXPRS (IDENT "c") (IDENT "d")))`)
+}
+
 func TestStmtBlock1(t *testing.T) {
 	p, _ := makeParser(`{ a; b; c }`)
 	compareNode(t, p.Parse(), `(BLOCK (IDENT "a") (IDENT "b") (IDENT "c"))`)
@@ -206,13 +238,35 @@ func TestStmtForCond(t *testing.T) {
 }
 
 func TestStmtForInitCondPost(t *testing.T) {
-	p, _ := makeParser(`for init; cond; post { }`)
-	compareNode(t, p.Parse(), `(for (IDENT "init") (IDENT "cond") (IDENT "post") (BLOCK))`)
+	p, _ := makeParser(`for init; cond; post { break; continue }`)
+	compareNode(t, p.Parse(), `(for (IDENT "init") (IDENT "cond") (IDENT "post") (BLOCK`+
+		` (break nil)`+
+		` (continue nil)))`)
+}
+
+func TestStmtForInitCondPostCompositeLit(t *testing.T) {
+	p, _ := makeParser(`for init; cond; (post{key:value}) {  }`)
+	compareNode(t, p.Parse(), `(for`+
+		` (IDENT "init")`+
+		` (IDENT "cond")`+
+		` (COMPOSITE_LIT (IDENT "post") (KEY_VALUE (IDENT "key") (IDENT "value"))) `+
+		`(BLOCK))`)
 }
 
 func TestStmtIf(t *testing.T) {
 	p, _ := makeParser(`if a { b } else if c { d }`)
-	compareNode(t, p.Parse(), `(if nil (IDENT "a") (BLOCK (IDENT "b")) (if nil (IDENT "c") (BLOCK (IDENT "d")) nil))`)
+	compareNode(t, p.Parse(), `(if nil (IDENT "a") (BLOCK (IDENT "b"))`+
+		` (if nil (IDENT "c") (BLOCK (IDENT "d")) nil))`)
+}
+
+func TestStmtGo(t *testing.T) {
+	p, _ := makeParser(`go f()`)
+	compareNode(t, p.Parse(), `(go (CALL (IDENT "f")))`)
+}
+
+func TestStmtGoto(t *testing.T) {
+	p, _ := makeParser(`loop: goto loop`)
+	compareNode(t, p.Parse(), `(LABEL (IDENT "loop") (goto (IDENT "loop")))`)
 }
 
 func TestExprParen(t *testing.T) {
@@ -238,6 +292,15 @@ func TestExpr3(t *testing.T) {
 func TestExprCall(t *testing.T) {
 	p, _ := makeParser("a.b(^c, -d)")
 	compareNode(t, p.Parse(), `(CALL (. (IDENT "a") (IDENT "b")) (^ (IDENT "c")) (- (IDENT "d")))`)
+}
+
+func TestExprCompositeLit(t *testing.T) {
+	p, _ := makeParser(`T{key1:value1, {key2}:{value2}, value3}`)
+	compareNode(t, p.Parse(), `(COMPOSITE_LIT `+
+		`(IDENT "T")`+
+		` (KEY_VALUE (IDENT "key1") (IDENT "value1"))`+
+		` (KEY_VALUE (COMPOSITE_LIT nil (IDENT "key2")) (COMPOSITE_LIT nil (IDENT "value2")))`+
+		` (IDENT "value3"))`)
 }
 
 func TestExprIndex1(t *testing.T) {

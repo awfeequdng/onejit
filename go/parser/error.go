@@ -23,19 +23,20 @@ import (
 type errText string
 
 const (
-	errExpectingConstVarFuncOrType = "'const' 'var' 'func' or 'type'"
-	errExpectingChan               = "chan"
-	errExpectingExpr               = "expression"
-	errExpectingExprOrType         = "expression or type"
-	errExpectingIdent              = "identifier"
-	errExpectingIdentOrLparen      = "identifier or ("
-	errExpectingString             = "string"
-	errExpectingType               = "type"
-	errEmptyTypeParams             = errText("empty type parameter list")
-	errParamsNamedUnnamed          = errText("syntax error: mixed named and unnamed function parameters")
-	errParamNonFinalEllipsis       = errText("syntax error: cannot use ... with non-final parameter")
-	errTypeAlias                   = errText("type aliases are disabled, they require parser flag TypeAlias")
-	errGenerics                    = errText("generics are disabled, they require parser flag Generics")
+	errExpectingAssignDefineOrComma = ":= or = or comma"
+	errExpectingConstVarFuncOrType  = "'const' 'var' 'func' or 'type'"
+	errExpectingChan                = "chan"
+	errExpectingExpr                = "expression"
+	errExpectingExprOrType          = "expression or type"
+	errExpectingIdent               = "identifier"
+	errExpectingIdentOrLparen       = "identifier or ("
+	errExpectingString              = "string"
+	errExpectingType                = "type"
+	errEmptyTypeParams              = errText("empty type parameter list")
+	errParamsNamedUnnamed           = errText("syntax error: mixed named and unnamed function parameters")
+	errParamNonFinalEllipsis        = errText("syntax error: cannot use ... with non-final parameter")
+	errTypeAlias                    = errText("type aliases are disabled, they require parser flag TypeAlias")
+	errGenerics                     = errText("generics are disabled, they require parser flag Generics")
 )
 
 func (p *Parser) makeErrText(suffix string) errText {

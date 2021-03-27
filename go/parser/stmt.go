@@ -26,7 +26,7 @@ func (p *Parser) parseStmtList() []ast.Node {
 		if tok == token.CASE || tok == token.DEFAULT || isLeave(tok) {
 			break
 		}
-		nodes = append(nodes, p.ParseStmt())
+		nodes = append(nodes, p.parseStmt(allowCompositeLit))
 		if p.tok() == token.SEMICOLON {
 			p.next() // skip ';'
 		} else {
@@ -38,6 +38,11 @@ func (p *Parser) parseStmtList() []ast.Node {
 
 // parse a single statement. does NOT consume the following ';' if present
 func (p *Parser) ParseStmt() (node ast.Node) {
+	return p.parseStmt(allowCompositeLit)
+}
+
+// parse a single statement. does NOT consume the following ';' if present
+func (p *Parser) parseStmt(flag exprFlag) (node ast.Node) {
 	switch p.tok() {
 	case token.LBRACE:
 		node = p.parseBlock()
@@ -64,7 +69,14 @@ func (p *Parser) ParseStmt() (node ast.Node) {
 	case token.SWITCH:
 		node = p.parseSwitch()
 	default:
-		node = p.parseSimpleStmt(noRange)
+		node = p.parseSimpleStmt(flag)
+	}
+	if p.tok() == token.COLON && node != nil && node.Op() == token.IDENT {
+		binary := p.parseBinary()
+		binary.Tok = token.LABEL
+		binary.X = node
+		binary.Y = p.parseStmt(flag)
+		node = binary
 	}
 	return node
 }
@@ -80,27 +92,52 @@ func (p *Parser) parseBlock() *ast.List {
 	return list
 }
 
-type simpleStmtFlag int
-
-const (
-	noRange simpleStmtFlag = iota
-	allowRange
-)
-
-func (p *Parser) parseSimpleStmt(flag simpleStmtFlag) (node ast.Node) {
+func (p *Parser) parseSimpleStmt(flag exprFlag) ast.Node {
 	if p.tok() == token.SEMICOLON {
-		// node = nil
-	} else {
-		// TODO:
-		// parse SendStmt i.e. expr '<-' expr
-		// parse IncDecStmt, Assignment, ShortVarDecl
-		// parse LabeledStmt i.e. ident ':' statement
-		// parse Assignment i.e. ident, ... '=' expr, ...
-		// parse ShortVarDecl i.e. ident, ... ':=' expr, ...
-		// parse RangeStmt i.e. ident, ... ':=' 'range' expr
-		node = p.ParseExpr()
+		return nil
+	}
+	node := p.parseExprOrType(token.LowestPrec, flag)
+	switch p.tok() {
+	case token.ARROW: // SendStmt
+		binary := p.parseBinary()
+		binary.X = node
+		binary.Y = p.ParseExpr()
+		node = binary
+	case token.INC, token.DEC: // IncDecStmt
+		unary := p.parseUnary()
+		unary.X = node
+		node = unary
+	case token.ASSIGN, token.DEFINE, token.COMMA:
+		node = p.parseAssign(node, flag)
 	}
 	return node
+}
+
+// parse Assignment i.e. expr, ... '=' expr, ...
+// parse ShortVarDecl i.e. ident, ... ':=' expr, ...
+// parse RangeStmt i.e. ident, ... ':=' 'range' expr
+func (p *Parser) parseAssign(first ast.Node, flag exprFlag) ast.Node {
+	if p.tok() == token.COMMA {
+		p.next()
+	}
+	left := p.parseExprList(first, noEllipsis)
+
+	if tok := p.tok(); tok != token.ASSIGN && tok != token.DEFINE {
+		left.Nodes = append(left.Nodes, p.parseBad(errExpectingAssignDefineOrComma))
+		return left
+	}
+	assign := p.parseBinary() // also skips '=' or ':='
+	var stmt *ast.Unary
+	if flag&allowRange != 0 && p.tok() == token.RANGE {
+		stmt = p.parseUnary() // also skips 'range'
+		stmt.X = assign
+	}
+	assign.X = left
+	assign.Y = p.parseExprList(nil, noEllipsis)
+	if stmt == nil {
+		return assign
+	}
+	return stmt
 }
 
 func (p *Parser) parseBreakOrContinue() *ast.Unary {
@@ -129,7 +166,7 @@ func (p *Parser) parseFor() *ast.List {
 		if init.Op() == token.RANGE {
 			list.Tok = token.RANGE
 			list.Nodes = []ast.Node{
-				init.At(0), init.At(1), p.parseBlock(),
+				init.At(0), p.parseBlock(),
 			}
 			return list
 		}
@@ -190,6 +227,10 @@ func (p *Parser) parseReturn() *ast.List {
 	list.Tok = token.RETURN
 	list.TokPos = pos
 	return list
+}
+
+func (p *Parser) parseSendStmt(left ast.Node) *ast.Binary {
+	return nil // TODO
 }
 
 func (p *Parser) parseSelect() *ast.List {

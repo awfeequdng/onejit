@@ -19,6 +19,22 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
+type exprFlag int
+type exprListFlag int
+
+const (
+	noCompositeLit    exprFlag = 0
+	allowCompositeLit exprFlag = 2
+
+	allowRange exprFlag = 1
+	noRange    exprFlag = 0
+)
+
+const (
+	noEllipsis exprListFlag = iota
+	allowEllipsis
+)
+
 // parse a comma-separated identifier list
 func (p *Parser) parseIdentList() *ast.List {
 	ret := &ast.List{
@@ -60,13 +76,6 @@ func (p *Parser) parseQualifiedIdent() (node ast.Node) {
 	return node
 }
 
-type exprListFlag int
-
-const (
-	noEllipsis exprListFlag = iota
-	allowEllipsis
-)
-
 // parse a comma-separated expression list
 func (p *Parser) parseExprList(expr0 ast.Node, flag exprListFlag) *ast.List {
 	pos := p.pos()
@@ -74,14 +83,14 @@ func (p *Parser) parseExprList(expr0 ast.Node, flag exprListFlag) *ast.List {
 	if expr0 != nil {
 		list = append(list, expr0)
 	}
-	for {
+	for p.tok() != token.ASSIGN && p.tok() != token.DEFINE && !isLeave(p.tok()) {
 		list = append(list, p.ParseExpr())
 		if p.tok() != token.COMMA {
 			break
 		}
 		p.next() // skip ','
 	}
-	if n := len(list); n != 0 && flag == allowEllipsis && p.tok() == token.ELLIPSIS {
+	if n := len(list); n != 0 && flag&allowEllipsis != 0 && p.tok() == token.ELLIPSIS {
 		unary := p.parseUnary() // skips '...'
 		unary.X = list[n-1]
 		list[n-1] = unary
@@ -93,11 +102,11 @@ func (p *Parser) parseExprList(expr0 ast.Node, flag exprListFlag) *ast.List {
 }
 
 func (p *Parser) ParseExpr() ast.Node {
-	return p.parseExprOrType(token.LowestPrec)
+	return p.parseExprOrType(token.LowestPrec, allowCompositeLit)
 }
 
-func (p *Parser) parseExprOrType(prec int) ast.Node {
-	node := p.parseUnaryExpr()
+func (p *Parser) parseExprOrType(prec int, flag exprFlag) ast.Node {
+	node := p.parseUnaryExpr(flag)
 	for {
 		tokPrec := p.tok().Precedence()
 		if tokPrec <= prec {
@@ -106,22 +115,22 @@ func (p *Parser) parseExprOrType(prec int) ast.Node {
 		// found binary operator with higher precedence
 		binary := p.parseBinary()
 		binary.X = node
-		binary.Y = p.parseExprOrType(tokPrec)
+		binary.Y = p.parseExprOrType(tokPrec, flag)
 		node = binary
 	}
 	return node
 }
 
-func (p *Parser) parseUnaryExpr() ast.Node {
+func (p *Parser) parseUnaryExpr(flag exprFlag) ast.Node {
 	if !isUnary(p.tok()) {
-		return p.parsePrimaryExpr()
+		return p.parsePrimaryExpr(flag)
 	}
 	unary := p.parseUnary()
-	unary.X = p.parseUnaryExpr()
+	unary.X = p.parseUnaryExpr(flag)
 	return unary
 }
 
-func (p *Parser) parsePrimaryExpr() ast.Node {
+func (p *Parser) parsePrimaryExpr(flag exprFlag) ast.Node {
 	node := p.parseOperandExpr()
 	for {
 		switch p.tok() {
@@ -130,7 +139,9 @@ func (p *Parser) parsePrimaryExpr() ast.Node {
 		case token.LBRACK:
 			node = p.parseIndexOrSlice(node)
 		case token.LBRACE:
-			node = p.parseCompositeLit(node)
+			if flag&allowCompositeLit != 0 {
+				node = p.parseCompositeLit(node)
+			}
 		case token.PERIOD:
 			// either node . identifier
 			// or node . ( type )
@@ -157,7 +168,7 @@ func (p *Parser) parseOperandExpr() (node ast.Node) {
 		node = p.parseAtom(p.tok())
 	case token.LPAREN:
 		p.next() // skip '('
-		node = p.ParseExpr()
+		node = p.parseExprOrType(token.LowestPrec, allowCompositeLit)
 		node = p.leaveNode(node, token.RPAREN)
 	case token.IDENT:
 		node = p.parseIdent()
@@ -179,8 +190,40 @@ func (p *Parser) parseCallExpr(fun ast.Node) *ast.List {
 	return call
 }
 
-func (p *Parser) parseCompositeLit(typ ast.Node) ast.Node {
-	return typ // TODO
+func (p *Parser) parseCompositeLit(typ ast.Node) *ast.List {
+	list := p.makeList()
+	list.Tok = token.COMPOSITE_LIT
+	nodes := []ast.Node{typ}
+	nodes = p.enter(nodes, token.LBRACE) // skip '{'
+	for !isLeave(p.tok()) {
+		node := p.parseKeyOrValueExpr()
+		if p.tok() == token.COLON {
+			keyvalue := p.parseBinary() // also skips ':'
+			keyvalue.Tok = token.KEY_VALUE
+			keyvalue.TokPos = p.pos()
+			keyvalue.X = node
+			keyvalue.Y = p.parseKeyOrValueExpr()
+			node = keyvalue
+		}
+		nodes = append(nodes, node)
+		if p.tok() == token.COMMA {
+			p.next() // skip ','
+		} else {
+			break
+		}
+	}
+	nodes = p.leave(nodes, token.RBRACE) // skip '}'
+	list.Nodes = nodes
+	return list
+}
+
+func (p *Parser) parseKeyOrValueExpr() (node ast.Node) {
+	if p.tok() == token.LBRACE {
+		node = p.parseCompositeLit(nil)
+	} else {
+		node = p.ParseExpr()
+	}
+	return node
 }
 
 func (p *Parser) parseIndexOrSlice(left ast.Node) *ast.List {
@@ -200,7 +243,7 @@ func (p *Parser) parseIndexOrSlice(left ast.Node) *ast.List {
 			p.next() // skip ':'
 			continue
 		}
-		nodes = append(nodes, p.parseExprOrType(token.LowestPrec))
+		nodes = append(nodes, p.parseExprOrType(token.LowestPrec, allowCompositeLit))
 		var want token.Token
 		if tok := p.tok(); tok == token.COMMA || tok == token.COLON {
 			want = tok

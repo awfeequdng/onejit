@@ -18,6 +18,15 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
+func isAssign(tok token.Token) bool {
+	switch tok {
+	case token.ASSIGN, token.DEFINE:
+		return true
+	default:
+		return false
+	}
+}
+
 func isDecl(tok token.Token) bool {
 	switch tok {
 	case token.CONST, token.FUNC, token.TYPE, token.VAR:

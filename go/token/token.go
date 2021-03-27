@@ -127,6 +127,7 @@ const (
 	BLOCK
 	BOTH_DIR
 	CALL
+	COMPOSITE_LIT // type { elem0, elem1 ... }
 	EXPRS
 	// struct field, interface element, function param or result.
 	// stored in *ast.Field
@@ -134,10 +135,11 @@ const (
 	FILE
 	GENERIC // generic type parameters [T0 i0, T1 i1, ...]
 	IMPORT_SPEC
-	INDEX  // array/map/slice indexing a[b] or generic instantiation a[b,c...]
-	LABEL  // label_name: note that following statement is not included
-	LAMBDA // function literal
-	NAMES  // list of identifiers
+	INDEX     // array/map/slice indexing a[b] or generic instantiation a[b,c...]
+	KEY_VALUE // key: value inside a composite literal
+	LABEL     // label: statement
+	LAMBDA    // function literal
+	NAMES     // list of identifiers
 	PARAMS
 	RECV_DIR
 	RESULTS
@@ -148,9 +150,10 @@ const (
 )
 
 var tokens = [...]string{
-	"ARRAY", "BLOCK", "BOTH_DIR", "CALL", "EXPRS", "FIELD", "FILE", "GENERIC",
-	"IMPORT_SPEC", "INDEX", "LABEL", "LAMBDA", "NAMES", "PARAMS", "RECV_DIR",
-	"RESULTS", "SEND_DIR", "SLICE", "TYPE_ASSERT", "VALUE_SPEC",
+	"ARRAY", "BLOCK", "BOTH_DIR", "CALL", "COMPOSITE_LIT", "EXPRS", "FIELD",
+	"FILE", "GENERIC", "IMPORT_SPEC", "INDEX", "KEY_VALUE", "LABEL", "LAMBDA",
+	"NAMES", "PARAMS", "RECV_DIR", "RESULTS", "SEND_DIR", "SLICE", "TYPE_ASSERT",
+	"VALUE_SPEC",
 }
 
 var operators = makeOperators()

@@ -79,6 +79,7 @@ func (p *Parser) parseValueSpec() ast.Node {
 			typ = p.parseType()
 		}
 		if p.tok() == token.ASSIGN {
+			p.next() // skip '='
 			exprList = p.parseExprList(nil, noEllipsis)
 		}
 	}
