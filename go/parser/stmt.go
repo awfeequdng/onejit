@@ -19,8 +19,8 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
-func (p *Parser) parseStmtList() []ast.Node {
-	var nodes []ast.Node
+func (p *Parser) parseStmtList(prefix []ast.Node) []ast.Node {
+	nodes := prefix
 	for {
 		tok := p.tok()
 		if tok == token.CASE || tok == token.DEFAULT || isLeave(tok) {
@@ -86,7 +86,7 @@ func (p *Parser) parseBlock() *ast.List {
 	list.Tok = token.BLOCK
 	list.Nodes = p.enter(nil, token.LBRACE)
 	if list.Nodes == nil {
-		list.Nodes = p.parseStmtList()
+		list.Nodes = p.parseStmtList(nil)
 		list.Nodes = p.leave(list.Nodes, token.RBRACE)
 	}
 	return list
@@ -182,8 +182,11 @@ func (p *Parser) parseFor() *ast.List {
 		} else {
 			nodes[2] = p.parseBad(token.SEMICOLON)
 		}
-	} else {
-		nodes[1] = init // TODO check that it's nil or an expression
+	} else if init != nil {
+		if isSimpleStmt(init.Op()) {
+			init = p.makeBadNode(init, errExpectingExpr)
+		}
+		nodes[1] = init
 	}
 	nodes[3] = p.parseBlock()
 	list.Nodes = nodes
@@ -203,9 +206,12 @@ func (p *Parser) parseIf() *ast.List {
 	if p.tok() == token.SEMICOLON {
 		p.next()
 		nodes[0] = init
-		nodes[1] = p.ParseExpr()
+		nodes[1] = p.parseExprOrType(token.LowestPrec, noCompositeLit)
 	} else {
-		nodes[1] = init // TODO check that it's an expression
+		if isSimpleStmt(init.Op()) {
+			init = p.makeBadNode(init, errExpectingExpr)
+		}
+		nodes[1] = init
 	}
 	nodes[2] = p.parseBlock()
 	if p.tok() == token.ELSE {
@@ -229,14 +235,54 @@ func (p *Parser) parseReturn() *ast.List {
 	return list
 }
 
-func (p *Parser) parseSendStmt(left ast.Node) *ast.Binary {
-	return nil // TODO
-}
-
 func (p *Parser) parseSelect() *ast.List {
 	return nil // TODO
 }
 
 func (p *Parser) parseSwitch() *ast.List {
-	return nil // TODO
+	list := p.parseList() // also skips 'switch'
+	var nodes []ast.Node
+	if p.tok() == token.SEMICOLON {
+		nodes = append(nodes, nil, nil)
+	} else {
+		init := p.parseSimpleStmt(noCompositeLit)
+		if p.tok() == token.SEMICOLON {
+			p.next() // skip ';'
+			nodes = append(nodes, init, p.parseExprOrType(token.LowestPrec, noCompositeLit))
+		} else {
+			if isSimpleStmt(init.Op()) {
+				init = p.makeBadNode(init, errExpectingExpr)
+			}
+			nodes = append(nodes, nil, init)
+		}
+	}
+	nodes = p.enter(nodes, token.LBRACE)
+	for !isLeave(p.tok()) {
+		nodes = append(nodes, p.parseSwitchCase())
+		if p.tok() != token.CASE && p.tok() != token.DEFAULT {
+			break
+		}
+	}
+	nodes = p.leave(nodes, token.RBRACE)
+	list.Nodes = nodes
+	return list
+}
+
+func (p *Parser) parseSwitchCase() ast.Node {
+	tok := p.tok()
+	if tok != token.CASE && tok != token.DEFAULT {
+		return p.parseBad(errExpectingCaseOrDefault)
+	}
+	list := p.parseList() // also skips 'case' or 'default'
+	var nodes []ast.Node
+	if tok == token.CASE {
+		nodes = append(nodes, p.parseExprList(nil, noEllipsis))
+	}
+	if p.tok() == token.COLON {
+		p.next() // skip ':'
+		list.Nodes = p.parseStmtList(nodes)
+	} else {
+		list.Nodes = append(nodes, p.parseBad(token.COLON))
+	}
+	return list
 }

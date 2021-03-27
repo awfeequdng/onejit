@@ -45,6 +45,16 @@ func isLeave(tok token.Token) bool {
 	}
 }
 
+// return true if tok introduces a simple statement instead of an expression
+func isSimpleStmt(tok token.Token) bool {
+	switch tok {
+	case token.INC, token.DEC, token.ASSIGN, token.DEFINE, token.ARROW:
+		return true
+	default:
+		return false
+	}
+}
+
 func isUnary(tok token.Token) bool {
 	switch tok {
 	case token.ADD, token.SUB, token.MUL, token.AND, token.XOR, token.ARROW, token.NOT:

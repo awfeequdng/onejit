@@ -227,6 +227,11 @@ func TestStmtBlock2(t *testing.T) {
 	compareNode(t, p.Parse(), `(BLOCK (return (IDENT "a") (IDENT "b") (IDENT "c")))`)
 }
 
+func TestStmtDefer(t *testing.T) {
+	p, _ := makeParser(`defer obj.mtd(a, b)`)
+	compareNode(t, p.Parse(), `(defer (CALL (. (IDENT "obj") (IDENT "mtd")) (IDENT "a") (IDENT "b")))`)
+}
+
 func TestStmtFor(t *testing.T) {
 	p, _ := makeParser(`for { }`)
 	compareNode(t, p.Parse(), `(for nil nil nil (BLOCK))`)
@@ -254,8 +259,8 @@ func TestStmtForInitCondPostCompositeLit(t *testing.T) {
 }
 
 func TestStmtIf(t *testing.T) {
-	p, _ := makeParser(`if a { b } else if c { d }`)
-	compareNode(t, p.Parse(), `(if nil (IDENT "a") (BLOCK (IDENT "b"))`+
+	p, _ := makeParser(`if init; cond { b } else if c { d }`)
+	compareNode(t, p.Parse(), `(if (IDENT "init") (IDENT "cond") (BLOCK (IDENT "b"))`+
 		` (if nil (IDENT "c") (BLOCK (IDENT "d")) nil))`)
 }
 
@@ -267,6 +272,13 @@ func TestStmtGo(t *testing.T) {
 func TestStmtGoto(t *testing.T) {
 	p, _ := makeParser(`loop: goto loop`)
 	compareNode(t, p.Parse(), `(LABEL (IDENT "loop") (goto (IDENT "loop")))`)
+}
+
+func TestStmtSwitch(t *testing.T) {
+	p, _ := makeParser(`switch a := init; b { case c, d: e; default: f }`)
+	compareNode(t, p.Parse(), `(switch (:= (EXPRS (IDENT "a")) (EXPRS (IDENT "init"))) (IDENT "b") `+
+		`(case (EXPRS (IDENT "c") (IDENT "d")) (IDENT "e")) `+
+		`(default (IDENT "f")))`)
 }
 
 func TestExprParen(t *testing.T) {
@@ -292,6 +304,11 @@ func TestExpr3(t *testing.T) {
 func TestExprCall(t *testing.T) {
 	p, _ := makeParser("a.b(^c, -d)")
 	compareNode(t, p.Parse(), `(CALL (. (IDENT "a") (IDENT "b")) (^ (IDENT "c")) (- (IDENT "d")))`)
+}
+
+func TestExprCallEllipsis(t *testing.T) {
+	p, _ := makeParser("f(a, b...)")
+	compareNode(t, p.Parse(), `(CALL (IDENT "f") (IDENT "a") (... (IDENT "b")))`)
 }
 
 func TestExprCompositeLit(t *testing.T) {

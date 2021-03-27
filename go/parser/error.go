@@ -24,6 +24,7 @@ type errText string
 
 const (
 	errExpectingAssignDefineOrComma = ":= or = or comma"
+	errExpectingCaseOrDefault       = "case or default or }"
 	errExpectingConstVarFuncOrType  = "'const' 'var' 'func' or 'type'"
 	errExpectingChan                = "chan"
 	errExpectingExpr                = "expression"
