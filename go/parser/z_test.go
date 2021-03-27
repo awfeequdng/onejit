@@ -196,7 +196,7 @@ func TestStmtBlock2(t *testing.T) {
 }
 
 func TestExprParen(t *testing.T) {
-	p, _ := makeParser(`(9)`)
+	p, _ := makeParser(`((((((((((9))))))))))`)
 	compareNode(t, p.Parse(), `(INT "9")`)
 }
 
