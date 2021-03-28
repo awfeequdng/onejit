@@ -3,19 +3,9 @@
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *     This Source Code Form is subject to the terms of the Mozilla Public
+ *     License, v. 2.0. If a copy of the MPL was not distributed with this
+ *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * test_func.cpp
  *
@@ -50,14 +40,14 @@ void Test::func_fib() {
    * }
    */
 
-  f.set_body(                                                 //
-      If{f, Binary{f, GTR, n, two},                           //
-         Return{f,                                            //
-                Tuple{f,                                      //
-                      ADD,                                    //
-                      Call{f, f, {Binary{f, SUB, n, one}}},   //
-                      Call{f, f, {Binary{f, SUB, n, two}}}}}, //
-         Return{f, one}});                                    //
+  f.set_body(                                                           //
+      If{f, Binary{f, GTR, n, two},                                     //
+         Return{f,                                                      //
+                Tuple{f,                                                //
+                      ADD,                                              //
+                      Call{f, f.fheader(), {Binary{f, SUB, n, one}}},   //
+                      Call{f, f.fheader(), {Binary{f, SUB, n, two}}}}}, //
+         Return{f, one}});                                              //
 
   Chars expected = "(if (> var1000_ul 2)\n\
     (return (+ (call label_0 (- var1000_ul 1)) (call label_0 (- var1000_ul 2))))\n\

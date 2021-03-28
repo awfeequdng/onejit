@@ -3,19 +3,9 @@
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *     This Source Code Form is subject to the terms of the Mozilla Public
+ *     License, v. 2.0. If a copy of the MPL was not distributed with this
+ *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * func.hpp
  *
@@ -28,6 +18,7 @@
 
 #include <onejit/archid.hpp>
 #include <onejit/code.hpp>
+#include <onejit/funcheader.hpp>
 #include <onejit/ir/functype.hpp>
 #include <onejit/ir/label.hpp>
 #include <onejit/ir/name.hpp>
@@ -40,7 +31,9 @@
 
 namespace onejit {
 
-class Func {
+class Func : private FuncHeader {
+  using Base = FuncHeader;
+
   friend class Compiler;
   friend class ir::Label;
   friend class ir::Var;
@@ -73,29 +66,19 @@ public:
     return holder_ && *holder_;
   }
 
-  // get function name
-  constexpr Name name() const noexcept {
-    return name_;
+  using Base::ftype;
+  using Base::name;
+  using Base::param_n;
+  using Base::result_n;
+
+  // get FuncHeader
+  constexpr const FuncHeader &fheader() const noexcept {
+    return *this;
   }
 
-  // reinitialize Func
-  Func &reset(Code *holder, Name name, FuncType ftype) noexcept;
-
-  // convert Func to Label.
-  Label label() const noexcept;
-
-  // get function type
-  constexpr FuncType ftype() const noexcept {
-    return ftype_;
-  }
-
-  // get number of params
-  constexpr uint16_t param_n() const noexcept {
-    return param_n_;
-  }
-  // get number of results
-  constexpr uint16_t result_n() const noexcept {
-    return result_n_;
+  // get function address. the returned label may be not resolved yet.
+  constexpr Label address() const noexcept {
+    return labels_[0];
   }
 
   /// \return i-th function parameter
@@ -110,13 +93,16 @@ public:
 
   /// \return function parameters
   constexpr Vars params() const noexcept {
-    return vars_.view(0, param_n_);
+    return vars_.view(0, param_n());
   }
 
   /// \return function results
   constexpr Vars results() const noexcept {
-    return vars_.view(param_n_, param_n_ + result_n_);
+    return vars_.view(param_n(), param_n() + result_n());
   }
+
+  // reinitialize Func
+  Func &reset(Code *holder, Name name, FuncType ftype) noexcept;
 
   //////////////////////////////////////////////////////////////////////////////
 
@@ -149,15 +135,11 @@ private:
 
 private:
   Code *holder_;
-  uint16_t param_n_;
-  uint16_t result_n_;
   uint32_t body_var_n_;     // # local vars used by body_
   uint32_t compiled_var_n_; // # local vars used by compiled_[NOARCH]
 
-  FuncType ftype_;
   Array<Var> vars_;
   Array<Label> labels_;
-  Name name_;
   Node body_;
   Node compiled_[ARCHID_N]; // compiled code. index is archid
 };

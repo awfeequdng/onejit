@@ -3,19 +3,9 @@
  *
  * Copyright (C) 2021 Massimiliano Ghilardi
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *     This Source Code Form is subject to the terms of the Mozilla Public
+ *     License, v. 2.0. If a copy of the MPL was not distributed with this
+ *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * compiler.hpp
  *
@@ -57,8 +47,9 @@ public:
 
 private:
   // private, use onejit::Compiler::x64() instead
-  Compiler &compile(Func &func, reg::Allocator &allocator, Array<Node> &node, //
-                    FlowGraph &flowgraph, Array<Error> &error, Opt flags) noexcept;
+  Compiler &compile(Func &func, reg::Allocator &allocator, Array<Node> &node,      //
+                    FlowGraph &flowgraph, Array<Error> &error, Opt flags, Abi abi) //
+      noexcept;
 
   Compiler &compile(Assign stmt) noexcept;
   Compiler &compile(AssignCall stmt) noexcept;
@@ -103,11 +94,14 @@ private:
   Compiler &add(Node node) noexcept;
 
   // perform register allocation
-  Compiler &allocate_regs() noexcept;
+  Compiler &allocate_regs(Abi abi) noexcept;
 
   Compiler &fill_interference_graph() noexcept;
 
   static void update_live_regs(BitSet &live, Node node) noexcept;
+
+  // set ABI register hints for function params and results
+  Compiler &set_reg_hints(Abi abi) noexcept;
 
   // store compiled code into function.set_compiled(X64)
   // invoked by compile(Func)

@@ -7,9 +7,10 @@ AM_CPPFLAGS            = -I$(top_srcdir)/include
 # libonejit_a_CXXFLAGS =
 
 libonejit_a_SOURCES    = \
-        archid.cpp assembler.cpp bits.cpp code.cpp codeparser.cpp \
-        compiler.cpp imm.cpp error.cpp eval.cpp flowgraph.cpp func.cpp group.cpp id.cpp kind.cpp \
-        op.cpp opstmt.cpp optimizer.cpp optimizer_binary.cpp optimizer_tuple.cpp \
+        abi.cpp archid.cpp assembler.cpp bits.cpp code.cpp codeparser.cpp compiler.cpp \
+        imm.cpp error.cpp eval.cpp flowgraph.cpp func.cpp funcheader.cpp \
+        group.cpp id.cpp kind.cpp op.cpp opstmt.cpp \
+        optimizer.cpp optimizer_binary.cpp optimizer_tuple.cpp \
         space.cpp type.cpp value.cpp value_fmt.cpp \
         \
         ir/binary.cpp ir/call.cpp ir/childrange.cpp ir/comma.cpp ir/const.cpp \

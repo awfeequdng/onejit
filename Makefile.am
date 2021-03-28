@@ -1,6 +1,6 @@
 SUBDIRS = onejit onestl test
 
-pkgdata_DATA           = COPYING README.md
+pkgdata_DATA           = LICENSE README.md
 
 bin_PROGRAMS           =
 

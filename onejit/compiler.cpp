@@ -3,19 +3,9 @@
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *     This Source Code Form is subject to the terms of the Mozilla Public
+ *     License, v. 2.0. If a copy of the MPL was not distributed with this
+ *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * compiler.cpp
  *
@@ -296,7 +286,7 @@ Expr Compiler::compile(Call call, Flags flags) noexcept {
     Array<Expr> vargs;
     // convert all call arguments to Var
     to_vars(call, 2, n, vargs);
-    call = Call{*func_, call.ftype(), call.label(), vargs};
+    call = Call{*func_, call.fheader(), vargs};
   }
 
   if (!(flags & SimplifyCall)) {
@@ -810,7 +800,7 @@ Compiler &Compiler::to_vars(Node node, uint32_t start, uint32_t end, //
 Compiler &Compiler::add_prologue(Func &func) noexcept {
   const uint16_t n = func.param_n();
   Vars vars = func.vars();
-  add(func.label());
+  add(func.address());
   if (n == 0 || vars.size() < n) {
     return *this;
   }

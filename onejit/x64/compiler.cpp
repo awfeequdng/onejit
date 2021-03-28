@@ -3,19 +3,9 @@
  *
  * Copyright (C) 2021 Massimiliano Ghilardi
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *     This Source Code Form is subject to the terms of the Mozilla Public
+ *     License, v. 2.0. If a copy of the MPL was not distributed with this
+ *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * compiler.cpp
  *
@@ -35,7 +25,8 @@ Compiler &Compiler::compile_x64(Func &func, Opt flags) noexcept {
   compile(func, flags);
   if (*this && error_.empty()) {
     // pass our internal buffers node_ and error_ to x64::Compiler
-    onejit::x64::Compiler{}.compile(func, allocator_, node_, flowgraph_, error_, flags);
+    onejit::x64::Compiler{}.compile(func, allocator_, node_, flowgraph_, error_, //
+                                    flags, abi_autodetect(abi_));
   }
   return *this;
 }
@@ -49,7 +40,8 @@ Compiler::operator bool() const noexcept {
 }
 
 Compiler &Compiler::compile(Func &func, reg::Allocator &allocator, Array<Node> &node_vec,
-                            FlowGraph &flowgraph, Array<Error> &error_vec, Opt flags) noexcept {
+                            FlowGraph &flowgraph, Array<Error> &error_vec, Opt flags,
+                            Abi abi) noexcept {
   if (func.get_compiled(X64)) {
     // already compiled for x86_64
     return *this;
@@ -69,13 +61,14 @@ Compiler &Compiler::compile(Func &func, reg::Allocator &allocator, Array<Node> &
   flags_ = flags;
   good_ = bool(func);
 
-  return compile(node).allocate_regs().finish();
+  return compile(node).allocate_regs(abi).finish();
 }
 
-Compiler &Compiler::allocate_regs() noexcept {
+Compiler &Compiler::allocate_regs(Abi abi) noexcept {
   Vars vars = func_->vars();
   if (allocator_->reset(vars.size())) {
     fill_interference_graph();
+    set_reg_hints(abi);
     // x86_64 has 16 general registers, we reserve RSP and RBX
     allocator_->allocate_regs(14);
   }
@@ -98,6 +91,11 @@ Compiler &Compiler::fill_interference_graph() noexcept {
 }
 
 void Compiler::update_live_regs(BitSet & /*live*/, Node /*node*/) noexcept {
+}
+
+Compiler &Compiler::set_reg_hints(Abi abi) noexcept {
+  (void)abi; // TODO implement
+  return *this;
 }
 
 Compiler &Compiler::finish() noexcept {

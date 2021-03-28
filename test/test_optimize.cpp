@@ -3,19 +3,9 @@
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *     This Source Code Form is subject to the terms of the Mozilla Public
+ *     License, v. 2.0. If a copy of the MPL was not distributed with this
+ *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * test_eval.cpp
  *
@@ -137,7 +127,7 @@ void Test::optimize_expr_kind(Kind kind) {
   }
 
   // optimize() on ((f() && true) should return f()
-  expr = Binary{f, LAND, Call{f, f, {}}, TrueExpr};
+  expr = Binary{f, LAND, Call{f, f.fheader(), {}}, TrueExpr};
   {
     expected.clear();
     Fmt{&expected} << "(&& (call label_0) true)";
@@ -150,7 +140,7 @@ void Test::optimize_expr_kind(Kind kind) {
   }
 
   // optimize() on (f() && (1 == 2)) should return (comma f() false)
-  expr = Binary{f, LAND, Call{f, f, {}}, Binary{f, EQL, one, two}};
+  expr = Binary{f, LAND, Call{f, f.fheader(), {}}, Binary{f, EQL, one, two}};
   {
     expected.clear();
     Fmt{&expected} << "(&& (call label_0) (== 1 2))";

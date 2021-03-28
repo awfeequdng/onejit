@@ -3,19 +3,9 @@
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *     This Source Code Form is subject to the terms of the Mozilla Public
+ *     License, v. 2.0. If a copy of the MPL was not distributed with this
+ *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * func.cpp
  *
@@ -29,19 +19,16 @@
 
 namespace onejit {
 
-Func::Func() noexcept
-    : holder_{}, param_n_{}, result_n_{}, body_var_n_{}, //
-      ftype_{}, vars_{}, labels_{}, name_{}, body_{} {
+Func::Func() noexcept //
+    : Base{}, holder_{}, body_var_n_{}, vars_{}, labels_{}, body_{} {
 }
 
 Func &Func::reset(Code *holder, Name name, FuncType ftype) noexcept {
   holder_ = holder;
   body_var_n_ = 0;
   compiled_var_n_ = 0;
-  ftype_ = ftype;
   vars_.clear();
   labels_.clear();
-  name_ = name;
   body_ = Node{};
   for (size_t i = 0; i < ARCHID_N; i++) {
     compiled_[i] = Node{};
@@ -57,22 +44,15 @@ Func &Func::reset(Code *holder, Name name, FuncType ftype) noexcept {
   // first label points to the function itself
   ok = ok && bool(new_label());
   if (ok) {
-    param_n_ = ftype.param_n();
-    result_n_ = ftype.result_n();
+    Base::reset(name, ftype, labels_[0]);
   } else {
-    result_n_ = param_n_ = 0;
+    Base::reset(Name{}, FuncType{}, Label{});
     holder_ = nullptr;
   }
   return *this;
 }
 
 Func::~Func() noexcept {
-}
-
-// convert Func to Label
-Label Func::label() const noexcept {
-  // return labels_[0], or Label{} if labels_ is empty
-  return labels_[0];
 }
 
 Node Func::get_compiled(ArchId archid) const noexcept {

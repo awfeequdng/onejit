@@ -3,19 +3,9 @@
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *     This Source Code Form is subject to the terms of the Mozilla Public
+ *     License, v. 2.0. If a copy of the MPL was not distributed with this
+ *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * compiler.hpp
  *
@@ -26,6 +16,7 @@
 #ifndef ONEJIT_COMPILER_HPP
 #define ONEJIT_COMPILER_HPP
 
+#include <onejit/abi.hpp>
 #include <onejit/error.hpp>
 #include <onejit/flowgraph.hpp>
 #include <onejit/ir/label.hpp>
@@ -58,9 +49,10 @@ public:
     return func_;
   }
 
-  // configure the checks that compiled code must perform at runtime.
-  // default is CheckNone
-  Compiler &configure(Check check) noexcept {
+  // configure the ABI and the checks that compiled code must perform at runtime.
+  // default is to CheckNone and Abi autodetect
+  Compiler &configure(Check check, Abi abi = Abi_auto) noexcept {
+    abi_ = abi_autodetect(abi);
     optimizer_.configure(check);
     return *this;
   }
@@ -167,6 +159,7 @@ private:
   Array<Node> node_;
   FlowGraph flowgraph_;
   Array<Error> error_;
+  Abi abi_;
   bool good_; // !good_ means out of memory
 };
 

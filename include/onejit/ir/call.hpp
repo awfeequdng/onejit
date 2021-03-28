@@ -3,19 +3,9 @@
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *     This Source Code Form is subject to the terms of the Mozilla Public
+ *     License, v. 2.0. If a copy of the MPL was not distributed with this
+ *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * call.hpp
  *
@@ -51,24 +41,13 @@ public:
   }
 
   // create a call to Func 'called'
-  Call(Func &caller, const Func &called, std::initializer_list<Expr> args) noexcept
-      : Base{create(caller, called.ftype(), called.label(), Exprs{args.begin(), args.size()})} {
+  Call(Func &caller, const FuncHeader &called, std::initializer_list<Expr> args) noexcept
+      : Base{create(caller, called.ftype(), called.address(), Exprs{args.begin(), args.size()})} {
   }
 
   // create a call to Func 'called'
-  Call(Func &caller, const Func &called, Exprs args) noexcept
-      : Base{create(caller, called.ftype(), called.label(), args)} {
-  }
-
-  // create a call to an arbitrary function, for example a Func or an already compiled C function
-  Call(Func &caller, const FuncType &ftype, const Label &flabel,
-       std::initializer_list<Expr> args) noexcept
-      : Base{create(caller, ftype, flabel, Exprs{args.begin(), args.size()})} {
-  }
-
-  // create a call to an arbitrary function, for example a Func or an already compiled C function
-  Call(Func &caller, const FuncType &ftype, const Label &flabel, Exprs args) noexcept
-      : Base{create(caller, ftype, flabel, args)} {
+  Call(Func &caller, const FuncHeader &called, Exprs args) noexcept
+      : Base{create(caller, called.ftype(), called.address(), args)} {
   }
 
   static constexpr OpN op() noexcept {
@@ -80,9 +59,13 @@ public:
     return child_is<FuncType>(0);
   }
 
-  // shortcut for child_is<Label>(1)
-  Label label() const noexcept {
-    return child_is<Label>(1);
+  // shortcut for child_is<Expr>(1)
+  Expr address() const noexcept {
+    return child_is<Expr>(1);
+  }
+
+  FuncHeader fheader() const noexcept {
+    return FuncHeader{Name{}, ftype(), address()};
   }
 
   // shortcut for child_is<Expr>(i+2)
@@ -98,7 +81,7 @@ private:
     return op == CALL;
   }
 
-  static Node create(Func &caller, const FuncType &ftype, const Label &flabel, Exprs args) noexcept;
+  static Node create(Func &caller, const FuncType &ftype, const Expr &address, Exprs args) noexcept;
 };
 
 } // namespace ir
