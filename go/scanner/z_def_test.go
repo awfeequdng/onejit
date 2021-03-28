@@ -18,6 +18,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/cosmos72/onejit/go/testutil"
 	"github.com/cosmos72/onejit/go/token"
 )
 
@@ -60,7 +61,7 @@ func (test *SingleTest) expect(t *testing.T, s *Scanner) {
 	expected := test.Out
 
 	compareItem(t, test.In, 0, actual, expected)
-	compareErrorsAny(t, test.In, s.Errors(), test.Err)
+	testutil.CompareErrorsAny(t, test.In, stringList{s.Errors()}, test.Err)
 }
 
 // --------------------------- MultiTest* --------------------------------------
@@ -92,7 +93,7 @@ func (test *MultiTest) expect(t *testing.T, s *Scanner) {
 	expected := test.Out
 
 	compareItems(t, test.In, actual, expected)
-	compareErrorsAny(t, test.In, s.Errors(), test.Err)
+	testutil.CompareErrorsAny(t, test.In, stringList{s.Errors()}, test.Err)
 }
 
 // --------------------------- item --------------------------------------------
@@ -127,43 +128,6 @@ func compareItem(t *testing.T, in string, i int, actual item, expected item) {
 }
 
 // --------------------------- error -------------------------------------------
-
-func compareErrorsAny(t *testing.T, in string, actual []*Error, expected_any interface{}) {
-	var expected []string
-	switch expected_err := expected_any.(type) {
-	case string:
-		expected = []string{expected_err}
-	case []string:
-		expected = expected_err
-	default:
-	}
-	compareErrors(t, in, actual, expected)
-}
-
-func compareErrors(t *testing.T, in string, actual []*Error, expected []string) {
-	actual_n, expected_n := len(actual), len(expected)
-	if actual_n != expected_n {
-		t.Errorf("scan %q returned %d errors, expecting %d", in, actual_n, expected_n)
-	}
-	n := max2(actual_n, expected_n)
-	for i := 0; i < n; i++ {
-		var actual_i, expected_i string
-		if i < actual_n {
-			actual_i = actual[i].Msg
-		}
-		if i < expected_n {
-			expected_i = expected[i]
-		}
-		compareError(t, in, i, actual_i, expected_i)
-	}
-}
-
-func compareError(t *testing.T, in string, i int, actual_msg string, expected_msg string) {
-	if actual_msg != expected_msg {
-		t.Errorf("scan %q returned different %d-th error than expected:\n\t%v\nexpecting instead error:\n\t%v",
-			in, i, actual_msg, expected_msg)
-	}
-}
 
 func max2(a int, b int) int {
 	if a > b {

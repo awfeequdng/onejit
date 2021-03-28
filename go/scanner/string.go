@@ -58,7 +58,7 @@ func (s *Scanner) scanString() {
 
 func (s *Scanner) scanRuneOrString(delim rune) {
 	s.addRune(delim)
-	errnum := len(s.err)
+	errnum := len(s.errors)
 	size := 0
 	kind := strKind(delim)
 	cont := true
@@ -108,7 +108,7 @@ func (s *Scanner) scanRuneOrString(delim rune) {
 		size++
 	}
 	tok := token.ILLEGAL
-	if len(s.err) > errnum {
+	if len(s.errors) > errnum {
 		//
 	} else if delim == '\'' && size != 1 {
 		//

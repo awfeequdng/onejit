@@ -33,14 +33,14 @@ type Parser struct {
 	scanner *scanner.Scanner
 	curr    ast.Atom
 	mode    Mode
-	errors  []*scanner.Error
+	errors  *[]*scanner.Error
 }
 
 func (p *Parser) Init(s *scanner.Scanner, mode Mode) {
 	p.scanner = s
 	p.curr = ast.Atom{}
 	p.mode = mode
-	p.errors = nil
+	p.errors = s.Errors()
 }
 
 // parse a single declaration, statement or expression
@@ -51,6 +51,8 @@ func (p *Parser) Parse() (node ast.Node) {
 		node = p.parsePackage()
 	case token.IMPORT:
 		node = p.parseImport()
+	case token.EOF:
+		node = p.parseAtom(tok)
 	default:
 		if isDecl(tok) {
 			node = p.ParseTopLevelDecl()

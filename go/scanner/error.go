@@ -82,7 +82,7 @@ func (u *utf8Reader) error(msg string) bool {
 		Pos: file.Position(file.Pos(u.pos)),
 		Msg: msg,
 	}
-	u.err = append(u.err, err)
+	u.errors = append(u.errors, err)
 	return false
 }
 

@@ -84,8 +84,8 @@ func (s *Scanner) setResult(tok token.Token) {
 	s.lit = s.getString()
 }
 
-func (s *Scanner) Errors() []*Error {
-	return s.utf8Reader.err
+func (s *Scanner) Errors() *[]*Error {
+	return &s.utf8Reader.errors
 }
 
 // convert specified Pos to a Position

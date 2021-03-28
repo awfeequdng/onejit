@@ -59,6 +59,16 @@ func (p *Parser) error(msg interface{}) *scanner.Error {
 		Pos: p.scanner.Position(p.pos()),
 		Msg: string(text),
 	}
-	p.errors = append(p.errors, err)
+	if p.errors == nil {
+		p.errors = &[]*scanner.Error{}
+	}
+	*p.errors = append(*p.errors, err)
 	return err
+}
+
+func (p *Parser) Errors() *[]*scanner.Error {
+	if p.errors == nil {
+		p.errors = &[]*scanner.Error{}
+	}
+	return p.errors
 }

@@ -33,7 +33,7 @@ type utf8Reader struct {
 	file   *token.File
 	pos    int
 	endpos int
-	err    []*Error
+	errors []*Error
 }
 
 // (re)initialize utf8Reader
@@ -56,7 +56,7 @@ func (u *utf8Reader) init(file *token.File, src io.Reader) {
 	pos := file.Base()
 	u.pos = pos
 	u.endpos = pos
-	u.err = nil
+	u.errors = nil
 }
 
 func (u *utf8Reader) empty() bool {
