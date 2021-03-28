@@ -36,6 +36,7 @@ const (
 	errEmptyTypeParams              = errText("empty type parameter list")
 	errParamsNamedUnnamed           = errText("syntax error: mixed named and unnamed function parameters")
 	errParamNonFinalEllipsis        = errText("syntax error: cannot use ... with non-final parameter")
+	errSelectCaseNotSendOrRecv      = errText("select case must be send, receive or assign recv")
 	errTypeAlias                    = errText("type aliases are disabled, they require parser flag TypeAlias")
 	errGenerics                     = errText("generics are disabled, they require parser flag Generics")
 )

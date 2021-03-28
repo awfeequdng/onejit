@@ -18,7 +18,7 @@ import (
 	"os"
 
 	_ "github.com/cosmos72/onejit/go/jit_old"
-	_ "github.com/cosmos72/onejit/go/scanner"
+	_ "github.com/cosmos72/onejit/go/parser"
 )
 
 func main() {

@@ -274,6 +274,15 @@ func TestStmtGoto(t *testing.T) {
 	compareNode(t, p.Parse(), `(LABEL (IDENT "loop") (goto (IDENT "loop")))`)
 }
 
+func TestStmtSelect(t *testing.T) {
+	p, _ := makeParser(`select { case a <- b: foo; case <- c: bar; case v,ok := <- a: baz; default: etc }`)
+	compareNode(t, p.Parse(), `(select `+
+		`(case (<- (IDENT "a") (IDENT "b")) (IDENT "foo")) `+
+		`(case (<- (IDENT "c")) (IDENT "bar")) `+
+		`(case (:= (EXPRS (IDENT "v") (IDENT "ok")) (EXPRS (<- (IDENT "a")))) (IDENT "baz")) `+
+		`(default (IDENT "etc")))`)
+}
+
 func TestStmtSwitch(t *testing.T) {
 	p, _ := makeParser(`switch a := init; b { case c, d: e; default: f }`)
 	compareNode(t, p.Parse(), `(switch (:= (EXPRS (IDENT "a")) (EXPRS (IDENT "init"))) (IDENT "b") `+

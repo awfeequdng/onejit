@@ -19,6 +19,7 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
+// parse a list of statements, including the terminating ';'
 func (p *Parser) parseStmtList(prefix []ast.Node) []ast.Node {
 	nodes := prefix
 	for {
@@ -236,7 +237,53 @@ func (p *Parser) parseReturn() *ast.List {
 }
 
 func (p *Parser) parseSelect() *ast.List {
-	return nil // TODO
+	list := p.parseList() // also skips 'select'
+	var nodes []ast.Node
+	nodes = p.enter(nodes, token.LBRACE)
+	for !isLeave(p.tok()) {
+		nodes = append(nodes, p.parseSelectCase())
+		if p.tok() != token.CASE && p.tok() != token.DEFAULT {
+			break
+		}
+	}
+	nodes = p.leave(nodes, token.RBRACE)
+	list.Nodes = nodes
+	return list
+}
+
+func (p *Parser) parseSelectCase() ast.Node {
+	tok := p.tok()
+	if tok != token.CASE && tok != token.DEFAULT {
+		return p.parseBad(errExpectingCaseOrDefault)
+	}
+	list := p.parseList() // also skips 'case' or 'default'
+	var nodes []ast.Node
+	if tok == token.CASE {
+		node := p.parseSimpleStmt(noRange)
+		if !isSendOrRecvStmt(node) {
+			node = p.makeBadNode(node, errSelectCaseNotSendOrRecv)
+		}
+		nodes = append(nodes, node)
+	}
+	if p.tok() == token.COLON {
+		p.next() // skip ':'
+		list.Nodes = p.parseStmtList(nodes)
+	} else {
+		list.Nodes = append(nodes, p.parseBad(token.COLON))
+	}
+	return list
+}
+
+func isSendOrRecvStmt(node ast.Node) bool {
+	switch node.Op() {
+	case token.ARROW:
+		return true
+	case token.ASSIGN, token.DEFINE:
+		return node.Len() == 2 && node.At(1).Op() == token.EXPRS &&
+			node.At(1).Len() == 1 && node.At(1).At(0).Op() == token.ARROW
+	default:
+		return false
+	}
 }
 
 func (p *Parser) parseSwitch() *ast.List {
