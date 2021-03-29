@@ -74,6 +74,15 @@ func (p *Parser) parseType() ast.Node {
 // then parse also any generic type declaration prefix '[T1 constraint1, T2 constraint2 ...]'
 func (p *Parser) ParseType(isTypeDecl bool) (node ast.Node) {
 	switch p.tok() {
+	case token.IDENT:
+		node = p.parseQualifiedIdent()
+		if p.tok() == token.LBRACK {
+			node = p.parseMaybeGenericInstantiation(node)
+		}
+	case token.LPAREN:
+		p.next() // skip '('
+		node = p.parseType()
+		node = p.leaveNode(node, token.RPAREN)
 	case token.LBRACK:
 		node = p.parseArrayOrGenericType(isTypeDecl)
 	case token.ARROW, token.CHAN:
@@ -84,19 +93,10 @@ func (p *Parser) ParseType(isTypeDecl bool) (node ast.Node) {
 		node = p.parseInterfaceType()
 	case token.MAP:
 		node = p.parseMapType()
-	case token.IDENT:
-		node = p.parseQualifiedIdent()
-		if p.tok() == token.LBRACK {
-			node = p.parseGenericInstantiation(node)
-		}
 	case token.STRUCT:
 		node = p.parseStructType()
 	case token.MUL:
 		node = p.parsePointerType()
-	case token.LPAREN:
-		p.next() // skip '('
-		node = p.parseType()
-		node = p.leaveNode(node, token.RPAREN)
 	default:
 		return p.parseBad(errExpectingType)
 	}
@@ -251,8 +251,18 @@ func (p *Parser) parseGenericParamDecl(t1 ast.Node) *ast.Field {
 }
 
 // parse the suffix '[T1, T2...]' in a generic type instantiation
-func (p *Parser) parseGenericInstantiation(typ ast.Node) *ast.List {
-	list := p.parseList() // also skips '['
+// tricky case: the suffixes '[ ]' '[ INT' must NOT be parsed, they belong to the next node
+func (p *Parser) parseMaybeGenericInstantiation(typ ast.Node) ast.Node {
+	atom := p.curr
+	p.consumeComment()
+	p.next() // skip '['
+	switch p.tok() {
+	case token.RBRACK, token.INT:
+		// put back '[' and current token into the token stream
+		p.unread(&atom)
+		return typ
+	}
+	list := &ast.List{Atom: atom}
 	list.Tok = token.INDEX
 	nodes := []ast.Node{typ}
 	if p.mode&Generics == 0 {

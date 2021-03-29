@@ -94,39 +94,54 @@ func (p *Parser) parseBlock() *ast.List {
 }
 
 func (p *Parser) parseSimpleStmt(flag exprFlag) ast.Node {
-	if p.tok() == token.SEMICOLON {
+	if p.tok() == token.SEMICOLON || p.tok() == token.LBRACE || isLeave(p.tok()) {
 		return nil
 	}
-	node := p.parseExprOrType(token.LowestPrec, flag)
-	switch p.tok() {
+	list := p.parseExprList(nil, flag&(allowCompositeLit|allowTypeSwitch))
+	var node ast.Node = list
+	n := list.Len()
+	if n == 1 {
+		node = list.At(0)
+	}
+	switch tok := p.tok(); tok {
 	case token.ARROW: // SendStmt
+		if n != 1 {
+			node = p.makeBadNode(node, errExpectedOneExpr)
+		}
 		binary := p.parseBinary()
 		binary.X = node
 		binary.Y = p.ParseExpr()
 		node = binary
 	case token.INC, token.DEC: // IncDecStmt
+		if n != 1 {
+			node = p.makeBadNode(node, errExpectedOneExpr)
+		}
 		unary := p.parseUnary()
 		unary.X = node
 		node = unary
-	case token.ASSIGN, token.DEFINE, token.COMMA:
-		node = p.parseAssign(node, flag)
+	case token.RANGE:
+		if flag&allowRange != 0 {
+			node = p.parseRangeStmt()
+		}
+	default:
+		if isAssign(tok) {
+			node = p.parseAssign(list, flag)
+		}
 	}
 	return node
 }
 
-// parse Assignment i.e. expr, ... '=' expr, ...
+func (p *Parser) parseRangeStmt() *ast.Unary {
+	unary := p.parseUnary() // also skips 'range'
+	unary.X = p.parseExprOrType(token.LowestPrec, noCompositeLit)
+	return unary
+}
+
+// parse Assignment i.e. expr, ... 'op=' expr, ...
 // parse ShortVarDecl i.e. ident, ... ':=' expr, ...
 // parse RangeStmt i.e. ident, ... ':=' 'range' expr
-func (p *Parser) parseAssign(first ast.Node, flag exprFlag) ast.Node {
-	if p.tok() == token.COMMA {
-		p.next()
-	}
-	left := p.parseExprList(first, noEllipsis)
-
-	if tok := p.tok(); tok != token.ASSIGN && tok != token.DEFINE {
-		left.Nodes = append(left.Nodes, p.parseBad(errExpectingAssignDefineOrComma))
-		return left
-	}
+// left contains everything before 'op=' or ':='
+func (p *Parser) parseAssign(left *ast.List, flag exprFlag) ast.Node {
 	assign := p.parseBinary() // also skips '=' or ':='
 	var stmt *ast.Unary
 	if flag&allowRange != 0 && p.tok() == token.RANGE {
@@ -134,7 +149,7 @@ func (p *Parser) parseAssign(first ast.Node, flag exprFlag) ast.Node {
 		stmt.X = assign
 	}
 	assign.X = left
-	assign.Y = p.parseExprList(nil, noEllipsis)
+	assign.Y = p.parseExprList(nil, flag&(allowCompositeLit|allowTypeSwitch))
 	if stmt == nil {
 		return assign
 	}
@@ -162,9 +177,19 @@ func (p *Parser) parseFallthrough() ast.Node {
 func (p *Parser) parseFor() *ast.List {
 	list := p.parseList() // also skips 'for'
 	var init ast.Node
-	if p.tok() != token.LBRACE {
+	switch p.tok() {
+	case token.LBRACE:
+		// nothing to do
+	case token.RANGE:
+		init = p.parseRangeStmt()
+		list.Tok = token.RANGE
+		list.Nodes = []ast.Node{
+			init, p.parseBlock(),
+		}
+		return list
+	default:
 		init = p.parseSimpleStmt(allowRange)
-		if init.Op() == token.RANGE {
+		if init != nil && init.Op() == token.RANGE {
 			list.Tok = token.RANGE
 			list.Nodes = []ast.Node{
 				init.At(0), p.parseBlock(),
@@ -176,10 +201,12 @@ func (p *Parser) parseFor() *ast.List {
 	if p.tok() == token.SEMICOLON {
 		p.next()
 		nodes[0] = init
-		nodes[1] = p.ParseExpr() // condition
+		if p.tok() != token.SEMICOLON && p.tok() != token.LBRACE && !isLeave(p.tok()) {
+			nodes[1] = p.ParseExpr() // condition
+		}
 		if p.tok() == token.SEMICOLON {
 			p.next()
-			nodes[2] = p.parseSimpleStmt(noRange) // post
+			nodes[2] = p.parseSimpleStmt(noRange) // post, may be nil
 		} else {
 			nodes[2] = p.parseBad(token.SEMICOLON)
 		}
@@ -230,7 +257,7 @@ func (p *Parser) parseIf() *ast.List {
 func (p *Parser) parseReturn() *ast.List {
 	pos := p.pos()
 	p.next() // skip 'return'
-	list := p.parseExprList(nil, noEllipsis)
+	list := p.parseExprList(nil, allowCompositeLit)
 	list.Tok = token.RETURN
 	list.TokPos = pos
 	return list
@@ -240,11 +267,8 @@ func (p *Parser) parseSelect() *ast.List {
 	list := p.parseList() // also skips 'select'
 	var nodes []ast.Node
 	nodes = p.enter(nodes, token.LBRACE)
-	for !isLeave(p.tok()) {
+	for p.tok() == token.CASE || p.tok() == token.DEFAULT {
 		nodes = append(nodes, p.parseSelectCase())
-		if p.tok() != token.CASE && p.tok() != token.DEFAULT {
-			break
-		}
 	}
 	nodes = p.leave(nodes, token.RBRACE)
 	list.Nodes = nodes
@@ -253,9 +277,6 @@ func (p *Parser) parseSelect() *ast.List {
 
 func (p *Parser) parseSelectCase() ast.Node {
 	tok := p.tok()
-	if tok != token.CASE && tok != token.DEFAULT {
-		return p.parseBad(errExpectingCaseOrDefault)
-	}
 	list := p.parseList() // also skips 'case' or 'default'
 	var nodes []ast.Node
 	if tok == token.CASE {
@@ -288,38 +309,60 @@ func isSendOrRecvStmt(node ast.Node) bool {
 
 func (p *Parser) parseSwitch() *ast.List {
 	list := p.parseList() // also skips 'switch'
-	var nodes []ast.Node
-	if p.tok() == token.SEMICOLON {
-		nodes = append(nodes, nil, nil)
-	} else {
-		init := p.parseSimpleStmt(noCompositeLit)
+	var init, expr ast.Node
+	if p.tok() != token.SEMICOLON && p.tok() != token.LBRACE {
+		init = p.parseSimpleStmt(allowTypeSwitch)
 		if p.tok() == token.SEMICOLON {
 			p.next() // skip ';'
-			nodes = append(nodes, init, p.parseExprOrType(token.LowestPrec, noCompositeLit))
-		} else {
-			if isSimpleStmt(init.Op()) {
-				init = p.makeBadNode(init, errExpectingExpr)
+			if p.tok() != token.LBRACE {
+				expr = p.parseSimpleStmt(allowTypeSwitch)
+				if isTypeSwitchStmt(expr) {
+					list.Tok = token.TYPESWITCH
+				}
 			}
-			nodes = append(nodes, nil, init)
+		} else {
+			// only one statement before '{'
+			if isSimpleStmt(init.Op()) {
+				if isTypeSwitchStmt(init) {
+					list.Tok = token.TYPESWITCH
+				} else {
+					init = p.makeBadNode(init, errExpectingExpr)
+				}
+			}
+			expr = init
+			init = nil
 		}
 	}
-	nodes = p.enter(nodes, token.LBRACE)
-	for !isLeave(p.tok()) {
-		nodes = append(nodes, p.parseSwitchCase())
-		if p.tok() != token.CASE && p.tok() != token.DEFAULT {
-			break
+	if init != nil && isTypeSwitchStmt(init) {
+		list.Tok = token.TYPESWITCH
+		if expr != nil {
+			expr = p.makeBadNode(init, token.LBRACE)
 		}
+	}
+	nodes := []ast.Node{init, expr}
+
+	nodes = p.enter(nodes, token.LBRACE)
+	for p.tok() == token.CASE || p.tok() == token.DEFAULT {
+		nodes = append(nodes, p.parseSwitchCase())
 	}
 	nodes = p.leave(nodes, token.RBRACE)
 	list.Nodes = nodes
 	return list
 }
 
+func isTypeSwitchStmt(node ast.Node) bool {
+	switch node.Op() {
+	case token.ASSIGN, token.DEFINE:
+		if node.Len() == 2 && node.At(1).Op() == token.EXPRS && node.At(1).Len() == 1 {
+			node = node.At(1).At(0)
+			return node.Op() == token.TYPE_ASSERT && node.Len() == 2 && node.At(1).Op() == token.TYPE
+		}
+	}
+	return false
+}
+
 func (p *Parser) parseSwitchCase() ast.Node {
 	tok := p.tok()
-	if tok != token.CASE && tok != token.DEFAULT {
-		return p.parseBad(errExpectingCaseOrDefault)
-	}
 	list := p.parseList() // also skips 'case' or 'default'
 	var nodes []ast.Node
 	if tok == token.CASE {

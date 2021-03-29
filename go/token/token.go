@@ -146,14 +146,15 @@ const (
 	SEND_DIR
 	SLICE // slice expression a[b:c] or a[b:c:d]
 	TYPE_ASSERT
+	TYPESWITCH // switch x.(type) { }
 	VALUE_SPEC
 )
 
 var tokens = [...]string{
 	"ARRAY", "BLOCK", "BOTH_DIR", "CALL", "COMPOSITE_LIT", "EXPRS", "FIELD",
 	"FILE", "GENERIC", "IMPORT_SPEC", "INDEX", "KEY_VALUE", "LABEL", "LAMBDA",
-	"NAMES", "PARAMS", "RECV_DIR", "RESULTS", "SEND_DIR", "SLICE", "TYPE_ASSERT",
-	"VALUE_SPEC",
+	"NAMES", "PARAMS", "RECV_DIR", "RESULTS", "SEND_DIR", "SLICE",
+	"TYPE_ASSERT", "TYPESWITCH", "VALUE_SPEC",
 }
 
 var operators = makeOperators()

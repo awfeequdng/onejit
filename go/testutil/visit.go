@@ -26,7 +26,7 @@ import (
 
 type Visit = func(t *testing.T, in io.Reader, filename string)
 
-func RecursiveVisitDir(t *testing.T, visit Visit, dirname string) bool {
+func VisitDirRecurse(t *testing.T, visit Visit, dirname string) bool {
 	if len(dirname) > 512 {
 		// try to avoid symlink loops
 		t.Skip("path too long, aborting test: ", dirname)
@@ -43,11 +43,14 @@ func RecursiveVisitDir(t *testing.T, visit Visit, dirname string) bool {
 		t.Logf("error reading directory %q: %v", dirname, err)
 		return true
 	}
+	if testing.Verbose() {
+		t.Logf("entering directory %q", dirname)
+	}
 	sortInfo(info)
 	for _, entry := range info {
 		name := path.Join(dirname, entry.Name())
 		if entry.IsDir() {
-			if !RecursiveVisitDir(t, visit, name) {
+			if !VisitDirRecurse(t, visit, name) {
 				return false
 			}
 		} else if entry.Mode().IsRegular() &&

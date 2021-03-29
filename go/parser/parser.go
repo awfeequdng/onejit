@@ -32,6 +32,7 @@ const (
 type Parser struct {
 	scanner *scanner.Scanner
 	curr    ast.Atom
+	unread0 ast.Atom
 	mode    Mode
 	errors  *[]*scanner.Error
 }
@@ -39,6 +40,7 @@ type Parser struct {
 func (p *Parser) Init(s *scanner.Scanner, mode Mode) {
 	p.scanner = s
 	p.curr = ast.Atom{}
+	p.unread0 = ast.Atom{}
 	p.mode = mode
 	p.errors = s.Errors()
 }
@@ -63,9 +65,20 @@ func (p *Parser) Parse() (node ast.Node) {
 	return node
 }
 
+// put back specified atom into the token stream, before p.curr
+func (p *Parser) unread(atom *ast.Atom) {
+	p.unread0 = p.curr
+	p.curr = *atom
+}
+
 // get next non-comment token and store it in p.curr
 func (p *Parser) next() token.Token {
 	curr := &p.curr
+	if unread := &p.unread0; unread.Tok != 0 {
+		*curr = *unread
+		*unread = ast.Atom{}
+		return curr.Tok
+	}
 	curr.Comment = nil
 	s := p.scanner
 	for {

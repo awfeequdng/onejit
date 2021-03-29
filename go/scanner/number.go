@@ -70,7 +70,8 @@ func (s *Scanner) scanInt(base intbase) {
 	str := s.getString()
 	if s.quickCheckValidInt(str, base) {
 		s.setResult(tok)
-		s.next()
+		// do NOT advance, s.ch is already the first rune after the integer
+		// s.next()
 	}
 }
 

@@ -29,7 +29,8 @@ func TestMulti(t *testing.T) {
 	rparen := item{token.RPAREN, ""}
 
 	v := MultiTests{
-		{"a + b", []item{{token.IDENT, "a"}, {token.ADD, ""}, {token.IDENT, "b"}}, nil},
+		{"a + b",
+			[]item{{token.IDENT, "a"}, {token.ADD, ""}, {token.IDENT, "b"}}, nil},
 		{"1 * 'c' / 3i",
 			[]item{{token.INT, "1"}, {token.MUL, ""}, {token.CHAR, "'c'"}, {token.QUO, ""}, {token.IMAG, "3i"}}, nil},
 		{"(3)", []item{lparen, {token.INT, "3"}, rparen}, nil},
@@ -47,6 +48,12 @@ func TestMulti(t *testing.T) {
 				lparen, {token.FUNC, ""}, lparen, rparen, rparen,
 				lparen, {token.IDENT, "nil"}, rparen,
 			}, nil},
+		{"int64(0xc008427b)",
+			[]item{{token.IDENT, "int64"}, lparen, {token.INT, "0xc008427b"}, rparen}, nil},
+	}
+	v = MultiTests{
+		{"a . \n b",
+			[]item{{token.IDENT, "a"}, {token.PERIOD, ""}, {token.IDENT, "b"}}, nil},
 	}
 	v.run(t)
 }
@@ -56,7 +63,7 @@ func TestGoRootFiles(t *testing.T) {
 	visit := func(t *testing.T, in io.Reader, filename string) {
 		scanFile(t, s, in, filename)
 	}
-	testutil.RecursiveVisitDir(t, visit, build.Default.GOROOT)
+	testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)
 }
 
 func scanFile(t *testing.T, s *Scanner, in io.Reader, filename string) {
@@ -70,17 +77,21 @@ func scanFile(t *testing.T, s *Scanner, in io.Reader, filename string) {
 			t.Errorf("scan file %q returned {%v %q}", filename, tok, lit)
 		}
 	}
-	testutil.CompareErrors(t, filename, stringList{s.Errors()}, nil)
+	testutil.CompareErrors(t, filename, errorList{s.Errors()}, nil)
 }
 
-type stringList struct {
+type errorList struct {
 	errors *[]*Error
 }
 
-func (list stringList) Len() int {
+func (list errorList) Len() int {
 	return len(*list.errors)
 }
 
-func (list stringList) At(i int) string {
+func (list errorList) String(i int) string {
 	return (*list.errors)[i].Msg
+}
+
+func (list errorList) Error(i int) error {
+	return (*list.errors)[i]
 }

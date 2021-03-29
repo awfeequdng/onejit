@@ -30,7 +30,7 @@ func disabled_TestGoRootFiles(t *testing.T) {
 	visit := func(t *testing.T, in io.Reader, filename string) {
 		parseFile(t, s, p, in, filename)
 	}
-	testutil.RecursiveVisitDir(t, visit, build.Default.GOROOT)
+	testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)
 }
 
 func parseFile(t *testing.T, s *scanner.Scanner, p *Parser, in io.Reader, filename string) {
@@ -38,23 +38,29 @@ func parseFile(t *testing.T, s *scanner.Scanner, p *Parser, in io.Reader, filena
 	p.Init(s, Default)
 	for {
 		node := p.Parse()
-		if tok := node.Op(); tok == token.EOF {
+		if node == nil {
+			continue
+		} else if tok := node.Op(); tok == token.EOF {
 			break
 		} else if tok == token.ILLEGAL {
 			t.Errorf("parse file %q returned %v", filename, node)
 		}
 	}
-	testutil.CompareErrors(t, filename, stringList{p.Errors()}, nil)
+	testutil.CompareErrors(t, filename, errorList{p.Errors()}, nil)
 }
 
-type stringList struct {
+type errorList struct {
 	errors *[]*scanner.Error
 }
 
-func (list stringList) Len() int {
+func (list errorList) Len() int {
 	return len(*list.errors)
 }
 
-func (list stringList) At(i int) string {
+func (list errorList) String(i int) string {
 	return (*list.errors)[i].Msg
+}
+
+func (list errorList) Error(i int) error {
+	return (*list.errors)[i]
 }

@@ -34,6 +34,7 @@ const (
 	errExpectingString              = "string"
 	errExpectingType                = "type"
 	errEmptyTypeParams              = errText("empty type parameter list")
+	errExpectedOneExpr              = errText("expected 1 expression")
 	errParamsNamedUnnamed           = errText("syntax error: mixed named and unnamed function parameters")
 	errParamNonFinalEllipsis        = errText("syntax error: cannot use ... with non-final parameter")
 	errSelectCaseNotSendOrRecv      = errText("select case must be send, receive or assign recv")

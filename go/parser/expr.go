@@ -20,39 +20,40 @@ import (
 )
 
 type exprFlag int
-type exprListFlag int
 
 const (
-	noCompositeLit    exprFlag = 0
-	allowCompositeLit exprFlag = 2
-
-	allowRange exprFlag = 1
-	noRange    exprFlag = 0
-)
-
-const (
-	noEllipsis exprListFlag = iota
+	allowCompositeLit exprFlag = 1 << iota
+	allowRange
 	allowEllipsis
+	allowTypeSwitch // suffix '.(type)' used in switch expression
+
+	noCompositeLit exprFlag = 0
+	noRange        exprFlag = 0
+	noEllipsis     exprFlag = 0
+	noTypeSwitch
 )
 
 // parse a comma-separated identifier list
-func (p *Parser) parseIdentList() *ast.List {
-	ret := &ast.List{
-		Atom: ast.Atom{
-			Tok:    token.NAMES,
-			TokPos: p.pos(),
-		},
-	}
+func (p *Parser) parseIdentList(ident0 ast.Node) *ast.List {
+	pos := p.pos()
 	var list []ast.Node
-	for {
-		list = append(list, p.makeIdent())
-		if p.tok() != token.IDENT || p.next() != token.COMMA {
+	if ident0 != nil {
+		list = append(list, ident0)
+	}
+	for p.tok() == token.IDENT {
+		list = append(list, p.parseIdent())
+		if p.tok() != token.COMMA {
 			break
 		}
 		p.next() // skip ','
 	}
-	ret.Nodes = list
-	return ret
+	if len(list) == 0 {
+		return nil
+	}
+	return &ast.List{
+		Atom:  ast.Atom{Tok: token.NAMES, TokPos: pos},
+		Nodes: list,
+	}
 }
 
 // parse a (possibly qualified) identifier
@@ -77,14 +78,18 @@ func (p *Parser) parseQualifiedIdent() (node ast.Node) {
 }
 
 // parse a comma-separated expression list
-func (p *Parser) parseExprList(expr0 ast.Node, flag exprListFlag) *ast.List {
+func (p *Parser) parseExprList(expr0 ast.Node, flag exprFlag) *ast.List {
 	pos := p.pos()
 	var list []ast.Node
 	if expr0 != nil {
 		list = append(list, expr0)
 	}
-	for p.tok() != token.ASSIGN && p.tok() != token.DEFINE && !isLeave(p.tok()) {
-		list = append(list, p.ParseExpr())
+	for {
+		tok := p.tok()
+		if tok == token.SEMICOLON || isAssign(tok) || isLeave(tok) {
+			break
+		}
+		list = append(list, p.parseExprOrType(token.LowestPrec, flag))
 		if p.tok() != token.COMMA {
 			break
 		}
@@ -139,8 +144,12 @@ func (p *Parser) parsePrimaryExpr(flag exprFlag) ast.Node {
 		case token.LBRACK:
 			node = p.parseIndexOrSlice(node)
 		case token.LBRACE:
-			if flag&allowCompositeLit != 0 {
+			op := node.Op()
+			// not really obvious from the specs
+			if op == token.ARRAY || op == token.MAP || flag&allowCompositeLit != 0 {
 				node = p.parseCompositeLit(node)
+			} else {
+				return node
 			}
 		case token.PERIOD:
 			// either node . identifier
@@ -149,17 +158,15 @@ func (p *Parser) parsePrimaryExpr(flag exprFlag) ast.Node {
 			switch p.next() {
 			case token.IDENT:
 				node = p.parseSelector(node, pos)
-				continue // loop
 			case token.LPAREN:
-				node = p.parseTypeAssert(node)
+				node = p.parseTypeAssert(node, flag)
 			default:
-				node = p.makeBadNode(node, errExpectingIdentOrLparen)
+				return p.makeBadNode(node, errExpectingIdentOrLparen)
 			}
 		default:
+			return node
 		}
-		break
 	}
-	return node
 }
 
 func (p *Parser) parseOperandExpr() (node ast.Node) {
@@ -184,7 +191,7 @@ func (p *Parser) parseOperandExpr() (node ast.Node) {
 // if no '...' and arguments len = 1, may also be a type conversion
 func (p *Parser) parseCallExpr(fun ast.Node) *ast.List {
 	p.next() // skip '('
-	call := p.parseExprList(fun, allowEllipsis)
+	call := p.parseExprList(fun, allowCompositeLit|allowEllipsis)
 	call.Tok = token.CALL
 	call.Nodes = p.leave(call.Nodes, token.RPAREN)
 	return call
@@ -226,6 +233,7 @@ func (p *Parser) parseKeyOrValueExpr() (node ast.Node) {
 	return node
 }
 
+// parse '[a,b,c...]'
 func (p *Parser) parseIndexOrSlice(left ast.Node) *ast.List {
 	list := p.parseList() // also skips '['
 	list.Tok = token.INDEX
@@ -279,11 +287,16 @@ func (p *Parser) parseSelector(left ast.Node, pos token.Pos) *ast.Binary {
 	}
 }
 
-func (p *Parser) parseTypeAssert(left ast.Node) *ast.Binary {
+func (p *Parser) parseTypeAssert(left ast.Node, flag exprFlag) *ast.Binary {
 	binary := p.parseBinary() // also skips '('
 	binary.Tok = token.TYPE_ASSERT
 	binary.X = left
-	typ := p.parseType()
+	var typ ast.Node
+	if flag&allowTypeSwitch != 0 && p.tok() == token.TYPE {
+		typ = p.parseAtom(token.TYPE)
+	} else {
+		typ = p.parseType()
+	}
 	binary.Y = p.leaveNode(typ, token.RPAREN)
 	return binary
 }

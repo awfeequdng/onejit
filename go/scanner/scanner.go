@@ -84,6 +84,15 @@ func (s *Scanner) setResult(tok token.Token) {
 	s.lit = s.getString()
 }
 
+// always sets s.lit = ""
+func (s *Scanner) setResultTok(tok token.Token) {
+	s.tok = tok
+	if tok != token.COMMENT {
+		s.lastNonComment = tok
+	}
+	s.lit = ""
+}
+
 func (s *Scanner) Errors() *[]*Error {
 	return &s.utf8Reader.errors
 }
@@ -130,7 +139,7 @@ func (s *Scanner) scan() {
 	s.clearString()
 	ch := s.ch
 	if ch == runeEOF {
-		s.tok = token.EOF
+		s.setResultTok(token.EOF)
 	} else if isDecimalDigit(ch) {
 		s.scanNumber()
 	} else if ch == '"' {
@@ -211,8 +220,7 @@ func (s *Scanner) scanDot() {
 			return
 		} else {
 			// found ".nondigit"
-			s.tok = token.PERIOD
-			s.lit = ""
+			s.setResultTok(token.PERIOD)
 			return
 		}
 	}
@@ -222,14 +230,12 @@ func (s *Scanner) scanDot() {
 		// found "..nondot"
 		// unread the second dot and return the first one
 		s.unread = '.'
-		s.tok = token.PERIOD
-		s.lit = ""
+		s.setResultTok(token.PERIOD)
 		return
 	}
 	// found "...""
 	s.next()
-	s.tok = token.ELLIPSIS
-	s.lit = ""
+	s.setResultTok(token.ELLIPSIS)
 }
 
 // scan characters after '/'

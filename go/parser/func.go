@@ -27,7 +27,12 @@ func (p *Parser) parseFuncOrMethodDecl() *ast.FuncDecl {
 	}
 	fun.Name = p.parseIdent()
 	fun.Type = p.parseGenericSignature(p.pos())
-	fun.Body = p.parseBlock()
+	if p.tok() == token.SEMICOLON {
+		// no function body
+		p.next()
+	} else {
+		fun.Body = p.parseBlock()
+	}
 	return fun
 }
 
@@ -72,146 +77,143 @@ func (p *Parser) parseParams(paramsOrResults token.Token) *ast.List {
 	list := &ast.List{
 		Atom: ast.Atom{Tok: paramsOrResults, TokPos: p.pos()},
 	}
-	if p.tok() != token.LPAREN {
-		list.Nodes = []ast.Node{p.parseBad(token.LPAREN)}
+	nodes := p.enter(nil, token.LPAREN) // also skips '('
+	if nodes != nil {
+		list.Nodes = nodes
 		return list
 	}
-	var nodes []ast.Node
-	p.next() // skip '('
-	all_ok := true
 	for !isLeave(p.tok()) {
-		field, ok := p.parseParamDecl()
-		all_ok = all_ok && ok
-		nodes = append(nodes, field)
+		nodes = append(nodes, p.parseParamDecl())
 		if p.tok() == token.COMMA {
 			p.next() // skip ','
 		} else {
 			break
 		}
 	}
-	all_ok = all_ok && p.tok() == token.RPAREN
 	nodes = p.leave(nodes, token.RPAREN)
-	if all_ok {
-		nodes = p.fixParams(nodes)
-	}
-	list.Nodes = nodes
+	list.Nodes = p.fixParams(nodes)
 	return list
 }
 
-func (p *Parser) parseParamDecl() (*ast.Field, bool) {
-	ok := true
+func (p *Parser) parseParamDecl() *ast.Field {
 	field := &ast.Field{
 		Atom: ast.Atom{Tok: token.FIELD, TokPos: p.pos()},
 	}
-	var head ast.Node
-	if p.tok() == token.ELLIPSIS {
-		field.Type = p.parseTypeMaybeEllipsis()
-	} else {
-		head = p.parseType()
-	}
-	if head != nil && p.tok() != token.COMMA && !isLeave(p.tok()) {
-		// head is param name, it must be an unqualified identifier
-		name := head
-		if ok = head.Op() == token.IDENT; !ok {
-			name = p.makeBadNode(name, token.IDENT)
+	var names []ast.Node
+	for {
+		if isLeave(p.tok()) {
+			break
 		}
+		// we cannot use p.parseIdentList() here, because it may stop in the middle
+		// of a qualified identifier or a generic type instantiation
+		expr := p.parseTypeMaybeEllipsis()
+		if expr.Op() != token.IDENT {
+			field.Type = expr
+			break
+		}
+		// expr is probably a name
+		names = append(names, expr)
+		if p.tok() != token.COMMA {
+			break // token must belong to the type
+		}
+		p.next() // skip ','
+	}
+	if len(names) != 0 {
 		field.Names = &ast.List{
-			Atom:  ast.Atom{Tok: token.NAMES, TokPos: name.Pos()},
-			Nodes: []ast.Node{name},
-		}
-		head = nil // used already
-	}
-	if field.Type == nil {
-		if head != nil {
-			field.Type = head
-		} else {
-			field.Type = p.parseTypeMaybeEllipsis()
+			Atom:  ast.Atom{Tok: token.NAMES, TokPos: names[0].Pos()},
+			Nodes: names,
 		}
 	}
-	return field, ok
+	tok := p.tok()
+	if tok != token.COMMA && !isLeave(tok) && field.Type == nil {
+		field.Type = p.parseTypeMaybeEllipsis()
+	}
+	return field
 }
 
 func (p *Parser) parseResultOrNil() *ast.List {
 	if tok := p.tok(); tok == token.LPAREN {
 		// multiple results, listed inside "(" ")"
 		return p.parseParams(token.RESULTS)
-	} else if tok == token.SEMICOLON || tok == token.LBRACE || isLeave(tok) {
+	} else if !isTypeStart(tok) {
 		// no results
 		return nil
 	}
 	// single result, without "(" ")"
-	field := &ast.Field{
-		Atom: ast.Atom{Tok: token.FIELD, TokPos: p.pos()},
-	}
-	field.Type = p.parseType()
+	pos := p.pos()
 	return &ast.List{
-		Atom:  ast.Atom{Tok: token.RESULTS, TokPos: field.TokPos},
-		Nodes: []ast.Node{field},
+		Atom: ast.Atom{Tok: token.RESULTS, TokPos: pos},
+		Nodes: []ast.Node{&ast.Field{
+			Atom: ast.Atom{Tok: token.FIELD, TokPos: pos},
+			Type: p.parseType(),
+		}},
 	}
 }
 
-// if some fields have names and some don't, then merge unnamed fields
-// (which actually contain a name, not a type) with the first following named field
+// check the following cases:
+// 1. if a field has no type => all names are actually types
+// 2. cannot have both named and unnamed fields
+// 3. also, only last field's type can start with '...'
 func (p *Parser) fixParams(list []ast.Node) []ast.Node {
 	n := len(list)
-	if n <= 1 {
+	if n == 0 {
 		return list
+	} else if n == 1 {
+		field, ok := list[0].(*ast.Field)
+		if !ok {
+			// must be a Bad node - should not happen
+			return list
+		} else if field.Type == nil {
+			return splitFieldNames(field)
+		}
 	}
-	lastHasName := false
-	othersNameCount := 0
+	var haveNamed, haveUnnamed bool
 	for i, node := range list {
 		field, ok := node.(*ast.Field)
 		if !ok {
 			// must be a Bad node - should not happen
 			return list
 		}
-		// only the last field can contain "..." in its type
+		if field.Type == nil {
+			// field has no type => its name (there must be only one!) is actually the type
+			if field.Names != nil {
+				names := field.Names.Nodes
+				if len(names) == 1 {
+					field.Type = names[0]
+					field.Names = nil
+					haveUnnamed = true
+					continue
+				}
+			}
+			list = append(list, p.makeBad(errParamsNamedUnnamed))
+			return list
+		}
+		if field.Names != nil {
+			haveNamed = true
+		} else {
+			haveUnnamed = true
+		}
 		if i+1 < n && field.Type.Op() == token.ELLIPSIS {
+			// only last field's type can start with '...'
 			field.Type = p.makeBadNode(field.Type, errParamNonFinalEllipsis)
 			return list
 		}
-		if field.Names == nil {
-			continue
-		} else if i == n-1 {
-			lastHasName = true
-		} else {
-			othersNameCount++
-		}
 	}
-	if !lastHasName {
-		// last field is unnamed => others must be unnamed too
-		if othersNameCount != 0 {
-			list = append(list, p.makeBad(errParamsNamedUnnamed))
-		}
-	} else if othersNameCount != n-1 {
-		// last fiels has name => merge the unnamed ones
-		var names []ast.Node
-		n = 0
-		for _, node := range list {
-			field := node.(*ast.Field)
-			if field.Names == nil {
-				// field.Type is actually the name: check that it's
-				// an unqualified identifier, then save it in accumulated names
-				name := field.Type
-				if name.Op() != token.IDENT {
-					name = p.makeBadNode(name, token.IDENT)
-				}
-				names = append(names, name)
-				continue
-			}
-			// merge the accumulated names into the current field
-			field.Names.Nodes = append(names, field.Names.Nodes...)
-			names = nil
-			list[n] = field
-			n++
-		}
-		list = list[0:n]
+	if haveNamed && haveUnnamed {
+		list = append(list, p.makeBad(errParamsNamedUnnamed))
 	}
-	if field := list[n-1].(*ast.Field); field.Type.Op() == token.ELLIPSIS {
-		// if the last field contains "..." in its type
-		// then it must have at most one name
-		if names := field.Names; names != nil && len(names.Nodes) > 1 {
-			field.Type = p.makeBadNode(field.Type, errParamNonFinalEllipsis)
+	return list
+}
+
+// only a single field with one or more names but no type => all names are actually types
+func splitFieldNames(field *ast.Field) []ast.Node {
+	list := field.Names.Nodes
+	field.Names = nil
+	for i, elem := range list {
+		pos := elem.Pos()
+		list[i] = &ast.Field{
+			Atom: ast.Atom{Tok: token.FIELD, TokPos: pos},
+			Type: elem,
 		}
 	}
 	return list

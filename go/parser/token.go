@@ -20,7 +20,9 @@ import (
 
 func isAssign(tok token.Token) bool {
 	switch tok {
-	case token.ASSIGN, token.DEFINE:
+	case token.ASSIGN, token.DEFINE, token.ADD_ASSIGN, token.SUB_ASSIGN, token.MUL_ASSIGN,
+		token.QUO_ASSIGN, token.REM_ASSIGN, token.AND_ASSIGN, token.OR_ASSIGN, token.XOR_ASSIGN,
+		token.SHL_ASSIGN, token.SHR_ASSIGN, token.AND_NOT_ASSIGN:
 		return true
 	default:
 		return false
@@ -36,6 +38,15 @@ func isDecl(tok token.Token) bool {
 	}
 }
 
+func isEnter(tok token.Token) bool {
+	switch tok {
+	case token.LPAREN, token.LBRACK, token.LBRACE:
+		return true
+	default:
+		return false
+	}
+}
+
 func isLeave(tok token.Token) bool {
 	switch tok {
 	case token.ILLEGAL, token.EOF, token.RPAREN, token.RBRACK, token.RBRACE:
@@ -45,10 +56,21 @@ func isLeave(tok token.Token) bool {
 	}
 }
 
-// return true if tok introduces a simple statement instead of an expression
+// return true if Node.Op() == tok indicates a simple statement rather than an expression
 func isSimpleStmt(tok token.Token) bool {
 	switch tok {
-	case token.INC, token.DEC, token.ASSIGN, token.DEFINE, token.ARROW:
+	case token.INC, token.DEC, token.ARROW:
+		return true
+	default:
+		return isAssign(tok)
+	}
+}
+
+// return true if tok may introduce a type
+func isTypeStart(tok token.Token) bool {
+	switch tok {
+	case token.IDENT, token.MUL, token.ARROW, token.LPAREN, token.LBRACK,
+		token.CHAN, token.FUNC, token.INTERFACE, token.MAP, token.STRUCT:
 		return true
 	default:
 		return false

@@ -18,12 +18,13 @@ import (
 	"testing"
 )
 
-type StringList interface {
+type ErrorList interface {
 	Len() int
-	At(int) string
+	String(int) string
+	Error(int) error
 }
 
-func CompareErrorsAny(t *testing.T, in string, actual StringList, expected_any interface{}) {
+func CompareErrorsAny(t *testing.T, in string, actual ErrorList, expected_any interface{}) {
 	var expected []string
 	switch expected_err := expected_any.(type) {
 	case string:
@@ -35,7 +36,7 @@ func CompareErrorsAny(t *testing.T, in string, actual StringList, expected_any i
 	CompareErrors(t, in, actual, expected)
 }
 
-func CompareErrors(t *testing.T, in string, actual StringList, expected []string) {
+func CompareErrors(t *testing.T, in string, actual ErrorList, expected []string) {
 	actual_n, expected_n := actual.Len(), len(expected)
 	if actual_n != expected_n {
 		t.Errorf("scan %q returned %d errors, expecting %d", in, actual_n, expected_n)
@@ -43,20 +44,25 @@ func CompareErrors(t *testing.T, in string, actual StringList, expected []string
 	n := max2(actual_n, expected_n)
 	for i := 0; i < n; i++ {
 		var actual_i, expected_i string
+		var err_i error
 		if i < actual_n {
-			actual_i = actual.At(i)
+			actual_i = actual.String(i)
+			err_i = actual.Error(i)
 		}
 		if i < expected_n {
 			expected_i = expected[i]
 		}
-		CompareError(t, in, i, actual_i, expected_i)
+		CompareError(t, in, i, err_i, actual_i, expected_i)
 	}
 }
 
-func CompareError(t *testing.T, in string, i int, actual_msg string, expected_msg string) {
+func CompareError(t *testing.T, in string, i int, actual_err error, actual_msg string, expected_msg string) {
 	if actual_msg != expected_msg {
-		t.Errorf("scan %q returned different %d-th error than expected:\n\t%v\nexpecting instead error:\n\t%v",
-			in, i, actual_msg, expected_msg)
+		t.Errorf("scan %q returned different %d-th error than expected:\n"+
+			"\t%v\n"+
+			"with error message             : %v\n"+
+			"expecting instead error message: %v\n\n",
+			in, i, actual_err, actual_msg, expected_msg)
 	}
 }
 

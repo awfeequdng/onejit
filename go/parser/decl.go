@@ -71,11 +71,11 @@ func (p *Parser) parseAnySpecList(parseSpec func(p *Parser) ast.Node) (list []as
 func (p *Parser) parseValueSpec() ast.Node {
 	pos := p.pos()
 	comment := p.consumeComment()
-	identList := p.parseIdentList()
+	identList := p.parseIdentList(nil)
 	var typ ast.Node
 	var exprList *ast.List
 	if !isLeave(p.tok()) {
-		if p.tok() != token.ASSIGN {
+		if p.tok() != token.ASSIGN && p.tok() != token.SEMICOLON && !isLeave(p.tok()) {
 			typ = p.parseType()
 		}
 		if p.tok() == token.ASSIGN {
@@ -98,13 +98,13 @@ func (p *Parser) parseValueSpec() ast.Node {
 func (p *Parser) parseImportSpec() ast.Node {
 	pos := p.pos()
 	var alias, path ast.Node
-	if p.tok() == token.IDENT {
-		alias = p.parseAtom(token.IDENT)
+	if tok := p.tok(); tok == token.IDENT || tok == token.PERIOD {
+		alias = p.parseAtom(tok)
 	}
 	if p.tok() == token.STRING {
 		path = p.parseAtom(token.STRING)
 	} else {
-		path = p.makeBad(errExpectingString)
+		path = p.parseBad(errExpectingString)
 	}
 	return &ast.List{
 		Atom: ast.Atom{

@@ -61,7 +61,7 @@ func (test *SingleTest) expect(t *testing.T, s *Scanner) {
 	expected := test.Out
 
 	compareItem(t, test.In, 0, actual, expected)
-	testutil.CompareErrorsAny(t, test.In, stringList{s.Errors()}, test.Err)
+	testutil.CompareErrorsAny(t, test.In, errorList{s.Errors()}, test.Err)
 }
 
 // --------------------------- MultiTest* --------------------------------------
@@ -93,7 +93,7 @@ func (test *MultiTest) expect(t *testing.T, s *Scanner) {
 	expected := test.Out
 
 	compareItems(t, test.In, actual, expected)
-	testutil.CompareErrorsAny(t, test.In, stringList{s.Errors()}, test.Err)
+	testutil.CompareErrorsAny(t, test.In, errorList{s.Errors()}, test.Err)
 }
 
 // --------------------------- item --------------------------------------------

@@ -76,8 +76,7 @@ func (p *Parser) parseFieldDecl() *ast.Field {
 		case token.COMMA:
 			// head is first name, parse the others
 			p.next() // skip ','
-			names = p.parseIdentList()
-			names.Nodes = append([]ast.Node{head}, names.Nodes...)
+			names = p.parseIdentList(head)
 		default:
 			// head is the only name
 			names = p.makeList()
