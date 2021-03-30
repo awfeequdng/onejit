@@ -31,8 +31,24 @@ func (v *ValueSpec) Len() int {
 	return 3
 }
 
-func (v *ValueSpec) At(i int) Node {
-	return choose3(i, v.Names, v.Type, v.Values)
+func (v *ValueSpec) At(i int) (child Node) {
+	// cannot use choose3() here: assigning a nil pointer to an interface
+	// creates a "half-nil" interface
+	switch i {
+	case 0:
+		if node := v.Names; node != nil {
+			child = node
+		}
+	case 1:
+		child = v.Type
+	case 2:
+		if node := v.Values; node != nil {
+			child = node
+		}
+	default:
+		outOfRange()
+	}
+	return child
 }
 
 func (v *ValueSpec) End() token.Pos {

@@ -17,12 +17,23 @@ package parser
 import (
 	"go/build"
 	"io"
+	"strings"
 	"testing"
 
 	"github.com/cosmos72/onejit/go/scanner"
 	"github.com/cosmos72/onejit/go/testutil"
 	"github.com/cosmos72/onejit/go/token"
 )
+
+func TestBuiltinFunctions(t *testing.T) {
+	s := &scanner.Scanner{}
+	p := &Parser{}
+
+	var reader strings.Reader
+	reader.Reset("func append(slice []Type, elems ...Type) []Type\nfunc copy(dst, src []Type) int")
+
+	parseFile(t, s, p, &reader, "parse_string")
+}
 
 func disabled_TestGoRootFiles(t *testing.T) {
 	s := &scanner.Scanner{}

@@ -2,7 +2,7 @@
  * Copyright (C) 2021 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
- *     License, v. 2.0. If a copy of the MPL was not distributed with this
+ *     License, g. 2.0. If a copy of the MPL was not distributed with this
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
@@ -30,8 +30,20 @@ func (g *GenericType) Len() int {
 	return 2
 }
 
-func (g *GenericType) At(i int) Node {
-	return choose2(i, g.Params, g.Type)
+func (g *GenericType) At(i int) (child Node) {
+	// cannot use choose2() here: assigning a nil pointer to an interface
+	// creates a "half-nil" interface
+	switch i {
+	case 0:
+		if node := g.Params; node != nil {
+			child = node
+		}
+	case 1:
+		child = g.Type
+	default:
+		outOfRange()
+	}
+	return child
 }
 
 func (g *GenericType) End() token.Pos {

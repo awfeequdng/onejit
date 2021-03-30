@@ -77,6 +77,11 @@ func isTypeStart(tok token.Token) bool {
 	}
 }
 
+// return true if tok may introduce a type or '... type'
+func isTypeStartOrEllipsis(tok token.Token) bool {
+	return tok == token.ELLIPSIS || isTypeStart(tok)
+}
+
 func isUnary(tok token.Token) bool {
 	switch tok {
 	case token.ADD, token.SUB, token.MUL, token.AND, token.XOR, token.ARROW, token.NOT:

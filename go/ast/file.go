@@ -31,8 +31,26 @@ func (f *File) Len() int {
 	return 3
 }
 
-func (f *File) At(i int) Node {
-	return choose3(i, f.Package, f.Imports, f.Decls)
+func (f *File) At(i int) (child Node) {
+	// cannot use choose3() here: assigning a nil pointer to an interface
+	// creates a "half-nil" interface
+	switch i {
+	case 0:
+		if node := f.Package; node != nil {
+			child = node
+		}
+	case 1:
+		if node := f.Imports; node != nil {
+			child = node
+		}
+	case 2:
+		if node := f.Decls; node != nil {
+			child = node
+		}
+	default:
+		outOfRange()
+	}
+	return child
 }
 
 func (f *File) End() token.Pos {

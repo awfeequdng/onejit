@@ -30,8 +30,22 @@ func (f *FuncType) Len() int {
 	return 2
 }
 
-func (f *FuncType) At(i int) Node {
-	return choose2(i, f.Params, f.Results)
+func (f *FuncType) At(i int) (child Node) {
+	// cannot use choose2() here: assigning a nil pointer to an interface
+	// creates a "half-nil" interface
+	switch i {
+	case 0:
+		if node := f.Params; node != nil {
+			child = node
+		}
+	case 1:
+		if node := f.Results; node != nil {
+			child = node
+		}
+	default:
+		outOfRange()
+	}
+	return child
 }
 
 func (f *FuncType) End() token.Pos {

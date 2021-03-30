@@ -43,24 +43,30 @@ func (p *Parser) Init(s *scanner.Scanner, mode Mode) {
 	p.unread0 = ast.Atom{}
 	p.mode = mode
 	p.errors = s.Errors()
+
+	p.next()
 }
 
 // parse a single declaration, statement or expression
 func (p *Parser) Parse() (node ast.Node) {
-	tok := p.next()
+	tok := p.tok()
 	switch tok {
+	case token.EOF:
+		node = p.parseAtom(tok)
 	case token.PACKAGE:
 		node = p.parsePackage()
 	case token.IMPORT:
 		node = p.parseImport()
-	case token.EOF:
-		node = p.parseAtom(tok)
+	case token.SEMICOLON:
 	default:
 		if isDecl(tok) {
 			node = p.ParseTopLevelDecl()
 		} else {
 			node = p.parseStmt(allowCompositeLit)
 		}
+	}
+	if p.tok() == token.SEMICOLON {
+		p.next()
 	}
 	return node
 }

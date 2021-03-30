@@ -19,6 +19,7 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
+// parse a top-level declaration. does NOT consume the following ';' if present
 func (p *Parser) ParseTopLevelDecl() (node ast.Node) {
 	switch p.tok() {
 	case token.CONST, token.VAR:
@@ -80,7 +81,7 @@ func (p *Parser) parseValueSpec() ast.Node {
 		}
 		if p.tok() == token.ASSIGN {
 			p.next() // skip '='
-			exprList = p.parseExprList(nil, noEllipsis)
+			exprList = p.parseExprList(nil, allowCompositeLit)
 		}
 	}
 	return &ast.ValueSpec{

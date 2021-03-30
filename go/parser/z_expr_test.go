@@ -87,6 +87,13 @@ func TestDeclVarTypedInit(t *testing.T) {
 		` (EXPRS (IDENT "e2"))))`) // expr list
 }
 
+func TestDeclVarTypedInitCompositeLit(t *testing.T) {
+	p, _ := makeParser(`var x typ = typ{a:1, b:2}`)
+	compareNode(t, p.Parse(), `(var `+
+		`(VALUE_SPEC (NAMES (IDENT "x")) (IDENT "typ")`+
+		` (EXPRS (COMPOSITE_LIT (IDENT "typ") (KEY_VALUE (IDENT "a") (INT "1")) (KEY_VALUE (IDENT "b") (INT "2"))))))`)
+}
+
 func TestDeclType(t *testing.T) {
 	p, _ := makeParser("type ( Int int\n Rune rune )")
 	compareNode(t, p.Parse(), `(type`+
@@ -97,6 +104,16 @@ func TestDeclType(t *testing.T) {
 func TestDeclTypeAlias(t *testing.T) {
 	p, _ := makeParser("type Byte = byte")
 	compareNode(t, p.Parse(), `(type (= (IDENT "Byte") (IDENT "byte")))`)
+}
+
+func TestDeclTypeArray(t *testing.T) {
+	p, _ := makeParser("type Vec [7]uintptr")
+	compareNode(t, p.Parse(), `(type (:= (IDENT "Vec") (ARRAY (INT "7") (IDENT "uintptr"))))`)
+}
+
+func TestDeclTypeSlice(t *testing.T) {
+	p, _ := makeParser("type Slice []complex64")
+	compareNode(t, p.Parse(), `(type (:= (IDENT "Slice") (ARRAY nil (IDENT "complex64"))))`)
 }
 
 func TestDeclTypeStruct(t *testing.T) {
@@ -196,7 +213,7 @@ func TestDeclFuncBad2(t *testing.T) {
 	p, _ := makeParser(`func bad2(a +int) { } `)
 	compareNode(t, p.Parse(), `(func nil (IDENT "bad2") (func `+
 		`(PARAMS`+
-		` (FIELD (NAMES (IDENT "a")) (Bad (+)))`+
+		` (FIELD nil (IDENT "a")) (Bad (+))`+
 		` (Bad (IDENT "int"))) `+
 		`nil) `+ // results
 		`(BLOCK))`)
@@ -222,12 +239,43 @@ func TestDeclFuncSlice(t *testing.T) {
 		`(BLOCK))`)
 }
 
-func TestDeclFuncResultIsFunc(t *testing.T) {
+func TestDeclFuncArgGeneric(t *testing.T) {
+	p, _ := makeParser("func tostring(pair[int,uint]) { }")
+	compareNode(t, p.Parse(), `(func nil (IDENT "tostring") `+
+		`(func`+
+		` (PARAMS (FIELD nil (INDEX (IDENT "pair") (IDENT "int") (IDENT "uint"))))`+
+		` nil) `+
+		`(BLOCK))`)
+}
+
+func TestDeclFuncArgIsFunc(t *testing.T) {
 	p, _ := makeParser("func foo(func(), error) { }")
 	compareNode(t, p.Parse(), `(func nil (IDENT "foo") `+
 		`(func`+
 		` (PARAMS (FIELD nil (func (PARAMS) nil)) (FIELD nil (IDENT "error")))`+
 		` nil) `+
+		`(BLOCK))`)
+}
+
+func TestDeclFuncResultIsFunc(t *testing.T) {
+	p, _ := makeParser("func foo(error) func() { }")
+	compareNode(t, p.Parse(), `(func nil (IDENT "foo") `+
+		`(func`+
+		` (PARAMS (FIELD nil (IDENT "error")))`+
+		` (RESULTS (FIELD nil (func (PARAMS) nil)))) `+
+		`(BLOCK))`)
+}
+
+func TestDeclMethodResults(t *testing.T) {
+	p, _ := makeParser(`func (p *Parser) fixParams() (a, b.c, d) { } `)
+	compareNode(t, p.Parse(), `(func `+
+		`(PARAMS (FIELD (NAMES (IDENT "p")) (* (IDENT "Parser")))) `+ // receiver
+		`(IDENT "fixParams") `+ // name
+		`(func (PARAMS) `+ // params
+		`(RESULTS`+
+		` (FIELD nil (IDENT "a"))`+
+		` (FIELD nil (. (IDENT "b") (IDENT "c")))`+
+		` (FIELD nil (IDENT "d")))) `+
 		`(BLOCK))`)
 }
 

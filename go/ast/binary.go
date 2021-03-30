@@ -39,15 +39,7 @@ func (b *Binary) Len() int {
 }
 
 func (b *Binary) At(i int) (ret Node) {
-	switch i {
-	case 0:
-		ret = b.X
-	case 1:
-		ret = b.Y
-	default:
-		ret = outOfRange()
-	}
-	return ret
+	return choose2(i, b.X, b.Y)
 }
 
 func (b *Binary) End() (pos token.Pos) {

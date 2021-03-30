@@ -34,11 +34,26 @@ func (f *Field) Len() int {
 	return 3
 }
 
-func (f *Field) At(i int) Node {
-	if i == 2 && f.Tag == nil {
-		return outOfRange()
+func (f *Field) At(i int) (child Node) {
+	// cannot use choose3() here: assigning a nil pointer to an interface
+	// creates a "half-nil" interface
+	switch i {
+	case 0:
+		if node := f.Names; node != nil {
+			child = node
+		}
+	case 1:
+		child = f.Type
+	case 2:
+		if node := f.Tag; node != nil {
+			child = node
+		} else {
+			outOfRange()
+		}
+	default:
+		outOfRange()
 	}
-	return choose3(i, f.Names, f.Type, f.Tag)
+	return child
 }
 
 func (f *Field) End() token.Pos {
