@@ -481,7 +481,17 @@ func TestStmtForRange(t *testing.T) {
 		`(BLOCK))`)
 }
 
-func TestStmtIf(t *testing.T) {
+func TestStmtIfCond(t *testing.T) {
+	p, _ := makeParser(`if cond { }`)
+	compareNode(t, p.Parse(), `(if nil (IDENT "cond") (BLOCK) nil)`)
+}
+
+func TestStmtIfCondIsChannel(t *testing.T) {
+	p, _ := makeParser(`if <-cond { }`)
+	compareNode(t, p.Parse(), `(if nil (<- (IDENT "cond")) (BLOCK) nil)`)
+}
+
+func TestStmtIfInitCond(t *testing.T) {
 	p, _ := makeParser(`if init; cond { b } else if c { d }`)
 	compareNode(t, p.Parse(), `(if (IDENT "init") (IDENT "cond") (BLOCK (IDENT "b"))`+
 		` (if nil (IDENT "c") (BLOCK (IDENT "d")) nil))`)

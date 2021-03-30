@@ -15,6 +15,7 @@
 package parser
 
 import (
+	"github.com/cosmos72/onejit/go/ast"
 	"github.com/cosmos72/onejit/go/token"
 )
 
@@ -56,11 +57,15 @@ func isLeave(tok token.Token) bool {
 	}
 }
 
-// return true if Node.Op() == tok indicates a simple statement rather than an expression
-func isSimpleStmt(tok token.Token) bool {
-	switch tok {
-	case token.INC, token.DEC, token.ARROW:
+// return true if node is a simple statement rather than an expression
+func isSimpleStmt(node ast.Node) bool {
+	switch tok := node.Op(); tok {
+	case token.INC, token.DEC:
 		return true
+	case token.ARROW:
+		// (<- x) is a receive expression
+		// (<- x y) is a send statement
+		return node.Len() == 2
 	default:
 		return isAssign(tok)
 	}

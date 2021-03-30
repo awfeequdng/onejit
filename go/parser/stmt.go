@@ -211,7 +211,7 @@ func (p *Parser) parseFor() *ast.List {
 			nodes[2] = p.parseBad(token.SEMICOLON)
 		}
 	} else if init != nil {
-		if isSimpleStmt(init.Op()) {
+		if isSimpleStmt(init) {
 			init = p.makeBadNode(init, errExpectingExpr)
 		}
 		nodes[1] = init
@@ -236,7 +236,7 @@ func (p *Parser) parseIf() *ast.List {
 		nodes[0] = init
 		nodes[1] = p.parseExprOrType(token.LowestPrec, noCompositeLit)
 	} else {
-		if isSimpleStmt(init.Op()) {
+		if isSimpleStmt(init) {
 			init = p.makeBadNode(init, errExpectingExpr)
 		}
 		nodes[1] = init
@@ -322,7 +322,7 @@ func (p *Parser) parseSwitch() *ast.List {
 			}
 		} else {
 			// only one statement before '{'
-			if isSimpleStmt(init.Op()) {
+			if isSimpleStmt(init) {
 				if isTypeSwitchStmt(init) {
 					list.Tok = token.TYPESWITCH
 				} else {
