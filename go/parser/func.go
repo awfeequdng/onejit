@@ -88,7 +88,7 @@ func (p *Parser) parseParams(paramsOrResults token.Token) *ast.List {
 		}
 	}
 	nodes = p.leave(nodes, token.RPAREN)
-	list.Nodes = p.fixParams(nodes)
+	list.Nodes = p.fixParamDecls(nodes)
 	return list
 }
 
@@ -100,10 +100,13 @@ func (p *Parser) parseParamDecl() *ast.Field {
 	// of a qualified identifier or a generic type instantiation
 	expr := p.parseTypeMaybeEllipsis()
 	var name, typ ast.Node
-	if expr.Op() == token.IDENT && isTypeStartOrEllipsis(p.tok()) {
+	if isTypeStartOrEllipsis(p.tok()) {
 		// identifier followed by its type
 		name = expr
 		typ = p.parseTypeMaybeEllipsis()
+		if name.Op() != token.IDENT {
+			name, typ = p.fixParamDecl(name, typ)
+		}
 	} else {
 		// assume expr is a type. if needed, fixParams() will move it to a name
 		typ = expr
@@ -138,10 +141,36 @@ func (p *Parser) parseResultOrNil() *ast.List {
 	}
 }
 
+/**
+ * there is an ambiguity parsing param declaration:
+ * 'a[expr]b' should be parsed as name = 'a' and type = '[expr]b'
+ * but expr may be arbitrarily complex => not enough lookahead
+ * to distinguish from generic type instantiation 'a[expr],' or 'a[expr])'
+ *
+ * so it is currently parsed as a generic type instantiation
+ * i.e. name = 'a[expr]' and type = 'b'
+ *
+ * fixParamDecl() fixes that
+ */
+func (p *Parser) fixParamDecl(name, typ ast.Node) (ast.Node, ast.Node) {
+	if name.Op() == token.INDEX && name.Len() == 2 {
+		index := name.At(1)
+		name = name.At(0)
+		typ = &ast.List{
+			Atom:  ast.Atom{Tok: token.ARRAY, TokPos: index.Pos()},
+			Nodes: []ast.Node{index, typ},
+		}
+	}
+	if name.Op() != token.IDENT {
+		name = p.makeBadNode(name, errExpectingIdent)
+	}
+	return name, typ
+}
+
 // parseParamDecl() above always stores a type in each field, and at most one name.
 // if some fields have no name, we may need to change their type to a name
 // and merge consecutive names.
-func (p *Parser) fixParams(list []ast.Node) []ast.Node {
+func (p *Parser) fixParamDecls(list []ast.Node) []ast.Node {
 	n := len(list)
 	if n <= 1 {
 		return list

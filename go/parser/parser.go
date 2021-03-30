@@ -160,27 +160,20 @@ func (p *Parser) makeAtom(tok token.Token) *ast.Atom {
 }
 
 func (p *Parser) makeBad(msg interface{}) *ast.Bad {
-	err := p.error(msg)
 	tok := p.tok()
-	bad := &ast.Bad{
+	return &ast.Bad{
 		Atom: ast.Atom{Tok: tok, TokPos: p.pos()},
 		Node: p.makeAtom(tok),
-		Err:  err,
+		Err:  p.error(msg),
 	}
-	p.curr.Comment = nil
-	return bad
 }
 
 func (p *Parser) makeBadNode(x ast.Node, msg interface{}) *ast.Bad {
-	bad := p.makeBad(msg)
-	if tok, ok := msg.(token.Token); ok {
-		bad.Tok = tok
-	} else {
-		bad.Tok = x.Op()
+	return &ast.Bad{
+		Atom: ast.Atom{Tok: x.Op(), TokPos: p.pos()},
+		Node: x,
+		Err:  p.error(msg),
 	}
-	bad.TokPos = x.Pos()
-	bad.Node = x
-	return bad
 }
 
 func (p *Parser) makeBinary() (binary *ast.Binary) {

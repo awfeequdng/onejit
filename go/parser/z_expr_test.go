@@ -228,7 +228,18 @@ func TestDeclFuncEllipsis(t *testing.T) {
 		`(BLOCK))`)
 }
 
-func TestDeclFuncSlice(t *testing.T) {
+func TestDeclFuncArgIsArray(t *testing.T) {
+	// very tricky, 'args[len]' may also be a generic type instantiation
+	// => calls Parser.fixParamDecl() to correct
+	p, _ := makeParser("func tostring(args[len]int) { }")
+	compareNode(t, p.Parse(), `(func nil (IDENT "tostring") `+
+		`(func`+
+		` (PARAMS (FIELD (NAMES (IDENT "args")) (ARRAY (IDENT "len") (IDENT "int"))))`+
+		` nil) `+
+		`(BLOCK))`)
+}
+
+func TestDeclFuncArgIsSlice(t *testing.T) {
 	// tricky, 'args[' may also start a generic type instantiation
 	// => calls Parser.unread() to backtrack
 	p, _ := makeParser("func tostring(args []int) { }")
@@ -239,7 +250,7 @@ func TestDeclFuncSlice(t *testing.T) {
 		`(BLOCK))`)
 }
 
-func TestDeclFuncArgGeneric(t *testing.T) {
+func TestDeclFuncArgIsGeneric(t *testing.T) {
 	p, _ := makeParser("func tostring(pair[int,uint]) { }")
 	compareNode(t, p.Parse(), `(func nil (IDENT "tostring") `+
 		`(func`+

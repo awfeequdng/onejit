@@ -48,15 +48,17 @@ func VisitDirRecurse(t *testing.T, visit Visit, dirname string) bool {
 	}
 	sortInfo(info)
 	for _, entry := range info {
-		name := path.Join(dirname, entry.Name())
-		if entry.IsDir() {
-			if !VisitDirRecurse(t, visit, name) {
+		name := entry.Name()
+		filename := path.Join(dirname, name)
+		if len(name) > 3 && name[len(name)-3:] == ".go" {
+			// skip directories named '*.go'
+			if entry.Mode().IsRegular() {
+				VisitFile(t, visit, filename)
+			}
+		} else if entry.IsDir() {
+			if !VisitDirRecurse(t, visit, filename) {
 				return false
 			}
-		} else if entry.Mode().IsRegular() &&
-			len(name) > 3 && name[len(name)-3:] == ".go" {
-
-			VisitFile(t, visit, name)
 		}
 	}
 	return true

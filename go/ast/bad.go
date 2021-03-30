@@ -62,9 +62,7 @@ func (b *Bad) Format(out fmt.State, verb rune) {
 		} else {
 			fmt.Fprintf(out, "(Bad %v %v)", b.Tok, b.Lit)
 		}
-	} else if b.Tok == b.Node.Op() {
-		fmt.Fprintf(out, "(Bad %v)", b.Node)
 	} else {
-		fmt.Fprintf(out, "(Bad %v %v)", b.Tok, b.Node)
+		fmt.Fprintf(out, "(Bad %v)", b.Node)
 	}
 }
