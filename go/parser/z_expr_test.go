@@ -563,3 +563,14 @@ func TestTopPackage(t *testing.T) {
 	p, _ := makeParser(`package main`)
 	compareNode(t, p.Parse(), `(package (IDENT "main"))`)
 }
+
+func TestTricky1(t *testing.T) {
+	p, _ := makeParser(`channel <- *arr[typ{}.field]`)
+	compareNode(t, p.Parse(), `(<- (IDENT "channel") (* (INDEX (IDENT "arr") (. (COMPOSITE_LIT (IDENT "typ")) (IDENT "field")))))`)
+}
+
+func TestTricky2(t *testing.T) {
+	// 'x {' does not start a composite literal
+	p, _ := makeParser(`for ; ; channel <- x {	}`)
+	compareNode(t, p.Parse(), `(for nil nil (<- (IDENT "channel") (IDENT "x")) (BLOCK))`)
+}

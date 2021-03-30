@@ -110,7 +110,7 @@ func (p *Parser) parseSimpleStmt(flag exprFlag) ast.Node {
 		}
 		binary := p.parseBinary()
 		binary.X = node
-		binary.Y = p.ParseExpr()
+		binary.Y = p.parseExprOrType(token.LowestPrec, flag)
 		node = binary
 	case token.INC, token.DEC: // IncDecStmt
 		if n != 1 {
@@ -280,7 +280,7 @@ func (p *Parser) parseSelectCase() ast.Node {
 	list := p.parseList() // also skips 'case' or 'default'
 	var nodes []ast.Node
 	if tok == token.CASE {
-		node := p.parseSimpleStmt(noRange)
+		node := p.parseSimpleStmt(allowCompositeLit)
 		if !isSendOrRecvStmt(node) {
 			node = p.makeBadNode(node, errSelectCaseNotSendOrRecv)
 		}
