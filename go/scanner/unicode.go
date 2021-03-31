@@ -31,6 +31,7 @@ const (
 const runeBOF rune = -2     // beginning of file i.e. no rune was read yet
 const runeBOM rune = 0xfeff // byte order marker
 const runeEOF rune = -1     // end of file
+const runeTOO_MANY_ERRORS rune = -3
 
 func isSpace(ch rune) bool {
 	switch ch {

@@ -35,8 +35,8 @@ func TestBuiltinFunctions(t *testing.T) {
 	parseFile(t, s, p, &reader, "parse_string")
 }
 
-func TestGoRootFiles(t *testing.T) {
-	t.SkipNow()
+func TestParseGoRootFiles(t *testing.T) {
+	// t.SkipNow()
 	s := &scanner.Scanner{}
 	p := &Parser{}
 	visit := func(t *testing.T, in io.Reader, filename string) {

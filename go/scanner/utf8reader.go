@@ -66,8 +66,12 @@ func (u *utf8Reader) empty() bool {
 // read next rune and return it. also save it in u.ch
 func (u *utf8Reader) next() rune {
 	if u.unread != runeBOF {
-		u.ch = u.unread
-		u.unread = runeBOF
+		if u.unread == runeTOO_MANY_ERRORS {
+			u.ch = runeEOF
+		} else {
+			u.ch = u.unread
+			u.unread = runeBOF
+		}
 		return u.ch
 	}
 

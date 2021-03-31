@@ -76,13 +76,19 @@ var (
 	errRuneTooLong            = "more than one character in rune literal"
 )
 
+func (u *utf8Reader) error1(err *Error) {
+	u.errors = append(u.errors, err)
+	if len(u.errors) >= 10 {
+		u.unread = runeTOO_MANY_ERRORS
+	}
+}
+
 func (u *utf8Reader) error(msg string) bool {
 	file := u.file
-	err := &Error{
+	u.error1(&Error{
 		Pos: file.Position(file.Pos(u.pos)),
 		Msg: msg,
-	}
-	u.errors = append(u.errors, err)
+	})
 	return false
 }
 
@@ -94,4 +100,13 @@ func (s *Scanner) invalid(msg string) bool {
 	s.lit = s.getString()
 	s.next()
 	return s.error(msg)
+}
+
+func (s *Scanner) Error(pos token.Pos, msg string) *Error {
+	err := &Error{
+		Pos: s.file.Position(pos),
+		Msg: msg,
+	}
+	s.error1(err)
+	return err
 }

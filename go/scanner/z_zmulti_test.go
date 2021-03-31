@@ -58,7 +58,7 @@ func TestMulti(t *testing.T) {
 	v.run(t)
 }
 
-func TestGoRootFiles(t *testing.T) {
+func TestScanGoRootFiles(t *testing.T) {
 	s := &Scanner{}
 	visit := func(t *testing.T, in io.Reader, filename string) {
 		scanFile(t, s, in, filename)

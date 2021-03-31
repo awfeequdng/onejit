@@ -18,6 +18,7 @@ import (
 	"fmt"
 
 	"github.com/cosmos72/onejit/go/scanner"
+	"github.com/cosmos72/onejit/go/token"
 )
 
 type errText string
@@ -35,6 +36,7 @@ const (
 	errExpectingType                = "type"
 	errEmptyTypeParams              = errText("empty type parameter list")
 	errExpectedOneExpr              = errText("expected 1 expression")
+	errInvalidTypeSwitch            = errText("use of .(type) outside type switch")
 	errParamsNamedUnnamed           = errText("syntax error: mixed named and unnamed function parameters")
 	errParamNonFinalEllipsis        = errText("syntax error: cannot use ... with non-final parameter")
 	errSelectCaseNotSendOrRecv      = errText("select case must be send, receive or assign recv")
@@ -46,7 +48,7 @@ func (p *Parser) makeErrText(suffix string) errText {
 	return errText("syntax error: unexpected " + p.tok().String() + ", expecting " + suffix)
 }
 
-func (p *Parser) error(msg interface{}) *scanner.Error {
+func (p *Parser) error(pos token.Pos, msg interface{}) *scanner.Error {
 	var text errText
 	switch msg := msg.(type) {
 	case errText:
@@ -56,20 +58,16 @@ func (p *Parser) error(msg interface{}) *scanner.Error {
 	default:
 		text = p.makeErrText(fmt.Sprint(msg))
 	}
-	err := &scanner.Error{
-		Pos: p.scanner.Position(p.pos()),
-		Msg: string(text),
-	}
-	if p.errors == nil {
-		p.errors = &[]*scanner.Error{}
-	}
-	*p.errors = append(*p.errors, err)
-	return err
+	s := p.scanner
+	return s.Error(pos, string(text))
 }
 
+var dummyErrors []*scanner.Error
+
 func (p *Parser) Errors() *[]*scanner.Error {
-	if p.errors == nil {
-		p.errors = &[]*scanner.Error{}
+	if p.scanner != nil {
+		return p.scanner.Errors()
 	}
-	return p.errors
+	dummyErrors = nil
+	return &dummyErrors
 }

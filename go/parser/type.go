@@ -71,12 +71,12 @@ func (p *Parser) parseType() ast.Node {
 
 // parse a type.
 // if isTypeDecl is true and p.mode & Generics != 0,
-// then parse also any generic type declaration prefix '[T1 constraint1, T2 constraint2 ...]'
+// then also parse any generic type declaration prefix '[T1 constraint1, T2 constraint2 ...]'
 func (p *Parser) ParseType(isTypeDecl bool) (node ast.Node) {
 	switch p.tok() {
 	case token.IDENT:
 		node = p.parseQualifiedIdent()
-		if p.tok() == token.LBRACK {
+		if p.tok() == token.LBRACK && p.mode&Generics != 0 {
 			node = p.parseMaybeGenericInstantiation(node)
 		}
 	case token.LPAREN:
@@ -264,11 +264,7 @@ func (p *Parser) parseMaybeGenericInstantiation(typ ast.Node) ast.Node {
 	}
 	list := &ast.List{Atom: atom}
 	list.Tok = token.INDEX
-	nodes := []ast.Node{typ}
-	if p.mode&Generics == 0 {
-		nodes = append(nodes, p.makeBad(errGenerics))
-	}
-	nodes = p.parseTypeList(nodes)
+	nodes := p.parseTypeList([]ast.Node{typ})
 	nodes = p.leave(nodes, token.RBRACK)
 	list.Nodes = nodes
 	return list

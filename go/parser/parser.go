@@ -34,7 +34,6 @@ type Parser struct {
 	curr    ast.Atom
 	unread0 ast.Atom
 	mode    Mode
-	errors  *[]*scanner.Error
 }
 
 func (p *Parser) Init(s *scanner.Scanner, mode Mode) {
@@ -42,7 +41,6 @@ func (p *Parser) Init(s *scanner.Scanner, mode Mode) {
 	p.curr = ast.Atom{}
 	p.unread0 = ast.Atom{}
 	p.mode = mode
-	p.errors = s.Errors()
 
 	p.next()
 }
@@ -164,15 +162,15 @@ func (p *Parser) makeBad(msg interface{}) *ast.Bad {
 	return &ast.Bad{
 		Atom: ast.Atom{Tok: tok, TokPos: p.pos()},
 		Node: p.makeAtom(tok),
-		Err:  p.error(msg),
+		Err:  p.error(p.pos(), msg),
 	}
 }
 
 func (p *Parser) makeBadNode(x ast.Node, msg interface{}) *ast.Bad {
 	return &ast.Bad{
-		Atom: ast.Atom{Tok: x.Op(), TokPos: p.pos()},
+		Atom: ast.Atom{Tok: x.Op(), TokPos: x.Pos()},
 		Node: x,
-		Err:  p.error(msg),
+		Err:  p.error(x.Pos(), msg),
 	}
 }
 

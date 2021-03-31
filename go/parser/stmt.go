@@ -308,39 +308,28 @@ func isSendOrRecvStmt(node ast.Node) bool {
 }
 
 func (p *Parser) parseSwitch() *ast.List {
-	list := p.parseList() // also skips 'switch'
-	var init, expr ast.Node
-	if p.tok() != token.SEMICOLON && p.tok() != token.LBRACE {
-		init = p.parseSimpleStmt(allowTypeSwitch)
-		if p.tok() == token.SEMICOLON {
-			p.next() // skip ';'
-			if p.tok() != token.LBRACE {
-				expr = p.parseSimpleStmt(allowTypeSwitch)
-				if isTypeSwitchStmt(expr) {
-					list.Tok = token.TYPESWITCH
-				}
-			}
-		} else {
-			// only one statement before '{'
-			if isSimpleStmt(init) {
-				if isTypeSwitchStmt(init) {
-					list.Tok = token.TYPESWITCH
-				} else {
-					init = p.makeBadNode(init, errExpectingExpr)
-				}
-			}
-			expr = init
-			init = nil
-		}
+	list := p.parseList()                      // also skips 'switch'
+	init := p.parseSimpleStmt(allowTypeSwitch) // may be nil
+	var expr ast.Node
+	if p.tok() == token.SEMICOLON {
+		p.next()                                  // skip ';'
+		expr = p.parseSimpleStmt(allowTypeSwitch) // may be nil
+	} else {
+		// only one statement or expression before '{'
+		expr = init
+		init = nil
 	}
-	if init != nil && isTypeSwitchStmt(init) {
+	isTypeswitch1 := isTypeSwitchStmt(init)
+	isTypeswitch2 := isTypeSwitchStmt(expr)
+	if isTypeswitch1 {
+		init = p.makeBadNode(init, errInvalidTypeSwitch)
+	}
+	if isTypeswitch1 || isTypeswitch2 {
 		list.Tok = token.TYPESWITCH
-		if expr != nil {
-			expr = p.makeBadNode(init, token.LBRACE)
-		}
+	} else if isSimpleStmt(expr) {
+		expr = p.makeBadNode(expr, errExpectingExpr)
 	}
 	nodes := []ast.Node{init, expr}
-
 	nodes = p.enter(nodes, token.LBRACE)
 	for p.tok() == token.CASE || p.tok() == token.DEFAULT {
 		nodes = append(nodes, p.parseSwitchCase())
@@ -351,11 +340,13 @@ func (p *Parser) parseSwitch() *ast.List {
 }
 
 func isTypeSwitchStmt(node ast.Node) bool {
-	switch node.Op() {
-	case token.ASSIGN, token.DEFINE:
-		if node.Len() == 2 && node.At(1).Op() == token.EXPRS && node.At(1).Len() == 1 {
-			node = node.At(1).At(0)
-			return node.Op() == token.TYPE_ASSERT && node.Len() == 2 && node.At(1).Op() == token.TYPE
+	if node != nil {
+		switch node.Op() {
+		case token.ASSIGN, token.DEFINE:
+			if node.Len() == 2 && node.At(1).Op() == token.EXPRS && node.At(1).Len() == 1 {
+				node = node.At(1).At(0)
+				return node.Op() == token.TYPE_ASSERT && node.Len() == 2 && node.At(1).Op() == token.TYPE
+			}
 		}
 	}
 	return false
@@ -366,7 +357,7 @@ func (p *Parser) parseSwitchCase() ast.Node {
 	list := p.parseList() // also skips 'case' or 'default'
 	var nodes []ast.Node
 	if tok == token.CASE {
-		nodes = append(nodes, p.parseExprList(nil, noEllipsis))
+		nodes = append(nodes, p.parseExprList(nil, allowCompositeLit))
 	}
 	if p.tok() == token.COLON {
 		p.next() // skip ':'

@@ -146,7 +146,7 @@ func (p *Parser) parsePrimaryExpr(flag exprFlag) ast.Node {
 		case token.LBRACE:
 			op := node.Op()
 			// not really obvious from the specs
-			if op == token.ARRAY || op == token.MAP || flag&allowCompositeLit != 0 {
+			if op == token.ARRAY || op == token.MAP || op == token.STRUCT || flag&allowCompositeLit != 0 {
 				node = p.parseCompositeLit(node)
 			} else {
 				return node

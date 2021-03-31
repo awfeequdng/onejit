@@ -59,6 +59,9 @@ func isLeave(tok token.Token) bool {
 
 // return true if node is a simple statement rather than an expression
 func isSimpleStmt(node ast.Node) bool {
+	if node == nil {
+		return false
+	}
 	switch tok := node.Op(); tok {
 	case token.INC, token.DEC:
 		return true

@@ -142,7 +142,7 @@ func (p *Parser) parseResultOrNil() *ast.List {
 }
 
 /**
- * there is an ambiguity parsing param declaration:
+ * there is a parsing ambiguity in param declaration:
  * 'a[expr]b' should be parsed as name = 'a' and type = '[expr]b'
  * but expr may be arbitrarily complex => not enough lookahead
  * to distinguish from generic type instantiation 'a[expr],' or 'a[expr])'
@@ -175,8 +175,8 @@ func (p *Parser) fixParamDecls(list []ast.Node) []ast.Node {
 	if n <= 1 {
 		return list
 	}
-	var someHasName, lastHasName bool
 	nameCount := 0
+	var someHasName, lastHasName bool
 
 	for i, node := range list {
 		field, ok := node.(*ast.Field)
@@ -187,6 +187,7 @@ func (p *Parser) fixParamDecls(list []ast.Node) []ast.Node {
 		if i+1 < n && field.Type.Op() == token.ELLIPSIS {
 			// only last field's type can start with '...'
 			field.Type = p.makeBadNode(field.Type, errParamNonFinalEllipsis)
+			return list
 		}
 		if field.Names != nil {
 			nameCount++
@@ -212,10 +213,12 @@ func (p *Parser) fixParamDecls(list []ast.Node) []ast.Node {
 		field, ok := node.(*ast.Field)
 		if !ok {
 			// checked above, should not happen
+			list[dst] = field
+			dst++
 			continue
 		}
 		if field.Names == nil {
-			// field has no name => its type is actually a name to be merged
+			// field has no name => its type is actually a name to be accumulated
 			name := field.Type
 			if name.Op() != token.IDENT {
 				name = p.makeBadNode(name, errExpectingIdent)
