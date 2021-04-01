@@ -6,7 +6,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * functype.go
+ * func.go
  *
  *  Created on: Mar 23, 2021
  *      Author: Massimiliano Ghilardi

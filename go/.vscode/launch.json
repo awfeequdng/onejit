@@ -37,6 +37,16 @@
             "args": [
                 "-test.v"
             ]
-        }
+        },
+        {
+            "name": "test onejit/go/types",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/types",
+            "args": [
+                "-test.v"
+            ]
+        },
     ]
 }

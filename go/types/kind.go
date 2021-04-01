@@ -35,15 +35,15 @@ const (
 	Float64
 	Complex64
 	Complex128
-	Array
-	Chan
-	Func
-	Interface
-	Map
-	Ptr
-	Slice
+	ArrayKind
+	ChanKind
+	FuncKind
+	InterfaceKind
+	MapKind
+	PtrKind
+	SliceKind
 	String
-	Struct
+	StructKind
 	UnsafePointer
 
 	// types for untyped values
@@ -78,15 +78,15 @@ var kinds = [...]string{
 	Float64:        "float64",
 	Complex64:      "complex64",
 	Complex128:     "complex128",
-	Array:          "array",
-	Chan:           "chan",
-	Func:           "func",
-	Interface:      "interface",
-	Map:            "map",
-	Ptr:            "ptr",
-	Slice:          "slice",
+	ArrayKind:      "array",
+	ChanKind:       "chan",
+	FuncKind:       "func",
+	InterfaceKind:  "interface",
+	MapKind:        "map",
+	PtrKind:        "ptr",
+	SliceKind:      "slice",
 	String:         "string",
-	Struct:         "struct",
+	StructKind:     "struct",
 	UnsafePointer:  "unsafe.Pointer",
 	UntypedBool:    "untyped.Bool",
 	UntypedInt:     "untyped.Int",
