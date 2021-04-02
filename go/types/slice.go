@@ -49,14 +49,14 @@ func NewSlice(elem Type) *Slice {
 	}
 	t = &Slice{
 		rtype: Complete{
-			size:  3 * sizeOfInt,
-			flags: elem.common().flags & isComplete,
+			size:  3 * archSizeBytes,
+			flags: elem.common().flags & flagComplete,
 			kind:  SliceKind,
 			elem:  elem,
 			str:   "[]" + elem.String(),
 		},
 	}
-	t.rtype.underlying = t
+	t.rtype.typ = t
 	sliceMap[elem] = t
 	return t
 }

@@ -27,7 +27,7 @@ func (t *Basic) String() string {
 }
 
 func (t *Basic) Underlying() Type {
-	return t.rtype.underlying
+	return t
 }
 
 func (t *Basic) common() *Complete {
@@ -41,7 +41,7 @@ func (t *Basic) Kind() Kind {
 }
 
 func (t *Basic) Name() string {
-	return t.rtype.kind.String()
+	return t.rtype.str
 }
 
 func (t *Basic) Size() uint64 {
@@ -53,41 +53,41 @@ func newBasic(kind Kind, size uint64) *Basic {
 	t := &Basic{
 		rtype: Complete{
 			size:  size,
-			flags: isComplete,
+			flags: flagComplete,
 			kind:  kind,
 			str:   kind.String(),
 		},
 	}
-	t.rtype.underlying = t
+	t.rtype.typ = t
 	return t
 }
 
 var (
-	basicTypes0 = makeBasicTypes0()
-	basicTypes4 = makeBasicTypes(4, basicTypes0)
-	basicTypes8 = makeBasicTypes(8, basicTypes0)
+	basicTypes0  = makeBasicTypes0()
+	basicTypes32 = makeBasicTypes(4, basicTypes0)
+	basicTypes64 = makeBasicTypes(8, basicTypes0)
 )
 
-// return basic type for specified Kind and current sizeOfInt.
+// return basic type for specified Kind and current archSizeBits.
 func BasicType(kind Kind) *Basic {
-	v := basicTypes4
-	if sizeOfInt > 4 {
-		v = basicTypes8
+	v := basicTypes32
+	if archSizeBits > 32 {
+		v = basicTypes64
 	}
 	return v[kind]
 }
 
-// create and return a slice containing basic types for current sizeofInt.
+// create and return a slice containing basic types for current archSizeBits.
 // use Kind as index in returned slice.
 func BasicTypes() []*Basic {
-	v := basicTypes4
-	if sizeOfInt > 4 {
-		v = basicTypes8
+	v := basicTypes32
+	if archSizeBits > 32 {
+		v = basicTypes64
 	}
 	return append([]*Basic(nil), v...)
 }
 
-// create basic types that do not depend on sizeOfInt
+// create basic types that do not depend on archSizeBits
 func makeBasicTypes0() []*Basic {
 	return []*Basic{
 		Bool:       newBasic(Bool, 1),
@@ -107,12 +107,12 @@ func makeBasicTypes0() []*Basic {
 	}
 }
 
-// create basic types that depend on sizeOfInt
-func makeBasicTypes(size uint64, common []*Basic) []*Basic {
+// create basic types that depend on archSizeBits
+func makeBasicTypes(sizeOfInt uint64, common []*Basic) []*Basic {
 	ret := append([]*Basic(nil), common...)
-	ret[Int] = newBasic(Int, size)
-	ret[Uint] = newBasic(Uint, size)
-	ret[Uintptr] = newBasic(Uintptr, size)
-	ret[String] = newBasic(String, 2*size)
+	ret[Int] = newBasic(Int, sizeOfInt)
+	ret[Uint] = newBasic(Uint, sizeOfInt)
+	ret[Uintptr] = newBasic(Uintptr, sizeOfInt)
+	ret[String] = newBasic(String, 2*sizeOfInt)
 	return ret
 }

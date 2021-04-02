@@ -16,22 +16,24 @@ package types
 
 // similar in spirit to Go reflect.Type
 type Complete struct {
-	methods    *[]Method // nil if no methods
-	size       uint64    // in bytes. we also support compiling 64-bit code from 32-bit systems
-	flags      flags     // channel direction, variadic function
-	kind       Kind
-	underlying Type
-	extra      *extra   // array len, map's key type, function's param and result types, struct fields
-	elem       Type     // elem type of array, chan, map, ptr, slice
-	ptrTo      *Pointer // type of pointer to this type
-	str        string   // compute lazily?
+	methods *[]Method // nil if no methods
+	size    uint64    // in bytes. we also support compiling 64-bit code from 32-bit systems
+	flags   flags     // channel direction, variadic function
+	kind    Kind      // kind
+	typ     Type      // type, needed to convert Complete to Type
+	elem    Type      // elem type of array, chan, map, ptr, slice
+	extra   *extra    // array length, function parameters/results, map key Type, struct fields, named name and underlying
+	ptrTo   *Pointer  // type of pointer to this type
+	str     string    // compute lazily?
 }
 
 type extra struct {
-	n1, n2 uint64        // # of function parameters and results, or array length
-	types  []Type        // map's key type, or function parameters
-	fields []Field       // struct fields
-	qname  QualifiedName // used only by *Named
+	n1, n2     uint32  // # of function parameters and results, or array length
+	types      []Type  // function parameters and results, or map's key type
+	fields     []Field // struct fields
+	name       string
+	pkgPath    string
+	underlying Type
 }
 
 // *Complete should NOT implement Type
@@ -40,8 +42,18 @@ func (t *Complete) String() string {
 	return t.str
 }
 
+// convert *Complete to Type
+func (t *Complete) Type() Type {
+	return t.typ
+}
+
 func (t *Complete) Underlying() *Complete {
-	return t.underlying.common()
+	if t.extra != nil {
+		if u := t.extra.underlying; u != nil {
+			return u.common()
+		}
+	}
+	return t
 }
 
 // methods valid for any Kind
@@ -52,14 +64,16 @@ func (t *Complete) Kind() Kind {
 
 func (t *Complete) Name() string {
 	if t.extra != nil {
-		return t.extra.qname.Name
+		return t.extra.name
+	} else if isBasic(t.kind) {
+		return t.str
 	}
 	return ""
 }
 
 func (t *Complete) PkgPath() string {
 	if t.extra != nil {
-		return t.extra.qname.PkgPath
+		return t.extra.pkgPath
 	}
 	return ""
 }
@@ -81,7 +95,7 @@ func (t *Complete) Elem() *Complete {
 
 func (t *Complete) Len() uint64 {
 	if t.kind == ArrayKind {
-		return t.extra.n1
+		return uint64(t.extra.n1) | uint64(t.extra.n2)<<32
 	}
 	panic("Len of invalid type")
 }
@@ -90,7 +104,7 @@ func (t *Complete) Len() uint64 {
 
 func (t *Complete) IsVariadic() bool {
 	if t.kind == FuncKind {
-		return t.flags&isVariadic != 0
+		return t.flags&flagVariadic != 0
 	}
 	panic("IsVariadic of invalid type")
 }
@@ -143,8 +157,15 @@ func (t *Complete) NumMethod() int {
 	return len(*t.methods)
 }
 
-func (t *Complete) Method(i int) Method {
-	return (*t.methods)[i]
+func (t *Complete) Method(i int) CompleteMethod {
+	m := &(*t.methods)[i]
+	return CompleteMethod{
+		Address: m.Address,
+		Type:    m.Type.common(),
+		Name:    m.Name,
+		PkgPath: m.PkgPath,
+		Index:   m.Index,
+	}
 }
 
 // Struct-related methods
@@ -156,9 +177,18 @@ func (t *Complete) NumField() int {
 	panic("NumField of invalid type")
 }
 
-func (t *Complete) Field(i int) Field {
-	if t.kind == StructKind {
-		return t.extra.fields[i]
+func (t *Complete) Field(i int) CompleteField {
+	if t.kind != StructKind {
+		panic("Field of invalid type")
 	}
-	panic("Field of invalid type")
+	f := &t.extra.fields[i]
+	return CompleteField{
+		Type:     f.Type.common(),
+		Name:     f.Name,
+		PkgPath:  f.PkgPath,
+		Tag:      f.Tag,
+		Offset:   f.Offset,
+		Index:    f.Index,
+		Embedded: f.Embedded,
+	}
 }

@@ -60,13 +60,13 @@ func NewChan(dir ChanDir, elem Type) *Chan {
 	}
 	t = &Chan{
 		rtype: Complete{
-			size:  sizeOfInt,
-			flags: flags(dir) | elem.common().flags&isComplete,
+			size:  archSizeBytes,
+			flags: flags(dir) | elem.common().flags&flagComplete,
 			kind:  ChanKind,
 			elem:  elem,
 		},
 	}
-	t.rtype.underlying = t
+	t.rtype.typ = t
 	chanMap[key] = t
 	return t
 }

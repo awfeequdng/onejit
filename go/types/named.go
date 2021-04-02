@@ -6,7 +6,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * basic.go
+ * named.go
  *
  *  Created on: Apr 01, 2021
  *      Author: Massimiliano Ghilardi
@@ -14,14 +14,25 @@
 
 package types
 
-// TODO: duplicate Method, one struct has 'Type Type' and the other has 'Type *Complete'
+// returned by Complete.Method(int)
+type CompleteMethod struct {
+	Address uint64
+	Type    *Complete
+	Name    string
+	PkgPath string
+	Index   int
+}
+
+// returned by Named.Method(int)
 type Method struct {
 	Address uint64
 	Type    Type
-	QualifiedName
-	Index int
+	Name    string
+	PkgPath string
+	Index   int
 }
 
+// represents a named type
 type Named struct {
 	isNamed struct{} // occupies zero bytes
 	rtype   Complete
@@ -36,7 +47,7 @@ func (t *Named) String() string {
 
 // returns nil if SetUnderlying() was not invoked yet
 func (t *Named) Underlying() Type {
-	return t.rtype.underlying
+	return t.extra.underlying
 }
 
 func (t *Named) common() *Complete {
@@ -46,62 +57,59 @@ func (t *Named) common() *Complete {
 // *Named specific methods
 
 func (t *Named) Name() string {
-	return t.extra.qname.Name
+	return t.extra.name
 }
 
 func (t *Named) PkgPath() string {
-	return t.extra.qname.PkgPath
+	return t.extra.pkgPath
 }
 
+// Set underlying type of t to be the same as underlying type of u.
+// u can also be a *Named (and possibly incomplete) type:
+// its underlying type will be retrieved by CompleteTypes(t)
 func (t *Named) SetUnderlying(u Type) {
-	if t.rtype.underlying != nil {
+	if t.extra.underlying != nil {
 		panic("SetUnderlying invoked already")
 	} else if u == nil {
-		return
+		panic("SetUnderlying argument is nil")
 	}
-	u = u.Underlying()
-	if u == nil {
-		return
-	}
-	rt, ru := &t.rtype, u.common()
-	rt.size = ru.size
-	rt.flags = ru.flags
-	rt.kind = ru.kind
-	rt.underlying = u
-	if rux := ru.extra; rux != nil {
-		rtx := &t.extra
-		rtx.n1 = rux.n1
-		rtx.n2 = rux.n2
-		rtx.fields = rux.fields
-	}
+	u = traverseUnderlyingCheckLoop(t, u)
+	fillFromUnderlying(&t.rtype, u.common())
+
+	t.extra.underlying = u
 }
 
 // return number of declared methods.
 // Ignores methods from embedded fields
 func (t *Named) NumMethod() int {
-	return len(t.extra.fields)
+	if v := t.rtype.methods; v != nil {
+		return len(*v)
+	}
+	return 0
 }
 
 // return i-th declared method.
 // Ignores methods from embedded fields
-func (t *Named) Method(i int) Func {
-	field := &t.extra.fields[i]
-	return Func{
-		Address:       field.Offset, // hack
-		Type:          field.Type.(*Signature),
-		QualifiedName: field.QualifiedName,
-	}
+func (t *Named) Method(i int) Method {
+	return (*t.rtype.methods)[i]
 }
 
 // add a method. always appends to the list of methods,
 // even if another method with the same name already exists.
-func (t *Named) AddMethod(m *Func) {
-	fields := &t.extra.fields
-	*fields = append(*fields, Field{
-		Type:          m.Type,
-		QualifiedName: m.QualifiedName,
-		Offset:        m.Address, // hack
-	})
+func (t *Named) AddMethod(mtd *Method) {
+	_ = mtd.Type.(*Signature)
+
+	v := t.rtype.methods
+	if v == nil {
+		slice := make([]Method, 0, 1)
+		t.rtype.methods = &slice
+		v = &slice
+	}
+	count := len(*v)
+	// append method as-is
+	*v = append(*v, *mtd)
+	// then fix its copy
+	(*v)[count].Index = count
 }
 
 // create a new Named type
@@ -119,9 +127,40 @@ func NewNamed(name string, pkgPath string) *Named {
 			str:  qname,
 		},
 		extra: extra{
-			qname: QualifiedName{name, pkgPath},
+			name:    name,
+			pkgPath: pkgPath,
 		},
 	}
 	t.rtype.extra = &t.extra
 	return t
+}
+
+func traverseUnderlyingCheckLoop(t Type, u Type) Type {
+	next := u
+	for {
+		if t == next {
+			panic("SetUnderlying loops are not allowed")
+		}
+		u = next
+		next = u.Underlying()
+		if next == u || next == nil {
+			// for unnamed types, Type.Underlying() returns the receiver
+			break
+		}
+	}
+	return u
+}
+
+func fillFromUnderlying(r *Complete, u *Complete) {
+	r.size = u.size
+	r.flags = u.flags
+	r.kind = u.kind
+	r.elem = u.elem
+	if ux := u.extra; ux != nil {
+		rx := r.extra
+		rx.n1 = ux.n1
+		rx.n2 = ux.n2
+		rx.types = ux.types
+		rx.fields = ux.fields
+	}
 }

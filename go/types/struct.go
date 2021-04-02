@@ -16,10 +16,20 @@ package types
 
 import "strings"
 
-// TODO: duplicate Field, one struct has 'Type Type' and the other has 'Type *Complete'
+type CompleteField struct {
+	Type     *Complete
+	Name     string
+	PkgPath  string
+	Tag      string
+	Offset   uint64
+	Index    int
+	Embedded bool
+}
+
 type Field struct {
-	Type Type
-	QualifiedName
+	Type     Type
+	Name     string
+	PkgPath  string
 	Tag      string
 	Offset   uint64
 	Index    int
@@ -76,7 +86,7 @@ func NewStruct(fields []Field) *Struct {
 			fields: fields,
 		},
 	}
-	t.rtype.underlying = t
+	t.rtype.typ = t
 	t.rtype.extra = &t.extra
 	structMap[key] = t
 	return t
@@ -153,15 +163,26 @@ func fillStructKey(fieldscopy, fields []Field) []Field {
 }
 
 func computeStructSize(fields []Field) uint64 {
-	return unknownSize // TODO
+	size := uint64(0)
+	for i := range fields {
+		fieldsize := fields[i].Type.common().size
+		if fieldsize == unknownSize {
+			return fieldsize
+		}
+		size += fieldsize
+	}
+	return size
 }
 
 func computeStructFlags(fields []Field) flags {
-	ret := isComplete
+	flag := flagComplete
 	for i := range fields {
-		ret &= fields[i].Type.common().flags
+		flag &= fields[i].Type.common().flags
 	}
-	return ret
+	if n := len(fields); n == 0 || fields[n-1].Type.common().flags&flagNeedPadding != 0 {
+		flag |= flagNeedPadding
+	}
+	return flag
 }
 
 func makeStructString(fields []Field) string {

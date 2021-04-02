@@ -21,47 +21,47 @@ type Type interface {
 }
 
 type (
+	ArchSizeBits uint64
+
 	flags   uint32
 	ChanDir flags
 )
 
 const (
+	ArchSize32 ArchSizeBits = 32
+	ArchSize64 ArchSizeBits = 64
+	// autodetect ArchSizeBits from compile architecture
+	ArchSizeAuto = 32 * (1 + ArchSizeBits(^uint(0)>>63))
+
 	RecvDir ChanDir = 1
 	SendDir ChanDir = 2
 	BothDir         = RecvDir | SendDir
 
-	isVariadic flags = 4
-	isComplete flags = 8
+	flagComplete    flags = 4
+	flagNeedPadding flags = 8 // type is or ends with zero-byte struct or array
+	flagVariadic    flags = 16
 
 	unknownSize = ^uint64(0)
 )
 
 // configurable, must be 4 or 8
-var sizeOfInt uint64 = detectSizeOfInt()
+var archSizeBits ArchSizeBits = ArchSizeAuto
+var archSizeBytes uint64 = uint64(ArchSizeAuto) / 8
 
-func detectSizeOfInt() uint64 {
-	if ^uint(0)>>31 == 1 {
-		return 4
-	}
-	return 8
+// return current archSizeBits - either 32 or 64
+func GetArchSizeBits() ArchSizeBits {
+	return archSizeBits
 }
 
-// return current sizeOfInt - either 4 or 8
-func SizeOfInt() uint64 {
-	return sizeOfInt
-}
-
-// Set sizeOfInt to either 4 or 8.
-// Specifying zero means autodetect from compile architecture.
+// Set archSizeBits to either 32 or 64.
+// To autodetect from compile architecture, specify ArchSizeAuto.
 // Also causes BasicType() and BasicTypes() to return different results
-func SetSizeOfInt(size uint64) {
-	if size == 0 {
-		size = detectSizeOfInt()
+func SetArchSizeBits(size ArchSizeBits) {
+	if size != ArchSize32 && size != ArchSize64 {
+		panic("SetArchSizeBits: unsupported size, expecting 32 or 64")
 	}
-	if size != 4 && size != 8 {
-		panic("SetSizeOfInt: unsupported size, expecting 4 or 8")
-	}
-	sizeOfInt = size
+	archSizeBits = size
+	archSizeBytes = uint64(size) / 8
 }
 
 // return bitwise AND of specified type's flags

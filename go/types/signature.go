@@ -6,7 +6,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * signature.go
+ * func.go
  *
  *  Created on: Apr 01, 2021
  *      Author: Massimiliano Ghilardi
@@ -15,13 +15,6 @@
 package types
 
 import "strings"
-
-// Func represents the type, name and address of a function
-type Func struct {
-	Address uint64
-	Type    *Signature
-	QualifiedName
-}
 
 // Signature represents the type of a function
 type Signature struct {
@@ -47,7 +40,7 @@ func (t *Signature) common() *Complete {
 // *Signature specific methods
 
 func (t *Signature) IsVariadic() bool {
-	return t.rtype.flags&isVariadic != 0
+	return t.rtype.flags&flagVariadic != 0
 }
 
 func (t *Signature) NumIn() int {
@@ -77,24 +70,24 @@ func NewSignature(in []Type, out []Type, variadic bool) *Signature {
 	if t != nil {
 		return t
 	}
-	var flagVariadic flags
+	var isVariadic flags
 	if variadic {
-		flagVariadic = isVariadic
+		isVariadic = flagVariadic
 	}
 	t = &Signature{
 		rtype: Complete{
-			size:  sizeOfInt,
-			flags: (flagsAnd(in) & flagsAnd(out) & isComplete) | flagVariadic,
+			size:  archSizeBytes,
+			flags: (flagsAnd(in) & flagsAnd(out) & flagComplete) | isVariadic,
 			kind:  FuncKind,
 			str:   makeSignatureString(in, out, variadic),
 		},
 		extra: extra{
-			n1:    uint64(len(in)),
-			n2:    uint64(len(out)),
+			n1:    uint32(len(in)),
+			n2:    uint32(len(out)),
 			types: types,
 		},
 	}
-	t.rtype.underlying = t
+	t.rtype.typ = t
 	t.rtype.extra = &t.extra
 	signatureMap[key] = t
 	return t

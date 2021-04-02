@@ -56,8 +56,9 @@ func (t *Interface) Embedded(i int) Type {
 func (t *Interface) Method(i int) Method {
 	field := &t.extra.fields[t.extra.n1:][i]
 	return Method{
-		Type:          field.Type,
-		QualifiedName: field.QualifiedName,
-		Index:         i,
+		Type:    field.Type,
+		Name:    field.Name,
+		PkgPath: field.PkgPath,
+		Index:   i,
 	}
 }

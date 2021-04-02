@@ -19,8 +19,8 @@ import (
 )
 
 func TestBasic(test *testing.T) {
-	for _, sz := range [...]uint64{4, 8} {
-		SetSizeOfInt(sz)
+	for _, sz := range [...]ArchSizeBits{ArchSize32, ArchSize64} {
+		SetArchSizeBits(sz)
 		for i, basic := range BasicTypes() {
 			if basic == nil {
 				continue
@@ -34,7 +34,7 @@ func TestBasic(test *testing.T) {
 			}
 		}
 	}
-	SetSizeOfInt(0) // autodetect
+	SetArchSizeBits(ArchSizeAuto)
 }
 
 func TestMap(test *testing.T) {
@@ -58,7 +58,7 @@ func TestMap(test *testing.T) {
 				test.Errorf("t.String()\t= %v,\texpecting %v", t.String(), expected)
 			}
 
-			if actual, expected := t.common().Size(), SizeOfInt(); actual != expected {
+			if actual, expected := t.common().Size(), archSizeBytes; actual != expected {
 				test.Errorf("t.common().Size()\t= %v,\texpecting %v", actual, expected)
 			}
 			tagain := NewMap(key, elem)
@@ -102,9 +102,9 @@ func TestNamed(test *testing.T) {
 		if actual, expected := t.common().Size(), basic.Size(); actual != expected {
 			test.Errorf("t.common().Size()\t= %v,\texpecting %v", actual, expected)
 		}
-		m := Func{
-			Type:          NewSignature([]Type{t}, nil, false),
-			QualifiedName: QualifiedName{Name: "bar"},
+		m := Method{
+			Type: NewSignature([]Type{t}, nil, false),
+			Name: "bar",
 		}
 		if actual, expected := t.NumMethod(), 0; actual != expected {
 			test.Errorf("t.NumMethod()\t= %v,\texpecting %v", actual, expected)
@@ -145,10 +145,10 @@ func TestPointer(test *testing.T) {
 			test.Errorf("tt.String()\t= %v,\texpecting %v", tt.String(), expected)
 		}
 
-		if actual, expected := t.common().Size(), SizeOfInt(); actual != expected {
+		if actual, expected := t.common().Size(), archSizeBytes; actual != expected {
 			test.Errorf("t.common().Size()\t= %v,\texpecting %v", actual, expected)
 		}
-		if actual, expected := tt.common().Size(), SizeOfInt(); actual != expected {
+		if actual, expected := tt.common().Size(), archSizeBytes; actual != expected {
 			test.Errorf("tt.common().Size()\t= %v,\texpecting %v", actual, expected)
 		}
 		tagain := NewPointer(basic)
@@ -178,7 +178,7 @@ func TestSignature(test *testing.T) {
 				test.Errorf("t.String()\t= %v,\texpecting %v", t.String(), expected)
 			}
 
-			if actual, expected := t.common().Size(), SizeOfInt(); actual != expected {
+			if actual, expected := t.common().Size(), archSizeBytes; actual != expected {
 				test.Errorf("t.common().Size()\t= %v,\texpecting %v", actual, expected)
 			}
 
@@ -219,10 +219,10 @@ func TestSlice(test *testing.T) {
 			test.Errorf("tt.String()\t= %v,\texpecting %v", tt.String(), expected)
 		}
 
-		if actual, expected := t.common().Size(), 3*SizeOfInt(); actual != expected {
+		if actual, expected := t.common().Size(), 3*archSizeBytes; actual != expected {
 			test.Errorf("t.common().Size()\t= %v,\texpecting %v", actual, expected)
 		}
-		if actual, expected := tt.common().Size(), 3*SizeOfInt(); actual != expected {
+		if actual, expected := tt.common().Size(), 3*archSizeBytes; actual != expected {
 			test.Errorf("tt.common().Size()\t= %v,\texpecting %v", actual, expected)
 		}
 
@@ -244,22 +244,22 @@ func TestStruct(test *testing.T) {
 			continue
 		}
 		fields[0] = Field{
-			Type:          f0,
-			QualifiedName: QualifiedName{Name: f0.String()},
-			Offset:        unknownSize,
-			Index:         0,
-			Embedded:      true,
+			Type:     f0,
+			Name:     f0.Name(),
+			Offset:   unknownSize,
+			Index:    0,
+			Embedded: true,
 		}
 		for _, f1 := range BasicTypes() {
 			if f1 == nil {
 				continue
 			}
 			fields[1] = Field{
-				Type:          f1,
-				QualifiedName: QualifiedName{Name: f1.String()},
-				Offset:        unknownSize,
-				Index:         1,
-				Embedded:      true,
+				Type:     f1,
+				Name:     f1.Name(),
+				Offset:   unknownSize,
+				Index:    1,
+				Embedded: true,
 			}
 
 			t := NewStruct(fields)

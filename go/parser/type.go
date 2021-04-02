@@ -251,21 +251,23 @@ func (p *Parser) parseGenericParamDecl(t1 ast.Node) *ast.Field {
 }
 
 // parse the suffix '[T1, T2...]' in a generic type instantiation
-// tricky case: the suffixes '[ ]' '[ INT' must NOT be parsed, they belong to the next node
+// tricky cases:
+// 1. the suffixes '[ ]' '[ LITERAL' must NOT be parsed, they belong to the next node
+// 2. there is no simple way to avoid parsing '[ some_complicated_expr_not_a_type ]'
+//    which belongs to the next node, so at least parse it correctly
 func (p *Parser) parseMaybeGenericInstantiation(typ ast.Node) ast.Node {
 	atom := p.curr
 	p.consumeComment()
 	p.next() // skip '['
 	switch p.tok() {
-	case token.RBRACK, token.INT:
+	case token.RBRACK, token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING:
 		// put back '[' and current token into the token stream
 		p.unread(&atom)
 		return typ
 	}
-	list := &ast.List{Atom: atom}
+	list := p.parseExprList(typ, allowCompositeLit)
+	list.Atom = atom
 	list.Tok = token.INDEX
-	nodes := p.parseTypeList([]ast.Node{typ})
-	nodes = p.leave(nodes, token.RBRACK)
-	list.Nodes = nodes
+	list.Nodes = p.leave(list.Nodes, token.RBRACK)
 	return list
 }

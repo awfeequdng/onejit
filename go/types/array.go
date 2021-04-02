@@ -41,7 +41,7 @@ func (t *Array) Elem() Type {
 }
 
 func (t *Array) Len() uint64 {
-	return t.extra.n1
+	return uint64(t.extra.n1) | uint64(t.extra.n2)<<32
 }
 
 type arrayKey struct {
@@ -53,6 +53,9 @@ var arrayMap = map[arrayKey]*Array{}
 
 // create a new Array type
 func NewArray(elem Type, len uint64) *Array {
+	if len >= 1<<archSizeBits {
+		panic("NewArray length exceeds archSizeBits")
+	}
 	key := arrayKey{elem, len}
 	t := arrayMap[key]
 	if t != nil {
@@ -61,15 +64,21 @@ func NewArray(elem Type, len uint64) *Array {
 	t = &Array{
 		rtype: Complete{
 			size:  unknownSize,
-			flags: elem.common().flags & isComplete,
+			flags: elem.common().flags & flagComplete,
 			kind:  ArrayKind,
 			elem:  elem,
 		},
 	}
-	if t.rtype.flags&isComplete != 0 {
-		t.rtype.size = len * elem.common().size
+	if elemsize := elem.common().size; elemsize != unknownSize {
+		if elemsize != 0 && len >= (1<<archSizeBits)/elemsize {
+			panic("NewArray total bytes exceed archSizeBits")
+		}
+		t.rtype.size = len * elemsize
+		if elemsize == 0 {
+			t.rtype.flags |= flagNeedPadding
+		}
 	}
-	t.rtype.underlying = t
+	t.rtype.typ = t
 	arrayMap[key] = t
 	return t
 }

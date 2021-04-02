@@ -48,14 +48,14 @@ func NewPointer(elem Type) *Pointer {
 	}
 	t = &Pointer{
 		rtype: Complete{
-			size:  sizeOfInt,
-			flags: relem.flags & isComplete,
+			size:  archSizeBytes,
+			flags: relem.flags & flagComplete,
 			kind:  PtrKind,
 			elem:  elem,
 			str:   "*" + elem.String(),
 		},
 	}
-	t.rtype.underlying = t
+	t.rtype.typ = t
 	relem.ptrTo = t
 	return t
 }

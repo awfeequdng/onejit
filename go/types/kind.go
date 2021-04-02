@@ -103,3 +103,7 @@ func (k Kind) String() string {
 	}
 	return kinds[k]
 }
+
+func isBasic(k Kind) bool {
+	return k >= Bool && k <= Complex128 || k == String || k >= UnsafePointer && k <= UntypedNil
+}

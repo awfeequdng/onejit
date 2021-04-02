@@ -59,8 +59,8 @@ func NewMap(key Type, elem Type) *Map {
 	}
 	t = &Map{
 		rtype: Complete{
-			size:  sizeOfInt,
-			flags: key.common().flags & elem.common().flags & isComplete,
+			size:  archSizeBytes,
+			flags: key.common().flags & elem.common().flags & flagComplete,
 			kind:  MapKind,
 			elem:  elem,
 			str:   "map[" + key.String() + "]" + elem.String(),
@@ -69,7 +69,7 @@ func NewMap(key Type, elem Type) *Map {
 			types: k.keyElem[0:1],
 		},
 	}
-	t.rtype.underlying = t
+	t.rtype.typ = t
 	t.rtype.extra = &t.extra
 	mapMap[k] = t
 	return t
