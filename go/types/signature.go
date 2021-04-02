@@ -70,14 +70,14 @@ func NewSignature(in []Type, out []Type, variadic bool) *Signature {
 	if t != nil {
 		return t
 	}
-	var isVariadic flags
+	flag := flagsAnd(in) & flagsAnd(out) & flagComplete
 	if variadic {
-		isVariadic = flagVariadic
+		flag |= flagVariadic
 	}
 	t = &Signature{
 		rtype: Complete{
 			size:  archSizeBytes,
-			flags: (flagsAnd(in) & flagsAnd(out) & flagComplete) | isVariadic,
+			flags: flag | flagNotComparable,
 			kind:  FuncKind,
 			str:   makeSignatureString(in, out, variadic),
 		},

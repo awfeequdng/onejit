@@ -64,7 +64,7 @@ func NewArray(elem Type, len uint64) *Array {
 	t = &Array{
 		rtype: Complete{
 			size:  unknownSize,
-			flags: elem.common().flags & flagComplete,
+			flags: elem.common().flags & (flagComplete | flagComparable | flagNotComparable),
 			kind:  ArrayKind,
 			elem:  elem,
 		},

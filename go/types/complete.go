@@ -58,6 +58,10 @@ func (t *Complete) Underlying() *Complete {
 
 // methods valid for any Kind
 
+func (t *Complete) Comparable() bool {
+	return t.flags&flagComparable != 0
+}
+
 func (t *Complete) Kind() Kind {
 	return t.kind
 }
@@ -98,6 +102,15 @@ func (t *Complete) Len() uint64 {
 		return uint64(t.extra.n1) | uint64(t.extra.n2)<<32
 	}
 	panic("Len of invalid type")
+}
+
+// Chan-related methods
+
+func (t *Complete) ChanDir() ChanDir {
+	if t.kind == ChanKind {
+		return ChanDir(t.flags) & BothDir
+	}
+	panic("ChanDir of invalid type")
 }
 
 // Func-related methods

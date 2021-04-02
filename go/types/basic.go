@@ -48,20 +48,6 @@ func (t *Basic) Size() uint64 {
 	return t.rtype.size
 }
 
-// create a new Basic type
-func newBasic(kind Kind, size uint64) *Basic {
-	t := &Basic{
-		rtype: Complete{
-			size:  size,
-			flags: flagComplete,
-			kind:  kind,
-			str:   kind.String(),
-		},
-	}
-	t.rtype.typ = t
-	return t
-}
-
 var (
 	basicTypes0  = makeBasicTypes0()
 	basicTypes32 = makeBasicTypes(4, basicTypes0)
@@ -115,4 +101,18 @@ func makeBasicTypes(sizeOfInt uint64, common []*Basic) []*Basic {
 	ret[Uintptr] = newBasic(Uintptr, sizeOfInt)
 	ret[String] = newBasic(String, 2*sizeOfInt)
 	return ret
+}
+
+// create a new Basic type
+func newBasic(kind Kind, size uint64) *Basic {
+	t := &Basic{
+		rtype: Complete{
+			size:  size,
+			flags: flagComparable | flagComplete,
+			kind:  kind,
+			str:   kind.String(),
+		},
+	}
+	t.rtype.typ = t
+	return t
 }

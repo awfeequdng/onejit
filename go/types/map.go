@@ -52,6 +52,9 @@ var mapMap = map[mapKey]*Map{}
 
 // create a new Map type
 func NewMap(key Type, elem Type) *Map {
+	if key.common().flags&flagNotComparable != 0 {
+		panic("NewMap: map key type is not comparable")
+	}
 	k := mapKey{[2]Type{key, elem}}
 	t := mapMap[k]
 	if t != nil {
@@ -60,7 +63,7 @@ func NewMap(key Type, elem Type) *Map {
 	t = &Map{
 		rtype: Complete{
 			size:  archSizeBytes,
-			flags: key.common().flags & elem.common().flags & flagComplete,
+			flags: (key.common().flags & elem.common().flags & flagComplete) | flagNotComparable,
 			kind:  MapKind,
 			elem:  elem,
 			str:   "map[" + key.String() + "]" + elem.String(),

@@ -49,7 +49,7 @@ func NewPointer(elem Type) *Pointer {
 	t = &Pointer{
 		rtype: Complete{
 			size:  archSizeBytes,
-			flags: relem.flags & flagComplete,
+			flags: (relem.flags & flagComplete) | flagComparable,
 			kind:  PtrKind,
 			elem:  elem,
 			str:   "*" + elem.String(),

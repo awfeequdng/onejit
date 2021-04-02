@@ -175,9 +175,23 @@ func computeStructSize(fields []Field) uint64 {
 }
 
 func computeStructFlags(fields []Field) flags {
-	flag := flagComplete
+	flagsAnd := ^flags(0)
+	flagsOr := flags(0)
 	for i := range fields {
-		flag &= fields[i].Type.common().flags
+		flag_i := fields[i].Type.common().flags
+		flagsAnd &= flag_i
+		flagsOr |= flag_i
+	}
+	// a struct is complete if all its fields are complete
+	flag := flagsAnd & flagComplete
+	if flagsOr&flagNotComparable != 0 {
+		// at least one field is not comparable => the whole struct is not comparable
+		flag |= flagNotComparable
+	} else if flagsAnd&flagComparable != 0 {
+		// all fields are comparable => the whole struct is comparable
+		flag |= flagComparable
+	} else {
+		// not known yet whether struct is comparable or not
 	}
 	if n := len(fields); n == 0 || fields[n-1].Type.common().flags&flagNeedPadding != 0 {
 		flag |= flagNeedPadding
