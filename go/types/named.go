@@ -73,7 +73,7 @@ func (t *Named) SetUnderlying(u Type) {
 	if t.extra.underlying != nil {
 		panic("SetUnderlying invoked already")
 	} else if u == nil {
-		panic("SetUnderlying argument is nil")
+		panic("SetUnderlying underlying type is nil")
 	}
 	u = traverseUnderlyingCheckLoop(t, u)
 	fillFromUnderlying(&t.rtype, u.common())
@@ -156,6 +156,27 @@ func fillFromUnderlying(r *Complete, u *Complete) {
 		rx.n2 = ux.n2
 		rx.types = ux.types
 		rx.fields = ux.fields
+	}
+}
+
+func completeNamedUnderlying(t *Named) {
+	u := t.extra.underlying
+	for u != nil {
+		if t == u {
+			panic("CompleteTypes named underlying loops are not allowed")
+		}
+		if named, _ := u.(*Named); named != nil {
+			u = named.extra.underlying
+		} else {
+			break
+		}
+	}
+	if u == nil {
+		panic("CompleteTypes named underlying type is nil")
+	}
+	if u != t.extra.underlying {
+		fillFromUnderlying(&t.rtype, u.common())
+		t.extra.underlying = u
 	}
 }
 
