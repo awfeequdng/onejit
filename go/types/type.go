@@ -83,14 +83,3 @@ func flagsAndMethod(list []Method) flags {
 	}
 	return ret
 }
-
-// resolve circular dependencies and incomplete Types,
-// and return equivalent *Complete objects
-func CompleteTypes(ts []Type) []*Complete {
-	for _, t := range ts {
-		if named, _ := t.(*Named); named != nil {
-			completeNamedUnderlying(named)
-		}
-	}
-	return nil // TODO
-}

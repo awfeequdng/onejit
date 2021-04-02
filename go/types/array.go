@@ -53,7 +53,8 @@ var arrayMap = map[arrayKey]*Array{}
 
 // create a new Array type
 func NewArray(elem Type, len uint64) *Array {
-	if len >= 1<<archSizeBits {
+	archMaxSize := ^(^uint64(0) << archSizeBits)
+	if len > archMaxSize {
 		panic("NewArray length exceeds archSizeBits")
 	}
 	key := arrayKey{elem, len}
@@ -67,10 +68,11 @@ func NewArray(elem Type, len uint64) *Array {
 			flags: elem.common().flags & (flagComplete | flagComparable | flagNotComparable),
 			kind:  ArrayKind,
 			elem:  elem,
+			str:   "[" + uintToString(len) + "]" + elem.String(),
 		},
 	}
 	if elemsize := elem.common().size; elemsize != unknownSize {
-		if elemsize != 0 && len >= (1<<archSizeBits)/elemsize {
+		if elemsize != 0 && len > archMaxSize/elemsize {
 			panic("NewArray total bytes exceed archSizeBits")
 		}
 		t.rtype.size = len * elemsize
@@ -81,4 +83,18 @@ func NewArray(elem Type, len uint64) *Array {
 	t.rtype.typ = t
 	arrayMap[key] = t
 	return t
+}
+
+func uintToString(n uint64) string {
+	if n == 0 {
+		return "0"
+	}
+	var b [20]byte
+	pos := len(b)
+	for n != 0 {
+		pos--
+		b[pos] = '0' + byte(n%10)
+		n /= 10
+	}
+	return string(b[pos:])
 }
