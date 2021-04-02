@@ -15,8 +15,8 @@
 package types
 
 type Slice struct {
-	isSlice struct{} // occupies zero bytes
-	rtype   Complete
+	_     [0]*Slice // occupies zero bytes
+	rtype Complete
 }
 
 // *Slice implements Type

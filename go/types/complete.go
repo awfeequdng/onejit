@@ -14,7 +14,7 @@
 
 package types
 
-// similar in spirit to Go reflect.Type
+// Complete represent a Go type. It is similar in spirit to reflect.Type
 type Complete struct {
 	methods *[]Method // nil if no methods
 	size    uint64    // in bytes. we also support compiling 64-bit code from 32-bit systems
@@ -28,9 +28,10 @@ type Complete struct {
 }
 
 type extra struct {
-	n1, n2     uint32  // # of function parameters and results, or array length
-	types      []Type  // function parameters and results, or map's key type
-	fields     []Field // struct fields
+	n1, n2     uint32   // # of function parameters and results, or array length
+	types      []Type   // function parameters and results, interface embedded types, or map's key type
+	fields     []Field  // struct fields
+	methods    []Method // interface methods, or named methods
 	name       string
 	pkgPath    string
 	underlying Type
@@ -173,7 +174,6 @@ func (t *Complete) NumMethod() int {
 func (t *Complete) Method(i int) CompleteMethod {
 	m := &(*t.methods)[i]
 	return CompleteMethod{
-		Address: m.Address,
 		Type:    m.Type.common(),
 		Name:    m.Name,
 		PkgPath: m.PkgPath,

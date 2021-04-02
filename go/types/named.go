@@ -14,9 +14,12 @@
 
 package types
 
+import (
+	"strings"
+)
+
 // returned by Complete.Method(int)
 type CompleteMethod struct {
-	Address uint64
 	Type    *Complete
 	Name    string
 	PkgPath string
@@ -25,7 +28,6 @@ type CompleteMethod struct {
 
 // returned by Named.Method(int)
 type Method struct {
-	Address uint64
 	Type    Type
 	Name    string
 	PkgPath string
@@ -34,9 +36,9 @@ type Method struct {
 
 // represents a named type
 type Named struct {
-	isNamed struct{} // occupies zero bytes
-	rtype   Complete
-	extra   extra
+	_     [0]*Named // occupies zero bytes
+	rtype Complete
+	extra extra
 }
 
 // *Named implements Type
@@ -82,55 +84,47 @@ func (t *Named) SetUnderlying(u Type) {
 // return number of declared methods.
 // Ignores methods from embedded fields
 func (t *Named) NumMethod() int {
-	if v := t.rtype.methods; v != nil {
-		return len(*v)
-	}
-	return 0
+	return len(t.extra.methods)
 }
 
 // return i-th declared method.
 // Ignores methods from embedded fields
 func (t *Named) Method(i int) Method {
-	return (*t.rtype.methods)[i]
+	return t.extra.methods[i]
 }
 
 // add a method. always appends to the list of methods,
 // even if another method with the same name already exists.
 func (t *Named) AddMethod(mtd *Method) {
-	_ = mtd.Type.(*Signature)
-
-	v := t.rtype.methods
-	if v == nil {
-		slice := make([]Method, 0, 1)
-		t.rtype.methods = &slice
-		v = &slice
-	}
-	count := len(*v)
-	// append method as-is
-	*v = append(*v, *mtd)
-	// then fix its copy
-	(*v)[count].Index = count
+	_ = mtd.Type.(*Func)
+	ms := t.extra.methods
+	count := len(ms)
+	ms = append(ms, *mtd)   // append method as-is
+	ms[count].Index = count // then fix its copy
+	t.extra.methods = ms    // update, in case append() above reallocates
 }
 
 // create a new Named type
 func NewNamed(name string, pkgPath string) *Named {
-	qname := name
+	str := name
 	if n := len(pkgPath); n != 0 {
-		qname = pkgPath + "." + name
-		pkgPath = qname[:n]
-		name = qname[n+1:]
+		str = pkgPath + "." + name
+		pkgPath = str[:n]
+		name = str[n+1:]
+		str = basename(str)
 	}
 	t := &Named{
 		rtype: Complete{
 			size: unknownSize,
 			kind: Invalid, // not known yet
-			str:  qname,
+			str:  str,
 		},
 		extra: extra{
 			name:    name,
 			pkgPath: pkgPath,
 		},
 	}
+	t.rtype.methods = &t.extra.methods
 	t.rtype.extra = &t.extra
 	return t
 }
@@ -163,4 +157,24 @@ func fillFromUnderlying(r *Complete, u *Complete) {
 		rx.types = ux.types
 		rx.fields = ux.fields
 	}
+}
+
+func (m *Method) writeTo(b *strings.Builder) {
+	pkg := basename(m.PkgPath)
+	if len(pkg) != 0 {
+		b.WriteString(pkg)
+		b.WriteByte('.')
+	}
+	b.WriteString(m.Name)
+	str := m.Type.String()
+	if len(str) > 4 && str[:5] == "func(" {
+		str = str[4:]
+	}
+	b.WriteString(str)
+}
+
+func (m *Method) String() string {
+	var b strings.Builder
+	m.writeTo(&b)
+	return b.String()
 }

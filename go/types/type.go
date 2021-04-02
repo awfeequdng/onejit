@@ -74,3 +74,18 @@ func flagsAnd(list []Type) flags {
 	}
 	return ret
 }
+
+// return bitwise AND of specified method type's flags
+func flagsAndMethod(list []Method) flags {
+	ret := ^flags(0)
+	for i := range list {
+		ret &= list[i].Type.common().flags
+	}
+	return ret
+}
+
+// resolve circular dependencies and incomplete Types,
+// and return equivalent *Complete objects
+func CompleteTypes(t []Type) []*Complete {
+	return nil // TODO
+}

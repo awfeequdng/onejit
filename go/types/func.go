@@ -16,57 +16,57 @@ package types
 
 import "strings"
 
-// Signature represents the type of a function
-type Signature struct {
-	isSignature struct{} // occupies zero bytes
-	rtype       Complete
-	extra       extra
+// Func represents the type of a function
+type Func struct {
+	_     [0]*Func // occupies zero bytes
+	rtype Complete
+	extra extra
 }
 
-// *Signature implements Type
+// *Func implements Type
 
-func (t *Signature) String() string {
+func (t *Func) String() string {
 	return t.rtype.str
 }
 
-func (t *Signature) Underlying() Type {
+func (t *Func) Underlying() Type {
 	return t
 }
 
-func (t *Signature) common() *Complete {
+func (t *Func) common() *Complete {
 	return &t.rtype
 }
 
-// *Signature specific methods
+// *Func specific methods
 
-func (t *Signature) IsVariadic() bool {
+func (t *Func) IsVariadic() bool {
 	return t.rtype.flags&flagVariadic != 0
 }
 
-func (t *Signature) NumIn() int {
+func (t *Func) NumIn() int {
 	return int(t.extra.n1)
 }
 
-func (t *Signature) NumOut() int {
+func (t *Func) NumOut() int {
 	return int(t.extra.n2)
 }
 
-func (t *Signature) In(i int) Type {
+func (t *Func) In(i int) Type {
 	extra := t.extra
 	return extra.types[0:extra.n1][i]
 }
 
-func (t *Signature) Out(i int) Type {
+func (t *Func) Out(i int) Type {
 	extra := t.extra
 	return extra.types[extra.n1:][i]
 }
 
-var signatureMap = map[interface{}]*Signature{}
+var funcMap = map[interface{}]*Func{}
 
-// create a new Signature type
-func NewSignature(in []Type, out []Type, variadic bool) *Signature {
-	key, types := makeSignatureKey(in, out, variadic)
-	t := signatureMap[key]
+// create a new Func type
+func NewFunc(in []Type, out []Type, variadic bool) *Func {
+	key, types := makeFuncKey(in, out, variadic)
+	t := funcMap[key]
 	if t != nil {
 		return t
 	}
@@ -74,12 +74,12 @@ func NewSignature(in []Type, out []Type, variadic bool) *Signature {
 	if variadic {
 		flag |= flagVariadic
 	}
-	t = &Signature{
+	t = &Func{
 		rtype: Complete{
 			size:  archSizeBytes,
 			flags: flag | flagNotComparable,
 			kind:  FuncKind,
-			str:   makeSignatureString(in, out, variadic),
+			str:   makeFuncString(in, out, variadic),
 		},
 		extra: extra{
 			n1:    uint32(len(in)),
@@ -89,7 +89,7 @@ func NewSignature(in []Type, out []Type, variadic bool) *Signature {
 	}
 	t.rtype.typ = t
 	t.rtype.extra = &t.extra
-	signatureMap[key] = t
+	funcMap[key] = t
 	return t
 }
 
@@ -133,12 +133,12 @@ type (
 	}
 )
 
-func makeSignatureKey(in []Type, out []Type, variadic bool) (ret interface{}, types []Type) {
+func makeFuncKey(in []Type, out []Type, variadic bool) (ret interface{}, types []Type) {
 	n1, n2 := uint(len(in)), uint(len(out))
 	n := n1 + n2
 	const maxn = 65536
 	if n1 >= maxn || n2 >= maxn/2 || n > maxn {
-		panic("NewSignature: too many function parameters and results")
+		panic("NewFunc: too many function parameters and results")
 	}
 	if variadic {
 		n2 |= maxn / 2
@@ -189,7 +189,7 @@ func fillFuncKey(dst, in, out []Type) []Type {
 	return dst
 }
 
-func makeSignatureString(in []Type, out []Type, variadic bool) string {
+func makeFuncString(in []Type, out []Type, variadic bool) string {
 	var b strings.Builder
 	b.WriteString("func(")
 	for i, t := range in {

@@ -15,9 +15,9 @@
 package types
 
 type Array struct {
-	isArray struct{} // occupies zero bytes
-	rtype   Complete
-	extra   extra
+	_     [0]*Array // occupies zero bytes
+	rtype Complete
+	extra extra
 }
 
 // *Array implements Type

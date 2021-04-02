@@ -37,9 +37,9 @@ type Field struct {
 }
 
 type Struct struct {
-	isStruct struct{} // occupies zero bytes
-	rtype    Complete
-	extra    extra
+	_     [0]*Struct // occupies zero bytes
+	rtype Complete
+	extra extra
 }
 
 // *Struct implements Type

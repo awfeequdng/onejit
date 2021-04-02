@@ -15,7 +15,7 @@
 package types
 
 type Map struct {
-	isMap struct{} // occupies zero bytes
+	_     [0]*Map // occupies zero bytes
 	rtype Complete
 	extra extra
 }

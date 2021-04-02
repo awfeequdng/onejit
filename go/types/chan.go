@@ -15,8 +15,8 @@
 package types
 
 type Chan struct {
-	isChan struct{} // occupies zero bytes
-	rtype  Complete
+	_     [0]*Chan // occupies zero bytes
+	rtype Complete
 }
 
 // *Chan implements Type

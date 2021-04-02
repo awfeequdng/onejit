@@ -37,6 +37,68 @@ func TestBasic(test *testing.T) {
 	SetArchSizeBits(ArchSizeAuto)
 }
 
+func TestFunc(test *testing.T) {
+	for _, arg1 := range BasicTypes() {
+		if arg1 == nil {
+			continue
+		}
+		for _, arg2 := range BasicTypes() {
+			if arg2 == nil {
+				continue
+			}
+			t := NewFunc([]Type{arg1, arg2}, []Type{arg2, arg1}, true)
+			if expected := "func(" + arg1.String() + ", ..." + arg2.String() +
+				") (" + arg2.String() + ", " + arg1.String() + ")"; t.String() != expected {
+
+				test.Errorf("t.String()\t= %v,\texpecting %v", t.String(), expected)
+			}
+
+			if actual, expected := t.common().Size(), archSizeBytes; actual != expected {
+				test.Errorf("t.common().Size()\t= %v,\texpecting %v", actual, expected)
+			}
+
+			if actual, expected := t.In(1), arg2; actual != expected {
+				test.Errorf("t.In(1)\t= %v,\texpecting %v", actual, expected)
+			}
+			if actual, expected := t.Out(1), arg1; actual != expected {
+				test.Errorf("t.Out(1)\t= %v,\texpecting %v", actual, expected)
+			}
+
+			tagain := NewFunc([]Type{arg1, arg2}, []Type{arg2, arg1}, true)
+			if t != tagain {
+				test.Errorf("NewFunc({%v,%v}, {%v,%v}) produced non-identical types %p and %p",
+					arg1, arg2, arg2, arg1, t, tagain)
+			}
+		}
+	}
+}
+
+func TestInterface(test *testing.T) {
+	pkgPath := "github.com/cosmos72/onejit/go/types/test"
+
+	bbool := BasicType(Bool)
+	for _, b := range BasicTypes() {
+		if b == nil {
+			continue
+		}
+		fun := NewFunc([]Type{b, b}, []Type{bbool}, false)
+		methods := []Method{{
+			Type:    fun,
+			Name:    "less",
+			PkgPath: pkgPath,
+		}}
+		t := NewInterface(nil, methods)
+		if actual, expected := t.String(), "interface { test.less("+b.String()+", "+b.String()+") bool }"; actual != expected {
+			test.Errorf("t.String()\t= %v,\texpecting %v", actual, expected)
+		}
+		tagain := NewInterface(nil, methods)
+		if t != tagain {
+			test.Errorf("NewInterface() produced non-identical types %p and %p", t, tagain)
+		}
+
+	}
+}
+
 func TestMap(test *testing.T) {
 	for _, key := range BasicTypes() {
 		if key == nil {
@@ -70,14 +132,15 @@ func TestMap(test *testing.T) {
 }
 
 func TestNamed(test *testing.T) {
+	pkgPath := "github.com/cosmos72/onejit/go/types/test"
+	pkgName := "test"
 	for _, basic := range BasicTypes() {
 		if basic == nil {
 			continue
 		}
 		name := basic.String() + "_"
-		pkgPath := "github.com/cosmos72/onejit/go/types/test"
 		t := NewNamed(name, pkgPath)
-		if actual, expected := t.String(), pkgPath+"."+name; actual != expected {
+		if actual, expected := t.String(), pkgName+"."+name; actual != expected {
 			test.Errorf("t.String()\t= %v,\texpecting %v", actual, expected)
 		}
 		if actual, expected := t.Underlying(), Type(nil); actual != expected {
@@ -103,7 +166,7 @@ func TestNamed(test *testing.T) {
 			test.Errorf("t.common().Size()\t= %v,\texpecting %v", actual, expected)
 		}
 		m := Method{
-			Type: NewSignature([]Type{t}, nil, false),
+			Type: NewFunc([]Type{t}, nil, false),
 			Name: "bar",
 		}
 		if actual, expected := t.NumMethod(), 0; actual != expected {
@@ -158,42 +221,6 @@ func TestPointer(test *testing.T) {
 		}
 		if tt != ttagain {
 			test.Errorf("NewPointer(%v) produced non-identical types %p and %p", t, tt, ttagain)
-		}
-	}
-}
-
-func TestSignature(test *testing.T) {
-	for _, arg1 := range BasicTypes() {
-		if arg1 == nil {
-			continue
-		}
-		for _, arg2 := range BasicTypes() {
-			if arg2 == nil {
-				continue
-			}
-			t := NewSignature([]Type{arg1, arg2}, []Type{arg2, arg1}, true)
-			if expected := "func(" + arg1.String() + ", ..." + arg2.String() +
-				") (" + arg2.String() + ", " + arg1.String() + ")"; t.String() != expected {
-
-				test.Errorf("t.String()\t= %v,\texpecting %v", t.String(), expected)
-			}
-
-			if actual, expected := t.common().Size(), archSizeBytes; actual != expected {
-				test.Errorf("t.common().Size()\t= %v,\texpecting %v", actual, expected)
-			}
-
-			if actual, expected := t.In(1), arg2; actual != expected {
-				test.Errorf("t.In(1)\t= %v,\texpecting %v", actual, expected)
-			}
-			if actual, expected := t.Out(1), arg1; actual != expected {
-				test.Errorf("t.Out(1)\t= %v,\texpecting %v", actual, expected)
-			}
-
-			tagain := NewSignature([]Type{arg1, arg2}, []Type{arg2, arg1}, true)
-			if t != tagain {
-				test.Errorf("NewSignature({%v,%v}, {%v,%v}) produced non-identical types %p and %p",
-					arg1, arg2, arg2, arg1, t, tagain)
-			}
 		}
 	}
 }

@@ -15,8 +15,8 @@
 package types
 
 type Pointer struct {
-	isPointer struct{} // occupies zero bytes
-	rtype     Complete
+	_     [0]*Pointer // occupies zero bytes
+	rtype Complete
 }
 
 // *Pointer implements Type

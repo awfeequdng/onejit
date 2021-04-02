@@ -16,8 +16,8 @@ package types
 
 // Basic represents one of Go's predefined basic types
 type Basic struct {
-	isBasic struct{} // occupies zero bytes
-	rtype   Complete
+	_     [0]*Basic // occupies zero bytes
+	rtype Complete
 }
 
 // *Basic implements Type
