@@ -28,7 +28,9 @@ type Interface struct {
 // *Interface implements Type
 
 func (t *Interface) String() string {
-	return t.rtype.str
+	var b strings.Builder
+	t.writeTo(&b, fullPkgPath)
+	return b.String()
 }
 
 func (t *Interface) Underlying() Type {
@@ -37,6 +39,14 @@ func (t *Interface) Underlying() Type {
 
 func (t *Interface) common() *Complete {
 	return &t.rtype
+}
+
+func (t *Interface) writeTo(b *strings.Builder, flag verbose) {
+	if flag == shortPkgName {
+		b.WriteString(t.rtype.str)
+		return
+	}
+	writeInterfaceTo(b, t.extra.types, t.extra.methods, flag)
 }
 
 // *Interface specific method
@@ -79,7 +89,7 @@ func NewInterface(embedded []Type, method []Method) *Interface {
 			size:    2 * archSizeBytes,
 			flags:   flag | flagComparable,
 			kind:    InterfaceKind,
-			str:     makeInterfaceString(embedded, method),
+			str:     makeInterfaceString(embedded, method, shortPkgName),
 		},
 		extra: extra{
 			types:   embedded,
@@ -93,8 +103,13 @@ func NewInterface(embedded []Type, method []Method) *Interface {
 	return t
 }
 
-func makeInterfaceString(embedded []Type, method []Method) string {
+func makeInterfaceString(embedded []Type, method []Method, flag verbose) string {
 	var b strings.Builder
+	writeInterfaceTo(&b, embedded, method, flag)
+	return b.String()
+}
+
+func writeInterfaceTo(b *strings.Builder, embedded []Type, method []Method, flag verbose) string {
 	b.WriteString("interface {")
 	for i, t := range embedded {
 		if i == 0 {
@@ -102,7 +117,7 @@ func makeInterfaceString(embedded []Type, method []Method) string {
 		} else {
 			b.WriteString("; ")
 		}
-		b.WriteString(t.String())
+		t.writeTo(b, flag)
 	}
 	for i := range method {
 		if i == 0 && len(embedded) == 0 {
@@ -110,7 +125,7 @@ func makeInterfaceString(embedded []Type, method []Method) string {
 		} else {
 			b.WriteString("; ")
 		}
-		method[i].writeTo(&b)
+		method[i].writeTo(b, flag)
 	}
 	if len(embedded) == 0 && len(method) == 0 {
 		b.WriteByte('}')
@@ -237,8 +252,8 @@ func fillInterfaceKeyMethods(out []Method, in []Method) []Method {
 	sortMethods(out)
 	for i := range out {
 		out[i].Index = i
-		if _, ok := out[i].Type.(*Func); !ok {
-			panic("NewInterface: invalid method type")
+		if _, ok := out[i].Type.(*Signature); !ok {
+			panic("NewInterface: invalid method type, expecting *Signature")
 		}
 	}
 	return out

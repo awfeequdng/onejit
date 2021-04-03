@@ -46,7 +46,7 @@ func TestFunc(test *testing.T) {
 			if arg2 == nil {
 				continue
 			}
-			t := NewFunc([]Type{arg1, arg2}, []Type{arg2, arg1}, true)
+			t := NewSignature([]Type{arg1, arg2}, []Type{arg2, arg1}, true)
 			if expected := "func(" + arg1.String() + ", ..." + arg2.String() +
 				") (" + arg2.String() + ", " + arg1.String() + ")"; t.String() != expected {
 
@@ -64,9 +64,9 @@ func TestFunc(test *testing.T) {
 				test.Errorf("t.Out(1)\t= %v,\texpecting %v", actual, expected)
 			}
 
-			tagain := NewFunc([]Type{arg1, arg2}, []Type{arg2, arg1}, true)
+			tagain := NewSignature([]Type{arg1, arg2}, []Type{arg2, arg1}, true)
 			if t != tagain {
-				test.Errorf("NewFunc({%v,%v}, {%v,%v}) produced non-identical types %p and %p",
+				test.Errorf("NewSignature({%v,%v}, {%v,%v}) produced non-identical types %p and %p",
 					arg1, arg2, arg2, arg1, t, tagain)
 			}
 		}
@@ -81,14 +81,14 @@ func TestInterface(test *testing.T) {
 		if b == nil {
 			continue
 		}
-		fun := NewFunc([]Type{b, b}, []Type{bbool}, false)
+		fun := NewSignature([]Type{b, b}, []Type{bbool}, false)
 		methods := []Method{{
 			Type:    fun,
 			Name:    "less",
 			PkgPath: pkgPath,
 		}}
 		t := NewInterface(nil, methods)
-		if actual, expected := t.String(), "interface { test.less("+b.String()+", "+b.String()+") bool }"; actual != expected {
+		if actual, expected := t.String(), "interface { "+pkgPath+".less("+b.String()+", "+b.String()+") bool }"; actual != expected {
 			test.Errorf("t.String()\t= %v,\texpecting %v", actual, expected)
 		}
 		tagain := NewInterface(nil, methods)
@@ -133,14 +133,13 @@ func TestMap(test *testing.T) {
 
 func TestNamed(test *testing.T) {
 	pkgPath := "github.com/cosmos72/onejit/go/types/test"
-	pkgName := "test"
 	for _, basic := range BasicTypes() {
 		if basic == nil {
 			continue
 		}
 		name := basic.String() + "_"
 		t := NewNamed(name, pkgPath)
-		if actual, expected := t.String(), pkgName+"."+name; actual != expected {
+		if actual, expected := t.String(), pkgPath+"."+name; actual != expected {
 			test.Errorf("t.String()\t= %v,\texpecting %v", actual, expected)
 		}
 		if actual, expected := t.Underlying(), Type(nil); actual != expected {
@@ -166,7 +165,7 @@ func TestNamed(test *testing.T) {
 			test.Errorf("t.common().Size()\t= %v,\texpecting %v", actual, expected)
 		}
 		m := Method{
-			Type: NewFunc([]Type{t}, nil, false),
+			Type: NewSignature([]Type{t}, nil, false),
 			Name: "bar",
 		}
 		if actual, expected := t.NumMethod(), 0; actual != expected {

@@ -18,22 +18,6 @@ import (
 	"strings"
 )
 
-// returned by Complete.Method(int)
-type CompleteMethod struct {
-	Type    *Complete
-	Name    string
-	PkgPath string
-	Index   int
-}
-
-// returned by Named.Method(int)
-type Method struct {
-	Type    Type
-	Name    string
-	PkgPath string
-	Index   int
-}
-
 // represents a named type
 type Named struct {
 	_     [0]*Named // occupies zero bytes
@@ -44,7 +28,9 @@ type Named struct {
 // *Named implements Type
 
 func (t *Named) String() string {
-	return t.rtype.str
+	var b strings.Builder
+	t.writeTo(&b, fullPkgPath)
+	return b.String()
 }
 
 // returns nil if SetUnderlying() was not invoked yet
@@ -54,6 +40,14 @@ func (t *Named) Underlying() Type {
 
 func (t *Named) common() *Complete {
 	return &t.rtype
+}
+
+func (t *Named) writeTo(b *strings.Builder, flag verbose) {
+	if flag == shortPkgName {
+		b.WriteString(t.rtype.str)
+		return
+	}
+	writeQualifiedName(b, t.Name(), t.PkgPath(), flag)
 }
 
 // *Named specific methods
@@ -96,7 +90,7 @@ func (t *Named) Method(i int) Method {
 // add a method. always appends to the list of methods,
 // even if another method with the same name already exists.
 func (t *Named) AddMethod(mtd *Method) {
-	_ = mtd.Type.(*Func)
+	_ = mtd.Type.(*Signature)
 	ms := t.extra.methods
 	count := len(ms)
 	ms = append(ms, *mtd)   // append method as-is
@@ -107,11 +101,11 @@ func (t *Named) AddMethod(mtd *Method) {
 // create a new Named type
 func NewNamed(name string, pkgPath string) *Named {
 	str := name
-	if n := len(pkgPath); n != 0 {
-		str = pkgPath + "." + name
-		pkgPath = str[:n]
+	if len(pkgPath) != 0 {
+		pkgName := basename(pkgPath)
+		n := len(pkgName)
+		str = pkgName + "." + name
 		name = str[n+1:]
-		str = basename(str)
 	}
 	t := &Named{
 		rtype: Complete{
@@ -178,24 +172,4 @@ func completeNamedUnderlying(t *Named) {
 		fillFromUnderlying(&t.rtype, u.common())
 		t.extra.underlying = u
 	}
-}
-
-func (m *Method) writeTo(b *strings.Builder) {
-	pkg := basename(m.PkgPath)
-	if len(pkg) != 0 {
-		b.WriteString(pkg)
-		b.WriteByte('.')
-	}
-	b.WriteString(m.Name)
-	str := m.Type.String()
-	if len(str) > 4 && str[:5] == "func(" {
-		str = str[4:]
-	}
-	b.WriteString(str)
-}
-
-func (m *Method) String() string {
-	var b strings.Builder
-	m.writeTo(&b)
-	return b.String()
 }

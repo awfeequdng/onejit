@@ -14,6 +14,8 @@
 
 package types
 
+import "strings"
+
 // Basic represents one of Go's predefined basic types
 type Basic struct {
 	_     [0]*Basic // occupies zero bytes
@@ -32,6 +34,10 @@ func (t *Basic) Underlying() Type {
 
 func (t *Basic) common() *Complete {
 	return &t.rtype
+}
+
+func (t *Basic) writeTo(b *strings.Builder, flag verbose) {
+	b.WriteString(t.rtype.str)
 }
 
 // *Basic specific methods

@@ -14,6 +14,8 @@
 
 package types
 
+import "strings"
+
 type Chan struct {
 	_     [0]*Chan // occupies zero bytes
 	rtype Complete
@@ -22,7 +24,9 @@ type Chan struct {
 // *Chan implements Type
 
 func (t *Chan) String() string {
-	return t.rtype.str
+	var b strings.Builder
+	t.writeTo(&b, fullPkgPath)
+	return b.String()
 }
 
 func (t *Chan) Underlying() Type {
@@ -31,6 +35,14 @@ func (t *Chan) Underlying() Type {
 
 func (t *Chan) common() *Complete {
 	return &t.rtype
+}
+
+func (t *Chan) writeTo(b *strings.Builder, flag verbose) {
+	if flag == shortPkgName {
+		b.WriteString(t.rtype.str)
+		return
+	}
+	writeChanTo(b, t.Dir(), t.Elem(), flag)
 }
 
 // *Chan specific methods
@@ -64,9 +76,28 @@ func NewChan(dir ChanDir, elem Type) *Chan {
 			flags: flags(dir) | (elem.common().flags & flagComplete) | flagNotComparable,
 			kind:  ChanKind,
 			elem:  elem,
+			str:   makeChanString(dir, elem, shortPkgName),
 		},
 	}
 	t.rtype.typ = t
 	chanMap[key] = t
 	return t
+}
+
+func makeChanString(dir ChanDir, elem Type, flag verbose) string {
+	var b strings.Builder
+	writeChanTo(&b, dir, elem, flag)
+	return b.String()
+}
+
+func writeChanTo(b *strings.Builder, dir ChanDir, elem Type, flag verbose) {
+	if dir == RecvDir {
+		b.WriteString("<-")
+	}
+	b.WriteString("chan")
+	if dir == SendDir {
+		b.WriteString("<-")
+	}
+	b.WriteByte(' ')
+	elem.writeTo(b, flag)
 }

@@ -154,34 +154,34 @@ func (g typegraph) completeType(t Type) {
 
 func (g typegraph) String() string {
 	var b strings.Builder
-	g.writeTo(&b)
+	g.writeTo(&b, fullPkgPath)
 	return b.String()
 }
 
-func (g typegraph) writeTo(b *strings.Builder) {
-	b.WriteString("(Graph")
+func (g typegraph) writeTo(b *strings.Builder, flag verbose) {
+	b.WriteString("(GRAPH")
 	for t, deps := range g {
 		b.WriteString("\n    ")
-		b.WriteString(t.String())
-		deps.writeTo(b)
+		t.writeTo(b, flag)
+		deps.writeTo(b, flag)
 	}
 	b.WriteString("\n)")
 }
 
-func (d *typedeps) writeTo(b *strings.Builder) {
+func (d *typedeps) writeTo(b *strings.Builder, flag verbose) {
 	if d == nil {
 		b.WriteString("nil")
 		return
 	}
 	if d.strong != nil {
-		d.strong.writeTo(b, "(Strong ", ")")
+		d.strong.writeTo(b, "(STRONG ", ")", flag)
 	}
 	if d.weak != nil {
-		d.weak.writeTo(b, "(Weak ", ")")
+		d.weak.writeTo(b, "(WEAK ", ")", flag)
 	}
 }
 
-func (s typeset) writeTo(b *strings.Builder, enter string, leave string) {
+func (s typeset) writeTo(b *strings.Builder, enter string, leave string, flag verbose) {
 	b.WriteString("\n        ")
 	b.WriteString(enter)
 	i := 0
@@ -189,7 +189,7 @@ func (s typeset) writeTo(b *strings.Builder, enter string, leave string) {
 		if i != 0 {
 			b.WriteString("; ")
 		}
-		b.WriteString(t.String())
+		t.writeTo(b, flag)
 		i++
 	}
 	b.WriteString(")")

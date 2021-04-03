@@ -14,10 +14,22 @@
 
 package types
 
+import (
+	"strings"
+)
+
 type Type interface {
 	String() string
 	Underlying() Type
 	common() *Complete
+	writeTo(*strings.Builder, verbose)
+}
+
+func TypeString(t Type, showFullPkgPath bool) string {
+	if showFullPkgPath {
+		return t.String()
+	}
+	return t.common().str
 }
 
 type (

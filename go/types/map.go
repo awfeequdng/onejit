@@ -14,6 +14,8 @@
 
 package types
 
+import "strings"
+
 type Map struct {
 	_     [0]*Map // occupies zero bytes
 	rtype Complete
@@ -23,7 +25,9 @@ type Map struct {
 // *Map implements Type
 
 func (t *Map) String() string {
-	return t.rtype.str
+	var b strings.Builder
+	t.writeTo(&b, fullPkgPath)
+	return b.String()
 }
 
 func (t *Map) Underlying() Type {
@@ -32,6 +36,14 @@ func (t *Map) Underlying() Type {
 
 func (t *Map) common() *Complete {
 	return &t.rtype
+}
+
+func (t *Map) writeTo(b *strings.Builder, flag verbose) {
+	if flag == shortPkgName {
+		b.WriteString(t.rtype.str)
+		return
+	}
+	writeMapTo(b, t.Key(), t.Elem(), flag)
 }
 
 // *Map specific methods
@@ -66,7 +78,7 @@ func NewMap(key Type, elem Type) *Map {
 			flags: (key.common().flags & elem.common().flags & flagComplete) | flagNotComparable,
 			kind:  MapKind,
 			elem:  elem,
-			str:   "map[" + key.String() + "]" + elem.String(),
+			str:   makeMapString(key, elem, shortPkgName),
 		},
 		extra: extra{
 			types: k.keyElem[0:1],
@@ -76,4 +88,17 @@ func NewMap(key Type, elem Type) *Map {
 	t.rtype.extra = &t.extra
 	mapMap[k] = t
 	return t
+}
+
+func makeMapString(key Type, elem Type, flag verbose) string {
+	var b strings.Builder
+	writeMapTo(&b, key, elem, flag)
+	return b.String()
+}
+
+func writeMapTo(b *strings.Builder, key Type, elem Type, flag verbose) {
+	b.WriteString("map[")
+	key.writeTo(b, flag)
+	b.WriteByte(']')
+	elem.writeTo(b, flag)
 }

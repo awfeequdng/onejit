@@ -14,6 +14,8 @@
 
 package types
 
+import "strings"
+
 type Array struct {
 	_     [0]*Array // occupies zero bytes
 	rtype Complete
@@ -23,7 +25,9 @@ type Array struct {
 // *Array implements Type
 
 func (t *Array) String() string {
-	return t.rtype.str
+	var b strings.Builder
+	t.writeTo(&b, fullPkgPath)
+	return b.String()
 }
 
 func (t *Array) Underlying() Type {
@@ -32,6 +36,14 @@ func (t *Array) Underlying() Type {
 
 func (t *Array) common() *Complete {
 	return &t.rtype
+}
+
+func (t *Array) writeTo(b *strings.Builder, flag verbose) {
+	if flag == shortPkgName {
+		b.WriteString(t.rtype.str)
+		return
+	}
+	writeArrayTo(b, t.Len(), t.Elem(), flag)
 }
 
 // *Array specific methods
@@ -68,7 +80,7 @@ func NewArray(elem Type, len uint64) *Array {
 			flags: elem.common().flags & (flagComplete | flagComparable | flagNotComparable),
 			kind:  ArrayKind,
 			elem:  elem,
-			str:   "[" + uintToString(len) + "]" + elem.String(),
+			str:   makeArrayString(len, elem, shortPkgName),
 		},
 	}
 	if elemsize := elem.common().size; elemsize != unknownSize {
@@ -85,16 +97,15 @@ func NewArray(elem Type, len uint64) *Array {
 	return t
 }
 
-func uintToString(n uint64) string {
-	if n == 0 {
-		return "0"
-	}
-	var b [20]byte
-	pos := len(b)
-	for n != 0 {
-		pos--
-		b[pos] = '0' + byte(n%10)
-		n /= 10
-	}
-	return string(b[pos:])
+func makeArrayString(len uint64, elem Type, flag verbose) string {
+	var b strings.Builder
+	writeArrayTo(&b, len, elem, flag)
+	return b.String()
+}
+
+func writeArrayTo(b *strings.Builder, len uint64, elem Type, flag verbose) {
+	b.WriteByte('[')
+	b.WriteString(uintToString(len))
+	b.WriteByte(']')
+	elem.writeTo(b, flag)
 }

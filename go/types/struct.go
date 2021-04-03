@@ -16,26 +16,6 @@ package types
 
 import "strings"
 
-type CompleteField struct {
-	Type     *Complete
-	Name     string
-	PkgPath  string
-	Tag      string
-	Offset   uint64
-	Index    int
-	Embedded bool
-}
-
-type Field struct {
-	Type     Type
-	Name     string
-	PkgPath  string
-	Tag      string
-	Offset   uint64
-	Index    int
-	Embedded bool
-}
-
 type Struct struct {
 	_     [0]*Struct // occupies zero bytes
 	rtype Complete
@@ -45,7 +25,9 @@ type Struct struct {
 // *Struct implements Type
 
 func (t *Struct) String() string {
-	return t.rtype.str
+	var b strings.Builder
+	t.writeTo(&b, fullPkgPath)
+	return b.String()
 }
 
 func (t *Struct) Underlying() Type {
@@ -54,6 +36,14 @@ func (t *Struct) Underlying() Type {
 
 func (t *Struct) common() *Complete {
 	return &t.rtype
+}
+
+func (t *Struct) writeTo(b *strings.Builder, flag verbose) {
+	if flag == shortPkgName {
+		b.WriteString(t.rtype.str)
+		return
+	}
+	writeStructTo(b, t.extra.fields, flag)
 }
 
 // *Struct specific methods
@@ -80,7 +70,7 @@ func NewStruct(fields []Field) *Struct {
 			size:  computeStructSize(fields),
 			flags: computeStructFlags(fields),
 			kind:  StructKind,
-			str:   makeStructString(fields),
+			str:   makeStructString(fields, shortPkgName),
 		},
 		extra: extra{
 			fields: fields,
@@ -199,25 +189,24 @@ func computeStructFlags(fields []Field) flags {
 	return flag
 }
 
-func makeStructString(fields []Field) string {
+func makeStructString(fields []Field, flag verbose) string {
 	var b strings.Builder
+	writeStructTo(&b, fields, flag)
+	return b.String()
+}
+
+func writeStructTo(b *strings.Builder, fields []Field, flag verbose) {
 	b.WriteString("struct {")
-	for i, field := range fields {
+	for i := range fields {
 		if i == 0 {
 			b.WriteByte(' ')
 		} else {
 			b.WriteString("; ")
 		}
-		if !field.Embedded {
-			b.WriteString(field.Name)
-			b.WriteByte(' ')
-		}
-		b.WriteString(field.Type.String())
+		fields[i].writeTo(b, flag)
 	}
-	if len(fields) == 0 {
-		b.WriteByte('}')
-	} else {
-		b.WriteString(" }")
+	if len(fields) != 0 {
+		b.WriteByte(' ')
 	}
-	return b.String()
+	b.WriteByte('}')
 }

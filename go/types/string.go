@@ -16,7 +16,39 @@ package types
 
 import "strings"
 
+type verbose bool
+
+const (
+	shortPkgName verbose = false
+	fullPkgPath  verbose = true
+)
+
 func basename(path string) string {
 	slash := strings.LastIndexByte(path, '/')
 	return path[slash+1:]
+}
+
+func uintToString(n uint64) string {
+	if n == 0 {
+		return "0"
+	}
+	var b [20]byte
+	pos := len(b)
+	for n != 0 {
+		pos--
+		b[pos] = '0' + byte(n%10)
+		n /= 10
+	}
+	return string(b[pos:])
+}
+
+func writeQualifiedName(b *strings.Builder, name string, pkgPath string, flag verbose) {
+	if flag == shortPkgName {
+		pkgPath = basename(pkgPath)
+	}
+	if len(pkgPath) != 0 {
+		b.WriteString(pkgPath)
+		b.WriteByte('.')
+	}
+	b.WriteString(name)
 }
