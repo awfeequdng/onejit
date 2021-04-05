@@ -46,7 +46,7 @@ func (t *Interface) writeTo(b *strings.Builder, flag verbose) {
 		b.WriteString(t.rtype.str)
 		return
 	}
-	writeInterfaceTo(b, t.extra.types, t.extra.methods, flag)
+	writeInterfaceTo(b, t.extra.methods, flag)
 }
 
 // *Interface specific method
@@ -56,8 +56,7 @@ func (t *Interface) NumEmbedded() int {
 	return len(t.extra.types)
 }
 
-// return number of declared method.
-// Ignores method from embedded interfaces
+// return number of method, including methods from embedded interfaces
 func (t *Interface) NumMethod() int {
 	return len(t.extra.methods)
 }
@@ -67,8 +66,7 @@ func (t *Interface) Embedded(i int) Type {
 	return t.extra.types[i]
 }
 
-// return i-th declared method.
-// Ignores method from embedded interfaces
+// return i-th method, including methods from embedded interfaces
 func (t *Interface) Method(i int) Method {
 	return t.extra.methods[i]
 }
@@ -77,19 +75,18 @@ var interfaceMap = map[interface{}]*Interface{}
 
 // create a new Interface type
 func NewInterface(embedded []Type, method []Method) *Interface {
-	key, embedded, method := makeInterfaceKey(embedded, method)
+	key, method := makeInterfaceKey(embedded, method)
 	t := interfaceMap[key]
 	if t != nil {
 		return t
 	}
-	flag := flagsAnd(embedded) & flagsAndMethod(method) & flagComplete
+	flag := flagsAndMethod(method) & flagComplete
 	t = &Interface{
 		rtype: Complete{
-			methods: &method,
-			size:    2 * archSizeBytes,
-			flags:   flag | flagComparable,
-			kind:    InterfaceKind,
-			str:     makeInterfaceString(embedded, method, shortPkgName),
+			size:  2 * archSizeBytes,
+			flags: flag | flagComparable,
+			kind:  InterfaceKind,
+			str:   makeInterfaceString(method, shortPkgName),
 		},
 		extra: extra{
 			types:   embedded,
@@ -103,31 +100,23 @@ func NewInterface(embedded []Type, method []Method) *Interface {
 	return t
 }
 
-func makeInterfaceString(embedded []Type, method []Method, flag verbose) string {
+func makeInterfaceString(method []Method, flag verbose) string {
 	var b strings.Builder
-	writeInterfaceTo(&b, embedded, method, flag)
+	writeInterfaceTo(&b, method, flag)
 	return b.String()
 }
 
-func writeInterfaceTo(b *strings.Builder, embedded []Type, method []Method, flag verbose) string {
+func writeInterfaceTo(b *strings.Builder, method []Method, flag verbose) string {
 	b.WriteString("interface {")
-	for i, t := range embedded {
-		if i == 0 {
-			b.WriteByte(' ')
-		} else {
-			b.WriteString("; ")
-		}
-		t.writeTo(b, flag)
-	}
 	for i := range method {
-		if i == 0 && len(embedded) == 0 {
+		if i == 0 {
 			b.WriteByte(' ')
 		} else {
 			b.WriteString("; ")
 		}
 		method[i].writeTo(b, flag)
 	}
-	if len(embedded) == 0 && len(method) == 0 {
+	if len(method) == 0 {
 		b.WriteByte('}')
 	} else {
 		b.WriteString(" }")
@@ -138,145 +127,127 @@ func writeInterfaceTo(b *strings.Builder, embedded []Type, method []Method, flag
 type (
 	interfaceKey0 = struct{}
 	interfaceKey2 = struct {
-		embedded [2]Type
-		method   [2]Method
+		method [2]Method
 	}
 	interfaceKey4 = struct {
-		embedded [4]Type
-		method   [4]Method
+		method [4]Method
 	}
 	interfaceKey16 = struct {
-		embedded [16]Type
-		method   [16]Method
+		method [16]Method
 	}
 	interfaceKey64 = struct {
-		embedded [64]Type
-		method   [64]Method
+		method [64]Method
 	}
 	interfaceKey256 = struct {
-		embedded [256]Type
-		method   [256]Method
+		method [256]Method
 	}
 	interfaceKey1k = struct {
-		embedded [1024]Type
-		method   [1024]Method
+		method [1024]Method
 	}
 	interfaceKey4k = struct {
-		embedded [4096]Type
-		method   [4096]Method
+		method [4096]Method
 	}
 	interfaceKey16k = struct {
-		embedded [16384]Type
-		method   [16384]Method
+		method [16384]Method
 	}
 	interfaceKey64k = struct {
-		embedded [65536]Type
-		method   [65536]Method
+		method [65536]Method
 	}
 )
 
-func makeInterfaceKey(embedded []Type, method []Method) (ret interface{}, rembedded []Type, rmethod []Method) {
-	n1, n2 := len(embedded), len(method)
-	const maxn = 65536
-	if n1 > maxn {
-		panic("NewInterface: too many embedded interfaces")
-	} else if n2 > maxn {
-		panic("NewInterface: too many method")
-	}
-	n := n2
-	if n < n1 {
-		n = n1
-	}
+func makeInterfaceKey(embedded []Type, method []Method) (ret interface{}, rmethod []Method) {
+	rmethod = computeInterfaceMethods(embedded, method)
+	n := len(rmethod)
 	if n == 0 {
 		ret = interfaceKey0{}
 	} else if n <= 2 {
 		key := interfaceKey2{}
-		rembedded, rmethod = fillInterfaceKey(key.embedded[:], key.method[:], embedded, method)
-		ret = key // copies key, must be done after fillInterfaceKey
+		copy(key.method[:], rmethod)
+		ret = key // copies key, must be done after copy
 	} else if n <= 4 {
 		key := interfaceKey4{}
-		rembedded, rmethod = fillInterfaceKey(key.embedded[:], key.method[:], embedded, method)
+		copy(key.method[:], rmethod)
 		ret = key
 	} else if n <= 16 {
 		key := interfaceKey16{}
-		rembedded, rmethod = fillInterfaceKey(key.embedded[:], key.method[:], embedded, method)
+		copy(key.method[:], rmethod)
 		ret = key
 	} else if n <= 64 {
 		key := interfaceKey64{}
-		rembedded, rmethod = fillInterfaceKey(key.embedded[:], key.method[:], embedded, method)
+		copy(key.method[:], rmethod)
 		ret = key
 	} else if n <= 256 {
 		key := interfaceKey256{}
-		rembedded, rmethod = fillInterfaceKey(key.embedded[:], key.method[:], embedded, method)
+		copy(key.method[:], rmethod)
 		ret = key
 	} else if n <= 1024 {
 		key := interfaceKey1k{}
-		rembedded, rmethod = fillInterfaceKey(key.embedded[:], key.method[:], embedded, method)
+		copy(key.method[:], rmethod)
 		ret = key
 	} else if n <= 4096 {
 		key := interfaceKey4k{}
-		rembedded, rmethod = fillInterfaceKey(key.embedded[:], key.method[:], embedded, method)
+		copy(key.method[:], rmethod)
 		ret = key
 	} else if n <= 16384 {
 		key := interfaceKey16k{}
-		rembedded, rmethod = fillInterfaceKey(key.embedded[:], key.method[:], embedded, method)
+		copy(key.method[:], rmethod)
 		ret = key
 	} else if n <= 65536 {
 		key := interfaceKey64k{}
-		rembedded, rmethod = fillInterfaceKey(key.embedded[:], key.method[:], embedded, method)
+		copy(key.method[:], rmethod)
 		ret = key
+	} else {
+		panic("NewInterface: too many methods")
 	}
-	return ret, rembedded, rmethod
+	return ret, rmethod
 
 }
 
-func fillInterfaceKey(embout []Type, mtdout []Method, emb []Type, mtd []Method) ([]Type, []Method) {
-	return fillInterfaceKeyTypes(embout, emb), fillInterfaceKeyMethods(mtdout, mtd)
-}
-
-func fillInterfaceKeyTypes(out []Type, in []Type) []Type {
-	out = out[:len(in)]
-	copy(out, in)
-	sortTypes(out)
-	for _, t := range out {
-		if t == nil || t.common().kind != Invalid && t.common().kind != InterfaceKind {
-			panic("NewInterface: invalid embedded interface type")
-		}
+func computeInterfaceMethods(embedded []Type, direct []Method) []Method {
+	out := append([]Method(nil), direct...)
+	for _, t := range embedded {
+		checkEmbeddedInterface(t)
+		out = append(out, t.common().extra.methods...)
 	}
-	return out
-}
-
-func fillInterfaceKeyMethods(out []Method, in []Method) []Method {
-	out = out[:len(in)]
-	copy(out, in)
-	sortMethods(out)
+	if len(out) > 1 {
+		sortMethods(out)
+	}
+	n := 0
 	for i := range out {
-		out[i].Index = i
-		if _, ok := out[i].Type.(*Signature); !ok {
+		mtd := &out[i]
+		mtd.Index = n
+		if _, ok := mtd.Type.(*Signature); !ok {
 			panic("NewInterface: invalid method type, expecting *Signature")
 		}
+		if n == 0 || checkDifferentMethod(&out[n-1], mtd) {
+			out[n] = *mtd
+			n++
+		}
 	}
-	return out
+	return out[:n]
 }
 
-// sortableTypes
-
-type sortableTypes []Type
-
-func (ts sortableTypes) Len() int {
-	return len(ts)
+func checkEmbeddedInterface(t Type) {
+	u := t.Underlying()
+	if u == nil {
+		panic("NewInterface: embedded interface has nil underlying type")
+	}
+	if iface, _ := u.(*Interface); iface == nil {
+		panic("NewInterface: invalid embedded interface, its underlying type must be *Interface")
+	}
 }
 
-func (ts sortableTypes) Less(i, j int) bool {
-	return ts[i].String() < ts[j].String()
-}
-
-func (ts sortableTypes) Swap(i, j int) {
-	ts[i], ts[j] = ts[j], ts[i]
-}
-
-func sortTypes(ts []Type) {
-	sort.Sort(sortableTypes(ts))
+func checkDifferentMethod(m1 *Method, m2 *Method) bool {
+	if m1.Name != m2.Name || m1.PkgPath != m2.PkgPath {
+		return true
+	} else if m1.Type == m2.Type {
+		return false
+	}
+	path := m1.PkgPath
+	if len(path) != 0 {
+		path += "."
+	}
+	panic("NewInterface: found duplicate method " + path + m1.Name + " with conflicting types")
 }
 
 // sortableMethods
@@ -288,9 +259,8 @@ func (ms sortableMethods) Len() int {
 }
 
 func (ms sortableMethods) Less(i, j int) bool {
-	name1, pkg1 := ms[i].Name, ms[i].PkgPath
-	name2, pkg2 := ms[j].Name, ms[j].PkgPath
-	return pkg1 < pkg2 || (pkg1 == pkg2 && name1 < name2)
+	pkg1, pkg2 := ms[i].PkgPath, ms[j].PkgPath
+	return pkg1 < pkg2 || (pkg1 == pkg2 && ms[i].Name < ms[j].Name)
 }
 
 func (ms sortableMethods) Swap(i, j int) {

@@ -99,6 +99,28 @@ func TestInterface(test *testing.T) {
 	}
 }
 
+func TestInterfaceEmbedded(test *testing.T) {
+	for _, b := range BasicTypes() {
+		if b == nil {
+			continue
+		}
+		fun := NewSignature(nil, []Type{b}, false)
+		methods := []Method{{
+			Type: fun,
+			Name: "Value",
+		}}
+		t := NewInterface(nil, methods)
+		if actual, expected := t.String(), "interface { Value() "+b.String()+" }"; actual != expected {
+			test.Errorf("t.String()\t= %v,\texpecting %v", actual, expected)
+		}
+		tagain := NewInterface([]Type{t}, methods)
+		if t != tagain {
+			test.Errorf("NewInterface() produced non-identical types %p and %p", t, tagain)
+		}
+
+	}
+}
+
 func TestMap(test *testing.T) {
 	for _, key := range BasicTypes() {
 		if key == nil {
