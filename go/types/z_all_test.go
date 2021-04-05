@@ -310,7 +310,7 @@ func TestStruct(test *testing.T) {
 				Embedded: true,
 			}
 
-			t := NewStruct(fields)
+			t := NewStruct(fields...)
 			if expected := "struct { " + f0.String() + "; " + f1.String() + " }"; t.String() != expected {
 				test.Errorf("t.String()\t= %v,\texpecting %v", t.String(), expected)
 			}
@@ -322,7 +322,7 @@ func TestStruct(test *testing.T) {
 				test.Errorf("t.Field(1)\t= %v,\texpecting %v", actual, expected)
 			}
 
-			tagain := NewStruct(fields)
+			tagain := NewStruct(fields...)
 			if t != tagain {
 				test.Errorf("NewStruct(%v) produced non-identical types %p and %p",
 					fields, t, tagain)

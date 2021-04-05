@@ -84,11 +84,10 @@ func NewInterface(embedded []Type, method []Method) *Interface {
 	if t != nil {
 		return t
 	}
-	flag := flagsAndMethod(method) & flagComplete
 	t = &Interface{
 		rtype: Complete{
 			size:  2 * archSizeBytes,
-			flags: flag | flagComparable,
+			flags: (flagsAndMethod(method) & flagComplete) | flagComparable | flagNillable,
 			kind:  InterfaceKind,
 			str:   makeInterfaceString(method, shortPkgName),
 		},

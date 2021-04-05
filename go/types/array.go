@@ -77,7 +77,7 @@ var arrayMap = map[arrayKey]*Array{}
 func NewArray(elem Type, len uint64) *Array {
 	archMaxSize := ^(^uint64(0) << archSizeBits)
 	if len > archMaxSize {
-		panic("NewArray length exceeds archSizeBits")
+		panic("NewArray length " + uintToString(len) + " exceeds archSizeBits")
 	}
 	key := arrayKey{elem, len}
 	t := arrayMap[key]
@@ -105,7 +105,7 @@ func computeArraySize(elem Type, len uint64) uint64 {
 	}
 	archMaxSize := ^(^uint64(0) << archSizeBits)
 	if elemsize != 0 && len > archMaxSize/elemsize {
-		panic("NewArray total bytes exceed archSizeBits")
+		panic("NewArray length " + uintToString(len) + " exceeds archSizeBits/elementSize = " + uintToString(archMaxSize/elemsize))
 	}
 	return len * elemsize
 }

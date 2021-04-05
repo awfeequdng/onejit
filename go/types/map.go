@@ -79,7 +79,7 @@ func NewMap(key Type, elem Type) *Map {
 	t = &Map{
 		rtype: Complete{
 			size:  archSizeBytes,
-			flags: (key.common().flags & elem.common().flags & flagComplete) | flagNotComparable,
+			flags: (key.common().flags & elem.common().flags & flagComplete) | flagNotComparable | flagNillable,
 			kind:  MapKind,
 			elem:  elem,
 			str:   makeMapString(key, elem, shortPkgName),

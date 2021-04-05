@@ -70,7 +70,7 @@ func (t *Struct) Field(i int) Field {
 var structMap = map[interface{}]*Struct{}
 
 // create a new Struct type
-func NewStruct(fields []Field) *Struct {
+func NewStruct(fields ...Field) *Struct {
 	key, fields := makeStructKey(fields)
 	t := structMap[key]
 	if t != nil {

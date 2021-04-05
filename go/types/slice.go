@@ -67,7 +67,7 @@ func NewSlice(elem Type) *Slice {
 	t = &Slice{
 		rtype: Complete{
 			size:  3 * archSizeBytes,
-			flags: (elem.common().flags & flagComplete) | flagNotComparable,
+			flags: (elem.common().flags & flagComplete) | flagNotComparable | flagNillable,
 			kind:  SliceKind,
 			elem:  elem,
 			str:   "[]" + elem.String(),

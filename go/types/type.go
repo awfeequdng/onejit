@@ -50,11 +50,12 @@ const (
 	SendDir ChanDir = 2
 	BothDir         = RecvDir | SendDir
 
-	flagComparable    flags = 4
-	flagNotComparable flags = 8
-	flagComplete      flags = 16
-	flagNeedPadding   flags = 32 // type is or ends with zero-byte struct or array
-	flagVariadic      flags = 64
+	flagNillable      flags = 4
+	flagComparable    flags = 8
+	flagNotComparable flags = 16
+	flagComplete      flags = 32
+	flagNeedPadding   flags = 64 // type is or ends with zero-byte struct or array
+	flagVariadic      flags = 128
 
 	unknownSize = ^uint64(0)
 )

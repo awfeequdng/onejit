@@ -36,19 +36,30 @@ type (
 // resolve circular dependencies and incomplete Types,
 // and return equivalent *Complete objects
 func CompleteTypes(ts ...Type) []*Complete {
-	fwd := make(typegraph, len(ts))
-	fwd.addTypes(ts)
-	g2 := typegraph2{
-		fwd:       fwd,
-		inv:       fwd.invert(),
-		completed: make(typelist, 0, len(ts)),
+	if !allTypesAreComplete(ts) {
+		fwd := make(typegraph, len(ts))
+		fwd.addTypes(ts)
+		g2 := typegraph2{
+			fwd:       fwd,
+			inv:       fwd.invert(),
+			completed: make(typelist, 0, len(ts)),
+		}
+		g2.complete()
 	}
-	g2.complete()
 	cs := make([]*Complete, len(ts))
 	for i, t := range ts {
 		cs[i] = t.common()
 	}
 	return cs
+}
+
+func allTypesAreComplete(ts []Type) bool {
+	for _, t := range ts {
+		if t.common().flags&flagComplete == 0 {
+			return false
+		}
+	}
+	return true
 }
 
 // --------------------------- typegraph ---------------------------------------
@@ -118,8 +129,9 @@ func (g typegraph) addDepMethods(t Type, mdeps []Method) {
 }
 
 func (g typegraph) addDepType(t Type, tdep Type, strong bool) {
-	g.addType(tdep)
-	g.add(t, tdep, strong)
+	if g.addType(tdep) {
+		g.add(t, tdep, strong)
+	}
 }
 
 func (g typegraph) add(t Type, tdep Type, strong bool) {
@@ -190,26 +202,29 @@ func (g2 *typegraph2) complete() {
 	for len(fwd) != 0 {
 		println(g2.String())
 		t := fwd.pickTypeNoStrongDeps()
-		g2.completeType(t)
+		println("completeType", t.String())
+		t.complete()
 		g2.updateDeps(t)
 	}
 	println(g2.String())
 	for _, t := range g2.completed {
-		checkComparableMapKey(t)
+		checkCompleteType(t)
 		t.common().flags |= flagComplete
 	}
 }
 
-func checkComparableMapKey(t Type) {
+func checkCompleteType(t Type) {
 	c := t.common()
-	if c.kind == MapKind && c.extra.types[0].common().flags&(flagComparable|flagNotComparable) != flagComparable {
-		panic("CompleteTypes: map key type " + t.String() + " is not comparable")
+	isComparable := c.flags&flagComparable != 0
+	isNotComparable := c.flags&flagNotComparable != 0
+	if isComparable == isNotComparable {
+		panic("CompleteTypes: type " + t.String() + " is both comparable and not comparable")
 	}
-}
-
-func (g2 *typegraph2) completeType(t Type) {
-	println("completeType", t.String())
-	t.complete()
+	if c.kind == MapKind {
+		if c.extra.types[0].common().flags&(flagComparable|flagNotComparable) != flagComparable {
+			panic("CompleteTypes: map key type " + t.String() + " is not comparable")
+		}
+	}
 }
 
 func (g2 *typegraph2) updateDeps(completed Type) {
