@@ -16,80 +16,80 @@ package types
 
 import "strings"
 
-// Signature represents the type of a function
-type Signature struct {
-	_     [0]*Signature // occupies zero bytes
+// Func represents the type of a function
+type Func struct {
+	_     [0]*Func // occupies zero bytes
 	rtype Complete
 	extra extra
 }
 
-// *Signature implements Type
+// *Func implements Type
 
-func (t *Signature) String() string {
+func (t *Func) String() string {
 	var b strings.Builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()
 }
 
-func (t *Signature) Underlying() Type {
+func (t *Func) Underlying() Type {
 	return t
 }
 
-func (t *Signature) common() *Complete {
+func (t *Func) common() *Complete {
 	return &t.rtype
 }
 
-func (t *Signature) complete() {
+func (t *Func) complete() {
 	// nothing to do
 }
 
-func (t *Signature) writeTo(b *strings.Builder, flag verbose) {
+func (t *Func) writeTo(b *strings.Builder, flag verbose) {
 	if flag == shortPkgName {
 		b.WriteString(t.rtype.str)
 		return
 	}
 	b.WriteString("func")
-	writeSignatureTo(b, t.in(), t.out(), t.IsVariadic(), flag)
+	writeFuncTo(b, t.in(), t.out(), t.IsVariadic(), flag)
 }
 
-// *Signature specific methods
+// *Func specific methods
 
-func (t *Signature) IsVariadic() bool {
+func (t *Func) IsVariadic() bool {
 	return t.rtype.flags&flagVariadic != 0
 }
 
-func (t *Signature) NumIn() int {
+func (t *Func) NumIn() int {
 	return int(t.extra.n1)
 }
 
-func (t *Signature) NumOut() int {
+func (t *Func) NumOut() int {
 	return int(t.extra.n2)
 }
 
-func (t *Signature) In(i int) Type {
+func (t *Func) In(i int) Type {
 	return t.in()[i]
 }
 
-func (t *Signature) Out(i int) Type {
+func (t *Func) Out(i int) Type {
 	return t.out()[i]
 }
 
-func (t *Signature) in() []Type {
+func (t *Func) in() []Type {
 	extra := t.extra
 	return extra.types[0:extra.n1]
 }
 
-func (t *Signature) out() []Type {
+func (t *Func) out() []Type {
 	extra := t.extra
 	return extra.types[extra.n1:]
 }
 
-var sigMap = map[interface{}]*Signature{}
+var funcMap = map[interface{}]*Func{}
 
-// create a new Signature type
-func NewSignature(in []Type, out []Type, variadic bool) *Signature {
-	key, types := makeSigKey(in, out, variadic)
-	t := sigMap[key]
+// create a new Func type
+func NewFunc(in []Type, out []Type, variadic bool) *Func {
+	key, types := makeFuncKey(in, out, variadic)
+	t := funcMap[key]
 	if t != nil {
 		return t
 	}
@@ -97,12 +97,12 @@ func NewSignature(in []Type, out []Type, variadic bool) *Signature {
 	if variadic {
 		flag |= flagVariadic
 	}
-	t = &Signature{
+	t = &Func{
 		rtype: Complete{
 			size:  archSizeBytes,
 			flags: flag | flagNotComparable,
 			kind:  FuncKind,
-			str:   makeSignatureString(in, out, variadic, shortPkgName),
+			str:   makeFuncString(in, out, variadic, shortPkgName),
 		},
 		extra: extra{
 			n1:    uint32(len(in)),
@@ -112,99 +112,99 @@ func NewSignature(in []Type, out []Type, variadic bool) *Signature {
 	}
 	t.rtype.typ = t
 	t.rtype.extra = &t.extra
-	sigMap[key] = t
+	funcMap[key] = t
 	return t
 }
 
 type (
-	sigKey0 = struct{}
-	sigKey2 = struct {
+	funcKey0 = struct{}
+	funcKey2 = struct {
 		n1, n2 uint16
 		inout  [2]Type
 	}
-	sigKey4 = struct {
+	funcKey4 = struct {
 		n1, n2 uint16
 		inout  [4]Type
 	}
-	sigKey16 = struct {
+	funcKey16 = struct {
 		n1, n2 uint16
 		inout  [16]Type
 	}
-	sigKey64 = struct {
+	funcKey64 = struct {
 		n1, n2 uint16
 		inout  [64]Type
 	}
-	sigKey256 = struct {
+	funcKey256 = struct {
 		n1, n2 uint16
 		inout  [256]Type
 	}
-	sigKey1k = struct {
+	funcKey1k = struct {
 		n1, n2 uint16
 		inout  [1024]Type
 	}
-	sigKey4k = struct {
+	funcKey4k = struct {
 		n1, n2 uint16
 		inout  [4096]Type
 	}
-	sigKey16k = struct {
+	funcKey16k = struct {
 		n1, n2 uint16
 		inout  [16384]Type
 	}
-	sigKey64k = struct {
+	funcKey64k = struct {
 		n1, n2 uint16
 		inout  [65536]Type
 	}
 )
 
-func makeSigKey(in []Type, out []Type, variadic bool) (ret interface{}, types []Type) {
+func makeFuncKey(in []Type, out []Type, variadic bool) (ret interface{}, types []Type) {
 	n1, n2 := uint(len(in)), uint(len(out))
 	n := n1 + n2
 	const maxn = 65536
 	if n1 >= maxn || n2 >= maxn/2 || n > maxn {
-		panic("NewSignature: too many function parameters and results")
+		panic("NewFunc: too many function parameters and results")
 	}
 	if variadic {
 		n2 |= maxn / 2
 	}
 	if n == 0 {
-		ret = sigKey0{}
+		ret = funcKey0{}
 	} else if n <= 2 {
-		key := sigKey2{n1: uint16(n1), n2: uint16(n2)}
-		types = fillSigKey(key.inout[:], in, out)
+		key := funcKey2{n1: uint16(n1), n2: uint16(n2)}
+		types = fillFuncKey(key.inout[:], in, out)
 		ret = key // copies key, must be done after fillSigKey
 	} else if n <= 4 {
-		key := sigKey4{n1: uint16(n1), n2: uint16(n2)}
-		types = fillSigKey(key.inout[:], in, out)
+		key := funcKey4{n1: uint16(n1), n2: uint16(n2)}
+		types = fillFuncKey(key.inout[:], in, out)
 		ret = key
 	} else if n <= 16 {
-		key := sigKey16{n1: uint16(n1), n2: uint16(n2)}
-		types = fillSigKey(key.inout[:], in, out)
+		key := funcKey16{n1: uint16(n1), n2: uint16(n2)}
+		types = fillFuncKey(key.inout[:], in, out)
 		ret = key
 	} else if n <= 256 {
-		key := sigKey256{n1: uint16(n1), n2: uint16(n2)}
-		types = fillSigKey(key.inout[:], in, out)
+		key := funcKey256{n1: uint16(n1), n2: uint16(n2)}
+		types = fillFuncKey(key.inout[:], in, out)
 		ret = key
 	} else if n <= 1024 {
-		key := sigKey1k{n1: uint16(n1), n2: uint16(n2)}
-		types = fillSigKey(key.inout[:], in, out)
+		key := funcKey1k{n1: uint16(n1), n2: uint16(n2)}
+		types = fillFuncKey(key.inout[:], in, out)
 		ret = key
 	} else if n <= 4096 {
-		key := sigKey4k{n1: uint16(n1), n2: uint16(n2)}
-		types = fillSigKey(key.inout[:], in, out)
+		key := funcKey4k{n1: uint16(n1), n2: uint16(n2)}
+		types = fillFuncKey(key.inout[:], in, out)
 		ret = key
 	} else if n <= 16384 {
-		key := sigKey16k{n1: uint16(n1), n2: uint16(n2)}
-		types = fillSigKey(key.inout[:], in, out)
+		key := funcKey16k{n1: uint16(n1), n2: uint16(n2)}
+		types = fillFuncKey(key.inout[:], in, out)
 		ret = key
 	} else {
-		key := sigKey64k{n1: uint16(n1), n2: uint16(n2)}
-		types = fillSigKey(key.inout[:], in, out)
+		key := funcKey64k{n1: uint16(n1), n2: uint16(n2)}
+		types = fillFuncKey(key.inout[:], in, out)
 		ret = key
 	}
 	return ret, types
 }
 
-func fillSigKey(dst, in, out []Type) []Type {
+func fillFuncKey(dst, in, out []Type) []Type {
 	n1, n2 := len(in), len(out)
 	dst = dst[:n1+n2]
 	copy(dst[:n1], in)
@@ -212,15 +212,15 @@ func fillSigKey(dst, in, out []Type) []Type {
 	return dst
 }
 
-func makeSignatureString(in []Type, out []Type, variadic bool, flag verbose) string {
+func makeFuncString(in []Type, out []Type, variadic bool, flag verbose) string {
 	var b strings.Builder
 	b.WriteString("func")
-	writeSignatureTo(&b, in, out, variadic, flag)
+	writeFuncTo(&b, in, out, variadic, flag)
 	return b.String()
 }
 
 // does NOT write "func" prefix
-func writeSignatureTo(b *strings.Builder, in []Type, out []Type, variadic bool, flag verbose) {
+func writeFuncTo(b *strings.Builder, in []Type, out []Type, variadic bool, flag verbose) {
 	b.WriteByte('(')
 	for i, t := range in {
 		if i != 0 {

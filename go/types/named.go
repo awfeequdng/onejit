@@ -90,7 +90,7 @@ func (t *Named) Method(i int) Method {
 // add a method. always appends to the list of methods,
 // even if another method with the same name already exists.
 func (t *Named) AddMethod(mtd *Method) {
-	_ = mtd.Type.(*Signature)
+	_ = mtd.Type.(*Func)
 	ms := t.extra.methods
 	count := len(ms)
 	ms = append(ms, *mtd)   // append method as-is

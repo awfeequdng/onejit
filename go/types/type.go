@@ -59,7 +59,7 @@ const (
 	unknownSize = ^uint64(0)
 )
 
-// configurable, must be 4 or 8
+// configurable, must be 32 or 64
 var archSizeBits ArchSizeBits = ArchSizeAuto
 var archSizeBytes uint64 = uint64(ArchSizeAuto) / 8
 

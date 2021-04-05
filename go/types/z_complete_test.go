@@ -6,7 +6,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * z_test.go
+ * z_complete_test.go
  *
  *  Created on: Apr 01, 2021
  *      Author: Massimiliano Ghilardi
@@ -39,7 +39,7 @@ func TestCompleteFunc(test *testing.T) {
 	 * type f func() f
 	 */
 	f := NewNamed("f", "")
-	f.SetUnderlying(NewSignature(nil, []Type{f}, false))
+	f.SetUnderlying(NewFunc(nil, []Type{f}, false))
 
 	cs := CompleteTypes(f)
 	test.Log(cs)

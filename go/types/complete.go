@@ -114,7 +114,7 @@ func (t *Complete) ChanDir() ChanDir {
 	panic("ChanDir of invalid type")
 }
 
-// Signature-related methods
+// Func-related methods
 
 func (t *Complete) IsVariadic() bool {
 	if t.kind == FuncKind {

@@ -6,7 +6,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * z_test.go
+ * z_basic_test.go
  *
  *  Created on: Apr 01, 2021
  *      Author: Massimiliano Ghilardi
@@ -46,7 +46,7 @@ func TestFunc(test *testing.T) {
 			if arg2 == nil {
 				continue
 			}
-			t := NewSignature([]Type{arg1, arg2}, []Type{arg2, arg1}, true)
+			t := NewFunc([]Type{arg1, arg2}, []Type{arg2, arg1}, true)
 			if expected := "func(" + arg1.String() + ", ..." + arg2.String() +
 				") (" + arg2.String() + ", " + arg1.String() + ")"; t.String() != expected {
 
@@ -64,9 +64,9 @@ func TestFunc(test *testing.T) {
 				test.Errorf("t.Out(1)\t= %v,\texpecting %v", actual, expected)
 			}
 
-			tagain := NewSignature([]Type{arg1, arg2}, []Type{arg2, arg1}, true)
+			tagain := NewFunc([]Type{arg1, arg2}, []Type{arg2, arg1}, true)
 			if t != tagain {
-				test.Errorf("NewSignature({%v,%v}, {%v,%v}) produced non-identical types %p and %p",
+				test.Errorf("NewFunc({%v,%v}, {%v,%v}) produced non-identical types %p and %p",
 					arg1, arg2, arg2, arg1, t, tagain)
 			}
 		}
@@ -81,17 +81,17 @@ func TestInterface(test *testing.T) {
 		if b == nil {
 			continue
 		}
-		fun := NewSignature([]Type{b, b}, []Type{bbool}, false)
+		fun := NewFunc([]Type{b, b}, []Type{bbool}, false)
 		methods := []Method{{
 			Type:    fun,
 			Name:    "less",
 			PkgPath: pkgPath,
 		}}
-		t := NewInterface(nil, methods)
+		t := NewInterface(nil, methods...)
 		if actual, expected := t.String(), "interface { "+pkgPath+".less("+b.String()+", "+b.String()+") bool }"; actual != expected {
 			test.Errorf("t.String()\t= %v,\texpecting %v", actual, expected)
 		}
-		tagain := NewInterface(nil, methods)
+		tagain := NewInterface(nil, methods...)
 		if t != tagain {
 			test.Errorf("NewInterface() produced non-identical types %p and %p", t, tagain)
 		}
@@ -104,16 +104,16 @@ func TestInterfaceEmbedded(test *testing.T) {
 		if b == nil {
 			continue
 		}
-		fun := NewSignature(nil, []Type{b}, false)
+		fun := NewFunc(nil, []Type{b}, false)
 		methods := []Method{{
 			Type: fun,
 			Name: "Value",
 		}}
-		t := NewInterface(nil, methods)
+		t := NewInterface(nil, methods...)
 		if actual, expected := t.String(), "interface { Value() "+b.String()+" }"; actual != expected {
 			test.Errorf("t.String()\t= %v,\texpecting %v", actual, expected)
 		}
-		tagain := NewInterface([]Type{t}, methods)
+		tagain := NewInterface([]Type{t}, methods...)
 		if t != tagain {
 			test.Errorf("NewInterface() produced non-identical types %p and %p", t, tagain)
 		}
@@ -187,7 +187,7 @@ func TestNamed(test *testing.T) {
 			test.Errorf("t.common().Size()\t= %v,\texpecting %v", actual, expected)
 		}
 		m := Method{
-			Type: NewSignature([]Type{t}, nil, false),
+			Type: NewFunc([]Type{t}, nil, false),
 			Name: "bar",
 		}
 		if actual, expected := t.NumMethod(), 0; actual != expected {

@@ -61,7 +61,7 @@ const (
 )
 
 var kinds = [...]string{
-	Invalid:        "invalid",
+	Invalid:        "invalid", // also used by Builtin
 	Bool:           "bool",
 	Int:            "int",
 	Int8:           "int8",

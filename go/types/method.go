@@ -43,7 +43,7 @@ func (m *Method) String() string {
 func (m *Method) writeTo(b *strings.Builder, flag verbose) {
 	writeQualifiedName(b, m.Name, m.PkgPath, flag)
 
-	sig := m.Type.(*Signature)
+	sig := m.Type.(*Func)
 	// omits "func" prefix
-	writeSignatureTo(b, sig.in(), sig.out(), sig.IsVariadic(), flag)
+	writeFuncTo(b, sig.in(), sig.out(), sig.IsVariadic(), flag)
 }

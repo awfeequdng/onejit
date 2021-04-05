@@ -78,7 +78,7 @@ func (t *Interface) Method(i int) Method {
 var interfaceMap = map[interface{}]*Interface{}
 
 // create a new Interface type
-func NewInterface(embedded []Type, method []Method) *Interface {
+func NewInterface(embedded []Type, method ...Method) *Interface {
 	key, method := makeInterfaceKey(embedded, method)
 	t := interfaceMap[key]
 	if t != nil {
@@ -219,8 +219,8 @@ func computeInterfaceMethods(embedded []Type, direct []Method) []Method {
 	for i := range out {
 		mtd := &out[i]
 		mtd.Index = n
-		if _, ok := mtd.Type.(*Signature); !ok {
-			panic("NewInterface: invalid method type, expecting *Signature")
+		if _, ok := mtd.Type.(*Func); !ok {
+			panic("NewInterface: invalid method type, expecting *Func")
 		}
 		if n == 0 || checkDifferentMethod(&out[n-1], mtd) {
 			out[n] = *mtd

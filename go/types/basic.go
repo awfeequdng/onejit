@@ -46,6 +46,10 @@ func (t *Basic) writeTo(b *strings.Builder, flag verbose) {
 
 // *Basic specific methods
 
+func (t *Basic) Complete() *Complete {
+	return &t.rtype
+}
+
 func (t *Basic) Kind() Kind {
 	return t.rtype.kind
 }
