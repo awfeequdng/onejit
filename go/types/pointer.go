@@ -38,10 +38,7 @@ func (t *Pointer) common() *Complete {
 }
 
 func (t *Pointer) complete() {
-	if t.rtype.flags&flagComplete != 0 {
-		return
-	}
-	// TODO
+	// nothing to do
 }
 
 func (t *Pointer) writeTo(b *strings.Builder, flag verbose) {

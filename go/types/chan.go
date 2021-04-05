@@ -38,10 +38,7 @@ func (t *Chan) common() *Complete {
 }
 
 func (t *Chan) complete() {
-	if t.rtype.flags&flagComplete != 0 {
-		return
-	}
-	// TODO
+	// nothing to do
 }
 
 func (t *Chan) writeTo(b *strings.Builder, flag verbose) {

@@ -42,7 +42,11 @@ func (t *Struct) complete() {
 	if t.rtype.flags&flagComplete != 0 {
 		return
 	}
-	// TODO
+	fields := t.extra.fields
+	if t.rtype.size == unknownSize {
+		t.rtype.size = computeStructSize(fields)
+	}
+	t.rtype.flags = computeStructFlags(fields)
 }
 
 func (t *Struct) writeTo(b *strings.Builder, flag verbose) {

@@ -40,10 +40,7 @@ func (t *Signature) common() *Complete {
 }
 
 func (t *Signature) complete() {
-	if t.rtype.flags&flagComplete != 0 {
-		return
-	}
-	// TODO
+	// nothing to do
 }
 
 func (t *Signature) writeTo(b *strings.Builder, flag verbose) {

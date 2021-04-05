@@ -195,7 +195,15 @@ func (g2 *typegraph2) complete() {
 	}
 	println(g2.String())
 	for _, t := range g2.completed {
+		checkComparableMapKey(t)
 		t.common().flags |= flagComplete
+	}
+}
+
+func checkComparableMapKey(t Type) {
+	c := t.common()
+	if c.kind == MapKind && c.extra.types[0].common().flags&(flagComparable|flagNotComparable) != flagComparable {
+		panic("CompleteTypes: map key type " + t.String() + " is not comparable")
 	}
 }
 

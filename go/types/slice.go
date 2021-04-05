@@ -38,10 +38,7 @@ func (t *Slice) common() *Complete {
 }
 
 func (t *Slice) complete() {
-	if t.rtype.flags&flagComplete != 0 {
-		return
-	}
-	// TODO
+	// nothing to do
 }
 
 func (t *Slice) writeTo(b *strings.Builder, flag verbose) {

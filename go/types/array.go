@@ -42,7 +42,10 @@ func (t *Array) complete() {
 	if t.rtype.flags&flagComplete != 0 {
 		return
 	}
-	// TODO
+	elem := t.Elem()
+	len := t.Len()
+	t.rtype.size = computeArraySize(elem, len)
+	t.rtype.flags = computeArrayFlags(elem, len)
 }
 
 func (t *Array) writeTo(b *strings.Builder, flag verbose) {
@@ -83,25 +86,36 @@ func NewArray(elem Type, len uint64) *Array {
 	}
 	t = &Array{
 		rtype: Complete{
-			size:  unknownSize,
-			flags: elem.common().flags & (flagComplete | flagComparable | flagNotComparable),
+			size:  computeArraySize(elem, len),
+			flags: computeArrayFlags(elem, len),
 			kind:  ArrayKind,
 			elem:  elem,
 			str:   makeArrayString(len, elem, shortPkgName),
 		},
 	}
-	if elemsize := elem.common().size; elemsize != unknownSize {
-		if elemsize != 0 && len > archMaxSize/elemsize {
-			panic("NewArray total bytes exceed archSizeBits")
-		}
-		t.rtype.size = len * elemsize
-		if elemsize == 0 {
-			t.rtype.flags |= flagNeedPadding
-		}
-	}
 	t.rtype.typ = t
 	arrayMap[key] = t
 	return t
+}
+
+func computeArraySize(elem Type, len uint64) uint64 {
+	elemsize := elem.common().size
+	if elemsize == unknownSize {
+		return elemsize
+	}
+	archMaxSize := ^(^uint64(0) << archSizeBits)
+	if elemsize != 0 && len > archMaxSize/elemsize {
+		panic("NewArray total bytes exceed archSizeBits")
+	}
+	return len * elemsize
+}
+
+func computeArrayFlags(elem Type, len uint64) flags {
+	flag := elem.common().flags & (flagComplete | flagComparable | flagNotComparable)
+	if len == 0 || elem.common().size == 0 {
+		flag |= flagNeedPadding
+	}
+	return flag
 }
 
 func makeArrayString(len uint64, elem Type, flag verbose) string {

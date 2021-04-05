@@ -39,10 +39,7 @@ func (t *Map) common() *Complete {
 }
 
 func (t *Map) complete() {
-	if t.rtype.flags&flagComplete != 0 {
-		return
-	}
-	// TODO
+	// nothing to do
 }
 
 func (t *Map) writeTo(b *strings.Builder, flag verbose) {
@@ -72,7 +69,7 @@ var mapMap = map[mapKey]*Map{}
 // create a new Map type
 func NewMap(key Type, elem Type) *Map {
 	if key.common().flags&flagNotComparable != 0 {
-		panic("NewMap: map key type is not comparable")
+		panic("NewMap: map key type " + key.String() + " is not comparable")
 	}
 	k := mapKey{[2]Type{key, elem}}
 	t := mapMap[k]

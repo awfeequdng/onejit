@@ -42,10 +42,7 @@ func (t *Interface) common() *Complete {
 }
 
 func (t *Interface) complete() {
-	if t.rtype.flags&flagComplete != 0 {
-		return
-	}
-	// TODO
+	// nothing to do
 }
 
 func (t *Interface) writeTo(b *strings.Builder, flag verbose) {
@@ -240,7 +237,7 @@ func checkEmbeddedInterface(t Type) {
 		panic("NewInterface: embedded interface has nil underlying type")
 	}
 	if iface, _ := u.(*Interface); iface == nil {
-		panic("NewInterface: invalid embedded interface, its underlying type must be *Interface")
+		panic("NewInterface: invalid embedded interface " + t.String() + ", its underlying type must be *Interface")
 	}
 }
 
