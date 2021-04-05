@@ -33,6 +33,8 @@ type (
 	}
 )
 
+const debugComplete = false
+
 // resolve circular dependencies and incomplete Types,
 // and return equivalent *Complete objects
 func CompleteTypes(ts ...Type) []*Complete {
@@ -82,7 +84,9 @@ func (g typegraph) addType(t Type) bool {
 }
 
 func (g typegraph) addTypeContent(t Type) {
-	// println("addTypeContent", t.String())
+	if debugComplete {
+		println("addTypeContent", t.String())
+	}
 	c := t.common()
 	x := c.extra
 	if _, isnamed := t.(*Named); isnamed {
@@ -200,13 +204,19 @@ func (g typegraph) pickTypeNoStrongDeps() Type {
 func (g2 *typegraph2) complete() {
 	fwd := g2.fwd
 	for len(fwd) != 0 {
-		println(g2.String())
+		if debugComplete {
+			println(g2.String())
+		}
 		t := fwd.pickTypeNoStrongDeps()
-		println("completeType", t.String())
+		if debugComplete {
+			println("completeType", t.String())
+		}
 		t.complete()
 		g2.updateDeps(t)
 	}
-	println(g2.String())
+	if debugComplete {
+		println(g2.String())
+	}
 	for _, t := range g2.completed {
 		checkCompleteType(t)
 		t.common().flags |= flagComplete

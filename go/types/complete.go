@@ -70,7 +70,7 @@ func (t *Complete) Kind() Kind {
 func (t *Complete) Name() string {
 	if t.extra != nil {
 		return t.extra.name
-	} else if isBasic(t.kind) {
+	} else if t.kind.IsBasic() {
 		return t.str
 	}
 	return ""
