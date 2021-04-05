@@ -77,7 +77,7 @@ func NewChan(dir ChanDir, elem Type) *Chan {
 	t = &Chan{
 		rtype: Complete{
 			size:  archSizeBytes,
-			flags: flags(dir) | (elem.common().flags & flagComplete) | flagNotComparable | flagNillable,
+			flags: flags(dir) | (elem.common().flags & flagComplete) | flagNotComparable,
 			kind:  ChanKind,
 			elem:  elem,
 			str:   makeChanString(dir, elem, shortPkgName),

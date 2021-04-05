@@ -87,7 +87,7 @@ func NewInterface(embedded []Type, method []Method) *Interface {
 	t = &Interface{
 		rtype: Complete{
 			size:  2 * archSizeBytes,
-			flags: (flagsAndMethod(method) & flagComplete) | flagComparable | flagNillable,
+			flags: (flagsAndMethod(method) & flagComplete) | flagComparable,
 			kind:  InterfaceKind,
 			str:   makeInterfaceString(method, shortPkgName),
 		},

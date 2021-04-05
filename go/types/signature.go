@@ -100,7 +100,7 @@ func NewSignature(in []Type, out []Type, variadic bool) *Signature {
 	t = &Signature{
 		rtype: Complete{
 			size:  archSizeBytes,
-			flags: flag | flagNotComparable | flagNillable,
+			flags: flag | flagNotComparable,
 			kind:  FuncKind,
 			str:   makeSignatureString(in, out, variadic, shortPkgName),
 		},

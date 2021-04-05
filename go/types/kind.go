@@ -104,6 +104,10 @@ func (k Kind) String() string {
 	return kinds[k]
 }
 
+func (k Kind) IsNillable() bool {
+	return k >= ChanKind && k <= SliceKind || k == UnsafePointer || k == UntypedNil
+}
+
 func isBasic(k Kind) bool {
 	return k >= Bool && k <= Complex128 || k == String || k >= UnsafePointer && k <= UntypedNil
 }
