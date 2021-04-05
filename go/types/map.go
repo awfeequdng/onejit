@@ -38,6 +38,13 @@ func (t *Map) common() *Complete {
 	return &t.rtype
 }
 
+func (t *Map) complete() {
+	if t.rtype.flags&flagComplete != 0 {
+		return
+	}
+	// TODO
+}
+
 func (t *Map) writeTo(b *strings.Builder, flag verbose) {
 	if flag == shortPkgName {
 		b.WriteString(t.rtype.str)

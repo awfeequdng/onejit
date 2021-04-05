@@ -39,6 +39,13 @@ func (t *Signature) common() *Complete {
 	return &t.rtype
 }
 
+func (t *Signature) complete() {
+	if t.rtype.flags&flagComplete != 0 {
+		return
+	}
+	// TODO
+}
+
 func (t *Signature) writeTo(b *strings.Builder, flag verbose) {
 	if flag == shortPkgName {
 		b.WriteString(t.rtype.str)

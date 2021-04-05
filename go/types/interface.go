@@ -41,6 +41,13 @@ func (t *Interface) common() *Complete {
 	return &t.rtype
 }
 
+func (t *Interface) complete() {
+	if t.rtype.flags&flagComplete != 0 {
+		return
+	}
+	// TODO
+}
+
 func (t *Interface) writeTo(b *strings.Builder, flag verbose) {
 	if flag == shortPkgName {
 		b.WriteString(t.rtype.str)

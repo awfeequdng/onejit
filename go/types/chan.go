@@ -37,6 +37,13 @@ func (t *Chan) common() *Complete {
 	return &t.rtype
 }
 
+func (t *Chan) complete() {
+	if t.rtype.flags&flagComplete != 0 {
+		return
+	}
+	// TODO
+}
+
 func (t *Chan) writeTo(b *strings.Builder, flag verbose) {
 	if flag == shortPkgName {
 		b.WriteString(t.rtype.str)

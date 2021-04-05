@@ -36,6 +36,10 @@ func (t *Basic) common() *Complete {
 	return &t.rtype
 }
 
+func (t *Basic) complete() {
+	// nothing to do
+}
+
 func (t *Basic) writeTo(b *strings.Builder, flag verbose) {
 	b.WriteString(t.rtype.str)
 }

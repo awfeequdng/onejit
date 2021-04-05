@@ -153,11 +153,14 @@ func fillFromUnderlying(r *Complete, u *Complete) {
 	}
 }
 
-func completeNamedUnderlying(t *Named) {
+func (t *Named) complete() {
+	if t.rtype.flags&flagComplete != 0 {
+		return
+	}
 	u := t.extra.underlying
 	for u != nil {
 		if t == u {
-			panic("CompleteTypes named underlying loops are not allowed")
+			panic("CompleteTypes: named underlying loops are not allowed")
 		}
 		if named, _ := u.(*Named); named != nil {
 			u = named.extra.underlying
@@ -166,7 +169,7 @@ func completeNamedUnderlying(t *Named) {
 		}
 	}
 	if u == nil {
-		panic("CompleteTypes named underlying type is nil")
+		panic("CompleteTypes: named underlying type is nil")
 	}
 	if u != t.extra.underlying {
 		fillFromUnderlying(&t.rtype, u.common())

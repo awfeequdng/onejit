@@ -22,6 +22,7 @@ type Type interface {
 	String() string
 	Underlying() Type
 	common() *Complete
+	complete() // completes everything in the type, except flags & flagComplete
 	writeTo(*strings.Builder, verbose)
 }
 
