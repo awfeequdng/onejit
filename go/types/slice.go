@@ -14,8 +14,6 @@
 
 package types
 
-import "strings"
-
 type Slice struct {
 	_     [0]*Slice // occupies zero bytes
 	rtype Complete
@@ -24,7 +22,7 @@ type Slice struct {
 // *Slice implements Type
 
 func (t *Slice) String() string {
-	var b strings.Builder
+	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()
 }
@@ -41,7 +39,7 @@ func (t *Slice) complete() {
 	// nothing to do
 }
 
-func (t *Slice) writeTo(b *strings.Builder, flag verbose) {
+func (t *Slice) writeTo(b *builder, flag verbose) {
 	if flag == shortPkgName {
 		b.WriteString(t.rtype.str)
 		return

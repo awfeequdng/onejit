@@ -14,10 +14,6 @@
 
 package types
 
-import (
-	"strings"
-)
-
 type Chan struct {
 	_     [0]*Chan // occupies zero bytes
 	rtype Complete
@@ -26,7 +22,7 @@ type Chan struct {
 // *Chan implements Type
 
 func (t *Chan) String() string {
-	var b strings.Builder
+	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()
 }
@@ -43,7 +39,7 @@ func (t *Chan) complete() {
 	// nothing to do
 }
 
-func (t *Chan) writeTo(b *strings.Builder, flag verbose) {
+func (t *Chan) writeTo(b *builder, flag verbose) {
 	if flag == shortPkgName {
 		b.WriteString(t.rtype.str)
 		return
@@ -93,12 +89,12 @@ func NewChan(dir ChanDir, elem Type) *Chan {
 }
 
 func makeChanString(dir ChanDir, elem Type, flag verbose) string {
-	var b strings.Builder
+	var b builder
 	writeChanTo(&b, dir, elem, flag)
 	return b.String()
 }
 
-func writeChanTo(b *strings.Builder, dir ChanDir, elem Type, flag verbose) {
+func writeChanTo(b *builder, dir ChanDir, elem Type, flag verbose) {
 	if dir == RecvDir {
 		b.WriteString("<-")
 	}

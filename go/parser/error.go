@@ -28,12 +28,14 @@ const (
 	errExpectingCaseOrDefault       = "case or default or }"
 	errExpectingConstVarFuncOrType  = "'const' 'var' 'func' or 'type'"
 	errExpectingChan                = "chan"
+	errExpectingDecl                = "declaration"
 	errExpectingExpr                = "expression"
 	errExpectingExprOrType          = "expression or type"
 	errExpectingIdent               = "identifier"
 	errExpectingIdentOrLparen       = "identifier or ("
 	errExpectingString              = "string"
 	errExpectingType                = "type"
+	errDuplicatePackage             = errText("duplicate package declaration")
 	errEmptyTypeParams              = errText("empty type parameter list")
 	errExpectedOneExpr              = errText("expected 1 expression")
 	errInvalidTypeSwitch            = errText("use of .(type) outside type switch")
@@ -58,16 +60,9 @@ func (p *Parser) error(pos token.Pos, msg interface{}) *scanner.Error {
 	default:
 		text = p.makeErrText(fmt.Sprint(msg))
 	}
-	s := p.scanner
-	return s.Error(pos, string(text))
+	return p.scanner.Error(pos, string(text))
 }
 
-var dummyErrors []*scanner.Error
-
 func (p *Parser) Errors() *[]*scanner.Error {
-	if p.scanner != nil {
-		return p.scanner.Errors()
-	}
-	dummyErrors = nil
-	return &dummyErrors
+	return p.scanner.Errors()
 }

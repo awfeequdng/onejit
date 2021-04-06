@@ -17,7 +17,6 @@ package parser
 import (
 	"go/build"
 	"io"
-	"strings"
 	"testing"
 
 	"github.com/cosmos72/onejit/go/scanner"
@@ -26,28 +25,23 @@ import (
 )
 
 func TestBuiltinFunctions(t *testing.T) {
-	s := &scanner.Scanner{}
 	p := &Parser{}
-
-	var reader strings.Reader
-	reader.Reset("func append(slice []Type, elems ...Type) []Type\nfunc copy(dst, src []Type) int")
-
-	parseFile(t, s, p, &reader, "parse_string")
+	source := "func append(slice []Type, elems ...Type) []Type\nfunc copy(dst, src []Type) int"
+	parseString(t, p, source)
 }
 
 func TestParseGoRootFiles(t *testing.T) {
 	// t.SkipNow()
-	s := &scanner.Scanner{}
 	p := &Parser{}
 	visit := func(t *testing.T, in io.Reader, filename string) {
-		parseFile(t, s, p, in, filename)
+		parseFile(t, p, in, filename)
 	}
 	testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)
 }
 
-func parseFile(t *testing.T, s *scanner.Scanner, p *Parser, in io.Reader, filename string) {
-	s.Init(token.NewFile(filename, 0), in)
-	p.Init(s, Default)
+func parseString(t *testing.T, p *Parser, source string) {
+	p.InitString(source, Default)
+	filename := "<string>"
 	for {
 		node := p.Parse()
 		if node == nil {
@@ -58,6 +52,12 @@ func parseFile(t *testing.T, s *scanner.Scanner, p *Parser, in io.Reader, filena
 			t.Errorf("parse file %q returned %v", filename, node)
 		}
 	}
+	testutil.CompareErrors(t, filename, errorList{p.Errors()}, nil)
+}
+
+func parseFile(t *testing.T, p *Parser, in io.Reader, filename string) {
+	p.Init(token.NewFile(filename, 0), in, Default)
+	p.ParseFile()
 	testutil.CompareErrors(t, filename, errorList{p.Errors()}, nil)
 }
 

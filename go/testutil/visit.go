@@ -51,10 +51,14 @@ func VisitDirRecurse(t *testing.T, visit Visit, dirname string) bool {
 		name := entry.Name()
 		filename := path.Join(dirname, name)
 		if len(name) > 3 && name[len(name)-3:] == ".go" {
-			// skip directories named '*.go'
-			if entry.Mode().IsRegular() {
-				VisitFile(t, visit, filename)
+			if !entry.Mode().IsRegular() {
+				// skip directories named '*.go'
+				continue
+			} else if existsDir(info, name[:len(name)-2]+"dir") {
+				// skip file 'x.go' if there is a corresponding directory named 'x.dir'
+				continue
 			}
+			VisitFile(t, visit, filename)
 		} else if entry.IsDir() {
 			if !VisitDirRecurse(t, visit, filename) {
 				return false
@@ -62,6 +66,13 @@ func VisitDirRecurse(t *testing.T, visit Visit, dirname string) bool {
 		}
 	}
 	return true
+}
+
+func existsDir(info []os.FileInfo, dirname string) bool {
+	pos := sort.Search(len(info), func(i int) bool {
+		return info[i].Name() >= dirname
+	})
+	return pos < len(info) && info[pos].Name() == dirname
 }
 
 func sortInfo(info []os.FileInfo) {

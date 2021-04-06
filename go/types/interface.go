@@ -16,7 +16,6 @@ package types
 
 import (
 	"sort"
-	"strings"
 )
 
 type Interface struct {
@@ -28,7 +27,7 @@ type Interface struct {
 // *Interface implements Type
 
 func (t *Interface) String() string {
-	var b strings.Builder
+	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()
 }
@@ -45,7 +44,7 @@ func (t *Interface) complete() {
 	// nothing to do
 }
 
-func (t *Interface) writeTo(b *strings.Builder, flag verbose) {
+func (t *Interface) writeTo(b *builder, flag verbose) {
 	if flag == shortPkgName {
 		b.WriteString(t.rtype.str)
 		return
@@ -105,12 +104,12 @@ func NewInterface(embedded []Type, method ...Method) *Interface {
 }
 
 func makeInterfaceString(method []Method, flag verbose) string {
-	var b strings.Builder
+	var b builder
 	writeInterfaceTo(&b, method, flag)
 	return b.String()
 }
 
-func writeInterfaceTo(b *strings.Builder, method []Method, flag verbose) string {
+func writeInterfaceTo(b *builder, method []Method, flag verbose) string {
 	b.WriteString("interface {")
 	for i := range method {
 		if i == 0 {

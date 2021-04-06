@@ -14,8 +14,6 @@
 
 package types
 
-import "strings"
-
 type Struct struct {
 	_     [0]*Struct // occupies zero bytes
 	rtype Complete
@@ -25,7 +23,7 @@ type Struct struct {
 // *Struct implements Type
 
 func (t *Struct) String() string {
-	var b strings.Builder
+	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()
 }
@@ -53,7 +51,7 @@ func (t *Struct) complete() {
 	t.updateFieldOffsets()
 }
 
-func (t *Struct) writeTo(b *strings.Builder, flag verbose) {
+func (t *Struct) writeTo(b *builder, flag verbose) {
 	if flag == shortPkgName {
 		b.WriteString(t.rtype.str)
 		return
@@ -238,12 +236,12 @@ func (t *Struct) updateFieldOffsets() {
 }
 
 func makeStructString(fields []Field, flag verbose) string {
-	var b strings.Builder
+	var b builder
 	writeStructTo(&b, fields, flag)
 	return b.String()
 }
 
-func writeStructTo(b *strings.Builder, fields []Field, flag verbose) {
+func writeStructTo(b *builder, fields []Field, flag verbose) {
 	b.WriteString("struct {")
 	for i := range fields {
 		if i == 0 {

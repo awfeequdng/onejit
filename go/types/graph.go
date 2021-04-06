@@ -14,8 +14,6 @@
 
 package types
 
-import "strings"
-
 type (
 	typelist []Type
 	typeset  map[Type]struct{}
@@ -259,12 +257,12 @@ func (g2 *typegraph2) updateDeps(completed Type) {
 // --------------------------- String, writeTo ---------------------------------
 
 func (g2 *typegraph2) String() string {
-	var b strings.Builder
+	var b builder
 	g2.writeTo(&b, fullPkgPath)
 	return b.String()
 }
 
-func (g2 *typegraph2) writeTo(b *strings.Builder, flag verbose) {
+func (g2 *typegraph2) writeTo(b *builder, flag verbose) {
 	b.WriteString("---------------------\n")
 	g2.fwd.writeTo(b, "FORWARD", flag)
 	b.WriteByte('\n')
@@ -273,7 +271,7 @@ func (g2 *typegraph2) writeTo(b *strings.Builder, flag verbose) {
 	g2.completed.writeTo(b, "COMPLETED", flag)
 }
 
-func (g typegraph) writeTo(b *strings.Builder, label string, flag verbose) {
+func (g typegraph) writeTo(b *builder, label string, flag verbose) {
 	b.WriteByte('(')
 	b.WriteString(label)
 	for t, deps := range g {
@@ -284,7 +282,7 @@ func (g typegraph) writeTo(b *strings.Builder, label string, flag verbose) {
 	b.WriteString("\n)")
 }
 
-func (d *typedeps) writeTo(b *strings.Builder, flag verbose) {
+func (d *typedeps) writeTo(b *builder, flag verbose) {
 	if d == nil {
 		b.WriteString("nil")
 		return
@@ -299,7 +297,7 @@ func (d *typedeps) writeTo(b *strings.Builder, flag verbose) {
 	}
 }
 
-func (s typeset) writeTo(b *strings.Builder, label string, flag verbose) {
+func (s typeset) writeTo(b *builder, label string, flag verbose) {
 	b.WriteByte('(')
 	b.WriteString(label)
 	b.WriteByte(' ')
@@ -314,7 +312,7 @@ func (s typeset) writeTo(b *strings.Builder, label string, flag verbose) {
 	b.WriteString(")")
 }
 
-func (l typelist) writeTo(b *strings.Builder, label string, flag verbose) {
+func (l typelist) writeTo(b *builder, label string, flag verbose) {
 	b.WriteByte('(')
 	b.WriteString(label)
 	b.WriteByte(' ')

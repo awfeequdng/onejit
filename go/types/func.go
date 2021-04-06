@@ -14,10 +14,6 @@
 
 package types
 
-import (
-	"strings"
-)
-
 // Func represents the type of a function
 type Func struct {
 	_     [0]*Func // occupies zero bytes
@@ -28,7 +24,7 @@ type Func struct {
 // *Func implements Type
 
 func (t *Func) String() string {
-	var b strings.Builder
+	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()
 }
@@ -45,7 +41,7 @@ func (t *Func) complete() {
 	// nothing to do
 }
 
-func (t *Func) writeTo(b *strings.Builder, flag verbose) {
+func (t *Func) writeTo(b *builder, flag verbose) {
 	if flag == shortPkgName {
 		b.WriteString(t.rtype.str)
 		return
@@ -217,14 +213,14 @@ func fillFuncKey(dst, in, out []Type) []Type {
 }
 
 func makeFuncString(in []Type, out []Type, variadic bool, flag verbose) string {
-	var b strings.Builder
+	var b builder
 	b.WriteString("func")
 	writeFuncTo(&b, in, out, variadic, flag)
 	return b.String()
 }
 
 // does NOT write "func" prefix
-func writeFuncTo(b *strings.Builder, in []Type, out []Type, variadic bool, flag verbose) {
+func writeFuncTo(b *builder, in []Type, out []Type, variadic bool, flag verbose) {
 	b.WriteByte('(')
 	for i, t := range in {
 		if i != 0 {

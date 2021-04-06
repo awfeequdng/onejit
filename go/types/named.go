@@ -14,9 +14,7 @@
 
 package types
 
-import (
-	"strings"
-)
+import "github.com/cosmos72/onejit/go/strings"
 
 // represents a named type
 type Named struct {
@@ -28,7 +26,7 @@ type Named struct {
 // *Named implements Type
 
 func (t *Named) String() string {
-	var b strings.Builder
+	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()
 }
@@ -42,12 +40,12 @@ func (t *Named) common() *Complete {
 	return &t.rtype
 }
 
-func (t *Named) writeTo(b *strings.Builder, flag verbose) {
+func (t *Named) writeTo(b *builder, flag verbose) {
 	if flag == shortPkgName {
 		b.WriteString(t.rtype.str)
 		return
 	}
-	writeQualifiedName(b, t.Name(), t.PkgPath(), flag)
+	strings.WriteQualifiedName(b, t.Name(), t.PkgPath(), flag)
 }
 
 // *Named specific methods
@@ -102,7 +100,7 @@ func (t *Named) AddMethod(mtd *Method) {
 func NewNamed(name string, pkgPath string) *Named {
 	str := name
 	if len(pkgPath) != 0 {
-		pkgName := basename(pkgPath)
+		pkgName := strings.Basename(pkgPath)
 		n := len(pkgName)
 		str = pkgName + "." + name
 		name = str[n+1:]

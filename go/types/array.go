@@ -15,8 +15,6 @@
 package types
 
 import (
-	"strings"
-
 	"github.com/cosmos72/onejit/go/arch"
 )
 
@@ -29,7 +27,7 @@ type Array struct {
 // *Array implements Type
 
 func (t *Array) String() string {
-	var b strings.Builder
+	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()
 }
@@ -53,7 +51,7 @@ func (t *Array) complete() {
 	t.rtype.flags = computeArrayFlags(elem, len)
 }
 
-func (t *Array) writeTo(b *strings.Builder, flag verbose) {
+func (t *Array) writeTo(b *builder, flag verbose) {
 	if flag == shortPkgName {
 		b.WriteString(t.rtype.str)
 		return
@@ -132,12 +130,12 @@ func computeArrayFlags(elem Type, len uint64) flags {
 }
 
 func makeArrayString(len uint64, elem Type, flag verbose) string {
-	var b strings.Builder
+	var b builder
 	writeArrayTo(&b, len, elem, flag)
 	return b.String()
 }
 
-func writeArrayTo(b *strings.Builder, len uint64, elem Type, flag verbose) {
+func writeArrayTo(b *builder, len uint64, elem Type, flag verbose) {
 	b.WriteByte('[')
 	b.WriteString(uintToString(len))
 	b.WriteByte(']')

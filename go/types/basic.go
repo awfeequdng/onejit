@@ -15,8 +15,6 @@
 package types
 
 import (
-	"strings"
-
 	"github.com/cosmos72/onejit/go/arch"
 )
 
@@ -44,7 +42,7 @@ func (t *Basic) complete() {
 	// nothing to do
 }
 
-func (t *Basic) writeTo(b *strings.Builder, flag verbose) {
+func (t *Basic) writeTo(b *builder, flag verbose) {
 	b.WriteString(t.rtype.str)
 }
 

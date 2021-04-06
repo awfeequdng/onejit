@@ -15,6 +15,9 @@
 package parser
 
 import (
+	"io"
+	"strings"
+
 	"github.com/cosmos72/onejit/go/ast"
 	"github.com/cosmos72/onejit/go/scanner"
 	"github.com/cosmos72/onejit/go/token"
@@ -30,19 +33,25 @@ const (
 )
 
 type Parser struct {
-	scanner *scanner.Scanner
 	curr    ast.Atom
 	unread0 ast.Atom
 	mode    Mode
+	scanner scanner.Scanner
 }
 
-func (p *Parser) Init(s *scanner.Scanner, mode Mode) {
-	p.scanner = s
+func (p *Parser) Init(file *token.File, src io.Reader, mode Mode) {
+	p.scanner.Init(file, src)
 	p.curr = ast.Atom{}
 	p.unread0 = ast.Atom{}
 	p.mode = mode
 
 	p.next()
+}
+
+func (p *Parser) InitString(source string, mode Mode) {
+	var reader strings.Reader
+	reader.Reset(source)
+	p.Init(token.NewFile("<string>", 0), &reader, mode)
 }
 
 // parse a single declaration, statement or expression
@@ -56,6 +65,7 @@ func (p *Parser) Parse() (node ast.Node) {
 	case token.IMPORT:
 		node = p.parseImport()
 	case token.SEMICOLON:
+		// node = nil
 	default:
 		if isDecl(tok) {
 			node = p.ParseTopLevelDecl()
@@ -84,7 +94,7 @@ func (p *Parser) next() token.Token {
 		return curr.Tok
 	}
 	curr.Comment = nil
-	s := p.scanner
+	s := &p.scanner
 	for {
 		curr.Tok, curr.Lit = s.Scan()
 		if curr.Tok != token.COMMENT {

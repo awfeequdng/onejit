@@ -14,7 +14,7 @@
 
 package types
 
-import "strings"
+import "github.com/cosmos72/onejit/go/strings"
 
 type CompleteField struct {
 	Type     *Complete
@@ -36,9 +36,9 @@ type Field struct {
 	Embedded bool
 }
 
-func (f *Field) writeTo(b *strings.Builder, flag verbose) {
+func (f *Field) writeTo(b *builder, flag verbose) {
 	if !f.Embedded {
-		writeQualifiedName(b, f.Name, f.PkgPath, flag)
+		strings.WriteQualifiedName(b, f.Name, f.PkgPath, flag)
 		b.WriteByte(' ')
 	}
 	f.Type.writeTo(b, flag)

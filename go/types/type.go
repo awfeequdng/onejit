@@ -14,28 +14,22 @@
 
 package types
 
-import (
-	"strings"
-)
-
-type Type interface {
-	String() string
-	Underlying() Type
-	common() *Complete
-	complete() // completes everything in the type, except flags & flagComplete
-	writeTo(*strings.Builder, verbose)
-}
-
-func TypeString(t Type, showFullPkgPath bool) string {
-	if showFullPkgPath {
-		return t.String()
-	}
-	return t.common().str
-}
+import "github.com/cosmos72/onejit/go/strings"
 
 type (
+	Type interface {
+		String() string
+		Underlying() Type
+		common() *Complete
+		complete() // completes everything in the type, except flags & flagComplete
+		writeTo(*builder, verbose)
+	}
+
 	flags   uint16
 	ChanDir flags
+
+	builder = strings.Builder
+	verbose = strings.Verbose
 )
 
 const (
@@ -51,7 +45,17 @@ const (
 
 	unknownSize  = ^uint64(0)
 	unknownAlign = ^uint16(0)
+
+	shortPkgName = strings.ShortPkgName
+	fullPkgPath  = strings.FullPkgPath
 )
+
+func TypeString(t Type, showFullPkgPath bool) string {
+	if showFullPkgPath {
+		return t.String()
+	}
+	return t.common().str
+}
 
 // return bitwise AND of specified type's flags
 func flagsAnd(list []Type) flags {
@@ -69,4 +73,8 @@ func flagsAndMethod(list []Method) flags {
 		ret &= list[i].Type.common().flags
 	}
 	return ret
+}
+
+func uintToString(n uint64) string {
+	return strings.UintToString(n)
 }

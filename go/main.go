@@ -19,6 +19,7 @@ import (
 
 	_ "github.com/cosmos72/onejit/go/jit_old"
 	_ "github.com/cosmos72/onejit/go/parser"
+	_ "github.com/cosmos72/onejit/go/typecheck"
 )
 
 func main() {

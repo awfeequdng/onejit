@@ -14,8 +14,6 @@
 
 package types
 
-import "strings"
-
 type Map struct {
 	_     [0]*Map // occupies zero bytes
 	rtype Complete
@@ -25,7 +23,7 @@ type Map struct {
 // *Map implements Type
 
 func (t *Map) String() string {
-	var b strings.Builder
+	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()
 }
@@ -42,7 +40,7 @@ func (t *Map) complete() {
 	// nothing to do
 }
 
-func (t *Map) writeTo(b *strings.Builder, flag verbose) {
+func (t *Map) writeTo(b *builder, flag verbose) {
 	if flag == shortPkgName {
 		b.WriteString(t.rtype.str)
 		return
@@ -97,12 +95,12 @@ func NewMap(key Type, elem Type) *Map {
 }
 
 func makeMapString(key Type, elem Type, flag verbose) string {
-	var b strings.Builder
+	var b builder
 	writeMapTo(&b, key, elem, flag)
 	return b.String()
 }
 
-func writeMapTo(b *strings.Builder, key Type, elem Type, flag verbose) {
+func writeMapTo(b *builder, key Type, elem Type, flag verbose) {
 	b.WriteString("map[")
 	key.writeTo(b, flag)
 	b.WriteByte(']')

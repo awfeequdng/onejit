@@ -27,6 +27,7 @@ type Node interface {
 	Pos() token.Pos
 	End() token.Pos
 	Comments() []string
+	String() string
 }
 
 var strNil = []byte("nil")

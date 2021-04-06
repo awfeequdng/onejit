@@ -58,6 +58,12 @@ type Object struct {
 	typ  *Complete
 }
 
+func NewObject(cls Class, name string, typ *Complete) *Object {
+	obj := Object{cls, name, typ}
+	obj.checkValid()
+	return &obj
+}
+
 func (obj *Object) Class() Class {
 	return obj.cls
 }
@@ -132,6 +138,10 @@ func (s *Scope) Insert(obj *Object) {
 		s.m = make(map[string]*Object)
 	}
 	s.m[obj.name] = obj
+}
+
+func (s *Scope) Len() int {
+	return len(s.m)
 }
 
 // search object by name in specified Scope.

@@ -12,23 +12,25 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package types
+package strings
 
 import "strings"
 
-type verbose bool
+type Builder = strings.Builder
+
+type Verbose bool
 
 const (
-	shortPkgName verbose = false
-	fullPkgPath  verbose = true
+	ShortPkgName Verbose = false
+	FullPkgPath  Verbose = true
 )
 
-func basename(path string) string {
+func Basename(path string) string {
 	slash := strings.LastIndexByte(path, '/')
 	return path[slash+1:]
 }
 
-func uintToString(n uint64) string {
+func UintToString(n uint64) string {
 	if n == 0 {
 		return "0"
 	}
@@ -42,9 +44,9 @@ func uintToString(n uint64) string {
 	return string(b[pos:])
 }
 
-func writeQualifiedName(b *strings.Builder, name string, pkgPath string, flag verbose) {
-	if flag == shortPkgName {
-		pkgPath = basename(pkgPath)
+func WriteQualifiedName(b *strings.Builder, name string, pkgPath string, flag Verbose) {
+	if flag == ShortPkgName {
+		pkgPath = Basename(pkgPath)
 	}
 	if len(pkgPath) != 0 {
 		b.WriteString(pkgPath)

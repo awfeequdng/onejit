@@ -107,13 +107,12 @@ func (p *Parser) parseImportSpec() ast.Node {
 	} else {
 		path = p.parseBad(errExpectingString)
 	}
-	return &ast.List{
+	return &ast.Binary{
 		Atom: ast.Atom{
 			Tok:    token.IMPORT_SPEC,
 			TokPos: pos,
 		},
-		Nodes: []ast.Node{
-			alias, path,
-		},
+		X: alias,
+		Y: path,
 	}
 }

@@ -128,18 +128,20 @@ const (
 	BOTH_DIR
 	CALL
 	COMPOSITE_LIT // type { elem0, elem1 ... }
+	DECLS         // list of declarations
 	EXPRS
 	// struct field, interface element, function param or result.
 	// stored in *ast.Field
 	FIELD
 	FILE
-	GENERIC // generic type parameters [T0 i0, T1 i1, ...]
-	IMPORT_SPEC
-	INDEX     // array/map/slice indexing a[b] or generic instantiation a[b,c...]
-	KEY_VALUE // key: value inside a composite literal
-	LABEL     // label: statement
-	LAMBDA    // function literal
-	NAMES     // list of identifiers
+	GENERIC     // generic type parameters [T0 i0, T1 i1, ...]
+	IMPORT_SPEC // single import line 'alias "full/pkg/path"'
+	IMPORTS     // list of IMPORT nodes
+	INDEX       // array/map/slice indexing a[b] or generic instantiation a[b,c...]
+	KEY_VALUE   // key: value inside a composite literal
+	LABEL       // label: statement
+	LAMBDA      // function literal
+	NAMES       // list of identifiers
 	PARAMS
 	RECV_DIR
 	RESULTS
@@ -151,10 +153,10 @@ const (
 )
 
 var tokens = [...]string{
-	"ARRAY", "BLOCK", "BOTH_DIR", "CALL", "COMPOSITE_LIT", "EXPRS", "FIELD",
-	"FILE", "GENERIC", "IMPORT_SPEC", "INDEX", "KEY_VALUE", "LABEL", "LAMBDA",
-	"NAMES", "PARAMS", "RECV_DIR", "RESULTS", "SEND_DIR", "SLICE",
-	"TYPE_ASSERT", "TYPESWITCH", "VALUE_SPEC",
+	"ARRAY", "BLOCK", "BOTH_DIR", "CALL", "COMPOSITE_LIT", "DECLS", "EXPRS",
+	"FIELD", "FILE", "GENERIC", "IMPORT_SPEC", "IMPORTS", "INDEX", "KEY_VALUE",
+	"LABEL", "LAMBDA", "NAMES", "PARAMS", "RECV_DIR", "RESULTS", "SEND_DIR",
+	"SLICE", "TYPE_ASSERT", "TYPESWITCH", "VALUE_SPEC",
 }
 
 var operators = makeOperators()

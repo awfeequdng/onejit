@@ -14,8 +14,6 @@
 
 package types
 
-import "strings"
-
 type Pointer struct {
 	_     [0]*Pointer // occupies zero bytes
 	rtype Complete
@@ -24,7 +22,7 @@ type Pointer struct {
 // *Pointer implements Type
 
 func (t *Pointer) String() string {
-	var b strings.Builder
+	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()
 }
@@ -41,7 +39,7 @@ func (t *Pointer) complete() {
 	// nothing to do
 }
 
-func (t *Pointer) writeTo(b *strings.Builder, flag verbose) {
+func (t *Pointer) writeTo(b *builder, flag verbose) {
 	if flag == shortPkgName {
 		b.WriteString(t.rtype.str)
 		return
