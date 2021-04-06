@@ -118,7 +118,7 @@ func NewNamed(name string, pkgPath string) *Named {
 			pkgPath: pkgPath,
 		},
 	}
-	t.rtype.methods = &t.extra.methods
+	t.rtype.typ = t
 	t.rtype.extra = &t.extra
 	return t
 }

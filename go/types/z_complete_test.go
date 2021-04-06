@@ -52,7 +52,7 @@ func TestCompleteMap(test *testing.T) {
 	 */
 	s := NewNamed("s", "")
 	s.SetUnderlying(NewStruct(Field{
-		Name: "_", Type: NewPointer(NewMap(s, BasicType(Bool)))},
+		Name: "_", Type: NewPointer(NewMap(s, BasicType(Bool).Type()))},
 	))
 
 	cs := CompleteTypes(s)

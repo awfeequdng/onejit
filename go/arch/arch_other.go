@@ -1,3 +1,5 @@
+// +build !386,!amd64,!arm,!arm64
+
 /*
  * Copyright (C) 2021 Massimiliano Ghilardi
  *
@@ -6,23 +8,13 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * z_scope_test.go
+ * arch_other.go
  *
- *  Created on: Apr 01, 2021
+ *  Created on: Apr 06, 2021
  *      Author: Massimiliano Ghilardi
  */
 
-package types
+package arch
 
-import (
-	"fmt"
-	"testing"
-)
-
-func TestScope(test *testing.T) {
-	s := Universe()
-	for _, name := range s.Names() {
-		obj := s.Lookup(name)
-		fmt.Printf("%s => %v %v\n", name, obj.Class(), obj.Type())
-	}
-}
+// autodetect if arch is 32 or 64 bits
+const ArchAuto = ArchOther32bit + Arch(^uint(0)>>63)

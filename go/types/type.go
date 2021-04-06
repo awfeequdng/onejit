@@ -34,18 +34,11 @@ func TypeString(t Type, showFullPkgPath bool) string {
 }
 
 type (
-	ArchSizeBits uint64
-
 	flags   uint32
 	ChanDir flags
 )
 
 const (
-	ArchSize32 ArchSizeBits = 32
-	ArchSize64 ArchSizeBits = 64
-	// autodetect ArchSizeBits from compile architecture
-	ArchSizeAuto = 32 * (1 + ArchSizeBits(^uint(0)>>63))
-
 	RecvDir ChanDir = 1
 	SendDir ChanDir = 2
 	BothDir         = RecvDir | SendDir
@@ -58,26 +51,6 @@ const (
 
 	unknownSize = ^uint64(0)
 )
-
-// configurable, must be 32 or 64
-var archSizeBits ArchSizeBits = ArchSizeAuto
-var archSizeBytes uint64 = uint64(ArchSizeAuto) / 8
-
-// return current archSizeBits - either 32 or 64
-func GetArchSizeBits() ArchSizeBits {
-	return archSizeBits
-}
-
-// Set archSizeBits to either 32 or 64.
-// To autodetect from compile architecture, specify ArchSizeAuto.
-// Also causes BasicType() and BasicTypes() to return different results
-func SetArchSizeBits(size ArchSizeBits) {
-	if size != ArchSize32 && size != ArchSize64 {
-		panic("SetArchSizeBits: unsupported size, expecting 32 or 64")
-	}
-	archSizeBits = size
-	archSizeBytes = uint64(size) / 8
-}
 
 // return bitwise AND of specified type's flags
 func flagsAnd(list []Type) flags {

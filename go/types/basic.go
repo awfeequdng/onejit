@@ -14,7 +14,11 @@
 
 package types
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/cosmos72/onejit/go/arch"
+)
 
 // Basic represents one of Go's predefined basic types
 type Basic struct {
@@ -63,62 +67,81 @@ func (t *Basic) Size() uint64 {
 }
 
 var (
-	basicTypes0  = makeBasicTypes0()
-	basicTypes32 = makeBasicTypes(4, basicTypes0)
-	basicTypes64 = makeBasicTypes(8, basicTypes0)
+	basicTypes0        = makeBasicTypes0()
+	basicTypesLinux386 = makeBasicTypes(basicTypes0, 4, 4)
+	basicTypesOther32  = makeBasicTypes(basicTypes0, 4, 8)
+	basicTypes64       = makeBasicTypes(basicTypes0, 8, 8)
 )
 
-// return basic type for specified Kind and current archSizeBits.
-func BasicType(kind Kind) *Basic {
-	v := basicTypes32
-	if archSizeBits > 32 {
-		v = basicTypes64
-	}
-	return v[kind]
+func sizeOfPtr() uint64 {
+	return arch.TargetArch().Bytes()
 }
 
-// create and return a slice containing basic types for current archSizeBits.
+// return basic types for current arch.Target()
+func basicTypes() []*Complete {
+	var v []*Complete
+	os, arc := arch.Target()
+	if arc.Bits() > 32 {
+		v = basicTypes64
+	} else if os == arch.Linux && arc == arch.I386 {
+		v = basicTypesLinux386
+	} else {
+		v = basicTypesOther32
+	}
+	return v
+}
+
+// return basic type for specified Kind and current GetArchSizeBits() and GetTargetOs()
+func BasicType(kind Kind) *Complete {
+	return basicTypes()[kind]
+}
+
+// create and return a slice containing basic types for current GetArchSizeBits() and GetTargetOs()
 // use Kind as index in returned slice.
-func BasicTypes() []*Basic {
-	v := basicTypes32
-	if archSizeBits > 32 {
-		v = basicTypes64
-	}
-	return append([]*Basic(nil), v...)
+func BasicTypes() []*Complete {
+	return append([]*Complete(nil), basicTypes()...)
 }
 
-// create basic types that do not depend on archSizeBits
-func makeBasicTypes0() []*Basic {
-	return []*Basic{
-		Bool:       newBasic(Bool, 1),
-		Int8:       newBasic(Int8, 1),
-		Int16:      newBasic(Int16, 2),
-		Int32:      newBasic(Int32, 4),
-		Int64:      newBasic(Int64, 8),
-		Uint8:      newBasic(Uint8, 1),
-		Uint16:     newBasic(Uint16, 2),
-		Uint32:     newBasic(Uint32, 4),
-		Uint64:     newBasic(Uint64, 8),
-		Float32:    newBasic(Float32, 4),
-		Float64:    newBasic(Float64, 8),
-		Complex64:  newBasic(Complex64, 8),
-		Complex128: newBasic(Complex128, 16),
-		UntypedNil: nil, // sets correct slice length
+// create basic types that do not depend on OS or architecture
+func makeBasicTypes0() []*Complete {
+	return []*Complete{
+		Bool:    newBasic(Bool, 1, 1),
+		Int8:    newBasic(Int8, 1, 1),
+		Int16:   newBasic(Int16, 2, 2),
+		Int32:   newBasic(Int32, 4, 4),
+		Uint8:   newBasic(Uint8, 1, 1),
+		Uint16:  newBasic(Uint16, 2, 2),
+		Uint32:  newBasic(Uint32, 4, 4),
+		Float32: newBasic(Float32, 4, 4),
+		// the following have .Type() == nil as they cannot be used as components in new types
+		UntypedBool:    newBasic(UntypedBool, unknownSize, unknownSize),
+		UntypedInt:     newBasic(UntypedInt, unknownSize, unknownSize),
+		UntypedRune:    newBasic(UntypedRune, unknownSize, unknownSize),
+		UntypedFloat:   newBasic(UntypedFloat, unknownSize, unknownSize),
+		UntypedComplex: newBasic(UntypedComplex, unknownSize, unknownSize),
+		UntypedString:  newBasic(UntypedString, unknownSize, unknownSize),
+		UntypedNil:     newBasic(UntypedNil, unknownSize, unknownSize),
 	}
 }
 
-// create basic types that depend on archSizeBits
-func makeBasicTypes(sizeOfInt uint64, common []*Basic) []*Basic {
-	ret := append([]*Basic(nil), common...)
-	ret[Int] = newBasic(Int, sizeOfInt)
-	ret[Uint] = newBasic(Uint, sizeOfInt)
-	ret[Uintptr] = newBasic(Uintptr, sizeOfInt)
-	ret[String] = newBasic(String, 2*sizeOfInt)
+// create basic types that depend on OS or architecture
+func makeBasicTypes(common []*Complete, sizeOfInt uint64, alignOfFloat64 uint64) []*Complete {
+	ret := append([]*Complete(nil), common...)
+	ret[Int] = newBasic(Int, sizeOfInt, sizeOfInt)
+	ret[Int64] = newBasic(Int64, 8, sizeOfInt)
+	ret[Uint] = newBasic(Uint, sizeOfInt, sizeOfInt)
+	ret[Uint64] = newBasic(Uint64, 8, sizeOfInt)
+	ret[Uintptr] = newBasic(Uintptr, sizeOfInt, sizeOfInt)
+	ret[Float64] = newBasic(Float64, 8, alignOfFloat64)
+	ret[Complex64] = newBasic(Complex64, 8, 4)
+	ret[Complex128] = newBasic(Complex128, 16, alignOfFloat64)
+	ret[String] = newBasic(String, 2*sizeOfInt, sizeOfInt)
+	ret[UnsafePointer] = newBasic(UnsafePointer, sizeOfInt, sizeOfInt)
 	return ret
 }
 
 // create a new Basic type
-func newBasic(kind Kind, size uint64) *Basic {
+func newBasic(kind Kind, size uint64, align uint64) *Complete {
 	t := &Basic{
 		rtype: Complete{
 			size:  size,
@@ -127,6 +150,8 @@ func newBasic(kind Kind, size uint64) *Basic {
 			str:   kind.String(),
 		},
 	}
-	t.rtype.typ = t
-	return t
+	if size != unknownSize {
+		t.rtype.typ = t
+	}
+	return &t.rtype
 }

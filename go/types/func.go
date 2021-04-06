@@ -14,7 +14,9 @@
 
 package types
 
-import "strings"
+import (
+	"strings"
+)
 
 // Func represents the type of a function
 type Func struct {
@@ -99,7 +101,7 @@ func NewFunc(in []Type, out []Type, variadic bool) *Func {
 	}
 	t = &Func{
 		rtype: Complete{
-			size:  archSizeBytes,
+			size:  sizeOfPtr(),
 			flags: flag | flagNotComparable,
 			kind:  FuncKind,
 			str:   makeFuncString(in, out, variadic, shortPkgName),

@@ -14,7 +14,11 @@
 
 package types
 
-import "sort"
+import (
+	"sort"
+
+	"github.com/cosmos72/onejit/go/arch"
+)
 
 type Class uint8
 
@@ -49,57 +53,72 @@ func (cl Class) String() string {
 // --------------------------- Object ------------------------------------------
 
 type Object struct {
-	Class Class
-	Name  string
-	Type  *Complete
+	cls  Class
+	name string
+	typ  *Complete
 }
 
-func (obj *Object) Valid() bool {
-	return len(obj.Name) != 0
+func (obj *Object) Class() Class {
+	return obj.cls
+}
+
+func (obj *Object) Name() string {
+	return obj.name
+}
+
+func (obj *Object) Type() *Complete {
+	return obj.typ
 }
 
 func (obj *Object) checkValid() {
-	if len(obj.Name) == 0 {
+	if obj == nil {
+		panic("Object is nil")
+	} else if len(obj.Name()) == 0 {
 		panic("Object has empty name")
-	} else if obj.Type == nil {
+	}
+	t := obj.Type()
+	if t == nil {
 		panic("Object has nil type")
 	}
-	switch obj.Class {
+	switch obj.Class() {
 	case BuiltinObj:
-		if !isBuiltinType(obj.Type) {
+		if !isBuiltinType(t) {
 			panic("type of BuiltinObj must be created with NewBuiltin")
 		}
 		return
 	case ConstObj:
-		if !obj.Type.kind.IsBasic() {
+		if !t.kind.IsBasic() {
 			panic("type of ConstObj must be one of the basic types")
 		}
 	case FuncObj:
-		if obj.Type.kind != FuncKind {
+		if t.kind != FuncKind {
 			panic("type of FuncObj must be a function")
-		} else if len(obj.Type.Name()) != 0 {
+		} else if len(t.Name()) != 0 {
 			panic("type of FuncObj must be unnamed")
 		}
-	case TypeObj, VarObj:
+	case TypeObj:
 		// nothing to do
+	case VarObj:
+		if t.kind.IsUntyped() {
+			panic("type of VarObj cannot be untyped.*")
+		}
 	default:
 		panic("Object has invalid class")
 	}
-	if isBuiltinType(obj.Type) {
-		panic("type of " + obj.Class.String() + " cannot be builtin")
+	if isBuiltinType(t) {
+		panic("type of " + obj.cls.String() + " cannot be builtin")
 	}
 }
 
 func isBuiltinType(t *Complete) bool {
-	b, _ := t.typ.(*Basic)
-	return b != nil && t.extra != nil
+	return t.typ == nil && t.extra != nil
 }
 
 // --------------------------- Scope -------------------------------------------
 
 type Scope struct {
 	parent *Scope
-	m      map[string]Object
+	m      map[string]*Object
 }
 
 func NewScope(parent *Scope) *Scope {
@@ -107,29 +126,27 @@ func NewScope(parent *Scope) *Scope {
 }
 
 // insert obj into Scope s. overwrites any existing object with the same name
-func (s *Scope) Insert(obj Object) {
+func (s *Scope) Insert(obj *Object) {
 	obj.checkValid()
 	if s.m == nil {
-		s.m = make(map[string]Object)
+		s.m = make(map[string]*Object)
 	}
-	s.m[obj.Name] = obj
+	s.m[obj.name] = obj
 }
 
 // search object by name in specified Scope.
-// if no object is found, return Object{}
-func (s *Scope) Lookup(name string) Object {
+func (s *Scope) Lookup(name string) *Object {
 	return s.m[name]
 }
 
 // search object by name in specified Scope and all its parent scopes.
-// if no object is found, return Object{}
-func (s *Scope) LookupParent(name string) (*Scope, Object) {
+func (s *Scope) LookupParent(name string) (*Scope, *Object) {
 	for ; s != nil; s = s.parent {
-		if obj := s.m[name]; obj.Valid() {
+		if obj := s.m[name]; obj != nil {
 			return s, obj
 		}
 	}
-	return nil, Object{}
+	return nil, nil
 }
 
 // return the sorted names of all objects in Scope
@@ -153,50 +170,68 @@ func (s *Scope) Parent() *Scope {
 // --------------------------- Universe -------------------------------------------
 
 var (
-	universe32 = makeUniverse(basicTypes32)
-	universe64 = makeUniverse(basicTypes64)
+	universeLinux386 = makeUniverse(basicTypesLinux386)
+	universeOther32  = makeUniverse(basicTypesOther32)
+	universe64       = makeUniverse(basicTypes64)
 )
 
-// contains all predeclared objects of Go
+// return the top-level scope, containing all predeclared objects of Go.
+// result depends on arch.Target()
 func Universe() *Scope {
-	universe := universe32
-	if archSizeBits > ArchSize32 {
+	var universe *Scope
+	os, arc := arch.Target()
+	if arc.Bits() > 32 {
 		universe = universe64
+	} else if os == arch.Linux && arc == arch.I386 {
+		universe = universeLinux386
+	} else {
+		universe = universeOther32
 	}
 	return universe
 }
 
-func makeUniverse(basic []*Basic) *Scope {
+func makeUniverse(basic []*Complete) *Scope {
 	s := Scope{}
-	for _, b := range basic {
+	for _, b := range basic[:Complex128+1] {
 		if b != nil {
-			s.Insert(Object{TypeObj, b.Name(), b.Complete()})
+			s.Insert(&Object{TypeObj, b.Name(), b})
 		}
 	}
-	s.Insert(Object{TypeObj, "byte", basic[Uint8].Complete()})
-	s.Insert(Object{TypeObj, "rune", basic[Int32].Complete()})
 	errorType := NewNamed("error", "")
 	errorType.SetUnderlying(NewInterface(nil, Method{
 		Name: "Error",
-		Type: NewFunc(nil, []Type{basic[String]}, false),
+		Type: NewFunc(nil, []Type{basic[String].Type()}, false),
 	}))
-	s.Insert(Object{TypeObj, "error", errorType.common()})
-	s.Insert(Object{BuiltinObj, "append", NewBuiltin(2, 1, true).Complete()})
-	s.Insert(Object{BuiltinObj, "cap", NewBuiltin(1, 0, false).Complete()})
-	s.Insert(Object{BuiltinObj, "close", NewBuiltin(1, 0, false).Complete()})
-	s.Insert(Object{BuiltinObj, "complex", NewBuiltin(2, 1, false).Complete()})
-	s.Insert(Object{BuiltinObj, "copy", NewBuiltin(2, 1, false).Complete()})
-	s.Insert(Object{BuiltinObj, "delete", NewBuiltin(2, 0, false).Complete()})
-	s.Insert(Object{BuiltinObj, "imag", NewBuiltin(1, 1, false).Complete()})
-	s.Insert(Object{BuiltinObj, "len", NewBuiltin(1, 1, false).Complete()})
-	s.Insert(Object{BuiltinObj, "make", NewBuiltin(2, 1, true).Complete()})
-	s.Insert(Object{BuiltinObj, "new", NewBuiltin(1, 1, true).Complete()})
-	s.Insert(Object{BuiltinObj, "panic", NewBuiltin(1, 0, false).Complete()})
-	s.Insert(Object{BuiltinObj, "print", NewBuiltin(1, 0, true).Complete()})
-	s.Insert(Object{BuiltinObj, "println", NewBuiltin(1, 0, true).Complete()})
-	s.Insert(Object{BuiltinObj, "real", NewBuiltin(1, 1, false).Complete()})
-	s.Insert(Object{BuiltinObj, "recover", NewBuiltin(0, 1, false).Complete()})
 
-	// TODO: untyped constants false, iota, nil, true
+	objs := []Object{
+		// each BuiltinObj has a unique type
+		{BuiltinObj, "append", NewBuiltin(2, 1, true)},
+		{BuiltinObj, "cap", NewBuiltin(1, 0, false)},
+		{BuiltinObj, "close", NewBuiltin(1, 0, false)},
+		{BuiltinObj, "complex", NewBuiltin(2, 1, false)},
+		{BuiltinObj, "copy", NewBuiltin(2, 1, false)},
+		{BuiltinObj, "delete", NewBuiltin(2, 0, false)},
+		{BuiltinObj, "imag", NewBuiltin(1, 1, false)},
+		{BuiltinObj, "len", NewBuiltin(1, 1, false)},
+		{BuiltinObj, "make", NewBuiltin(2, 1, true)},
+		{BuiltinObj, "new", NewBuiltin(1, 1, true)},
+		{BuiltinObj, "panic", NewBuiltin(1, 0, false)},
+		{BuiltinObj, "print", NewBuiltin(1, 0, true)},
+		{BuiltinObj, "println", NewBuiltin(1, 0, true)},
+		{BuiltinObj, "real", NewBuiltin(1, 1, false)},
+		{BuiltinObj, "recover", NewBuiltin(0, 1, false)},
+
+		{ConstObj, "false", basic[UntypedBool]},
+		{ConstObj, "iota", basic[UntypedInt]},
+		{ConstObj, "nil", basic[UntypedNil]},
+		{ConstObj, "true", basic[UntypedBool]},
+
+		{TypeObj, "byte", basic[Uint8]},
+		{TypeObj, "rune", basic[Int32]},
+		{TypeObj, "error", errorType.common()},
+	}
+	for i := range objs {
+		s.Insert(&objs[i])
+	}
 	return &s
 }

@@ -16,36 +16,44 @@ package types
 
 import (
 	"testing"
+
+	"github.com/cosmos72/onejit/go/arch"
 )
 
 func TestBasic(test *testing.T) {
-	for _, sz := range [...]ArchSizeBits{ArchSize32, ArchSize64} {
-		SetArchSizeBits(sz)
-		for i, basic := range BasicTypes() {
-			if basic == nil {
-				continue
-			}
-			kind := Kind(i)
-			if basic.Kind() != kind {
-				test.Errorf("basic.Kind()\t= %v,\texpecting %v", basic.Kind(), kind)
-			}
-			if basic.String() != kind.String() {
-				test.Errorf("basic.String()\t= %v,\texpecting %v", basic.String(), kind.String())
+	for _, os := range [...]arch.Os{arch.Linux, arch.Windows, arch.OsOther} {
+		for _, arc := range [...]arch.Arch{
+			arch.I386, arch.Amd64, arch.Arm, arch.Arm64, arch.ArchOther32bit, arch.ArchOther64bit,
+		} {
+			arch.SetTarget(os, arc)
+			for i, basic := range BasicTypes() {
+				if basic == nil {
+					continue
+				}
+				kind := Kind(i)
+				if basic.Kind() != kind {
+					test.Errorf("basic.Kind()\t= %v,\texpecting %v", basic.Kind(), kind)
+				}
+				if basic.String() != kind.String() {
+					test.Errorf("basic.String()\t= %v,\texpecting %v", basic.String(), kind.String())
+				}
 			}
 		}
 	}
-	SetArchSizeBits(ArchSizeAuto)
+	arch.SetTarget(arch.OsAuto, arch.ArchAuto)
 }
 
 func TestFunc(test *testing.T) {
-	for _, arg1 := range BasicTypes() {
-		if arg1 == nil {
+	for _, b1 := range BasicTypes() {
+		if b1 == nil || b1.Type() == nil {
 			continue
 		}
-		for _, arg2 := range BasicTypes() {
-			if arg2 == nil {
+		arg1 := b1.Type()
+		for _, b2 := range BasicTypes() {
+			if b2 == nil || b2.Type() == nil {
 				continue
 			}
+			arg2 := b2.Type()
 			t := NewFunc([]Type{arg1, arg2}, []Type{arg2, arg1}, true)
 			if expected := "func(" + arg1.String() + ", ..." + arg2.String() +
 				") (" + arg2.String() + ", " + arg1.String() + ")"; t.String() != expected {
@@ -53,7 +61,7 @@ func TestFunc(test *testing.T) {
 				test.Errorf("t.String()\t= %v,\texpecting %v", t.String(), expected)
 			}
 
-			if actual, expected := t.common().Size(), archSizeBytes; actual != expected {
+			if actual, expected := t.common().Size(), sizeOfPtr(); actual != expected {
 				test.Errorf("t.common().Size()\t= %v,\texpecting %v", actual, expected)
 			}
 
@@ -76,11 +84,12 @@ func TestFunc(test *testing.T) {
 func TestInterface(test *testing.T) {
 	pkgPath := "github.com/cosmos72/onejit/go/types/test"
 
-	bbool := BasicType(Bool)
-	for _, b := range BasicTypes() {
-		if b == nil {
+	bbool := BasicType(Bool).Type()
+	for _, bc := range BasicTypes() {
+		if bc == nil || bc.Type() == nil {
 			continue
 		}
+		b := bc.Type()
 		fun := NewFunc([]Type{b, b}, []Type{bbool}, false)
 		methods := []Method{{
 			Type:    fun,
@@ -100,10 +109,11 @@ func TestInterface(test *testing.T) {
 }
 
 func TestInterfaceEmbedded(test *testing.T) {
-	for _, b := range BasicTypes() {
-		if b == nil {
+	for _, bc := range BasicTypes() {
+		if bc == nil || bc.Type() == nil {
 			continue
 		}
+		b := bc.Type()
 		fun := NewFunc(nil, []Type{b}, false)
 		methods := []Method{{
 			Type: fun,
@@ -122,14 +132,16 @@ func TestInterfaceEmbedded(test *testing.T) {
 }
 
 func TestMap(test *testing.T) {
-	for _, key := range BasicTypes() {
-		if key == nil {
+	for _, bkey := range BasicTypes() {
+		if bkey == nil || bkey.Type() == nil {
 			continue
 		}
-		for _, elem := range BasicTypes() {
-			if elem == nil {
+		key := bkey.Type()
+		for _, belem := range BasicTypes() {
+			if belem == nil || belem.Type() == nil {
 				continue
 			}
+			elem := belem.Type()
 			t := NewMap(key, elem)
 			if t.Key() != key {
 				test.Errorf("t.Key()\t= %v,\texpecting %v", t.Key(), key)
@@ -142,7 +154,7 @@ func TestMap(test *testing.T) {
 				test.Errorf("t.String()\t= %v,\texpecting %v", t.String(), expected)
 			}
 
-			if actual, expected := t.common().Size(), archSizeBytes; actual != expected {
+			if actual, expected := t.common().Size(), sizeOfPtr(); actual != expected {
 				test.Errorf("t.common().Size()\t= %v,\texpecting %v", actual, expected)
 			}
 			tagain := NewMap(key, elem)
@@ -155,10 +167,11 @@ func TestMap(test *testing.T) {
 
 func TestNamed(test *testing.T) {
 	pkgPath := "github.com/cosmos72/onejit/go/types/test"
-	for _, basic := range BasicTypes() {
-		if basic == nil {
+	for _, bc := range BasicTypes() {
+		if bc == nil || bc.Type() == nil {
 			continue
 		}
+		basic := bc.Type().(*Basic)
 		name := basic.String() + "_"
 		t := NewNamed(name, pkgPath)
 		if actual, expected := t.String(), pkgPath+"."+name; actual != expected {
@@ -209,10 +222,11 @@ func TestNamed(test *testing.T) {
 }
 
 func TestPointer(test *testing.T) {
-	for _, basic := range BasicTypes() {
-		if basic == nil {
+	for _, bc := range BasicTypes() {
+		if bc == nil || bc.Type() == nil {
 			continue
 		}
+		basic := bc.Type()
 		t := NewPointer(basic)
 		tt := NewPointer(t)
 		if t.Elem() != basic {
@@ -229,10 +243,10 @@ func TestPointer(test *testing.T) {
 			test.Errorf("tt.String()\t= %v,\texpecting %v", tt.String(), expected)
 		}
 
-		if actual, expected := t.common().Size(), archSizeBytes; actual != expected {
+		if actual, expected := t.common().Size(), sizeOfPtr(); actual != expected {
 			test.Errorf("t.common().Size()\t= %v,\texpecting %v", actual, expected)
 		}
-		if actual, expected := tt.common().Size(), archSizeBytes; actual != expected {
+		if actual, expected := tt.common().Size(), sizeOfPtr(); actual != expected {
 			test.Errorf("tt.common().Size()\t= %v,\texpecting %v", actual, expected)
 		}
 		tagain := NewPointer(basic)
@@ -247,10 +261,11 @@ func TestPointer(test *testing.T) {
 }
 
 func TestSlice(test *testing.T) {
-	for _, basic := range BasicTypes() {
-		if basic == nil {
+	for _, bc := range BasicTypes() {
+		if bc == nil || bc.Type() == nil {
 			continue
 		}
+		basic := bc.Type()
 		t := NewSlice(basic)
 		tt := NewSlice(t)
 		if t.Elem() != basic {
@@ -267,10 +282,10 @@ func TestSlice(test *testing.T) {
 			test.Errorf("tt.String()\t= %v,\texpecting %v", tt.String(), expected)
 		}
 
-		if actual, expected := t.common().Size(), 3*archSizeBytes; actual != expected {
+		if actual, expected := t.common().Size(), 3*sizeOfPtr(); actual != expected {
 			test.Errorf("t.common().Size()\t= %v,\texpecting %v", actual, expected)
 		}
-		if actual, expected := tt.common().Size(), 3*archSizeBytes; actual != expected {
+		if actual, expected := tt.common().Size(), 3*sizeOfPtr(); actual != expected {
 			test.Errorf("tt.common().Size()\t= %v,\texpecting %v", actual, expected)
 		}
 
@@ -287,10 +302,11 @@ func TestSlice(test *testing.T) {
 
 func TestStruct(test *testing.T) {
 	fields := make([]Field, 2)
-	for _, f0 := range BasicTypes() {
-		if f0 == nil {
+	for _, bf0 := range BasicTypes() {
+		if bf0 == nil || bf0.Type() == nil {
 			continue
 		}
+		f0 := bf0.Type().(*Basic)
 		fields[0] = Field{
 			Type:     f0,
 			Name:     f0.Name(),
@@ -298,10 +314,11 @@ func TestStruct(test *testing.T) {
 			Index:    0,
 			Embedded: true,
 		}
-		for _, f1 := range BasicTypes() {
-			if f1 == nil {
+		for _, bf1 := range BasicTypes() {
+			if bf1 == nil || bf1.Type() == nil {
 				continue
 			}
+			f1 := bf1.Type().(*Basic)
 			fields[1] = Field{
 				Type:     f1,
 				Name:     f1.Name(),

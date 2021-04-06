@@ -16,22 +16,21 @@ package types
 
 // Complete represent a Go type. It is similar in spirit to reflect.Type
 type Complete struct {
-	methods *[]Method // nil if no methods
-	size    uint64    // in bytes. we also support compiling 64-bit code from 32-bit systems
-	flags   flags     // channel direction, variadic function
-	kind    Kind      // kind
-	typ     Type      // type, needed to convert Complete to Type
-	elem    Type      // elem type of array, chan, map, ptr, slice
-	extra   *extra    // array length, function parameters/results, map key Type, struct fields, named name and underlying
-	ptrTo   *Pointer  // type of pointer to this type
-	str     string    // compute lazily?
+	size  uint64   // in bytes. we also support compiling 64-bit code from 32-bit systems
+	flags flags    // channel direction, variadic function
+	kind  Kind     // kind
+	typ   Type     // type, needed to convert Complete to Type
+	elem  Type     // elem type of array, chan, map, ptr, slice
+	extra *extra   // array length, function parameters/results, map key Type, struct fields, named name and underlying
+	ptrTo *Pointer // type of pointer to this type
+	str   string   // compute lazily?
 }
 
 type extra struct {
 	n1, n2     uint32   // # of function parameters and results, or array length
 	types      []Type   // function parameters and results, interface embedded types, or map's key type
 	fields     []Field  // struct fields
-	methods    []Method // interface methods, or named methods
+	methods    []Method // interface methods, named methods, or methods from embedded struct fields
 	name       string
 	pkgPath    string
 	underlying Type
@@ -165,14 +164,14 @@ func (t *Complete) Key() *Complete {
 // Named-related methods
 
 func (t *Complete) NumMethod() int {
-	if t.methods == nil {
+	if t.extra == nil {
 		return 0
 	}
-	return len(*t.methods)
+	return len(t.extra.methods)
 }
 
 func (t *Complete) Method(i int) CompleteMethod {
-	m := &(*t.methods)[i]
+	m := &t.extra.methods[i]
 	return CompleteMethod{
 		Type:    m.Type.common(),
 		Name:    m.Name,

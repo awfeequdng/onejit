@@ -1,3 +1,5 @@
+// +build arm
+
 /*
  * Copyright (C) 2021 Massimiliano Ghilardi
  *
@@ -6,23 +8,12 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * z_scope_test.go
+ * arch_arm.go
  *
- *  Created on: Apr 01, 2021
+ *  Created on: Apr 06, 2021
  *      Author: Massimiliano Ghilardi
  */
 
-package types
+package arch
 
-import (
-	"fmt"
-	"testing"
-)
-
-func TestScope(test *testing.T) {
-	s := Universe()
-	for _, name := range s.Names() {
-		obj := s.Lookup(name)
-		fmt.Printf("%s => %v %v\n", name, obj.Class(), obj.Type())
-	}
-}
+const ArchAuto = ArchArm

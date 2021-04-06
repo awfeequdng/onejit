@@ -115,3 +115,7 @@ func (k Kind) IsNillable() bool {
 func (k Kind) IsOrdered() bool {
 	return k >= Int && k <= Float64 || k == String || k >= UntypedInt && k <= UntypedFloat || k == UntypedString
 }
+
+func (k Kind) IsUntyped() bool {
+	return k >= UntypedBool
+}

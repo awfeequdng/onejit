@@ -86,7 +86,7 @@ func NewInterface(embedded []Type, method ...Method) *Interface {
 	}
 	t = &Interface{
 		rtype: Complete{
-			size:  2 * archSizeBytes,
+			size:  2 * sizeOfPtr(),
 			flags: (flagsAndMethod(method) & flagComplete) | flagComparable,
 			kind:  InterfaceKind,
 			str:   makeInterfaceString(method, shortPkgName),
@@ -96,7 +96,6 @@ func NewInterface(embedded []Type, method ...Method) *Interface {
 			methods: method,
 		},
 	}
-	t.rtype.methods = &t.extra.methods
 	t.rtype.typ = t
 	t.rtype.extra = &t.extra
 	interfaceMap[key] = t

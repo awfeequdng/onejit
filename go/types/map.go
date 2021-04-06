@@ -78,7 +78,7 @@ func NewMap(key Type, elem Type) *Map {
 	}
 	t = &Map{
 		rtype: Complete{
-			size:  archSizeBytes,
+			size:  sizeOfPtr(),
 			flags: (key.common().flags & elem.common().flags & flagComplete) | flagNotComparable,
 			kind:  MapKind,
 			elem:  elem,

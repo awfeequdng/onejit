@@ -14,7 +14,9 @@
 
 package types
 
-import "strings"
+import (
+	"strings"
+)
 
 type Chan struct {
 	_     [0]*Chan // occupies zero bytes
@@ -76,7 +78,7 @@ func NewChan(dir ChanDir, elem Type) *Chan {
 	}
 	t = &Chan{
 		rtype: Complete{
-			size:  archSizeBytes,
+			size:  sizeOfPtr(),
 			flags: flags(dir) | (elem.common().flags & flagComplete) | flagNotComparable,
 			kind:  ChanKind,
 			elem:  elem,
