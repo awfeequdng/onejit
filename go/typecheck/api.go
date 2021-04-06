@@ -23,9 +23,9 @@ import (
 type TypeMap map[ast.Node]*types.Complete
 
 // typecheck the specified global declarations
-func CheckGlobals(scope *types.Scope, source ...ast.Node) (defs *types.Scope, typemap TypeMap) {
+func CheckGlobals(scope *types.Scope, knownpkgs types.Packages, source ...ast.Node) (defs *types.Scope, typemap TypeMap) {
 	c := Checker{}
-	c.Init(scope)
+	c.Init(scope, knownpkgs)
 	c.CheckGlobals(source...)
 	return c.defs, c.typemap
 }

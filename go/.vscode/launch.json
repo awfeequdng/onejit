@@ -48,5 +48,15 @@
                 "-test.v"
             ]
         },
+        {
+            "name": "test onejit/go/typecheck",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/typecheck",
+            "args": [
+                "-test.v"
+            ]
+        },
     ]
 }

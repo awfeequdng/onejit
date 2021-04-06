@@ -26,20 +26,22 @@ type (
 		scope *types.Scope
 		// names and corresponding *types.Object declared in source being typechecked
 		defs      *types.Scope
-		globals   globaldecls // names declared at least once in source being typechecked
+		globals   globaldecls // names declared in source being typechecked
 		redefined globaldecls // names declared more than once in source being typechecked
 		typemap   TypeMap
+		knownpkgs types.Packages // list of known packages
 	}
 )
 
 var typeAlias ast.Node = &ast.Atom{Tok: token.ASSIGN}
 
-func (c *Checker) Init(scope *types.Scope) {
+func (c *Checker) Init(scope *types.Scope, knownpkgs types.Packages) {
 	c.scope = scope
 	c.defs = nil
 	c.globals = nil
 	c.redefined = nil
 	c.typemap = nil
+	c.knownpkgs = knownpkgs
 }
 
 func (c *Checker) CheckGlobals(source ...ast.Node) {
@@ -56,15 +58,19 @@ func (c *Checker) collectGlobals(nodes ...ast.Node) {
 			for i, n := 0, node.Len(); i < n; i++ {
 				c.collectGlobals(node.At(i))
 			}
-		case token.CONST, token.VAR:
-			for i, n := 0, node.Len(); i < n; i++ {
-				c.collectValueSpec(op, node.At(i))
-			}
 		case token.FUNC:
 			c.collectFuncDecl(node)
+		case token.IMPORT:
+			for i, n := 0, node.Len(); i < n; i++ {
+				c.collectImportSpec(node.At(i))
+			}
 		case token.TYPE:
 			for i, n := 0, node.Len(); i < n; i++ {
 				c.collectTypeSpec(node.At(i))
+			}
+		case token.VAR, token.CONST:
+			for i, n := 0, node.Len(); i < n; i++ {
+				c.collectValueSpec(op, node.At(i))
 			}
 		}
 	}
@@ -78,6 +84,25 @@ func (c *Checker) collectFuncDecl(decl ast.Node) {
 	typ := decl.At(2)
 	body := decl.At(3)
 	c.addLocal(types.FuncObj, name.Lit, typ, body)
+}
+
+func (c *Checker) collectImportSpec(spec ast.Node) {
+	op := spec.Op()
+	if op != token.IMPORT_SPEC {
+		panic("invalid import declaration: " + spec.String())
+	}
+	name := spec.At(0)
+	path := spec.At(1).(*ast.Atom)
+	// also skip initial and final '"'
+	namestr, pathstr := "", strings.Unescape(path.Lit[1:len(path.Lit)-1])
+	if name != nil {
+		namestr = name.(*ast.Atom).Lit // identifier
+	} else if pkg := c.knownpkgs[pathstr]; pkg != nil {
+		namestr = pkg.Name()
+	} else {
+		namestr = strings.Basename(pathstr) // approximate!
+	}
+	c.addLocal(types.ImportObj, namestr, nil, path)
 }
 
 func (c *Checker) collectTypeSpec(spec ast.Node) {

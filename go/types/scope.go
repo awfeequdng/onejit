@@ -20,16 +20,42 @@ import (
 	"github.com/cosmos72/onejit/go/arch"
 )
 
-type Class uint8
+type (
+	Class uint8
+
+	Object struct {
+		cls   Class
+		name  string
+		typ   *Complete
+		value interface{} // constant.Value for constants, *Package for imports, otherwise nil
+	}
+
+	Scope struct {
+		parent *Scope
+		m      map[string]*Object
+	}
+
+	Package struct {
+		name    string
+		pkgPath string
+		scope   Scope
+	}
+
+	// map path -> *Package of all known packages
+	Packages map[string]*Package
+)
 
 const (
 	InvalidObj Class = iota
 	BuiltinObj
 	ConstObj
 	FuncObj
+	ImportObj
 	TypeObj
 	VarObj
 )
+
+// --------------------------- Class -------------------------------------------
 
 func (cl Class) String() string {
 	var str string
@@ -40,6 +66,8 @@ func (cl Class) String() string {
 		str = "const"
 	case FuncObj:
 		str = "func"
+	case ImportObj:
+		str = "import"
 	case TypeObj:
 		str = "type"
 	case VarObj:
@@ -52,14 +80,8 @@ func (cl Class) String() string {
 
 // --------------------------- Object ------------------------------------------
 
-type Object struct {
-	cls  Class
-	name string
-	typ  *Complete
-}
-
 func NewObject(cls Class, name string, typ *Complete) *Object {
-	obj := Object{cls, name, typ}
+	obj := Object{cls, name, typ, nil}
 	obj.checkValid()
 	return &obj
 }
@@ -74,6 +96,15 @@ func (obj *Object) Name() string {
 
 func (obj *Object) Type() *Complete {
 	return obj.typ
+}
+
+func (obj *Object) Value() interface{} {
+	return obj.value
+}
+
+func (obj *Object) SetValue(value interface{}) *Object {
+	obj.value = value
+	return obj
 }
 
 func (obj *Object) checkValid() {
@@ -102,6 +133,11 @@ func (obj *Object) checkValid() {
 		} else if len(t.Name()) != 0 {
 			panic("type of FuncObj must be unnamed")
 		}
+	case ImportObj:
+		if t != nil {
+			panic("type of ImportObj must be nil")
+		}
+		return
 	case TypeObj:
 		// nothing to do
 	case VarObj:
@@ -121,11 +157,6 @@ func isBuiltinType(t *Complete) bool {
 }
 
 // --------------------------- Scope -------------------------------------------
-
-type Scope struct {
-	parent *Scope
-	m      map[string]*Object
-}
 
 func NewScope(parent *Scope) *Scope {
 	return &Scope{parent: parent}
@@ -177,6 +208,28 @@ func (s *Scope) Parent() *Scope {
 	return s.parent
 }
 
+// --------------------------- Package -------------------------------------------
+
+func NewPackage(name string, pkgPath string) *Package {
+	return &Package{
+		name:    name,
+		pkgPath: pkgPath,
+		scope:   Scope{parent: Universe()},
+	}
+}
+
+func (pkg *Package) Name() string {
+	return pkg.name
+}
+
+func (pkg *Package) PkgPath() string {
+	return pkg.pkgPath
+}
+
+func (pkg *Package) Scope() *Scope {
+	return &pkg.scope
+}
+
 // --------------------------- Universe -------------------------------------------
 
 var (
@@ -204,7 +257,7 @@ func makeUniverse(basic []*Complete) *Scope {
 	s := Scope{}
 	for _, b := range basic[:Complex128+1] {
 		if b != nil {
-			s.Insert(&Object{TypeObj, b.Name(), b})
+			s.Insert(&Object{TypeObj, b.Name(), b, nil})
 		}
 	}
 	errorType := NewNamed("error", "")
@@ -215,30 +268,30 @@ func makeUniverse(basic []*Complete) *Scope {
 
 	objs := []Object{
 		// each BuiltinObj has a unique type
-		{BuiltinObj, "append", NewBuiltin(2, 1, true)},
-		{BuiltinObj, "cap", NewBuiltin(1, 0, false)},
-		{BuiltinObj, "close", NewBuiltin(1, 0, false)},
-		{BuiltinObj, "complex", NewBuiltin(2, 1, false)},
-		{BuiltinObj, "copy", NewBuiltin(2, 1, false)},
-		{BuiltinObj, "delete", NewBuiltin(2, 0, false)},
-		{BuiltinObj, "imag", NewBuiltin(1, 1, false)},
-		{BuiltinObj, "len", NewBuiltin(1, 1, false)},
-		{BuiltinObj, "make", NewBuiltin(2, 1, true)},
-		{BuiltinObj, "new", NewBuiltin(1, 1, true)},
-		{BuiltinObj, "panic", NewBuiltin(1, 0, false)},
-		{BuiltinObj, "print", NewBuiltin(1, 0, true)},
-		{BuiltinObj, "println", NewBuiltin(1, 0, true)},
-		{BuiltinObj, "real", NewBuiltin(1, 1, false)},
-		{BuiltinObj, "recover", NewBuiltin(0, 1, false)},
+		{BuiltinObj, "append", NewBuiltin(2, 1, true), nil},
+		{BuiltinObj, "cap", NewBuiltin(1, 0, false), nil},
+		{BuiltinObj, "close", NewBuiltin(1, 0, false), nil},
+		{BuiltinObj, "complex", NewBuiltin(2, 1, false), nil},
+		{BuiltinObj, "copy", NewBuiltin(2, 1, false), nil},
+		{BuiltinObj, "delete", NewBuiltin(2, 0, false), nil},
+		{BuiltinObj, "imag", NewBuiltin(1, 1, false), nil},
+		{BuiltinObj, "len", NewBuiltin(1, 1, false), nil},
+		{BuiltinObj, "make", NewBuiltin(2, 1, true), nil},
+		{BuiltinObj, "new", NewBuiltin(1, 1, true), nil},
+		{BuiltinObj, "panic", NewBuiltin(1, 0, false), nil},
+		{BuiltinObj, "print", NewBuiltin(1, 0, true), nil},
+		{BuiltinObj, "println", NewBuiltin(1, 0, true), nil},
+		{BuiltinObj, "real", NewBuiltin(1, 1, false), nil},
+		{BuiltinObj, "recover", NewBuiltin(0, 1, false), nil},
 
-		{ConstObj, "false", basic[UntypedBool]},
-		{ConstObj, "iota", basic[UntypedInt]},
-		{ConstObj, "nil", basic[UntypedNil]},
-		{ConstObj, "true", basic[UntypedBool]},
+		{ConstObj, "false", basic[UntypedBool], nil},
+		{ConstObj, "iota", basic[UntypedInt], nil},
+		{ConstObj, "nil", basic[UntypedNil], nil},
+		{ConstObj, "true", basic[UntypedBool], nil},
 
-		{TypeObj, "byte", basic[Uint8]},
-		{TypeObj, "rune", basic[Int32]},
-		{TypeObj, "error", errorType.common()},
+		{TypeObj, "byte", basic[Uint8], nil},
+		{TypeObj, "rune", basic[Int32], nil},
+		{TypeObj, "error", errorType.common(), nil},
 	}
 	for i := range objs {
 		s.Insert(&objs[i])

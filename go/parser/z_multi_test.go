@@ -32,9 +32,11 @@ func TestBuiltinFunctions(t *testing.T) {
 
 func TestParseGoRootFiles(t *testing.T) {
 	// t.SkipNow()
-	p := &Parser{}
+	p := Parser{}
 	visit := func(t *testing.T, in io.Reader, filename string) {
-		parseFile(t, p, in, filename)
+		p.Init(token.NewFile(filename, 0), in, Default)
+		p.ParseFile()
+		testutil.CompareErrors(t, filename, errorList{p.Errors()}, nil)
 	}
 	testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)
 }
@@ -52,12 +54,6 @@ func parseString(t *testing.T, p *Parser, source string) {
 			t.Errorf("parse file %q returned %v", filename, node)
 		}
 	}
-	testutil.CompareErrors(t, filename, errorList{p.Errors()}, nil)
-}
-
-func parseFile(t *testing.T, p *Parser, in io.Reader, filename string) {
-	p.Init(token.NewFile(filename, 0), in, Default)
-	p.ParseFile()
 	testutil.CompareErrors(t, filename, errorList{p.Errors()}, nil)
 }
 

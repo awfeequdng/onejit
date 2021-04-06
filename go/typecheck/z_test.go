@@ -63,17 +63,19 @@ func (list errorList) Error(i int) error {
 func TestChecker(t *testing.T) {
 	var p parser.Parser
 	p.InitString("const ( a = 1; b = 2 )", parser.Default)
-	CheckGlobals(types.Universe(), p.Parse())
+	CheckGlobals(types.Universe(), nil, p.Parse())
 }
 
 func TestCheckGoRootFiles(t *testing.T) {
 	var p parser.Parser
 	var c Checker
 	visit := func(t *testing.T, in io.Reader, filename string) {
-		c.Init(types.NewScope(types.Universe()))
 		p.Init(token.NewFile(filename, 0), in, parser.Default)
+		testutil.CompareErrors(t, filename, errorList{p.Errors()}, nil)
+
+		c.Init(types.NewScope(types.Universe()), nil)
 		c.CheckGlobals(p.ParseFile())
-		if testing.Verbose() {
+		if false /*testing.Verbose()*/ {
 			t.Log(strings.Basename(filename), ":", c.globals)
 		}
 	}
