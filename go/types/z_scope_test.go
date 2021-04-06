@@ -15,7 +15,6 @@
 package types
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -23,6 +22,8 @@ func TestScope(test *testing.T) {
 	s := Universe()
 	for _, name := range s.Names() {
 		obj := s.Lookup(name)
-		fmt.Printf("%s => %v %v\n", name, obj.Class(), obj.Type())
+		if testing.Verbose() {
+			test.Logf("%s => %v %v\n", name, obj.Class(), obj.Type())
+		}
 	}
 }

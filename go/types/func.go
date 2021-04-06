@@ -99,9 +99,11 @@ func NewFunc(in []Type, out []Type, variadic bool) *Func {
 	if variadic {
 		flag |= flagVariadic
 	}
+	size := sizeOfPtr()
 	t = &Func{
 		rtype: Complete{
-			size:  sizeOfPtr(),
+			size:  size,
+			align: uint16(size),
 			flags: flag | flagNotComparable,
 			kind:  FuncKind,
 			str:   makeFuncString(in, out, variadic, shortPkgName),

@@ -16,4 +16,4 @@
 
 package arch
 
-const ArchAuto = ArchArm
+const ArchAuto = Arm

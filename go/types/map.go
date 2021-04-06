@@ -76,9 +76,11 @@ func NewMap(key Type, elem Type) *Map {
 	if t != nil {
 		return t
 	}
+	size := sizeOfPtr()
 	t = &Map{
 		rtype: Complete{
-			size:  sizeOfPtr(),
+			size:  size,
+			align: uint16(size),
 			flags: (key.common().flags & elem.common().flags & flagComplete) | flagNotComparable,
 			kind:  MapKind,
 			elem:  elem,

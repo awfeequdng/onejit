@@ -109,9 +109,10 @@ func NewNamed(name string, pkgPath string) *Named {
 	}
 	t := &Named{
 		rtype: Complete{
-			size: unknownSize,
-			kind: Invalid, // not known yet
-			str:  str,
+			size:  unknownSize,
+			align: unknownAlign,
+			kind:  Invalid, // not known yet
+			str:   str,
 		},
 		extra: extra{
 			name:    name,

@@ -114,37 +114,38 @@ func makeBasicTypes0() []*Complete {
 		Uint32:  newBasic(Uint32, 4, 4),
 		Float32: newBasic(Float32, 4, 4),
 		// the following have .Type() == nil as they cannot be used as components in new types
-		UntypedBool:    newBasic(UntypedBool, unknownSize, unknownSize),
-		UntypedInt:     newBasic(UntypedInt, unknownSize, unknownSize),
-		UntypedRune:    newBasic(UntypedRune, unknownSize, unknownSize),
-		UntypedFloat:   newBasic(UntypedFloat, unknownSize, unknownSize),
-		UntypedComplex: newBasic(UntypedComplex, unknownSize, unknownSize),
-		UntypedString:  newBasic(UntypedString, unknownSize, unknownSize),
-		UntypedNil:     newBasic(UntypedNil, unknownSize, unknownSize),
+		UntypedBool:    newBasic(UntypedBool, unknownSize, unknownAlign),
+		UntypedInt:     newBasic(UntypedInt, unknownSize, unknownAlign),
+		UntypedRune:    newBasic(UntypedRune, unknownSize, unknownAlign),
+		UntypedFloat:   newBasic(UntypedFloat, unknownSize, unknownAlign),
+		UntypedComplex: newBasic(UntypedComplex, unknownSize, unknownAlign),
+		UntypedString:  newBasic(UntypedString, unknownSize, unknownAlign),
+		UntypedNil:     newBasic(UntypedNil, unknownSize, unknownAlign),
 	}
 }
 
 // create basic types that depend on OS or architecture
-func makeBasicTypes(common []*Complete, sizeOfInt uint64, alignOfFloat64 uint64) []*Complete {
+func makeBasicTypes(common []*Complete, sizeOfInt uint64, alignOfFloat64 uint16) []*Complete {
 	ret := append([]*Complete(nil), common...)
-	ret[Int] = newBasic(Int, sizeOfInt, sizeOfInt)
-	ret[Int64] = newBasic(Int64, 8, sizeOfInt)
-	ret[Uint] = newBasic(Uint, sizeOfInt, sizeOfInt)
-	ret[Uint64] = newBasic(Uint64, 8, sizeOfInt)
-	ret[Uintptr] = newBasic(Uintptr, sizeOfInt, sizeOfInt)
+	ret[Int] = newBasic(Int, sizeOfInt, uint16(sizeOfInt))
+	ret[Int64] = newBasic(Int64, 8, uint16(sizeOfInt))
+	ret[Uint] = newBasic(Uint, sizeOfInt, uint16(sizeOfInt))
+	ret[Uint64] = newBasic(Uint64, 8, uint16(sizeOfInt))
+	ret[Uintptr] = newBasic(Uintptr, sizeOfInt, uint16(sizeOfInt))
 	ret[Float64] = newBasic(Float64, 8, alignOfFloat64)
 	ret[Complex64] = newBasic(Complex64, 8, 4)
 	ret[Complex128] = newBasic(Complex128, 16, alignOfFloat64)
-	ret[String] = newBasic(String, 2*sizeOfInt, sizeOfInt)
-	ret[UnsafePointer] = newBasic(UnsafePointer, sizeOfInt, sizeOfInt)
+	ret[String] = newBasic(String, 2*sizeOfInt, uint16(sizeOfInt))
+	ret[UnsafePointer] = newBasic(UnsafePointer, sizeOfInt, uint16(sizeOfInt))
 	return ret
 }
 
 // create a new Basic type
-func newBasic(kind Kind, size uint64, align uint64) *Complete {
+func newBasic(kind Kind, size uint64, align uint16) *Complete {
 	t := &Basic{
 		rtype: Complete{
 			size:  size,
+			align: align,
 			flags: flagComparable | flagComplete,
 			kind:  kind,
 			str:   kind.String(),

@@ -34,7 +34,7 @@ func TypeString(t Type, showFullPkgPath bool) string {
 }
 
 type (
-	flags   uint32
+	flags   uint16
 	ChanDir flags
 )
 
@@ -49,7 +49,8 @@ const (
 	flagNeedPadding   flags = 32 // type is or ends with zero-byte struct or array
 	flagVariadic      flags = 64
 
-	unknownSize = ^uint64(0)
+	unknownSize  = ^uint64(0)
+	unknownAlign = ^uint16(0)
 )
 
 // return bitwise AND of specified type's flags

@@ -46,7 +46,11 @@ func (t *Struct) complete() {
 	if t.rtype.size == unknownSize {
 		t.rtype.size = computeStructSize(fields)
 	}
+	if t.rtype.align == unknownAlign {
+		t.rtype.align = computeStructAlign(fields)
+	}
 	t.rtype.flags = computeStructFlags(fields)
+	t.updateFieldOffsets()
 }
 
 func (t *Struct) writeTo(b *strings.Builder, flag verbose) {
@@ -79,6 +83,7 @@ func NewStruct(fields ...Field) *Struct {
 	t = &Struct{
 		rtype: Complete{
 			size:  computeStructSize(fields),
+			align: computeStructAlign(fields),
 			flags: computeStructFlags(fields),
 			kind:  StructKind,
 			str:   makeStructString(fields, shortPkgName),
@@ -89,6 +94,7 @@ func NewStruct(fields ...Field) *Struct {
 	}
 	t.rtype.typ = t
 	t.rtype.extra = &t.extra
+	t.updateFieldOffsets()
 	structMap[key] = t
 	return t
 }
@@ -175,6 +181,19 @@ func computeStructSize(fields []Field) uint64 {
 	return size
 }
 
+func computeStructAlign(fields []Field) uint16 {
+	align := uint16(0)
+	for i := range fields {
+		fieldalign := fields[i].Type.common().align
+		if fieldalign == unknownAlign {
+			return fieldalign
+		} else if align < fieldalign {
+			align = fieldalign
+		}
+	}
+	return align
+}
+
 func computeStructFlags(fields []Field) flags {
 	flagsAnd := ^flags(0)
 	flagsOr := flags(0)
@@ -198,6 +217,24 @@ func computeStructFlags(fields []Field) flags {
 		flag |= flagNeedPadding
 	}
 	return flag
+}
+
+func (t *Struct) updateFieldOffsets() {
+	if t.rtype.size == unknownSize || t.rtype.align == unknownAlign {
+		return
+	}
+	offset := uint64(0)
+	fields := t.extra.fields
+	for i := range fields {
+		field := &fields[i]
+		ftype := field.Type.common()
+		falign := ftype.align
+		if falign > 1 && uint16(offset)&(falign-1) != 0 {
+			offset = (offset | uint64(falign-1)) + 1
+		}
+		field.Offset = offset
+		offset += ftype.size
+	}
 }
 
 func makeStructString(fields []Field, flag verbose) string {

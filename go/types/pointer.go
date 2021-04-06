@@ -63,9 +63,11 @@ func NewPointer(elem Type) *Pointer {
 	if t != nil {
 		return t
 	}
+	size := sizeOfPtr()
 	t = &Pointer{
 		rtype: Complete{
-			size:  sizeOfPtr(),
+			size:  size,
+			align: uint16(size),
 			flags: (relem.flags & flagComplete) | flagComparable,
 			kind:  PtrKind,
 			elem:  elem,

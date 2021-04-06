@@ -76,9 +76,11 @@ func NewChan(dir ChanDir, elem Type) *Chan {
 	if t != nil {
 		return t
 	}
+	size := sizeOfPtr()
 	t = &Chan{
 		rtype: Complete{
-			size:  sizeOfPtr(),
+			size:  size,
+			align: uint16(size),
 			flags: flags(dir) | (elem.common().flags & flagComplete) | flagNotComparable,
 			kind:  ChanKind,
 			elem:  elem,

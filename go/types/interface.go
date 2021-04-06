@@ -84,9 +84,11 @@ func NewInterface(embedded []Type, method ...Method) *Interface {
 	if t != nil {
 		return t
 	}
+	size := sizeOfPtr()
 	t = &Interface{
 		rtype: Complete{
-			size:  2 * sizeOfPtr(),
+			size:  2 * size,
+			align: uint16(size),
 			flags: (flagsAndMethod(method) & flagComplete) | flagComparable,
 			kind:  InterfaceKind,
 			str:   makeInterfaceString(method, shortPkgName),

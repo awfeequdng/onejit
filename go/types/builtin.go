@@ -18,8 +18,10 @@ package types
 // the returned *Complete has .Kind() = Invalid and .Type() = nil,
 // as it cannot be used as component in new types.
 func NewBuiltin(nin uint32, nout uint32, variadic bool) *Complete {
+	size := sizeOfPtr()
 	return &Complete{
-		size:  sizeOfPtr(),
+		size:  size,
+		align: uint16(size),
 		flags: flagComplete | flagNotComparable,
 		kind:  Invalid,
 		extra: &extra{

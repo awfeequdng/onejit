@@ -300,6 +300,13 @@ func TestSlice(test *testing.T) {
 	}
 }
 
+func offsetOf(minOffset uint64, align uint64) uint64 {
+	if align > 1 && minOffset&(align-1) != 0 {
+		minOffset = (minOffset | (align - 1)) + 1
+	}
+	return minOffset
+}
+
 func TestStruct(test *testing.T) {
 	fields := make([]Field, 2)
 	for _, bf0 := range BasicTypes() {
@@ -310,7 +317,6 @@ func TestStruct(test *testing.T) {
 		fields[0] = Field{
 			Type:     f0,
 			Name:     f0.Name(),
-			Offset:   unknownSize,
 			Index:    0,
 			Embedded: true,
 		}
@@ -322,12 +328,14 @@ func TestStruct(test *testing.T) {
 			fields[1] = Field{
 				Type:     f1,
 				Name:     f1.Name(),
-				Offset:   unknownSize,
 				Index:    1,
 				Embedded: true,
 			}
-
 			t := NewStruct(fields...)
+
+			// set *after* calling NewStruct, to be sure it computes the same value
+			fields[1].Offset = offsetOf(bf0.Size(), bf1.Align())
+
 			if expected := "struct { " + f0.String() + "; " + f1.String() + " }"; t.String() != expected {
 				test.Errorf("t.String()\t= %v,\texpecting %v", t.String(), expected)
 			}

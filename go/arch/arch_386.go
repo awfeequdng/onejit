@@ -16,4 +16,4 @@
 
 package arch
 
-const ArchAuto = Arch386
+const ArchAuto = I386

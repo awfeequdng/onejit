@@ -16,7 +16,8 @@ package types
 
 // Complete represent a Go type. It is similar in spirit to reflect.Type
 type Complete struct {
-	size  uint64   // in bytes. we also support compiling 64-bit code from 32-bit systems
+	size  uint64   // in bytes. uint64 to support compiling 64-bit code from 32-bit systems
+	align uint16   // in bytes. also depends on target OS/architecture
 	flags flags    // channel direction, variadic function
 	kind  Kind     // kind
 	typ   Type     // type, needed to convert Complete to Type
@@ -57,6 +58,10 @@ func (t *Complete) Underlying() *Complete {
 }
 
 // methods valid for any Kind
+
+func (t *Complete) Align() uint64 {
+	return uint64(t.align)
+}
 
 func (t *Complete) Comparable() bool {
 	return t.flags&flagComparable != 0

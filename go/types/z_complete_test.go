@@ -56,5 +56,7 @@ func TestCompleteMap(test *testing.T) {
 	))
 
 	cs := CompleteTypes(s)
-	test.Log(cs)
+	if testing.Verbose() {
+		test.Log(cs)
+	}
 }

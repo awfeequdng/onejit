@@ -49,6 +49,7 @@ func (t *Array) complete() {
 	elem := t.Elem()
 	len := t.Len()
 	t.rtype.size = computeArraySize(elem, len)
+	t.rtype.align = computeArrayAlign(elem, len)
 	t.rtype.flags = computeArrayFlags(elem, len)
 }
 
@@ -91,6 +92,7 @@ func NewArray(elem Type, len uint64) *Array {
 	t = &Array{
 		rtype: Complete{
 			size:  computeArraySize(elem, len),
+			align: computeArrayAlign(elem, len),
 			flags: computeArrayFlags(elem, len),
 			kind:  ArrayKind,
 			elem:  elem,
@@ -112,6 +114,13 @@ func computeArraySize(elem Type, len uint64) uint64 {
 		panic("NewArray length " + uintToString(len) + " exceeds archMaxSize/elementSize = " + uintToString(archMaxSize/elemsize))
 	}
 	return len * elemsize
+}
+
+func computeArrayAlign(elem Type, len uint64) uint16 {
+	if len == 0 {
+		return 0
+	}
+	return elem.common().align
 }
 
 func computeArrayFlags(elem Type, len uint64) flags {

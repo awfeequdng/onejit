@@ -64,9 +64,11 @@ func NewSlice(elem Type) *Slice {
 	if t != nil {
 		return t
 	}
+	size := sizeOfPtr()
 	t = &Slice{
 		rtype: Complete{
-			size:  3 * sizeOfPtr(),
+			size:  3 * size,
+			align: uint16(size),
 			flags: (elem.common().flags & flagComplete) | flagNotComparable,
 			kind:  SliceKind,
 			elem:  elem,

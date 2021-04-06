@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * amd64.go
+ * arch_amd64.go
  *
  *  Created on: Apr 06, 2021
  *      Author: Massimiliano Ghilardi

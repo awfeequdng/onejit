@@ -16,4 +16,4 @@
 
 package arch
 
-const ArchAuto = ArchArm64
+const ArchAuto = Arm64
