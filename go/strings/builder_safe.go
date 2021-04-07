@@ -1,3 +1,5 @@
+// +build !gc safe
+
 /*
  * Copyright (C) 2021 Massimiliano Ghilardi
  *
@@ -6,22 +8,15 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * utf8reader.go
+ * builder_safe.go
  *
- *  Created on: Mar 19, 2021
+ *  Created on: Apr 07, 2021
  *      Author: Massimiliano Ghilardi
  */
 
-package scanner
+package strings
 
-import (
-	"github.com/cosmos72/onejit/go/io"
-)
-
-type readerAlwaysEof struct{}
-
-func (r readerAlwaysEof) Read(dst []byte) (int, error) {
-	return 0, io.EOF
+func (b *Builder) String() string {
+	// safe, but copies b.buf into a new string at every call
+	return string(b.buf)
 }
-
-var alwaysEof io.Reader = readerAlwaysEof{}

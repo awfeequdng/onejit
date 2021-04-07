@@ -138,8 +138,8 @@ func (c *Checker) collectValueSpec(op token.Token, spec ast.Node) {
 			init = nil
 		default:
 			panic("invalid " + op.String() + " declaration, found " +
-				strings.UintToString(uint64(ninit)) + " initializers" +
-				", expecting 0, 1 or " + strings.UintToString(uint64(n)) +
+				strings.Uint64ToString(uint64(ninit)) + " initializers" +
+				", expecting 0, 1 or " + strings.Uint64ToString(uint64(n)) +
 				": " + spec.String())
 		}
 	}

@@ -15,9 +15,8 @@
 package types
 
 import (
-	"sort"
-
 	"github.com/cosmos72/onejit/go/arch"
+	"github.com/cosmos72/onejit/go/sort"
 )
 
 type (

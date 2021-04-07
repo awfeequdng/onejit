@@ -19,36 +19,54 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
+// parse a whole file.
 func (p *Parser) ParseFile() *ast.File {
 	file := ast.File{Atom: ast.Atom{Tok: token.FILE}}
 
 	var imports []ast.Node
 	var decls []ast.Node
-	for {
-		node := p.Parse()
-		if node == nil {
-			continue
-		} else if op := node.Op(); op == token.ILLEGAL {
-			continue
-		} else if op == token.EOF {
-			break // end of file
-		} else if op == token.PACKAGE {
-			if file.Package != nil {
-				p.error(node.Pos(), errDuplicatePackage)
+	var eof bool
+	for !eof {
+		switch tok := p.tok(); tok {
+		case token.EOF:
+			eof = true
+		case token.PACKAGE:
+			if imports != nil || decls != nil {
+				p.error(p.pos(), errExpectingDecl)
+			} else if file.Package != nil {
+				p.error(p.pos(), errDuplicatePackage)
+			}
+			node := p.parsePackage()
+			if file.Package == nil {
+				file.Package = node
+			}
+			eof = p.Mode&(ParseImports|ParseDecls) == 0
+		case token.IMPORT:
+			if p.Mode&(ParseImports|ParseDecls) == 0 {
+				eof = true
 				continue
 			}
-			file.Package = node.(*ast.Unary)
-			if imports != nil || decls != nil {
-				p.error(node.Pos(), errExpectingDecl)
-			}
-		} else if op == token.IMPORT {
 			if decls != nil {
-				p.error(node.Pos(), errExpectingDecl)
+				p.error(p.pos(), errExpectingDecl)
 			}
-			imports = append(imports, node)
-		} else {
-			if !isDecl(op) {
-				p.error(node.Pos(), errExpectingDecl)
+			node := p.parseImport()
+			if p.Mode&ParseImports != 0 {
+				imports = append(imports, node)
+			}
+		case token.SEMICOLON:
+			p.next()
+			continue
+		default:
+			if p.Mode&ParseDecls == 0 {
+				eof = true
+				continue
+			}
+			var node ast.Node
+			if isDecl(tok) {
+				node = p.ParseTopLevelDecl()
+			} else {
+				p.error(p.pos(), errExpectingDecl)
+				node = p.parseStmt(allowCompositeLit)
 			}
 			decls = append(decls, node)
 		}
@@ -70,6 +88,10 @@ func makeList(tok token.Token, nodes []ast.Node) *ast.List {
 
 func (p *Parser) parsePackage() *ast.Unary {
 	node := p.parseUnary()
-	node.X = p.parseIdent()
+	if tok := p.tok(); tok == token.IDENT || tok == token.STRING {
+		node.X = p.parseAtom(tok)
+	} else {
+		node.X = p.parseBad(errExpectingIdentOrString)
+	}
 	return node
 }

@@ -40,7 +40,7 @@ func (p *Parser) parseConstOrVarDecl() *ast.List {
 	return list
 }
 
-func (p *Parser) parseImport() ast.Node {
+func (p *Parser) parseImport() *ast.List {
 	list := p.parseList()
 	list.Nodes = p.parseImportSpecList()
 	return list

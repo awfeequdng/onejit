@@ -16,9 +16,9 @@ package scanner
 
 import (
 	"go/build"
-	"io"
 	"testing"
 
+	"github.com/cosmos72/onejit/go/io"
 	"github.com/cosmos72/onejit/go/testutil"
 	"github.com/cosmos72/onejit/go/token"
 )

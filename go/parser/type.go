@@ -44,7 +44,7 @@ func (p *Parser) parseTypeSpec() (node ast.Node) {
 		X:    name,
 		Y:    typ,
 	}
-	if tok == token.ASSIGN && p.mode&TypeAlias == 0 {
+	if tok == token.ASSIGN && p.Mode&ParseTypeAlias == 0 {
 		node = p.makeBadNode(node, errTypeAlias)
 	}
 	return node
@@ -70,13 +70,13 @@ func (p *Parser) parseType() ast.Node {
 }
 
 // parse a type.
-// if isTypeDecl is true and p.mode & Generics != 0,
+// if isTypeDecl is true and p.Mode & ParseGenerics != 0,
 // then also parse any generic type declaration prefix '[T1 constraint1, T2 constraint2 ...]'
 func (p *Parser) ParseType(isTypeDecl bool) (node ast.Node) {
 	switch p.tok() {
 	case token.IDENT:
 		node = p.parseQualifiedIdent()
-		if p.tok() == token.LBRACK && p.mode&Generics != 0 {
+		if p.tok() == token.LBRACK && p.Mode&ParseGenerics != 0 {
 			node = p.parseMaybeGenericInstantiation(node)
 		}
 	case token.LPAREN:
@@ -200,7 +200,7 @@ func (p *Parser) parseGenericParams(t1 ast.Node) *ast.GenericType {
 			return gen
 		}
 	}
-	if p.mode&Generics == 0 {
+	if p.Mode&ParseGenerics == 0 {
 		nodes = append(nodes, p.makeBad(errGenerics))
 	}
 	for !isLeave(p.tok()) {

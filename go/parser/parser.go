@@ -15,27 +15,31 @@
 package parser
 
 import (
-	"io"
-	"strings"
-
 	"github.com/cosmos72/onejit/go/ast"
+	"github.com/cosmos72/onejit/go/io"
 	"github.com/cosmos72/onejit/go/scanner"
+	"github.com/cosmos72/onejit/go/strings"
 	"github.com/cosmos72/onejit/go/token"
 )
 
 type Mode uint
 
 const (
-	TypeAlias Mode = 1 << iota // added in Go 1.9
-	Generics                   // added in Go 1.xy
-	Go1_9     = TypeAlias
-	Default   = ^Mode(0)
+	ParseImports   Mode = 1 << iota // also parse 'import ...'
+	ParseDecls                      // also parse declarations
+	ParseComments                   // add parsed comments to each ast.Node
+	ParseTypeAlias                  // also parse type aliases, added in Go 1.9
+	ParseGenerics                   // also parse generics, added in Go 1.xy
+
+	Go1_8   = ParseTypeAlias - 1 // enable all flags < ParseTypeAlias
+	Go1_9   = ParseGenerics - 1  // enable all flags <= ParseTypeAlias
+	Default = ^Mode(0)           // enable all flags
 )
 
 type Parser struct {
 	curr    ast.Atom
 	unread0 ast.Atom
-	mode    Mode
+	Mode    Mode // Parser Mode is exported
 	scanner scanner.Scanner
 }
 
@@ -43,7 +47,7 @@ func (p *Parser) Init(file *token.File, src io.Reader, mode Mode) {
 	p.scanner.Init(file, src)
 	p.curr = ast.Atom{}
 	p.unread0 = ast.Atom{}
-	p.mode = mode
+	p.Mode = mode
 
 	p.next()
 }
@@ -56,25 +60,30 @@ func (p *Parser) InitString(source string, mode Mode) {
 
 // parse a single declaration, statement or expression
 func (p *Parser) Parse() (node ast.Node) {
-	tok := p.tok()
-	switch tok {
+	switch tok := p.tok(); tok {
 	case token.EOF:
-		node = p.parseAtom(tok)
+		node = p.makeEof()
 	case token.PACKAGE:
 		node = p.parsePackage()
 	case token.IMPORT:
-		node = p.parseImport()
+		if p.Mode&ParseImports != 0 {
+			node = p.parseImport()
+		} else if p.Mode&ParseDecls != 0 {
+			p.parseImport() // skip 'import ...'
+		} else {
+			node = p.makeEof()
+		}
 	case token.SEMICOLON:
 		// node = nil
+		p.next()
 	default:
-		if isDecl(tok) {
+		if p.Mode&ParseDecls == 0 {
+			node = p.makeEof()
+		} else if isDecl(tok) {
 			node = p.ParseTopLevelDecl()
 		} else {
 			node = p.parseStmt(allowCompositeLit)
 		}
-	}
-	if p.tok() == token.SEMICOLON {
-		p.next()
 	}
 	return node
 }
@@ -100,8 +109,9 @@ func (p *Parser) next() token.Token {
 		if curr.Tok != token.COMMENT {
 			curr.TokPos, curr.TokEnd = s.PosEnd()
 			break
+		} else if p.Mode&ParseComments != 0 {
+			curr.Comment = append(curr.Comment, curr.Lit)
 		}
-		curr.Comment = append(curr.Comment, curr.Lit)
 	}
 	return curr.Tok
 }
@@ -188,6 +198,10 @@ func (p *Parser) makeBinary() (binary *ast.Binary) {
 	binary = &ast.Binary{Atom: p.curr}
 	p.curr.Comment = nil
 	return binary
+}
+
+func (p *Parser) makeEof() *ast.Atom {
+	return &ast.Atom{Tok: token.EOF, TokPos: p.pos()}
 }
 
 func (p *Parser) makeIdent() (node ast.Node) {

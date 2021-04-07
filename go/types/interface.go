@@ -15,7 +15,7 @@
 package types
 
 import (
-	"sort"
+	"github.com/cosmos72/onejit/go/sort"
 )
 
 type Interface struct {

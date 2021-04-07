@@ -15,8 +15,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"github.com/cosmos72/onejit/go/scanner"
 	"github.com/cosmos72/onejit/go/token"
 )
@@ -33,6 +31,7 @@ const (
 	errExpectingExprOrType          = "expression or type"
 	errExpectingIdent               = "identifier"
 	errExpectingIdentOrLparen       = "identifier or ("
+	errExpectingIdentOrString       = "identifier or string"
 	errExpectingString              = "string"
 	errExpectingType                = "type"
 	errDuplicatePackage             = errText("duplicate package declaration")
@@ -42,8 +41,8 @@ const (
 	errParamsNamedUnnamed           = errText("syntax error: mixed named and unnamed function parameters")
 	errParamNonFinalEllipsis        = errText("syntax error: cannot use ... with non-final parameter")
 	errSelectCaseNotSendOrRecv      = errText("select case must be send, receive or assign recv")
-	errTypeAlias                    = errText("type aliases are disabled, they require parser flag TypeAlias")
-	errGenerics                     = errText("generics are disabled, they require parser flag Generics")
+	errTypeAlias                    = errText("type aliases are disabled, they require flag ParseTypeAlias")
+	errGenerics                     = errText("generics are disabled, they require flag ParseGenerics")
 )
 
 func (p *Parser) makeErrText(suffix string) errText {
@@ -57,8 +56,10 @@ func (p *Parser) error(pos token.Pos, msg interface{}) *scanner.Error {
 		text = msg
 	case string:
 		text = p.makeErrText(msg)
+	case interface{ String() string }:
+		text = p.makeErrText(msg.String())
 	default:
-		text = p.makeErrText(fmt.Sprint(msg))
+		text = p.makeErrText("???")
 	}
 	return p.scanner.Error(pos, string(text))
 }

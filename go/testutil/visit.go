@@ -16,12 +16,13 @@ package testutil
 
 import (
 	"bytes"
-	"io"
 	"io/ioutil"
 	"os"
 	"path"
-	"sort"
 	"testing"
+
+	"github.com/cosmos72/onejit/go/io"
+	"github.com/cosmos72/onejit/go/sort"
 )
 
 type Visit = func(t *testing.T, in io.Reader, filename string)
@@ -73,12 +74,6 @@ func existsDir(info []os.FileInfo, dirname string) bool {
 		return info[i].Name() >= dirname
 	})
 	return pos < len(info) && info[pos].Name() == dirname
-}
-
-func sortInfo(info []os.FileInfo) {
-	sort.Slice(info, func(i int, j int) bool {
-		return info[i].Name() < info[j].Name()
-	})
 }
 
 func VisitFile(t *testing.T, visit Visit, filename string) {

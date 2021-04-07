@@ -15,9 +15,8 @@
 package scanner
 
 import (
-	"io"
-	"strings"
-
+	"github.com/cosmos72/onejit/go/io"
+	"github.com/cosmos72/onejit/go/strings"
 	"github.com/cosmos72/onejit/go/token"
 )
 

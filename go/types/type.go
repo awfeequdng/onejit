@@ -14,7 +14,9 @@
 
 package types
 
-import "github.com/cosmos72/onejit/go/strings"
+import (
+	"github.com/cosmos72/onejit/go/strings"
+)
 
 type (
 	Type interface {
@@ -76,5 +78,5 @@ func flagsAndMethod(list []Method) flags {
 }
 
 func uintToString(n uint64) string {
-	return strings.UintToString(n)
+	return strings.Uint64ToString(n)
 }

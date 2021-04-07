@@ -16,10 +16,9 @@ package typecheck
 
 import (
 	"go/build"
-	"io"
 	"testing"
 
-	"github.com/cosmos72/onejit/go/ast"
+	"github.com/cosmos72/onejit/go/io"
 	"github.com/cosmos72/onejit/go/parser"
 	"github.com/cosmos72/onejit/go/scanner"
 	"github.com/cosmos72/onejit/go/strings"
@@ -27,22 +26,6 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 	"github.com/cosmos72/onejit/go/types"
 )
-
-func parse(p *parser.Parser, t *testing.T) (nodes []ast.Node) {
-	for {
-		node := p.Parse()
-		if node == nil {
-			continue
-		} else if tok := node.Op(); tok == token.EOF {
-			break
-		} else if tok == token.ILLEGAL {
-			t.Errorf("parse returned %v", node)
-		}
-		nodes = append(nodes, node)
-	}
-	testutil.CompareErrors(t, "test.go", errorList{p.Errors()}, nil)
-	return nodes
-}
 
 type errorList struct {
 	errors *[]*scanner.Error
@@ -70,7 +53,7 @@ func TestCheckGoRootFiles(t *testing.T) {
 	var p parser.Parser
 	var c Checker
 	visit := func(t *testing.T, in io.Reader, filename string) {
-		p.Init(token.NewFile(filename, 0), in, parser.Default)
+		p.Init(token.NewFile(filename, 0), in, parser.Go1_9)
 		testutil.CompareErrors(t, filename, errorList{p.Errors()}, nil)
 
 		c.Init(types.NewScope(types.Universe()), nil)

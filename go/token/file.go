@@ -14,8 +14,8 @@
 package token
 
 import (
-	"fmt"
-	"sort"
+	"github.com/cosmos72/onejit/go/sort"
+	"github.com/cosmos72/onejit/go/strings"
 )
 
 // functionally equivalent to go/token.File
@@ -93,10 +93,12 @@ func (f *File) Position(p Pos) Position {
 		base := f.line[0]
 		if f.size < 0 {
 			if int(p) < base {
-				panic(fmt.Errorf("invalid Pos value %d, expecting >= %d", int(p), base))
+				panic("invalid Pos value " + tostring(int(p)) +
+					", expecting >= " + tostring(base))
 			}
 		} else if int(p) < base || int(p)-base > f.size {
-			panic(fmt.Errorf("invalid Pos value %d, expecting %d...%d", int(p), base, base+f.size))
+			panic("invalid Pos value " + tostring(int(p)) +
+				", expecting " + tostring(base) + "..." + tostring(base+f.size))
 		}
 		index := sort.SearchInts(f.line, int(p))
 		if index == len(f.line) || int(p) < f.line[index] {
@@ -111,4 +113,8 @@ func (f *File) Position(p Pos) Position {
 
 func (f *File) PositionFor(p Pos, _ bool) Position {
 	return f.Position(p)
+}
+
+func tostring(i int) string {
+	return strings.IntToString(i)
 }

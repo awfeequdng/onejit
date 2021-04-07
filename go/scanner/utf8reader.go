@@ -16,9 +16,9 @@ package scanner
 
 import (
 	"errors"
-	"io"
 	"unicode/utf8"
 
+	"github.com/cosmos72/onejit/go/io"
 	"github.com/cosmos72/onejit/go/token"
 )
 

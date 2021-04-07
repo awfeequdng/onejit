@@ -15,7 +15,6 @@
 package parser
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/cosmos72/onejit/go/ast"
@@ -28,7 +27,7 @@ func makeParser(str string) *Parser {
 }
 
 func compareNode(t *testing.T, node ast.Node, expected string) {
-	actual := fmt.Sprint(node)
+	actual := node.String()
 	if actual != expected {
 		t.Errorf("parse returned\n\t%v\nexpecting\n\t%v", actual, expected)
 	}
@@ -548,8 +547,8 @@ func TestStmtSwitchType(t *testing.T) {
 }
 
 func TestTopImport(t *testing.T) {
-	p := makeParser(`import _ "fmt"`)
-	compareNode(t, p.Parse(), `(import (IMPORT_SPEC (IDENT "_") (STRING "\"fmt\"")))`)
+	p := makeParser(`import _ "foo"`)
+	compareNode(t, p.Parse(), `(import (IMPORT_SPEC (IDENT "_") (STRING "\"foo\"")))`)
 }
 
 func TestTopPackage(t *testing.T) {

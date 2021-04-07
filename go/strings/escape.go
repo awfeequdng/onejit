@@ -14,11 +14,9 @@
 
 package strings
 
-import "strings"
-
 // interpret \ inside a Go literal string
 func Unescape(str string) string {
-	pos := strings.IndexByte(str, '\\')
+	pos := IndexByte(str, '\\')
 	if pos < 0 {
 		return str
 	}
@@ -77,6 +75,7 @@ func Unescape(str string) string {
 		} else if ch >= 0 {
 			b.WriteByte(uint8(ch))
 		}
+		pos = IndexByte(str, '\\')
 	}
 	return b.String()
 }
