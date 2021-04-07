@@ -23,3 +23,8 @@ type Reader interface {
 type Writer interface {
 	Write(p []byte) (n int, err error)
 }
+
+// equivalent to io.StringWriter
+type StringWriter interface {
+	WriteString(s string) (n int, err error)
+}

@@ -14,26 +14,51 @@
 package token
 
 import (
-	"go/token"
+	"github.com/cosmos72/onejit/go/strings"
 )
 
-// wraps go/token.Pos
-type Pos token.Pos
+// equivalent to go/token.Pos
+type Pos int
 
-// wraps go/token.NoPos
-const NoPos = Pos(token.NoPos)
+// equivalent go/token.NoPos
+const NoPos Pos = 0
 
 func (p Pos) IsValid() bool {
 	return p != NoPos
 }
 
-// wraps go/token.Position
-type Position token.Position
+// equivalent to go/token.Position
+type Position struct {
+	Filename string
+	Offset   int
+	Line     int
+	Column   int
+}
 
 func (pos *Position) IsValid() bool {
 	return pos.Line > 0
 }
 
 func (pos *Position) String() string {
-	return (*token.Position)(pos).String()
+	var b strings.Builder
+	b.Reset()
+	b.WriteString(pos.Filename)
+	if pos.IsValid() {
+		if b.Len() != 0 {
+			b.WriteByte(':')
+		}
+		b.WriteString(tostring(pos.Line))
+		if pos.Column != 0 {
+			b.WriteByte(':')
+			b.WriteString(tostring(pos.Column))
+		}
+	}
+	if b.Len() != 0 {
+		return b.String()
+	}
+	return "-"
+}
+
+func tostring(i int) string {
+	return strings.IntToString(i)
 }

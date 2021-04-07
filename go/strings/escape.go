@@ -6,7 +6,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * string.go
+ * escape.go
  *
  *  Created on: Apr 02, 2021
  *      Author: Massimiliano Ghilardi
@@ -51,22 +51,18 @@ func Unescape(str string) string {
 		case '\\', '\'', '"':
 			ch = int16(curr)
 		case 'U':
-			unicode, str = hexDigitsToInt(str, 8)
-			skip = 0
+			unicode = hexDigitsToInt(str[1:], 8)
+			skip = 9
 		case 'u':
-			unicode, str = hexDigitsToInt(str, 4)
-			skip = 0
+			unicode = hexDigitsToInt(str[1:], 4)
+			skip = 5
 		case 'x':
-			var hex int32
-			hex, str = hexDigitsToInt(str, 2)
-			ch = int16(hex)
-			skip = 0
+			ch = int16(hexDigitsToInt(str[1:], 2))
+			skip = 3
 		default:
 			if curr >= '0' && curr <= '7' {
-				var octal int32
-				octal, str = octalDigitsToInt(str, 3, 255)
-				ch = int16(octal)
-				skip = 0
+				ch = int16(octalDigitsToInt(str, 3, 255))
+				skip = 3
 			}
 		}
 		str = str[skip:]
@@ -80,22 +76,22 @@ func Unescape(str string) string {
 	return b.String()
 }
 
-func hexDigitsToInt(str string, n int) (int32, string) {
+func hexDigitsToInt(str string, n int) int32 {
 	avail := len(str)
 	if avail < n {
-		return -1, ""
+		return -1
 	}
 	var hex int32
 	for i := 0; i < n; i++ {
 		hex = (hex << 4) | hexDigitToInt(str[i])
 	}
-	return hex, str[n:]
+	return hex
 }
 
-func octalDigitsToInt(str string, n int, max int32) (int32, string) {
+func octalDigitsToInt(str string, n int, max int32) int32 {
 	avail := len(str)
 	if avail < n {
-		return -1, ""
+		return -1
 	}
 	var oct int32
 	for i := 0; i < n; i++ {
@@ -104,7 +100,7 @@ func octalDigitsToInt(str string, n int, max int32) (int32, string) {
 	if oct > max {
 		oct = -1
 	}
-	return oct, str[n:]
+	return oct
 }
 
 func hexDigitToInt(ch byte) int32 {

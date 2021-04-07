@@ -15,7 +15,6 @@ package token
 
 import (
 	"github.com/cosmos72/onejit/go/sort"
-	"github.com/cosmos72/onejit/go/strings"
 )
 
 // functionally equivalent to go/token.File
@@ -113,8 +112,4 @@ func (f *File) Position(p Pos) Position {
 
 func (f *File) PositionFor(p Pos, _ bool) Position {
 	return f.Position(p)
-}
-
-func tostring(i int) string {
-	return strings.IntToString(i)
 }

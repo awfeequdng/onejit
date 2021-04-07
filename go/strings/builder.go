@@ -35,6 +35,10 @@ func (b *Builder) Grow(n int) {
 
 }
 
+func (b *Builder) Len() int {
+	return len(b.buf)
+}
+
 func (b *Builder) Reset() {
 	b.buf = nil
 }

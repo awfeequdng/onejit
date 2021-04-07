@@ -13,117 +13,114 @@
 
 package token
 
-import (
-	"go/token"
-)
-
-// wraps go/token.Token
-type Token token.Token
+// equivalent to go/token.Token
+type Token int
 
 const (
-	ILLEGAL = Token(token.ILLEGAL)
-	EOF     = Token(token.EOF)
-	COMMENT = Token(token.COMMENT)
+	ILLEGAL Token = iota
+	EOF
+	COMMENT
 
-	IDENT  = Token(token.IDENT)
-	INT    = Token(token.INT)
-	FLOAT  = Token(token.FLOAT)
-	IMAG   = Token(token.IMAG)
-	CHAR   = Token(token.CHAR)
-	STRING = Token(token.STRING)
+	literal_beg
+	IDENT
+	INT
+	FLOAT
+	IMAG
+	CHAR
+	STRING
+	literal_end
 
+	operator_beg
 	// Operators
-	ADD = Token(token.ADD)
-	SUB = Token(token.SUB)
-	MUL = Token(token.MUL)
-	QUO = Token(token.QUO)
-	REM = Token(token.REM)
+	ADD
+	SUB
+	MUL
+	QUO
+	REM
 
-	AND     = Token(token.AND)
-	OR      = Token(token.OR)
-	XOR     = Token(token.XOR)
-	SHL     = Token(token.SHL)
-	SHR     = Token(token.SHR)
-	AND_NOT = Token(token.AND_NOT)
+	AND
+	OR
+	XOR
+	SHL
+	SHR
+	AND_NOT
 
-	ADD_ASSIGN = Token(token.ADD_ASSIGN)
-	SUB_ASSIGN = Token(token.SUB_ASSIGN)
-	MUL_ASSIGN = Token(token.MUL_ASSIGN)
-	QUO_ASSIGN = Token(token.QUO_ASSIGN)
-	REM_ASSIGN = Token(token.REM_ASSIGN)
+	ADD_ASSIGN
+	SUB_ASSIGN
+	MUL_ASSIGN
+	QUO_ASSIGN
+	REM_ASSIGN
 
-	AND_ASSIGN     = Token(token.AND_ASSIGN)
-	OR_ASSIGN      = Token(token.OR_ASSIGN)
-	XOR_ASSIGN     = Token(token.XOR_ASSIGN)
-	SHL_ASSIGN     = Token(token.SHL_ASSIGN)
-	SHR_ASSIGN     = Token(token.SHR_ASSIGN)
-	AND_NOT_ASSIGN = Token(token.AND_NOT_ASSIGN)
+	AND_ASSIGN
+	OR_ASSIGN
+	XOR_ASSIGN
+	SHL_ASSIGN
+	SHR_ASSIGN
+	AND_NOT_ASSIGN
 
-	LAND  = Token(token.LAND)
-	LOR   = Token(token.LOR)
-	ARROW = Token(token.ARROW)
-	INC   = Token(token.INC)
-	DEC   = Token(token.DEC)
+	LAND
+	LOR
+	ARROW
+	INC
+	DEC
 
-	EQL    = Token(token.EQL)
-	LSS    = Token(token.LSS)
-	GTR    = Token(token.GTR)
-	ASSIGN = Token(token.ASSIGN)
-	NOT    = Token(token.NOT)
+	EQL
+	LSS
+	GTR
+	ASSIGN
+	NOT
 
-	NEQ      = Token(token.NEQ)
-	LEQ      = Token(token.LEQ)
-	GEQ      = Token(token.GEQ)
-	DEFINE   = Token(token.DEFINE)
-	ELLIPSIS = Token(token.ELLIPSIS)
+	NEQ
+	LEQ
+	GEQ
+	DEFINE
+	ELLIPSIS
 
-	LPAREN = Token(token.LPAREN)
-	LBRACK = Token(token.LBRACK)
-	LBRACE = Token(token.LBRACE)
-	COMMA  = Token(token.COMMA)
-	PERIOD = Token(token.PERIOD)
+	LPAREN
+	LBRACK
+	LBRACE
+	COMMA
+	PERIOD
 
-	RPAREN    = Token(token.RPAREN)
-	RBRACK    = Token(token.RBRACK)
-	RBRACE    = Token(token.RBRACE)
-	SEMICOLON = Token(token.SEMICOLON)
-	COLON     = Token(token.COLON)
+	RPAREN
+	RBRACK
+	RBRACE
+	SEMICOLON
+	COLON
+	operator_end
 
+	keyword_beg
 	// Keywords
-	BREAK    = Token(token.BREAK)
-	CASE     = Token(token.CASE)
-	CHAN     = Token(token.CHAN)
-	CONST    = Token(token.CONST)
-	CONTINUE = Token(token.CONTINUE)
+	BREAK
+	CASE
+	CHAN
+	CONST
+	CONTINUE
+	DEFAULT
+	DEFER
+	ELSE
+	FALLTHROUGH
+	FOR
+	FUNC
+	GO
+	GOTO
+	IF
+	IMPORT
+	INTERFACE
+	MAP
+	PACKAGE
+	RANGE
+	RETURN
+	SELECT
+	STRUCT
+	SWITCH
+	TYPE
+	VAR
+	keyword_end
 
-	DEFAULT     = Token(token.DEFAULT)
-	DEFER       = Token(token.DEFER)
-	ELSE        = Token(token.ELSE)
-	FALLTHROUGH = Token(token.FALLTHROUGH)
-	FOR         = Token(token.FOR)
-
-	FUNC   = Token(token.FUNC)
-	GO     = Token(token.GO)
-	GOTO   = Token(token.GOTO)
-	IF     = Token(token.IF)
-	IMPORT = Token(token.IMPORT)
-
-	INTERFACE = Token(token.INTERFACE)
-	MAP       = Token(token.MAP)
-	PACKAGE   = Token(token.PACKAGE)
-	RANGE     = Token(token.RANGE)
-	RETURN    = Token(token.RETURN)
-
-	SELECT = Token(token.SELECT)
-	STRUCT = Token(token.STRUCT)
-	SWITCH = Token(token.SWITCH)
-	TYPE   = Token(token.TYPE)
-	VAR    = Token(token.VAR)
-
-	tok_counter Token = iota
 	// array or slice type. if first child is nil => slice type.
 	// otherwise first child is array length (possibly '...')
-	ARRAY Token = VAR + iota - tok_counter
+	ARRAY
 	BLOCK
 	BOTH_DIR
 	CALL
@@ -153,16 +150,133 @@ const (
 )
 
 var tokens = [...]string{
-	"ARRAY", "BLOCK", "BOTH_DIR", "CALL", "COMPOSITE_LIT", "DECLS", "EXPRS",
-	"FIELD", "FILE", "GENERIC", "IMPORT_SPEC", "IMPORTS", "INDEX", "KEY_VALUE",
-	"LABEL", "LAMBDA", "NAMES", "PARAMS", "RECV_DIR", "RESULTS", "SEND_DIR",
-	"SLICE", "TYPE_ASSERT", "TYPESWITCH", "VALUE_SPEC",
+	ILLEGAL: "ILLEGAL",
+	EOF:     "EOF",
+	COMMENT: "COMMENT",
+
+	IDENT:  "IDENT",
+	INT:    "INT",
+	FLOAT:  "FLOAT",
+	IMAG:   "IMAG",
+	CHAR:   "CHAR",
+	STRING: "STRING",
+
+	ADD: "+",
+	SUB: "-",
+	MUL: "*",
+	QUO: "/",
+	REM: "%",
+
+	AND:     "&",
+	OR:      "|",
+	XOR:     "^",
+	SHL:     "<<",
+	SHR:     ">>",
+	AND_NOT: "&^",
+
+	ADD_ASSIGN: "+=",
+	SUB_ASSIGN: "-=",
+	MUL_ASSIGN: "*=",
+	QUO_ASSIGN: "/=",
+	REM_ASSIGN: "%=",
+
+	AND_ASSIGN:     "&=",
+	OR_ASSIGN:      "|=",
+	XOR_ASSIGN:     "^=",
+	SHL_ASSIGN:     "<<=",
+	SHR_ASSIGN:     ">>=",
+	AND_NOT_ASSIGN: "&^=",
+
+	LAND:  "&&",
+	LOR:   "||",
+	ARROW: "<-",
+	INC:   "++",
+	DEC:   "--",
+
+	EQL:    "==",
+	LSS:    "<",
+	GTR:    ">",
+	ASSIGN: "=",
+	NOT:    "!",
+
+	NEQ:      "!=",
+	LEQ:      "<=",
+	GEQ:      ">=",
+	DEFINE:   ":=",
+	ELLIPSIS: "...",
+
+	LPAREN: "(",
+	LBRACK: "[",
+	LBRACE: "{",
+	COMMA:  ",",
+	PERIOD: ".",
+
+	RPAREN:    ")",
+	RBRACK:    "]",
+	RBRACE:    "}",
+	SEMICOLON: ";",
+	COLON:     ":",
+
+	BREAK:       "break",
+	CASE:        "case",
+	CHAN:        "chan",
+	CONST:       "const",
+	CONTINUE:    "continue",
+	DEFAULT:     "default",
+	DEFER:       "defer",
+	ELSE:        "else",
+	FALLTHROUGH: "fallthrough",
+	FOR:         "for",
+	FUNC:        "func",
+	GO:          "go",
+	GOTO:        "goto",
+	IF:          "if",
+	IMPORT:      "import",
+	INTERFACE:   "interface",
+	MAP:         "map",
+	PACKAGE:     "package",
+	RANGE:       "range",
+	RETURN:      "return",
+	SELECT:      "select",
+	STRUCT:      "struct",
+	SWITCH:      "switch",
+	TYPE:        "type",
+	VAR:         "var",
+
+	ARRAY:         "ARRAY",
+	BLOCK:         "BLOCK",
+	BOTH_DIR:      "BOTH_DIR",
+	CALL:          "CALL",
+	COMPOSITE_LIT: "COMPOSITE_LIT",
+	DECLS:         "DECLS",
+	EXPRS:         "EXPRS",
+	FIELD:         "FIELD",
+	FILE:          "FILE",
+	GENERIC:       "GENERIC",
+	IMPORT_SPEC:   "IMPORT_SPEC",
+	IMPORTS:       "IMPORTS",
+	INDEX:         "INDEX",
+	KEY_VALUE:     "KEY_VALUE",
+	LABEL:         "LABEL",
+	LAMBDA:        "LAMBDA",
+	NAMES:         "NAMES",
+	PARAMS:        "PARAMS",
+	RECV_DIR:      "RECV_DIR",
+	RESULTS:       "RESULTS",
+	SEND_DIR:      "SEND_DIR",
+	SLICE:         "SLICE",
+	TYPE_ASSERT:   "TYPE_ASSERT",
+	TYPESWITCH:    "TYPESWITCH",
+	VALUE_SPEC:    "VALUE_SPEC",
 }
 
-var operators = makeOperators()
+var (
+	operators map[string]Token = makeTokenMap(operator_beg, operator_end)
+	keywords  map[string]Token = makeTokenMap(keyword_beg, keyword_end)
+)
 
-func makeOperators() map[string]Token {
-	lo, hi := ADD, COLON
+func makeTokenMap(beg, end Token) map[string]Token {
+	lo, hi := beg+1, end-1
 	m := make(map[string]Token, hi-lo+1)
 	for op := lo; op <= hi; op++ {
 		m[op.String()] = op
@@ -179,19 +293,23 @@ func Lookup(str string) Token {
 	if n < 2 || n > 11 { // len("fallthrough") == 11
 		return IDENT
 	}
-	return Token(token.Lookup(str))
+	tok := keywords[str]
+	if tok == ILLEGAL {
+		tok = IDENT
+	}
+	return tok
 }
 
 func (tok Token) IsKeyword() bool {
-	return token.Token(tok).IsKeyword()
+	return tok > keyword_beg && tok < keyword_end
 }
 
 func (tok Token) IsLiteral() bool {
-	return token.Token(tok).IsLiteral()
+	return tok > literal_beg && tok < literal_end
 }
 
 func (tok Token) IsOperator() bool {
-	return token.Token(tok).IsOperator()
+	return tok > operator_beg && tok < operator_end
 }
 
 const (
@@ -201,15 +319,28 @@ const (
 )
 
 func (tok Token) Precedence() int {
-	return token.Token(tok).Precedence()
+	switch tok {
+	case LOR:
+		return 1
+	case LAND:
+		return 2
+	case EQL, NEQ, LSS, LEQ, GTR, GEQ:
+		return 3
+	case ADD, SUB, OR, XOR:
+		return 4
+	case MUL, QUO, REM, SHL, SHR, AND, AND_NOT:
+		return 5
+	}
+	return LowestPrec
 }
 
 func (tok Token) String() string {
 	var ret string
-	if tok >= ARRAY && tok <= VALUE_SPEC {
-		ret = tokens[tok-ARRAY]
-	} else {
-		ret = token.Token(tok).String()
+	if tok >= 0 && int(tok) < len(tokens) {
+		ret = tokens[tok]
+	}
+	if len(ret) == 0 {
+		ret = "UNKNOWN"
 	}
 	return ret
 }
