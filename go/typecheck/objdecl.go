@@ -20,16 +20,16 @@ import (
 )
 
 type (
-	globaldecl struct {
+	objdecl struct {
 		cls  types.Class
 		typ  ast.Node // can be nil
 		init ast.Node // can also be nil, typeAlias or a multi-valued function call.
 	}
 
-	globaldecls map[string]globaldecl
+	objdecls map[string]objdecl
 )
 
-func (l globaldecl) String() string {
+func (l objdecl) String() string {
 	return l.cls.String()
 }
 

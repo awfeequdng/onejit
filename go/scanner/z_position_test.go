@@ -30,11 +30,12 @@ func TestPosition(t *testing.T) {
 
 	str := "oregh85hgdolgj\n&*(^\n90"
 	reader.Reset(str)
-	s.Init(file, &reader) // reads first rune
+	s.Init(file, &reader) // does NOT read first rune
 
 	line, column := 1, 1
 
 	for i := 0; i < len(str); i++ {
+		s.next()
 		expectRuneAtPos(t, &s, str, offset, i)
 		if str[i] == '\n' {
 			line++
@@ -43,9 +44,8 @@ func TestPosition(t *testing.T) {
 			column++
 		}
 		expectPosition(t, file, s.endpos, line, column)
-		s.next()
 	}
-	if s.ch != runeEOF {
+	if s.next() != runeEOF {
 		t.Errorf("Scanner found '%c', expecting EOF", s.ch)
 	}
 }

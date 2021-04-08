@@ -16,6 +16,7 @@ package typecheck
 
 import (
 	"github.com/cosmos72/onejit/go/ast"
+	"github.com/cosmos72/onejit/go/scanner"
 	"github.com/cosmos72/onejit/go/strings"
 	"github.com/cosmos72/onejit/go/token"
 	"github.com/cosmos72/onejit/go/types"
@@ -26,22 +27,32 @@ type (
 		scope *types.Scope
 		// names and corresponding *types.Object declared in source being typechecked
 		defs      *types.Scope
-		globals   globaldecls // names declared in source being typechecked
-		redefined globaldecls // names declared more than once in source being typechecked
+		globals   objdecls // names declared in source being typechecked
+		redefined objdecls // names declared more than once in source being typechecked
 		typemap   TypeMap
 		knownpkgs types.Packages // list of known packages
+		fileset   *token.FileSet
+		errors    []*scanner.Error
 	}
 )
 
 var typeAlias ast.Node = &ast.Atom{Tok: token.ASSIGN}
 
-func (c *Checker) Init(scope *types.Scope, knownpkgs types.Packages) {
+func (c *Checker) Init(fileset *token.FileSet, scope *types.Scope, knownpkgs types.Packages) {
 	c.scope = scope
 	c.defs = nil
 	c.globals = nil
 	c.redefined = nil
 	c.typemap = nil
 	c.knownpkgs = knownpkgs
+	c.fileset = fileset
+}
+
+func (c *Checker) error(node ast.Node, msg string) {
+	c.errors = append(c.errors, &scanner.Error{
+		Pos: c.fileset.Position(node.Pos()),
+		Msg: msg,
+	})
 }
 
 func (c *Checker) CheckGlobals(source ...ast.Node) {
@@ -89,7 +100,8 @@ func (c *Checker) collectFuncDecl(decl ast.Node) {
 func (c *Checker) collectImportSpec(spec ast.Node) {
 	op := spec.Op()
 	if op != token.IMPORT_SPEC {
-		panic("invalid import declaration: " + spec.String())
+		c.error(spec, "invalid import declaration: "+spec.String())
+		return
 	}
 	name := spec.At(0)
 	path := spec.At(1).(*ast.Atom)
@@ -108,7 +120,8 @@ func (c *Checker) collectImportSpec(spec ast.Node) {
 func (c *Checker) collectTypeSpec(spec ast.Node) {
 	op := spec.Op()
 	if op != token.ASSIGN && op != token.DEFINE {
-		panic("invalid type declaration: " + spec.String())
+		c.error(spec, "invalid type declaration: "+spec.String())
+		return
 	}
 	name := spec.At(0).(*ast.Atom)
 	typ := spec.At(1)
@@ -121,7 +134,8 @@ func (c *Checker) collectTypeSpec(spec ast.Node) {
 
 func (c *Checker) collectValueSpec(op token.Token, spec ast.Node) {
 	if spec.Op() != token.VALUE_SPEC {
-		panic("invalid " + op.String() + " declaration: " + spec.String())
+		c.error(spec, "invalid "+op.String()+" declaration: "+spec.String())
+		return
 	}
 	names := spec.At(0)
 	n := names.Len()
@@ -137,10 +151,11 @@ func (c *Checker) collectValueSpec(op token.Token, spec ast.Node) {
 		case 0:
 			init = nil
 		default:
-			panic("invalid " + op.String() + " declaration, found " +
-				strings.Uint64ToString(uint64(ninit)) + " initializers" +
-				", expecting 0, 1 or " + strings.Uint64ToString(uint64(n)) +
-				": " + spec.String())
+			c.error(spec, "invalid "+op.String()+" declaration, found "+
+				strings.IntToString(ninit)+" initializers"+
+				", expecting 0, 1 or "+strings.IntToString(n)+
+				": "+spec.String())
+			return
 		}
 	}
 
@@ -156,13 +171,13 @@ func (c *Checker) collectValueSpec(op token.Token, spec ast.Node) {
 }
 
 func (c *Checker) addLocal(cls types.Class, name string, typ ast.Node, init ast.Node) {
-	l := globaldecl{cls, typ, init}
+	l := objdecl{cls, typ, init}
 	if c.globals == nil {
-		c.globals = make(globaldecls)
+		c.globals = make(objdecls)
 	} else if _, ok := c.globals[name]; ok {
 		// redefined symbol
 		if c.redefined == nil {
-			c.redefined = make(globaldecls)
+			c.redefined = make(objdecls)
 		}
 		c.redefined[name] = l
 	}

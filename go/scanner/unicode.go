@@ -28,10 +28,13 @@ const (
 	base10
 )
 
-const runeBOF rune = -2     // beginning of file i.e. no rune was read yet
-const runeBOM rune = 0xfeff // byte order marker
-const runeEOF rune = -1     // end of file
-const runeTOO_MANY_ERRORS rune = -3
+const (
+	runeBOF             rune = -4     // beginning of file i.e. no rune was read yet
+	runeNONE            rune = -3     // no lookahead rune
+	runeTOO_MANY_ERRORS rune = -2     // too many errors
+	runeEOF             rune = -1     // end of file
+	runeBOM             rune = 0xfeff // byte order marker
+)
 
 func isSpace(ch rune) bool {
 	switch ch {
@@ -50,7 +53,7 @@ func isOperator(ch rune) bool {
 }
 
 func isLetter(ch rune) bool {
-	return unicode.IsLetter(ch)
+	return ch >= 'A' && ch <= 'Z' || ch >= 'a' && ch <= 'z' || unicode.IsLetter(ch)
 }
 
 func isDigit(ch rune) bool {

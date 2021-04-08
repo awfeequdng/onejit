@@ -19,11 +19,11 @@ import (
 
 // functionally equivalent to go/token.File
 type File struct {
-	name      string
-	skipLines int // lines <= skipLine are not represented
-	size      int // size < 0 if unknown
+	name     string
+	skipLine int // lines <= skipLine are not represented
+	size     int // size < 0 if unknown
 	// line[i-1-skipLine] is the offset assigned to i-th line, column 1
-	// Note: i must be > skipLines
+	// Note: i must be > skipLine
 	line []int
 }
 
@@ -61,7 +61,7 @@ func (f *File) SetSize(size int) {
 
 func (f *File) SetSkipLines(skipLines int) {
 	if f != nil {
-		f.skipLines = skipLines
+		f.skipLine = skipLines
 	}
 }
 
@@ -85,7 +85,7 @@ func (f *File) Pos(offset int) Pos {
 	return Pos(offset)
 }
 
-// return the Position for the given position p
+// return the Position for the given Pos p
 func (f *File) Position(p Pos) Position {
 	pos := Position{Offset: int(p)}
 	if f != nil && p != NoPos {
@@ -104,7 +104,7 @@ func (f *File) Position(p Pos) Position {
 			index--
 		}
 		pos.Filename = f.name
-		pos.Line = 1 + index + f.skipLines
+		pos.Line = 1 + index + f.skipLine
 		pos.Column = 1 + int(p) - f.line[index]
 	}
 	return pos

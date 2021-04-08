@@ -23,8 +23,8 @@ import (
 )
 
 type utf8Reader struct {
-	ch rune // next rune
-	// if unread != runeBOF, will be consumed and returned
+	ch rune // next rune. may also be runeBOF, runeNONE or runeEOF
+	// if unread != runeNONE, will be consumed and returned
 	// by next() instead of reading from buf
 	unread rune
 	buf    []byte
@@ -39,7 +39,7 @@ type utf8Reader struct {
 // (re)initialize utf8Reader
 func (u *utf8Reader) init(file *token.File, src io.Reader) {
 	u.ch = runeBOF
-	u.unread = runeBOF
+	u.unread = runeNONE
 	size := 65536
 	if cap(u.buf) != size {
 		u.buf = make([]byte, 0, size)
@@ -65,12 +65,12 @@ func (u *utf8Reader) empty() bool {
 
 // read next rune and return it. also save it in u.ch
 func (u *utf8Reader) next() rune {
-	if u.unread != runeBOF {
+	if u.unread != runeNONE {
 		if u.unread == runeTOO_MANY_ERRORS {
 			u.ch = runeEOF
 		} else {
 			u.ch = u.unread
-			u.unread = runeBOF
+			u.unread = runeNONE
 		}
 		return u.ch
 	}

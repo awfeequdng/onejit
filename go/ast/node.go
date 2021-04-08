@@ -32,6 +32,13 @@ type Node interface {
 
 var strNil = []byte("nil")
 
+func NodeString(node Node) string {
+	if node == nil {
+		return "nil"
+	}
+	return node.String()
+}
+
 func choose2(i int, a Node, b Node) (ret Node) {
 	switch i {
 	case 0:

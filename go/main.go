@@ -17,14 +17,9 @@ package main
 import (
 	"os"
 
-	_ "github.com/cosmos72/onejit/go/jit_old"
-	_ "github.com/cosmos72/onejit/go/parser"
-	_ "github.com/cosmos72/onejit/go/typecheck"
+	"github.com/cosmos72/onejit/go/cmd"
 )
 
 func main() {
-	println("hello from github.com/cosmos72/onejit/go")
-	println("press ENTER to quit")
-	os.Stdin.Read(make([]byte, 1))
-	println("bye")
+	cmd.Repl(os.Stdin, os.Stdout)
 }

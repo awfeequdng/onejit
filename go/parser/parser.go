@@ -34,6 +34,7 @@ const (
 	Go1_8   = ParseTypeAlias - 1 // enable all flags < ParseTypeAlias
 	Go1_9   = ParseGenerics - 1  // enable all flags <= ParseTypeAlias
 	Default = ^Mode(0)           // enable all flags
+
 )
 
 type Parser struct {
@@ -43,6 +44,7 @@ type Parser struct {
 	scanner scanner.Scanner
 }
 
+// initialize parser and read the first non-comment token from src
 func (p *Parser) Init(file *token.File, src io.Reader, mode Mode) {
 	p.scanner.Init(file, src)
 	p.curr = ast.Atom{}
@@ -58,9 +60,27 @@ func (p *Parser) InitString(source string, mode Mode) {
 	p.Init(token.NewFile("<string>", 0), &reader, mode)
 }
 
+// return current token lookahead buffer
+func (p *Parser) CurrToken() token.Token {
+	tok := p.curr.Tok
+	if unread := p.unread0.Tok; unread != 0 {
+		tok = unread
+	}
+	return tok
+}
+
+// skip one token, return next one (which is kept in lookahead buffer)
+func (p *Parser) SkipToken() token.Token {
+	return p.next()
+}
+
 // parse a single declaration, statement or expression
 func (p *Parser) Parse() (node ast.Node) {
-	switch tok := p.tok(); tok {
+	tok := p.tok()
+	if tok == token.SEMICOLON {
+		tok = p.next()
+	}
+	switch tok {
 	case token.EOF:
 		node = p.makeEof()
 	case token.PACKAGE:
@@ -75,10 +95,11 @@ func (p *Parser) Parse() (node ast.Node) {
 		}
 	case token.SEMICOLON:
 		// node = nil
-		p.next()
 	default:
 		if p.Mode&ParseDecls == 0 {
 			node = p.makeEof()
+		} else if isLeave(tok) {
+			node = p.makeBadNode(p.parseAtom(tok), errExpectingDecl)
 		} else if isDecl(tok) {
 			node = p.ParseTopLevelDecl()
 		} else {

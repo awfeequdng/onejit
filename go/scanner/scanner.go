@@ -48,9 +48,6 @@ func (s *Scanner) Init(file *token.File, src io.Reader) {
 	s.lastNonComment = token.ILLEGAL
 	s.utf8Reader.init(file, src)
 	s.builder.Reset()
-	if s.next() == runeBOM {
-		s.next()
-	}
 }
 
 func (s *Scanner) add() {
@@ -111,20 +108,11 @@ func (s *Scanner) Scan() (token.Token, string) {
 		s.status = tokenNormal
 		return s.tok, s.lit
 	}
-	ch := s.ch
-	for ch != runeEOF && isSpace(ch) {
-		if ch == '\n' {
-			if s.needInsertSemi() {
-				s.next()
-				tok := token.SEMICOLON
-				s.lastNonComment = tok
-				return tok, ""
-			}
-		}
-		ch = s.next()
-	}
+	ch := s.skipSpaces()
 	s.pos = s.endpos
-	s.scan()
+	if ch != '\n' {
+		s.scan()
+	}
 	if s.status == tokenInsertSemi {
 		s.status = tokenCached
 		tok := token.SEMICOLON
@@ -134,12 +122,39 @@ func (s *Scanner) Scan() (token.Token, string) {
 	return s.tok, s.lit
 }
 
+// skip spaces, return the first non-space rune
+func (s *Scanner) skipSpaces() rune {
+	ch := s.ch
+	for {
+		switch ch {
+		case runeBOF:
+			ch = s.next()
+			if ch == runeBOM {
+				ch = s.next()
+			}
+			continue
+		case runeNONE, '\t', '\r', ' ': // spaces
+		case '\n':
+			if s.needInsertSemi() {
+				s.ch = runeNONE
+				tok := token.SEMICOLON
+				s.tok = tok
+				s.lastNonComment = tok
+				s.lit = ""
+				return ch
+			}
+		default:
+			// EOF, TOO_MANY_ERRORS or not a space
+			return ch
+		}
+		ch = s.next()
+	}
+}
+
 func (s *Scanner) scan() {
 	s.clearString()
 	ch := s.ch
-	if ch == runeEOF {
-		s.setResultTok(token.EOF)
-	} else if isDecimalDigit(ch) {
+	if isDecimalDigit(ch) {
 		s.scanNumber()
 	} else if ch == '"' {
 		s.scanString()
@@ -149,10 +164,12 @@ func (s *Scanner) scan() {
 		s.scanRawString()
 	} else if ch == '.' {
 		s.scanDot()
-	} else if ch == '_' || isLetter(ch) {
-		s.scanIdentifier()
 	} else if isOperator(ch) {
 		s.scanOperatorOrComment()
+	} else if ch == '_' || isLetter(ch) {
+		s.scanIdentifier()
+	} else if ch == runeEOF || ch == runeTOO_MANY_ERRORS {
+		s.setResultTok(token.EOF)
 	} else {
 		s.invalid(errInvalidCharacter)
 	}
