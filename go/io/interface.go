@@ -14,9 +14,20 @@
 
 package io
 
+// equivalent to io.Closer
+type Closer interface {
+	Close() error
+}
+
 // equivalent to io.Reader
 type Reader interface {
 	Read(p []byte) (n int, err error)
+}
+
+// equivalent to io.ReadCloser
+type ReadCloser interface {
+	Reader
+	Closer
 }
 
 // equivalent to io.Writer
