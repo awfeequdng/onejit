@@ -24,7 +24,7 @@ import (
 func (p *Parser) ParseDir(fset *token.FileSet, opener func() (filename string, src io.ReadCloser)) []*ast.File {
 	var dir []*ast.File
 	for {
-		file := parseFile(p, fset, opener)
+		file := p.ParseDirFile(fset, opener)
 		if file == nil {
 			break
 		}
@@ -33,7 +33,8 @@ func (p *Parser) ParseDir(fset *token.FileSet, opener func() (filename string, s
 	return dir
 }
 
-func parseFile(p *Parser, fset *token.FileSet, opener func() (filename string, src io.ReadCloser)) *ast.File {
+// parse a single file in a directory
+func (p *Parser) ParseDirFile(fset *token.FileSet, opener func() (filename string, src io.ReadCloser)) *ast.File {
 	filename, src := opener()
 	if src == nil {
 		return nil
