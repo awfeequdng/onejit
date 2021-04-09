@@ -15,8 +15,8 @@
 package ast
 
 import (
-	"fmt"
-
+	"github.com/cosmos72/onejit/go/io"
+	"github.com/cosmos72/onejit/go/strings"
 	"github.com/cosmos72/onejit/go/token"
 )
 
@@ -40,34 +40,35 @@ type List struct {
 	Nodes []Node
 }
 
-func (s *List) Len() int {
-	return len(s.Nodes)
+func (l *List) Len() int {
+	return len(l.Nodes)
 }
 
-func (s *List) At(i int) Node {
-	return s.Nodes[i]
+func (l *List) At(i int) Node {
+	return l.Nodes[i]
 }
 
-func (s *List) End() token.Pos {
-	if n := len(s.Nodes); n != 0 {
-		return s.Nodes[n-1].End()
+func (l *List) End() token.Pos {
+	if n := len(l.Nodes); n != 0 {
+		return l.Nodes[n-1].End()
 	} else {
-		return s.Atom.End()
+		return l.Atom.End()
 	}
 }
 
-func (s *List) String() string {
-	if s == nil {
+func (l *List) String() string {
+	if l == nil {
 		return "nil"
-	} else {
-		return fmt.Sprint(s)
 	}
+	var buf strings.Builder
+	l.WriteTo(&buf)
+	return buf.String()
 }
 
-func (s *List) Format(out fmt.State, verb rune) {
-	if s == nil {
-		out.Write(strNil)
+func (l *List) WriteTo(out io.StringWriter) {
+	if l == nil {
+		out.WriteString("nil")
 	} else {
-		formatAsList(out, verb, s)
+		writeListTo(out, l)
 	}
 }

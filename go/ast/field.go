@@ -15,8 +15,8 @@
 package ast
 
 import (
-	"fmt"
-
+	"github.com/cosmos72/onejit/go/io"
+	"github.com/cosmos72/onejit/go/strings"
 	"github.com/cosmos72/onejit/go/token"
 )
 
@@ -71,15 +71,16 @@ func (f *Field) End() token.Pos {
 func (f *Field) String() string {
 	if f == nil {
 		return "nil"
-	} else {
-		return fmt.Sprint(f)
 	}
+	var buf strings.Builder
+	f.WriteTo(&buf)
+	return buf.String()
 }
 
-func (f *Field) Format(out fmt.State, verb rune) {
+func (f *Field) WriteTo(out io.StringWriter) {
 	if f == nil {
-		out.Write(strNil)
+		out.WriteString("nil")
 	} else {
-		formatAsList(out, verb, f)
+		writeListTo(out, f)
 	}
 }

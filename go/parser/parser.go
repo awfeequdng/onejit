@@ -37,6 +37,9 @@ const (
 
 )
 
+// Go syntax parser. Supports reading from a io.StringReader.
+// callers should invoke Init() before any Parse*() method.
+// The only method that clears accumulated errors is ClearErrors()
 type Parser struct {
 	curr    ast.Atom
 	unread0 ast.Atom
@@ -45,6 +48,7 @@ type Parser struct {
 }
 
 // initialize parser and read the first non-comment token from src
+// does NOT clear accumulated errors
 func (p *Parser) Init(file *token.File, src io.Reader, mode Mode) {
 	p.scanner.Init(file, src)
 	p.curr = ast.Atom{}
@@ -54,6 +58,8 @@ func (p *Parser) Init(file *token.File, src io.Reader, mode Mode) {
 	p.next()
 }
 
+// initialize parser to read from specified string.
+// does NOT clear accumulated errors
 func (p *Parser) InitString(source string, mode Mode) {
 	var reader strings.Reader
 	reader.Reset(source)

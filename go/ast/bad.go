@@ -15,8 +15,8 @@
 package ast
 
 import (
-	"fmt"
-
+	"github.com/cosmos72/onejit/go/io"
+	"github.com/cosmos72/onejit/go/strings"
 	"github.com/cosmos72/onejit/go/token"
 )
 
@@ -47,22 +47,27 @@ func (b *Bad) End() token.Pos {
 
 func (b *Bad) String() string {
 	if b == nil {
-		return "Bad"
-	} else {
-		return fmt.Sprint(b)
+		return "nil"
 	}
+	var buf strings.Builder
+	b.WriteTo(&buf)
+	return buf.String()
 }
 
-func (b *Bad) Format(out fmt.State, verb rune) {
+func (b *Bad) WriteTo(out io.StringWriter) {
 	if b == nil {
-		out.Write([]byte("Bad"))
-	} else if b.Node == nil {
-		if len(b.Lit) == 0 {
-			fmt.Fprintf(out, "(Bad %v)", b.Tok)
-		} else {
-			fmt.Fprintf(out, "(Bad %v %v)", b.Tok, b.Lit)
-		}
-	} else {
-		fmt.Fprintf(out, "(Bad %v)", b.Node)
+		out.WriteString("Bad")
+		return
 	}
+	out.WriteString("(Bad ")
+	if b.Node != nil {
+		b.Node.WriteTo(out)
+	} else {
+		out.WriteString(b.Tok.String())
+		if len(b.Lit) != 0 {
+			out.WriteString(" ")
+			out.WriteString(b.Lit)
+		}
+	}
+	out.WriteString(")")
 }

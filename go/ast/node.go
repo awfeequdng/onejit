@@ -15,8 +15,7 @@
 package ast
 
 import (
-	"fmt"
-
+	"github.com/cosmos72/onejit/go/io"
 	"github.com/cosmos72/onejit/go/token"
 )
 
@@ -28,6 +27,7 @@ type Node interface {
 	End() token.Pos
 	Comments() []string
 	String() string
+	WriteTo(out io.StringWriter)
 }
 
 var strNil = []byte("nil")
@@ -85,18 +85,16 @@ func outOfRange() Node {
 	return *(*Node)(nil)
 }
 
-func formatAsList(f fmt.State, verb rune, list Node) {
-	fmt.Fprintf(f, "(%v", list.Op())
+func writeListTo(out io.StringWriter, list Node) {
+	out.WriteString("(")
+	out.WriteString(list.Op().String())
 	for i, n := 0, list.Len(); i < n; i++ {
-		node := list.At(i)
-		if formatter, ok := node.(fmt.Formatter); ok {
-			f.Write([]byte{' '})
-			formatter.Format(f, verb)
-		} else if node == nil {
-			f.Write([]byte(" nil"))
+		out.WriteString(" ")
+		if node := list.At(i); node == nil {
+			out.WriteString("nil")
 		} else {
-			fmt.Fprintf(f, " %v", node)
+			node.WriteTo(out)
 		}
 	}
-	f.Write([]byte{')'})
+	out.WriteString(")")
 }

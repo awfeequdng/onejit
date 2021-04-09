@@ -68,7 +68,9 @@ func (p *Parser) ParseFile() *ast.File {
 				p.error(p.pos(), errExpectingDecl)
 				node = p.parseStmt(allowCompositeLit)
 			}
-			decls = append(decls, node)
+			if node != nil {
+				decls = append(decls, node)
+			}
 		}
 	}
 	file.Imports = makeList(token.IMPORTS, imports)

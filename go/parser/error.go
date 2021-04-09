@@ -49,7 +49,15 @@ func (p *Parser) makeErrText(suffix string) errText {
 	return errText("syntax error: unexpected " + p.tok().String() + ", expecting " + suffix)
 }
 
+var errTooManyErrors = scanner.Error{Msg: "too many errors"}
+
 func (p *Parser) error(pos token.Pos, msg interface{}) *scanner.Error {
+	if len(p.Errors()) >= 10 {
+		p.curr.Tok = token.EOF
+		p.unread0.Tok = 0
+		return &errTooManyErrors
+	}
+
 	var text errText
 	switch msg := msg.(type) {
 	case errText:
@@ -64,6 +72,12 @@ func (p *Parser) error(pos token.Pos, msg interface{}) *scanner.Error {
 	return p.scanner.Error(pos, string(text))
 }
 
-func (p *Parser) Errors() *[]*scanner.Error {
+// return accumulated errors
+func (p *Parser) Errors() []*scanner.Error {
 	return p.scanner.Errors()
+}
+
+// clear accumulated errors
+func (p *Parser) ClearErrors() {
+	p.scanner.ClearErrors()
 }

@@ -15,8 +15,8 @@
 package ast
 
 import (
-	"fmt"
-
+	"github.com/cosmos72/onejit/go/io"
+	"github.com/cosmos72/onejit/go/strings"
 	"github.com/cosmos72/onejit/go/token"
 )
 
@@ -55,17 +55,22 @@ func (a *Atom) Comments() []string {
 func (a *Atom) String() string {
 	if a == nil {
 		return "nil"
-	} else {
-		return fmt.Sprint(a)
 	}
+	var buf strings.Builder
+	a.WriteTo(&buf)
+	return buf.String()
 }
 
-func (a *Atom) Format(out fmt.State, verb rune) {
+func (a *Atom) WriteTo(out io.StringWriter) {
 	if a == nil {
-		out.Write(strNil)
-	} else if len(a.Lit) != 0 {
-		fmt.Fprintf(out, "(%v %q)", a.Tok, a.Lit)
-	} else {
-		fmt.Fprintf(out, "(%v)", a.Tok)
+		out.WriteString("nil")
+		return
 	}
+	out.WriteString("(")
+	out.WriteString(a.Tok.String())
+	if len(a.Lit) != 0 {
+		out.WriteString(" ")
+		out.WriteString(a.Lit)
+	}
+	out.WriteString(")")
 }

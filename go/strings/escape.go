@@ -14,6 +14,12 @@
 
 package strings
 
+import (
+	"unicode/utf8"
+
+	"github.com/cosmos72/onejit/go/io"
+)
+
 // interpret \ inside a Go literal string
 func Unescape(str string) string {
 	pos := IndexByte(str, '\\')
@@ -120,5 +126,73 @@ func octalDigitToInt(ch byte) int32 {
 		return int32(ch - '0')
 	} else {
 		return -1
+	}
+}
+
+// quote a Go literal string
+func Escape(str string) string {
+	var b Builder
+	WriteQuotedString(&b, str)
+	return b.String()
+}
+
+// quote a Go literal string and write it to out
+func WriteQuotedString(out io.StringWriter, str string) {
+	consumed := 1
+	for i, n := 0, len(str); i < n; i += consumed {
+		consumed = 1
+		ch := str[i]
+		var esc string
+		switch ch {
+		case '\a':
+			esc = `\a`
+		case '\b':
+			esc = `\b`
+		case '\f':
+			esc = `\f`
+		case '\n':
+			esc = `\n`
+		case '\r':
+			esc = `\r`
+		case '\t':
+			esc = `\t`
+		case '\v':
+			esc = `\v`
+		case '\\':
+			esc = `\\`
+		case '"':
+			esc = `\"`
+		default:
+			if ch >= utf8.RuneSelf {
+				r, rconsumed := utf8.DecodeRuneInString(str[i:])
+				if r == utf8.RuneError && consumed <= 1 {
+				} else if r <= 0xffff {
+					writeHexEscape(out, `\u`, 4, uint32(r))
+					consumed = rconsumed
+					continue
+				} else {
+					writeHexEscape(out, `\U`, 8, uint32(r))
+					consumed = rconsumed
+					continue
+				}
+			}
+			if ch < ' ' || ch > '~' {
+				writeHexEscape(out, `\x`, 2, uint32(ch))
+				continue
+			}
+		}
+		if len(esc) == 0 {
+			esc = str[i : i+1]
+		}
+		out.WriteString(esc)
+	}
+}
+
+func writeHexEscape(out io.StringWriter, prefix string, len int, number uint32) {
+	out.WriteString(prefix)
+	for shift := (len - 1) * 4; shift >= 0; shift -= 4 {
+		halfbyte := 0x0f & uint8(number>>uint8(shift))
+		str := "0123456789abcdef"[halfbyte : halfbyte+1]
+		out.WriteString(str)
 	}
 }

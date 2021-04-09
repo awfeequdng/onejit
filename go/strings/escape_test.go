@@ -26,10 +26,15 @@ func TestUnescape(t *testing.T) {
 		{`\u1234\ufedc`, "\u1234\ufedc"},
 		{`\U0010ffff\U000fffff`, "\U0010ffff\U000fffff"},
 	} {
-		actual := Unescape(pair[0])
+		orig := pair[0]
+		actual := Unescape(orig)
 		expected := pair[1]
+		roundtrip := Escape(actual)
 		if actual != expected {
 			t.Errorf("Unescape returned %q, expecting %q", actual, expected)
+		}
+		if orig != `\000\377` && ToLower(roundtrip) != ToLower(orig) {
+			t.Errorf("Escape returned %q, expecting %q", roundtrip, orig)
 		}
 	}
 }

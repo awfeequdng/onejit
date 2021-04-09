@@ -126,6 +126,7 @@ const (
 	CALL
 	COMPOSITE_LIT // type { elem0, elem1 ... }
 	DECLS         // list of declarations
+	DIR           // list of files
 	EXPRS
 	// struct field, interface element, function param or result.
 	// stored in *ast.Field
@@ -248,6 +249,7 @@ var tokens = [...]string{
 	BOTH_DIR:      "BOTH_DIR",
 	CALL:          "CALL",
 	COMPOSITE_LIT: "COMPOSITE_LIT",
+	DIR:           "DIR",
 	DECLS:         "DECLS",
 	EXPRS:         "EXPRS",
 	FIELD:         "FIELD",

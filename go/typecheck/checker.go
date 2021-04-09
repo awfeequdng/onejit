@@ -27,8 +27,8 @@ type (
 		scope *types.Scope
 		// names and corresponding *types.Object declared in source being typechecked
 		defs      *types.Scope
-		globals   objdecls // names declared in source being typechecked
-		redefined objdecls // names declared more than once in source being typechecked
+		globals   objdecls   // names declared in source being typechecked
+		initfuncs []ast.Node // list of global func init() { ... }
 		typemap   TypeMap
 		knownpkgs types.Packages // list of known packages
 		fileset   *token.FileSet
@@ -42,7 +42,6 @@ func (c *Checker) Init(fileset *token.FileSet, scope *types.Scope, knownpkgs typ
 	c.scope = scope
 	c.defs = nil
 	c.globals = nil
-	c.redefined = nil
 	c.typemap = nil
 	c.knownpkgs = knownpkgs
 	c.fileset = fileset
@@ -53,6 +52,18 @@ func (c *Checker) error(node ast.Node, msg string) {
 		Pos: c.fileset.Position(node.Pos()),
 		Msg: msg,
 	})
+}
+
+func (c *Checker) CheckDir(dir *ast.Dir) {
+	c.CheckFiles(dir.Files...)
+}
+
+func (c *Checker) CheckFiles(files ...*ast.File) {
+	nodes := make([]ast.Node, len(files))
+	for i, file := range files {
+		nodes[i] = file
+	}
+	c.CheckGlobals(nodes...)
 }
 
 func (c *Checker) CheckGlobals(source ...ast.Node) {
@@ -94,7 +105,14 @@ func (c *Checker) collectFuncDecl(decl ast.Node) {
 	name := decl.At(1).(*ast.Atom)
 	typ := decl.At(2)
 	body := decl.At(3)
-	c.addLocal(types.FuncObj, name.Lit, typ, body)
+	if name.Lit == "init" {
+		c.initfuncs = append(c.initfuncs, decl)
+		if typ.Op() != token.FUNC || typ.At(0).Len() != 0 || typ.At(1) != nil {
+			c.error(decl, "func init must have no arguments and no return values")
+		}
+	} else {
+		c.addLocal(decl, types.FuncObj, name.Lit, typ, body)
+	}
 }
 
 func (c *Checker) collectImportSpec(spec ast.Node) {
@@ -114,7 +132,7 @@ func (c *Checker) collectImportSpec(spec ast.Node) {
 	} else {
 		namestr = strings.Basename(pathstr) // approximate!
 	}
-	c.addLocal(types.ImportObj, namestr, nil, path)
+	c.addLocal(spec, types.ImportObj, namestr, nil, path)
 }
 
 func (c *Checker) collectTypeSpec(spec ast.Node) {
@@ -129,7 +147,7 @@ func (c *Checker) collectTypeSpec(spec ast.Node) {
 	if op == token.ASSIGN {
 		init = typeAlias
 	}
-	c.addLocal(types.TypeObj, name.Lit, typ, init)
+	c.addLocal(spec, types.TypeObj, name.Lit, typ, init)
 }
 
 func (c *Checker) collectValueSpec(op token.Token, spec ast.Node) {
@@ -166,20 +184,20 @@ func (c *Checker) collectValueSpec(op token.Token, spec ast.Node) {
 		if oneInitializerPerName {
 			init_i = init.At(i)
 		}
-		c.addLocal(cls, atom.Lit, typ, init_i)
+		c.addLocal(spec, cls, atom.Lit, typ, init_i)
 	}
 }
 
-func (c *Checker) addLocal(cls types.Class, name string, typ ast.Node, init ast.Node) {
-	l := objdecl{cls, typ, init}
+func (c *Checker) addLocal(node ast.Node, cls types.Class, name string, typ ast.Node, init ast.Node) {
+	if name == "_" {
+		return
+	}
+	l := objdecl{cls, typ, init, node}
 	if c.globals == nil {
 		c.globals = make(objdecls)
-	} else if _, ok := c.globals[name]; ok {
-		// redefined symbol
-		if c.redefined == nil {
-			c.redefined = make(objdecls)
-		}
-		c.redefined[name] = l
+	} else if old, ok := c.globals[name]; ok {
+		prevPos := c.fileset.Position(old.node.Pos())
+		c.error(node, name+" redeclared in this block\n\tprevious declaration at "+prevPos.String())
 	}
 	c.globals[name] = l
 }

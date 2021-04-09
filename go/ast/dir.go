@@ -6,7 +6,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * unary.go
+ * file.go
  *
  *  Created on: Mar 23, 2021
  *      Author: Massimiliano Ghilardi
@@ -20,47 +20,40 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
-/**
- * Node with one children. Used for unary expressions, types,
- * DEC, DEFER, GO, GOTO, INC and other one-argument statements.
- */
-type Unary struct {
+type Dir struct {
 	Atom
-	X Node
+	Files []*File
 }
 
-func (u *Unary) Len() int {
-	return 1
+func (d *Dir) Len() int {
+	return len(d.Files)
 }
 
-func (u *Unary) At(i int) Node {
-	if i == 0 {
-		return u.X
-	}
-	return outOfRange()
+func (d *Dir) At(i int) (child Node) {
+	return d.Files[i]
 }
 
-func (u *Unary) End() token.Pos {
-	if u.X != nil {
-		return u.X.End()
+func (d *Dir) End() token.Pos {
+	if n := len(d.Files); n != 0 {
+		return d.Files[n-1].End()
 	} else {
-		return u.Atom.End()
+		return d.Atom.End()
 	}
 }
 
-func (u *Unary) String() string {
-	if u == nil {
+func (d *Dir) String() string {
+	if d == nil {
 		return "nil"
 	}
 	var buf strings.Builder
-	u.WriteTo(&buf)
+	d.WriteTo(&buf)
 	return buf.String()
 }
 
-func (u *Unary) WriteTo(out io.StringWriter) {
-	if u == nil {
+func (d *Dir) WriteTo(out io.StringWriter) {
+	if d == nil {
 		out.WriteString("nil")
 	} else {
-		writeListTo(out, u)
+		writeListTo(out, d)
 	}
 }

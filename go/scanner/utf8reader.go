@@ -37,6 +37,7 @@ type utf8Reader struct {
 }
 
 // (re)initialize utf8Reader
+// does NOT clear accumulated errors
 func (u *utf8Reader) init(file *token.File, src io.Reader) {
 	u.ch = runeBOF
 	u.unread = runeNONE
@@ -56,7 +57,6 @@ func (u *utf8Reader) init(file *token.File, src io.Reader) {
 	pos := file.Base()
 	u.pos = pos
 	u.endpos = pos
-	u.errors = nil
 }
 
 func (u *utf8Reader) empty() bool {

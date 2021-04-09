@@ -19,26 +19,26 @@ import (
 	"testing"
 
 	"github.com/cosmos72/onejit/go/ast"
-	"github.com/cosmos72/onejit/go/io"
 	"github.com/cosmos72/onejit/go/scanner"
+	"github.com/cosmos72/onejit/go/sort"
 	"github.com/cosmos72/onejit/go/testutil"
 	"github.com/cosmos72/onejit/go/token"
 )
 
 type errorList struct {
-	errors *[]*scanner.Error
+	errors []*scanner.Error
 }
 
-func (list errorList) Len() int {
-	return len(*list.errors)
+func (list *errorList) Len() int {
+	return len(list.errors)
 }
 
-func (list errorList) String(i int) string {
-	return (*list.errors)[i].Msg
+func (list *errorList) String(i int) string {
+	return (list.errors)[i].Msg
 }
 
-func (list errorList) Error(i int) error {
-	return (*list.errors)[i]
+func (list *errorList) Error(i int) error {
+	return (list.errors)[i]
 }
 
 func parseFromString(t *testing.T, p *Parser, source string) {
@@ -53,7 +53,7 @@ func parseFromString(t *testing.T, p *Parser, source string) {
 			t.Errorf("parse from string returned %v", node)
 		}
 	}
-	testutil.CompareErrors(t, "<string>", errorList{p.Errors()}, nil)
+	testutil.CompareErrors(t, "<string>", &errorList{p.Errors()}, nil)
 }
 
 func TestBuiltinFunctions(t *testing.T) {
@@ -62,37 +62,50 @@ func TestBuiltinFunctions(t *testing.T) {
 	parseFromString(t, p, source)
 }
 
-func TestParseGoRootFiles(t *testing.T) {
+func TestParseGoRootDir(t *testing.T) {
 	p := Parser{}
-	visit := func(t *testing.T, in io.Reader, filename string) {
-		p.Init(token.NewFile(filename, 0), in, Go1_9)
-		p.ParseFile()
-		testutil.CompareErrors(t, filename, errorList{p.Errors()}, nil)
+	visit := func(t *testing.T, opener FileOpener) {
+		p.ClearErrors()
+		p.InitParseDir(token.NewFileSet(), opener, Go1_9)
+		testutil.CompareErrors(t, "", &errorList{p.Errors()}, nil)
 	}
 	testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)
 }
 
-func TestParseOnejitGoFiles(t *testing.T) {
+func TestParseOnejitGoDir(t *testing.T) {
 	// t.SkipNow()
 	p := Parser{}
-	visit := func(t *testing.T, in io.Reader, filename string) {
-		p.Init(token.NewFile(filename, 0), in, Go1_9)
-		file := p.ParseFile()
-		testutil.CompareErrors(t, filename, errorList{p.Errors()}, nil)
-		showImports(t, file)
+	visit := func(t *testing.T, opener FileOpener) {
+		p.ClearErrors()
+		dir := p.InitParseDir(token.NewFileSet(), opener, Go1_9)
+		testutil.CompareErrors(t, "", &errorList{p.Errors()}, nil)
+		showDirImports(t, dir)
 	}
 	testutil.VisitDirRecurse(t, visit, "..")
 }
 
-func showImports(t *testing.T, file *ast.File) {
-	list := file.Imports
-	if list == nil {
-		return
-	}
-	for _, imp := range list.Nodes {
-		n := imp.Len()
-		for i := 0; i < n; i++ {
-			t.Log(imp.At(i).At(1).(*ast.Atom).Lit)
+func showDirImports(t *testing.T, dir *ast.Dir) {
+	m := make(map[string]struct{})
+	for _, file := range dir.Files {
+		imps := file.Imports
+		if imps == nil {
+			return
+		}
+		for _, imp := range imps.Nodes {
+			n := imp.Len()
+			for i := 0; i < n; i++ {
+				str := imp.At(i).At(1).(*ast.Atom).Lit
+				m[str] = struct{}{}
+			}
 		}
 	}
+	if true {
+		return
+	}
+	list := make([]string, 0, len(m))
+	for str := range m {
+		list = append(list, str)
+	}
+	sort.Strings(list)
+	t.Log(list)
 }

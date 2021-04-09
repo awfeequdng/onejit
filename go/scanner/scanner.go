@@ -41,7 +41,8 @@ type item struct {
 	lit string
 }
 
-// (re)initialize internal buffers and accumulated errors, then set io.Reader
+// (re)initialize internal buffers, then set io.Reader
+// does NOT clear accumulated errors
 func (s *Scanner) Init(file *token.File, src io.Reader) {
 	s.item = item{}
 	s.status = tokenNormal
@@ -89,8 +90,14 @@ func (s *Scanner) setResultTok(tok token.Token) {
 	s.lit = ""
 }
 
-func (s *Scanner) Errors() *[]*Error {
-	return &s.utf8Reader.errors
+// return accumulated errors
+func (s *Scanner) Errors() []*Error {
+	return s.utf8Reader.errors
+}
+
+// clear accumulated errors
+func (s *Scanner) ClearErrors() {
+	s.utf8Reader.errors = nil
 }
 
 // convert specified Pos to a Position

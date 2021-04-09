@@ -24,6 +24,7 @@ type (
 		cls  types.Class
 		typ  ast.Node // can be nil
 		init ast.Node // can also be nil, typeAlias or a multi-valued function call.
+		node ast.Node // full declaration
 	}
 
 	objdecls map[string]objdecl

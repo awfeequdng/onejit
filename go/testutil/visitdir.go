@@ -15,19 +15,26 @@
 package testutil
 
 import (
-	"bytes"
-	"io/ioutil"
 	"os"
 	"path"
 	"testing"
 
 	"github.com/cosmos72/onejit/go/io"
-	"github.com/cosmos72/onejit/go/sort"
 )
 
-type Visit = func(t *testing.T, in io.Reader, filename string)
+type Opener = func() (filename string, src io.ReadCloser)
 
-func VisitDirRecurse(t *testing.T, visit Visit, dirname string) bool {
+type DirVisitor = func(t *testing.T, fileopener Opener)
+
+func VisitDir(t *testing.T, visitor DirVisitor, dirname string) bool {
+	return visitDirRecurse(t, visitor, dirname, false)
+}
+
+func VisitDirRecurse(t *testing.T, visitor DirVisitor, dirname string) bool {
+	return visitDirRecurse(t, visitor, dirname, true)
+}
+
+func visitDirRecurse(t *testing.T, visitor DirVisitor, dirname string, recurse bool) bool {
 	if len(dirname) > 512 {
 		// try to avoid symlink loops
 		t.Skip("path too long, aborting test: ", dirname)
@@ -48,6 +55,7 @@ func VisitDirRecurse(t *testing.T, visit Visit, dirname string) bool {
 		t.Logf("entering directory %q", dirname)
 	}
 	sortInfo(info)
+	var filenames []string
 	for _, entry := range info {
 		name := entry.Name()
 		filename := path.Join(dirname, name)
@@ -59,35 +67,33 @@ func VisitDirRecurse(t *testing.T, visit Visit, dirname string) bool {
 				// skip file 'x.go' if there is a corresponding directory named 'x.dir'
 				continue
 			}
-			VisitFile(t, visit, filename)
-		} else if entry.IsDir() {
-			if !VisitDirRecurse(t, visit, filename) {
+			filenames = append(filenames, filename)
+		} else if recurse && entry.IsDir() {
+			if !visitDirRecurse(t, visitor, filename, recurse) {
 				return false
 			}
 		}
 	}
+	opener := makeFileOpener(t, filenames)
+	visitor(t, opener)
 	return true
 }
 
-func existsDir(info []os.FileInfo, dirname string) bool {
-	pos := sort.Search(len(info), func(i int) bool {
-		return info[i].Name() >= dirname
-	})
-	return pos < len(info) && info[pos].Name() == dirname
-}
-
-func VisitFile(t *testing.T, visit Visit, filename string) {
-	file, err := os.Open(filename)
-	if err != nil {
-		t.Logf("error opening file %q, skipping it: %v", filename, err)
-		return
+func makeFileOpener(t *testing.T, filenames []string) Opener {
+	i := 0
+	return func() (filename string, src io.ReadCloser) {
+		for i < len(filenames) {
+			filename = filenames[i]
+			f, err := os.Open(filename)
+			i++
+			if err != nil {
+				t.Logf("error opening file %q, skipping it: %v", filename, err)
+				continue
+			} else if shouldSkipFile(f) {
+				continue
+			}
+			return filename, f
+		}
+		return "", nil
 	}
-	defer file.Close()
-	b, _ := ioutil.ReadAll(file)
-	if bytes.Contains(b, []byte("ERROR")) {
-		// file is supposed to contain some kind of error, skip it
-		return
-	}
-	file.Seek(0, 0)
-	visit(t, file, filename)
 }

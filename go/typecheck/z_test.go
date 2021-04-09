@@ -28,19 +28,19 @@ import (
 )
 
 type errorList struct {
-	errors *[]*scanner.Error
+	errors []*scanner.Error
 }
 
-func (list errorList) Len() int {
-	return len(*list.errors)
+func (list *errorList) Len() int {
+	return len(list.errors)
 }
 
-func (list errorList) String(i int) string {
-	return (*list.errors)[i].Msg
+func (list *errorList) String(i int) string {
+	return (list.errors)[i].Msg
 }
 
-func (list errorList) Error(i int) error {
-	return (*list.errors)[i]
+func (list *errorList) Error(i int) error {
+	return (list.errors)[i]
 }
 
 func TestChecker(t *testing.T) {
@@ -54,7 +54,7 @@ func TestCheckGoRootFiles(t *testing.T) {
 	var c Checker
 	visit := func(t *testing.T, in io.Reader, filename string) {
 		p.Init(token.NewFile(filename, 0), in, parser.Go1_9)
-		testutil.CompareErrors(t, filename, errorList{p.Errors()}, nil)
+		testutil.CompareErrors(t, filename, &errorList{p.Errors()}, nil)
 
 		c.Init(nil, types.NewScope(types.Universe()), nil)
 		c.CheckGlobals(p.ParseFile())
@@ -62,5 +62,5 @@ func TestCheckGoRootFiles(t *testing.T) {
 			t.Log(strings.Basename(filename), ":", c.globals)
 		}
 	}
-	testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)
+	testutil.VisitFilesRecurse(t, visit, build.Default.GOROOT)
 }

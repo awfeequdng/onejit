@@ -63,10 +63,11 @@ func TestScanGoRootFiles(t *testing.T) {
 	visit := func(t *testing.T, in io.Reader, filename string) {
 		scanFile(t, s, in, filename)
 	}
-	testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)
+	testutil.VisitFilesRecurse(t, visit, build.Default.GOROOT)
 }
 
 func scanFile(t *testing.T, s *Scanner, in io.Reader, filename string) {
+	s.ClearErrors()
 	s.Init(token.NewFile(filename, 0), in)
 	for {
 		tok, lit := s.Scan()
@@ -77,21 +78,21 @@ func scanFile(t *testing.T, s *Scanner, in io.Reader, filename string) {
 			t.Errorf("scan file %q returned {%v %q}", filename, tok, lit)
 		}
 	}
-	testutil.CompareErrors(t, filename, errorList{s.Errors()}, nil)
+	testutil.CompareErrors(t, filename, &errorList{s.Errors()}, nil)
 }
 
 type errorList struct {
-	errors *[]*Error
+	errors []*Error
 }
 
-func (list errorList) Len() int {
-	return len(*list.errors)
+func (list *errorList) Len() int {
+	return len(list.errors)
 }
 
-func (list errorList) String(i int) string {
-	return (*list.errors)[i].Msg
+func (list *errorList) String(i int) string {
+	return (list.errors)[i].Msg
 }
 
-func (list errorList) Error(i int) error {
-	return (*list.errors)[i]
+func (list *errorList) Error(i int) error {
+	return (list.errors)[i]
 }
