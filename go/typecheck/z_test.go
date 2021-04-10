@@ -18,10 +18,8 @@ import (
 	"go/build"
 	"testing"
 
-	"github.com/cosmos72/onejit/go/io"
 	"github.com/cosmos72/onejit/go/parser"
 	"github.com/cosmos72/onejit/go/scanner"
-	"github.com/cosmos72/onejit/go/strings"
 	"github.com/cosmos72/onejit/go/testutil"
 	"github.com/cosmos72/onejit/go/token"
 	"github.com/cosmos72/onejit/go/types"
@@ -49,18 +47,21 @@ func TestChecker(t *testing.T) {
 	CheckGlobals(nil, types.Universe(), nil, p.Parse())
 }
 
-func TestCheckGoRootFiles(t *testing.T) {
+func TestCheckGoRootDirs(t *testing.T) {
 	var p parser.Parser
 	var c Checker
-	visit := func(t *testing.T, in io.Reader, filename string) {
-		p.Init(token.NewFile(filename, 0), in, parser.Go1_9)
-		testutil.CompareErrors(t, filename, &errorList{p.Errors()}, nil)
+	visit := func(t *testing.T, opener testutil.Opener) {
+		p.ClearErrors()
+		dir := p.InitParseDir(token.NewFileSet(), opener, parser.Go1_9)
+		testutil.CompareErrors(t, "", &errorList{p.Errors()}, nil)
 
+		c.ClearErrors()
+		c.ClearWarnings()
 		c.Init(nil, types.NewScope(types.Universe()), nil)
-		c.CheckGlobals(p.ParseFile())
-		if false /*testing.Verbose()*/ {
-			t.Log(strings.Basename(filename), ":", c.globals)
+		c.CheckGlobals(dir)
+		if testing.Verbose() {
+			t.Log(c.objs.Names())
 		}
 	}
-	testutil.VisitFilesRecurse(t, visit, build.Default.GOROOT)
+	testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)
 }

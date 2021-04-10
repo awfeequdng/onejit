@@ -23,10 +23,12 @@ type (
 	Class uint8
 
 	Object struct {
-		cls   Class
-		name  string
-		typ   *Complete
-		value interface{} // constant.Value for constants, *Package for imports, otherwise nil
+		cls  Class
+		name string
+		typ  *Complete
+		// constant.Value for constants, *Package for imports,
+		// Label for global variables and functions / methods
+		value interface{}
 	}
 
 	Scope struct {
@@ -101,6 +103,11 @@ func (obj *Object) Value() interface{} {
 	return obj.value
 }
 
+func (obj *Object) SetType(t *Complete) {
+	obj.checkValidType(t)
+	obj.typ = t
+}
+
 func (obj *Object) SetValue(value interface{}) *Object {
 	obj.value = value
 	return obj
@@ -109,12 +116,16 @@ func (obj *Object) SetValue(value interface{}) *Object {
 func (obj *Object) checkValid() {
 	if obj == nil {
 		panic("Object is nil")
-	} else if len(obj.Name()) == 0 {
+	} else if len(obj.name) == 0 {
 		panic("Object has empty name")
+	} else {
+		obj.checkValidType(obj.typ)
 	}
-	t := obj.Type()
+}
+
+func (obj *Object) checkValidType(t *Complete) {
 	if t == nil {
-		panic("Object has nil type")
+		return // panic("Object has nil type")
 	}
 	switch obj.Class() {
 	case BuiltinObj:
@@ -176,6 +187,9 @@ func (s *Scope) Len() int {
 
 // search object by name in specified Scope.
 func (s *Scope) Lookup(name string) *Object {
+	if s == nil {
+		return nil
+	}
 	return s.m[name]
 }
 
@@ -191,6 +205,9 @@ func (s *Scope) LookupParent(name string) (*Scope, *Object) {
 
 // return the sorted names of all objects in Scope
 func (s *Scope) Names() []string {
+	if s == nil {
+		return nil
+	}
 	names := make([]string, len(s.m))
 	i := 0
 	for name := range s.m {

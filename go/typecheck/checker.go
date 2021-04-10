@@ -22,36 +22,33 @@ import (
 	"github.com/cosmos72/onejit/go/types"
 )
 
-type (
-	Checker struct {
-		scope *types.Scope
-		// names and corresponding *types.Object declared in source being typechecked
-		defs      *types.Scope
-		globals   objdecls   // names declared in source being typechecked
-		initfuncs []ast.Node // list of global func init() { ... }
-		typemap   TypeMap
-		knownpkgs types.Packages // list of known packages
-		fileset   *token.FileSet
-		errors    []*scanner.Error
-	}
-)
+type Checker struct {
+	scope     *types.Scope                 // existing scope being extended
+	objs      *types.Scope                 // declared symbols
+	fileobjs  map[*token.File]*types.Scope // per-file symbols: imports and dot imports
+	initfuncs []ast.Node                   // list of global func init() { ... }
+	typemap   TypeMap
+	knownpkgs types.Packages // list of known packages
+	fileset   *token.FileSet
+	file      *token.File // current file being processed. may be nil
+	warnings  []*scanner.Error
+	errors    []*scanner.Error
+}
+
+const noIndex int = -1
 
 var typeAlias ast.Node = &ast.Atom{Tok: token.ASSIGN}
 
+// does NOT clear accumulated errors and warnings
 func (c *Checker) Init(fileset *token.FileSet, scope *types.Scope, knownpkgs types.Packages) {
 	c.scope = scope
-	c.defs = nil
-	c.globals = nil
+	c.objs = nil
+	c.fileobjs = nil
+	c.initfuncs = nil
 	c.typemap = nil
 	c.knownpkgs = knownpkgs
 	c.fileset = fileset
-}
-
-func (c *Checker) error(node ast.Node, msg string) {
-	c.errors = append(c.errors, &scanner.Error{
-		Pos: c.fileset.Position(node.Pos()),
-		Msg: msg,
-	})
+	c.file = nil
 }
 
 func (c *Checker) CheckDir(dir *ast.Dir) {
@@ -76,7 +73,7 @@ func (c *Checker) collectGlobals(nodes ...ast.Node) {
 			continue
 		}
 		switch op := node.Op(); op {
-		case token.FILE, token.IMPORTS, token.DECLS:
+		case token.DIR, token.FILE, token.IMPORTS, token.DECLS:
 			for i, n := 0, node.Len(); i < n; i++ {
 				c.collectGlobals(node.At(i))
 			}
@@ -100,7 +97,7 @@ func (c *Checker) collectGlobals(nodes ...ast.Node) {
 
 func (c *Checker) collectFuncDecl(decl ast.Node) {
 	if recv := decl.At(0); recv != nil {
-		return // it's a method, not a function
+		return // TODO collectMethodDecl
 	}
 	name := decl.At(1).(*ast.Atom)
 	typ := decl.At(2)
@@ -111,7 +108,7 @@ func (c *Checker) collectFuncDecl(decl ast.Node) {
 			c.error(decl, "func init must have no arguments and no return values")
 		}
 	} else {
-		c.addLocal(decl, types.FuncObj, name.Lit, typ, body)
+		c.addDecl(decl, types.FuncObj, name.Lit, typ, body, noIndex)
 	}
 }
 
@@ -125,14 +122,23 @@ func (c *Checker) collectImportSpec(spec ast.Node) {
 	path := spec.At(1).(*ast.Atom)
 	// also skip initial and final '"'
 	namestr, pathstr := "", strings.Unescape(path.Lit[1:len(path.Lit)-1])
-	if name != nil {
-		namestr = name.(*ast.Atom).Lit // identifier
-	} else if pkg := c.knownpkgs[pathstr]; pkg != nil {
-		namestr = pkg.Name()
-	} else {
-		namestr = strings.Basename(pathstr) // approximate!
+
+	pkg := c.knownpkgs[pathstr]
+	if pkg == nil {
+		c.error(spec, "package not known: "+pathstr)
 	}
-	c.addLocal(spec, types.ImportObj, namestr, nil, path)
+	if name != nil {
+		if name.Op() == token.PERIOD {
+			namestr = "." // import . "some/pkg/path"
+		} else {
+			namestr = name.(*ast.Atom).Lit // import foo "some/pkg/path"
+		}
+	} else if pkg != nil {
+		namestr = pkg.Name() // import "some/pkg/path"
+	} else {
+		namestr = strings.Basename(pathstr) // approximate
+	}
+	c.addImportDecl(spec, namestr, pkg)
 }
 
 func (c *Checker) collectTypeSpec(spec ast.Node) {
@@ -147,7 +153,7 @@ func (c *Checker) collectTypeSpec(spec ast.Node) {
 	if op == token.ASSIGN {
 		init = typeAlias
 	}
-	c.addLocal(spec, types.TypeObj, name.Lit, typ, init)
+	c.addDecl(spec, types.TypeObj, name.Lit, typ, init, noIndex)
 }
 
 func (c *Checker) collectValueSpec(op token.Token, spec ast.Node) {
@@ -180,31 +186,86 @@ func (c *Checker) collectValueSpec(op token.Token, spec ast.Node) {
 	cls := token2class(op)
 	for i := 0; i < n; i++ {
 		atom := names.At(i).(*ast.Atom)
-		init_i := init
 		if oneInitializerPerName {
-			init_i = init.At(i)
+			c.addDecl(spec, cls, atom.Lit, typ, init.At(i), noIndex)
+		} else {
+			c.addDecl(spec, cls, atom.Lit, typ, init, i)
 		}
-		c.addLocal(spec, cls, atom.Lit, typ, init_i)
 	}
 }
 
-func (c *Checker) addLocal(node ast.Node, cls types.Class, name string, typ ast.Node, init ast.Node) {
+func (c *Checker) addDecl(node ast.Node, cls types.Class, name string, typ ast.Node, init ast.Node, index int) {
 	if name == "_" {
 		return
 	}
-	l := objdecl{cls, typ, init, node}
-	if c.globals == nil {
-		c.globals = make(objdecls)
-	} else if old, ok := c.globals[name]; ok {
-		prevPos := c.fileset.Position(old.node.Pos())
-		c.error(node, name+" redeclared in this block\n\tprevious declaration at "+prevPos.String())
-	}
-	c.globals[name] = l
+	d := &decl{node: node, typ: typ, init: init, index: index}
+	c.addObjDecl(cls, name, d)
 }
 
-func (c *Checker) addDef(def *types.Object) {
-	if c.defs == nil {
-		c.defs = types.NewScope(c.scope)
+func (c *Checker) addImportDecl(node ast.Node, name string, pkg *types.Package) {
+	if name == "_" {
+		return
 	}
-	c.defs.Insert(def)
+	if name != "." {
+		d := &decl{node: node, value: pkg}
+		c.addFileDecl(types.ImportObj, name, d)
+		return
+	}
+	// dot import
+	if pkg == nil {
+		return
+	}
+	if c.objs == nil {
+		c.objs = types.NewScope(c.scope.Parent())
+	}
+	scope := pkg.Scope()
+	for _, name := range scope.Names() {
+		if !token.IsExported(name) {
+			continue
+		}
+		obj := scope.Lookup(name)
+		if obj.Class() == types.ImportObj {
+			continue // should not happen, imports are added to a nested scope
+		}
+		c.checkRedefined(name, node)
+		c.objs.Insert(obj) // reuse the same object
+	}
+}
+
+func (c *Checker) addObjDecl(cls types.Class, name string, d *decl) {
+	c.checkRedefined(name, d.node)
+	obj := types.NewObject(cls, name, nil)
+	obj.SetValue(d)
+	if c.objs == nil {
+		c.objs = types.NewScope(c.scope.Parent())
+	}
+	c.objs.Insert(obj)
+}
+
+func (c *Checker) addFileDecl(cls types.Class, name string, d *decl) {
+	c.checkRedefined(name, d.node)
+	obj := types.NewObject(cls, name, nil)
+	obj.SetValue(d)
+	if c.fileobjs == nil {
+		c.fileobjs = make(map[*token.File]*types.Scope)
+	}
+	fileobjs := c.fileobjs[c.file]
+	if fileobjs == nil {
+		if c.objs == nil {
+			c.objs = types.NewScope(c.scope.Parent())
+		}
+		fileobjs = types.NewScope(c.objs)
+		c.fileobjs[c.file] = fileobjs
+	}
+	fileobjs.Insert(obj)
+}
+
+func (c *Checker) checkRedefined(name string, node ast.Node) {
+	if old := c.objs.Lookup(name); old != nil {
+		c.errorRedefined(name, node, old)
+	} else if old := c.fileobjs[c.file].Lookup(name); old != nil {
+		c.errorRedefined(name, node, old)
+	} else if c.scope.Lookup(name) != nil {
+		c.warning(node, name+" redeclared in this block")
+	}
 }

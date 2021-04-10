@@ -24,12 +24,12 @@ type TypeMap map[ast.Node]*types.Complete
 
 // typecheck the specified global declarations
 func CheckGlobals(fileset *token.FileSet, scope *types.Scope, knownpkgs types.Packages,
-	source ...ast.Node) (defs *types.Scope, typemap TypeMap) {
+	source ...ast.Node) (decls *types.Scope, typemap TypeMap) {
 
 	c := Checker{}
 	c.Init(fileset, scope, knownpkgs)
 	c.CheckGlobals(source...)
-	return c.defs, c.typemap
+	return c.objs, c.typemap
 }
 
 func token2class(tok token.Token) (cls types.Class) {
