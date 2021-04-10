@@ -29,6 +29,15 @@ type multiscope struct {
 	errors
 }
 
+// does NOT clear accumulated errors
+func (ms *multiscope) Init(fileset *token.FileSet, outer *types.Scope) {
+	ms.outer = outer
+	ms.scope = nil
+	ms.files = nil
+	ms.curr = nil
+	ms.errors.fileset = fileset
+}
+
 func (ms *multiscope) lookup(name string) *types.Object {
 	obj := ms.files[ms.curr].Lookup(name)
 	if obj == nil {
@@ -70,7 +79,7 @@ func (ms *multiscope) add(node ast.Node, cls types.Class, name string, typ ast.N
 	if name == "_" {
 		return
 	}
-	d := &decl{node: node, typ: typ, init: init, index: index}
+	d := &decl{node: node, typ: typ, init: init, index: index, file: ms.curr}
 	ms.checkRedefined(name, node)
 	obj := types.NewObject(cls, name, nil)
 	obj.SetValue(d)
@@ -82,7 +91,7 @@ func (ms *multiscope) addImport(node ast.Node, name string, pkg *types.Package) 
 		return
 	}
 	if name != "." {
-		d := &decl{node: node, value: pkg}
+		d := &decl{node: node, value: pkg, file: ms.curr}
 		ms.addImportDecl(types.ImportObj, name, d)
 		return
 	}

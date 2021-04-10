@@ -29,13 +29,22 @@ type Collector struct {
 	knownpkgs types.Packages // list of known packages
 }
 
+type decl struct {
+	node  ast.Node    // node where decl is declared
+	typ   ast.Node    // type, may be nil
+	init  ast.Node    // initializer expression, may be nil
+	index int         // if != noIndex, must use index-th value from multi-valued init
+	file  *token.File // file where decl is declared. needed to retrieve per-file imports
+	value interface{} // value. same conventions as types.Object.Value()
+}
+
 const noIndex int = -1
 
 var typeAlias ast.Node = &ast.Atom{Tok: token.ASSIGN}
 
 // does NOT clear accumulated errors and warnings
 func (c *Collector) Init(fileset *token.FileSet, scope *types.Scope, knownpkgs types.Packages) {
-	c.multiscope = multiscope{outer: scope, errors: errors{fileset: fileset}}
+	c.multiscope.Init(fileset, scope)
 	c.initfuncs = nil
 	c.typemap = nil
 	c.knownpkgs = knownpkgs
