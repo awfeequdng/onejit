@@ -24,7 +24,7 @@ import (
 
 type Opener = func() (filename string, src io.ReadCloser)
 
-type DirVisitor = func(t *testing.T, fileopener Opener)
+type DirVisitor = func(t *testing.T, fileopener Opener, dirname string)
 
 func VisitDir(t *testing.T, visitor DirVisitor, dirname string) bool {
 	return visitDirRecurse(t, visitor, dirname, false)
@@ -75,7 +75,7 @@ func visitDirRecurse(t *testing.T, visitor DirVisitor, dirname string, recurse b
 		}
 	}
 	opener := makeFileOpener(t, filenames)
-	visitor(t, opener)
+	visitor(t, opener, dirname)
 	return true
 }
 

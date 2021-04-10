@@ -64,10 +64,10 @@ func TestBuiltinFunctions(t *testing.T) {
 
 func TestParseGoRootDir(t *testing.T) {
 	p := Parser{}
-	visit := func(t *testing.T, opener FileOpener) {
+	visit := func(t *testing.T, opener FileOpener, dirname string) {
 		p.ClearErrors()
-		p.InitParseDir(token.NewFileSet(), opener, Go1_9)
-		testutil.CompareErrors(t, "", &errorList{p.Errors()}, nil)
+		p.InitParseDir(token.NewFileSet(dirname), opener, Go1_9)
+		testutil.CompareErrors(t, dirname, &errorList{p.Errors()}, nil)
 	}
 	testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)
 }
@@ -75,10 +75,10 @@ func TestParseGoRootDir(t *testing.T) {
 func TestParseOnejitGoDir(t *testing.T) {
 	// t.SkipNow()
 	p := Parser{}
-	visit := func(t *testing.T, opener FileOpener) {
+	visit := func(t *testing.T, opener FileOpener, dirname string) {
 		p.ClearErrors()
-		dir := p.InitParseDir(token.NewFileSet(), opener, Go1_9)
-		testutil.CompareErrors(t, "", &errorList{p.Errors()}, nil)
+		dir := p.InitParseDir(token.NewFileSet(dirname), opener, Go1_9)
+		testutil.CompareErrors(t, dirname, &errorList{p.Errors()}, nil)
 		showDirImports(t, dir)
 	}
 	testutil.VisitDirRecurse(t, visit, "..")
