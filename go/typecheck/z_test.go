@@ -47,20 +47,21 @@ func TestChecker(t *testing.T) {
 	CheckGlobals(nil, types.Universe(), nil, p.Parse())
 }
 
-func TestCheckGoRootDirs(t *testing.T) {
+func TestCheckGoRootDir(t *testing.T) {
 	var p parser.Parser
-	var c Checker
+	var c Collector
 	visit := func(t *testing.T, opener testutil.Opener) {
 		p.ClearErrors()
-		dir := p.InitParseDir(token.NewFileSet(), opener, parser.Go1_9)
+		fset := token.NewFileSet()
+		dir := p.InitParseDir(fset, opener, parser.Go1_9)
 		testutil.CompareErrors(t, "", &errorList{p.Errors()}, nil)
 
 		c.ClearErrors()
 		c.ClearWarnings()
-		c.Init(nil, types.NewScope(types.Universe()), nil)
-		c.CheckGlobals(dir)
+		c.Init(fset, types.NewScope(types.Universe()), nil)
+		c.Globals(dir)
 		if testing.Verbose() {
-			t.Log(c.objs.Names())
+			t.Log(c.scope.Names())
 		}
 	}
 	testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)

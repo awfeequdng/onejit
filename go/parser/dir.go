@@ -26,7 +26,7 @@ type FileOpener = func() (filename string, src io.ReadCloser)
 // repeatedly calls Parser.InitParseFile() until opener returns nil.
 // does NOT clear accumulated errors
 func (p *Parser) InitParseDir(fset *token.FileSet, opener FileOpener, mode Mode) *ast.Dir {
-	dir := &ast.Dir{Atom: ast.Atom{Tok: token.DIR}}
+	dir := &ast.Dir{Atom: ast.Atom{Tok: token.DIR}, FileSet: fset}
 	var files []*ast.File
 	for {
 		file := p.InitParseFile(fset, opener, mode)

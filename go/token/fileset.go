@@ -30,8 +30,8 @@ func (f *FileSet) Size() int {
 		return 0
 	}
 	last := f.files[n-1]
-	if size := last.size; size >= 0 {
-		return last.line[0] + size
+	if end := last.End(); end >= 0 {
+		return end
 	}
 	n = len(last.line)
 	return last.line[n-1]
@@ -49,7 +49,7 @@ func (f *FileSet) Position(p Pos) Position {
 		return Position{Offset: int(p)}
 	}
 	index := sort.Search(len(f.files), func(i int) bool {
-		return f.files[i].line[0] >= int(p)
+		return f.files[i].End() >= int(p)
 	})
 	if index == len(f.files) {
 		index--

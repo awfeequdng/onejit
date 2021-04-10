@@ -100,6 +100,10 @@ func (s *Scanner) ClearErrors() {
 	s.utf8Reader.errors = nil
 }
 
+func (s *Scanner) File() *token.File {
+	return s.file
+}
+
 // convert specified Pos to a Position
 func (s *Scanner) Position(pos token.Pos) token.Position {
 	return s.file.Position(pos)

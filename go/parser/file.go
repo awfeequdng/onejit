@@ -21,7 +21,7 @@ import (
 
 // parse a whole file.
 func (p *Parser) ParseFile() *ast.File {
-	file := ast.File{Atom: ast.Atom{Tok: token.FILE}}
+	file := ast.File{Atom: ast.Atom{Tok: token.FILE}, File: p.scanner.File()}
 
 	var imports []ast.Node
 	var decls []ast.Node

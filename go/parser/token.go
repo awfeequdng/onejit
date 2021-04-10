@@ -39,6 +39,7 @@ func isDecl(tok token.Token) bool {
 	}
 }
 
+/*
 func isEnter(tok token.Token) bool {
 	switch tok {
 	case token.LPAREN, token.LBRACK, token.LBRACE:
@@ -47,6 +48,7 @@ func isEnter(tok token.Token) bool {
 		return false
 	}
 }
+*/
 
 func isLeave(tok token.Token) bool {
 	switch tok {

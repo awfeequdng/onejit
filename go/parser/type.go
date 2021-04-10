@@ -50,20 +50,6 @@ func (p *Parser) parseTypeSpec() (node ast.Node) {
 	return node
 }
 
-// parse a comma-separated list of types
-func (p *Parser) parseTypeList(prefix []ast.Node) []ast.Node {
-	nodes := prefix
-	for !isLeave(p.tok()) {
-		nodes = append(nodes, p.parseType())
-		if p.tok() == token.COMMA {
-			p.next() // skip ','
-		} else {
-			break
-		}
-	}
-	return nodes
-}
-
 // parse a type
 func (p *Parser) parseType() ast.Node {
 	return p.ParseType(false)

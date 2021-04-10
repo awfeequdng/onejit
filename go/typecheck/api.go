@@ -26,10 +26,10 @@ type TypeMap map[ast.Node]*types.Complete
 func CheckGlobals(fileset *token.FileSet, scope *types.Scope, knownpkgs types.Packages,
 	source ...ast.Node) (decls *types.Scope, typemap TypeMap) {
 
-	c := Checker{}
+	c := Collector{}
 	c.Init(fileset, scope, knownpkgs)
-	c.CheckGlobals(source...)
-	return c.objs, c.typemap
+	c.Globals(source...)
+	return c.scope, c.typemap
 }
 
 func token2class(tok token.Token) (cls types.Class) {

@@ -45,12 +45,22 @@ func (f *File) Base() int {
 	return f.line[0]
 }
 
-// return size, or < 0 if unknown
+// return size, or a lower bound if unknown
 func (f *File) Size() int {
-	if f == nil {
-		return 0
+	size := 0
+	if f != nil {
+		if f.size >= 0 {
+			size = f.size
+		} else if n := len(f.line); n != 0 {
+			size = f.line[n-1]
+		}
 	}
-	return f.size
+	return size
+}
+
+// return Base() + Size()
+func (f *File) End() int {
+	return f.Base() + f.Size()
 }
 
 func (f *File) SetSize(size int) {

@@ -22,7 +22,8 @@ import (
 
 type Dir struct {
 	Atom
-	Files []*File
+	Files   []*File
+	FileSet *token.FileSet
 }
 
 func (d *Dir) Len() int {

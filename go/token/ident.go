@@ -25,7 +25,6 @@ func IsExported(name string) bool {
 	if b := name[0]; b < utf8.RuneSelf {
 		return b >= 'A' && b <= 'Z'
 	}
-
 	ch, _ := utf8.DecodeRuneInString(name)
 	return unicode.IsUpper(ch)
 }

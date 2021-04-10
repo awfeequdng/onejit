@@ -25,6 +25,7 @@ type File struct {
 	Package *Unary
 	Imports *List
 	Decls   *List
+	File    *token.File
 }
 
 func (f *File) Len() int {
