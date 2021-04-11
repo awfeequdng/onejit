@@ -15,8 +15,6 @@
 package typecheck
 
 import (
-	"fmt"
-
 	"github.com/cosmos72/onejit/go/ast"
 	"github.com/cosmos72/onejit/go/strings"
 	"github.com/cosmos72/onejit/go/token"
@@ -220,11 +218,11 @@ func dup(m SymbolMap) SymbolMap {
 }
 
 func (r *Resolver) pickSymbolNoDeps(m SymbolMap) *Symbol {
-	fmt.Println("depfwd: ", r.depfwd)
-	fmt.Println("depinv: ", r.depinv)
+	// fmt.Println("depfwd: ", r.depfwd)
+	// fmt.Println("depinv: ", r.depinv)
 	for _, sym := range m {
 		if len(r.depfwd[sym]) == 0 {
-			fmt.Println("picked: ", sym.String())
+			// fmt.Println("picked: ", sym.String())
 			return sym
 		}
 	}
@@ -232,7 +230,7 @@ func (r *Resolver) pickSymbolNoDeps(m SymbolMap) *Symbol {
 }
 
 func (r *Resolver) declare(sym *Symbol) {
-	fmt.Println("declare:", sym.String())
+	// fmt.Println("declare:", sym.String())
 }
 
 func (r *Resolver) removeDeps(sym *Symbol) {

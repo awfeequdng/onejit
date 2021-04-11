@@ -49,10 +49,8 @@ func TestChecker(t *testing.T) {
 }
 
 func TestCheckGoRootDir(t *testing.T) {
-	if false {
-		visit := makeVisitor()
-		testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)
-	}
+	visit := makeVisitor()
+	testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)
 }
 
 func TestParseOnejitGoDir(t *testing.T) {

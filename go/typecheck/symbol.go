@@ -15,8 +15,6 @@
 package typecheck
 
 import (
-	"fmt"
-
 	"github.com/cosmos72/onejit/go/ast"
 	"github.com/cosmos72/onejit/go/sort"
 	"github.com/cosmos72/onejit/go/token"
@@ -85,6 +83,7 @@ func (m SymbolMap) InsertObj(obj *types.Object) {
 	m[obj.Name()] = &Symbol{obj: obj}
 }
 
+/*
 func (set SymbolSet) Format(f fmt.State, verb rune) {
 	fmt.Fprint(f, "[")
 	separator := ""
@@ -95,6 +94,7 @@ func (set SymbolSet) Format(f fmt.State, verb rune) {
 	}
 	fmt.Fprint(f, "]")
 }
+*/
 
 func (g SymbolGraph) Link(from *Symbol, to *Symbol) {
 	m := g[from]
