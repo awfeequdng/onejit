@@ -38,12 +38,13 @@ func (ms *multiscope) Init(fileset *token.FileSet, outer *types.Scope) {
 	ms.errors.fileset = fileset
 }
 
-func (ms *multiscope) lookup(name string) *Symbol {
-	sym := ms.files[ms.curr][name]
+func (ms *multiscope) lookup(name string) (sym *Symbol, imported bool) {
+	sym = ms.files[ms.curr][name]
+	imported = sym != nil
 	if sym == nil {
 		sym = ms.syms[name]
 	}
-	return sym
+	return sym, imported
 }
 
 func (ms *multiscope) getFile() SymbolMap {
@@ -118,7 +119,7 @@ func (ms *multiscope) addImport(node ast.Node, name string, pkg *types.Package) 
 }
 
 func (ms *multiscope) checkRedefined(name string, node ast.Node) {
-	if old := ms.lookup(name); old != nil {
+	if old, _ := ms.lookup(name); old != nil {
 		ms.errorRedefined(name, node, old)
 	} else if ms.outer.Lookup(name) != nil {
 		ms.warning(node, name+" redeclared in this block")

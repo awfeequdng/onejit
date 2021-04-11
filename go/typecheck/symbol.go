@@ -15,6 +15,8 @@
 package typecheck
 
 import (
+	"fmt"
+
 	"github.com/cosmos72/onejit/go/ast"
 	"github.com/cosmos72/onejit/go/sort"
 	"github.com/cosmos72/onejit/go/token"
@@ -32,6 +34,10 @@ type (
 	}
 
 	SymbolMap map[string]*Symbol
+
+	SymbolSet map[*Symbol]struct{}
+
+	SymbolGraph map[*Symbol]SymbolSet
 )
 
 const NoIndex int = -1
@@ -77,4 +83,24 @@ func (m SymbolMap) Insert(sym *Symbol) {
 
 func (m SymbolMap) InsertObj(obj *types.Object) {
 	m[obj.Name()] = &Symbol{obj: obj}
+}
+
+func (set SymbolSet) Format(f fmt.State, verb rune) {
+	fmt.Fprint(f, "[")
+	separator := ""
+	for sym := range set {
+		fmt.Fprint(f, separator)
+		separator = ", "
+		fmt.Fprint(f, sym.String())
+	}
+	fmt.Fprint(f, "]")
+}
+
+func (g SymbolGraph) Link(from *Symbol, to *Symbol) {
+	m := g[from]
+	if m == nil {
+		m = make(SymbolSet)
+		g[from] = m
+	}
+	m[to] = struct{}{}
 }

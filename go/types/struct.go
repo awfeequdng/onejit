@@ -15,14 +15,15 @@
 package types
 
 type Struct struct {
-	_     [0]*Struct // occupies zero bytes
-	rtype Complete
-	extra extra
+	structTag struct{} // occupies zero bytes
+	rtype     Complete
+	extra     extra
 }
 
 // *Struct implements Type
 
 func (t *Struct) String() string {
+	_ = t.structTag
 	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()

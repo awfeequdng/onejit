@@ -15,14 +15,15 @@
 package types
 
 type Map struct {
-	_     [0]*Map // occupies zero bytes
-	rtype Complete
-	extra extra
+	mapTag struct{} // occupies zero bytes
+	rtype  Complete
+	extra  extra
 }
 
 // *Map implements Type
 
 func (t *Map) String() string {
+	_ = t.mapTag
 	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()

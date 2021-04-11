@@ -16,14 +16,15 @@ package types
 
 // Func represents the type of a function
 type Func struct {
-	_     [0]*Func // occupies zero bytes
-	rtype Complete
-	extra extra
+	funcTag struct{} // occupies zero bytes
+	rtype   Complete
+	extra   extra
 }
 
 // *Func implements Type
 
 func (t *Func) String() string {
+	_ = t.funcTag
 	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()
@@ -178,6 +179,10 @@ func makeFuncKey(in []Type, out []Type, variadic bool) (ret interface{}, types [
 		ret = key
 	} else if n <= 16 {
 		key := funcKey16{n1: uint16(n1), n2: uint16(n2)}
+		types = fillFuncKey(key.inout[:], in, out)
+		ret = key
+	} else if n <= 64 {
+		key := funcKey64{n1: uint16(n1), n2: uint16(n2)}
 		types = fillFuncKey(key.inout[:], in, out)
 		ret = key
 	} else if n <= 256 {

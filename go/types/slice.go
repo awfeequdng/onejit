@@ -15,13 +15,14 @@
 package types
 
 type Slice struct {
-	_     [0]*Slice // occupies zero bytes
-	rtype Complete
+	sliceTag struct{} // occupies zero bytes
+	rtype    Complete
 }
 
 // *Slice implements Type
 
 func (t *Slice) String() string {
+	_ = t.sliceTag
 	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()

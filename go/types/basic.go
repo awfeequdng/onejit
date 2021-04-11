@@ -20,13 +20,14 @@ import (
 
 // Basic represents one of Go's predefined basic types
 type Basic struct {
-	_     [0]*Basic // occupies zero bytes
-	rtype Complete
+	basicTag struct{} // occupies zero bytes
+	rtype    Complete
 }
 
 // *Basic implements Type
 
 func (t *Basic) String() string {
+	_ = t.basicTag
 	return t.rtype.str
 }
 

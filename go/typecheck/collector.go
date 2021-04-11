@@ -26,6 +26,7 @@ type Collector struct {
 	multiscope
 	initfuncs []ast.Node     // list of global func init() { ... }
 	knownpkgs types.Packages // list of known packages
+	sources   []ast.Node
 }
 
 var typeAlias ast.Node = &ast.Atom{Tok: token.ASSIGN}
@@ -39,40 +40,45 @@ func (c *Collector) Init(fileset *token.FileSet, scope *types.Scope, knownpkgs t
 
 // collect global declarations from specified nodes.
 func (c *Collector) Globals(nodes ...ast.Node) {
+	c.sources = nodes
 	for _, node := range nodes {
-		if node == nil {
-			continue
+		c.global(node)
+	}
+}
+
+func (c *Collector) global(node ast.Node) {
+	if node == nil {
+		return
+	}
+	switch op := node.Op(); op {
+	case token.DIR:
+		c.fileset = node.(*ast.Dir).FileSet
+		c.globalList(node)
+	case token.FILE:
+		c.curr = node.(*ast.File).File
+		c.globalList(node)
+	case token.IMPORTS, token.DECLS:
+		c.globalList(node)
+	case token.FUNC:
+		c.funcDecl(node)
+	case token.IMPORT:
+		for i, n := 0, node.Len(); i < n; i++ {
+			c.importSpec(node.At(i))
 		}
-		switch op := node.Op(); op {
-		case token.DIR:
-			c.fileset = node.(*ast.Dir).FileSet
-			c.globalList(node)
-		case token.FILE:
-			c.curr = node.(*ast.File).File
-			c.globalList(node)
-		case token.IMPORTS, token.DECLS:
-			c.globalList(node)
-		case token.FUNC:
-			c.funcDecl(node)
-		case token.IMPORT:
-			for i, n := 0, node.Len(); i < n; i++ {
-				c.importSpec(node.At(i))
-			}
-		case token.TYPE:
-			for i, n := 0, node.Len(); i < n; i++ {
-				c.typeSpec(node.At(i))
-			}
-		case token.VAR, token.CONST:
-			for i, n := 0, node.Len(); i < n; i++ {
-				c.valueSpec(op, node.At(i))
-			}
+	case token.TYPE:
+		for i, n := 0, node.Len(); i < n; i++ {
+			c.typeSpec(node.At(i))
+		}
+	case token.VAR, token.CONST:
+		for i, n := 0, node.Len(); i < n; i++ {
+			c.valueSpec(op, node.At(i))
 		}
 	}
 }
 
 func (c *Collector) globalList(list ast.Node) {
 	for i, n := 0, list.Len(); i < n; i++ {
-		c.Globals(list.At(i))
+		c.global(list.At(i))
 	}
 }
 

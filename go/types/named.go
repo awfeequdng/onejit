@@ -18,14 +18,15 @@ import "github.com/cosmos72/onejit/go/strings"
 
 // represents a named type
 type Named struct {
-	_     [0]*Named // occupies zero bytes
-	rtype Complete
-	extra extra
+	namedTag struct{} // occupies zero bytes
+	rtype    Complete
+	extra    extra
 }
 
 // *Named implements Type
 
 func (t *Named) String() string {
+	_ = t.namedTag
 	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()

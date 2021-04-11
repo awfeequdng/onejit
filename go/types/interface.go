@@ -19,14 +19,15 @@ import (
 )
 
 type Interface struct {
-	_     [0]*Interface // occupies zero bytes
-	rtype Complete
-	extra extra
+	interfaceTag struct{} // occupies zero bytes
+	rtype        Complete
+	extra        extra
 }
 
 // *Interface implements Type
 
 func (t *Interface) String() string {
+	_ = t.interfaceTag
 	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()

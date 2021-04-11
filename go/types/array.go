@@ -19,14 +19,15 @@ import (
 )
 
 type Array struct {
-	_     [0]*Array // occupies zero bytes
-	rtype Complete
-	extra extra
+	arrayTag struct{} // occupies zero bytes
+	rtype    Complete
+	extra    extra
 }
 
 // *Array implements Type
 
 func (t *Array) String() string {
+	_ = t.arrayTag
 	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()

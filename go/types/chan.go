@@ -15,13 +15,14 @@
 package types
 
 type Chan struct {
-	_     [0]*Chan // occupies zero bytes
-	rtype Complete
+	chanTag struct{} // occupies zero bytes
+	rtype   Complete
 }
 
 // *Chan implements Type
 
 func (t *Chan) String() string {
+	_ = t.chanTag
 	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()

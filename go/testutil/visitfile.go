@@ -23,6 +23,7 @@ import (
 
 	"github.com/cosmos72/onejit/go/io"
 	"github.com/cosmos72/onejit/go/sort"
+	"github.com/cosmos72/onejit/go/strings"
 )
 
 type FileVisitor = func(t *testing.T, in io.Reader, filename string)
@@ -54,6 +55,9 @@ func VisitFilesRecurse(t *testing.T, visitor FileVisitor, dirname string) bool {
 		// try to avoid symlink loops
 		t.Skip("path too long, aborting test: ", dirname)
 		return false
+	} else if expectInvalidSources(dirname) {
+		t.Logf("         directory %q usually contains invalid sources, skipping it", dirname)
+		return true
 	}
 	d, err := os.Open(dirname)
 	if err != nil {
@@ -96,4 +100,10 @@ func existsDir(info []os.FileInfo, dirname string) bool {
 		return info[i].Name() >= dirname
 	})
 	return pos < len(info) && info[pos].Name() == dirname
+}
+
+func expectInvalidSources(dirname string) bool {
+	// these directories contain invalid sources at least in Go 1.13.15
+	name := strings.Basename(dirname)
+	return name == "badpkg" || name == "notest" || name == "syntaxerror"
 }

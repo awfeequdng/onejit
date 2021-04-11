@@ -49,10 +49,22 @@ func TestChecker(t *testing.T) {
 }
 
 func TestCheckGoRootDir(t *testing.T) {
+	if false {
+		visit := makeVisitor()
+		testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)
+	}
+}
+
+func TestParseOnejitGoDir(t *testing.T) {
+	visit := makeVisitor()
+	testutil.VisitDirRecurse(t, visit, "..")
+}
+
+func makeVisitor() func(t *testing.T, opener testutil.Opener, dirname string) {
 	var p parser.Parser
 	var c Collector
 	var r Resolver
-	visit := func(t *testing.T, opener testutil.Opener, dirname string) {
+	return func(t *testing.T, opener testutil.Opener, dirname string) {
 		p.ClearErrors()
 		fset := token.NewFileSet(dirname)
 		dir := p.InitParseDir(fset, opener, parser.Go1_9)
@@ -63,8 +75,9 @@ func TestCheckGoRootDir(t *testing.T) {
 		c.Init(fset, types.NewScope(types.Universe()), nil)
 		c.Globals(dir)
 		r.Init(&c)
-		r.Globals(dir)
-		if testing.Verbose() {
+		r.Globals()
+		r.DeclareGlobals()
+		if false && testing.Verbose() {
 			dirbasename := strings.Basename(fset.Name())
 			for file, syms := range c.files {
 				t.Log(dirbasename+"/"+strings.Basename(file.Name()), "imports:", syms.Names())
@@ -73,5 +86,4 @@ func TestCheckGoRootDir(t *testing.T) {
 			t.Log(dirbasename, "resolved:", r.resolved)
 		}
 	}
-	testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)
 }

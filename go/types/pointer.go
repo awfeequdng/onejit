@@ -15,13 +15,14 @@
 package types
 
 type Pointer struct {
-	_     [0]*Pointer // occupies zero bytes
-	rtype Complete
+	pointerTag struct{} // occupies zero bytes
+	rtype      Complete
 }
 
 // *Pointer implements Type
 
 func (t *Pointer) String() string {
+	_ = t.pointerTag
 	var b builder
 	t.writeTo(&b, fullPkgPath)
 	return b.String()

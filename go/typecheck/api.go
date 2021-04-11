@@ -34,7 +34,7 @@ func CheckGlobals(fileset *token.FileSet, scope *types.Scope, knownpkgs types.Pa
 	}
 	r := Resolver{}
 	r.Init(&c)
-	r.Globals(source...)
+	r.Globals()
 	return nil, nil
 }
 
