@@ -24,21 +24,9 @@ import (
 // collects symbols defined in ast.Node
 type Collector struct {
 	multiscope
-	initfuncs []ast.Node // list of global func init() { ... }
-	typemap   TypeMap
+	initfuncs []ast.Node     // list of global func init() { ... }
 	knownpkgs types.Packages // list of known packages
 }
-
-type decl struct {
-	node  ast.Node    // node where decl is declared
-	typ   ast.Node    // type, may be nil
-	init  ast.Node    // initializer expression, may be nil
-	index int         // if != noIndex, must use index-th value from multi-valued init
-	file  *token.File // file where decl is declared. needed to retrieve per-file imports
-	value interface{} // value. same conventions as types.Object.Value()
-}
-
-const noIndex int = -1
 
 var typeAlias ast.Node = &ast.Atom{Tok: token.ASSIGN}
 
@@ -46,7 +34,6 @@ var typeAlias ast.Node = &ast.Atom{Tok: token.ASSIGN}
 func (c *Collector) Init(fileset *token.FileSet, scope *types.Scope, knownpkgs types.Packages) {
 	c.multiscope.Init(fileset, scope)
 	c.initfuncs = nil
-	c.typemap = nil
 	c.knownpkgs = knownpkgs
 }
 
@@ -101,7 +88,7 @@ func (c *Collector) funcDecl(decl ast.Node) {
 			c.error(decl, "func init must have no arguments and no return values")
 		}
 	} else {
-		c.multiscope.add(decl, types.FuncObj, name.Lit, typ, body, noIndex)
+		c.multiscope.add(decl, types.FuncObj, name.Lit, typ, body, NoIndex)
 	}
 }
 
@@ -146,7 +133,7 @@ func (c *Collector) typeSpec(spec ast.Node) {
 	if op == token.ASSIGN {
 		init = typeAlias
 	}
-	c.add(spec, types.TypeObj, name.Lit, typ, init, noIndex)
+	c.add(spec, types.TypeObj, name.Lit, typ, init, NoIndex)
 }
 
 func (c *Collector) valueSpec(op token.Token, spec ast.Node) {
@@ -180,7 +167,7 @@ func (c *Collector) valueSpec(op token.Token, spec ast.Node) {
 	for i := 0; i < n; i++ {
 		atom := names.At(i).(*ast.Atom)
 		if oneInitializerPerName {
-			c.add(spec, cls, atom.Lit, typ, init.At(i), noIndex)
+			c.add(spec, cls, atom.Lit, typ, init.At(i), NoIndex)
 		} else {
 			c.add(spec, cls, atom.Lit, typ, init, i)
 		}

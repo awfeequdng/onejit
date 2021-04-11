@@ -63,9 +63,9 @@ func TestCheckGoRootDir(t *testing.T) {
 		c.Globals(dir)
 		if testing.Verbose() {
 			dirbasename := strings.Basename(fset.Name())
-			t.Log(dirbasename, "decls:", c.scope.Names())
-			for file, scope := range c.files {
-				t.Log(dirbasename+"/"+strings.Basename(file.Name()), "imports:", scope.Names())
+			t.Log(dirbasename, "decls:", c.syms.Names())
+			for file, syms := range c.files {
+				t.Log(dirbasename+"/"+strings.Basename(file.Name()), "imports:", syms.Names())
 			}
 		}
 	}

@@ -18,7 +18,6 @@ import (
 	"github.com/cosmos72/onejit/go/ast"
 	"github.com/cosmos72/onejit/go/scanner"
 	"github.com/cosmos72/onejit/go/token"
-	"github.com/cosmos72/onejit/go/types"
 )
 
 type errors struct {
@@ -51,7 +50,7 @@ func (e *errors) newError(node ast.Node, msg string) *scanner.Error {
 	return err
 }
 
-func (e *errors) errorRedefined(name string, node ast.Node, old *types.Object) {
+func (e *errors) errorRedefined(name string, node ast.Node, old *Symbol) {
 	pos := e.position(old)
 	if pos.IsValid() {
 		e.error(node, name+" redeclared in this block\n\tprevious declaration at "+pos.String())
@@ -60,11 +59,9 @@ func (e *errors) errorRedefined(name string, node ast.Node, old *types.Object) {
 	}
 }
 
-func (e *errors) position(obj *types.Object) (pos token.Position) {
-	if d, _ := obj.Value().(*decl); d != nil {
-		if node := d.node; node != nil {
-			pos = e.fileset.Position(node.Pos())
-		}
+func (e *errors) position(sym *Symbol) (pos token.Position) {
+	if node := sym.node; node != nil {
+		pos = e.fileset.Position(node.Pos())
 	}
 	return pos
 }

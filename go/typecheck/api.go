@@ -29,7 +29,7 @@ func CheckGlobals(fileset *token.FileSet, scope *types.Scope, knownpkgs types.Pa
 	c := Collector{}
 	c.Init(fileset, scope, knownpkgs)
 	c.Globals(source...)
-	return c.scope, c.typemap
+	return nil, nil
 }
 
 func token2class(tok token.Token) (cls types.Class) {

@@ -27,7 +27,8 @@ type (
 		name string
 		typ  *Complete
 		// constant.Value for constants, *Package for imports,
-		// Label for global variables and functions / methods
+		// Label for global variables and functions/methods
+		// GenericType generic types, GenericFunc for generic functions/methods
 		value interface{}
 	}
 
