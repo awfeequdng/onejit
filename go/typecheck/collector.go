@@ -37,6 +37,7 @@ func (c *Collector) Init(fileset *token.FileSet, scope *types.Scope, knownpkgs t
 	c.knownpkgs = knownpkgs
 }
 
+// collect global declarations from specified nodes.
 func (c *Collector) Globals(nodes ...ast.Node) {
 	for _, node := range nodes {
 		if node == nil {

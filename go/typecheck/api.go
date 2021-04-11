@@ -29,6 +29,12 @@ func CheckGlobals(fileset *token.FileSet, scope *types.Scope, knownpkgs types.Pa
 	c := Collector{}
 	c.Init(fileset, scope, knownpkgs)
 	c.Globals(source...)
+	if len(c.errs) != 0 || len(c.warns) != 0 {
+		return nil, nil
+	}
+	r := Resolver{}
+	r.Init(&c)
+	r.Globals(source...)
 	return nil, nil
 }
 

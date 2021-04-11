@@ -56,6 +56,10 @@ func (sym *Symbol) Name() string {
 	return sym.obj.Name()
 }
 
+func (sym *Symbol) String() string {
+	return sym.obj.String()
+}
+
 func (m SymbolMap) Names() []string {
 	names := make([]string, len(m))
 	i := 0

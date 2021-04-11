@@ -130,7 +130,7 @@ func (p *Parser) parseArrayOrGenericType(isDeclaration bool) ast.Node {
 }
 
 func (p *Parser) parseChannelType() ast.Node {
-	var dir *ast.Atom
+	var dir ast.Node
 	if p.tok() == token.ARROW {
 		dir = p.parseAtom(token.RECV_DIR)
 	}

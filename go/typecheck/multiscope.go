@@ -89,8 +89,10 @@ func (ms *multiscope) add(node ast.Node, cls types.Class, name string, typ ast.N
 func (ms *multiscope) addImport(node ast.Node, name string, pkg *types.Package) {
 	if name == "_" {
 		return
-	}
-	if name != "." {
+	} else if name == "main" {
+		ms.error(node, "cannot import package \"main\"")
+		return
+	} else if name != "." {
 		ms.checkRedefined(name, node)
 		sym := NewSymbol(types.ImportObj, name, node, ms.curr)
 		sym.obj.SetValue(pkg)

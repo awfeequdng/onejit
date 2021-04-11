@@ -89,8 +89,26 @@ func (f *FuncDecl) Len() int {
 	return 4
 }
 
-func (f *FuncDecl) At(i int) Node {
-	return choose4(i, f.Recv, f.Name, f.Type, f.Body)
+func (f *FuncDecl) At(i int) (child Node) {
+	// cannot use choose4() here: assigning a nil pointer to an interface
+	// creates a "half-nil" interface
+	switch i {
+	case 0:
+		if node := f.Recv; node != nil {
+			child = node
+		}
+	case 1:
+		child = f.Name
+	case 2:
+		child = f.Type
+	case 3:
+		if node := f.Body; node != nil {
+			child = node
+		}
+	default:
+		outOfRange()
+	}
+	return child
 }
 
 func (f *FuncDecl) End() token.Pos {

@@ -51,6 +51,7 @@ func TestChecker(t *testing.T) {
 func TestCheckGoRootDir(t *testing.T) {
 	var p parser.Parser
 	var c Collector
+	var r Resolver
 	visit := func(t *testing.T, opener testutil.Opener, dirname string) {
 		p.ClearErrors()
 		fset := token.NewFileSet(dirname)
@@ -61,12 +62,15 @@ func TestCheckGoRootDir(t *testing.T) {
 		c.ClearWarnings()
 		c.Init(fset, types.NewScope(types.Universe()), nil)
 		c.Globals(dir)
+		r.Init(&c)
+		r.Globals(dir)
 		if testing.Verbose() {
 			dirbasename := strings.Basename(fset.Name())
-			t.Log(dirbasename, "decls:", c.syms.Names())
 			for file, syms := range c.files {
 				t.Log(dirbasename+"/"+strings.Basename(file.Name()), "imports:", syms.Names())
 			}
+			t.Log(dirbasename, "decls:", c.syms.Names())
+			t.Log(dirbasename, "resolved:", r.resolved)
 		}
 	}
 	testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)

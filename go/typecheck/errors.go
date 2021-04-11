@@ -26,12 +26,12 @@ type errors struct {
 	errs    []*scanner.Error
 }
 
-func (c *Collector) ClearWarnings() {
-	c.warns = nil
+func (e *errors) ClearWarnings() {
+	e.warns = nil
 }
 
-func (c *Collector) ClearErrors() {
-	c.errs = nil
+func (e *errors) ClearErrors() {
+	e.errs = nil
 }
 
 func (e *errors) warning(node ast.Node, msg string) {

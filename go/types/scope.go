@@ -114,6 +114,10 @@ func (obj *Object) SetValue(value interface{}) *Object {
 	return obj
 }
 
+func (obj *Object) String() string {
+	return obj.cls.String() + " " + obj.name
+}
+
 func (obj *Object) checkValid() {
 	if obj == nil {
 		panic("Object is nil")

@@ -31,7 +31,12 @@ func (d *Dir) Len() int {
 }
 
 func (d *Dir) At(i int) (child Node) {
-	return d.Files[i]
+	// cannot use child = d.Files[i] here: assigning a nil pointer to an interface
+	// creates a "half-nil" interface
+	if file := d.Files[i]; file != nil {
+		child = file
+	}
+	return child
 }
 
 func (d *Dir) End() token.Pos {
