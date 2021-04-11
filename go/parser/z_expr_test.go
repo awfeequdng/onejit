@@ -33,6 +33,11 @@ func compareNode(t *testing.T, node ast.Node, expected string) {
 	}
 }
 
+func TestEof(t *testing.T) {
+	p := makeParser("\n\n")
+	compareNode(t, p.Parse(), `(EOF)`)
+}
+
 func TestDeclConst(t *testing.T) {
 	p := makeParser(`const a, b`)
 	compareNode(t, p.Parse(), `(const (VALUE_SPEC (NAMES (IDENT a) (IDENT b)) nil nil))`)
