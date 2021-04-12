@@ -8,14 +8,15 @@
  *
  * kind.go
  *
- *  Created on: Mar 31, 2021
+ *  Created on: Apr 12, 2021
  *      Author: Massimiliano Ghilardi
  */
 
-package types
+package constant
 
 import "github.com/cosmos72/onejit/go/token"
 
+// alias for token.Kind
 type Kind = token.Kind
 
 const (

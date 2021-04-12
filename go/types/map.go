@@ -14,6 +14,8 @@
 
 package types
 
+import "github.com/cosmos72/onejit/go/io"
+
 type Map struct {
 	mapTag struct{} // occupies zero bytes
 	rtype  Complete
@@ -25,7 +27,7 @@ type Map struct {
 func (t *Map) String() string {
 	_ = t.mapTag
 	var b builder
-	t.writeTo(&b, fullPkgPath)
+	t.WriteTo(&b, fullPkgPath)
 	return b.String()
 }
 
@@ -41,12 +43,12 @@ func (t *Map) complete() {
 	// nothing to do
 }
 
-func (t *Map) writeTo(b *builder, flag verbose) {
+func (t *Map) WriteTo(dst io.StringWriter, flag verbose) {
 	if flag == shortPkgName {
-		b.WriteString(t.rtype.str)
+		dst.WriteString(t.rtype.str)
 		return
 	}
-	writeMapTo(b, t.Key(), t.Elem(), flag)
+	writeMapTo(dst, t.Key(), t.Elem(), flag)
 }
 
 // *Map specific methods
@@ -101,9 +103,9 @@ func makeMapString(key Type, elem Type, flag verbose) string {
 	return b.String()
 }
 
-func writeMapTo(b *builder, key Type, elem Type, flag verbose) {
-	b.WriteString("map[")
-	key.writeTo(b, flag)
-	b.WriteByte(']')
-	elem.writeTo(b, flag)
+func writeMapTo(dst io.StringWriter, key Type, elem Type, flag verbose) {
+	dst.WriteString("map[")
+	key.WriteTo(dst, flag)
+	dst.WriteString("]")
+	elem.WriteTo(dst, flag)
 }

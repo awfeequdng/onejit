@@ -14,7 +14,10 @@
 
 package types
 
-import "github.com/cosmos72/onejit/go/strings"
+import (
+	"github.com/cosmos72/onejit/go/io"
+	"github.com/cosmos72/onejit/go/strings"
+)
 
 // returned by Complete.Method(int)
 type CompleteMethod struct {
@@ -34,14 +37,14 @@ type Method struct {
 
 func (m *Method) String() string {
 	var b builder
-	m.writeTo(&b, fullPkgPath)
+	m.WriteTo(&b, fullPkgPath)
 	return b.String()
 }
 
-func (m *Method) writeTo(b *builder, flag verbose) {
-	strings.WriteQualifiedName(b, m.Name, m.PkgPath, flag)
+func (m *Method) WriteTo(dst io.StringWriter, flag verbose) {
+	strings.WriteQualifiedName(dst, m.Name, m.PkgPath, flag)
 
 	sig := m.Type.(*Func)
 	// omits "func" prefix
-	writeFuncTo(b, sig.in(), sig.out(), sig.IsVariadic(), flag)
+	writeFuncTo(dst, sig.in(), sig.out(), sig.IsVariadic(), flag)
 }

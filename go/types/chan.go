@@ -14,6 +14,8 @@
 
 package types
 
+import "github.com/cosmos72/onejit/go/io"
+
 type Chan struct {
 	chanTag struct{} // occupies zero bytes
 	rtype   Complete
@@ -24,7 +26,7 @@ type Chan struct {
 func (t *Chan) String() string {
 	_ = t.chanTag
 	var b builder
-	t.writeTo(&b, fullPkgPath)
+	t.WriteTo(&b, fullPkgPath)
 	return b.String()
 }
 
@@ -40,12 +42,12 @@ func (t *Chan) complete() {
 	// nothing to do
 }
 
-func (t *Chan) writeTo(b *builder, flag verbose) {
+func (t *Chan) WriteTo(dst io.StringWriter, flag verbose) {
 	if flag == shortPkgName {
-		b.WriteString(t.rtype.str)
+		dst.WriteString(t.rtype.str)
 		return
 	}
-	writeChanTo(b, t.Dir(), t.Elem(), flag)
+	writeChanTo(dst, t.Dir(), t.Elem(), flag)
 }
 
 // *Chan specific methods
@@ -95,14 +97,14 @@ func makeChanString(dir ChanDir, elem Type, flag verbose) string {
 	return b.String()
 }
 
-func writeChanTo(b *builder, dir ChanDir, elem Type, flag verbose) {
+func writeChanTo(dst io.StringWriter, dir ChanDir, elem Type, flag verbose) {
 	if dir == RecvDir {
-		b.WriteString("<-")
+		dst.WriteString("<-")
 	}
-	b.WriteString("chan")
+	dst.WriteString("chan")
 	if dir == SendDir {
-		b.WriteString("<-")
+		dst.WriteString("<-")
 	}
-	b.WriteByte(' ')
-	elem.writeTo(b, flag)
+	dst.WriteString(" ")
+	elem.WriteTo(dst, flag)
 }

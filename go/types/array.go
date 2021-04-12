@@ -16,6 +16,7 @@ package types
 
 import (
 	"github.com/cosmos72/onejit/go/arch"
+	"github.com/cosmos72/onejit/go/io"
 )
 
 type Array struct {
@@ -29,7 +30,7 @@ type Array struct {
 func (t *Array) String() string {
 	_ = t.arrayTag
 	var b builder
-	t.writeTo(&b, fullPkgPath)
+	t.WriteTo(&b, fullPkgPath)
 	return b.String()
 }
 
@@ -52,12 +53,12 @@ func (t *Array) complete() {
 	t.rtype.flags = computeArrayFlags(elem, len)
 }
 
-func (t *Array) writeTo(b *builder, flag verbose) {
+func (t *Array) WriteTo(dst io.StringWriter, flag verbose) {
 	if flag == shortPkgName {
-		b.WriteString(t.rtype.str)
+		dst.WriteString(t.rtype.str)
 		return
 	}
-	writeArrayTo(b, t.Len(), t.Elem(), flag)
+	writeArrayTo(dst, t.Len(), t.Elem(), flag)
 }
 
 // *Array specific methods
@@ -136,9 +137,9 @@ func makeArrayString(len uint64, elem Type, flag verbose) string {
 	return b.String()
 }
 
-func writeArrayTo(b *builder, len uint64, elem Type, flag verbose) {
-	b.WriteByte('[')
-	b.WriteString(uintToString(len))
-	b.WriteByte(']')
-	elem.writeTo(b, flag)
+func writeArrayTo(dst io.StringWriter, len uint64, elem Type, flag verbose) {
+	dst.WriteString("[")
+	dst.WriteString(uintToString(len))
+	dst.WriteString("]")
+	elem.WriteTo(dst, flag)
 }

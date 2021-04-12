@@ -14,6 +14,8 @@
 
 package types
 
+import "github.com/cosmos72/onejit/go/io"
+
 // Func represents the type of a function
 type Func struct {
 	funcTag struct{} // occupies zero bytes
@@ -26,7 +28,7 @@ type Func struct {
 func (t *Func) String() string {
 	_ = t.funcTag
 	var b builder
-	t.writeTo(&b, fullPkgPath)
+	t.WriteTo(&b, fullPkgPath)
 	return b.String()
 }
 
@@ -42,13 +44,13 @@ func (t *Func) complete() {
 	// nothing to do
 }
 
-func (t *Func) writeTo(b *builder, flag verbose) {
+func (t *Func) WriteTo(dst io.StringWriter, flag verbose) {
 	if flag == shortPkgName {
-		b.WriteString(t.rtype.str)
+		dst.WriteString(t.rtype.str)
 		return
 	}
-	b.WriteString("func")
-	writeFuncTo(b, t.in(), t.out(), t.IsVariadic(), flag)
+	dst.WriteString("func")
+	writeFuncTo(dst, t.in(), t.out(), t.IsVariadic(), flag)
 }
 
 // *Func specific methods
@@ -225,32 +227,32 @@ func makeFuncString(in []Type, out []Type, variadic bool, flag verbose) string {
 }
 
 // does NOT write "func" prefix
-func writeFuncTo(b *builder, in []Type, out []Type, variadic bool, flag verbose) {
-	b.WriteByte('(')
+func writeFuncTo(dst io.StringWriter, in []Type, out []Type, variadic bool, flag verbose) {
+	dst.WriteString("(")
 	for i, t := range in {
 		if i != 0 {
-			b.WriteString(", ")
+			dst.WriteString(", ")
 		}
 		if i+1 == len(in) && variadic {
-			b.WriteString("...")
+			dst.WriteString("...")
 		}
-		t.writeTo(b, flag)
+		t.WriteTo(dst, flag)
 	}
-	b.WriteByte(')')
+	dst.WriteString(")")
 
 	switch len(out) {
 	case 0:
 	case 1:
-		b.WriteByte(' ')
-		out[0].writeTo(b, flag)
+		dst.WriteString(" ")
+		out[0].WriteTo(dst, flag)
 	default:
-		b.WriteString(" (")
+		dst.WriteString(" (")
 		for i, t := range out {
 			if i != 0 {
-				b.WriteString(", ")
+				dst.WriteString(", ")
 			}
-			t.writeTo(b, flag)
+			t.WriteTo(dst, flag)
 		}
-		b.WriteByte(')')
+		dst.WriteString(")")
 	}
 }

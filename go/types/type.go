@@ -15,6 +15,7 @@
 package types
 
 import (
+	"github.com/cosmos72/onejit/go/io"
 	"github.com/cosmos72/onejit/go/strings"
 )
 
@@ -24,7 +25,7 @@ type (
 		Underlying() Type
 		common() *Complete
 		complete() // completes everything in the type, except flags & flagComplete
-		writeTo(*builder, verbose)
+		WriteTo(io.StringWriter, verbose)
 	}
 
 	flags   uint16

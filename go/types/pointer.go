@@ -14,6 +14,8 @@
 
 package types
 
+import "github.com/cosmos72/onejit/go/io"
+
 type Pointer struct {
 	pointerTag struct{} // occupies zero bytes
 	rtype      Complete
@@ -24,7 +26,7 @@ type Pointer struct {
 func (t *Pointer) String() string {
 	_ = t.pointerTag
 	var b builder
-	t.writeTo(&b, fullPkgPath)
+	t.WriteTo(&b, fullPkgPath)
 	return b.String()
 }
 
@@ -40,13 +42,13 @@ func (t *Pointer) complete() {
 	// nothing to do
 }
 
-func (t *Pointer) writeTo(b *builder, flag verbose) {
+func (t *Pointer) WriteTo(dst io.StringWriter, flag verbose) {
 	if flag == shortPkgName {
-		b.WriteString(t.rtype.str)
+		dst.WriteString(t.rtype.str)
 		return
 	}
-	b.WriteByte('*')
-	t.Elem().writeTo(b, flag)
+	dst.WriteString("*")
+	t.Elem().WriteTo(dst, flag)
 }
 
 // *Pointer specific methods

@@ -15,6 +15,7 @@
 package types
 
 import (
+	"github.com/cosmos72/onejit/go/io"
 	"github.com/cosmos72/onejit/go/sort"
 )
 
@@ -29,7 +30,7 @@ type Interface struct {
 func (t *Interface) String() string {
 	_ = t.interfaceTag
 	var b builder
-	t.writeTo(&b, fullPkgPath)
+	t.WriteTo(&b, fullPkgPath)
 	return b.String()
 }
 
@@ -45,12 +46,12 @@ func (t *Interface) complete() {
 	// nothing to do
 }
 
-func (t *Interface) writeTo(b *builder, flag verbose) {
+func (t *Interface) WriteTo(dst io.StringWriter, flag verbose) {
 	if flag == shortPkgName {
-		b.WriteString(t.rtype.str)
+		dst.WriteString(t.rtype.str)
 		return
 	}
-	writeInterfaceTo(b, t.extra.methods, flag)
+	writeInterfaceTo(dst, t.extra.methods, flag)
 }
 
 // *Interface specific method
@@ -110,22 +111,21 @@ func makeInterfaceString(method []Method, flag verbose) string {
 	return b.String()
 }
 
-func writeInterfaceTo(b *builder, method []Method, flag verbose) string {
-	b.WriteString("interface {")
+func writeInterfaceTo(dst io.StringWriter, method []Method, flag verbose) {
+	dst.WriteString("interface {")
 	for i := range method {
 		if i == 0 {
-			b.WriteByte(' ')
+			dst.WriteString(" ")
 		} else {
-			b.WriteString("; ")
+			dst.WriteString("; ")
 		}
-		method[i].writeTo(b, flag)
+		method[i].WriteTo(dst, flag)
 	}
 	if len(method) == 0 {
-		b.WriteByte('}')
+		dst.WriteString("}")
 	} else {
-		b.WriteString(" }")
+		dst.WriteString(" }")
 	}
-	return b.String()
 }
 
 type (

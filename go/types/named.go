@@ -14,7 +14,10 @@
 
 package types
 
-import "github.com/cosmos72/onejit/go/strings"
+import (
+	"github.com/cosmos72/onejit/go/io"
+	"github.com/cosmos72/onejit/go/strings"
+)
 
 // represents a named type
 type Named struct {
@@ -28,7 +31,7 @@ type Named struct {
 func (t *Named) String() string {
 	_ = t.namedTag
 	var b builder
-	t.writeTo(&b, fullPkgPath)
+	t.WriteTo(&b, fullPkgPath)
 	return b.String()
 }
 
@@ -41,12 +44,12 @@ func (t *Named) common() *Complete {
 	return &t.rtype
 }
 
-func (t *Named) writeTo(b *builder, flag verbose) {
+func (t *Named) WriteTo(dst io.StringWriter, flag verbose) {
 	if flag == shortPkgName {
-		b.WriteString(t.rtype.str)
+		dst.WriteString(t.rtype.str)
 		return
 	}
-	strings.WriteQualifiedName(b, t.Name(), t.PkgPath(), flag)
+	strings.WriteQualifiedName(dst, t.Name(), t.PkgPath(), flag)
 }
 
 // *Named specific methods

@@ -14,6 +14,8 @@
 
 package types
 
+import "github.com/cosmos72/onejit/go/io"
+
 type (
 	typelist []Type
 	typeset  map[Type]struct{}
@@ -254,75 +256,75 @@ func (g2 *typegraph2) updateDeps(completed Type) {
 	g2.completed = append(g2.completed, t)
 }
 
-// --------------------------- String, writeTo ---------------------------------
+// --------------------------- String, WriteTo ---------------------------------
 
 func (g2 *typegraph2) String() string {
 	var b builder
-	g2.writeTo(&b, fullPkgPath)
+	g2.WriteTo(&b, fullPkgPath)
 	return b.String()
 }
 
-func (g2 *typegraph2) writeTo(b *builder, flag verbose) {
-	b.WriteString("---------------------\n")
-	g2.fwd.writeTo(b, "FORWARD", flag)
-	b.WriteByte('\n')
-	g2.inv.writeTo(b, "INVERSE", flag)
-	b.WriteByte('\n')
-	g2.completed.writeTo(b, "COMPLETED", flag)
+func (g2 *typegraph2) WriteTo(dst io.StringWriter, flag verbose) {
+	dst.WriteString("---------------------\n")
+	g2.fwd.WriteTo(dst, "FORWARD", flag)
+	dst.WriteString("\n")
+	g2.inv.WriteTo(dst, "INVERSE", flag)
+	dst.WriteString("\n")
+	g2.completed.WriteTo(dst, "COMPLETED", flag)
 }
 
-func (g typegraph) writeTo(b *builder, label string, flag verbose) {
-	b.WriteByte('(')
-	b.WriteString(label)
+func (g typegraph) WriteTo(dst io.StringWriter, label string, flag verbose) {
+	dst.WriteString("(")
+	dst.WriteString(label)
 	for t, deps := range g {
-		b.WriteString("\n    ")
-		t.writeTo(b, flag)
-		deps.writeTo(b, flag)
+		dst.WriteString("\n    ")
+		t.WriteTo(dst, flag)
+		deps.WriteTo(dst, flag)
 	}
-	b.WriteString("\n)")
+	dst.WriteString("\n)")
 }
 
-func (d *typedeps) writeTo(b *builder, flag verbose) {
+func (d *typedeps) WriteTo(dst io.StringWriter, flag verbose) {
 	if d == nil {
-		b.WriteString("nil")
+		dst.WriteString("nil")
 		return
 	}
 	if d.strong != nil {
-		b.WriteString("\n        ")
-		d.strong.writeTo(b, "STRONG", flag)
+		dst.WriteString("\n        ")
+		d.strong.WriteTo(dst, "STRONG", flag)
 	}
 	if d.weak != nil {
-		b.WriteString("\n        ")
-		d.weak.writeTo(b, "WEAK", flag)
+		dst.WriteString("\n        ")
+		d.weak.WriteTo(dst, "WEAK", flag)
 	}
 }
 
-func (s typeset) writeTo(b *builder, label string, flag verbose) {
-	b.WriteByte('(')
-	b.WriteString(label)
-	b.WriteByte(' ')
+func (s typeset) WriteTo(dst io.StringWriter, label string, flag verbose) {
+	dst.WriteString("(")
+	dst.WriteString(label)
+	dst.WriteString(" ")
 	i := 0
 	for t := range s {
 		if i != 0 {
-			b.WriteString("; ")
+			dst.WriteString("; ")
 		}
-		t.writeTo(b, flag)
+		t.WriteTo(dst, flag)
 		i++
 	}
-	b.WriteString(")")
+	dst.WriteString(")")
 }
 
-func (l typelist) writeTo(b *builder, label string, flag verbose) {
-	b.WriteByte('(')
-	b.WriteString(label)
-	b.WriteByte(' ')
+func (l typelist) WriteTo(dst io.StringWriter, label string, flag verbose) {
+	dst.WriteString("(")
+	dst.WriteString(label)
+	dst.WriteString(" ")
 	i := 0
 	for _, t := range l {
 		if i != 0 {
-			b.WriteString("; ")
+			dst.WriteString("; ")
 		}
-		t.writeTo(b, flag)
+		t.WriteTo(dst, flag)
 		i++
 	}
-	b.WriteString(")")
+	dst.WriteString(")")
 }

@@ -14,6 +14,8 @@
 
 package strings
 
+import "github.com/cosmos72/onejit/go/io"
+
 type Verbose bool
 
 const (
@@ -49,13 +51,13 @@ func LastIndexByte(str string, b byte) int {
 	return i
 }
 
-func WriteQualifiedName(b *Builder, name string, pkgPath string, flag Verbose) {
+func WriteQualifiedName(out io.StringWriter, name string, pkgPath string, flag Verbose) {
 	if flag == ShortPkgName {
 		pkgPath = Basename(pkgPath)
 	}
 	if len(pkgPath) != 0 {
-		b.WriteString(pkgPath)
-		b.WriteByte('.')
+		out.WriteString(pkgPath)
+		out.WriteString(".")
 	}
-	b.WriteString(name)
+	out.WriteString(name)
 }

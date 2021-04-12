@@ -14,6 +14,8 @@
 
 package types
 
+import "github.com/cosmos72/onejit/go/io"
+
 type Slice struct {
 	sliceTag struct{} // occupies zero bytes
 	rtype    Complete
@@ -24,7 +26,7 @@ type Slice struct {
 func (t *Slice) String() string {
 	_ = t.sliceTag
 	var b builder
-	t.writeTo(&b, fullPkgPath)
+	t.WriteTo(&b, fullPkgPath)
 	return b.String()
 }
 
@@ -40,13 +42,13 @@ func (t *Slice) complete() {
 	// nothing to do
 }
 
-func (t *Slice) writeTo(b *builder, flag verbose) {
+func (t *Slice) WriteTo(dst io.StringWriter, flag verbose) {
 	if flag == shortPkgName {
-		b.WriteString(t.rtype.str)
+		dst.WriteString(t.rtype.str)
 		return
 	}
-	b.WriteString("[]")
-	t.Elem().writeTo(b, flag)
+	dst.WriteString("[]")
+	t.Elem().WriteTo(dst, flag)
 }
 
 // *Slice specific methods

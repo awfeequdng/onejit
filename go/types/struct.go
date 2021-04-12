@@ -14,6 +14,8 @@
 
 package types
 
+import "github.com/cosmos72/onejit/go/io"
+
 type Struct struct {
 	structTag struct{} // occupies zero bytes
 	rtype     Complete
@@ -25,7 +27,7 @@ type Struct struct {
 func (t *Struct) String() string {
 	_ = t.structTag
 	var b builder
-	t.writeTo(&b, fullPkgPath)
+	t.WriteTo(&b, fullPkgPath)
 	return b.String()
 }
 
@@ -52,12 +54,12 @@ func (t *Struct) complete() {
 	t.updateFieldOffsets()
 }
 
-func (t *Struct) writeTo(b *builder, flag verbose) {
+func (t *Struct) WriteTo(dst io.StringWriter, flag verbose) {
 	if flag == shortPkgName {
-		b.WriteString(t.rtype.str)
+		dst.WriteString(t.rtype.str)
 		return
 	}
-	writeStructTo(b, t.extra.fields, flag)
+	writeStructTo(dst, t.extra.fields, flag)
 }
 
 // *Struct specific methods
@@ -242,18 +244,18 @@ func makeStructString(fields []Field, flag verbose) string {
 	return b.String()
 }
 
-func writeStructTo(b *builder, fields []Field, flag verbose) {
-	b.WriteString("struct {")
+func writeStructTo(dst io.StringWriter, fields []Field, flag verbose) {
+	dst.WriteString("struct {")
 	for i := range fields {
 		if i == 0 {
-			b.WriteByte(' ')
+			dst.WriteString(" ")
 		} else {
-			b.WriteString("; ")
+			dst.WriteString("; ")
 		}
-		fields[i].writeTo(b, flag)
+		fields[i].WriteTo(dst, flag)
 	}
 	if len(fields) != 0 {
-		b.WriteByte(' ')
+		dst.WriteString(" ")
 	}
-	b.WriteByte('}')
+	dst.WriteString("}")
 }

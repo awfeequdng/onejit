@@ -16,6 +16,7 @@ package types
 
 import (
 	"github.com/cosmos72/onejit/go/arch"
+	"github.com/cosmos72/onejit/go/io"
 )
 
 // Basic represents one of Go's predefined basic types
@@ -43,8 +44,8 @@ func (t *Basic) complete() {
 	// nothing to do
 }
 
-func (t *Basic) writeTo(b *builder, flag verbose) {
-	b.WriteString(t.rtype.str)
+func (t *Basic) WriteTo(dst io.StringWriter, flag verbose) {
+	dst.WriteString(t.rtype.str)
 }
 
 // *Basic specific methods
