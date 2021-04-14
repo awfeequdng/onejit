@@ -36,10 +36,10 @@ func TestBool(t *testing.T) {
 	if x := vtrue.Bool(); x != true {
 		t.Errorf("vtrue.Bool() = %v", x)
 	}
-	if x := vfalse.ToKind(token.Bool); x != false {
+	if x, exact := vfalse.ToKind(token.Bool); x != false || !exact {
 		t.Errorf("vfalse.ToKind(token.Bool) = %v", x)
 	}
-	if x := vtrue.ToKind(token.Bool); x != true {
+	if x, exact := vtrue.ToKind(token.Bool); x != true || !exact {
 		t.Errorf("vtrue.ToKind(token.Bool) = %v", x)
 	}
 }
@@ -64,14 +64,14 @@ func TestInt(t *testing.T) {
 	if x, exact := v2to100.Int64(); exact {
 		t.Errorf("v2to100.Int64() = %v, %v", x, exact)
 	}
-	if x, exact := v2to7.IsKind(token.Int8); exact {
-		t.Errorf("v2to7.IsKind(token.Int8) = %v, %v", x, exact)
+	if x, exact := v2to7.ToKind(token.Int8); exact {
+		t.Errorf("v2to7.ToKind(token.Int8) = %v, %v", x, exact)
 	}
-	if x, exact := v2to7.IsKind(token.Uint8); x != uint64(128) || !exact {
-		t.Errorf("v2to7.IsKind(token.Uint8) = %v, %v", x, exact)
+	if x, exact := v2to7.ToKind(token.Uint8); x != uint64(128) || !exact {
+		t.Errorf("v2to7.ToKind(token.Uint8) = %v, %v", x, exact)
 	}
-	if x, exact := v2to100.IsKind(token.Int64); exact {
-		t.Errorf("v2to100.IsKind(token.Int64) = %v, %v", x, exact)
+	if x, exact := v2to100.ToKind(token.Int64); exact {
+		t.Errorf("v2to100.ToKind(token.Int64) = %v, %v", x, exact)
 	}
 	if x, y := v2to100.String(), "{untyped.Int 1267650600228229401496703205376}"; x != y {
 		t.Errorf("v2to100.String() = %x", x)

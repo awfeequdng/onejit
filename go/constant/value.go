@@ -260,9 +260,9 @@ func ToRune(v *Value) *Value {
 }
 
 /**
- * convert Value v to specified kind, and return whether conversion is exact.
- * panic if conversion is not allowed.
- * returned type is:
+ * try to convert Value v to to specified kind.
+ * return nil, false if conversion is not allowed or not exact.
+ * if conversion is allowed and exact, returned type is:
  * bool       if kind is token.Bool
  * int64      if kind is token.Int*
  * uint64     if kind is token.Uint*
@@ -272,45 +272,57 @@ func ToRune(v *Value) *Value {
  * complex128 if kind is token.Complex128
  * string     if kind is token.String
  */
-func (v *Value) IsKind(kind Kind) (interface{}, bool) {
+func (v *Value) ToKind(kind Kind) (interface{}, bool) {
 	var ret interface{}
 	exact := false
+	ckind := v.cval.Kind()
+	if ckind == constant.Unknown {
+		return nil, false
+	}
 	switch kind {
 	case token.Bool:
-		ret = v.Bool()
-		exact = true
+		if ckind == constant.Bool {
+			ret = v.Bool()
+			exact = true
+		}
 	case token.Int, token.Int8, token.Int16, token.Int32, token.Int64:
-		i, iexact := v.Int64()
-		exact = iexact && int64fits(i, kind)
-		ret = i
+		if ckind == constant.Int {
+			i, iexact := v.Int64()
+			exact = iexact && int64fits(i, kind)
+			ret = i
+		}
 	case token.Uint, token.Uint8, token.Uint16, token.Uint32, token.Uint64, token.Uintptr:
-		n, nexact := v.Uint64()
-		exact = nexact && uint64fits(n, kind)
-		ret = n
+		if ckind == constant.Int {
+			n, nexact := v.Uint64()
+			exact = nexact && uint64fits(n, kind)
+			ret = n
+		}
 	case token.Float32:
-		ret, exact = v.Float32()
+		if ckind == constant.Int || ckind == constant.Float {
+			ret, exact = v.Float32()
+		}
 	case token.Float64:
-		ret, exact = v.Float64()
+		if ckind == constant.Int || ckind == constant.Float {
+			ret, exact = v.Float64()
+		}
 	case token.Complex64:
-		ret, exact = v.Complex64()
+		if ckind == constant.Int || ckind == constant.Float || ckind == constant.Complex {
+			ret, exact = v.Complex64()
+		}
 	case token.Complex128:
-		ret, exact = v.Complex128()
+		if ckind == constant.Int || ckind == constant.Float || ckind == constant.Complex {
+			ret, exact = v.Complex128()
+		}
 	case token.String:
-		ret = v.StringVal()
-		exact = true
+		if ckind == constant.String {
+			ret = v.StringVal()
+			exact = true
+		}
+	}
+	if !exact {
+		ret = nil
 	}
 	return ret, exact
-}
-
-/**
- * same as Value.IsKind(), but panic if conversion is not exact.
- */
-func (v *Value) ToKind(kind Kind) interface{} {
-	ret, exact := v.IsKind(kind)
-	if !exact {
-		overflow(v.cval, kind)
-	}
-	return ret
 }
 
 func overflow(c constant.Value, kind Kind) {
