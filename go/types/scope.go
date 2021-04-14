@@ -55,6 +55,8 @@ const (
 	ImportObj
 	TypeObj
 	VarObj
+	GenericFuncObj
+	GenericTypeObj
 )
 
 // --------------------------- Class -------------------------------------------
@@ -74,6 +76,10 @@ func (cl Class) String() string {
 		str = "type"
 	case VarObj:
 		str = "var"
+	case GenericFuncObj:
+		str = "genericfunc"
+	case GenericTypeObj:
+		str = "generictype"
 	default:
 		str = "invalid"
 	}

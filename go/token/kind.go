@@ -14,7 +14,9 @@
 
 package token
 
-// alias for token.Kind
+import "github.com/cosmos72/onejit/go/arch"
+
+// equivalent to go/token.Kind
 type Kind uint8
 
 const (
@@ -61,7 +63,7 @@ const (
 	Rune = Int32
 )
 
-var kinds = [...]string{
+var kstring = [...]string{
 	Invalid:        "invalid", // also used by Builtin
 	Bool:           "bool",
 	Int:            "int",
@@ -98,11 +100,55 @@ var kinds = [...]string{
 	UntypedNil:     "untyped.Nil",
 }
 
+var ksize = [...]int8{
+	Invalid:       0,
+	Bool:          1,
+	Int:           -1,
+	Int8:          1,
+	Int16:         2,
+	Int32:         4,
+	Int64:         8,
+	Uint:          -1,
+	Uint8:         1,
+	Uint16:        2,
+	Uint32:        4,
+	Uint64:        8,
+	Uintptr:       -1,
+	Float32:       4,
+	Float64:       8,
+	Complex64:     8,
+	Complex128:    16,
+	ArrayKind:     0,
+	ChanKind:      -1,
+	FuncKind:      -1,
+	InterfaceKind: -2,
+	MapKind:       -1,
+	PtrKind:       -1,
+	SliceKind:     -3,
+	String:        -2,
+	StructKind:    0,
+	UnsafePointer: -1,
+}
+
 func (k Kind) String() string {
-	if int(k) >= len(kinds) {
-		k = Invalid
+	if int(k) >= len(kstring) {
+		return "???"
 	}
-	return kinds[k]
+	return kstring[k]
+}
+
+// return size of specified kind, in bytes. 0 means unknown/variable.
+// returned size depends on arch.TargetArch()
+func (k Kind) Size() uint64 {
+	if int(k) >= len(ksize) {
+		return 0
+	}
+	isize := int64(ksize[k])
+	size := uint64(isize)
+	if isize < 0 {
+		size = uint64(-isize) * arch.TargetArch().Bytes()
+	}
+	return size
 }
 
 func (k Kind) IsBasic() bool {
