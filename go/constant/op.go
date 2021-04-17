@@ -49,7 +49,7 @@ func Compare(xv *Value, op token.Token, yv *Value) (bool, error) {
 
 // equivalent to go/constant.Shift()
 func Shift(xv *Value, op token.Token, yv *Value) (*Value, error) {
-	yv, err := yv.To(Uint8)
+	yv, err := yv.To(Uint32)
 	if err != nil {
 		return nil, err
 	}
