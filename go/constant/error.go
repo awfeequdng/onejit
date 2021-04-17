@@ -20,13 +20,13 @@ type ErrorInvalid struct {
 }
 
 type ErrorOverflow struct {
-	cval   constant.Value
-	tokind Kind
+	cval constant.Value
+	kind Kind
 }
 
 type ErrorKind struct {
-	cval    constant.Value
-	notkind Kind
+	str  string
+	kind Kind
 }
 
 func (e ErrorInvalid) Error() string {
@@ -34,11 +34,11 @@ func (e ErrorInvalid) Error() string {
 }
 
 func (e ErrorOverflow) Error() string {
-	return "constant " + e.cval.String() + " overflows " + e.tokind.String()
+	return "constant " + e.cval.String() + " overflows " + e.kind.String()
 }
 
 func (e ErrorKind) Error() string {
-	return e.cval.String() + " is not " + e.notkind.String()
+	return e.str + " is not " + e.kind.String()
 }
 
 var (
