@@ -376,12 +376,16 @@ func validate(c constant.Value, kind Kind) (*Value, error) {
 		badkind = ckind != constant.String
 	case UntypedInt, UntypedRune:
 		c = constant.ToInt(c)
+		exact = true
 	case UntypedFloat:
 		c = constant.ToFloat(c)
+		exact = true
 	case UntypedComplex:
 		c = constant.ToComplex(c)
+		exact = true
 	case UntypedNil:
 		c = nil
+		exact = true
 	}
 
 	v := &invalid
