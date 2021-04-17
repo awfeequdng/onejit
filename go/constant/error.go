@@ -6,7 +6,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * value.go
+ * error.go
  *
  *  Created on: Apr 12, 2021
  *      Author: Massimiliano Ghilardi
@@ -14,7 +14,11 @@
 
 package constant
 
-import "go/constant"
+import (
+	"go/constant"
+
+	"github.com/cosmos72/onejit/go/token"
+)
 
 type ErrorInvalid struct {
 }
@@ -38,9 +42,18 @@ func (e ErrorOverflow) Error() string {
 }
 
 func (e ErrorKind) Error() string {
+	if e.kind == Invalid {
+		return e.str
+	}
 	return e.str + " is not " + e.kind.String()
 }
 
 var (
 	ErrInvalid = ErrorInvalid{}
 )
+
+func errMismatchedKinds(xv *Value, op token.Token, yv *Value) error {
+	xkind, ykind := xv.kind, yv.kind
+	return ErrorKind{"invalid operation: " + xv.String() + " " + op.String() + " " + yv.String() +
+		" (mismatched kinds " + xkind.String() + " and " + ykind.String() + " )", Invalid}
+}

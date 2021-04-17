@@ -80,6 +80,15 @@ func TestInt(t *testing.T) {
 	}
 }
 
+func TestIntShift(t *testing.T) {
+	b1 := big.NewInt(1)
+	b2 := new(big.Int)
+	b2.Lsh(b1, 100)
+	v1, _ := Make(Int, b1)
+	v2, _ := Make(UntypedInt, b2)
+	t.Log(v1, v2)
+}
+
 func TestRune(t *testing.T) {
 	veur, _ := Make(UntypedRune, int64('\u20ac'))
 	if x := veur.Kind(); x != UntypedRune {

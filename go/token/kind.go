@@ -155,6 +155,10 @@ func (k Kind) IsBasic() bool {
 	return k >= Bool && k <= Complex128 || k == String || k >= UnsafePointer && k <= UntypedNil
 }
 
+func (k Kind) IsInteger() bool {
+	return (k >= Int && k <= Uintptr) || k == UntypedInt
+}
+
 func (k Kind) IsNillable() bool {
 	return k >= ChanKind && k <= SliceKind || k == UnsafePointer || k == UntypedNil
 }

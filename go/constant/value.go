@@ -71,7 +71,7 @@ func (v *Value) Bool() bool {
 
 /**
  * return the int64 value of v and whether the result is exact;
- * v.Kind() must be Int*, Uint*, UntypedInt or UntypedRune or Invalid
+ * v.Kind() must be Int*, Uint*, UntypedInt, UntypedRune or Invalid
  */
 func (v *Value) Int64() (int64, bool) {
 	return constant.Int64Val(v.cval)
@@ -79,7 +79,7 @@ func (v *Value) Int64() (int64, bool) {
 
 /**
  * return the int64 value of v and whether the result is exact;
- * v.Kind() must be Int*, Uint*, UntypedInt or UntypedRune or Invalid
+ * v.Kind() must be Int*, Uint*, UntypedInt, UntypedRune or Invalid
  */
 func (v *Value) Uint64() (uint64, bool) {
 	return constant.Uint64Val(v.cval)
