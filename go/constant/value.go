@@ -173,7 +173,12 @@ func Make(kind Kind, x interface{}) (*Value, error) {
 		case uint64:
 			c = constant.MakeUint64(x)
 		case *big.Int:
-			c = constant.Make(x)
+			if x.IsInt64() {
+				// Go < 1.16 does not like *big.Int containing small numbers
+				c = constant.MakeInt64(x.Int64())
+			} else {
+				c = constant.Make(x)
+			}
 		default:
 			badkind = true
 		}

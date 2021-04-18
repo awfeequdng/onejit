@@ -84,9 +84,18 @@ func TestIntShift(t *testing.T) {
 	b1 := big.NewInt(1)
 	b2 := new(big.Int)
 	b2.Lsh(b1, 100)
-	v1, _ := Make(Int, b1)
-	v2, _ := Make(UntypedInt, b2)
-	v2, _ = v2.To(UntypedFloat)
+	v1, err := Make(Int, b1)
+	if err != nil {
+		t.Error(err)
+	}
+	v2, err := Make(UntypedInt, b2)
+	if err != nil {
+		t.Error(err)
+	}
+	v2, err = v2.To(UntypedFloat)
+	if err != nil {
+		t.Error(err)
+	}
 	v3, err := Shift(v2, token.SHL, v1)
 	t.Log(v3, err)
 }
