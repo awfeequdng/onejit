@@ -78,7 +78,7 @@ func (v *Value) Int64() (int64, bool) {
 }
 
 /**
- * return the int64 value of v and whether the result is exact;
+ * Uint64 returns the int64 value of v and whether the result is exact;
  * v.Kind() must be Int*, Uint*, UntypedInt, UntypedRune or Invalid
  */
 func (v *Value) Uint64() (uint64, bool) {
@@ -86,7 +86,7 @@ func (v *Value) Uint64() (uint64, bool) {
 }
 
 /**
- * return the float32 value of v and whether the result is exact;
+ * Float32 returns the float32 value of v and whether the result is exact;
  * v.Kind() must be Int*, Uint*, Float*, UntypedInt, UntypedRune, UntypedFloat or Invalid
  */
 func (v *Value) Float32() (float32, bool) {
@@ -94,7 +94,7 @@ func (v *Value) Float32() (float32, bool) {
 }
 
 /**
- * return the float32 value of v and whether the result is exact;
+ * Float64 returns the float64 value of v and whether the result is exact;
  * v.Kind() must be Int*, Uint*, Float*, UntypedInt, UntypedRune, UntypedFloat or Invalid
  */
 func (v *Value) Float64() (float64, bool) {
@@ -102,7 +102,7 @@ func (v *Value) Float64() (float64, bool) {
 }
 
 /**
- * return the complex64 value of v and whether the result is exact;
+ * Complex64 returns the complex64 value of v and whether the result is exact;
  * v.Kind() must be Int*, Uint*, Float*, Complex*,
  * UntypedInt, UntypedRune, UntypedFloat, UntypedComplex or Invalid
  */
@@ -113,7 +113,7 @@ func (v *Value) Complex64() (complex64, bool) {
 }
 
 /**
- * return the complex128 value of v and whether the result is exact;
+ * Complex128 returns the complex128 value of v and whether the result is exact;
  * v.Kind() must be Int*, Uint*, Float*, Complex*,
  * UntypedInt, UntypedRune, UntypedFloat, UntypedComplex or Invalid
  */
@@ -124,7 +124,7 @@ func (v *Value) Complex128() (complex128, bool) {
 }
 
 /**
- * return the string value of v;
+ * StringVal returns the string value of v;
  * v.Kind() must be String, UntypedString or Invalid
  */
 func (v *Value) StringVal() string {
@@ -132,12 +132,12 @@ func (v *Value) StringVal() string {
 }
 
 /**
- * Create a constant. Allowed val types depend on kind:
+ * Make creates a constant. Allowed x types depend on kind:
  * bool    if Kind is Bool or UntypedBool
  * string  if Kind is String or UntypedString
- * int64, uint64 or *math/big.Int if kind is Int*, Uint*, UntypedInt or UntypedRune
- * float64, *big.Float or *big.Rat if kind is Float* or UntypedFloat
- * complex128 if kind is Complex* or UntypedComplex
+ * int*, uint* or *math/big.Int if kind is Int*, Uint*, UntypedInt or UntypedRune
+ * float32, float64, *big.Float or *big.Rat if kind is Float* or UntypedFloat
+ * complex64 or complex128 if kind is Complex* or UntypedComplex
  * nil     if Kind is Invalid or UntypedNil
  *
  * return &Value{Invalid}, ErrKind if conversion of val to kind is not allowed.
@@ -167,23 +167,20 @@ func Make(kind Kind, x interface{}) (*Value, error) {
 		Uint, Uint8, Uint16, Uint32, Uint64, Uintptr,
 		UntypedInt, UntypedRune:
 
-		switch x := x.(type) {
-		case int64:
-			c = constant.MakeInt64(x)
-		case uint64:
-			c = constant.MakeUint64(x)
-		case *big.Int:
-			if x.IsInt64() {
+		if bx, ok := x.(*big.Int); ok {
+			if bx.IsInt64() {
 				// Go < 1.16 does not like *big.Int containing small numbers
-				c = constant.MakeInt64(x.Int64())
+				c = constant.MakeInt64(bx.Int64())
 			} else {
-				c = constant.Make(x)
+				c = constant.Make(bx)
 			}
-		default:
-			badkind = true
+		} else {
+			c, badkind = makeInt(x)
 		}
 	case Float32, Float64, UntypedFloat:
 		switch x := x.(type) {
+		case float32:
+			c = constant.MakeFloat64(float64(x))
 		case float64:
 			c = constant.MakeFloat64(x)
 		case *big.Rat, *big.Float:
@@ -192,9 +189,16 @@ func Make(kind Kind, x interface{}) (*Value, error) {
 			badkind = true
 		}
 	case Complex64, Complex128, UntypedComplex:
-		cplx, ok := x.(complex128)
-		if !ok {
+		var cplx complex128
+		switch x := x.(type) {
+		case complex64:
+			cplx = complex128(x)
+		case complex128:
+			cplx = x
+		default:
 			badkind = true
+		}
+		if badkind {
 			break
 		}
 		cre := constant.MakeFloat64(real(cplx))
@@ -229,6 +233,44 @@ func Make(kind Kind, x interface{}) (*Value, error) {
 		v = &Value{c, kind}
 	}
 	return v, err
+}
+
+func makeInt(x interface{}) (c constant.Value, badkind bool) {
+	var i int64
+	var u uint64
+
+	switch x := x.(type) {
+	case int:
+		i = int64(x)
+	case int8:
+		i = int64(x)
+	case int16:
+		i = int64(x)
+	case int32:
+		i = int64(x)
+	case int64:
+		i = x
+	case uint:
+		u = uint64(x)
+	case uint8:
+		u = uint64(x)
+	case uint16:
+		u = uint64(x)
+	case uint32:
+		u = uint64(x)
+	case uint64:
+		u = x
+	case uintptr:
+		u = uint64(x)
+	default:
+		return nil, badkind
+	}
+	if u != 0 {
+		c = constant.MakeUint64(u)
+	} else {
+		c = constant.MakeInt64(i)
+	}
+	return c, false
 }
 
 /**
@@ -335,6 +377,7 @@ func validate(c constant.Value, kind Kind) (*Value, error) {
 		badkind = true
 	case Bool, UntypedBool:
 		badkind = ckind != constant.Bool
+		exact = true
 	case Int, Int8, Int16, Int32, Int64:
 		if ckind == constant.Int {
 			i, iexact := constant.Int64Val(c)
@@ -379,6 +422,7 @@ func validate(c constant.Value, kind Kind) (*Value, error) {
 		}
 	case String, UntypedString:
 		badkind = ckind != constant.String
+		exact = true
 	case UntypedInt, UntypedRune:
 		c = constant.ToInt(c)
 		exact = true

@@ -97,7 +97,9 @@ func TestIntShift(t *testing.T) {
 		t.Error(err)
 	}
 	v3, err := Shift(v2, token.SHL, v1)
-	t.Log(v3, err)
+	if actual, expected := v3.String(), "{untyped.Int 2535301200456458802993406410752}"; actual != expected {
+		t.Errorf("v3.String() = %v", actual)
+	}
 }
 
 func TestRune(t *testing.T) {
@@ -142,5 +144,59 @@ func TestRune(t *testing.T) {
 	}
 	if x, y := vquote.String(), `{untyped.Rune '\''}`; x != y {
 		t.Errorf("vquote.String() = %s", x)
+	}
+}
+
+func TestFloat(t *testing.T) {
+	f1, f2 := float32(8.5), float64(1e308)
+
+	v1, _ := Make(Float32, f1)
+	v2, _ := Make(UntypedFloat, f2)
+
+	if x := v1.Kind(); x != Float32 {
+		t.Errorf("v1.Kind() = %v", x)
+	}
+	if x := v2.Kind(); x != UntypedFloat {
+		t.Errorf("v2.Kind() = %v", x)
+	}
+	if x, exact := v1.Float32(); x != f1 || !exact {
+		t.Errorf("v1.Float32() = %v, %v", x, exact)
+	}
+	if x, exact := v2.Float64(); x != f2 || !exact {
+		t.Errorf("v2.Float64() = %v, %v", x, exact)
+	}
+}
+
+func TestComplex(t *testing.T) {
+	fre, fim := float32(8.5), float64(1e308)
+
+	vre, _ := Make(UntypedFloat, fre)
+	vim, _ := Make(UntypedFloat, fim)
+	v, _ := BinaryOp(vre, token.ADD, MakeImag(vim))
+
+	if x := v.Kind(); x != UntypedComplex {
+		t.Errorf("v.Kind() = %v", x)
+	}
+	if eq, err := Compare(v.Real(), token.EQL, vre); err != nil || !eq {
+		t.Errorf("v.Real() = %v -- expecting %v", v.Real(), vre)
+	}
+}
+
+func TestString(t *testing.T) {
+	v1, _ := Make(UntypedString, "foo")
+	v2, _ := Make(String, "bar")
+	v, _ := BinaryOp(v1, token.ADD, v2)
+
+	if x := v1.Kind(); x != UntypedString {
+		t.Errorf("v1.Kind() = %v", x)
+	}
+	if x := v2.Kind(); x != String {
+		t.Errorf("v2.Kind() = %v", x)
+	}
+	if x := v.Kind(); x != String {
+		t.Errorf("v.Kind() = %v", x)
+	}
+	if actual, expected := v.StringVal(), "foobar"; actual != expected {
+		t.Errorf("v.StringVal() = %v", actual)
 	}
 }

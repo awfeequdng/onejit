@@ -19,6 +19,16 @@
             "program": "${workspaceFolder}"
         },
         {
+            "name": "test onejit/go/constant",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/constant",
+            "args": [
+                "-test.v"
+            ]
+        },
+        {
             "name": "test onejit/go/parser",
             "type": "go",
             "request": "launch",

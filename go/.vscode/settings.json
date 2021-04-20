@@ -1,4 +1,5 @@
 {
     "go.vetOnSave": "off",
-    "go.useLanguageServer": true
+    "go.useLanguageServer": true,
+    "go.lintOnSave": "off"
 }

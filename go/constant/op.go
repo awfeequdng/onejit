@@ -30,18 +30,18 @@ func UnaryOp(op token.Token, v *Value) (*Value, error) {
 
 // equivalent to go/constant.BinaryOp()
 func BinaryOp(xv *Value, op token.Token, yv *Value) (*Value, error) {
-	xkind, ykind := xv.kind, yv.kind
-	if xv.kind != yv.kind && !xkind.IsUntyped() && !ykind.IsUntyped() {
+	kind := combine(xv.kind, yv.kind)
+	if kind == Invalid {
 		return nil, errMismatchedKinds(xv, op, yv)
 	}
 	c := constant.BinaryOp(xv.cval, gotoken.Token(op), yv.cval)
-	return validate(c, xv.kind)
+	return validate(c, kind)
 }
 
 // equivalent to go/constant.Compare()
 func Compare(xv *Value, op token.Token, yv *Value) (bool, error) {
-	xkind, ykind := xv.kind, yv.kind
-	if xv.kind != yv.kind && !xkind.IsUntyped() && !ykind.IsUntyped() {
+	kind := combine(xv.kind, yv.kind)
+	if kind == Invalid {
 		return false, errMismatchedKinds(xv, op, yv)
 	}
 	return constant.Compare(xv.cval, gotoken.Token(op), yv.cval), nil
@@ -65,4 +65,32 @@ func Shift(xv *Value, op token.Token, yv *Value) (*Value, error) {
 	}
 	xc := constant.Shift(xv.cval, gotoken.Token(op), uint(y))
 	return validate(xc, xv.kind)
+}
+
+func combine(x Kind, y Kind) Kind {
+	// ensure x is >= y
+	if x < y {
+		x, y = y, x
+	}
+	if x == y {
+		return x
+	} else if isTyped(x) && isTyped(y) {
+		return Invalid
+	} else if isTyped(x) {
+		return x
+	} else if isTyped(y) {
+		return y
+	} else if isUntypedNumeric(x) && isUntypedNumeric(y) {
+		return x
+	} else {
+		return Invalid
+	}
+}
+
+func isTyped(k Kind) bool {
+	return !k.IsUntyped()
+}
+
+func isUntypedNumeric(k Kind) bool {
+	return k >= UntypedInt && k <= UntypedComplex
 }
