@@ -23,45 +23,48 @@ import (
 )
 
 // equivalent to go/constant.UnaryOp()
-func UnaryOp(op token.Token, v *Value) (*Value, error) {
+func UnaryOp(op token.Token, v Value) Value {
 	c := constant.UnaryOp(gotoken.Token(op), v.cval, uint(v.kind.Size()*8))
 	return validate(c, v.kind)
 }
 
-// equivalent to go/constant.BinaryOp()
-func BinaryOp(xv *Value, op token.Token, yv *Value) (*Value, error) {
+// replaces go/constant.BinaryOp() go/constant.Compare() and go/constant.Shift()
+func BinaryOp(xv Value, op token.Token, yv Value) Value {
+	if op == token.SHL || op == token.SHR {
+		return shift(xv, op, yv)
+	}
 	kind := combine(xv.kind, yv.kind)
 	if kind == Invalid {
-		return nil, errMismatchedKinds(xv, op, yv)
+		return Value{&value{cunknown, Invalid, errMismatchedKinds(xv, op, yv)}}
 	}
-	c := constant.BinaryOp(xv.cval, gotoken.Token(op), yv.cval)
+	var c constant.Value
+	switch op {
+	case token.EQL, token.LSS, token.GTR, token.NEQ, token.LEQ, token.GEQ:
+		flag := constant.Compare(xv.cval, gotoken.Token(op), yv.cval)
+		c = constant.MakeBool(flag)
+		kind = UntypedBool
+	default:
+		c = constant.BinaryOp(xv.cval, gotoken.Token(op), yv.cval)
+	}
 	return validate(c, kind)
 }
 
-// equivalent to go/constant.Compare()
-func Compare(xv *Value, op token.Token, yv *Value) (bool, error) {
-	kind := combine(xv.kind, yv.kind)
-	if kind == Invalid {
-		return false, errMismatchedKinds(xv, op, yv)
-	}
-	return constant.Compare(xv.cval, gotoken.Token(op), yv.cval), nil
-}
-
 // equivalent to go/constant.Shift()
-func Shift(xv *Value, op token.Token, yv *Value) (*Value, error) {
-	yv, err := yv.To(Uint32)
-	if err != nil {
-		return nil, err
+func shift(xv Value, op token.Token, yv Value) Value {
+	yv = yv.To(Uint32)
+	if !yv.IsValid() {
+		return yv
 	}
 	y, _ := yv.Uint64()
 	if xv.kind.IsUntyped() {
-		xv, err = xv.To(UntypedInt)
-		if err != nil {
-			return nil, err
+		xv = xv.To(UntypedInt)
+		if !xv.IsValid() {
+			return xv
 		}
 	} else if !xv.kind.IsInteger() {
-		return nil, ErrorKind{"invalid shift: " + xv.String() + " " + op.String() + " " +
-			strings.Uint64ToString(y) + " left operand", Int}
+		return Value{&value{cunknown, Invalid,
+			ErrorKind{"invalid shift: " + xv.String() + " " + op.String() + " " +
+				strings.Uint64ToString(y) + " left operand", Int}}}
 	}
 	xc := constant.Shift(xv.cval, gotoken.Token(op), uint(y))
 	return validate(xc, xv.kind)
@@ -86,7 +89,6 @@ func combine(x Kind, y Kind) Kind {
 		return Invalid
 	}
 }
-
 func isTyped(k Kind) bool {
 	return !k.IsUntyped()
 }

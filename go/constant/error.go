@@ -48,12 +48,24 @@ func (e ErrorKind) Error() string {
 	return e.str + " is not " + e.kind.String()
 }
 
+func (e ErrorKind) Kind() Kind {
+	return e.kind
+}
+
 var (
 	ErrInvalid = ErrorInvalid{}
 )
 
-func errMismatchedKinds(xv *Value, op token.Token, yv *Value) error {
+func errMismatchedKinds(xv Value, op token.Token, yv Value) error {
 	xkind, ykind := xv.kind, yv.kind
 	return ErrorKind{"invalid operation: " + xv.String() + " " + op.String() + " " + yv.String() +
 		" (mismatched kinds " + xkind.String() + " and " + ykind.String() + " )", Invalid}
+}
+
+func errNotReal(c constant.Value) Value {
+	return Value{&value{cunknown, Invalid, ErrorKind{"constant " + c.String() + " not integer, rune or float", Invalid}}}
+}
+
+func errNotNumeric(c constant.Value) Value {
+	return Value{&value{cunknown, Invalid, ErrorKind{"constant " + c.String() + " not numeric", Invalid}}}
 }
