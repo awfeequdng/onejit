@@ -31,7 +31,7 @@ func (p *Parser) parseInterfaceBody() (list []ast.Node) {
 	}
 	p.next() // skip '{'
 	for !isLeave(p.tok()) {
-		list = append(list, p.parseInterfaceMethodOrEmbedded())
+		list = append(list, p.parseInterfaceMethodOrEmbeddedOrTypeList())
 
 		if p.tok() == token.SEMICOLON {
 			p.next() // skip ';'
@@ -40,9 +40,15 @@ func (p *Parser) parseInterfaceBody() (list []ast.Node) {
 	return p.leave(list, token.RBRACE)
 }
 
-func (p *Parser) parseInterfaceMethodOrEmbedded() *ast.Field {
+func (p *Parser) parseInterfaceMethodOrEmbeddedOrTypeList() *ast.Field {
 	field := &ast.Field{
 		Atom: ast.Atom{Tok: token.FIELD, TokPos: p.pos()},
+	}
+	if p.tok() == token.TYPE && p.Mode&ParseGenerics != 0 {
+		// interface { type /* typelist */ }
+		p.next()
+		field.Names = p.parseTypeList()
+		return field
 	}
 	head := p.parseQualifiedIdent()
 	if p.tok() != token.LPAREN {

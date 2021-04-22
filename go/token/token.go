@@ -146,6 +146,7 @@ const (
 	SEND_DIR
 	SLICE // slice expression a[b:c] or a[b:c:d]
 	TYPE_ASSERT
+	TYPES      // list of types. used by generics in 'interface { type /* typelist */ }'
 	TYPESWITCH // switch x.(type) { }
 	VALUE_SPEC
 )
@@ -268,6 +269,7 @@ var tokens = [...]string{
 	SEND_DIR:      "SEND_DIR",
 	SLICE:         "SLICE",
 	TYPE_ASSERT:   "TYPE_ASSERT",
+	TYPES:         "TYPES",
 	TYPESWITCH:    "TYPESWITCH",
 	VALUE_SPEC:    "VALUE_SPEC",
 }

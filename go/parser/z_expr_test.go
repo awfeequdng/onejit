@@ -186,6 +186,12 @@ func TestDeclTypeInterface2(t *testing.T) {
 		` (FIELD nil (IDENT Bar)))))`)
 }
 
+func TestDeclTypeInterfaceTypelist(t *testing.T) {
+	p := makeParser("type float interface { type float32, float64, *big.Float } ")
+	compareNode(t, p.Parse(), `(type (:= (IDENT float) (interface`+
+		` (FIELD (TYPES (IDENT float32) (IDENT float64) (* (. (IDENT big) (IDENT Float)))) nil))))`)
+}
+
 func TestDeclFunc(t *testing.T) {
 	p := makeParser(`func swap(a,b float) (float float) { } `)
 	compareNode(t, p.Parse(), `(func nil (IDENT swap) (func `+

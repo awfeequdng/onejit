@@ -84,7 +84,7 @@ func (v Value) Value() interface{} {
 }
 
 /**
- * IsValid returns true if a Value is valid i.e. if its kind is != Invalid.
+ * IsValid returns true if kind is != Invalid.
  */
 func (v Value) IsValid() bool {
 	return v.value != nil && v.kind != Invalid
