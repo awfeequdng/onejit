@@ -29,9 +29,19 @@ func (p *Parser) parseInterfaceBody() (list []ast.Node) {
 	if p.tok() != token.LBRACE {
 		return []ast.Node{p.parseBad(token.LBRACE)}
 	}
+	var haveTypelist bool
 	p.next() // skip '{'
 	for !isLeave(p.tok()) {
-		list = append(list, p.parseInterfaceMethodOrEmbeddedOrTypeList())
+		field := p.parseInterfaceMethodOrEmbeddedOrTypeList()
+		var node ast.Node = field
+		if field.Names != nil && field.Names.Op() == token.TYPES {
+			if haveTypelist {
+				node = p.makeBadNode(node, errInterfaceMultipleTypelists)
+			} else {
+				haveTypelist = true
+			}
+		}
+		list = append(list, node)
 
 		if p.tok() == token.SEMICOLON {
 			p.next() // skip ';'
