@@ -50,7 +50,7 @@ func (e *errors) newError(node ast.Node, msg string) *scanner.Error {
 	return err
 }
 
-func (e *errors) errorRedefined(name string, node ast.Node, old *Symbol) {
+func (e *errors) errorRedefined(name string, node ast.Node, old *Object) {
 	pos := e.position(old)
 	if pos.IsValid() {
 		e.error(node, name+" redeclared in this block\n\tprevious declaration at "+pos.String())
@@ -59,9 +59,11 @@ func (e *errors) errorRedefined(name string, node ast.Node, old *Symbol) {
 	}
 }
 
-func (e *errors) position(sym *Symbol) (pos token.Position) {
-	if node := sym.node; node != nil {
-		pos = e.fileset.Position(node.Pos())
+func (e *errors) position(obj *Object) (pos token.Position) {
+	if decl := obj.Decl(); decl != nil {
+		if node := decl.node; node != nil {
+			pos = e.fileset.Position(node.Pos())
+		}
 	}
 	return pos
 }

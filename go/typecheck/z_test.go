@@ -49,16 +49,21 @@ func TestChecker(t *testing.T) {
 }
 
 func TestCheckGoRootDir(t *testing.T) {
-	visit := makeVisitor()
+	visit := makeVisitor(false)
 	testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)
 }
 
 func TestParseOnejitGoDir(t *testing.T) {
-	visit := makeVisitor()
+	visit := makeVisitor(false)
 	testutil.VisitDirRecurse(t, visit, "..")
 }
 
-func makeVisitor() func(t *testing.T, opener testutil.Opener, dirname string) {
+func TestParseTestdataDir(t *testing.T) {
+	visit := makeVisitor(true)
+	testutil.VisitDirRecurse(t, visit, "testdata")
+}
+
+func makeVisitor(verbose bool) func(t *testing.T, opener testutil.Opener, dirname string) {
 	var p parser.Parser
 	var c Collector
 	var r Resolver
@@ -75,7 +80,7 @@ func makeVisitor() func(t *testing.T, opener testutil.Opener, dirname string) {
 		r.Init(&c)
 		r.Globals()
 		r.DeclareGlobals()
-		if false && testing.Verbose() {
+		if verbose && testing.Verbose() {
 			dirbasename := strings.Basename(fset.Name())
 			for file, syms := range c.files {
 				t.Log(dirbasename+"/"+strings.Basename(file.Name()), "imports:", syms.Names())

@@ -30,6 +30,9 @@ type (
 		// Label for global variables and functions/methods
 		// GenericType generic types, GenericFunc for generic functions/methods
 		value interface{}
+		// auxiliary data describing object's declaration.
+		// currently used by go/typecheck to store *typecheck.Decl
+		decl interface{}
 	}
 
 	Scope struct {
@@ -89,13 +92,17 @@ func (cl Class) String() string {
 // --------------------------- Object ------------------------------------------
 
 func NewObject(cls Class, name string, typ *Complete) *Object {
-	obj := Object{cls, name, typ, nil}
+	obj := Object{cls, name, typ, nil, nil}
 	obj.checkValid()
 	return &obj
 }
 
 func (obj *Object) Class() Class {
 	return obj.cls
+}
+
+func (obj *Object) Decl() interface{} {
+	return obj.decl
 }
 
 func (obj *Object) Name() string {
@@ -108,6 +115,11 @@ func (obj *Object) Type() *Complete {
 
 func (obj *Object) Value() interface{} {
 	return obj.value
+}
+
+func (obj *Object) SetDecl(decl interface{}) *Object {
+	obj.decl = decl
+	return obj
 }
 
 func (obj *Object) SetType(t *Complete) {
@@ -136,7 +148,7 @@ func (obj *Object) checkValid() {
 
 func (obj *Object) checkValidType(t *Complete) {
 	if t == nil {
-		return // panic("Object has nil type")
+		return
 	}
 	switch obj.Class() {
 	case BuiltinObj:
@@ -284,7 +296,7 @@ func makeUniverse(basic []*Complete) *Scope {
 	s := Scope{}
 	for _, b := range basic[:Complex128+1] {
 		if b != nil {
-			s.Insert(&Object{TypeObj, b.Name(), b, nil})
+			s.Insert(&Object{TypeObj, b.Name(), b, nil, nil})
 		}
 	}
 	errorType := NewNamed("error", "")
@@ -295,30 +307,30 @@ func makeUniverse(basic []*Complete) *Scope {
 
 	objs := []Object{
 		// each BuiltinObj has a unique type
-		{BuiltinObj, "append", NewBuiltin(2, 1, true), nil},
-		{BuiltinObj, "cap", NewBuiltin(1, 0, false), nil},
-		{BuiltinObj, "close", NewBuiltin(1, 0, false), nil},
-		{BuiltinObj, "complex", NewBuiltin(2, 1, false), nil},
-		{BuiltinObj, "copy", NewBuiltin(2, 1, false), nil},
-		{BuiltinObj, "delete", NewBuiltin(2, 0, false), nil},
-		{BuiltinObj, "imag", NewBuiltin(1, 1, false), nil},
-		{BuiltinObj, "len", NewBuiltin(1, 1, false), nil},
-		{BuiltinObj, "make", NewBuiltin(2, 1, true), nil},
-		{BuiltinObj, "new", NewBuiltin(1, 1, true), nil},
-		{BuiltinObj, "panic", NewBuiltin(1, 0, false), nil},
-		{BuiltinObj, "print", NewBuiltin(1, 0, true), nil},
-		{BuiltinObj, "println", NewBuiltin(1, 0, true), nil},
-		{BuiltinObj, "real", NewBuiltin(1, 1, false), nil},
-		{BuiltinObj, "recover", NewBuiltin(0, 1, false), nil},
+		{BuiltinObj, "append", NewBuiltin(2, 1, true), nil, nil},
+		{BuiltinObj, "cap", NewBuiltin(1, 0, false), nil, nil},
+		{BuiltinObj, "close", NewBuiltin(1, 0, false), nil, nil},
+		{BuiltinObj, "complex", NewBuiltin(2, 1, false), nil, nil},
+		{BuiltinObj, "copy", NewBuiltin(2, 1, false), nil, nil},
+		{BuiltinObj, "delete", NewBuiltin(2, 0, false), nil, nil},
+		{BuiltinObj, "imag", NewBuiltin(1, 1, false), nil, nil},
+		{BuiltinObj, "len", NewBuiltin(1, 1, false), nil, nil},
+		{BuiltinObj, "make", NewBuiltin(2, 1, true), nil, nil},
+		{BuiltinObj, "new", NewBuiltin(1, 1, true), nil, nil},
+		{BuiltinObj, "panic", NewBuiltin(1, 0, false), nil, nil},
+		{BuiltinObj, "print", NewBuiltin(1, 0, true), nil, nil},
+		{BuiltinObj, "println", NewBuiltin(1, 0, true), nil, nil},
+		{BuiltinObj, "real", NewBuiltin(1, 1, false), nil, nil},
+		{BuiltinObj, "recover", NewBuiltin(0, 1, false), nil, nil},
 
-		{ConstObj, "false", basic[UntypedBool], nil},
-		{ConstObj, "iota", basic[UntypedInt], nil},
-		{ConstObj, "nil", basic[UntypedNil], nil},
-		{ConstObj, "true", basic[UntypedBool], nil},
+		{ConstObj, "false", basic[UntypedBool], nil, nil},
+		{ConstObj, "iota", basic[UntypedInt], nil, nil},
+		{ConstObj, "nil", basic[UntypedNil], nil, nil},
+		{ConstObj, "true", basic[UntypedBool], nil, nil},
 
-		{TypeObj, "byte", basic[Uint8], nil},
-		{TypeObj, "rune", basic[Int32], nil},
-		{TypeObj, "error", errorType.common(), nil},
+		{TypeObj, "byte", basic[Uint8], nil, nil},
+		{TypeObj, "rune", basic[Int32], nil, nil},
+		{TypeObj, "error", errorType.common(), nil, nil},
 	}
 	for i := range objs {
 		s.Insert(&objs[i])

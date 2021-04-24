@@ -22,8 +22,10 @@ import (
 )
 
 type (
-	Symbol struct {
-		obj   *types.Object
+	Object types.Object
+
+	// stored in Object.Decl()
+	Decl struct {
 		node  ast.Node    // node containing the declaration
 		typ   ast.Node    // type, may be nil
 		init  ast.Node    // initializer expression, may be nil
@@ -31,40 +33,59 @@ type (
 		file  *token.File // file where symbol is declared. needed to retrieve per-file imports
 	}
 
-	SymbolMap map[string]*Symbol
+	ObjectMap map[string]*Object
 
-	SymbolSet map[*Symbol]struct{}
+	ObjectSet map[*Object]struct{}
 
-	SymbolGraph map[*Symbol]SymbolSet
+	ObjectGraph map[*Object]ObjectSet
 )
 
 const NoIndex int = -1
 
-func NewSymbol(cls types.Class, name string, node ast.Node, file *token.File) *Symbol {
-	return &Symbol{
-		obj:  types.NewObject(cls, name, nil),
-		node: node,
-		file: file,
-	}
+func NewObject(cls types.Class, name string, node ast.Node, file *token.File) *Object {
+	obj := types.NewObject(cls, name, nil)
+	obj.SetDecl(&Decl{node: node, file: file})
+	return (*Object)(obj)
 }
 
-func (sym *Symbol) Object() *types.Object {
-	return sym.obj
+func (obj *Object) Object() *types.Object {
+	return (*types.Object)(obj)
 }
 
-func (sym *Symbol) Class() types.Class {
-	return sym.obj.Class()
+func (obj *Object) Class() types.Class {
+	return obj.Object().Class()
 }
 
-func (sym *Symbol) Name() string {
-	return sym.obj.Name()
+func (obj *Object) Decl() *Decl {
+	decl, _ := obj.Object().Decl().(*Decl)
+	return decl
 }
 
-func (sym *Symbol) String() string {
-	return sym.obj.String()
+func (obj *Object) Name() string {
+	return obj.Object().Name()
 }
 
-func (m SymbolMap) Names() []string {
+func (obj *Object) String() string {
+	return obj.Object().String()
+}
+
+func (obj *Object) Type() *types.Complete {
+	return obj.Object().Type()
+}
+
+func (obj *Object) Value() interface{} {
+	return obj.Object().Value()
+}
+
+func (obj *Object) SetType(typ *types.Complete) {
+	obj.Object().SetType(typ)
+}
+
+func (obj *Object) SetValue(val interface{}) {
+	obj.Object().SetValue(val)
+}
+
+func (m ObjectMap) Names() []string {
 	names := make([]string, len(m))
 	i := 0
 	for name := range m {
@@ -75,12 +96,8 @@ func (m SymbolMap) Names() []string {
 	return names
 }
 
-func (m SymbolMap) Insert(sym *Symbol) {
-	m[sym.Name()] = sym
-}
-
-func (m SymbolMap) InsertObj(obj *types.Object) {
-	m[obj.Name()] = &Symbol{obj: obj}
+func (m ObjectMap) Insert(obj *Object) {
+	m[obj.Name()] = obj
 }
 
 /*
@@ -96,10 +113,10 @@ func (set SymbolSet) Format(f fmt.State, verb rune) {
 }
 */
 
-func (g SymbolGraph) Link(from *Symbol, to *Symbol) {
+func (g ObjectGraph) Link(from *Object, to *Object) {
 	m := g[from]
 	if m == nil {
-		m = make(SymbolSet)
+		m = make(ObjectSet)
 		g[from] = m
 	}
 	m[to] = struct{}{}

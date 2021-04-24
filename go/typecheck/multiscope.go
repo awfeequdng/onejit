@@ -23,8 +23,8 @@ import (
 // symbols i.e. declarations plus per-file symbols i.e. imports and dot imports
 type multiscope struct {
 	outer *types.Scope              // existing scope being extended
-	syms  SymbolMap                 // declared symbols
-	files map[*token.File]SymbolMap // per-file symbols: imports and dot imports
+	syms  ObjectMap                 // declared objects
+	files map[*token.File]ObjectMap // per-file objects: imports and dot imports
 	curr  *token.File               // current file
 	errors
 }
@@ -38,16 +38,27 @@ func (ms *multiscope) Init(fileset *token.FileSet, outer *types.Scope) {
 	ms.errors.fileset = fileset
 }
 
-func (ms *multiscope) lookup(name string) (sym *Symbol, imported bool) {
-	sym = ms.files[ms.curr][name]
-	imported = sym != nil
-	if sym == nil {
-		sym = ms.syms[name]
+func (ms *multiscope) lookup(name string) (obj *Object, imported bool) {
+	obj, imported = ms.files[ms.curr][name]
+	if obj == nil {
+		obj = ms.syms[name]
+		imported = false
 	}
-	return sym, imported
+	return obj, imported
 }
 
-func (ms *multiscope) getFile() SymbolMap {
+func (ms *multiscope) lookupParent(name string) *Object {
+	obj, _ := ms.lookup(name)
+	if obj == nil {
+		_, tobj := ms.outer.LookupParent(name)
+		if tobj != nil {
+			obj = (*Object)(tobj)
+		}
+	}
+	return obj
+}
+
+func (ms *multiscope) getFile() ObjectMap {
 	file := ms.files[ms.curr]
 	if file == nil {
 		file = ms.getFileSlow()
@@ -55,21 +66,21 @@ func (ms *multiscope) getFile() SymbolMap {
 	return file
 }
 
-func (ms *multiscope) getFileSlow() SymbolMap {
-	file := make(SymbolMap)
+func (ms *multiscope) getFileSlow() ObjectMap {
+	file := make(ObjectMap)
 	files := ms.files
 	if files == nil {
-		files = make(map[*token.File]SymbolMap)
+		files = make(map[*token.File]ObjectMap)
 		ms.files = files
 	}
 	ms.files[ms.curr] = file
 	return file
 }
 
-func (ms *multiscope) getSyms() SymbolMap {
+func (ms *multiscope) getSyms() ObjectMap {
 	syms := ms.syms
 	if syms == nil {
-		syms = make(SymbolMap)
+		syms = make(ObjectMap)
 		ms.syms = syms
 	}
 	return syms
@@ -80,11 +91,12 @@ func (ms *multiscope) add(node ast.Node, cls types.Class, name string, typ ast.N
 		return
 	}
 	ms.checkRedefined(name, node)
-	sym := NewSymbol(cls, name, node, ms.curr)
-	sym.typ = typ
-	sym.init = init
-	sym.index = index
-	ms.getSyms().Insert(sym)
+	obj := NewObject(cls, name, node, ms.curr)
+	decl := obj.Decl()
+	decl.typ = typ
+	decl.init = init
+	decl.index = index
+	ms.getSyms().Insert(obj)
 }
 
 func (ms *multiscope) addImport(node ast.Node, name string, pkg *types.Package) {
@@ -95,9 +107,9 @@ func (ms *multiscope) addImport(node ast.Node, name string, pkg *types.Package) 
 		return
 	} else if name != "." {
 		ms.checkRedefined(name, node)
-		sym := NewSymbol(types.ImportObj, name, node, ms.curr)
-		sym.obj.SetValue(pkg)
-		ms.getFile().Insert(sym)
+		obj := NewObject(types.ImportObj, name, node, ms.curr)
+		obj.SetValue(pkg)
+		ms.getFile().Insert(obj)
 		return
 	}
 	// dot import
@@ -114,7 +126,7 @@ func (ms *multiscope) addImport(node ast.Node, name string, pkg *types.Package) 
 			continue // should not happen, imports are added to a nested scope
 		}
 		ms.checkRedefined(name, node)
-		ms.getFile().InsertObj(obj) // reuse the same object
+		ms.getFile().Insert((*Object)(obj)) // reuse the same object
 	}
 }
 
