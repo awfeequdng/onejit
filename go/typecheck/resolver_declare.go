@@ -15,6 +15,8 @@
 package typecheck
 
 import (
+	"fmt"
+
 	"github.com/cosmos72/onejit/go/ast"
 	"github.com/cosmos72/onejit/go/token"
 	"github.com/cosmos72/onejit/go/types"
@@ -55,11 +57,23 @@ func (r *Resolver) declareObjType(obj *Object) {
 	if obj.Type() != nil {
 		return
 	}
+	decl := obj.Decl()
+	if decl == nil {
+		r.error(nil, "missing declaration for "+obj.Name())
+		return
+	}
 	defer func() {
 		// FIXME: remove this hack when makeType() is finished
-		recover()
+		switch fail := recover().(type) {
+		case *token.Error:
+			r.errors.errs = append(r.errors.errs, fail)
+		case string:
+			r.error(decl.node, fail)
+		default:
+			// FIXME remove dependency from 'fmt' package
+			r.error(decl.node, fmt.Sprint(fail))
+		}
 	}()
-	decl := obj.Decl()
 	if decl.t == nil {
 		var named *types.Named
 		if decl.init == nil {
@@ -127,11 +141,11 @@ func (r *Resolver) makeType(node ast.Node) (t types.Type) {
 				break
 			}
 		}
-		r.error(node, "unsupported type declaration: "+node.String())
+		r.error(node, "invalid type declaration: "+node.String())
 	}
 	if t == nil {
 		// FIXME: remove this hack when makeType() is finished
-		panic("Resolver.makeType unimplemented for " + node.String())
+		panic(r.newError(node, "failed to create type for "+node.String()))
 	}
 	return t
 }
