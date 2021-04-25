@@ -19,14 +19,13 @@ import (
 	"testing"
 
 	"github.com/cosmos72/onejit/go/ast"
-	"github.com/cosmos72/onejit/go/scanner"
 	"github.com/cosmos72/onejit/go/sort"
 	"github.com/cosmos72/onejit/go/testutil"
 	"github.com/cosmos72/onejit/go/token"
 )
 
 type errorList struct {
-	errors []*scanner.Error
+	errors []*token.Error
 }
 
 func (list *errorList) Len() int {

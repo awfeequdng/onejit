@@ -57,10 +57,10 @@ func (r *Resolver) global(node ast.Node) {
 	switch op := node.Op(); op {
 	case token.DIR:
 		r.fileset = node.(*ast.Dir).FileSet
-		r.curr = nil
+		r.currfile = nil
 		r.globalList(node)
 	case token.FILE:
-		r.curr = node.(*ast.File).File
+		r.currfile = node.(*ast.File).File
 		r.globalList(node)
 	case token.IMPORTS, token.DECLS:
 		r.globalList(node)
@@ -253,7 +253,7 @@ func (r *Resolver) deps(fromlist []*Object, to *Object) {
 
 // create types.Type for all global declarations passed to Globals()
 func (r *Resolver) DeclareGlobals() {
-	m := dup(r.syms)
+	m := dup(r.objs)
 	for len(m) != 0 {
 		obj := r.pickSymbolNoDeps(m)
 		if obj == nil {

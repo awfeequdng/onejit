@@ -18,17 +18,7 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
-type Error struct {
-	Pos token.Position
-	Msg string
-}
-
-func (e *Error) Error() string {
-	if len(e.Pos.Filename) == 0 || !e.Pos.IsValid() {
-		return e.Msg
-	}
-	return e.Pos.String() + ": " + e.Msg
-}
+type Error = token.Error
 
 var (
 	errInvalidCharacter = "invalid character"

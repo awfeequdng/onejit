@@ -19,7 +19,6 @@ import (
 	"testing"
 
 	"github.com/cosmos72/onejit/go/parser"
-	"github.com/cosmos72/onejit/go/scanner"
 	"github.com/cosmos72/onejit/go/strings"
 	"github.com/cosmos72/onejit/go/testutil"
 	"github.com/cosmos72/onejit/go/token"
@@ -27,7 +26,7 @@ import (
 )
 
 type errorList struct {
-	errors []*scanner.Error
+	errors []*token.Error
 }
 
 func (list *errorList) Len() int {
@@ -82,10 +81,10 @@ func makeVisitor(verbose bool) func(t *testing.T, opener testutil.Opener, dirnam
 		r.DeclareGlobals()
 		if verbose && testing.Verbose() {
 			dirbasename := strings.Basename(fset.Name())
-			for file, syms := range c.files {
+			for file, syms := range c.fileobjs {
 				t.Log(dirbasename+"/"+strings.Basename(file.Name()), "imports:", syms.Names())
 			}
-			t.Log(dirbasename, "decls:", c.syms.Names())
+			t.Log(dirbasename, "decls:", c.objs.Names())
 			t.Log(dirbasename, "resolved:", r.resolved)
 		}
 	}

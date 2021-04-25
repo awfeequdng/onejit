@@ -22,26 +22,26 @@ import (
 
 // symbols i.e. declarations plus per-file symbols i.e. imports and dot imports
 type multiscope struct {
-	outer *types.Scope              // existing scope being extended
-	syms  ObjectMap                 // declared objects
-	files map[*token.File]ObjectMap // per-file objects: imports and dot imports
-	curr  *token.File               // current file
+	outer    *types.Scope              // existing scope being extended
+	objs     ObjectMap                 // declared objects
+	fileobjs map[*token.File]ObjectMap // per-file objects: imports and dot imports
+	currfile *token.File               // current file
 	errors
 }
 
 // does NOT clear accumulated errors
 func (ms *multiscope) Init(fileset *token.FileSet, outer *types.Scope) {
 	ms.outer = outer
-	ms.syms = nil
-	ms.files = nil
-	ms.curr = nil
+	ms.objs = nil
+	ms.fileobjs = nil
+	ms.currfile = nil
 	ms.errors.fileset = fileset
 }
 
 func (ms *multiscope) lookup(name string) (obj *Object, imported bool) {
-	obj, imported = ms.files[ms.curr][name]
+	obj, imported = ms.fileobjs[ms.currfile][name]
 	if obj == nil {
-		obj = ms.syms[name]
+		obj = ms.objs[name]
 		imported = false
 	}
 	return obj, imported
@@ -59,7 +59,7 @@ func (ms *multiscope) lookupParent(name string) *Object {
 }
 
 func (ms *multiscope) getFile() ObjectMap {
-	file := ms.files[ms.curr]
+	file := ms.fileobjs[ms.currfile]
 	if file == nil {
 		file = ms.getFileSlow()
 	}
@@ -68,20 +68,20 @@ func (ms *multiscope) getFile() ObjectMap {
 
 func (ms *multiscope) getFileSlow() ObjectMap {
 	file := make(ObjectMap)
-	files := ms.files
+	files := ms.fileobjs
 	if files == nil {
 		files = make(map[*token.File]ObjectMap)
-		ms.files = files
+		ms.fileobjs = files
 	}
-	ms.files[ms.curr] = file
+	ms.fileobjs[ms.currfile] = file
 	return file
 }
 
 func (ms *multiscope) getSyms() ObjectMap {
-	syms := ms.syms
+	syms := ms.objs
 	if syms == nil {
 		syms = make(ObjectMap)
-		ms.syms = syms
+		ms.objs = syms
 	}
 	return syms
 }
@@ -91,7 +91,7 @@ func (ms *multiscope) add(node ast.Node, cls types.Class, name string, typ ast.N
 		return
 	}
 	ms.checkRedefined(name, node)
-	obj := NewObject(cls, name, node, ms.curr)
+	obj := NewObject(cls, name, node, ms.currfile)
 	decl := obj.Decl()
 	decl.typ = typ
 	decl.init = init
@@ -107,7 +107,7 @@ func (ms *multiscope) addImport(node ast.Node, name string, pkg *types.Package) 
 		return
 	} else if name != "." {
 		ms.checkRedefined(name, node)
-		obj := NewObject(types.ImportObj, name, node, ms.curr)
+		obj := NewObject(types.ImportObj, name, node, ms.currfile)
 		obj.SetValue(pkg)
 		ms.getFile().Insert(obj)
 		return

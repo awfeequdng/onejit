@@ -15,7 +15,6 @@
 package parser
 
 import (
-	"github.com/cosmos72/onejit/go/scanner"
 	"github.com/cosmos72/onejit/go/token"
 )
 
@@ -50,9 +49,9 @@ func (p *Parser) makeErrText(suffix string) errText {
 	return errText("syntax error: unexpected " + p.tok().String() + ", expecting " + suffix)
 }
 
-var errTooManyErrors = scanner.Error{Msg: "too many errors"}
+var errTooManyErrors = token.Error{Msg: "too many errors"}
 
-func (p *Parser) error(pos token.Pos, msg interface{}) *scanner.Error {
+func (p *Parser) error(pos token.Pos, msg interface{}) *token.Error {
 	if len(p.Errors()) >= 10 {
 		p.curr.Tok = token.EOF
 		p.unread0.Tok = 0
@@ -74,7 +73,7 @@ func (p *Parser) error(pos token.Pos, msg interface{}) *scanner.Error {
 }
 
 // return accumulated errors
-func (p *Parser) Errors() []*scanner.Error {
+func (p *Parser) Errors() []*token.Error {
 	return p.scanner.Errors()
 }
 

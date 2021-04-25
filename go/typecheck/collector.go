@@ -55,7 +55,7 @@ func (c *Collector) global(node ast.Node) {
 		c.fileset = node.(*ast.Dir).FileSet
 		c.globalList(node)
 	case token.FILE:
-		c.curr = node.(*ast.File).File
+		c.currfile = node.(*ast.File).File
 		c.globalList(node)
 	case token.IMPORTS, token.DECLS:
 		c.globalList(node)

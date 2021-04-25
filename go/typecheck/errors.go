@@ -16,14 +16,13 @@ package typecheck
 
 import (
 	"github.com/cosmos72/onejit/go/ast"
-	"github.com/cosmos72/onejit/go/scanner"
 	"github.com/cosmos72/onejit/go/token"
 )
 
 type errors struct {
 	fileset *token.FileSet
-	warns   []*scanner.Error
-	errs    []*scanner.Error
+	warns   []*token.Error
+	errs    []*token.Error
 }
 
 func (e *errors) ClearWarnings() {
@@ -42,8 +41,8 @@ func (e *errors) error(node ast.Node, msg string) {
 	e.errs = append(e.errs, e.newError(node, msg))
 }
 
-func (e *errors) newError(node ast.Node, msg string) *scanner.Error {
-	err := &scanner.Error{Msg: msg}
+func (e *errors) newError(node ast.Node, msg string) *token.Error {
+	err := &token.Error{Msg: msg}
 	if node != nil {
 		err.Pos = e.fileset.Position(node.Pos())
 	}
