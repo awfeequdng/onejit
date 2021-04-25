@@ -25,22 +25,6 @@ import (
 	"github.com/cosmos72/onejit/go/types"
 )
 
-type errorList struct {
-	errors []*token.Error
-}
-
-func (list *errorList) Len() int {
-	return len(list.errors)
-}
-
-func (list *errorList) String(i int) string {
-	return (list.errors)[i].Msg
-}
-
-func (list *errorList) Error(i int) error {
-	return (list.errors)[i]
-}
-
 func TestChecker(t *testing.T) {
 	var p parser.Parser
 	p.InitString("const ( a = 1; b = 2 )", parser.Default)
@@ -70,7 +54,7 @@ func makeVisitor(verbose bool) func(t *testing.T, opener testutil.Opener, dirnam
 		p.ClearErrors()
 		fset := token.NewFileSet(dirname)
 		dir := p.InitParseDir(fset, opener, parser.Go1_9)
-		testutil.CompareErrors(t, dirname, &errorList{p.Errors()}, nil)
+		testutil.CompareErrors(t, dirname, p.Errors(), nil)
 
 		c.ClearErrors()
 		c.ClearWarnings()

@@ -54,16 +54,17 @@ func (r *Resolver) global(node ast.Node) {
 	if node == nil {
 		return
 	}
+	var list ast.Node
 	switch op := node.Op(); op {
 	case token.DIR:
 		r.fileset = node.(*ast.Dir).FileSet
 		r.currfile = nil
-		r.globalList(node)
+		list = node
 	case token.FILE:
 		r.currfile = node.(*ast.File).File
-		r.globalList(node)
+		list = node
 	case token.IMPORTS, token.DECLS:
-		r.globalList(node)
+		list = node
 	case token.FUNC:
 		r.funcDecl(node)
 	case token.IMPORT:
@@ -77,11 +78,10 @@ func (r *Resolver) global(node ast.Node) {
 			r.valueSpec(node.At(i))
 		}
 	}
-}
-
-func (r *Resolver) globalList(list ast.Node) {
-	for i, n := 0, list.Len(); i < n; i++ {
-		r.global(list.At(i))
+	if list != nil {
+		for i, n := 0, list.Len(); i < n; i++ {
+			r.global(list.At(i))
+		}
 	}
 }
 

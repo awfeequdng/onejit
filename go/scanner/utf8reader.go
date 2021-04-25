@@ -33,7 +33,7 @@ type utf8Reader struct {
 	file   *token.File
 	pos    int
 	endpos int
-	errors []*Error
+	errors token.ErrorList
 }
 
 // (re)initialize utf8Reader

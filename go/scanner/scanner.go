@@ -91,7 +91,7 @@ func (s *Scanner) setResultTok(tok token.Token) {
 }
 
 // return accumulated errors
-func (s *Scanner) Errors() []*Error {
+func (s *Scanner) Errors() token.ErrorList {
 	return s.utf8Reader.errors
 }
 

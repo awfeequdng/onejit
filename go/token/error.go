@@ -14,10 +14,14 @@
 
 package token
 
-type Error struct {
-	Pos Position
-	Msg string
-}
+type (
+	Error struct {
+		Pos Position
+		Msg string
+	}
+
+	ErrorList []*Error
+)
 
 func (e *Error) Error() string {
 	if len(e.Pos.Filename) == 0 || !e.Pos.IsValid() {

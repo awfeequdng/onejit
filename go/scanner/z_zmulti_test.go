@@ -78,21 +78,5 @@ func scanFile(t *testing.T, s *Scanner, in io.Reader, filename string) {
 			t.Errorf("scan file %q returned {%v %q}", filename, tok, lit)
 		}
 	}
-	testutil.CompareErrors(t, filename, &errorList{s.Errors()}, nil)
-}
-
-type errorList struct {
-	errors []*Error
-}
-
-func (list *errorList) Len() int {
-	return len(list.errors)
-}
-
-func (list *errorList) String(i int) string {
-	return (list.errors)[i].Msg
-}
-
-func (list *errorList) Error(i int) error {
-	return (list.errors)[i]
+	testutil.CompareErrors(t, filename, s.Errors(), nil)
 }

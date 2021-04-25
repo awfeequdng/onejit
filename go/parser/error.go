@@ -73,7 +73,7 @@ func (p *Parser) error(pos token.Pos, msg interface{}) *token.Error {
 }
 
 // return accumulated errors
-func (p *Parser) Errors() []*token.Error {
+func (p *Parser) Errors() token.ErrorList {
 	return p.scanner.Errors()
 }
 

@@ -16,15 +16,11 @@ package testutil
 
 import (
 	"testing"
+
+	"github.com/cosmos72/onejit/go/token"
 )
 
-type ErrorList interface {
-	Len() int
-	String(int) string
-	Error(int) error
-}
-
-func CompareErrorsAny(t *testing.T, in string, actual ErrorList, expected_any interface{}) {
+func CompareErrorsAny(t *testing.T, in string, actual token.ErrorList, expected_any interface{}) {
 	var expected []string
 	switch expected_err := expected_any.(type) {
 	case string:
@@ -36,8 +32,8 @@ func CompareErrorsAny(t *testing.T, in string, actual ErrorList, expected_any in
 	CompareErrors(t, in, actual, expected)
 }
 
-func CompareErrors(t *testing.T, in string, actual ErrorList, expected []string) {
-	actual_n, expected_n := actual.Len(), len(expected)
+func CompareErrors(t *testing.T, in string, actual token.ErrorList, expected []string) {
+	actual_n, expected_n := len(actual), len(expected)
 	if actual_n != expected_n {
 		t.Errorf("scan %q returned %d errors, expecting %d", in, actual_n, expected_n)
 	}
@@ -46,8 +42,8 @@ func CompareErrors(t *testing.T, in string, actual ErrorList, expected []string)
 		var actual_i, expected_i string
 		var err_i error
 		if i < actual_n {
-			actual_i = actual.String(i)
-			err_i = actual.Error(i)
+			actual_i = actual[i].Msg
+			err_i = actual[i]
 		}
 		if i < expected_n {
 			expected_i = expected[i]
