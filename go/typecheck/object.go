@@ -31,6 +31,8 @@ type (
 		init  ast.Node    // initializer expression, may be nil
 		index int         // if != NoIndex, must use index-th value from multi-valued init
 		file  *token.File // file where symbol is declared. needed to retrieve per-file imports
+
+		t types.Type // resolved type, may be nil
 	}
 
 	ObjectMap map[string]*Object

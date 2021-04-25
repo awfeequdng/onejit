@@ -47,6 +47,22 @@ func (d *Dir) End() token.Pos {
 	}
 }
 
+// return package name
+func (d *Dir) PkgName() string {
+	if len(d.Files) == 0 {
+		return strings.Basename(d.PkgPath())
+	}
+	return d.Files[0].PkgName()
+}
+
+// return package path
+func (d *Dir) PkgPath() string {
+	if d == nil {
+		return ""
+	}
+	return d.FileSet.PkgPath()
+}
+
 func (d *Dir) String() string {
 	if d == nil {
 		return "nil"

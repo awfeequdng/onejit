@@ -17,19 +17,19 @@ import "github.com/cosmos72/onejit/go/sort"
 
 // functionally equivalent to go/token.FileSet
 type FileSet struct {
-	dirname string
+	pkgPath string
 	files   []*File
 }
 
-func NewFileSet(dirname string) *FileSet {
-	return &FileSet{dirname: dirname}
+func NewFileSet(pkgPath string) *FileSet {
+	return &FileSet{pkgPath: pkgPath}
 }
 
-func (f *FileSet) Name() string {
+func (f *FileSet) PkgPath() string {
 	if f == nil {
 		return ""
 	}
-	return f.dirname
+	return f.pkgPath
 }
 
 func (f *FileSet) Size() int {

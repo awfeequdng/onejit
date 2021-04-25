@@ -28,26 +28,30 @@ type Resolver struct {
 	resolved    map[ast.Node]*Object
 	depfwd      ObjectGraph
 	depinv      ObjectGraph
+	currpkg     *types.Package
 	sources     []ast.Node
 	globalsOnly bool
 }
 
 // does NOT clear accumulated errors
-func (r *Resolver) Init(c *Collector) {
+func (r *Resolver) Init(c *Collector, currpkg *types.Package) {
 	r.multiscope = c.multiscope
 	r.resolved = nil
 	r.depfwd = nil
 	r.depinv = nil
+	r.currpkg = currpkg
 	r.sources = c.sources
 	r.globalsOnly = false
 }
 
 // resolve global symbols collected by Collector
+// and create their types.Type
 func (r *Resolver) Globals() {
 	r.globalsOnly = true
 	for _, node := range r.sources {
 		r.global(node)
 	}
+	r.declareGlobals()
 }
 
 func (r *Resolver) global(node ast.Node) {
@@ -175,10 +179,10 @@ func (r *Resolver) ident(curr []*Object, node ast.Node) *Object {
 
 func (r *Resolver) resolve(ident *ast.Atom) (obj *Object, imported bool) {
 	name := ident.Lit
-	obj, imported = r.lookup(name)
+	obj, imported = r.lookupParent(name)
 	if obj == nil {
 		r.error(ident, "undefined: "+name)
-	} else if !imported {
+	} else {
 		if r.resolved == nil {
 			r.resolved = make(map[ast.Node]*Object)
 		}
@@ -195,7 +199,8 @@ func (r *Resolver) qualified(curr []*Object, node ast.Node) *Object {
 		return nil
 	}
 	if left.Op() != token.IDENT {
-		// TODO field or method a.b.c
+		// TODO field or method (expr).b
+		r.node(curr, left)
 		return nil
 	}
 	obj := r.ident(curr, left)
@@ -239,6 +244,10 @@ func (r *Resolver) deps(fromlist []*Object, to *Object) {
 	if len(fromlist) == 0 || to == nil {
 		return
 	}
+	// do not store self-recursion dependency: declareObj* methods can handle them
+	if len(fromlist) == 1 && fromlist[0] == to {
+		return
+	}
 	if r.depfwd == nil {
 		r.depfwd = make(ObjectGraph)
 	}
@@ -252,14 +261,15 @@ func (r *Resolver) deps(fromlist []*Object, to *Object) {
 }
 
 // create types.Type for all global declarations passed to Globals()
-func (r *Resolver) DeclareGlobals() {
+func (r *Resolver) declareGlobals() {
 	m := dup(r.objs)
 	for len(m) != 0 {
 		obj := r.pickSymbolNoDeps(m)
 		if obj == nil {
+			// TODO declareObj self or mutually recursive types instead of exiting
 			break
 		}
-		r.declare(obj)
+		r.declareObj(obj)
 		r.removeDeps(obj)
 		delete(m, obj.Name())
 	}
@@ -283,10 +293,6 @@ func (r *Resolver) pickSymbolNoDeps(m ObjectMap) *Object {
 		}
 	}
 	return nil
-}
-
-func (r *Resolver) declare(obj *Object) {
-	// fmt.Println("declare:", obj.String())
 }
 
 func (r *Resolver) removeDeps(obj *Object) {

@@ -47,15 +47,16 @@ func (ms *multiscope) lookup(name string) (obj *Object, imported bool) {
 	return obj, imported
 }
 
-func (ms *multiscope) lookupParent(name string) *Object {
-	obj, _ := ms.lookup(name)
+func (ms *multiscope) lookupParent(name string) (obj *Object, imported bool) {
+	obj, imported = ms.lookup(name)
 	if obj == nil {
 		_, tobj := ms.outer.LookupParent(name)
 		if tobj != nil {
 			obj = (*Object)(tobj)
+			imported = true
 		}
 	}
-	return obj
+	return obj, imported
 }
 
 func (ms *multiscope) getFile() ObjectMap {

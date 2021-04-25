@@ -66,6 +66,16 @@ func (f *File) End() token.Pos {
 	}
 }
 
+func (f *File) PkgName() string {
+	if f.Package == nil {
+		return ""
+	} else if ident, _ := f.Package.X.(*Atom); ident == nil {
+		return ""
+	} else {
+		return ident.Lit
+	}
+}
+
 func (f *File) String() string {
 	if f == nil {
 		return "nil"

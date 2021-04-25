@@ -23,17 +23,17 @@ import (
 type TypeMap map[ast.Node]*types.Complete
 
 // typecheck the specified global declarations
-func CheckGlobals(fileset *token.FileSet, scope *types.Scope, knownpkgs types.Packages,
+func CheckGlobals(fileset *token.FileSet, pkg *types.Package, knownpkgs types.Packages,
 	source ...ast.Node) (decls *types.Scope, typemap TypeMap) {
 
 	c := Collector{}
-	c.Init(fileset, scope, knownpkgs)
+	c.Init(fileset, pkg.Scope(), knownpkgs)
 	c.Globals(source...)
 	if len(c.errs) != 0 || len(c.warns) != 0 {
 		return nil, nil
 	}
 	r := Resolver{}
-	r.Init(&c)
+	r.Init(&c, pkg)
 	r.Globals()
 	return nil, nil
 }

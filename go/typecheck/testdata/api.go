@@ -28,3 +28,5 @@ type Pair struct {
 }
 
 var Len = len((*Pair)(nil).first)
+
+type X *X

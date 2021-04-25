@@ -28,7 +28,7 @@ import (
 func TestChecker(t *testing.T) {
 	var p parser.Parser
 	p.InitString("const ( a = 1; b = 2 )", parser.Default)
-	CheckGlobals(nil, types.Universe(), nil, p.Parse())
+	CheckGlobals(nil, types.NewPackage("main", "main"), nil, p.Parse())
 }
 
 func TestCheckGoRootDir(t *testing.T) {
@@ -56,15 +56,16 @@ func makeVisitor(verbose bool) func(t *testing.T, opener testutil.Opener, dirnam
 		dir := p.InitParseDir(fset, opener, parser.Go1_9)
 		testutil.CompareErrors(t, dirname, p.Errors(), nil)
 
+		pkg := types.NewPackage(dir.PkgName(), dir.PkgPath())
+
 		c.ClearErrors()
 		c.ClearWarnings()
-		c.Init(fset, types.NewScope(types.Universe()), nil)
+		c.Init(fset, pkg.Scope(), nil)
 		c.Globals(dir)
-		r.Init(&c)
+		r.Init(&c, pkg)
 		r.Globals()
-		r.DeclareGlobals()
 		if verbose && testing.Verbose() {
-			dirbasename := strings.Basename(fset.Name())
+			dirbasename := strings.Basename(dirname)
 			for file, syms := range c.fileobjs {
 				t.Log(dirbasename+"/"+strings.Basename(file.Name()), "imports:", syms.Names())
 			}
