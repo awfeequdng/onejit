@@ -20,7 +20,7 @@ import (
 
 func IsExported(name string) bool {
 	if len(name) == 0 {
-		return false
+		return true
 	}
 	if b := name[0]; b < utf8.RuneSelf {
 		return b >= 'A' && b <= 'Z'

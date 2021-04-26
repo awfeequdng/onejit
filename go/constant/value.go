@@ -17,8 +17,10 @@ package constant
 import (
 	"fmt"
 	"go/constant"
-	"go/token"
+	gotoken "go/token"
 	"math/big"
+
+	"github.com/cosmos72/onejit/go/token"
 )
 
 type value struct {
@@ -268,7 +270,7 @@ func Make(kind Kind, x interface{}) Value {
 		cim := constant.MakeFloat64(imag(cplx))
 		cre = constant.ToComplex(cre)
 		cim = constant.MakeImag(cim)
-		c = constant.BinaryOp(cre, token.ADD, cim)
+		c = constant.BinaryOp(cre, gotoken.ADD, cim)
 
 	case String, UntypedString:
 		switch x := x.(type) {
@@ -563,4 +565,25 @@ func uint64fits(n uint64, kind Kind) bool {
 	bits := kind.Size() * 8
 	mask := ^uint64(0) >> (64 - bits)
 	return n <= mask
+}
+
+func MakeFromLiteral(lit string, tok token.Token) Value {
+	c := constant.MakeFromLiteral(lit, gotoken.Token(tok), 0)
+	if c.Kind() == constant.Unknown {
+		return invalid
+	}
+	kind := Invalid
+	switch tok {
+	case token.INT:
+		kind = UntypedInt
+	case token.FLOAT:
+		kind = UntypedFloat
+	case token.IMAG:
+		kind = UntypedComplex
+	case token.CHAR:
+		kind = UntypedRune
+	case token.STRING:
+		kind = UntypedString
+	}
+	return Value{&value{c, kind, nil}}
 }

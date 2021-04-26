@@ -305,3 +305,26 @@ func (r *Resolver) removeDeps(obj *Object) {
 	}
 	delete(r.depinv, obj)
 }
+
+// create types.Type for specified Object
+func (r *Resolver) declareObj(obj *Object) {
+	if obj.Type() != nil {
+		return
+	}
+	switch obj.Class() {
+	case types.ConstObj:
+		r.declareObjConst(obj)
+	case types.FuncObj:
+		r.declareObjFunc(obj)
+	case types.TypeObj:
+		r.declareObjType(obj)
+	case types.VarObj:
+		r.declareObjVar(obj)
+	case types.GenericFuncObj:
+		r.declareObjGenericFunc(obj)
+	case types.GenericTypeObj:
+		r.declareObjGenericType(obj)
+	default:
+		r.error(obj.Decl().node, "cannot declare a "+obj.Class().String()+" object")
+	}
+}

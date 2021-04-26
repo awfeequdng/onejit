@@ -234,7 +234,7 @@ func computeInterfaceMethods(embedded []Type, direct []Method) []Method {
 func checkEmbeddedInterface(t Type) {
 	u := t.Underlying()
 	if u == nil {
-		panic("NewInterface: embedded interface has nil underlying type")
+		panic("NewInterface: embedded interface " + t.String() + " is incomplete, has nil underlying type")
 	}
 	if iface, _ := u.(*Interface); iface == nil {
 		panic("NewInterface: invalid embedded interface " + t.String() + ", its underlying type must be *Interface")

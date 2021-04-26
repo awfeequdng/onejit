@@ -16,17 +16,26 @@
 
 package testdata
 
-/*
 const (
 	Foo     = Bar
 	Bar int = 1
 )
-*/
 
-type Pair struct {
-	first, second [1]int
-}
+// var Len = len((*Pair)(nil).first)
 
-var Len = len((*Pair)(nil).first)
+type (
+	pair = struct {
+		first, second int
+	}
 
-type X *X
+	Pair pair
+
+	X *X
+
+	foobar = interface {
+		foo() (result Pair)
+		bar(arg Pair)
+	}
+
+	FooBar foobar
+)

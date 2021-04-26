@@ -15,6 +15,7 @@
 package typecheck
 
 import (
+	"fmt"
 	"go/build"
 	"testing"
 
@@ -69,8 +70,18 @@ func makeVisitor(verbose bool) func(t *testing.T, opener testutil.Opener, dirnam
 			for file, syms := range c.fileobjs {
 				t.Log(dirbasename+"/"+strings.Basename(file.Name()), "imports:", syms.Names())
 			}
-			t.Log(dirbasename, "decls:", c.objs.Names())
-			t.Log(dirbasename, "resolved:", r.resolved)
+			t.Log(dirbasename, "decls:")
+			showObjs(c.objs)
 		}
 	}
+}
+
+func showObjs(objs ObjectMap) {
+	for name, obj := range objs {
+		showObj(name, obj)
+	}
+}
+
+func showObj(name string, obj *Object) {
+	fmt.Println(name, "\t=>", obj.String(), "\t//", obj.Type())
 }

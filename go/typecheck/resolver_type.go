@@ -6,7 +6,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * resolver.go
+ * resolver_type.go
  *
  *  Created on: Apr 10, 2021
  *      Author: Massimiliano Ghilardi
@@ -15,39 +15,10 @@
 package typecheck
 
 import (
-	"fmt"
-
 	"github.com/cosmos72/onejit/go/ast"
 	"github.com/cosmos72/onejit/go/token"
 	"github.com/cosmos72/onejit/go/types"
 )
-
-// create types.Type for specified Object
-func (r *Resolver) declareObj(obj *Object) {
-	if obj.Type() != nil {
-		return
-	}
-	switch obj.Class() {
-	case types.ConstObj:
-		r.declareObjConst(obj)
-	case types.FuncObj:
-		r.declareObjFunc(obj)
-	case types.TypeObj:
-		r.declareObjType(obj)
-	case types.VarObj:
-		r.declareObjVar(obj)
-	case types.GenericFuncObj:
-		r.declareObjGenericFunc(obj)
-	case types.GenericTypeObj:
-		r.declareObjGenericType(obj)
-	default:
-		r.error(obj.Decl().node, "cannot declare a "+obj.Class().String()+" object")
-	}
-}
-
-func (r *Resolver) declareObjConst(obj *Object) {
-	// TODO
-}
 
 func (r *Resolver) declareObjFunc(obj *Object) {
 	// TODO
@@ -65,13 +36,13 @@ func (r *Resolver) declareObjType(obj *Object) {
 	defer func() {
 		// FIXME: remove this hack when makeType() is finished
 		switch fail := recover().(type) {
+		case nil:
 		case *token.Error:
 			r.errors.errs = append(r.errors.errs, fail)
 		case string:
 			r.error(decl.node, fail)
 		default:
-			// FIXME remove dependency from 'fmt' package
-			r.error(decl.node, fmt.Sprint(fail))
+			panic(fail)
 		}
 	}()
 	if decl.t == nil {
@@ -169,16 +140,112 @@ func (r *Resolver) makeTypeArray(length ast.Node, elem types.Type) types.Type {
 }
 
 func (r *Resolver) makeTypeFunc(node ast.Node) types.Type {
-	// TODO
-	return nil
+	params, variadic := r.makeFields(node.At(0), true)
+	results, _ := r.makeFields(node.At(1), false)
+	in := fieldsTypes(params)
+	out := fieldsTypes(results)
+	return types.NewFunc(in, out, variadic)
 }
 
 func (r *Resolver) makeTypeInterface(node ast.Node) types.Type {
-	// TODO
-	return nil
+	var embedded []types.Type
+	var methods []types.Method
+	for i, n := 0, node.Len(); i < n; i++ {
+		field := node.At(i).(*ast.Field)
+		names := field.Names
+		if names == nil {
+			embedded = append(embedded, r.makeType(field.Type))
+		} else if names.Op() == token.NAMES {
+			methods = r.appendMethods(methods, names, field.Type)
+		} else if names.Op() == token.TYPES {
+			// interface { type /*typelist*/ }
+			r.error(node, "interface containing typelist not yet implemented")
+		} else {
+			r.error(node, "unexpected interface body: "+field.String())
+		}
+	}
+	return types.NewInterface(embedded, methods...)
 }
 
 func (r *Resolver) makeTypeStruct(node ast.Node) types.Type {
-	// TODO
-	return nil
+	fields, _ := r.makeFields(node, false)
+	return types.NewStruct(fields...)
+}
+
+func (r *Resolver) makeFields(list ast.Node, allowEllipsis bool) (fields []types.Field, variadic bool) {
+	if list == nil || list.Len() == 0 {
+		return nil, false
+	}
+	n := list.Len()
+	variadic = allowEllipsis && list.At(n-1).Op() == token.ELLIPSIS
+	fields = make([]types.Field, 0, n)
+	for i := 0; i < n; i++ {
+		fields = r.appendFields(fields, list.At(i), variadic && i == n-1)
+	}
+	return fields, variadic
+}
+
+func (r *Resolver) appendFields(appendTo []types.Field, node ast.Node, allowEllipsis bool) []types.Field {
+	field := node.(*ast.Field)
+	typ := field.Type
+	if allowEllipsis && typ.Op() == token.ELLIPSIS {
+		typ = typ.At(0)
+	}
+	t := r.makeType(typ)
+	tag := fieldTag(field)
+	names := field.Names
+	if names == nil || names.Len() == 0 {
+		return append(appendTo, types.Field{Type: t, Tag: tag, Embedded: true})
+	}
+	n := names.Len()
+	for i := 0; i < n; i++ {
+		appendTo = append(appendTo, makeField(names.Nodes[i], r.currpkg, t, tag))
+	}
+	return appendTo
+}
+
+func makeField(name ast.Node, pkg *types.Package, t types.Type, tag string) types.Field {
+	namestr := name.(*ast.Atom).Lit
+	pkgpath := ""
+	if !token.IsExported(namestr) {
+		pkgpath = pkg.PkgPath()
+	}
+	return types.Field{
+		Type: t, Name: namestr, PkgPath: pkgpath, Tag: tag, Embedded: len(namestr) == 0,
+	}
+}
+
+func fieldsTypes(fields []types.Field) []types.Type {
+	n := len(fields)
+	if n == 0 {
+		return nil
+	}
+	ts := make([]types.Type, n)
+	for i := 0; i < n; i++ {
+		ts[i] = fields[i].Type
+	}
+	return ts
+}
+
+func fieldTag(field *ast.Field) string {
+	if field == nil || field.Tag == nil {
+		return ""
+	}
+	return field.Tag.Lit
+}
+
+func (r *Resolver) appendMethods(appendTo []types.Method, names ast.Node, typ ast.Node) []types.Method {
+	path := r.currpkg.PkgPath()
+	t := r.makeType(typ)
+	for i, n := 0, names.Len(); i < n; i++ {
+		name := names.At(i).(*ast.Atom).Lit
+		pkgpath := ""
+		if !token.IsExported(name) {
+			pkgpath = path
+		}
+		appendTo = append(appendTo, types.Method{
+			Type: t, Name: name, PkgPath: pkgpath,
+		})
+	}
+	return appendTo
 }
