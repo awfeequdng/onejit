@@ -330,6 +330,7 @@ func makeUniverse(basic []*Complete) *Scope {
 
 		{TypeObj, "byte", basic[Uint8], nil, nil},
 		{TypeObj, "rune", basic[Int32], nil, nil},
+		{TypeObj, "string", basic[String], nil, nil},
 		{TypeObj, "error", errorType.common(), nil, nil},
 	}
 	for i := range objs {

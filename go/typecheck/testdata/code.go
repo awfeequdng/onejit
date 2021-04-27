@@ -17,8 +17,8 @@
 package testdata
 
 const (
-	Foo     = Bar
-	Bar int = 1
+	Foo int = Bar >> 70
+	Bar     = '\x01' << 100
 )
 
 // var Len = len((*Pair)(nil).first)

@@ -50,15 +50,16 @@ func (c *Collector) global(node ast.Node) {
 	if node == nil {
 		return
 	}
+	var list ast.Node
 	switch op := node.Op(); op {
 	case token.DIR:
 		c.fileset = node.(*ast.Dir).FileSet
-		c.globalList(node)
+		list = node
 	case token.FILE:
 		c.currfile = node.(*ast.File).File
-		c.globalList(node)
+		list = node
 	case token.IMPORTS, token.DECLS:
-		c.globalList(node)
+		list = node
 	case token.FUNC:
 		c.funcDecl(node)
 	case token.IMPORT:
@@ -74,11 +75,10 @@ func (c *Collector) global(node ast.Node) {
 			c.valueSpec(op, node.At(i))
 		}
 	}
-}
-
-func (c *Collector) globalList(list ast.Node) {
-	for i, n := 0, list.Len(); i < n; i++ {
-		c.global(list.At(i))
+	if list != nil {
+		for i, n := 0, list.Len(); i < n; i++ {
+			c.global(list.At(i))
+		}
 	}
 }
 
@@ -158,6 +158,10 @@ func (c *Collector) valueSpec(op token.Token, spec ast.Node) {
 		case n:
 			oneInitializerPerName = true
 		case 1:
+			if op == token.CONST {
+				c.error(spec, "invalid const declaration, found 1 initializer, expecting 0 or "+
+					strings.IntToString(n)+": "+spec.String())
+			}
 			init = init.At(0)
 		case 0:
 			init = nil

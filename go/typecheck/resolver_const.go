@@ -21,18 +21,56 @@ import (
 	"github.com/cosmos72/onejit/go/types"
 )
 
+func (r *Resolver) recoverFromPanic(node ast.Node) {
+	switch fail := recover().(type) {
+	case nil:
+	case *token.Error:
+		r.errors.errs = append(r.errors.errs, fail)
+	case string:
+		r.error(node, fail)
+	default:
+		panic(fail)
+	}
+}
+
 func (r *Resolver) declareObjConst(obj *Object) {
-	// TODO
+	if obj.Value() != nil && obj.Type() != nil {
+		return
+	}
+	decl := obj.Decl()
+	// TODO support iota
+	if decl.init == nil && decl.typ == nil {
+		return
+	}
+	// FIXME: remove this hack when makeType() is finished
+	defer r.recoverFromPanic(decl.node)
+
+	var v constant.Value
+	var t *types.Complete
+	if decl.init != nil {
+		v = r.makeConst(decl.init)
+		t = v.Type()
+	}
+	if decl.typ != nil {
+		t = completeType(r.makeType(decl.typ))
+		if decl.init == nil {
+			v = constant.MakeZero(t)
+		} else {
+			v = v.To(t)
+		}
+	}
+	obj.SetType(t)
+	obj.SetValue(v)
 }
 
 func (r *Resolver) makeConst(node ast.Node) constant.Value {
-	var v constant.Value // the zero value is Invalid
 	if obj := r.resolved[node]; obj != nil && obj.Class() == types.ConstObj {
-		if objv, ok := obj.Value().(constant.Value); ok {
-			return objv
+		if v, ok := obj.Value().(constant.Value); ok {
+			return v
 		}
 	}
-	if op := node.Op(); op.IsLiteral() {
+	var v constant.Value // the zero value is Invalid
+	if op := node.Op(); op.IsLiteral() && op != token.IDENT {
 		atom := node.(*ast.Atom)
 		v = constant.MakeFromLiteral(atom.Lit, op)
 	} else if op.IsOperator() {

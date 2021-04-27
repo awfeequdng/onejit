@@ -83,5 +83,9 @@ func showObjs(objs ObjectMap) {
 }
 
 func showObj(name string, obj *Object) {
-	fmt.Println(name, "\t=>", obj.String(), "\t//", obj.Type())
+	fmt.Print(name, "\t=> ", obj.String())
+	if obj.Class() == types.ConstObj {
+		fmt.Print("\t// ", obj.Value())
+	}
+	fmt.Print("\t// ", obj.Type(), "\n")
 }

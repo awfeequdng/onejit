@@ -266,7 +266,7 @@ func (r *Resolver) declareGlobals() {
 	for len(m) != 0 {
 		obj := r.pickSymbolNoDeps(m)
 		if obj == nil {
-			// TODO declareObj self or mutually recursive types instead of exiting
+			// TODO declareObj on mutually recursive types instead of exiting
 			break
 		}
 		r.declareObj(obj)
@@ -327,4 +327,20 @@ func (r *Resolver) declareObj(obj *Object) {
 	default:
 		r.error(obj.Decl().node, "cannot declare a "+obj.Class().String()+" object")
 	}
+}
+
+func (r *Resolver) declareObjFunc(obj *Object) {
+	// TODO
+}
+
+func (r *Resolver) declareObjVar(obj *Object) {
+	// TODO
+}
+
+func (r *Resolver) declareObjGenericFunc(obj *Object) {
+	// TODO
+}
+
+func (r *Resolver) declareObjGenericType(obj *Object) {
+	// TODO
 }

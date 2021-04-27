@@ -18,6 +18,7 @@ import (
 	"go/constant"
 
 	"github.com/cosmos72/onejit/go/token"
+	"github.com/cosmos72/onejit/go/types"
 )
 
 type ErrorInvalid struct {
@@ -28,9 +29,9 @@ type ErrorOverflow struct {
 	kind Kind
 }
 
-type ErrorKind struct {
-	str  string
-	kind Kind
+type ErrorType struct {
+	str string
+	typ *types.Complete
 }
 
 func (e ErrorInvalid) Error() string {
@@ -41,15 +42,15 @@ func (e ErrorOverflow) Error() string {
 	return "constant " + e.cval.String() + " overflows " + e.kind.String()
 }
 
-func (e ErrorKind) Error() string {
-	if e.kind == Invalid {
+func (e ErrorType) Error() string {
+	if e.typ == nil {
 		return e.str
 	}
-	return e.str + " is not " + e.kind.String()
+	return e.str + " is not " + e.typ.String()
 }
 
-func (e ErrorKind) Kind() Kind {
-	return e.kind
+func (e ErrorType) Type() *types.Complete {
+	return e.typ
 }
 
 var (
@@ -57,15 +58,15 @@ var (
 )
 
 func errMismatchedKinds(xv Value, op token.Token, yv Value) error {
-	xkind, ykind := xv.kind, yv.kind
-	return ErrorKind{"invalid operation: " + xv.String() + " " + op.String() + " " + yv.String() +
-		" (mismatched kinds " + xkind.String() + " and " + ykind.String() + " )", Invalid}
+	xt, yt := xv.Type(), yv.Type()
+	return ErrorType{"invalid operation: " + xv.String() + " " + op.String() + " " + yv.String() +
+		" (mismatched types " + xt.String() + " and " + yt.String() + " )", nil}
 }
 
 func errNotReal(c constant.Value) Value {
-	return Value{&value{cunknown, Invalid, ErrorKind{"constant " + c.String() + " not integer, rune or float", Invalid}}}
+	return Value{&value{cunknown, nil, ErrorType{"constant " + c.String() + " not integer, rune or float", nil}}}
 }
 
 func errNotNumeric(c constant.Value) Value {
-	return Value{&value{cunknown, Invalid, ErrorKind{"constant " + c.String() + " not numeric", Invalid}}}
+	return Value{&value{cunknown, nil, ErrorType{"constant " + c.String() + " not numeric", nil}}}
 }

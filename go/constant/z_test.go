@@ -18,12 +18,15 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/cosmos72/onejit/go/strings"
 	"github.com/cosmos72/onejit/go/token"
+	"github.com/cosmos72/onejit/go/types"
 )
 
 func TestBool(t *testing.T) {
-	vfalse := Make(Bool, false)
-	vtrue := Make(Bool, true)
+	tbool := types.BasicType(Bool)
+	vfalse := Make(tbool, false)
+	vtrue := Make(tbool, true)
 	if x := vfalse.Kind(); x != Bool {
 		t.Errorf("vfalse.Kind() = %v", x)
 	}
@@ -36,11 +39,11 @@ func TestBool(t *testing.T) {
 	if x := vtrue.Bool(); x != true {
 		t.Errorf("vtrue.Bool() = %v", x)
 	}
-	if x := vfalse.To(token.Bool); x.Kind() != token.Bool || !x.IsValid() || x.Bool() != false {
-		t.Errorf("vfalse.To(token.Bool) = %v", x)
+	if x := vfalse.To(tbool); x.Type() != tbool || !x.IsValid() || x.Bool() != false {
+		t.Errorf("vfalse.To(Bool) = %v", x)
 	}
-	if x := vtrue.To(token.Bool); x.Kind() != token.Bool || !x.IsValid() || x.Bool() != true {
-		t.Errorf("vtrue.To(token.Bool) = %v", x)
+	if x := vtrue.To(tbool); x.Type() != tbool || !x.IsValid() || x.Bool() != true {
+		t.Errorf("vtrue.To(Bool) = %v", x)
 	}
 }
 
@@ -49,8 +52,14 @@ func TestInt(t *testing.T) {
 	b2to100 := new(big.Int)
 	b2to100.Lsh(b1, 100) // 1<<100 i.e. pow(2, 100)
 
-	v2to7 := Make(Int, int64(128))
-	v2to100 := Make(UntypedInt, b2to100)
+	tint := types.BasicType(Int)
+	tint8 := types.BasicType(Int8)
+	tuint8 := types.BasicType(Uint8)
+	tuint64 := types.BasicType(Uint64)
+	tuntypedint := types.BasicType(UntypedInt)
+
+	v2to7 := Make(tint, int64(128))
+	v2to100 := Make(tuntypedint, b2to100)
 
 	if x := v2to7.Kind(); x != Int {
 		t.Errorf("v2to7.Kind() = %v", x)
@@ -64,16 +73,17 @@ func TestInt(t *testing.T) {
 	if x, exact := v2to100.Int64(); exact {
 		t.Errorf("v2to100.Int64() = %v, %v", x, exact)
 	}
-	if x := v2to7.To(token.Int8); x.IsValid() {
-		t.Errorf("v2to7.To(token.Int8) = %v", x)
+
+	if x := v2to7.To(tint8); x.IsValid() {
+		t.Errorf("v2to7.To(int8) = %v", x)
 	}
-	if x := v2to7.To(token.Uint8); !x.IsValid() {
-		t.Errorf("v2to7.To(token.Uint8) = %v", x)
+	if x := v2to7.To(tuint8); !x.IsValid() {
+		t.Errorf("v2to7.To(tuint8) = %v", x)
 	} else if i, exact := x.Uint64(); i != uint64(128) || !exact {
-		t.Errorf("v2to7.To(token.Uint8).Uint64() = %v, %v", i, exact)
+		t.Errorf("v2to7.To(tuint8).Uint64() = %v, %v", i, exact)
 	}
-	if x := v2to100.To(token.Int64); x.IsValid() {
-		t.Errorf("v2to100.To(token.Int64) = %v", x)
+	if x := v2to100.To(tuint64); x.IsValid() {
+		t.Errorf("v2to100.To(tuint64) = %v", x)
 	}
 	if x, y := v2to100.String(), "{untyped.Int 1267650600228229401496703205376}"; x != y {
 		t.Errorf("v2to100.String() = %s", x)
@@ -84,15 +94,15 @@ func TestIntShift(t *testing.T) {
 	b1 := big.NewInt(1)
 	b2 := new(big.Int)
 	b2.Lsh(b1, 100)
-	v1 := Make(Int, b1)
+	v1 := Make(types.BasicType(Int), b1)
 	if !v1.IsValid() {
 		t.Error(v1.Err())
 	}
-	v2 := Make(UntypedInt, b2)
+	v2 := Make(types.BasicType(UntypedInt), b2)
 	if !v2.IsValid() {
 		t.Error(v2.Err())
 	}
-	v2 = v2.To(UntypedFloat)
+	v2 = v2.To(types.BasicType(UntypedFloat))
 	if !v2.IsValid() {
 		t.Error(v2.Err())
 	}
@@ -103,44 +113,45 @@ func TestIntShift(t *testing.T) {
 }
 
 func TestRune(t *testing.T) {
-	veur := Make(UntypedRune, int64('\u20ac'))
+	tuntypedrune := types.BasicType(UntypedRune)
+	veur := Make(tuntypedrune, int64('\u20ac'))
 	if x := veur.Kind(); x != UntypedRune {
 		t.Errorf("veur.Kind() = %v", x)
 	}
 	if x, exact := veur.Int64(); x != int64('\u20ac') || !exact {
 		t.Errorf("veur.Int64() = %v, %v", x, exact)
 	}
-	if x := veur.To(token.Int8); x.IsValid() {
-		t.Errorf("veur.To(token.Int8) = %v", x)
+	if x := veur.To(types.BasicType(Int8)); x.IsValid() {
+		t.Errorf("veur.To(int8) = %v", x)
 	}
-	if x := veur.To(token.Uint8); x.IsValid() {
-		t.Errorf("veur.To(token.Uint8) = %v", x)
+	if x := veur.To(types.BasicType(Uint8)); x.IsValid() {
+		t.Errorf("veur.To(uint8) = %v", x)
 	}
-	if x := veur.To(token.Int16); !x.IsValid() {
-		t.Errorf("veur.To(token.Int16) = %v", x)
+	if x := veur.To(types.BasicType(Int16)); !x.IsValid() {
+		t.Errorf("veur.To(int16) = %v", x)
 	} else if i, exact := x.Int64(); i != int64('\u20ac') || !exact {
-		t.Errorf("veur.To(token.Int16).Int64() = %v, %v", i, exact)
+		t.Errorf("veur.To(int16).Int64() = %v, %v", i, exact)
 	}
-	if x := veur.To(token.Int32); !x.IsValid() {
-		t.Errorf("veur.To(token.Int32) = %v", x)
+	if x := veur.To(types.BasicType(Int32)); !x.IsValid() {
+		t.Errorf("veur.To(int32) = %v", x)
 	} else if i, exact := x.Int64(); i != int64('\u20ac') || !exact {
-		t.Errorf("veur.To(token.Int32).Int64() = %v, %v", x, exact)
+		t.Errorf("veur.To(int32).Int64() = %v, %v", x, exact)
 	}
 	if x, y := veur.String(), `{untyped.Rune '\u20ac'}`; x != y {
 		t.Errorf("veur.String() = %s", x)
 	}
 
-	vquote := Make(UntypedRune, int64('\''))
+	vquote := Make(tuntypedrune, int64('\''))
 	if x := vquote.Kind(); x != UntypedRune {
 		t.Errorf("vquote.Kind() = %v", x)
 	}
 	if x, exact := vquote.Int64(); x != int64('\'') || !exact {
 		t.Errorf("vquote.Int64() = %v, %v", x, exact)
 	}
-	if x := vquote.To(token.Int8); !x.IsValid() {
-		t.Errorf("vquote.To(token.Int8) = %v", x)
+	if x := vquote.To(types.BasicType(Int8)); !x.IsValid() {
+		t.Errorf("vquote.To(int8) = %v", x)
 	} else if i, exact := x.Int64(); i != int64('\'') || !exact {
-		t.Errorf("vquote.To(token.Int8).Int64() = %v, %v", i, exact)
+		t.Errorf("vquote.To(int8).Int64() = %v, %v", i, exact)
 	}
 	if x, y := vquote.String(), `{untyped.Rune '\''}`; x != y {
 		t.Errorf("vquote.String() = %s", x)
@@ -150,8 +161,8 @@ func TestRune(t *testing.T) {
 func TestFloat(t *testing.T) {
 	f1, f2 := float32(8.5), float64(1e308)
 
-	v1 := Make(Float32, f1)
-	v2 := Make(UntypedFloat, f2)
+	v1 := Make(types.BasicType(Float32), f1)
+	v2 := Make(types.BasicType(UntypedFloat), f2)
 
 	if x := v1.Kind(); x != Float32 {
 		t.Errorf("v1.Kind() = %v", x)
@@ -170,8 +181,10 @@ func TestFloat(t *testing.T) {
 func TestComplex(t *testing.T) {
 	fre, fim := float32(8.5), float64(1e308)
 
-	vre := Make(UntypedFloat, fre)
-	vim := Make(UntypedFloat, fim)
+	tuntypedfloat := types.BasicType(UntypedFloat)
+
+	vre := Make(tuntypedfloat, fre)
+	vim := Make(tuntypedfloat, fim)
 	v := BinaryOp(vre, token.ADD, MakeImag(vim))
 
 	if x := v.Kind(); x != UntypedComplex {
@@ -183,8 +196,8 @@ func TestComplex(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-	v1 := Make(UntypedString, "foo")
-	v2 := Make(String, "bar")
+	v1 := Make(types.BasicType(UntypedString), "foo")
+	v2 := Make(types.BasicType(String), "bar")
 	v := BinaryOp(v1, token.ADD, v2)
 
 	if x := v1.Kind(); x != UntypedString {
@@ -204,14 +217,49 @@ func TestString(t *testing.T) {
 	}
 }
 
-func TestMulti(t *testing.T) {
+func TestMakeFromLiteral(t *testing.T) {
+	type TestCase struct {
+		str      string
+		tok      token.Token
+		val      interface{}
+		expected string
+	}
+	testcases := []TestCase{
+		{"1234567890", token.INT, int64(1234567890), "{untyped.Int 1234567890}"},
+		{"077", token.INT, int64(077), "{untyped.Int " + strings.UintToString(077) + "}"},
+		{"0b01_01_10", token.INT, int64(22), "{untyped.Int 22}"},
+		{"0o1_2", token.INT, int64(012), "{untyped.Int " + strings.UintToString(012) + "}"},
+		{"0x1234567890_1234567890_12", token.INT, nil, "{untyped.Int 22007822917626582913290258}"},
+		{"0x12.45p0", token.FLOAT, nil, "{untyped.Float 18.2695}"},
+		{"7i", token.IMAG, nil, "{untyped.Complex (0 + 7i)}"},
+		{"'a'", token.CHAR, int64('a'), "{untyped.Rune 'a'}"},
+		{"'\u20ac'", token.CHAR, int64('\u20ac'), `{untyped.Rune '\u20ac'}`},
+		{"\"foo\"", token.STRING, "foo", `{untyped.String "foo"}`},
+		{"\"\U0010ffff\"", token.STRING, "\U0010ffff", `{untyped.String "\U0010ffff"}`},
+	}
+	for _, testcase := range testcases {
+		v := MakeFromLiteral(testcase.str, testcase.tok)
+		if actual, expected := v.Value(), testcase.val; expected != nil && actual != expected {
+			t.Errorf("v.Value() = %v /*%T*/ -- expecting %v /*%T*/", actual, actual, expected, expected)
+		}
+		if actual, expected := v.String(), testcase.expected; actual != expected {
+			t.Errorf("v.String() = %v -- expecting %v", actual, expected)
+		}
+	}
+}
+
+func TestBinaryOp(t *testing.T) {
 	/*
 	 * runtime equivalent to:
 	 * const c1 = imag(1.0<<100 * 3i)
 	 */
-	v := BinaryOp(BinaryOp(Make(UntypedFloat, 1.0), token.SHL, Make(UntypedInt, 100)),
+	v := BinaryOp(
+		BinaryOp(
+			Make(types.BasicType(UntypedFloat), 1.0),
+			token.SHL,
+			Make(types.BasicType(UntypedInt), 100)),
 		token.MUL,
-		MakeImag(Make(UntypedInt, 3)),
+		MakeImag(Make(types.BasicType(UntypedInt), 3)),
 	).Imag()
 	if v.Kind() != UntypedFloat {
 		t.Errorf("v = %v", v)

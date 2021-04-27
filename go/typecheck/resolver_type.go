@@ -20,10 +20,6 @@ import (
 	"github.com/cosmos72/onejit/go/types"
 )
 
-func (r *Resolver) declareObjFunc(obj *Object) {
-	// TODO
-}
-
 func (r *Resolver) declareObjType(obj *Object) {
 	if obj.Type() != nil {
 		return
@@ -33,18 +29,9 @@ func (r *Resolver) declareObjType(obj *Object) {
 		r.error(nil, "missing declaration for "+obj.Name())
 		return
 	}
-	defer func() {
-		// FIXME: remove this hack when makeType() is finished
-		switch fail := recover().(type) {
-		case nil:
-		case *token.Error:
-			r.errors.errs = append(r.errors.errs, fail)
-		case string:
-			r.error(decl.node, fail)
-		default:
-			panic(fail)
-		}
-	}()
+	// FIXME: remove this hack when makeType() is finished
+	defer r.recoverFromPanic(decl.node)
+
 	if decl.t == nil {
 		var named *types.Named
 		if decl.init == nil {
@@ -59,19 +46,11 @@ func (r *Resolver) declareObjType(obj *Object) {
 			decl.t = underlying
 		}
 	}
-	obj.SetType(types.CompleteTypes(decl.t)[0])
+	obj.SetType(completeType(decl.t))
 }
 
-func (r *Resolver) declareObjVar(obj *Object) {
-	// TODO
-}
-
-func (r *Resolver) declareObjGenericFunc(obj *Object) {
-	// TODO
-}
-
-func (r *Resolver) declareObjGenericType(obj *Object) {
-	// TODO
+func completeType(t types.Type) *types.Complete {
+	return types.CompleteTypes(t)[0]
 }
 
 func (r *Resolver) makeType(node ast.Node) (t types.Type) {
@@ -135,8 +114,13 @@ func makeChanDir(dir ast.Node) types.ChanDir {
 }
 
 func (r *Resolver) makeTypeArray(length ast.Node, elem types.Type) types.Type {
-	// TODO
-	return nil
+	vlen := r.makeConst(length).ToKind(types.Int)
+	n, ok := vlen.Uint64()
+	if !ok {
+		r.error(length, "constant "+vlen.String()+" overflows int")
+		return nil
+	}
+	return types.NewArray(elem, n)
 }
 
 func (r *Resolver) makeTypeFunc(node ast.Node) types.Type {

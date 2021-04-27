@@ -21,16 +21,17 @@ import (
 	"math/big"
 
 	"github.com/cosmos72/onejit/go/token"
+	"github.com/cosmos72/onejit/go/types"
 )
 
 type value struct {
 	cval constant.Value
-	kind Kind
+	typ  *types.Complete
 	err  error
 }
 
 // equivalent to go/constant.Value
-// the zero value i.e. Value{} has .Kind() = Invalid and .Err() = ErrInvalid
+// the zero value i.e. Value{} has .Type() == nil, .Kind() = Invalid and .Err() = ErrInvalid
 type Value struct {
 	*value
 }
@@ -38,59 +39,10 @@ type Value struct {
 var (
 	cunknown = constant.MakeUnknown()
 
-	invalid    = Value{&value{cunknown, Invalid, ErrInvalid}}
-	untypedNil = Value{&value{cunknown, UntypedNil, nil}}
+	invalid = Value{&value{cunknown, nil, ErrInvalid}}
+	// types.BasicType(UntypedBool) does not depend on arch.Target()
+	untypedNil = Value{&value{cunknown, types.BasicType(UntypedBool), nil}}
 )
-
-func (v Value) Kind() Kind {
-	if v.value == nil {
-		return Invalid
-	}
-	return v.kind
-}
-
-/** return a short, quoted, user-readable string representation of v */
-func (v Value) String() string {
-	if v.value == nil {
-		return invalid.String()
-	} else if v.kind == Invalid {
-		if v.err != nil {
-			return "{error: " + v.err.Error() + "}"
-		} else {
-			return v.kind.String()
-		}
-	} else if v.kind == UntypedNil {
-		return v.kind.String()
-	} else if v.kind == UntypedRune {
-		return "{" + v.kind.String() + " " + untypedRune2string(v.cval) + "}"
-	} else if v.kind.IsUntyped() {
-		return "{" + v.kind.String() + " " + v.cval.String() + "}"
-	} else {
-		return v.cval.String()
-	}
-}
-
-/**
- * get the value of a constant. returned type is:
- * bool    if Kind is Bool
- * string  if Kind is String
- * int64 or *math/big.Int if kind is Int*, Uint*, UntypedInt or UntypedRune
- * *big.Float or *big.Rat if kind is Float* or UntypedFloat
- * nil     if Kind is Invalid, Complex*, UntypedComplex or UntypedNil
- */
-func (v Value) Value() interface{} {
-	if v.value == nil {
-		return nil
-	}
-	return constant.Val(v.cval)
-}
-
-/**
- * IsValid returns true if kind is != Invalid.
- */
-func (v Value) IsValid() bool {
-	return v.value != nil && v.kind != Invalid
-}
 
 /**
  * Err returns the error of an Invalid constant.
@@ -104,11 +56,69 @@ func (v Value) Err() error {
 }
 
 /**
+ * IsValid returns true if kind is != Invalid.
+ */
+func (v Value) IsValid() bool {
+	return v.value != nil && v.typ != nil
+}
+
+func (v Value) Kind() Kind {
+	if !v.IsValid() {
+		return Invalid
+	}
+	return v.typ.Kind()
+}
+
+func (v Value) Type() *types.Complete {
+	if !v.IsValid() {
+		return nil
+	}
+	return v.typ
+}
+
+/** return a short, quoted, user-readable string representation of v */
+func (v Value) String() string {
+	if v.value == nil {
+		return ErrInvalid.Error()
+	} else if v.err != nil {
+		return "{error: " + v.err.Error() + "}"
+	} else if v.typ == nil {
+		return ErrInvalid.Error()
+	}
+	c := v.cval
+	kind := v.typ.Kind()
+	if c == nil {
+		return kind.String()
+	} else if kind == UntypedRune {
+		return "{" + kind.String() + " " + untypedRune2string(c) + "}"
+	} else if kind.IsUntyped() {
+		return "{" + kind.String() + " " + c.String() + "}"
+	} else {
+		return c.String()
+	}
+}
+
+/**
+ * get the value of a constant. returned type is:
+ * bool    if Kind is Bool
+ * string  if Kind is String
+ * int64 or *math/big.Int if Kind is Int*, Uint*, UntypedInt or UntypedRune
+ * *big.Float or *big.Rat if Kind is Float* or UntypedFloat
+ * nil     if Kind is Invalid, Complex*, UntypedComplex or UntypedNil
+ */
+func (v Value) Value() interface{} {
+	if v.value == nil {
+		return nil
+	}
+	return constant.Val(v.cval)
+}
+
+/**
  * Bool returns the bool value of v.
  * v.Kind() must be Bool or Invalid
  */
 func (v Value) Bool() bool {
-	if v.value == nil {
+	if !v.IsValid() {
 		return false
 	}
 	return constant.BoolVal(v.cval)
@@ -191,35 +201,34 @@ func (v Value) Complex128() (complex128, bool) {
  * v.Kind() must be String, UntypedString or Invalid
  */
 func (v Value) StringVal() (string, bool) {
-	if v.value == nil || v.cval.Kind() != constant.String {
+	if v.value == nil || v.cval == nil || v.cval.Kind() != constant.String {
 		return "", false
 	}
 	return constant.StringVal(v.cval), true
 }
 
 /**
- * Make creates a constant. Allowed x types depend on kind:
- * bool    if Kind is Bool or UntypedBool
- * string  if Kind is String or UntypedString
+ * Make creates a constant. Allowed x types depend on t.Kind():
+ * bool    if kind is Bool or UntypedBool
+ * string  if kind is String or UntypedString
  * int*, uint* or *math/big.Int if kind is Int*, Uint*, UntypedInt or UntypedRune
  * float32, float64, *big.Float or *big.Rat if kind is Float* or UntypedFloat
  * complex64 or complex128 if kind is Complex* or UntypedComplex
- * nil     if Kind is Invalid or UntypedNil
+ * nil     if kind is Invalid or UntypedNil
  *
- * return Value{Invalid, ErrKind} if conversion of val to kind is not allowed.
- * return Value{Invalid, ErrOverflow} if conversion of val to kind is not exact.
+ * return Value{Invalid, ErrorType} if conversion of val to kind is not allowed.
+ * return Value{Invalid, ErrorOverflow} if conversion of val to kind is not exact.
  */
-func Make(kind Kind, x interface{}) Value {
+func Make(t *types.Complete, x interface{}) Value {
+	if t == nil {
+		return invalid
+	}
 	var c constant.Value
+	kind := t.Kind()
 	needvalidate := !kind.IsUntyped()
 	badkind := false
 
 	switch kind {
-	case Invalid:
-		if x == nil {
-			return invalid
-		}
-		badkind = true
 	case Bool, UntypedBool:
 		switch x := x.(type) {
 		case bool:
@@ -290,11 +299,11 @@ func Make(kind Kind, x interface{}) Value {
 	}
 	var v Value
 	if badkind {
-		v = Value{&value{cunknown, Invalid, ErrorKind{fmt.Sprint(x), kind}}}
+		v = Value{&value{cunknown, nil, ErrorType{fmt.Sprint(x), t}}}
 	} else if needvalidate {
-		v = validate(c, kind)
+		v = validate(c, t)
 	} else {
-		v = Value{&value{c, kind, nil}}
+		v = Value{&value{c, t, nil}}
 	}
 	return v
 }
@@ -346,7 +355,7 @@ func MakeImag(v Value) Value {
 	}
 	switch c := v.cval; c.Kind() {
 	case constant.Int, constant.Float:
-		return Value{&value{constant.MakeImag(c), kind2complex(v.kind), v.err}}
+		return Value{&value{constant.MakeImag(c), type2complex(v.typ), v.err}}
 	default:
 		return errNotNumeric(c)
 	}
@@ -360,7 +369,7 @@ func (v Value) Num() Value {
 	}
 	switch c := v.cval; c.Kind() {
 	case constant.Int, constant.Float:
-		return Value{&value{constant.Num(v.cval), kind2numerator(v.kind), v.err}}
+		return Value{&value{constant.Num(v.cval), type2numerator(v.typ), v.err}}
 	default:
 		return errNotReal(c)
 	}
@@ -374,7 +383,7 @@ func (v Value) Den() Value {
 	}
 	switch c := v.cval; c.Kind() {
 	case constant.Int, constant.Float:
-		return Value{&value{constant.Denom(v.cval), kind2numerator(v.kind), v.err}}
+		return Value{&value{constant.Denom(v.cval), type2numerator(v.typ), v.err}}
 	default:
 		return errNotReal(c)
 	}
@@ -389,7 +398,7 @@ func (v Value) Real() Value {
 	}
 	switch c := v.cval; c.Kind() {
 	case constant.Int, constant.Float, constant.Complex:
-		return Value{&value{constant.Real(v.cval), kind2real(v.kind), v.err}}
+		return Value{&value{constant.Real(v.cval), type2real(v.typ), v.err}}
 	default:
 		return errNotNumeric(c)
 	}
@@ -404,59 +413,74 @@ func (v Value) Imag() Value {
 	}
 	switch c := v.cval; c.Kind() {
 	case constant.Int, constant.Float, constant.Complex:
-		return Value{&value{constant.Imag(v.cval), kind2real(v.kind), v.err}}
+		return Value{&value{constant.Imag(v.cval), type2real(v.typ), v.err}}
 	default:
 		return errNotNumeric(c)
 	}
 }
 
-func kind2complex(kind Kind) Kind {
-	if kind.IsUntyped() {
-		kind = UntypedComplex
-	} else if kind == Float32 {
-		kind = Complex64
-	} else {
-		kind = Complex128
+func type2complex(t *types.Complete) *types.Complete {
+	if t == nil {
+		return nil
 	}
-	return kind
+	kind := t.Kind()
+	if kind.IsUntyped() {
+		t = types.BasicType(UntypedComplex)
+	} else if kind == Float32 {
+		t = types.BasicType(Complex64)
+	} else {
+		t = types.BasicType(Complex128)
+	}
+	return t
 }
 
-func kind2numerator(kind Kind) Kind {
+func type2numerator(t *types.Complete) *types.Complete {
+	if t == nil {
+		return nil
+	}
+	kind := t.Kind()
 	switch kind {
 	case Float32, Float64:
-		kind = Int64
+		t = types.BasicType(Int64)
 	case UntypedFloat:
-		kind = UntypedInt
+		t = types.BasicType(UntypedInt)
 	}
-	return kind
+	return t
 }
 
-func kind2real(kind Kind) Kind {
+func type2real(t *types.Complete) *types.Complete {
+	if t == nil {
+		return nil
+	}
+	kind := t.Kind()
 	switch kind {
 	case Complex64:
-		kind = Float32
+		t = types.BasicType(Float32)
 	case Complex128:
-		kind = Float64
+		t = types.BasicType(Float64)
 	case UntypedComplex:
-		kind = UntypedFloat
+		t = types.BasicType(UntypedFloat)
 	}
-	return kind
+	return t
 }
 
 /**
- * try to convert Value v to to specified kind.
+ * try to convert Value v to to specified type.
  * return Value{Invalid, ErrorBadKind} if conversion is not allowed.
  * return Value{Invalid, ErrorOverflow} if conversion is not exact.
  * otherwise return converted Value
  */
-func (v Value) To(kind Kind) Value {
-	if v.kind == kind {
-		return v
-	} else if kind == Invalid {
+func (v Value) To(t *types.Complete) Value {
+	if !v.IsValid() || t == nil {
 		return invalid
+	} else if v.typ == t {
+		return v
+	} else if v.typ.Kind() == t.Kind() {
+		// changing the type, but not its kind
+		return Value{&value{v.cval, v.typ, v.err}}
 	}
 	var c constant.Value
-	switch kind {
+	switch t.Kind() {
 	case Int, Int8, Int16, Int32, Int64,
 		Uint, Uint8, Uint16, Uint32, Uint64, Uintptr,
 		UntypedInt:
@@ -466,16 +490,27 @@ func (v Value) To(kind Kind) Value {
 	case Complex64, Complex128, UntypedComplex:
 		c = constant.ToComplex(v.cval)
 	}
-	return validate(c, kind)
+	return validate(c, t)
 }
 
-func validate(c constant.Value, kind Kind) Value {
+/**
+ * try to convert Value v to to specified kind.
+ * return Value{Invalid, ErrorBadKind} if conversion is not allowed.
+ * return Value{Invalid, ErrorOverflow} if conversion is not exact.
+ * otherwise return converted Value
+ */
+func (v Value) ToKind(kind Kind) Value {
+	return v.To(types.BasicType(kind))
+}
+
+func validate(c constant.Value, t *types.Complete) Value {
 	badkind, exact := false, false
 
-	ckind := c.Kind()
-	if ckind == constant.Unknown {
+	if c == nil || t == nil || c.Kind() == constant.Unknown {
 		return invalid
 	}
+	ckind := c.Kind()
+	kind := t.Kind()
 	switch kind {
 	case Invalid:
 		badkind = true
@@ -543,11 +578,11 @@ func validate(c constant.Value, kind Kind) Value {
 
 	v_ := *invalid.value
 	if badkind || c.Kind() == constant.Unknown {
-		v_.err = ErrorKind{c.String(), kind}
+		v_.err = ErrorType{c.String(), t}
 	} else if !exact {
 		v_.err = ErrorOverflow{c, kind}
 	} else {
-		v_ = value{c, kind, nil}
+		v_ = value{c, t, nil}
 	}
 	return Value{&v_}
 }
@@ -565,6 +600,32 @@ func uint64fits(n uint64, kind Kind) bool {
 	bits := kind.Size() * 8
 	mask := ^uint64(0) >> (64 - bits)
 	return n <= mask
+}
+
+func MakeZero(t *types.Complete) Value {
+	if t == nil {
+		return invalid
+	}
+	var c constant.Value
+	var err error
+	switch t.Kind() {
+	case Bool, UntypedBool:
+		c = constant.MakeBool(false)
+	case Int, Int8, Int16, Int32, Int64,
+		Uint, Uint8, Uint16, Uint32, Uint64, Uintptr,
+		UntypedInt, UntypedRune:
+		c = constant.MakeInt64(0)
+	case Float32, Float64, UntypedFloat:
+		c = constant.MakeFloat64(0.0)
+	case Complex64, Complex128, UntypedComplex:
+		c = constant.MakeImag(constant.MakeFloat64(0.0))
+	case String, UntypedString:
+		c = constant.MakeString("")
+	default:
+		c = cunknown
+		err = ErrorType{"constant.MakeZero(): unsupported type " + t.String(), nil}
+	}
+	return Value{&value{c, t, err}}
 }
 
 func MakeFromLiteral(lit string, tok token.Token) Value {
@@ -585,5 +646,5 @@ func MakeFromLiteral(lit string, tok token.Token) Value {
 	case token.STRING:
 		kind = UntypedString
 	}
-	return Value{&value{c, kind, nil}}
+	return Value{&value{c, types.BasicType(kind), nil}}
 }
