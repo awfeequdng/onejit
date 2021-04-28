@@ -21,8 +21,8 @@ type (
 	typeset  map[Type]struct{}
 
 	typedeps struct {
-		strong typeset
-		weak   typeset
+		fstrong typeset
+		fweak   typeset
 	}
 	// map Type -> types it depends from
 	typegraph map[Type]*typedeps
@@ -62,6 +62,22 @@ func allTypesAreComplete(ts []Type) bool {
 		}
 	}
 	return true
+}
+
+// --------------------------- typedeps ----------------------------------------
+
+func (d *typedeps) strong() typeset {
+	if d == nil {
+		return nil
+	}
+	return d.fstrong
+}
+
+func (d *typedeps) weak() typeset {
+	if d == nil {
+		return nil
+	}
+	return d.fweak
 }
 
 // --------------------------- typegraph ---------------------------------------
@@ -153,34 +169,35 @@ func (g typegraph) add(t Type, tdep Type, strong bool) {
 		}
 	}
 	if strong {
-		if deps.strong == nil {
-			deps.strong = make(typeset)
+		if deps.fstrong == nil {
+			deps.fstrong = make(typeset)
 		}
-		deps.strong[tdep] = struct{}{}
-		delete(deps.weak, tdep)
-	} else if _, haveStrong := deps.strong[tdep]; !haveStrong {
-		if deps.weak == nil {
-			deps.weak = make(typeset)
+		deps.fstrong[tdep] = struct{}{}
+		delete(deps.fweak, tdep)
+	} else if _, haveStrong := deps.fstrong[tdep]; !haveStrong {
+		if deps.fweak == nil {
+			deps.fweak = make(typeset)
 		}
-		deps.weak[tdep] = struct{}{}
+		deps.fweak[tdep] = struct{}{}
 	}
 }
 
 func (g typegraph) del(t Type, tdep Type, strong bool) {
-	deps := g[t]
-	if strong {
-		delete(deps.strong, tdep)
+	if deps := g[t]; deps != nil {
+		if strong {
+			delete(deps.fstrong, tdep)
+		}
+		delete(deps.fweak, tdep)
 	}
-	delete(deps.weak, tdep)
 }
 
 func (g typegraph) invert() typegraph {
 	invg := make(typegraph, len(g))
 	for t, deps := range g {
-		for tdep := range deps.strong {
+		for tdep := range deps.strong() {
 			invg.add(tdep, t, true)
 		}
-		for tdep := range deps.weak {
+		for tdep := range deps.weak() {
 			invg.add(tdep, t, false)
 		}
 	}
@@ -190,7 +207,7 @@ func (g typegraph) invert() typegraph {
 func (g typegraph) pickTypeNoStrongDeps() Type {
 	var first Type
 	for t, deps := range g {
-		if deps == nil || len(deps.strong) == 0 {
+		if len(deps.strong()) == 0 {
 			return t
 		} else if first == nil {
 			first = t
@@ -239,16 +256,16 @@ func checkCompleteType(t Type) {
 
 func (g2 *typegraph2) updateDeps(completed Type) {
 	t := completed
-	for tdep := range g2.fwd[t].strong {
+	for tdep := range g2.fwd[t].strong() {
 		g2.inv.del(tdep, t, true)
 	}
-	for tdep := range g2.fwd[t].weak {
+	for tdep := range g2.fwd[t].weak() {
 		g2.inv.del(tdep, t, false)
 	}
-	for tdep := range g2.inv[t].strong {
+	for tdep := range g2.inv[t].strong() {
 		g2.fwd.del(tdep, t, true)
 	}
-	for tdep := range g2.inv[t].weak {
+	for tdep := range g2.inv[t].weak() {
 		g2.fwd.del(tdep, t, false)
 	}
 	delete(g2.fwd, t)
@@ -289,13 +306,13 @@ func (d *typedeps) WriteTo(dst io.StringWriter, flag verbose) {
 		dst.WriteString("nil")
 		return
 	}
-	if d.strong != nil {
+	if d.fstrong != nil {
 		dst.WriteString("\n        ")
-		d.strong.WriteTo(dst, "STRONG", flag)
+		d.fstrong.WriteTo(dst, "STRONG", flag)
 	}
-	if d.weak != nil {
+	if d.fweak != nil {
 		dst.WriteString("\n        ")
-		d.weak.WriteTo(dst, "WEAK", flag)
+		d.fweak.WriteTo(dst, "WEAK", flag)
 	}
 }
 

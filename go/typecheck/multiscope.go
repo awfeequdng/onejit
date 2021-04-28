@@ -109,7 +109,9 @@ func (ms *multiscope) addImport(node ast.Node, name string, pkg *types.Package) 
 	} else if name != "." {
 		ms.checkRedefined(name, node)
 		obj := NewObject(types.ImportObj, name, node, ms.currfile)
-		obj.SetValue(pkg)
+		if pkg != nil {
+			obj.SetValue(pkg)
+		}
 		ms.getFile().Insert(obj)
 		return
 	}

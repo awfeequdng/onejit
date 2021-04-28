@@ -30,7 +30,7 @@ func (r *Resolver) declareObjType(obj *Object) {
 		return
 	}
 	// FIXME: remove this hack when makeType() is finished
-	defer r.recoverFromPanic(decl.node)
+	defer r.recoverFromPanic(&decl.node)
 
 	if decl.t == nil {
 		var named *types.Named
@@ -41,7 +41,7 @@ func (r *Resolver) declareObjType(obj *Object) {
 		}
 		underlying := r.makeType(decl.typ)
 		if named != nil {
-			named.SetUnderlying(underlying.Underlying())
+			named.SetUnderlying(underlying)
 		} else {
 			decl.t = underlying
 		}
@@ -51,6 +51,46 @@ func (r *Resolver) declareObjType(obj *Object) {
 
 func completeType(t types.Type) *types.Complete {
 	return types.CompleteTypes(t)[0]
+}
+
+func (r *Resolver) declareObjTypeCycle(set ObjectSet) {
+	// FIXME: also support generic types
+
+	objs := make([]*Object, 0, len(set))
+	for obj := range set {
+		if obj.Type() != nil {
+			continue
+		}
+		objs = append(objs, obj)
+		decl := obj.Decl()
+		if decl.t == nil && decl.init == nil {
+			// new named type (not an alias) forward declaration
+			decl.t = types.NewNamed(obj.Name(), r.currpkg.PkgPath())
+		}
+	}
+	var node ast.Node
+	defer r.recoverFromPanic(&node)
+
+	ts := make([]types.Type, len(objs))
+	for i, obj := range objs {
+		decl := obj.Decl()
+		t := decl.t
+		node = decl.node
+
+		if named, _ := t.(*types.Named); named != nil {
+			// declare underlying type
+			underlying := r.makeType(decl.typ)
+			named.SetUnderlying(underlying)
+		} else if t == nil {
+			// declare type
+			t = r.makeType(decl.typ)
+			decl.t = t
+		}
+		ts[i] = t
+	}
+	for i, complete := range types.CompleteTypes(ts...) {
+		objs[i].SetType(complete)
+	}
 }
 
 func (r *Resolver) makeType(node ast.Node) (t types.Type) {
@@ -232,4 +272,51 @@ func (r *Resolver) appendMethods(appendTo []types.Method, names ast.Node, typ as
 		})
 	}
 	return appendTo
+}
+
+// find a loop of mutually dependent objects among specified objs,
+// where each object in the loop also satisfies filter(object).
+//
+// return nil if no loop is found, or if every loop also contains
+// objects that do not satisfy filter(object)
+func (r *Resolver) findObjCycle(objs ObjectMap, filter func(*Object) bool) ObjectSet {
+	for _, obj := range objs {
+		set := r.getTransitiveDeps(obj, filter)
+		if set != nil {
+			return set
+		}
+	}
+	return nil
+}
+
+// compute the set of obj's transitive dependencies and return it.
+// filter() called on obj and all its transitive dependencies must return true,
+// otherwise this method will exit immediately and return nil
+func (r *Resolver) getTransitiveDeps(obj *Object, filter func(*Object) bool) ObjectSet {
+	if !filter(obj) {
+		return nil
+	}
+	queue := ObjectSet{}
+	set := ObjectSet{}
+	for obj != nil {
+		set[obj] = exists
+		for dep := range r.depfwd[obj] {
+			if !filter(dep) {
+				return nil
+			} else if _, ok := set[dep]; !ok {
+				queue[dep] = exists
+			}
+		}
+		obj = pick(queue)
+	}
+	return set
+}
+
+// remove one object from set and return it
+func pick(set ObjectSet) *Object {
+	for obj := range set {
+		delete(set, obj)
+		return obj
+	}
+	return nil
 }

@@ -21,13 +21,13 @@ import (
 	"github.com/cosmos72/onejit/go/types"
 )
 
-func (r *Resolver) recoverFromPanic(node ast.Node) {
+func (r *Resolver) recoverFromPanic(node *ast.Node) {
 	switch fail := recover().(type) {
 	case nil:
 	case *token.Error:
 		r.errors.errs = append(r.errors.errs, fail)
 	case string:
-		r.error(node, fail)
+		r.error(*node, fail)
 	default:
 		panic(fail)
 	}
@@ -43,7 +43,7 @@ func (r *Resolver) declareObjConst(obj *Object) {
 		return
 	}
 	// FIXME: remove this hack when makeType() is finished
-	defer r.recoverFromPanic(decl.node)
+	defer r.recoverFromPanic(&decl.node)
 
 	var v constant.Value
 	var t *types.Complete

@@ -112,7 +112,7 @@ func (c *Collector) importSpec(spec ast.Node) {
 
 	pkg := c.knownpkgs[pathstr]
 	if pkg == nil {
-		c.error(spec, "package not known: "+pathstr)
+		c.error(spec, `package "`+pathstr+`" not loaded`)
 	}
 	if name != nil {
 		if name.Op() == token.PERIOD {

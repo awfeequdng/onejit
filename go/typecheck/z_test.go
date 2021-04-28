@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/cosmos72/onejit/go/parser"
+	"github.com/cosmos72/onejit/go/sort"
 	"github.com/cosmos72/onejit/go/strings"
 	"github.com/cosmos72/onejit/go/testutil"
 	"github.com/cosmos72/onejit/go/token"
@@ -66,6 +67,9 @@ func makeVisitor(verbose bool) func(t *testing.T, opener testutil.Opener, dirnam
 		r.Init(&c, pkg)
 		r.Globals()
 		if verbose && testing.Verbose() {
+			for _, err := range r.Errors() {
+				t.Error(err)
+			}
 			dirbasename := strings.Basename(dirname)
 			for file, syms := range c.fileobjs {
 				t.Log(dirbasename+"/"+strings.Basename(file.Name()), "imports:", syms.Names())
@@ -77,15 +81,27 @@ func makeVisitor(verbose bool) func(t *testing.T, opener testutil.Opener, dirnam
 }
 
 func showObjs(objs ObjectMap) {
-	for name, obj := range objs {
-		showObj(name, obj)
+	names := make([]string, len(objs))
+	i := 0
+	for name := range objs {
+		names[i] = name
+		i++
+	}
+	sort.Strings(names)
+	for _, name := range names {
+		showObj(name, objs[name])
 	}
 }
 
 func showObj(name string, obj *Object) {
 	fmt.Print(name, "\t=> ", obj.String())
-	if obj.Class() == types.ConstObj {
-		fmt.Print("\t// ", obj.Value())
+	switch obj.Class() {
+	case types.ConstObj:
+		fmt.Print("\t/* ", obj.Type(), " */\t", obj.Value())
+	case types.TypeObj:
+		fmt.Print("\t/* ", obj.Type().Kind(), " */\t", obj.Type())
+	default:
+		fmt.Print("\t/* ", obj.Type(), " */")
 	}
-	fmt.Print("\t// ", obj.Type(), "\n")
+	fmt.Println()
 }

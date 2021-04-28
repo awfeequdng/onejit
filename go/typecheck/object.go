@@ -44,6 +44,8 @@ type (
 
 const NoIndex int = -1
 
+var exists struct{}
+
 func NewObject(cls types.Class, name string, node ast.Node, file *token.File) *Object {
 	obj := types.NewObject(cls, name, nil)
 	obj.SetDecl(&Decl{node: node, file: file})
@@ -100,6 +102,16 @@ func (m ObjectMap) Names() []string {
 
 func (m ObjectMap) Insert(obj *Object) {
 	m[obj.Name()] = obj
+}
+
+func (m ObjectMap) Delete(obj *Object) {
+	delete(m, obj.Name())
+}
+
+func (m ObjectMap) DeleteSet(set ObjectSet) {
+	for obj := range set {
+		m.Delete(obj)
+	}
 }
 
 /*

@@ -33,6 +33,10 @@ func (e *errors) ClearErrors() {
 	e.errs = nil
 }
 
+func (e *errors) Errors() []*token.Error {
+	return e.errs
+}
+
 func (e *errors) warning(node ast.Node, msg string) {
 	e.warns = append(e.warns, e.newError(node, msg))
 }

@@ -123,6 +123,11 @@ func (obj *Object) SetDecl(decl interface{}) *Object {
 }
 
 func (obj *Object) SetType(t *Complete) {
+	if t == nil {
+		panic("Object.SetType(nil)")
+	} else if obj.typ != nil {
+		panic("Object.SetType: type is already set")
+	}
 	obj.checkValidType(t)
 	obj.typ = t
 }

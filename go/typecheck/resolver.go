@@ -45,13 +45,15 @@ func (r *Resolver) Init(c *Collector, currpkg *types.Package) {
 }
 
 // resolve global symbols collected by Collector
-// and create their types.Type
+// and create their *types.Complete
 func (r *Resolver) Globals() {
 	r.globalsOnly = true
 	for _, node := range r.sources {
 		r.global(node)
 	}
-	r.declareGlobals()
+	if len(r.errors.errs) == 0 {
+		r.declareGlobals()
+	}
 }
 
 func (r *Resolver) global(node ast.Node) {
@@ -221,9 +223,14 @@ func (r *Resolver) qualified(curr []*Object, node ast.Node) *Object {
 }
 
 func (r *Resolver) qualifiedImport(node ast.Node, right ast.Node, obj *Object) *Object {
-	pkg, _ := obj.Value().(*types.Package)
+	val := obj.Value()
+	pkg, _ := val.(*types.Package)
 	if pkg == nil {
-		r.error(node, "internal error, expecting Value() of "+obj.Name()+" to be *types.Package")
+		if val == nil {
+			r.error(node, "package '"+obj.Name()+"' not loaded, cannot access "+node.String())
+		} else {
+			r.error(node, "internal error, expecting Value() of "+obj.Name()+" to be *types.Package")
+		}
 		return nil
 	}
 	pobj := (*Object)(pkg.Scope().Lookup(right.(*ast.Atom).Lit))
@@ -260,18 +267,27 @@ func (r *Resolver) deps(fromlist []*Object, to *Object) {
 	}
 }
 
-// create types.Type for all global declarations passed to Globals()
+// create *types.Complete for all global declarations passed to Globals()
 func (r *Resolver) declareGlobals() {
 	m := dup(r.objs)
 	for len(m) != 0 {
-		obj := r.pickSymbolNoDeps(m)
-		if obj == nil {
-			// TODO declareObj on mutually recursive types instead of exiting
+		obj := r.pickObjectWithoutDeps(m)
+		if obj != nil {
+			r.declareObj(obj)
+			r.removeDeps(obj)
+			m.Delete(obj)
+			continue
+		}
+
+		// FIXME: also allow generic types
+		set := r.findObjCycle(m, isTypeObj)
+		if set == nil {
+			r.error(nil, "invalid recursive declaration")
 			break
 		}
-		r.declareObj(obj)
-		r.removeDeps(obj)
-		delete(m, obj.Name())
+		r.declareObjTypeCycle(set)
+		r.removeDepsSet(set)
+		m.DeleteSet(set)
 	}
 }
 
@@ -283,12 +299,13 @@ func dup(m ObjectMap) ObjectMap {
 	return ret
 }
 
-func (r *Resolver) pickSymbolNoDeps(m ObjectMap) *Object {
-	// fmt.Println("depfwd: ", r.depfwd)
-	// fmt.Println("depinv: ", r.depinv)
+func isTypeObj(obj *Object) bool {
+	return obj.Class() == types.TypeObj
+}
+
+func (r *Resolver) pickObjectWithoutDeps(m ObjectMap) *Object {
 	for _, obj := range m {
 		if len(r.depfwd[obj]) == 0 {
-			// fmt.Println("picked: ", obj.String())
 			return obj
 		}
 	}
@@ -306,7 +323,13 @@ func (r *Resolver) removeDeps(obj *Object) {
 	delete(r.depinv, obj)
 }
 
-// create types.Type for specified Object
+func (r *Resolver) removeDepsSet(set ObjectSet) {
+	for obj := range set {
+		r.removeDeps(obj)
+	}
+}
+
+// create *types.Complete for specified Object
 func (r *Resolver) declareObj(obj *Object) {
 	if obj.Type() != nil {
 		return

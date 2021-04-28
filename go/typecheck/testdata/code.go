@@ -27,7 +27,6 @@ type (
 	pair = struct {
 		first, second int
 	}
-
 	Pair pair
 
 	X *X
@@ -36,6 +35,10 @@ type (
 		foo() (result Pair)
 		bar(arg Pair)
 	}
-
 	FooBar foobar
+)
+
+type (
+	RecurA struct{ *RecurB }
+	RecurB RecurA
 )

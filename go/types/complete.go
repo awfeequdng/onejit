@@ -68,6 +68,9 @@ func (t *Complete) Comparable() bool {
 }
 
 func (t *Complete) Kind() Kind {
+	if t == nil {
+		return Invalid
+	}
 	return t.kind
 }
 
