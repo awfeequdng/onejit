@@ -21,15 +21,29 @@ import (
 	"github.com/cosmos72/onejit/go/types"
 )
 
-func (r *Resolver) recoverFromPanic(node *ast.Node) {
-	switch fail := recover().(type) {
-	case nil:
-	case *token.Error:
-		r.errors.errs = append(r.errors.errs, fail)
-	case string:
-		r.error(*node, fail)
-	default:
-		panic(fail)
+func (r *Resolver) declareObjVar(obj *Object) {
+	if obj.Type() != nil {
+		return
+	}
+	decl := obj.Decl()
+	if decl == nil {
+		r.error(nil, "missing declaration for "+obj.Name())
+		return
+	} else if decl.init == nil && decl.typ == nil {
+		return
+	}
+	// FIXME: remove this hack when makeType() is finished
+	defer r.recoverFromPanic(&decl.node)
+
+	var t *types.Complete
+	if decl.init != nil {
+		// TODO
+	}
+	if decl.typ != nil {
+		t = completeType(r.makeType(decl.typ))
+	}
+	if t != nil {
+		obj.SetType(t)
 	}
 }
 
@@ -38,6 +52,10 @@ func (r *Resolver) declareObjConst(obj *Object) {
 		return
 	}
 	decl := obj.Decl()
+	if decl == nil {
+		r.error(nil, "missing declaration for "+obj.Name())
+		return
+	}
 	// TODO support iota
 	if decl.init == nil && decl.typ == nil {
 		return

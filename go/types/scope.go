@@ -28,7 +28,7 @@ type (
 		typ  *Complete
 		// constant.Value for constants, *Package for imports,
 		// Label for global variables and functions/methods
-		// GenericType generic types, GenericFunc for generic functions/methods
+		// Generic for generic types and generic functions/methods
 		value interface{}
 		// auxiliary data describing object's declaration.
 		// currently used by go/typecheck to store *typecheck.Decl
@@ -113,6 +113,14 @@ func (obj *Object) Type() *Complete {
 	return obj.typ
 }
 
+/**
+ * Value returns the value associated to given *Object, or nil if no value was set.
+ * If non nil, it is expected to be:
+ *   constant.Value for constants
+ *   *Package for imports,
+ *   Label for global variables and functions/methods
+ *   Generic for generic types and generic functions/methods
+ */
 func (obj *Object) Value() interface{} {
 	return obj.value
 }

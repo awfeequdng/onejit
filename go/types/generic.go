@@ -28,7 +28,7 @@ type (
 		generic *Generic
 	}
 
-	// Generic represents a generic type
+	// Generic represents a generic type or generic function
 	Generic struct {
 		name        string
 		pkgPath     string
@@ -39,16 +39,24 @@ type (
 		shortStr    string
 	}
 
-	// user-provided function to instantiate a generic type
-	Instantiate = func(*Generic, []Type) Type
+	// user-provided function to instantiate a generic type or generic function
+	Instantiate = func(g *Generic, concreteTypes []Type) Type
 )
 
-func NewConstraintType(typ Type) *Constraint {
-	return &Constraint{typ: typ}
+func MakeConstraintType(typ Type) Constraint {
+	return Constraint{typ: typ}
 }
 
-func NewConstraintGeneric(generic *Generic) *Constraint {
-	return &Constraint{generic: generic}
+func MakeConstraintGeneric(generic *Generic) Constraint {
+	return Constraint{generic: generic}
+}
+
+func (c Constraint) Type() Type {
+	return c.typ
+}
+
+func (c Constraint) Generic() *Generic {
+	return c.generic
 }
 
 // *Generic does NOT implement Type
@@ -103,7 +111,7 @@ func NewGeneric(
 	if len(paramNames) != len(constraints) {
 		panic("NewGeneric: paramNames and constraints have different lengths")
 	} else if instantiate == nil {
-		panic("NewGeneric: nil instantiate")
+		panic("NewGeneric: instantiate is nil")
 	}
 	fullStr := makeGenericFullString(name, pkgPath, paramNames)
 	shortStr := makeGenericShortString(pkgPath, fullStr)

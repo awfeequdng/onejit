@@ -136,6 +136,8 @@ func (r *Resolver) valueSpec(spec ast.Node) {
 
 	r.node(idents, spec.At(1)) // type
 
+	// TODO inject iota for CONST declaration
+
 	init := spec.At(2) // init.Op() == token.EXPRS
 	if init == nil {
 		return
@@ -155,6 +157,7 @@ func (r *Resolver) node(curr []*Object, node ast.Node) {
 	if node == nil {
 		return
 	}
+	// TODO check r.resolved[node]
 	switch node.Op() {
 	case token.IDENT:
 		r.ident(curr, node.(*ast.Atom))
@@ -352,18 +355,22 @@ func (r *Resolver) declareObj(obj *Object) {
 	}
 }
 
-func (r *Resolver) declareObjFunc(obj *Object) {
-	// TODO
-}
-
-func (r *Resolver) declareObjVar(obj *Object) {
-	// TODO
-}
-
 func (r *Resolver) declareObjGenericFunc(obj *Object) {
 	// TODO
 }
 
 func (r *Resolver) declareObjGenericType(obj *Object) {
 	// TODO
+}
+
+func (r *Resolver) recoverFromPanic(node *ast.Node) {
+	switch fail := recover().(type) {
+	case nil:
+	case *token.Error:
+		r.errors.errs = append(r.errors.errs, fail)
+	case string:
+		r.error(*node, fail)
+	default:
+		panic(fail)
+	}
 }

@@ -20,6 +20,24 @@ import (
 	"github.com/cosmos72/onejit/go/types"
 )
 
+func (r *Resolver) declareObjFunc(obj *Object) {
+	if obj.Type() != nil {
+		return
+	}
+	decl := obj.Decl()
+	if decl == nil {
+		r.error(nil, "missing declaration for "+obj.Name())
+		return
+	}
+	// FIXME: remove this hack when makeType() is finished
+	defer r.recoverFromPanic(&decl.node)
+
+	if decl.t == nil {
+		decl.t = r.makeType(decl.typ)
+	}
+	obj.SetType(completeType(decl.t))
+}
+
 func (r *Resolver) declareObjType(obj *Object) {
 	if obj.Type() != nil {
 		return

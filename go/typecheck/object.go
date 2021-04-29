@@ -26,10 +26,12 @@ type (
 
 	// stored in Object.Decl()
 	Decl struct {
-		node  ast.Node    // node containing the declaration
-		typ   ast.Node    // type, may be nil
-		init  ast.Node    // initializer expression, may be nil
-		index int         // if != NoIndex, must use index-th value from multi-valued init
+		node ast.Node // node containing the declaration
+		typ  ast.Node // type, may be nil
+		init ast.Node // initializer expression, may be nil
+		// ConstObj: value of iota
+		// VarObj: if != NoIndex, must use index-th value from multi-valued init
+		index int
 		file  *token.File // file where symbol is declared. needed to retrieve per-file imports
 
 		t types.Type // resolved type, may be nil

@@ -22,10 +22,13 @@ import (
 
 // symbols i.e. declarations plus per-file symbols i.e. imports and dot imports
 type multiscope struct {
-	outer    *types.Scope              // existing scope being extended
-	objs     ObjectMap                 // declared objects
-	fileobjs map[*token.File]ObjectMap // per-file objects: imports and dot imports
-	currfile *token.File               // current file
+	outer     *types.Scope              // existing scope being extended
+	objs      ObjectMap                 // declared objects
+	unnamed   []*Object                 // declared _ objects
+	initfuncs []*Object                 // list of global func init() { ... }
+	fileobjs  map[*token.File]ObjectMap // per-file objects: imports and dot imports
+	currfile  *token.File               // current file
+	universe  *types.Scope
 	errors
 }
 
@@ -33,8 +36,14 @@ type multiscope struct {
 func (ms *multiscope) Init(fileset *token.FileSet, outer *types.Scope) {
 	ms.outer = outer
 	ms.objs = nil
+	ms.unnamed = nil
+	ms.initfuncs = nil
 	ms.fileobjs = nil
 	ms.currfile = nil
+	for outer.Parent() != nil {
+		outer = outer.Parent()
+	}
+	ms.universe = outer
 	ms.errors.fileset = fileset
 }
 
@@ -87,17 +96,31 @@ func (ms *multiscope) getSyms() ObjectMap {
 	return syms
 }
 
-func (ms *multiscope) add(node ast.Node, cls types.Class, name string, typ ast.Node, init ast.Node, index int) {
-	if name == "_" {
-		return
-	}
-	ms.checkRedefined(name, node)
+func (ms *multiscope) newObject(node ast.Node, cls types.Class, name string, typ ast.Node, init ast.Node, index int) *Object {
 	obj := NewObject(cls, name, node, ms.currfile)
 	decl := obj.Decl()
 	decl.typ = typ
 	decl.init = init
 	decl.index = index
-	ms.getSyms().Insert(obj)
+	return obj
+}
+
+func (ms *multiscope) add(node ast.Node, cls types.Class, name string, typ ast.Node, init ast.Node, index int) {
+	obj := ms.newObject(node, cls, name, typ, init, index)
+	if name != "_" {
+		ms.checkRedefined(name, node)
+		ms.getSyms().Insert(obj)
+	} else {
+		ms.unnamed = append(ms.unnamed, obj)
+	}
+}
+
+func (ms *multiscope) addInitFunc(decl ast.Node, typ ast.Node, body ast.Node) {
+	obj := ms.newObject(decl, types.FuncObj, "init", typ, body, NoIndex)
+	ms.initfuncs = append(ms.initfuncs, obj)
+	if typ.Op() != token.FUNC || typ.At(0).Len() != 0 || typ.At(1) != nil {
+		ms.error(decl, "func init must have no arguments and no return values")
+	}
 }
 
 func (ms *multiscope) addImport(node ast.Node, name string, pkg *types.Package) {

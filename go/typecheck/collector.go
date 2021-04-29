@@ -24,7 +24,6 @@ import (
 // collects symbols defined in ast.Node
 type Collector struct {
 	multiscope
-	initfuncs []ast.Node     // list of global func init() { ... }
 	knownpkgs types.Packages // list of known packages
 	sources   []ast.Node
 }
@@ -34,7 +33,6 @@ var typeAlias ast.Node = &ast.Atom{Tok: token.ASSIGN}
 // does NOT clear accumulated errors and warnings
 func (c *Collector) Init(fileset *token.FileSet, scope *types.Scope, knownpkgs types.Packages) {
 	c.multiscope.Init(fileset, scope)
-	c.initfuncs = nil
 	c.knownpkgs = knownpkgs
 }
 
@@ -66,13 +64,18 @@ func (c *Collector) global(node ast.Node) {
 		for i, n := 0, node.Len(); i < n; i++ {
 			c.importSpec(node.At(i))
 		}
+	case token.CONST:
+		var lastType, lastInit ast.Node
+		for i, n := 0, node.Len(); i < n; i++ {
+			lastType, lastInit = c.constSpec(node.At(i), lastType, lastInit, i)
+		}
 	case token.TYPE:
 		for i, n := 0, node.Len(); i < n; i++ {
 			c.typeSpec(node.At(i))
 		}
-	case token.VAR, token.CONST:
+	case token.VAR:
 		for i, n := 0, node.Len(); i < n; i++ {
-			c.valueSpec(op, node.At(i))
+			c.varSpec(node.At(i))
 		}
 	}
 	if list != nil {
@@ -90,10 +93,7 @@ func (c *Collector) funcDecl(decl ast.Node) {
 	typ := decl.At(2)
 	body := decl.At(3)
 	if name.Lit == "init" {
-		c.initfuncs = append(c.initfuncs, decl)
-		if typ.Op() != token.FUNC || typ.At(0).Len() != 0 || typ.At(1) != nil {
-			c.error(decl, "func init must have no arguments and no return values")
-		}
+		c.multiscope.addInitFunc(decl, typ, body)
 	} else {
 		c.multiscope.add(decl, types.FuncObj, name.Lit, typ, body, NoIndex)
 	}
@@ -143,15 +143,29 @@ func (c *Collector) typeSpec(spec ast.Node) {
 	c.add(spec, types.TypeObj, name.Lit, typ, init, NoIndex)
 }
 
-func (c *Collector) valueSpec(op token.Token, spec ast.Node) {
+// collect a const declaration.
+// for const declarations, use lastType and lastInit if neither type or init are present
+// return updated lastType and lastInit
+func (c *Collector) valueSpec(op token.Token, spec ast.Node, lastType ast.Node, lastInit ast.Node, iotaVal int) (ast.Node, ast.Node) {
 	if spec.Op() != token.VALUE_SPEC {
 		c.error(spec, "invalid "+op.String()+" declaration: "+spec.String())
-		return
+		return lastType, lastInit
 	}
 	names := spec.At(0)
 	n := names.Len()
 	typ := spec.At(1)
 	init := spec.At(2) // init.Op() == token.EXPRS
+	if op == token.CONST {
+		if typ == nil && init == nil {
+			// if type and init are missing, reuse last ones
+			typ = lastType
+			init = lastInit
+		} else {
+			// if either type or init are present, allow later reuse
+			lastType = typ
+			lastInit = init
+		}
+	}
 	oneInitializerPerName := false
 	if init != nil {
 		switch ninit := init.Len(); ninit {
@@ -170,17 +184,118 @@ func (c *Collector) valueSpec(op token.Token, spec ast.Node) {
 				strings.IntToString(ninit)+" initializers"+
 				", expecting 0, 1 or "+strings.IntToString(n)+
 				": "+spec.String())
-			return
+			return lastType, lastInit
 		}
 	}
 
 	cls := token2class(op)
 	for i := 0; i < n; i++ {
 		atom := names.At(i).(*ast.Atom)
-		if oneInitializerPerName {
+		if op == token.CONST {
+			c.add(spec, cls, atom.Lit, typ, init.At(i), iotaVal)
+		} else if oneInitializerPerName {
 			c.add(spec, cls, atom.Lit, typ, init.At(i), NoIndex)
 		} else {
 			c.add(spec, cls, atom.Lit, typ, init, i)
 		}
+	}
+	return lastType, lastInit
+}
+
+// collect a const declaration.
+// use lastType and lastInit if neither type or init are present.
+// return updated lastType and lastInit
+func (c *Collector) constSpec(spec ast.Node, lastType ast.Node, lastInit ast.Node, iotaVal int) (ast.Node, ast.Node) {
+	if spec.Op() != token.VALUE_SPEC {
+		c.error(spec, "invalid const declaration: "+spec.String())
+		return lastType, lastInit
+	}
+	names := spec.At(0)
+	n := names.Len()
+	typ := spec.At(1)
+	init := spec.At(2) // init.Op() == token.EXPRS
+	if typ == nil && init == nil {
+		// if type and init are missing, reuse last ones
+		typ = lastType
+		init = lastInit
+	} else {
+		// if either type or init are present, allow later reuse
+		lastType = typ
+		lastInit = init
+	}
+	if init == nil && typ == nil {
+		c.error(spec, "missing type or value in const declaration: "+spec.String())
+		return lastType, lastInit
+	}
+
+	if init != nil {
+		switch ninit := init.Len(); ninit {
+		case n:
+			break
+		case 1:
+			c.error(spec, "invalid const declaration, found 1 initializer, expecting 0 or "+
+				strings.IntToString(n)+": "+spec.String())
+			init = init.At(0)
+		case 0:
+			init = nil
+		default:
+			c.error(spec, "invalid const declaration, found "+
+				strings.IntToString(ninit)+" initializers"+
+				", expecting 0 or "+strings.IntToString(n)+
+				": "+spec.String())
+			return lastType, lastInit
+		}
+	}
+
+	for i := 0; i < n; i++ {
+		atom := names.At(i).(*ast.Atom)
+		c.add(spec, types.ConstObj, atom.Lit, typ, init.At(i), iotaVal)
+	}
+	return lastType, lastInit
+}
+
+// collect a var declaration.
+func (c *Collector) varSpec(spec ast.Node) {
+	if spec.Op() != token.VALUE_SPEC {
+		c.error(spec, "invalid var declaration: "+spec.String())
+		return
+	}
+	names := spec.At(0)
+	n := names.Len()
+	typ := spec.At(1)
+	init := spec.At(2) // init.Op() == token.EXPRS
+	oneInitializerPerName := false
+
+	if init == nil && typ == nil {
+		c.error(spec, "missing type or initializer in var declaration: "+spec.String())
+		return
+	}
+	if init != nil {
+		switch ninit := init.Len(); ninit {
+		case n:
+			oneInitializerPerName = true
+		case 1:
+			init = init.At(0)
+		case 0:
+			init = nil
+		default:
+			c.error(spec, "invalid var declaration, found "+
+				strings.IntToString(ninit)+" initializers"+
+				", expecting 0, 1 or "+strings.IntToString(n)+
+				": "+spec.String())
+			return
+		}
+	}
+
+	var init_i ast.Node
+	var index_i int
+	for i := 0; i < n; i++ {
+		atom := names.At(i).(*ast.Atom)
+		if oneInitializerPerName {
+			init_i, index_i = init.At(i), i
+		} else {
+			init_i, index_i = init, NoIndex
+		}
+		c.add(spec, types.VarObj, atom.Lit, typ, init_i, index_i)
 	}
 }
