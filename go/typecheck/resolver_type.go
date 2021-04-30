@@ -29,7 +29,6 @@ func (r *Resolver) declareObjFunc(obj *Object) {
 		r.error(nil, "missing declaration for "+obj.Name())
 		return
 	}
-	// FIXME: remove this hack when makeType() is finished
 	defer r.recoverFromPanic(&decl.node)
 
 	if decl.t == nil {
@@ -47,7 +46,6 @@ func (r *Resolver) declareObjType(obj *Object) {
 		r.error(nil, "missing declaration for "+obj.Name())
 		return
 	}
-	// FIXME: remove this hack when makeType() is finished
 	defer r.recoverFromPanic(&decl.node)
 
 	if decl.t == nil {
@@ -141,7 +139,10 @@ func (r *Resolver) makeType(node ast.Node) (t types.Type) {
 		obj := r.resolved[node]
 		if obj != nil {
 			decl := obj.Decl()
-			if decl != nil && decl.t != nil {
+			if obj.Class() != types.TypeObj {
+				r.error(node, "expected type, found "+node.String())
+				break
+			} else if decl != nil && decl.t != nil {
 				t = decl.t
 				break
 			} else if complete := obj.Type(); complete != nil {

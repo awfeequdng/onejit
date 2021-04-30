@@ -364,6 +364,7 @@ func (r *Resolver) declareObjGenericType(obj *Object) {
 }
 
 func (r *Resolver) recoverFromPanic(node *ast.Node) {
+	r.universe.Lookup("iota").SetValue(nil)
 	switch fail := recover().(type) {
 	case nil:
 	case *token.Error:

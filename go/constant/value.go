@@ -208,6 +208,14 @@ func (v Value) StringVal() (string, bool) {
 }
 
 /**
+ * MakeKind creates a constant.
+ * It is a shortcut for Make(types.BasicType(kind), x)
+ */
+func MakeKind(kind Kind, x interface{}) Value {
+	return Make(types.BasicType(kind), x)
+}
+
+/**
  * Make creates a constant. Allowed x types depend on t.Kind():
  * bool    if kind is Bool or UntypedBool
  * string  if kind is String or UntypedString

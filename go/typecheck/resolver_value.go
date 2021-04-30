@@ -32,7 +32,6 @@ func (r *Resolver) declareObjVar(obj *Object) {
 	} else if decl.init == nil && decl.typ == nil {
 		return
 	}
-	// FIXME: remove this hack when makeType() is finished
 	defer r.recoverFromPanic(&decl.node)
 
 	var t *types.Complete
@@ -52,15 +51,15 @@ func (r *Resolver) declareObjConst(obj *Object) {
 		return
 	}
 	decl := obj.Decl()
-	if decl == nil {
+	if decl == nil || decl.node == nil {
 		r.error(nil, "missing declaration for "+obj.Name())
 		return
-	}
-	// TODO support iota
-	if decl.init == nil && decl.typ == nil {
+	} else if decl.init == nil && decl.typ == nil {
+		r.error(decl.node, "missing type or value in const declaration: "+decl.node.String())
 		return
 	}
-	// FIXME: remove this hack when makeType() is finished
+	r.universe.Lookup("iota").SetValue(constant.MakeKind(token.UntypedInt, decl.index))
+	// also removes iota value
 	defer r.recoverFromPanic(&decl.node)
 
 	var v constant.Value

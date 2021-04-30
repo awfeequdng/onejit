@@ -17,6 +17,9 @@
 package testdata
 
 const (
+	Iota0 = iota
+	Iota1
+
 	Foo int = Bar >> 70
 	Bar     = '\x01' << 100
 )
@@ -41,4 +44,9 @@ type (
 type (
 	RecurA struct{ *RecurB }
 	RecurB RecurA
+)
+
+type (
+	Env  struct{}
+	Stmt func(*Env) (*Env, Stmt)
 )

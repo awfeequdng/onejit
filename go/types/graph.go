@@ -108,7 +108,7 @@ func (g typegraph) addTypeContent(t Type) {
 	if _, isnamed := t.(*Named); isnamed {
 		u := x.underlying
 		if u == nil {
-			panic("CompleteTypes named type " + t.String() + " has nil underlying type")
+			panic("CompleteTypes: named type " + t.String() + " has nil underlying type")
 		}
 		// named type has a strong dependency from its underlying type,
 		// every other dependency derives from it
