@@ -89,7 +89,7 @@ var funcMap = map[interface{}]*Func{}
 
 // create a new Func type
 func NewFunc(in []Type, out []Type, variadic bool) *Func {
-	key, types := makeFuncKey(in, out, variadic)
+	key, types := makeFuncKey(in, out, variadic, "NewFunc")
 	t := funcMap[key]
 	if t != nil {
 		return t
@@ -159,12 +159,12 @@ type (
 	}
 )
 
-func makeFuncKey(in []Type, out []Type, variadic bool) (ret interface{}, types []Type) {
+func makeFuncKey(in []Type, out []Type, variadic bool, caller string) (ret interface{}, types []Type) {
 	n1, n2 := uint(len(in)), uint(len(out))
 	n := n1 + n2
 	const maxn = 65536
 	if n1 >= maxn || n2 >= maxn/2 || n > maxn {
-		panic("NewFunc: too many function parameters and results")
+		panic(caller + ": too many function parameters and results")
 	}
 	if variadic {
 		n2 |= maxn / 2

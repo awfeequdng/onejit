@@ -34,15 +34,14 @@ func (r *Resolver) declareObjVar(obj *Object) {
 	}
 	defer r.recoverFromPanic(&decl.node)
 
-	var t *types.Complete
 	if decl.init != nil {
 		// TODO
 	}
-	if decl.typ != nil {
-		t = completeType(r.makeType(decl.typ))
+	if decl.t == nil && decl.typ != nil {
+		decl.t = r.makeType(decl.typ)
 	}
-	if t != nil {
-		obj.SetType(t)
+	if decl.t != nil {
+		obj.SetType(completeType(decl.t))
 	}
 }
 

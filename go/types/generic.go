@@ -35,8 +35,10 @@ type (
 		types       []string
 		constraints []Constraint
 		instantiate Instantiate
-		fullStr     string
-		shortStr    string
+		// cache of instantiated types
+		instantiated map[interface{}]Type
+		fullStr      string
+		shortStr     string
 	}
 
 	// user-provided function to instantiate a generic type or generic function
@@ -100,7 +102,16 @@ func (g *Generic) TypeConstraint(i int) Constraint {
 }
 
 func (g *Generic) Instantiate(concreteTypes []Type) Type {
-	return g.instantiate(g, concreteTypes)
+	key, concreteTypes := makeFuncKey(concreteTypes, nil, false, "Generic.Instantiate")
+	t, _ := g.instantiated[key]
+	if t == nil {
+		t = g.instantiate(g, concreteTypes)
+		if g.instantiated == nil {
+			g.instantiated = make(map[interface{}]Type)
+		}
+		g.instantiated[key] = t
+	}
+	return t
 }
 
 // Declare a new Generic type. A generic type *cannot* be an alias
