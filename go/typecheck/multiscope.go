@@ -23,7 +23,7 @@ import (
 // symbols i.e. declarations plus per-file symbols i.e. imports and dot imports
 type multiscope struct {
 	outer     *types.Scope              // existing scope being extended
-	objs      ObjectMap                 // declared objects
+	named     ObjectMap                 // declared objects, indexed by name
 	unnamed   []*Object                 // declared _ objects
 	initfuncs []*Object                 // list of global func init() { ... }
 	fileobjs  map[*token.File]ObjectMap // per-file objects: imports and dot imports
@@ -35,7 +35,7 @@ type multiscope struct {
 // does NOT clear accumulated errors
 func (ms *multiscope) Init(fileset *token.FileSet, outer *types.Scope) {
 	ms.outer = outer
-	ms.objs = nil
+	ms.named = nil
 	ms.unnamed = nil
 	ms.initfuncs = nil
 	ms.fileobjs = nil
@@ -50,7 +50,7 @@ func (ms *multiscope) Init(fileset *token.FileSet, outer *types.Scope) {
 func (ms *multiscope) lookup(name string) (obj *Object, imported bool) {
 	obj, imported = ms.fileobjs[ms.currfile][name]
 	if obj == nil {
-		obj = ms.objs[name]
+		obj = ms.named[name]
 		imported = false
 	}
 	return obj, imported
@@ -88,10 +88,10 @@ func (ms *multiscope) getFileSlow() ObjectMap {
 }
 
 func (ms *multiscope) getSyms() ObjectMap {
-	syms := ms.objs
+	syms := ms.named
 	if syms == nil {
 		syms = make(ObjectMap)
-		ms.objs = syms
+		ms.named = syms
 	}
 	return syms
 }

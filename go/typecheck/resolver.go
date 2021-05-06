@@ -16,6 +16,7 @@ package typecheck
 
 import (
 	"github.com/cosmos72/onejit/go/ast"
+	"github.com/cosmos72/onejit/go/constant"
 	"github.com/cosmos72/onejit/go/strings"
 	"github.com/cosmos72/onejit/go/token"
 	"github.com/cosmos72/onejit/go/types"
@@ -25,7 +26,9 @@ import (
 // also computes the dependencies among declared identifiers
 type Resolver struct {
 	multiscope
-	resolved    map[ast.Node]*Object
+	objs        map[ast.Node]*Object
+	types       map[ast.Node]types.Type     // type of each expression
+	values      map[ast.Node]constant.Value // value of each constant
 	depfwd      ObjectGraph
 	depinv      ObjectGraph
 	currpkg     *types.Package
@@ -36,7 +39,9 @@ type Resolver struct {
 // does NOT clear accumulated errors
 func (r *Resolver) Init(c *Collector, currpkg *types.Package) {
 	r.multiscope = c.multiscope
-	r.resolved = nil
+	r.objs = nil
+	r.types = nil
+	r.values = nil
 	r.depfwd = nil
 	r.depinv = nil
 	r.currpkg = currpkg
@@ -188,10 +193,10 @@ func (r *Resolver) resolve(ident *ast.Atom) (obj *Object, imported bool) {
 	if obj == nil {
 		r.error(ident, "undefined: "+name)
 	} else {
-		if r.resolved == nil {
-			r.resolved = make(map[ast.Node]*Object)
+		if r.objs == nil {
+			r.objs = make(map[ast.Node]*Object)
 		}
-		r.resolved[ident] = obj
+		r.objs[ident] = obj
 	}
 	return obj, imported
 }
@@ -241,11 +246,11 @@ func (r *Resolver) qualifiedImport(node ast.Node, right ast.Node, obj *Object) *
 		r.error(node, "undefined: "+node.String())
 		return nil
 	}
-	if r.resolved == nil {
-		r.resolved = make(map[ast.Node]*Object)
+	if r.objs == nil {
+		r.objs = make(map[ast.Node]*Object)
 	}
-	r.resolved[node] = pobj
-	r.resolved[right] = pobj
+	r.objs[node] = pobj
+	r.objs[right] = pobj
 	return obj
 }
 
@@ -272,7 +277,7 @@ func (r *Resolver) deps(fromlist []*Object, to *Object) {
 
 // create *types.Complete for all global declarations passed to Globals()
 func (r *Resolver) declareGlobals() {
-	m := dup(r.objs)
+	m := dup(r.named)
 	for len(m) != 0 {
 		obj := r.pickObjectWithoutDeps(m)
 		if obj != nil {

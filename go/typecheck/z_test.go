@@ -75,7 +75,7 @@ func makeVisitor(verbose bool) func(t *testing.T, opener testutil.Opener, dirnam
 				t.Log(dirbasename+"/"+strings.Basename(file.Name()), "imports:", syms.Names())
 			}
 			t.Log(dirbasename, "decls:")
-			showObjs(c.objs)
+			showObjs(c.named)
 		}
 	}
 }

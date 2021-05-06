@@ -31,10 +31,8 @@ func (r *Resolver) declareObjFunc(obj *Object) {
 	}
 	defer r.recoverFromPanic(&decl.node)
 
-	if decl.t == nil {
-		decl.t = r.makeType(decl.typ)
-	}
-	obj.SetType(completeType(decl.t))
+	t := r.makeType(decl.typ)
+	obj.SetType(completeType(t))
 }
 
 func (r *Resolver) declareObjType(obj *Object) {
@@ -136,7 +134,7 @@ func (r *Resolver) makeType(node ast.Node) (t types.Type) {
 	case token.STRUCT:
 		t = r.makeTypeStruct(node)
 	default:
-		obj := r.resolved[node]
+		obj := r.objs[node]
 		if obj != nil {
 			decl := obj.Decl()
 			if obj.Class() != types.TypeObj {
@@ -173,7 +171,7 @@ func makeChanDir(dir ast.Node) types.ChanDir {
 }
 
 func (r *Resolver) makeTypeArray(length ast.Node, elem types.Type) types.Type {
-	vlen := r.makeConst(length).ToKind(types.Int)
+	vlen := r.constant(length).ToKind(types.Int)
 	n, ok := vlen.Uint64()
 	if !ok {
 		r.error(length, "constant "+vlen.String()+" overflows int")

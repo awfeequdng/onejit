@@ -40,11 +40,17 @@ type extra struct {
 // *Complete should NOT implement Type
 
 func (t *Complete) String() string {
+	if t == nil {
+		return ""
+	}
 	return t.str
 }
 
 // convert *Complete to Type
 func (t *Complete) Type() Type {
+	if t == nil {
+		return nil
+	}
 	return t.typ
 }
 

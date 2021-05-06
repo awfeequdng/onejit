@@ -34,7 +34,7 @@ type (
 		index int
 		file  *token.File // file where symbol is declared. needed to retrieve per-file imports
 
-		t types.Type // resolved type, may be nil
+		t types.Type // incomplete type. used only for recursive types declaration
 	}
 
 	ObjectMap map[string]*Object

@@ -50,3 +50,7 @@ type (
 	Env  struct{}
 	Stmt func(*Env) (*Env, Stmt)
 )
+
+var (
+	three = 3
+)

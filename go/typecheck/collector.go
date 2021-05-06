@@ -292,9 +292,9 @@ func (c *Collector) varSpec(spec ast.Node) {
 	for i := 0; i < n; i++ {
 		atom := names.At(i).(*ast.Atom)
 		if oneInitializerPerName {
-			init_i, index_i = init.At(i), i
+			init_i, index_i = init.At(i), NoIndex
 		} else {
-			init_i, index_i = init, NoIndex
+			init_i, index_i = init, i
 		}
 		c.add(spec, types.VarObj, atom.Lit, typ, init_i, index_i)
 	}
