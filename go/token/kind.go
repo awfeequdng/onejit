@@ -155,6 +155,14 @@ func (k Kind) IsBasic() bool {
 	return k >= Bool && k <= Complex128 || k == String || k >= UnsafePointer && k <= UntypedNil
 }
 
+func (k Kind) IsComplex() bool {
+	return k == Complex64 || k == Complex128 || k == UntypedComplex
+}
+
+func (k Kind) IsFloat() bool {
+	return k == Float32 || k == Float64 || k == UntypedFloat
+}
+
 func (k Kind) IsInteger() bool {
 	return (k >= Int && k <= Uintptr) || k == UntypedInt
 }

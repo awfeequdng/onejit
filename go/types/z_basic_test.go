@@ -91,18 +91,29 @@ func TestInterface(test *testing.T) {
 		}
 		b := bc.Type()
 		fun := NewFunc([]Type{b, b}, []Type{bbool}, false)
-		methods := []Method{{
-			Type:    fun,
-			Name:    "less",
-			PkgPath: pkgPath,
-		}}
+		methods := []Method{
+			{
+				Type:    fun,
+				Name:    "less",
+				PkgPath: pkgPath,
+			}, {
+				Type:    fun,
+				Name:    "more",
+				PkgPath: pkgPath,
+			}}
 		t := NewInterface(nil, methods...)
-		if actual, expected := t.String(), "interface { "+pkgPath+".less("+b.String()+", "+b.String()+") bool }"; actual != expected {
+		if actual, expected := t.String(), "interface { "+pkgPath+".less("+b.String()+", "+b.String()+") bool; "+
+			pkgPath+".more("+b.String()+", "+b.String()+") bool }"; actual != expected {
+
 			test.Errorf("t.String()\t= %v,\texpecting %v", actual, expected)
 		}
 		tagain := NewInterface(nil, methods...)
 		if t != tagain {
 			test.Errorf("NewInterface() produced non-identical types %p and %p", t, tagain)
+		}
+		tswap := NewInterface(nil, methods[1], methods[0])
+		if t != tswap {
+			test.Errorf("NewInterface() produced non-identical types %p and %p", t, tswap)
 		}
 
 	}

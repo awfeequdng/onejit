@@ -17,6 +17,7 @@ package types
 import (
 	"github.com/cosmos72/onejit/go/arch"
 	"github.com/cosmos72/onejit/go/io"
+	"github.com/cosmos72/onejit/go/strings"
 )
 
 type Array struct {
@@ -142,4 +143,8 @@ func writeArrayTo(dst io.StringWriter, len uint64, elem Type, flag verbose) {
 	dst.WriteString(uintToString(len))
 	dst.WriteString("]")
 	elem.WriteTo(dst, flag)
+}
+
+func uintToString(n uint64) string {
+	return strings.Uint64ToString(n)
 }

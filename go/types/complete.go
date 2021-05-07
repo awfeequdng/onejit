@@ -218,3 +218,7 @@ func (t *Complete) Field(i int) CompleteField {
 		Embedded: f.Embedded,
 	}
 }
+
+func (t *Complete) field(i int) *Field {
+	return &t.extra.fields[i]
+}

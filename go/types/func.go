@@ -256,3 +256,12 @@ func writeFuncTo(dst io.StringWriter, in []Type, out []Type, variadic bool, flag
 		dst.WriteString(")")
 	}
 }
+
+// return bitwise AND of specified type's flags
+func flagsAnd(list []Type) flags {
+	ret := ^flags(0)
+	for _, t := range list {
+		ret &= t.common().flags
+	}
+	return ret
+}

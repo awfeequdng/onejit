@@ -105,6 +105,15 @@ func NewInterface(embedded []Type, method ...Method) *Interface {
 	return t
 }
 
+// return bitwise AND of specified method type's flags
+func flagsAndMethod(list []Method) flags {
+	ret := ^flags(0)
+	for i := range list {
+		ret &= list[i].Type.common().flags
+	}
+	return ret
+}
+
 func makeInterfaceString(method []Method, flag verbose) string {
 	var b builder
 	writeInterfaceTo(&b, method, flag)
