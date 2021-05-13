@@ -14,6 +14,8 @@
 
 package config
 
+import "github.com/cosmos72/onejit/go/sort"
+
 type Feature uint64
 
 const (
@@ -27,3 +29,39 @@ const (
 	AllFeatures = ^Feature(0)            // enable all features
 
 )
+
+type BuildTags struct {
+	tags map[string]struct{}
+}
+
+func MakeBuildTags(tags ...string) BuildTags {
+	m := make(map[string]struct{}, len(tags))
+	for _, tag := range tags {
+		m[tag] = struct{}{}
+	}
+	return BuildTags{m}
+}
+
+func MakeBuildTagsMap(tags map[string]struct{}) BuildTags {
+	m := make(map[string]struct{}, len(tags))
+	for tag := range tags {
+		m[tag] = struct{}{}
+	}
+	return BuildTags{m}
+}
+
+func (b BuildTags) Find(tag string) bool {
+	_, ok := b.tags[tag]
+	return ok
+}
+
+func (b BuildTags) List() []string {
+	list := make([]string, len(b.tags))
+	i := 0
+	for tag := range b.tags {
+		list[i] = tag
+		i++
+	}
+	sort.Strings(list)
+	return list
+}
