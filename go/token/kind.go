@@ -14,7 +14,9 @@
 
 package token
 
-import "github.com/cosmos72/onejit/go/arch"
+import (
+	"github.com/cosmos72/onejit/go/config"
+)
 
 // equivalent to go/token.Kind
 type Kind uint8
@@ -138,7 +140,7 @@ func (k Kind) String() string {
 }
 
 // return size of specified kind, in bytes. 0 means unknown/variable.
-// returned size depends on arch.TargetArch()
+// returned size depends on config.TargetArch()
 func (k Kind) Size() uint64 {
 	if int(k) >= len(ksize) {
 		return 0
@@ -146,7 +148,7 @@ func (k Kind) Size() uint64 {
 	isize := int64(ksize[k])
 	size := uint64(isize)
 	if isize < 0 {
-		size = uint64(-isize) * arch.TargetArch().Bytes()
+		size = uint64(-isize) * config.TargetArch().Bytes()
 	}
 	return size
 }

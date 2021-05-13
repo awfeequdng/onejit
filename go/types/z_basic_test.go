@@ -17,15 +17,15 @@ package types
 import (
 	"testing"
 
-	"github.com/cosmos72/onejit/go/arch"
+	"github.com/cosmos72/onejit/go/config"
 )
 
 func TestBasic(test *testing.T) {
-	for _, os := range [...]arch.Os{arch.Linux, arch.Windows, arch.OsOther} {
-		for _, arc := range [...]arch.Arch{
-			arch.I386, arch.Amd64, arch.Arm, arch.Arm64, arch.ArchOther32bit, arch.ArchOther64bit,
+	for _, os := range [...]config.Os{config.Linux, config.Windows, config.OsOther} {
+		for _, arc := range [...]config.Arch{
+			config.I386, config.Amd64, config.Arm, config.Arm64, config.ArchOther32bit, config.ArchOther64bit,
 		} {
-			arch.SetTarget(os, arc)
+			config.SetTarget(os, arc)
 			for i, basic := range BasicTypes() {
 				if basic == nil {
 					continue
@@ -40,7 +40,7 @@ func TestBasic(test *testing.T) {
 			}
 		}
 	}
-	arch.SetTarget(arch.OsAuto, arch.ArchAuto)
+	config.SetTarget(config.OsAuto, config.ArchAuto)
 }
 
 func TestFunc(test *testing.T) {

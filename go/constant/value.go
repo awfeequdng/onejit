@@ -40,7 +40,7 @@ var (
 	cunknown = constant.MakeUnknown()
 
 	invalid = Value{&value{cunknown, nil, ErrInvalid}}
-	// types.BasicType(UntypedBool) does not depend on arch.Target()
+	// types.BasicType(UntypedBool) does not depend on config.Target()
 	untypedNil = Value{&value{cunknown, types.BasicType(UntypedBool), nil}}
 )
 

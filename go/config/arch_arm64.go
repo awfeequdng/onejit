@@ -1,4 +1,4 @@
-// +build 386
+// +build arm64
 
 /*
  * Copyright (C) 2021 Massimiliano Ghilardi
@@ -8,12 +8,12 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * arch_386.go
+ * arch_arm64.go
  *
  *  Created on: Apr 06, 2021
  *      Author: Massimiliano Ghilardi
  */
 
-package arch
+package config
 
-const ArchAuto = I386
+const ArchAuto = Arm64

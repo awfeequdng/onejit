@@ -15,7 +15,7 @@
 package types
 
 import (
-	"github.com/cosmos72/onejit/go/arch"
+	"github.com/cosmos72/onejit/go/config"
 	"github.com/cosmos72/onejit/go/io"
 )
 
@@ -74,16 +74,16 @@ var (
 )
 
 func sizeOfPtr() uint64 {
-	return arch.TargetArch().Bytes()
+	return config.TargetArch().Bytes()
 }
 
-// return basic types for current arch.Target()
+// return basic types for current config.Target()
 func basicTypes() []*Complete {
 	var v []*Complete
-	os, arc := arch.Target()
+	os, arc := config.Target()
 	if arc.Bits() > 32 {
 		v = basicTypes64
-	} else if os == arch.Linux && arc == arch.I386 {
+	} else if os == config.Linux && arc == config.I386 {
 		v = basicTypesLinux386
 	} else {
 		v = basicTypesOther32

@@ -15,7 +15,7 @@
 package types
 
 import (
-	"github.com/cosmos72/onejit/go/arch"
+	"github.com/cosmos72/onejit/go/config"
 	"github.com/cosmos72/onejit/go/sort"
 )
 
@@ -291,13 +291,13 @@ var (
 )
 
 // return the top-level scope, containing all predeclared objects of Go.
-// result depends on arch.Target()
+// result depends on config.Target()
 func Universe() *Scope {
 	var universe *Scope
-	os, arc := arch.Target()
+	os, arc := config.Target()
 	if arc.Bits() > 32 {
 		universe = universe64
-	} else if os == arch.Linux && arc == arch.I386 {
+	} else if os == config.Linux && arc == config.I386 {
 		universe = universeLinux386
 	} else {
 		universe = universeOther32

@@ -1,4 +1,4 @@
-// +build arm64
+// +build arm
 
 /*
  * Copyright (C) 2021 Massimiliano Ghilardi
@@ -8,12 +8,12 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * arch_arm64.go
+ * arch_arm.go
  *
  *  Created on: Apr 06, 2021
  *      Author: Massimiliano Ghilardi
  */
 
-package arch
+package config
 
-const ArchAuto = Arm64
+const ArchAuto = Arm

@@ -1,4 +1,4 @@
-// +build !linux,!windows
+// +build !386,!amd64,!arm,!arm64
 
 /*
  * Copyright (C) 2021 Massimiliano Ghilardi
@@ -8,12 +8,13 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * os_other.go
+ * arch_other.go
  *
  *  Created on: Apr 06, 2021
  *      Author: Massimiliano Ghilardi
  */
 
-package arch
+package config
 
-const OsAuto = OsOther
+// autodetect if arch is 32 or 64 bits
+const ArchAuto = ArchOther32bit + Arch(^uint(0)>>63)

@@ -14,6 +14,6 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package arch
+package config
 
 const ArchAuto = Amd64

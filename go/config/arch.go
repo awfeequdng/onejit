@@ -12,7 +12,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package arch
+package config
 
 type (
 	Arch uint16

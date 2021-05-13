@@ -1,3 +1,5 @@
+// +build linux
+
 /*
  * Copyright (C) 2021 Massimiliano Ghilardi
  *
@@ -6,34 +8,12 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * os.go
+ * os_linux.go
  *
  *  Created on: Apr 06, 2021
  *      Author: Massimiliano Ghilardi
  */
 
-package arch
+package config
 
-type Os uint16
-
-const (
-	Linux Os = iota
-	Windows
-	OsOther // Mac OS X, *BSD...
-	os_end
-)
-
-func (os Os) String() string {
-	var str string
-	switch os {
-	case Linux:
-		str = "linux"
-	case Windows:
-		str = "windows"
-	case OsOther:
-		str = "other"
-	default:
-		str = "unknown"
-	}
-	return str
-}
+const OsAuto = Linux

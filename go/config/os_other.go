@@ -1,4 +1,4 @@
-// +build linux
+// +build !linux,!windows
 
 /*
  * Copyright (C) 2021 Massimiliano Ghilardi
@@ -8,12 +8,12 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * os_linux.go
+ * os_other.go
  *
  *  Created on: Apr 06, 2021
  *      Author: Massimiliano Ghilardi
  */
 
-package arch
+package config
 
-const OsAuto = Linux
+const OsAuto = OsOther

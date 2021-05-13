@@ -15,7 +15,7 @@
 package types
 
 import (
-	"github.com/cosmos72/onejit/go/arch"
+	"github.com/cosmos72/onejit/go/config"
 	"github.com/cosmos72/onejit/go/io"
 	"github.com/cosmos72/onejit/go/strings"
 )
@@ -81,7 +81,7 @@ var arrayMap = map[arrayKey]*Array{}
 
 // create a new Array type
 func NewArray(elem Type, len uint64) *Array {
-	archMaxSize := arch.TargetArch().MaxSizeBytes()
+	archMaxSize := config.TargetArch().MaxSizeBytes()
 	if len > archMaxSize {
 		panic("NewArray length " + uintToString(len) + " exceeds archMaxSize = " + uintToString(archMaxSize))
 	}
@@ -110,7 +110,7 @@ func computeArraySize(elem Type, len uint64) uint64 {
 	if elemsize == unknownSize {
 		return elemsize
 	}
-	archMaxSize := arch.TargetArch().MaxSizeBytes()
+	archMaxSize := config.TargetArch().MaxSizeBytes()
 	if elemsize != 0 && len > archMaxSize/elemsize {
 		panic("NewArray length " + uintToString(len) + " exceeds archMaxSize/elementSize = " + uintToString(archMaxSize/elemsize))
 	}

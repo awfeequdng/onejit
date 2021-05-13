@@ -16,20 +16,22 @@ package parser
 
 import (
 	"github.com/cosmos72/onejit/go/ast"
+	"github.com/cosmos72/onejit/go/config"
 	"github.com/cosmos72/onejit/go/io"
 	"github.com/cosmos72/onejit/go/scanner"
 	"github.com/cosmos72/onejit/go/strings"
 	"github.com/cosmos72/onejit/go/token"
 )
 
-type Mode uint
+type Mode config.Feature
 
 const (
-	ParseImports   Mode = 1 << iota // also parse 'import ...'
-	ParseDecls                      // also parse declarations
-	ParseComments                   // add parsed comments to each ast.Node
-	ParseTypeAlias                  // also parse type aliases, added in Go 1.9
-	ParseGenerics                   // also parse generics, added in Go 1.xy
+	ParseImports  Mode = 1 << (63 - iota) // also parse 'import ...'
+	ParseDecls                            // also parse declarations
+	ParseComments                         // add parsed comments to each ast.Node
+
+	ParseTypeAlias = Mode(config.TypeAlias) // also parse type aliases, added in Go 1.9
+	ParseGenerics  = Mode(config.Generics)  // also parse generics, added in Go 1.xy
 
 	Go1_8   = ParseTypeAlias - 1 // enable all flags < ParseTypeAlias
 	Go1_9   = ParseGenerics - 1  // enable all flags <= ParseTypeAlias
