@@ -48,6 +48,7 @@ const (
 
 	unknownSize  = ^uint64(0)
 	unknownAlign = ^uint16(0)
+	unknownHash  = 0
 
 	shortPkgName = strings.ShortPkgName
 	fullPkgPath  = strings.FullPkgPath

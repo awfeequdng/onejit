@@ -19,6 +19,7 @@ import (
 	"go/build"
 	"testing"
 
+	"github.com/cosmos72/onejit/go/config"
 	"github.com/cosmos72/onejit/go/parser"
 	"github.com/cosmos72/onejit/go/sort"
 	"github.com/cosmos72/onejit/go/strings"
@@ -29,7 +30,7 @@ import (
 
 func TestChecker(t *testing.T) {
 	var p parser.Parser
-	p.InitString("const ( a = 1; b = 2 )", parser.Default)
+	p.InitString("const ( a = 1; b = 2 )", parser.ParseAll, config.AllFeatures)
 	CheckGlobals(nil, types.NewPackage("main", "main"), nil, p.Parse())
 }
 
@@ -55,7 +56,7 @@ func makeVisitor(verbose bool) func(t *testing.T, opener testutil.Opener, dirnam
 	return func(t *testing.T, opener testutil.Opener, dirname string) {
 		p.ClearErrors()
 		fset := token.NewFileSet(dirname)
-		dir := p.InitParseDir(fset, opener, parser.Go1_9)
+		dir := p.InitParseDir(fset, opener, parser.ParseAll, config.Go1_9)
 		testutil.CompareErrors(t, dirname, p.Errors(), nil)
 
 		pkg := types.NewPackage(dir.PkgName(), dir.PkgPath())

@@ -104,16 +104,19 @@ func (t *Named) AddMethod(mtd *Method) {
 func NewNamed(name string, pkgPath string) *Named {
 	str := name
 	if len(pkgPath) != 0 {
-		pkgName := strings.Basename(pkgPath)
-		n := len(pkgName)
-		str = pkgName + "." + name
-		name = str[n+1:]
+		fullStr := pkgPath + "." + name
+		fullLen := len(fullStr)
+		pkgLen := len(pkgPath)
+		name = fullStr[fullLen-len(name):]
+		pkgPath = fullStr[:pkgLen]
+		str = fullStr[pkgLen-len(strings.Basename(pkgPath)):]
 	}
 	t := &Named{
 		rtype: Complete{
 			size:  unknownSize,
 			align: unknownAlign,
 			kind:  Invalid, // not known yet
+			hash:  computeNamedHash(name, pkgPath),
 			str:   str,
 		},
 		extra: extra{
@@ -144,6 +147,7 @@ func traverseUnderlyingCheckLoop(t Type, u Type) Type {
 
 func fillFromUnderlying(r *Complete, u *Complete) {
 	r.size = u.size
+	r.align = u.align
 	r.flags = u.flags
 	r.kind = u.kind
 	r.elem = u.elem
@@ -178,4 +182,10 @@ func (t *Named) complete() {
 		fillFromUnderlying(&t.rtype, u.common())
 		t.extra.underlying = u
 	}
+}
+
+// hash of a named type cannot depend on its underlying type,
+// because named types can be recursive i.e. refer to themselves
+func computeNamedHash(name string, pkgPath string) hash {
+	return hashInit().String(name).String(pkgPath)
 }

@@ -22,6 +22,7 @@ type Complete struct {
 	kind  Kind     // kind
 	typ   Type     // type, needed to convert Complete to Type
 	elem  Type     // elem type of array, chan, map, ptr, slice
+	hash  hash     // type's hash
 	extra *extra   // array length, function parameters/results, map key Type, struct fields, named name and underlying
 	ptrTo *Pointer // type of pointer to this type
 	str   string   // compute lazily?

@@ -52,6 +52,9 @@ func (t *Struct) complete() {
 	}
 	t.rtype.flags = computeStructFlags(fields)
 	t.updateFieldOffsets()
+	if t.rtype.hash == unknownHash {
+		t.rtype.hash = computeStructHash(fields)
+	}
 }
 
 func (t *Struct) WriteTo(dst io.StringWriter, flag verbose) {
@@ -87,6 +90,7 @@ func NewStruct(fields ...Field) *Struct {
 			align: computeStructAlign(fields),
 			flags: computeStructFlags(fields),
 			kind:  StructKind,
+			hash:  computeStructHash(fields),
 			str:   makeStructString(fields, shortPkgName),
 		},
 		extra: extra{
@@ -98,6 +102,18 @@ func NewStruct(fields ...Field) *Struct {
 	t.updateFieldOffsets()
 	structMap[key] = t
 	return t
+}
+
+func computeStructHash(fields []Field) hash {
+	h := hashInit().String("struct").Int(len(fields))
+	for i := range fields {
+		field := &fields[i]
+		h := field.hash(h)
+		if h == unknownHash {
+			break
+		}
+	}
+	return h
 }
 
 type (

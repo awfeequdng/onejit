@@ -148,6 +148,7 @@ func newBasic(kind Kind, size uint64, align uint16) *Complete {
 			align: align,
 			flags: flagComparable | flagComplete,
 			kind:  kind,
+			hash:  hashInit().Uint8(uint8(kind)).Uint64(size),
 			str:   kind.String(),
 		},
 	}

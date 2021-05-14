@@ -39,7 +39,9 @@ func (t *Slice) common() *Complete {
 }
 
 func (t *Slice) complete() {
-	// nothing to do
+	if t.rtype.hash == unknownHash {
+		t.rtype.hash = computeSliceHash(t.Elem())
+	}
 }
 
 func (t *Slice) WriteTo(dst io.StringWriter, flag verbose) {
@@ -73,10 +75,19 @@ func NewSlice(elem Type) *Slice {
 			flags: (elem.common().flags & flagComplete) | flagNotComparable,
 			kind:  SliceKind,
 			elem:  elem,
+			hash:  computeSliceHash(elem),
 			str:   "[]" + elem.String(),
 		},
 	}
 	t.rtype.typ = t
 	sliceMap[elem] = t
 	return t
+}
+
+func computeSliceHash(elem Type) hash {
+	elemhash := elem.common().hash
+	if elemhash == unknownHash {
+		return unknownHash
+	}
+	return elemhash.Uint8('[')
 }

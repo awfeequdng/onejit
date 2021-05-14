@@ -19,13 +19,14 @@ import (
 	"testing"
 
 	"github.com/cosmos72/onejit/go/ast"
+	"github.com/cosmos72/onejit/go/config"
 	"github.com/cosmos72/onejit/go/sort"
 	"github.com/cosmos72/onejit/go/testutil"
 	"github.com/cosmos72/onejit/go/token"
 )
 
 func parseFromString(t *testing.T, p *Parser, source string) {
-	p.InitString(source, Default)
+	p.InitString(source, ParseAll, config.AllFeatures)
 	for {
 		node := p.Parse()
 		if node == nil {
@@ -49,7 +50,7 @@ func TestParseGoRootDir(t *testing.T) {
 	p := Parser{}
 	visit := func(t *testing.T, opener FileOpener, dirname string) {
 		p.ClearErrors()
-		p.InitParseDir(token.NewFileSet(dirname), opener, Go1_9)
+		p.InitParseDir(token.NewFileSet(dirname), opener, ParseAll, config.Go1_9)
 		testutil.CompareErrors(t, dirname, p.Errors(), nil)
 	}
 	testutil.VisitDirRecurse(t, visit, build.Default.GOROOT)
@@ -60,7 +61,7 @@ func TestParseOnejitGoDir(t *testing.T) {
 	p := Parser{}
 	visit := func(t *testing.T, opener FileOpener, dirname string) {
 		p.ClearErrors()
-		dir := p.InitParseDir(token.NewFileSet(dirname), opener, Go1_9)
+		dir := p.InitParseDir(token.NewFileSet(dirname), opener, ParseAll, config.Go1_9)
 		testutil.CompareErrors(t, dirname, p.Errors(), nil)
 		showDirImports(t, dir)
 	}

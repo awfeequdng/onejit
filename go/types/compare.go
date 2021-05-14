@@ -15,7 +15,7 @@
 package types
 
 func IdenticalType(c1 *Complete, c2 *Complete, ignoreTags bool) bool {
-	if c1 == nil || c2 == nil {
+	if c1 == nil || c2 == nil || c1.hash != c2.hash {
 		return false
 	} else if c1 == c2 {
 		return true
@@ -54,7 +54,7 @@ func (cmp *comparator) del(c1 *Complete, c2 *Complete) {
 }
 
 func (cmp *comparator) identicalType(c1 *Complete, c2 *Complete) bool {
-	if c1 == nil || c2 == nil {
+	if c1 == nil || c2 == nil || c1.hash != c2.hash {
 		return false
 	} else if c1 == c2 {
 		return true

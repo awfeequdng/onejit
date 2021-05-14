@@ -41,8 +41,8 @@ const (
 	errParamsNamedUnnamed           = errText("syntax error: mixed named and unnamed function parameters")
 	errParamNonFinalEllipsis        = errText("syntax error: cannot use ... with non-final parameter")
 	errSelectCaseNotSendOrRecv      = errText("select case must be send, receive or assign recv")
-	errTypeAlias                    = errText("type aliases are disabled, they require flag ParseTypeAlias")
-	errGenerics                     = errText("generics are disabled, they require flag ParseGenerics")
+	errTypeAlias                    = errText("type aliases are disabled, they require config.TypeAlias")
+	errGenerics                     = errText("generics are disabled, they require config.Generics")
 )
 
 func (p *Parser) makeErrText(suffix string) errText {

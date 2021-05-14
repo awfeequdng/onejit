@@ -39,7 +39,9 @@ func (t *Pointer) common() *Complete {
 }
 
 func (t *Pointer) complete() {
-	// nothing to do
+	if t.rtype.hash == unknownHash {
+		t.rtype.hash = computePtrHash(t.Elem())
+	}
 }
 
 func (t *Pointer) WriteTo(dst io.StringWriter, flag verbose) {
@@ -72,10 +74,19 @@ func NewPointer(elem Type) *Pointer {
 			flags: (relem.flags & flagComplete) | flagComparable,
 			kind:  PtrKind,
 			elem:  elem,
+			hash:  computePtrHash(elem),
 			str:   "*" + elem.String(),
 		},
 	}
 	t.rtype.typ = t
 	relem.ptrTo = t
 	return t
+}
+
+func computePtrHash(elem Type) hash {
+	elemhash := elem.common().hash
+	if elemhash == unknownHash {
+		return unknownHash
+	}
+	return elemhash.Uint8('*')
 }

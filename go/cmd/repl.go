@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"github.com/cosmos72/onejit/go/config"
 	"github.com/cosmos72/onejit/go/io"
 	"github.com/cosmos72/onejit/go/parser"
 	"github.com/cosmos72/onejit/go/token"
@@ -23,7 +24,7 @@ import (
 func Repl(in io.Reader, out io.StringWriter) {
 	var p parser.Parser
 	out.WriteString("go> ")
-	p.Init(token.NewFile("repl.go", 0), in, parser.Default)
+	p.Init(token.NewFile("repl.go", 0), in, parser.ParseAll, config.AllFeatures)
 	for {
 		node := p.Parse()
 		if node != nil {

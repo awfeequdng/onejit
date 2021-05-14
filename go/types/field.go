@@ -46,3 +46,15 @@ func (f *Field) WriteTo(dst io.StringWriter, flag verbose) {
 	}
 	f.Type.WriteTo(dst, flag)
 }
+
+func (f *Field) hash(h hash) hash {
+	if f == nil || f.Type == nil {
+		return unknownHash
+	}
+	typhash := f.Type.common().hash
+	if typhash == unknownHash {
+		return unknownHash
+	}
+	// ignore Field Tag when computing hash
+	return h.Hash(typhash).String(f.Name).String(f.PkgPath).Bool(f.Embedded)
+}

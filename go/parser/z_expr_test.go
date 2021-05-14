@@ -18,11 +18,12 @@ import (
 	"testing"
 
 	"github.com/cosmos72/onejit/go/ast"
+	"github.com/cosmos72/onejit/go/config"
 )
 
 func makeParser(str string) *Parser {
 	var p Parser
-	p.InitString(str, Default)
+	p.InitString(str, ParseAll, config.AllFeatures)
 	return &p
 }
 

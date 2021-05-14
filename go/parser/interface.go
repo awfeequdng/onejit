@@ -16,6 +16,7 @@ package parser
 
 import (
 	"github.com/cosmos72/onejit/go/ast"
+	"github.com/cosmos72/onejit/go/config"
 	"github.com/cosmos72/onejit/go/token"
 )
 
@@ -54,7 +55,7 @@ func (p *Parser) parseInterfaceMethodOrEmbeddedOrTypeList() *ast.Field {
 	field := &ast.Field{
 		Atom: ast.Atom{Tok: token.FIELD, TokPos: p.pos()},
 	}
-	if p.tok() == token.TYPE && p.Mode&ParseGenerics != 0 {
+	if p.tok() == token.TYPE && p.Lang >= config.Generics {
 		// interface { type /* typelist */ }
 		p.next()
 		field.Names = p.parseTypeList()

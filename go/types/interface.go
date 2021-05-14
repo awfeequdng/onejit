@@ -43,7 +43,9 @@ func (t *Interface) common() *Complete {
 }
 
 func (t *Interface) complete() {
-	// nothing to do
+	if t.rtype.hash == unknownHash {
+		t.rtype.hash = computeInterfaceHash(t.extra.methods)
+	}
 }
 
 func (t *Interface) WriteTo(dst io.StringWriter, flag verbose) {
@@ -92,6 +94,7 @@ func NewInterface(embedded []Type, method ...Method) *Interface {
 			align: uint16(size),
 			flags: (flagsAndMethod(method) & flagComplete) | flagComparable,
 			kind:  InterfaceKind,
+			hash:  computeInterfaceHash(method),
 			str:   makeInterfaceString(method, shortPkgName),
 		},
 		extra: extra{
@@ -114,23 +117,35 @@ func flagsAndMethod(list []Method) flags {
 	return ret
 }
 
-func makeInterfaceString(method []Method, flag verbose) string {
+func computeInterfaceHash(methods []Method) hash {
+	h := hashInit().String("interface").Int(len(methods))
+	for i := range methods {
+		mtd := &methods[i]
+		h := mtd.hash(h)
+		if h == unknownHash {
+			break
+		}
+	}
+	return h
+}
+
+func makeInterfaceString(methods []Method, flag verbose) string {
 	var b builder
-	writeInterfaceTo(&b, method, flag)
+	writeInterfaceTo(&b, methods, flag)
 	return b.String()
 }
 
-func writeInterfaceTo(dst io.StringWriter, method []Method, flag verbose) {
+func writeInterfaceTo(dst io.StringWriter, methods []Method, flag verbose) {
 	dst.WriteString("interface {")
-	for i := range method {
+	for i := range methods {
 		if i == 0 {
 			dst.WriteString(" ")
 		} else {
 			dst.WriteString("; ")
 		}
-		method[i].WriteTo(dst, flag)
+		methods[i].WriteTo(dst, flag)
 	}
-	if len(method) == 0 {
+	if len(methods) == 0 {
 		dst.WriteString("}")
 	} else {
 		dst.WriteString(" }")

@@ -50,6 +50,7 @@ func (t *Array) complete() {
 	elem := t.Elem()
 	len := t.Len()
 	t.rtype.size = computeArraySize(elem, len)
+	t.rtype.hash = computeArrayHash(elem, len)
 	t.rtype.align = computeArrayAlign(elem, len)
 	t.rtype.flags = computeArrayFlags(elem, len)
 }
@@ -97,6 +98,7 @@ func NewArray(elem Type, len uint64) *Array {
 			flags: computeArrayFlags(elem, len),
 			kind:  ArrayKind,
 			elem:  elem,
+			hash:  computeArrayHash(elem, len),
 			str:   makeArrayString(len, elem, shortPkgName),
 		},
 	}
@@ -115,6 +117,14 @@ func computeArraySize(elem Type, len uint64) uint64 {
 		panic("NewArray length " + uintToString(len) + " exceeds archMaxSize/elementSize = " + uintToString(archMaxSize/elemsize))
 	}
 	return len * elemsize
+}
+
+func computeArrayHash(elem Type, len uint64) hash {
+	elemhash := elem.common().hash
+	if elemhash == unknownHash {
+		return unknownHash
+	}
+	return elemhash.Uint64(len)
 }
 
 func computeArrayAlign(elem Type, len uint64) uint16 {

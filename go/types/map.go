@@ -40,7 +40,9 @@ func (t *Map) common() *Complete {
 }
 
 func (t *Map) complete() {
-	// nothing to do
+	if t.rtype.hash == unknownHash {
+		t.rtype.hash = computeMapHash(t.Key(), t.Elem())
+	}
 }
 
 func (t *Map) WriteTo(dst io.StringWriter, flag verbose) {
@@ -85,6 +87,7 @@ func NewMap(key Type, elem Type) *Map {
 			flags: (key.common().flags & elem.common().flags & flagComplete) | flagNotComparable,
 			kind:  MapKind,
 			elem:  elem,
+			hash:  computeMapHash(key, elem),
 			str:   makeMapString(key, elem, shortPkgName),
 		},
 		extra: extra{
@@ -95,6 +98,15 @@ func NewMap(key Type, elem Type) *Map {
 	t.rtype.extra = &t.extra
 	mapMap[k] = t
 	return t
+}
+
+func computeMapHash(key Type, elem Type) hash {
+	khash := key.common().hash
+	ehash := key.common().hash
+	if khash == unknownHash || ehash == unknownHash {
+		return unknownHash
+	}
+	return khash.String("map").Hash(ehash)
 }
 
 func makeMapString(key Type, elem Type, flag verbose) string {

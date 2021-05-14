@@ -48,3 +48,14 @@ func (m *Method) WriteTo(dst io.StringWriter, flag verbose) {
 	// omits "func" prefix
 	writeFuncTo(dst, sig.in(), sig.out(), sig.IsVariadic(), flag)
 }
+
+func (m *Method) hash(h hash) hash {
+	if m == nil || m.Type == nil {
+		return unknownHash
+	}
+	typhash := m.Type.common().hash
+	if typhash == unknownHash {
+		return unknownHash
+	}
+	return h.Hash(typhash).String(m.Name).String(m.PkgPath)
+}

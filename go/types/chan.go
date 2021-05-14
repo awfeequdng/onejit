@@ -39,7 +39,9 @@ func (t *Chan) common() *Complete {
 }
 
 func (t *Chan) complete() {
-	// nothing to do
+	if t.rtype.hash == unknownHash {
+		t.rtype.hash = computeChanHash(t.Dir(), t.Elem())
+	}
 }
 
 func (t *Chan) WriteTo(dst io.StringWriter, flag verbose) {
@@ -83,12 +85,21 @@ func NewChan(dir ChanDir, elem Type) *Chan {
 			flags: flags(dir) | (elem.common().flags & flagComplete) | flagNotComparable,
 			kind:  ChanKind,
 			elem:  elem,
+			hash:  computeChanHash(dir, elem),
 			str:   makeChanString(dir, elem, shortPkgName),
 		},
 	}
 	t.rtype.typ = t
 	chanMap[key] = t
 	return t
+}
+
+func computeChanHash(dir ChanDir, elem Type) hash {
+	elemhash := elem.common().hash
+	if elemhash == unknownHash {
+		return unknownHash
+	}
+	return elemhash.String("chan").Uint16(uint16(dir))
 }
 
 func makeChanString(dir ChanDir, elem Type, flag verbose) string {

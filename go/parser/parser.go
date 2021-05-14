@@ -23,49 +23,44 @@ import (
 	"github.com/cosmos72/onejit/go/token"
 )
 
-type Mode config.Feature
+type Mode uint32
 
 const (
-	ParseImports  Mode = 1 << (63 - iota) // also parse 'import ...'
-	ParseDecls                            // also parse declarations
-	ParseComments                         // add parsed comments to each ast.Node
-
-	ParseTypeAlias = Mode(config.TypeAlias) // also parse type aliases, added in Go 1.9
-	ParseGenerics  = Mode(config.Generics)  // also parse generics, added in Go 1.xy
-
-	Go1_8   = ParseTypeAlias - 1 // enable all flags < ParseTypeAlias
-	Go1_9   = ParseGenerics - 1  // enable all flags <= ParseTypeAlias
-	Default = ^Mode(0)           // enable all flags
-
+	ParseImports  Mode       = 1 << iota // also parse 'import ...'
+	ParseDecls                           // also parse declarations
+	ParseComments                        // add parsed comments to each ast.Node
+	ParseAll      = ^Mode(0)             // parse everything
 )
 
-// Go syntax parser. Supports reading from a io.StringReader.
+// Go syntax parser. Supports reading from a io.Reader.
 // callers should invoke Init() before any Parse*() method.
 // The only method that clears accumulated errors is ClearErrors()
 type Parser struct {
 	curr    ast.Atom
 	unread0 ast.Atom
-	Mode    Mode // Parser Mode is exported
+	Mode    Mode        // Parser Mode is exported
+	Lang    config.Lang // Parser Lang is exported
 	scanner scanner.Scanner
 }
 
 // initialize parser and read the first non-comment token from src
 // does NOT clear accumulated errors
-func (p *Parser) Init(file *token.File, src io.Reader, mode Mode) {
+func (p *Parser) Init(file *token.File, src io.Reader, mode Mode, lang config.Lang) {
 	p.scanner.Init(file, src)
 	p.curr = ast.Atom{}
 	p.unread0 = ast.Atom{}
 	p.Mode = mode
+	p.Lang = lang
 
 	p.next()
 }
 
 // initialize parser to read from specified string.
 // does NOT clear accumulated errors
-func (p *Parser) InitString(source string, mode Mode) {
+func (p *Parser) InitString(source string, mode Mode, lang config.Lang) {
 	var reader strings.Reader
 	reader.Reset(source)
-	p.Init(token.NewFile("<string>", 0), &reader, mode)
+	p.Init(token.NewFile("<string>", 0), &reader, mode, lang)
 }
 
 // return current token lookahead buffer

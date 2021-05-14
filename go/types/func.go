@@ -41,7 +41,9 @@ func (t *Func) common() *Complete {
 }
 
 func (t *Func) complete() {
-	// nothing to do
+	if t.rtype.hash == unknownHash {
+		t.rtype.hash = computeFuncHash(t.in(), t.out(), t.IsVariadic())
+	}
 }
 
 func (t *Func) WriteTo(dst io.StringWriter, flag verbose) {
@@ -105,6 +107,7 @@ func NewFunc(in []Type, out []Type, variadic bool) *Func {
 			align: uint16(size),
 			flags: flag | flagNotComparable,
 			kind:  FuncKind,
+			hash:  computeFuncHash(in, out, variadic),
 			str:   makeFuncString(in, out, variadic, shortPkgName),
 		},
 		extra: extra{
@@ -117,6 +120,25 @@ func NewFunc(in []Type, out []Type, variadic bool) *Func {
 	t.rtype.extra = &t.extra
 	funcMap[key] = t
 	return t
+}
+
+func computeFuncHash(in []Type, out []Type, variadic bool) hash {
+	h := hashInit().String("func").Int(len(in)).Int(len(out)).Bool(variadic)
+	for _, typ := range in {
+		typhash := typ.common().hash
+		if typhash == unknownHash {
+			return unknownHash
+		}
+		h = h.Hash(typhash)
+	}
+	for _, typ := range out {
+		typhash := typ.common().hash
+		if typhash == unknownHash {
+			return unknownHash
+		}
+		h = h.Hash(typhash)
+	}
+	return h
 }
 
 type (
