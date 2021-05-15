@@ -76,6 +76,31 @@ func (v Value) Type() *types.Complete {
 	return v.typ
 }
 
+// if v is typed, return Type()
+// if v is untyped, return its default type
+func (v Value) DefaultType() *types.Complete {
+	var kind Kind
+	switch v.Kind() {
+	case UntypedBool:
+		kind = Bool
+	case UntypedInt:
+		kind = Int
+	case UntypedRune:
+		kind = Rune
+	case UntypedFloat:
+		kind = Float32
+	case UntypedComplex:
+		kind = Complex128
+	case UntypedString:
+		kind = String
+	case UntypedNil:
+		kind = Invalid
+	default:
+		return v.Type()
+	}
+	return types.BasicType(kind)
+}
+
 /** return a short, quoted, user-readable string representation of v */
 func (v Value) String() string {
 	if v.value == nil {
