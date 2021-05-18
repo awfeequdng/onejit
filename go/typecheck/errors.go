@@ -17,6 +17,7 @@ package typecheck
 import (
 	"github.com/cosmos72/onejit/go/ast"
 	"github.com/cosmos72/onejit/go/token"
+	"github.com/cosmos72/onejit/go/types"
 )
 
 type errors struct {
@@ -43,6 +44,10 @@ func (e *errors) warning(node ast.Node, msg string) {
 
 func (e *errors) error(node ast.Node, msg string) {
 	e.errs = append(e.errs, e.newError(node, msg))
+}
+
+func (e *errors) assign_error(node ast.Node, src *types.Complete, dst *types.Complete) {
+	e.error(node, "cannot use type "+src.String()+" as type "+dst.String()+" in assignment")
 }
 
 func (e *errors) newError(node ast.Node, msg string) *token.Error {

@@ -30,11 +30,12 @@ func (r *Resolver) declareObjVar(obj *Object) {
 		r.error(nil, "missing declaration for "+obj.Name())
 		return
 	} else if decl.init == nil && decl.typ == nil {
+		r.error(decl.node, "missing declaration for "+obj.Name())
 		return
 	}
 	defer r.recoverFromPanic(&decl.node)
 
-	var t types.Type
+	var t *types.Complete
 	var v constant.Value
 
 	if decl.init != nil {
@@ -42,23 +43,36 @@ func (r *Resolver) declareObjVar(obj *Object) {
 			// one initializer per variable
 			t, v = r.expr(decl.init)
 		} else {
-			// TODO
+			// TODO initializer is multi-valued expression
 		}
 	}
 	if decl.typ != nil {
-		// TODO if t != nil, convert to it
-		t = r.makeType(decl.typ)
+		decl_t := completeType(r.makeType(decl.typ))
+		if t == nil || types.AssignableTo(t, decl_t) {
+			t = decl_t
+		} else {
+			r.assign_error(decl.node, t, decl_t)
+			return
+		}
+	}
+	if t == nil {
+		r.error(decl.node, "missing type for "+obj.Name())
+		return
+	} else if t.Kind().IsUntyped() {
+		t = v.DefaultType()
 	}
 	if v.IsValid() {
-		// TODO this is the INITIAL value of the variable
-		// obj.SetValue(v)
-
-		// TODO untyped constants have v.Type().Type() == nil
-		// if t == nil, use default type of untyped constant
+		// this is the INITIAL value of the variable
+		if t != v.Type() {
+			v = v.To(t)
+			if !v.IsValid() {
+				r.error(decl.node, v.Err().Error())
+				return
+			}
+		}
+		obj.SetValue(v)
 	}
-	if t != nil {
-		obj.SetType(completeType(t))
-	}
+	obj.SetType(t)
 }
 
 func (r *Resolver) declareObjConst(obj *Object) {
@@ -122,15 +136,15 @@ func (r *Resolver) constant(node ast.Node) constant.Value {
 	if v.Kind() == constant.Invalid {
 		r.error(node, "const initializer "+node.String()+" is not a constant")
 	} else {
-		r.setTypeValue(node, v.Type().Type(), v)
+		r.setTypeValue(node, v.Type(), v)
 	}
 	return v
 }
 
 // resolve the type of an expression. if the expression is a constant, also returns its value
-func (r *Resolver) expr(node ast.Node) (t types.Type, v constant.Value) {
+func (r *Resolver) expr(node ast.Node) (t *types.Complete, v constant.Value) {
 	if obj := r.objs[node]; obj != nil {
-		t = obj.Type().Type()
+		t = obj.Type()
 		switch obj.Class() {
 		case types.ConstObj:
 			if v_, ok := obj.Value().(constant.Value); ok {
@@ -169,10 +183,10 @@ func (r *Resolver) expr(node ast.Node) (t types.Type, v constant.Value) {
 
 // resolve the type of a 0-arg expression.
 // if the expression is a constant, also returns its value
-func (r *Resolver) atom(node ast.Node) (t types.Type, v constant.Value) {
+func (r *Resolver) atom(node ast.Node) (t *types.Complete, v constant.Value) {
 	if node.Op().IsLiteral() {
 		v = r.constant(node)
-		t = v.Type().Type()
+		t = v.Type()
 	} else {
 		// TODO what here?
 		r.error(node, "unsupported 0-arg expression: "+node.String())
@@ -181,30 +195,30 @@ func (r *Resolver) atom(node ast.Node) (t types.Type, v constant.Value) {
 }
 
 // resolve the type of an unary expression. if the expression is a constant, also returns its value
-func (r *Resolver) unary(node ast.Node) (t types.Type, v constant.Value) {
+func (r *Resolver) unary(node ast.Node) (t *types.Complete, v constant.Value) {
 	// TODO
 	return t, v
 }
 
 // resolve the type of a binary expression. if the expression is a constant, also returns its value
-func (r *Resolver) binary(node ast.Node) (t types.Type, v constant.Value) {
+func (r *Resolver) binary(node ast.Node) (t *types.Complete, v constant.Value) {
 	// TODO
 	return t, v
 }
 
 // resolve the type of a call. if the call is a constant, also returns its value
-func (r *Resolver) call(node ast.Node) (t types.Type, v constant.Value) {
+func (r *Resolver) call(node ast.Node) (t *types.Complete, v constant.Value) {
 	// TODO
 	return t, v
 }
 
 // resolve the type of a composite literal
-func (r *Resolver) compositeLit(node ast.Node) (t types.Type, v constant.Value) {
+func (r *Resolver) compositeLit(node ast.Node) (t *types.Complete, v constant.Value) {
 	// TODO
 	return t, v
 }
 
-func (r *Resolver) setTypeValue(node ast.Node, t types.Type, v constant.Value) {
+func (r *Resolver) setTypeValue(node ast.Node, t *types.Complete, v constant.Value) {
 	if v.IsValid() {
 		if r.values == nil {
 			r.values = make(map[ast.Node]constant.Value)
@@ -213,7 +227,7 @@ func (r *Resolver) setTypeValue(node ast.Node, t types.Type, v constant.Value) {
 	}
 	if t != nil {
 		if r.types == nil {
-			r.types = make(map[ast.Node]types.Type)
+			r.types = make(map[ast.Node]*types.Complete)
 		}
 		r.types[node] = t
 	}

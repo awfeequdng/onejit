@@ -27,8 +27,8 @@ import (
 type Resolver struct {
 	multiscope
 	objs        map[ast.Node]*Object
-	types       map[ast.Node]types.Type     // type of each expression
-	values      map[ast.Node]constant.Value // value of each constant
+	types       map[ast.Node]*types.Complete // type of each expression
+	values      map[ast.Node]constant.Value  // value of each constant
 	depfwd      ObjectGraph
 	depinv      ObjectGraph
 	currpkg     *types.Package
@@ -37,14 +37,14 @@ type Resolver struct {
 }
 
 // does NOT clear accumulated errors
-func (r *Resolver) Init(c *Collector, currpkg *types.Package) {
+func (r *Resolver) Init(c *Collector) {
 	r.multiscope = c.multiscope
 	r.objs = nil
 	r.types = nil
 	r.values = nil
 	r.depfwd = nil
 	r.depinv = nil
-	r.currpkg = currpkg
+	r.currpkg = c.currpkg
 	r.sources = c.sources
 	r.globalsOnly = false
 }

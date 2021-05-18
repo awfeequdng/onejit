@@ -22,20 +22,22 @@ import (
 
 type TypeMap map[ast.Node]*types.Complete
 
-// typecheck the specified global declarations
-func CheckGlobals(fileset *token.FileSet, pkg *types.Package, knownpkgs types.Packages,
-	source ...ast.Node) (decls *types.Scope, typemap TypeMap) {
+// collect the global declarations in specified sources
+func CollectGlobals(fileset *token.FileSet, pkg *types.Package, knownpkgs types.Packages,
+	source ...ast.Node) *Collector {
 
 	c := Collector{}
-	c.Init(fileset, pkg.Scope(), knownpkgs)
+	c.Init(fileset, pkg, pkg.Scope(), knownpkgs)
 	c.Globals(source...)
-	if len(c.errs) != 0 || len(c.warns) != 0 {
-		return nil, nil
-	}
+	return &c
+}
+
+// resolve the global declarations previously collected in 'c'
+func ResolveGlobals(c *Collector) *Resolver {
 	r := Resolver{}
-	r.Init(&c, pkg)
+	r.Init(c)
 	r.Globals()
-	return nil, nil
+	return &r
 }
 
 func token2class(tok token.Token) (cls types.Class) {

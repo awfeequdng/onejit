@@ -28,10 +28,16 @@ import (
 	"github.com/cosmos72/onejit/go/types"
 )
 
-func TestChecker(t *testing.T) {
+func TestConstants(t *testing.T) {
 	var p parser.Parser
 	p.InitString("const ( a = 1; b = 2 )", parser.ParseAll, config.AllFeatures)
-	CheckGlobals(nil, types.NewPackage("main", "main"), nil, p.Parse())
+	ResolveGlobals(CollectGlobals(nil, types.NewPackage("main", "main"), nil, p.Parse()))
+}
+
+func TestVars(t *testing.T) {
+	var p parser.Parser
+	p.InitString("var ( a int = 1; b uint = 2 )", parser.ParseAll, config.AllFeatures)
+	ResolveGlobals(CollectGlobals(nil, types.NewPackage("main", "main"), nil, p.Parse()))
 }
 
 func TestCheckGoRootDir(t *testing.T) {
@@ -63,9 +69,9 @@ func makeVisitor(verbose bool) func(t *testing.T, opener testutil.Opener, dirnam
 
 		c.ClearErrors()
 		c.ClearWarnings()
-		c.Init(fset, pkg.Scope(), nil)
+		c.Init(fset, pkg, pkg.Scope(), nil)
 		c.Globals(dir)
-		r.Init(&c, pkg)
+		r.Init(&c)
 		r.Globals()
 		if verbose && testing.Verbose() {
 			for _, err := range r.Errors() {

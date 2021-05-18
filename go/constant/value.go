@@ -261,8 +261,8 @@ func Make(t *types.Complete, x interface{}) Value {
 	needvalidate := !kind.IsUntyped()
 	badkind := false
 
-	switch kind {
-	case Bool, UntypedBool:
+	switch kind.Category() {
+	case Bool:
 		switch x := x.(type) {
 		case bool:
 			c = constant.MakeBool(x)
@@ -270,10 +270,7 @@ func Make(t *types.Complete, x interface{}) Value {
 		default:
 			badkind = true
 		}
-	case Int, Int8, Int16, Int32, Int64,
-		Uint, Uint8, Uint16, Uint32, Uint64, Uintptr,
-		UntypedInt, UntypedRune:
-
+	case Int:
 		if bx, ok := x.(*big.Int); ok {
 			if bx.IsInt64() {
 				// Go < 1.16 does not like *big.Int containing small numbers
@@ -513,12 +510,10 @@ func (v Value) To(t *types.Complete) Value {
 		return Value{&value{v.cval, v.typ, v.err}}
 	}
 	var c constant.Value
-	switch t.Kind() {
-	case Int, Int8, Int16, Int32, Int64,
-		Uint, Uint8, Uint16, Uint32, Uint64, Uintptr,
-		UntypedInt:
+	switch t.Kind().Category() {
+	case Int:
 		c = constant.ToInt(v.cval)
-	case Float32, Float64, UntypedFloat:
+	case Float64:
 		c = constant.ToFloat(v.cval)
 	case Complex64, Complex128, UntypedComplex:
 		c = constant.ToComplex(v.cval)
@@ -641,18 +636,16 @@ func MakeZero(t *types.Complete) Value {
 	}
 	var c constant.Value
 	var err error
-	switch t.Kind() {
-	case Bool, UntypedBool:
+	switch t.Kind().Category() {
+	case Bool:
 		c = constant.MakeBool(false)
-	case Int, Int8, Int16, Int32, Int64,
-		Uint, Uint8, Uint16, Uint32, Uint64, Uintptr,
-		UntypedInt, UntypedRune:
+	case Int:
 		c = constant.MakeInt64(0)
-	case Float32, Float64, UntypedFloat:
+	case Float64:
 		c = constant.MakeFloat64(0.0)
-	case Complex64, Complex128, UntypedComplex:
+	case Complex128:
 		c = constant.MakeImag(constant.MakeFloat64(0.0))
-	case String, UntypedString:
+	case String:
 		c = constant.MakeString("")
 	default:
 		c = cunknown

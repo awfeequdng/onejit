@@ -26,14 +26,16 @@ type Collector struct {
 	multiscope
 	knownpkgs types.Packages // list of known packages
 	sources   []ast.Node
+	currpkg   *types.Package // only passed to Resolver
 }
 
 var typeAlias ast.Node = &ast.Atom{Tok: token.ASSIGN}
 
 // does NOT clear accumulated errors and warnings
-func (c *Collector) Init(fileset *token.FileSet, scope *types.Scope, knownpkgs types.Packages) {
+func (c *Collector) Init(fileset *token.FileSet, currpkg *types.Package, scope *types.Scope, knownpkgs types.Packages) {
 	c.multiscope.Init(fileset, scope)
 	c.knownpkgs = knownpkgs
+	c.currpkg = currpkg
 }
 
 // collect global declarations from specified nodes.

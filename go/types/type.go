@@ -84,11 +84,13 @@ func AssignableTo(src *Complete, dst *Complete) bool {
 	}
 	u1, u2 := src.Underlying(), dst.Underlying()
 	k1, k2 := src.kind, dst.kind
+	var ok bool
 	if k1 == Invalid || k2 == Invalid || u1 == nil || u2 == nil {
 		// incomplete types, cannot check assignability
 		return false
+	} else if k1.IsUntyped() {
+		ok = untypedAssignableTo(k1, k2)
 	}
-	var ok bool
 	if !ok && u1 == u2 {
 		sname, dname := src.Name(), dst.Name()
 		// identical underlying types. at least one type is unnamed?
@@ -110,29 +112,17 @@ func untypedAssignableTo(src Kind, dst Kind) bool {
 	var ok bool
 	switch src {
 	case UntypedBool:
-		switch dst {
-		case Bool, UntypedBool:
-			ok = true
-		}
+		ok = dst.Category() == Bool
 	case UntypedInt, UntypedRune, UntypedFloat:
-		switch dst {
-		case Int, Int8, Int16, Int32, Int64,
-			Uint, Uint8, Uint16, Uint32, Uint64, Uintptr,
-			Float32, Float64, Complex64, Complex128,
-			UntypedInt, UntypedRune, UntypedFloat:
+		switch dst.Category() {
+		case Int, Float64:
 			// must also check that constant.Value conversion is exact
 			ok = true
 		}
 	case UntypedComplex:
-		switch dst {
-		case Complex64, Complex128, UntypedComplex:
-			ok = true
-		}
+		ok = dst.Category() == Complex128
 	case UntypedString:
-		switch dst {
-		case String, UntypedString:
-			ok = true
-		}
+		ok = dst.Category() == String
 	case UntypedNil:
 		// untyped nil can be assigned to all nillable types
 		ok = dst.IsNillable()
@@ -164,30 +154,30 @@ func untypedAssignableTo(src Kind, dst Kind) bool {
  */
 func ConvertibleTo(src *Complete, dst *Complete) bool {
 	if src == nil || dst == nil {
-		// nil types, cannot check assignability
+		// nil types, cannot check convertibility
 		return false
-	}
-	ok := AssignableTo(src, dst)
-	if !ok {
-		ok = IdenticalType(src.Underlying(), dst.Underlying(), true)
+	} else if AssignableTo(src, dst) {
+		return true
+	} else if IdenticalType(src.Underlying(), dst.Underlying(), true) {
+		return true
 	}
 	k1, k2 := src.kind, dst.kind
-	if !ok && k1 == PtrKind && k2 == PtrKind && src.Name() == "" && dst.Name() == "" {
-		ok = IdenticalType(src.Elem().Underlying(), dst.Elem().Underlying(), true)
+	if k1 == PtrKind && k2 == PtrKind && src.Name() == "" && dst.Name() == "" {
+		if IdenticalType(src.Elem().Underlying(), dst.Elem().Underlying(), true) {
+			return true
+		}
 	}
-	if !ok {
-		ok = (k1.IsInteger() || k1.IsFloat()) && (k2.IsInteger() || k2.IsFloat())
+	cat1, cat2 := k1.Category(), k2.Category()
+	if (cat1 == Int || cat1 == Float64) && (cat2 == Int || cat2 == Float64) {
+		return true
+	} else if cat1 == Complex128 && cat2 == Complex128 {
+		return true
+	} else if k2 == String && (cat1 == Int /* obsolescent */ || isBytesOrRunes(src)) {
+		return true
+	} else if k1 == String && isBytesOrRunes(dst) {
+		return true
 	}
-	if !ok {
-		ok = k1.IsComplex() && k2.IsComplex()
-	}
-	if !ok && k2 == String {
-		ok = k1.IsInteger() /* obsolescent */ || isBytesOrRunes(src)
-	}
-	if !ok && k1 == String {
-		ok = isBytesOrRunes(dst)
-	}
-	return ok
+	return false
 }
 
 // return true if underlying type of c is a slice,

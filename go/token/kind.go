@@ -166,7 +166,7 @@ func (k Kind) IsFloat() bool {
 }
 
 func (k Kind) IsInteger() bool {
-	return (k >= Int && k <= Uintptr) || k == UntypedInt
+	return (k >= Int && k <= Uintptr) || k == UntypedInt || k == UntypedRune
 }
 
 func (k Kind) IsNillable() bool {
@@ -179,4 +179,28 @@ func (k Kind) IsOrdered() bool {
 
 func (k Kind) IsUntyped() bool {
 	return k >= UntypedBool
+}
+
+// group together typed and untyped:
+// 1. booleans
+// 2. integers
+// 3. floats
+// 4. complex numbers
+// 5. strings
+func (k Kind) Category() Kind {
+	switch k {
+	case Bool, UntypedBool:
+		k = Bool
+	case Int, Int8, Int16, Int32, Int64,
+		Uint, Uint8, Uint16, Uint32, Uint64, Uintptr,
+		UntypedInt, UntypedRune:
+		k = Int
+	case Float32, Float64, UntypedFloat:
+		k = Float64
+	case Complex64, Complex128, UntypedComplex:
+		k = Complex128
+	case String, UntypedString:
+		k = String
+	}
+	return k
 }
