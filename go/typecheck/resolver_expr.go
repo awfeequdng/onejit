@@ -196,13 +196,26 @@ func (r *Resolver) atom(node ast.Node) (t *types.Complete, v constant.Value) {
 
 // resolve the type of an unary expression. if the expression is a constant, also returns its value
 func (r *Resolver) unary(node ast.Node) (t *types.Complete, v constant.Value) {
-	// TODO
+	t, v = r.expr(node.At(0))
+	if v.IsValid() {
+		if op := node.Op(); op.IsOperator() {
+			v = constant.UnaryOp(op, v)
+		}
+	}
 	return t, v
 }
 
 // resolve the type of a binary expression. if the expression is a constant, also returns its value
 func (r *Resolver) binary(node ast.Node) (t *types.Complete, v constant.Value) {
-	// TODO
+	t1, v1 := r.expr(node.At(0))
+	t2, v2 := r.expr(node.At(1))
+	if v1.IsValid() && v2.IsValid() {
+		if op := node.Op(); op.IsOperator() {
+			v = constant.BinaryOp(v1, op, v2)
+		}
+	}
+	// TODO combine t1 with t2
+	_, _ = t1, t2
 	return t, v
 }
 

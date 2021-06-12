@@ -58,7 +58,9 @@ func BinaryOp(xv Value, op token.Token, yv Value) Value {
 
 // equivalent to go/constant.Shift()
 func shift(xv Value, op token.Token, yv Value) Value {
-	yv = yv.To(types.BasicType(Uint32))
+	// Go spec: The right operand in a shift expression must have integer type
+	// or be an untyped constant representable by a value of type uint
+	yv = yv.To(types.BasicType(Uint))
 	if !yv.IsValid() {
 		return yv
 	}

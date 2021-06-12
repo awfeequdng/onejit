@@ -168,16 +168,17 @@ func ConvertibleTo(src *Complete, dst *Complete) bool {
 		}
 	}
 	cat1, cat2 := k1.Category(), k2.Category()
+	var ok bool
 	if (cat1 == Int || cat1 == Float64) && (cat2 == Int || cat2 == Float64) {
-		return true
+		ok = true
 	} else if cat1 == Complex128 && cat2 == Complex128 {
-		return true
+		ok = true
 	} else if k2 == String && (cat1 == Int /* obsolescent */ || isBytesOrRunes(src)) {
-		return true
+		ok = true
 	} else if k1 == String && isBytesOrRunes(dst) {
-		return true
+		ok = true
 	}
-	return false
+	return ok
 }
 
 // return true if underlying type of c is a slice,
