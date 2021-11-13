@@ -77,7 +77,7 @@ func sizeOfPtr() uint64 {
 	return config.TargetArch().Bytes()
 }
 
-// return basic types for current config.Target()
+// return *Complete basic types for current config.Target()
 func basicTypes() []*Complete {
 	var v []*Complete
 	os, arc := config.Target()
@@ -91,12 +91,12 @@ func basicTypes() []*Complete {
 	return v
 }
 
-// return basic type for specified Kind and current GetArchSizeBits() and GetTargetOs()
+// return *Complete basic type for specified Kind and current GetArchSizeBits() and GetTargetOs()
 func BasicType(kind Kind) *Complete {
 	return basicTypes()[kind]
 }
 
-// create and return a slice containing basic types for current GetArchSizeBits() and GetTargetOs()
+// create and return a slice containing *Complete basic types for current GetArchSizeBits() and GetTargetOs()
 // use Kind as index in returned slice.
 func BasicTypes() []*Complete {
 	return append([]*Complete(nil), basicTypes()...)

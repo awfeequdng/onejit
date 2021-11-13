@@ -36,10 +36,10 @@ func TestCompleteNamed(test *testing.T) {
 func TestCompleteFunc(test *testing.T) {
 	/*
 	 * runtime equivalent of
-	 * type f func() f
+	 * type f func(f) bool
 	 */
 	f := NewNamed("f", "")
-	f.SetUnderlying(NewFunc(nil, []Type{f}, false))
+	f.SetUnderlying(NewFunc([]Type{f}, []Type{BasicType(Bool).Type()}, false))
 
 	cs := CompleteTypes(f)
 	test.Log(cs)

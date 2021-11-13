@@ -162,7 +162,7 @@ func (t *Complete) In(i int) *Complete {
 func (t *Complete) Out(i int) *Complete {
 	if t.kind == FuncKind {
 		extra := t.extra
-		return extra.types[0:extra.n1][i].common()
+		return extra.types[extra.n1 : extra.n1+extra.n2][i].common()
 	}
 	panic("Out of invalid type")
 }
