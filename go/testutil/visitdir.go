@@ -40,7 +40,7 @@ func visitDirRecurse(t *testing.T, visitor DirVisitor, dirname string, recurse b
 		t.Skip("path too long, aborting test: ", dirname)
 		return false
 	} else if expectInvalidSources(dirname) {
-		t.Logf("         directory %q usually contains invalid sources, skipping it", dirname)
+		t.Logf("         directory %q usually contains invalid/unsupported sources, skipping it", dirname)
 		return true
 	}
 	d, err := os.Open(dirname)

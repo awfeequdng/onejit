@@ -6,7 +6,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * api.go
+ * code.go
  *
  *  Created on: Apr 23, 2021
  *      Author: Massimiliano Ghilardi
@@ -53,4 +53,13 @@ type (
 
 var (
 	three = 3
+	env   *Env
+	stmt  Stmt
 )
+
+func run(env *Env, stmt Stmt) (*Env, Stmt) {
+	for env != nil && stmt != nil {
+		env, stmt = stmt(env)
+	}
+	return env, stmt
+}

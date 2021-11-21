@@ -56,7 +56,7 @@ func VisitFilesRecurse(t *testing.T, visitor FileVisitor, dirname string) bool {
 		t.Skip("path too long, aborting test: ", dirname)
 		return false
 	} else if expectInvalidSources(dirname) {
-		t.Logf("         directory %q usually contains invalid sources, skipping it", dirname)
+		t.Logf("         directory %q usually contains invalid/unsupported sources, skipping it", dirname)
 		return true
 	}
 	d, err := os.Open(dirname)
@@ -103,7 +103,9 @@ func existsDir(info []os.FileInfo, dirname string) bool {
 }
 
 func expectInvalidSources(dirname string) bool {
-	// these directories contain invalid sources at least in Go 1.13.15
 	name := strings.Basename(dirname)
-	return name == "badpkg" || name == "notest" || name == "syntaxerror"
+	// these directories contain invalid sources at least in Go 1.13.15
+	return name == "badpkg" || name == "notest" || name == "syntaxerror" ||
+		// this directory contains sources that use Go generics - not yet supported
+		name == "typeparam"
 }

@@ -101,7 +101,7 @@ func (v Value) DefaultType() *types.Complete {
 	return types.BasicType(kind)
 }
 
-/** return a short, quoted, user-readable string representation of v */
+/** return a short, user-readable string representation of v */
 func (v Value) String() string {
 	if v.value == nil {
 		return ErrInvalid.Error()
