@@ -24,9 +24,10 @@ namespace ir {
 
 // ============================  Stmt3  ========================================
 
-ONEJIT_NOINLINE Node Stmt3::create(Func &func, Node a, Node b, Node c, OpStmt3 op) noexcept {
-  const Node nodes[] = {a, b, c};
-  return create(func, Nodes(nodes, 3), op);
+ONEJIT_NOINLINE Node Stmt3::create(Func &func, Node child0, Node child1, Node child2,
+                                   OpStmt3 op) noexcept {
+  const Node children[] = {child0, child1, child2};
+  return create(func, Nodes(children, 3), op);
 }
 
 ONEJIT_NOINLINE Node Stmt3::create(Func &func, Nodes children, OpStmt3 op) noexcept {
@@ -48,14 +49,6 @@ const Fmt &Stmt3::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
     child(i).format(fmt, syntax, depth);
   }
   return fmt << ')';
-  return fmt;
-}
-
-// ============================  If  =======================================
-
-Node If::create(Func &func, const Expr &test, const Node &then, const Node &else_) noexcept {
-  const Node buf[] = {test, then, else_};
-  return Stmt3::create(func, Nodes{buf, 3}, IF);
 }
 
 } // namespace ir

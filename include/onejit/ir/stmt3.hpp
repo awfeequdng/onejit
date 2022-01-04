@@ -64,8 +64,8 @@ protected:
   constexpr explicit Stmt3(const Node &node) noexcept : Base{node} {
   }
 
-  Stmt3(Func &func, Label to, Expr x, Expr y, OpStmt3 op) noexcept
-      : Base{create(func, to, x, y, op)} {
+  Stmt3(Func &func, Node child0, Node child1, Node child2, OpStmt3 op) noexcept
+      : Base{create(func, child0, child1, child2, op)} {
   }
 
   // downcast helper
@@ -77,7 +77,7 @@ protected:
     return op() == IF ? i == 0 : true;
   }
 
-  static Node create(Func &func, Node a, Node b, Node c, OpStmt3 op) noexcept;
+  static Node create(Func &func, Node child0, Node child1, Node child2, OpStmt3 op) noexcept;
   static Node create(Func &func, Nodes children, OpStmt3 op) noexcept;
 };
 
@@ -100,9 +100,9 @@ public:
   }
 
   // create a new 'if (test) { then } else { else_ }'
-  // the 'else' part can be omitted also by specifying else_ = VoidConst
+  // the 'else' part can be omitted by specifying else_ = VoidConst
   If(Func &func, const Expr &test, const Node &then, const Node &else_ = VoidConst) noexcept //
-      : Base{create(func, test, then, else_)} {
+      : Base{func, test, then, else_, IF} {
   }
 
   static constexpr OpStmt3 op() noexcept {
@@ -137,9 +137,6 @@ private:
   static constexpr bool child_result_is_used(uint32_t i) noexcept {
     return i == 0;
   }
-
-  // create a new If
-  static Node create(Func &func, const Expr &test, const Node &then, const Node &else_) noexcept;
 };
 
 } // namespace ir
