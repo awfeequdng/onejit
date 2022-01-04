@@ -398,8 +398,8 @@ Node Compiler::compile(Assign assign, Flags) noexcept {
   return VoidConst;
 }
 
-static OpStmt1 comparison_to_condjump(Op2 op2, bool is_signed) noexcept {
-  OpStmt1 op = BAD_ST1;
+static OpStmt3 comparison_to_condjump(Op2 op2, bool is_signed) noexcept {
+  OpStmt3 op = BAD_ST3;
   switch (op2) {
   case LSS:
     op = is_signed ? ASM_JL : ASM_JB;
@@ -462,12 +462,11 @@ Node Compiler::compile(JumpIf jump_if, Flags) noexcept {
       }
     }
   }
-  OpStmt1 jop = comparison_to_condjump(op, x.kind().is_signed());
+  OpStmt3 jop = comparison_to_condjump(op, x.kind().is_signed());
   if (negate) {
     jop = negate_condjump(jop);
   }
-  add(Stmt2{*func_, x, y, ASM_CMP});
-  add(Stmt1{*func_, to, jop});
+  add(Stmt3{*func_, to, x, y, jop});
   // all compile(Stmt*) must return VoidConst
   return VoidConst;
 }

@@ -27,7 +27,7 @@ bool is_jump(Node node) noexcept {
 bool is_uncond_jump(Node node) noexcept {
   if (node.type() == STMT_1) {
     OpStmt1 op1 = OpStmt1(node.op());
-    return op1 == GOTO || op1 == X86_JMP;
+    return op1 == GOTO || op1 == MIR_JMP || op1 == X86_JMP;
   } else {
     return is_return(node);
   }
@@ -38,17 +38,6 @@ bool is_cond_jump(Node node) noexcept {
   switch (node.type()) {
   case STMT_1:
     switch (OpStmt1(node.op())) {
-
-    case ASM_JA:
-    case ASM_JAE:
-    case ASM_JB:
-    case ASM_JBE:
-    case ASM_JE:
-    case ASM_JG:
-    case ASM_JGE:
-    case ASM_JL:
-    case ASM_JNE:
-
     case X86_JA:
     case X86_JAE:
     case X86_JB:
@@ -64,7 +53,6 @@ bool is_cond_jump(Node node) noexcept {
     case X86_JO:
     case X86_JP:
     case X86_JS:
-
       return true;
     default:
       break;
@@ -75,6 +63,23 @@ bool is_cond_jump(Node node) noexcept {
     switch (OpStmt2(node.op())) {
     case JUMP_IF:
     case X86_XBEGIN:
+      return true;
+    default:
+      break;
+    }
+    break;
+
+  case STMT_3:
+    switch (OpStmt3(node.op())) {
+    case ASM_JA:
+    case ASM_JAE:
+    case ASM_JB:
+    case ASM_JBE:
+    case ASM_JE:
+    case ASM_JG:
+    case ASM_JGE:
+    case ASM_JL:
+    case ASM_JNE:
       return true;
     default:
       break;

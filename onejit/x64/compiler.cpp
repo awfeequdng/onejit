@@ -129,7 +129,7 @@ Compiler &Compiler::compile(Node node) noexcept {
   case STMT_2:
     return compile(node.is<Stmt2>());
   case STMT_3:
-    return error(node, "unexpected Stmt3");
+    return compile(node.is<Stmt3>());
   case STMT_4:
     return error(node, "unexpected Stmt4");
   case STMT_N:
@@ -211,13 +211,9 @@ Expr Compiler::simplify(Tuple expr) noexcept {
 
 Compiler &Compiler::compile(Stmt1 st) noexcept {
   static const OpStmt1 gen_st1[] = {X86_JMP, X86_INC, X86_DEC};
-  static const OpStmt1 cond_jump[] = {X86_JA, X86_JAE, X86_JB, X86_JBE, X86_JE,
-                                      X86_JG, X86_JGE, X86_JL, X86_JLE, X86_JNE};
   OpStmt1 op = st.op();
   if (op >= GOTO && op <= DEC) {
     op = gen_st1[op - GOTO];
-  } else if (op >= ASM_JA && op <= ASM_JNE) {
-    op = cond_jump[op - ASM_JA];
   } else {
     return error(st, "unexpected Stmt1 operation");
   }
@@ -231,12 +227,6 @@ Compiler &Compiler::compile(Stmt2 st) noexcept {
   switch (st.op()) {
   case JUMP_IF:
     return compile(st.is<JumpIf>());
-  case ASM_CMP: {
-    Expr x = st.child_is<Expr>(0);
-    Expr y = st.child_is<Expr>(1);
-    simplify_binary(x, y);
-    return add(Stmt2{*func_, x, y, X86_CMP});
-  }
   default:
     if (Assign assign = st.is<Assign>()) {
       return compile(assign);
@@ -328,6 +318,26 @@ Node Compiler::simplify_assign(Assign st, Expr dst, Binary src) noexcept {
   (void)dst;
   (void)src;
   return st;
+}
+
+// ===============================  compile(Stmt3)  ============================
+
+Compiler &Compiler::compile(Stmt3 st) noexcept {
+  static const OpStmt1 cond_jump[] = {X86_JA, X86_JAE, X86_JB, X86_JBE, X86_JE,
+                                      X86_JG, X86_JGE, X86_JL, X86_JLE, X86_JNE};
+  const OpStmt3 op3 = st.op();
+  if (op3 >= ASM_JA && op3 <= ASM_JNE) {
+    const OpStmt1 op1 = cond_jump[op3 - ASM_JA];
+
+    Label to = st.child_is<Label>(0);
+    Expr x = st.child_is<Expr>(1);
+    Expr y = st.child_is<Expr>(2);
+    simplify_binary(x, y);
+    add(Stmt2{*func_, x, y, X86_CMP});
+    return add(Stmt1{*func_, to, op1});
+  } else {
+    return error(st, "unexpected Stmt3");
+  }
 }
 
 // ===============================  compile(StmtN)  ============================

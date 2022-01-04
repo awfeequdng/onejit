@@ -59,8 +59,7 @@ void Test::func_fib() {
   expected = "(block\n\
     label_0\n\
     (_set var1000_ul)\n\
-    (asm_cmp var1000_ul 2)\n\
-    (asm_jbe label_1)\n\
+    (asm_jbe label_1 var1000_ul 2)\n\
     (= var1002_ul (+ var1000_ul 18446744073709551615))\n\
     (= var1003_ul (call label_0 var1002_ul))\n\
     (= var1004_ul (+ var1000_ul 18446744073709551614))\n\
@@ -78,15 +77,14 @@ void Test::func_fib() {
 
   expected = "(block\n\
     label_0\n\
-    (asm_cmp var1000_ul 2)\n\
-    (asm_jbe label_1)\n\
+    (mir_uble label_1 var1000_ul 2)\n\
     (= var1002_ul (+ var1000_ul 18446744073709551615))\n\
     (= var1003_ul (call label_0 var1002_ul))\n\
     (= var1004_ul (+ var1000_ul 18446744073709551614))\n\
     (= var1005_ul (call label_0 var1004_ul))\n\
     (= var1001_ul (+ var1003_ul var1005_ul))\n\
     (return var1001_ul)\n\
-    (goto label_2)\n\
+    (mir_jmp label_2)\n\
     label_1\n\
     (= var1001_ul 1)\n\
     (return var1001_ul)\n\
@@ -213,8 +211,7 @@ void Test::func_loop() {
     (+= var1001_ul var1002_ul)\n\
     (++ var1002_ul)\n\
     label_2\n\
-    (asm_cmp var1002_ul var1000_ul)\n\
-    (asm_jb label_1)\n\
+    (asm_jb label_1 var1002_ul var1000_ul)\n\
     label_3\n\
     (return var1001_ul))";
   compile(f, NOARCH);
@@ -315,13 +312,11 @@ void Test::func_switch1() {
   expected = "(block\n\
     label_0\n\
     (_set var1000_ul)\n\
-    (asm_cmp var1000_ul 0)\n\
-    (asm_jne label_2)\n\
+    (asm_jne label_2 var1000_ul 0)\n\
     (= var1001_ul 1)\n\
     (goto label_1)\n\
     label_2\n\
-    (asm_cmp var1000_ul 1)\n\
-    (asm_jne label_4)\n\
+    (asm_jne label_4 var1000_ul 1)\n\
     label_3\n\
     (= var1001_ul 2)\n\
     (goto label_1)\n\
@@ -444,8 +439,7 @@ void Test::func_switch2() {
   expected = "(block\n\
     label_0\n\
     (_set var1000_ul)\n\
-    (asm_cmp var1000_ul 0)\n\
-    (asm_jne label_2)\n\
+    (asm_jne label_2 var1000_ul 0)\n\
     (= var1001_ul 1)\n\
     (goto label_1)\n\
     label_2\n\
@@ -454,8 +448,7 @@ void Test::func_switch2() {
     (= var1001_ul (+ var1000_ul 1))\n\
     (goto label_1)\n\
     label_4\n\
-    (asm_cmp var1000_ul 1)\n\
-    (asm_jne label_3)\n\
+    (asm_jne label_3 var1000_ul 1)\n\
     label_5\n\
     (= var1001_ul 2)\n\
     label_1\n\
@@ -577,13 +570,11 @@ void Test::func_cond() {
   expected = "(block\n\
     label_0\n\
     (_set var1000_ul)\n\
-    (asm_cmp var1000_ul 0)\n\
-    (asm_jne label_2)\n\
+    (asm_jne label_2 var1000_ul 0)\n\
     (= var1001_ul 1)\n\
     (goto label_1)\n\
     label_2\n\
-    (asm_cmp var1000_ul 1)\n\
-    (asm_jne label_3)\n\
+    (asm_jne label_3 var1000_ul 1)\n\
     (= var1001_ul 2)\n\
     (goto label_1)\n\
     label_3\n\
@@ -678,13 +669,11 @@ void Test::func_and_or() {
     label_0\n\
     (_set var1000_p var1001_p)\n\
     (= var1003_e (mem_e var1000_p))\n\
-    (asm_cmp var1003_e false)\n\
-    (asm_je label_1)\n\
+    (asm_je label_1 var1003_e false)\n\
     (= var1003_e (mem_e var1001_p))\n\
     label_1\n\
     (= var1004_e (mem_e var1000_p))\n\
-    (asm_cmp var1004_e false)\n\
-    (asm_jne label_2)\n\
+    (asm_jne label_2 var1004_e false)\n\
     (= var1004_e (mem_e var1001_p))\n\
     label_2\n\
     (= var1002_e (^ var1003_e var1004_e))\n\

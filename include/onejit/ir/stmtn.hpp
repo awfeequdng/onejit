@@ -20,7 +20,7 @@
 #include <onejit/ir/stmt.hpp>
 #include <onejit/ir/stmt2.hpp> // onejit::Case
 #include <onejit/mir/fwd.hpp>
-#include <onejit/opstmt.hpp>
+#include <onejit/opstmtn.hpp>
 #include <onejit/x64/fwd.hpp>
 
 namespace onejit {

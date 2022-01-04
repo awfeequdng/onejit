@@ -47,51 +47,15 @@ const Fmt &operator<<(const Fmt &fmt, OpStmt0 op) {
 
 // ============================  OpStmt1  ======================================
 
-OpStmt1 negate_condjump(OpStmt1 op) noexcept {
-  switch (op) {
-  case ASM_JA:
-    op = ASM_JBE;
-    break;
-  case ASM_JAE:
-    op = ASM_JB;
-    break;
-  case ASM_JB:
-    op = ASM_JAE;
-    break;
-  case ASM_JBE:
-    op = ASM_JA;
-    break;
-  case ASM_JE:
-    op = ASM_JNE;
-    break;
-  case ASM_JG:
-    op = ASM_JLE;
-    break;
-  case ASM_JGE:
-    op = ASM_JL;
-    break;
-  case ASM_JNE:
-    op = ASM_JE;
-    break;
-  default:
-    break;
-  }
-  return op;
-}
-
 static const Chars op_stmt_1_string[] = { //
     "?", "goto", "++", "--",
 
-#define ONEJIT_X(NAME, name) "asm_" #name,
-    ONEJIT_OPSTMT1_ASM(ONEJIT_X)
-#undef ONEJIT_X
-
 #define ONEJIT_X(NAME, name) "mir_" #name,
-        ONEJIT_OPSTMT1_MIR(ONEJIT_X)
+    ONEJIT_OPSTMT1_MIR(ONEJIT_X)
 #undef ONEJIT_X
 
 #define ONEJIT_X(NAME, name) "x86_" #name,
-            ONEJIT_OPSTMT1_X86(ONEJIT_X)
+        ONEJIT_OPSTMT1_X86(ONEJIT_X)
 #undef ONEJIT_X
 
 };
@@ -199,16 +163,12 @@ static const Chars op_stmt_2_string[] = { //
     "default",
     "jump_if",
 
-#define ONEJIT_X(NAME, name) "asm_" #name,
-    ONEJIT_OPSTMT2_ASM(ONEJIT_X)
-#undef ONEJIT_X
-
 #define ONEJIT_X(NAME, name) "mir_" #name,
-        ONEJIT_OPSTMT2_MIR(ONEJIT_X)
+    ONEJIT_OPSTMT2_MIR(ONEJIT_X)
 #undef ONEJIT_X
 
 #define ONEJIT_X(NAME, name) "x86_" #name,
-            ONEJIT_OPSTMT2_X86(ONEJIT_X)
+        ONEJIT_OPSTMT2_X86(ONEJIT_X)
 #undef ONEJIT_X
 };
 
@@ -226,15 +186,51 @@ const Fmt &operator<<(const Fmt &fmt, OpStmt2 op) {
 
 // ============================  OpStmt3  ======================================
 
+OpStmt3 negate_condjump(OpStmt3 op) noexcept {
+  switch (op) {
+  case ASM_JA:
+    op = ASM_JBE;
+    break;
+  case ASM_JAE:
+    op = ASM_JB;
+    break;
+  case ASM_JB:
+    op = ASM_JAE;
+    break;
+  case ASM_JBE:
+    op = ASM_JA;
+    break;
+  case ASM_JE:
+    op = ASM_JNE;
+    break;
+  case ASM_JG:
+    op = ASM_JLE;
+    break;
+  case ASM_JGE:
+    op = ASM_JL;
+    break;
+  case ASM_JNE:
+    op = ASM_JE;
+    break;
+  default:
+    break;
+  }
+  return op;
+}
+
 static const Chars op_stmt_3_string[] = { //
     "?", "if",
 
+#define ONEJIT_X(NAME, name) "asm_" #name,
+    ONEJIT_OPSTMT3_ASM(ONEJIT_X)
+#undef ONEJIT_X
+
 #define ONEJIT_X(NAME, name) "mir_" #name,
-    ONEJIT_OPSTMT3_MIR(ONEJIT_X)
+        ONEJIT_OPSTMT3_MIR(ONEJIT_X)
 #undef ONEJIT_X
 
 #define ONEJIT_X(NAME, name) "x86_" #name,
-        ONEJIT_OPSTMT3_X86(ONEJIT_X)
+            ONEJIT_OPSTMT3_X86(ONEJIT_X)
 #undef ONEJIT_X
 };
 

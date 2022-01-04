@@ -19,7 +19,7 @@
 #include <onejit/fmt.hpp>
 #include <onejit/ir/expr.hpp>
 #include <onejit/ir/stmt.hpp>
-#include <onejit/opstmt.hpp>
+#include <onejit/opstmt4.hpp>
 
 namespace onejit {
 namespace ir {

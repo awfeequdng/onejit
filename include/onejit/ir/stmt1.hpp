@@ -20,7 +20,7 @@
 #include <onejit/ir/label.hpp>
 #include <onejit/ir/stmt.hpp>
 #include <onejit/mir/fwd.hpp>
-#include <onejit/opstmt.hpp>
+#include <onejit/opstmt1.hpp>
 #include <onejit/x64/fwd.hpp>
 
 namespace onejit {

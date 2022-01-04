@@ -21,6 +21,8 @@
 
 #include <cstdint> // uint*_t
 
+#define ONEJIT_COMMENT(...)
+
 namespace onejit {
 
 using namespace ::onejit::ir;

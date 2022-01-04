@@ -59,6 +59,7 @@ private:
   Compiler &compile(Return stmt) noexcept;
   Compiler &compile(Stmt1 stmt) noexcept;
   Compiler &compile(Stmt2 stmt) noexcept;
+  Compiler &compile(Stmt3 stmt) noexcept;
   Compiler &compile(StmtN stmt) noexcept;
 
   Expr simplify(Binary expr) noexcept;

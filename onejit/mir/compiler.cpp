@@ -93,7 +93,7 @@ Compiler &Compiler::compile(Node node) noexcept {
   case STMT_2:
     return compile(node.is<Stmt2>());
   case STMT_3:
-    return error(node, "unexpected Stmt3");
+    return compile(node.is<Stmt3>());
   case STMT_4:
     return error(node, "unexpected Stmt4");
   case STMT_N:
@@ -174,26 +174,11 @@ Expr Compiler::simplify(Tuple expr) noexcept {
 // ===============================  compile(Stmt1)  ============================
 
 Compiler &Compiler::compile(Stmt1 st) noexcept {
-  static const OpStmt3 int64_jump[] = {MIR_UBGT, MIR_UBGE, MIR_UBLT, MIR_UBLE, MIR_BEQ,
-                                       MIR_BGT,  MIR_BGE,  MIR_BLT,  MIR_BLE,  MIR_BNE};
-#if 0
-  static const OpStmt3 int32_jump[] = {MIR_UBGTS, MIR_UBGES, MIR_UBLTS, MIR_UBLES, MIR_BEQS,
-                                       MIR_BGTS,  MIR_BGES,  MIR_BLTS,  MIR_BLES,  MIR_BNES};
-  static const OpStmt3 float32_jump[] = {MIR_FBGT, MIR_FBGE, MIR_FBLT, MIR_FBLE, MIR_FBEQ,
-                                         MIR_FBGT, MIR_FBGE, MIR_FBLT, MIR_FBLE, MIR_FBNE};
-  static const OpStmt3 float64_jump[] = {MIR_DBGT, MIR_DBGE, MIR_DBLT, MIR_DBLE, MIR_DBEQ,
-                                         MIR_DBGT, MIR_DBGE, MIR_DBLT, MIR_DBLE, MIR_DBNE};
-#endif
   OpStmt1 op = st.op();
   if (op == GOTO) {
     op = MIR_JMP;
   } else if (op == INC || op == DEC) {
     // TODO convert INC, DEC to ADD, SUB
-  } else if (op >= ASM_JA && op <= ASM_JNE) {
-    // TODO merge comparison and jump
-    // TODO convert int32, float32, float64 comparisons
-    Node nodes[] = {simplify(st.arg()), Node{}, Node{}};
-    return add(Stmt3::create(*func_, Nodes{nodes, 3}, int64_jump[op - ASM_JA]));
   } else {
     return error(st, "unexpected Stmt1 operation");
   }
@@ -238,6 +223,34 @@ Node Compiler::simplify_assign(Assign st, Expr dst, Binary src) noexcept {
   (void)src;
   return st;
 }
+
+// ===============================  compile(Stmt3)  ============================
+
+Compiler &Compiler::compile(Stmt3 st) noexcept {
+
+  static const OpStmt3 int64_jump[] = {MIR_UBGT, MIR_UBGE, MIR_UBLT, MIR_UBLE, MIR_BEQ,
+                                       MIR_BGT,  MIR_BGE,  MIR_BLT,  MIR_BLE,  MIR_BNE};
+#if 0
+  static const OpStmt3 int32_jump[] = {MIR_UBGTS, MIR_UBGES, MIR_UBLTS, MIR_UBLES, MIR_BEQS,
+                                       MIR_BGTS,  MIR_BGES,  MIR_BLTS,  MIR_BLES,  MIR_BNES};
+  static const OpStmt3 float32_jump[] = {MIR_FBGT, MIR_FBGE, MIR_FBLT, MIR_FBLE, MIR_FBEQ,
+                                         MIR_FBGT, MIR_FBGE, MIR_FBLT, MIR_FBLE, MIR_FBNE};
+  static const OpStmt3 float64_jump[] = {MIR_DBGT, MIR_DBGE, MIR_DBLT, MIR_DBLE, MIR_DBEQ,
+                                         MIR_DBGT, MIR_DBGE, MIR_DBLT, MIR_DBLE, MIR_DBNE};
+#endif
+  const OpStmt3 op = st.op();
+  if (op >= ASM_JA && op <= ASM_JNE) {
+    // TODO merge comparison and jump
+    // TODO convert int32, float32, float64 comparisons
+    Label to = st.child_is<Label>(0);
+    Expr x = simplify(st.child_is<Expr>(1));
+    Expr y = simplify(st.child_is<Expr>(2));
+    return add(Stmt3{*func_, to, x, y, int64_jump[op - ASM_JA]});
+  } else {
+    // TODO
+    return add(st);
+  }
+} // namespace mir
 
 // ===============================  compile(StmtN)  ============================
 

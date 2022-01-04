@@ -17,11 +17,12 @@
 #define ONEJIT_IR_STMT3_HPP
 
 #include <onejit/fmt.hpp>
+#include <onejit/fwd.hpp>
 #include <onejit/ir/const.hpp> // VoidConst
 #include <onejit/ir/expr.hpp>
 #include <onejit/ir/stmt.hpp>
 #include <onejit/mir/fwd.hpp>
-#include <onejit/opstmt.hpp>
+#include <onejit/opstmt3.hpp>
 
 namespace onejit {
 namespace ir {
@@ -30,6 +31,7 @@ namespace ir {
 class Stmt3 : public Stmt {
   using Base = Stmt;
   friend class Node;
+  friend class ::onejit::Compiler;
   friend class mir::Compiler;
 
 public:
@@ -62,6 +64,10 @@ protected:
   constexpr explicit Stmt3(const Node &node) noexcept : Base{node} {
   }
 
+  Stmt3(Func &func, Label to, Expr x, Expr y, OpStmt3 op) noexcept
+      : Base{create(func, to, x, y, op)} {
+  }
+
   // downcast helper
   static constexpr bool is_allowed_type(Type t) noexcept {
     return t == STMT_3;
@@ -71,6 +77,7 @@ protected:
     return op() == IF ? i == 0 : true;
   }
 
+  static Node create(Func &func, Node a, Node b, Node c, OpStmt3 op) noexcept;
   static Node create(Func &func, Nodes children, OpStmt3 op) noexcept;
 };
 

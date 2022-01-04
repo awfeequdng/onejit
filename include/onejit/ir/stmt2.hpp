@@ -20,7 +20,7 @@
 #include <onejit/ir/const.hpp> // VoidConst
 #include <onejit/ir/label.hpp>
 #include <onejit/ir/stmt.hpp>
-#include <onejit/opstmt.hpp>
+#include <onejit/opstmt2.hpp>
 #include <onejit/x64/fwd.hpp>
 #include <onestl/view.hpp>
 
@@ -73,7 +73,7 @@ protected:
     return t == STMT_2;
   }
 
-  // used by subclasses and by Compiler::compile(JumpIf)
+  // used by subclasses
   Stmt2(Func &func, Node child0, Node child1, OpStmt2 op) noexcept
       : Base{create(func, child0, child1, op)} {
   }

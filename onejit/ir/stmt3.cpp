@@ -24,6 +24,11 @@ namespace ir {
 
 // ============================  Stmt3  ========================================
 
+ONEJIT_NOINLINE Node Stmt3::create(Func &func, Node a, Node b, Node c, OpStmt3 op) noexcept {
+  const Node nodes[] = {a, b, c};
+  return create(func, Nodes(nodes, 3), op);
+}
+
 ONEJIT_NOINLINE Node Stmt3::create(Func &func, Nodes children, OpStmt3 op) noexcept {
   return Base::create_indirect(func,                               //
                                Header{STMT_3, Void, uint16_t(op)}, //
@@ -31,11 +36,18 @@ ONEJIT_NOINLINE Node Stmt3::create(Func &func, Nodes children, OpStmt3 op) noexc
 }
 
 const Fmt &Stmt3::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
+  fmt << '(' << op();
+  const bool newline = op() <= IF;
   ++depth;
-  fmt << '(' << op() << ' ';
-  child(0).format(fmt, syntax, depth) << '\n' << Space{depth * 4};
-  child(1).format(fmt, syntax, depth) << '\n' << Space{depth * 4};
-  child(2).format(fmt, syntax, depth) << ')';
+  for (size_t i = 0; i < 3; i++) {
+    if (newline && i != 0) {
+      fmt << '\n' << Space{depth * 4};
+    } else {
+      fmt << ' ';
+    }
+    child(i).format(fmt, syntax, depth);
+  }
+  return fmt << ')';
   return fmt;
 }
 
