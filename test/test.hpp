@@ -40,6 +40,7 @@ private:
   void const_expr() const;
   void simple_expr();
   void nested_expr();
+  void mir_expr();
   void x64_expr();
   void eval_expr();
   void eval_expr_kind(Kind kind);
@@ -54,7 +55,7 @@ private:
   void optimize_assign_kind(Kind kind);
   void regallocator();
 
-  void compile(Func &func);
+  void compile(Func &func, ArchId archid);
 
   Code holder;
   Func func;

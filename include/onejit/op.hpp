@@ -66,6 +66,7 @@ enum OpN : uint16_t {
 
   // numeric values of the OpN enum constants below this line MAY CHANGE WITHOUT WARNING
 
+  MIR_MEM,
   X86_MEM,
   ARM64_MEM,
 };

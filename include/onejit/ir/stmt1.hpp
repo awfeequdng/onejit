@@ -19,6 +19,7 @@
 #include <onejit/fmt.hpp>
 #include <onejit/ir/label.hpp>
 #include <onejit/ir/stmt.hpp>
+#include <onejit/mir/fwd.hpp>
 #include <onejit/opstmt.hpp>
 #include <onejit/x64/fwd.hpp>
 
@@ -33,6 +34,7 @@ class Stmt1 : public Stmt {
   friend class ::onejit::Func;
   friend class ::onejit::Test;
   friend class x64::Compiler;
+  friend class mir::Compiler;
 
 public:
   /**

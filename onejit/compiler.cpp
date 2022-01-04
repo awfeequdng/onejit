@@ -76,6 +76,18 @@ Compiler::operator bool() const noexcept {
   return good_ && (!func_ || *func_);
 }
 
+Compiler &Compiler::compile_arch(Func &func, ArchId archid, Opt flags) noexcept {
+  switch (archid) {
+  case MIR:
+    return compile_mir(func, flags);
+  case X64:
+    return compile_x64(func, flags);
+  default:
+    // compile for NOARCH
+    return compile(func, flags);
+  }
+}
+
 Compiler &Compiler::compile(Func &func, Opt flags) noexcept {
   if (func.get_compiled(NOARCH)) {
     // already compiled

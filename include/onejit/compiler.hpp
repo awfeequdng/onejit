@@ -60,9 +60,8 @@ public:
   // compile function to portable IR (intermediate representation)
   Compiler &compile(Func &func, Opt flags = OptAll) noexcept;
 
-  // compile function to x86_64 assembly
-  // defined in onejit/x64/compiler.cpp
-  Compiler &compile_x64(Func &func, Opt flags = OptAll) noexcept;
+  // compile function to arch-specific assembly. calls compile() if needed
+  Compiler &compile_arch(Func &func, ArchId archid, Opt flags = OptAll) noexcept;
 
   // return the configured checks that compiled code must perform at runtime.
   constexpr Check check() const noexcept {
@@ -147,6 +146,14 @@ private:
 
   // add an out of memory error
   Compiler &out_of_memory(Node where) noexcept;
+
+  // compile function to libmir MIR representation
+  // defined in onejit/mir/compiler.cpp
+  Compiler &compile_mir(Func &func, Opt flags) noexcept;
+
+  // compile function to x86_64 assembly
+  // defined in onejit/x64/compiler.cpp
+  Compiler &compile_x64(Func &func, Opt flags) noexcept;
 
 private:
   Optimizer optimizer_;

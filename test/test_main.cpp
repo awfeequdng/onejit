@@ -50,6 +50,7 @@ void Test::run() {
   const_expr();
   simple_expr();
   nested_expr();
+  mir_expr();
   x64_expr();
   eval_expr();
   optimize();
@@ -64,9 +65,9 @@ void Test::run() {
   Fmt{stdout} << testcount() << " tests passed\n";
 }
 
-void Test::compile(Func &f) {
+void Test::compile(Func &f, ArchId archid) {
   // implies comp.compile(f, OptAll);
-  comp.compile_x64(f, OptAll);
+  comp.compile_arch(f, archid, OptAll);
 
   CRange<Error> errors = comp.errors();
   if (errors) {

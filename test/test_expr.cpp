@@ -20,7 +20,7 @@
 namespace onejit {
 
 void Test::arch() {
-  static const Chars archstring[] = {"NOARCH", "X64", "X86", "ARM64", "ARM"};
+  static const Chars archstring[] = {"NOARCH", "MIR", "X64", "X86", "ARM64", "ARM"};
   for (ArchId archid = ArchId(0); archid < ARCHID_N; archid = ArchId(archid + 1)) {
     TEST(to_string(archid), ==, archstring[archid]);
   }

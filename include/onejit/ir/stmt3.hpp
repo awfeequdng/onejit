@@ -20,6 +20,7 @@
 #include <onejit/ir/const.hpp> // VoidConst
 #include <onejit/ir/expr.hpp>
 #include <onejit/ir/stmt.hpp>
+#include <onejit/mir/fwd.hpp>
 #include <onejit/opstmt.hpp>
 
 namespace onejit {
@@ -29,6 +30,7 @@ namespace ir {
 class Stmt3 : public Stmt {
   using Base = Stmt;
   friend class Node;
+  friend class mir::Compiler;
 
 public:
   /**

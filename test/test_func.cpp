@@ -54,8 +54,6 @@ void Test::func_fib() {
     (return 1))";
   TEST(to_string(f.get_body()), ==, expected);
 
-  compile(f);
-
   // (- x 1) becomes (+ x uint64_t(-1))
   // (- x 2) becomes (+ x uint64_t(-2))
   expected = "(block\n\
@@ -75,7 +73,27 @@ void Test::func_fib() {
     (return var1001_ul)\n\
     label_2\n\
     (return var1001_ul))";
+  compile(f, NOARCH);
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
+
+  expected = "(block\n\
+    label_0\n\
+    (asm_cmp var1000_ul 2)\n\
+    (asm_jbe label_1)\n\
+    (= var1002_ul (+ var1000_ul 18446744073709551615))\n\
+    (= var1003_ul (call label_0 var1002_ul))\n\
+    (= var1004_ul (+ var1000_ul 18446744073709551614))\n\
+    (= var1005_ul (call label_0 var1004_ul))\n\
+    (= var1001_ul (+ var1003_ul var1005_ul))\n\
+    (return var1001_ul)\n\
+    (goto label_2)\n\
+    label_1\n\
+    (= var1001_ul 1)\n\
+    (return var1001_ul)\n\
+    label_2\n\
+    (return var1001_ul))";
+  compile(f, MIR);
+  TEST(to_string(f.get_compiled(MIR)), ==, expected);
 
   expected = "(block\n\
     label_0\n\
@@ -94,6 +112,7 @@ void Test::func_fib() {
     (x86_ret var1001_ul)\n\
     label_2\n\
     (x86_ret var1001_ul))";
+  compile(f, X64);
   TEST(to_string(f.get_compiled(X64)), ==, expected);
 
   expected = "(flowgraph\n\
@@ -184,8 +203,6 @@ void Test::func_loop() {
     (return var1001_ul))";
   TEST(to_string(f.get_body()), ==, expected);
 
-  compile(f);
-
   expected = "(block\n\
     label_0\n\
     (_set var1000_ul)\n\
@@ -200,6 +217,7 @@ void Test::func_loop() {
     (asm_jb label_1)\n\
     label_3\n\
     (return var1001_ul))";
+  compile(f, NOARCH);
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   expected = "(flowgraph\n\
@@ -239,6 +257,7 @@ void Test::func_loop() {
         )\n\
     )\n\
 )";
+  compile(f, X64);
   TEST(to_string(comp.flowgraph_), ==, expected);
 
   // dump_and_clear_code();
@@ -293,8 +312,6 @@ void Test::func_switch1() {
     (return var1001_ul))";
   TEST(to_string(f.get_body()), ==, expected);
 
-  compile(f);
-
   expected = "(block\n\
     label_0\n\
     (_set var1000_ul)\n\
@@ -313,6 +330,7 @@ void Test::func_switch1() {
     (= var1001_ul (+ var1000_ul 1))\n\
     label_1\n\
     (return var1001_ul))";
+  compile(f, NOARCH);
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   expected = "(flowgraph\n\
@@ -368,6 +386,7 @@ void Test::func_switch1() {
         )\n\
     )\n\
 )";
+  compile(f, X64);
   TEST(to_string(comp.flowgraph_), ==, expected);
 
   // dump_and_clear_code();
@@ -422,8 +441,6 @@ void Test::func_switch2() {
     (return var1001_ul))";
   TEST(to_string(f.get_body()), ==, expected);
 
-  compile(f);
-
   expected = "(block\n\
     label_0\n\
     (_set var1000_ul)\n\
@@ -443,6 +460,7 @@ void Test::func_switch2() {
     (= var1001_ul 2)\n\
     label_1\n\
     (return var1001_ul))";
+  compile(f, NOARCH);
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   expected = "(flowgraph\n\
@@ -505,6 +523,7 @@ void Test::func_switch2() {
         )\n\
     )\n\
 )";
+  compile(f, X64);
   TEST(to_string(comp.flowgraph_), ==, expected);
 
   // dump_and_clear_code();
@@ -555,8 +574,6 @@ void Test::func_cond() {
     (return var1001_ul))";
   TEST(to_string(f.get_body()), ==, expected);
 
-  compile(f);
-
   expected = "(block\n\
     label_0\n\
     (_set var1000_ul)\n\
@@ -573,6 +590,7 @@ void Test::func_cond() {
     (= var1001_ul (+ var1000_ul 1))\n\
     label_1\n\
     (return var1001_ul))";
+  compile(f, NOARCH);
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   expected = "(flowgraph\n\
@@ -626,6 +644,7 @@ void Test::func_cond() {
         )\n\
     )\n\
 )";
+  compile(f, X64);
   TEST(to_string(comp.flowgraph_), ==, expected);
 
   // dump_and_clear_code();
@@ -655,8 +674,6 @@ void Test::func_and_or() {
                    "(|| (mem_e var1000_p) (mem_e var1001_p))))";
   TEST(to_string(f.get_body()), ==, expected);
 
-  compile(f);
-
   expected = "(block\n\
     label_0\n\
     (_set var1000_p var1001_p)\n\
@@ -672,6 +689,7 @@ void Test::func_and_or() {
     label_2\n\
     (= var1002_e (^ var1003_e var1004_e))\n\
     (return var1002_e))";
+  compile(f, NOARCH);
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
   // dump_and_clear_code();

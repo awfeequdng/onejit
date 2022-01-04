@@ -86,8 +86,12 @@ static const Chars op_stmt_1_string[] = { //
     ONEJIT_OPSTMT1_ASM(ONEJIT_X)
 #undef ONEJIT_X
 
+#define ONEJIT_X(NAME, name) "mir_" #name,
+        ONEJIT_OPSTMT1_MIR(ONEJIT_X)
+#undef ONEJIT_X
+
 #define ONEJIT_X(NAME, name) "x86_" #name,
-        ONEJIT_OPSTMT1_X86(ONEJIT_X)
+            ONEJIT_OPSTMT1_X86(ONEJIT_X)
 #undef ONEJIT_X
 
 };
@@ -199,8 +203,12 @@ static const Chars op_stmt_2_string[] = { //
     ONEJIT_OPSTMT2_ASM(ONEJIT_X)
 #undef ONEJIT_X
 
+#define ONEJIT_X(NAME, name) "mir_" #name,
+        ONEJIT_OPSTMT2_MIR(ONEJIT_X)
+#undef ONEJIT_X
+
 #define ONEJIT_X(NAME, name) "x86_" #name,
-        ONEJIT_OPSTMT2_X86(ONEJIT_X)
+            ONEJIT_OPSTMT2_X86(ONEJIT_X)
 #undef ONEJIT_X
 };
 
@@ -221,8 +229,12 @@ const Fmt &operator<<(const Fmt &fmt, OpStmt2 op) {
 static const Chars op_stmt_3_string[] = { //
     "?", "if",
 
+#define ONEJIT_X(NAME, name) "mir_" #name,
+    ONEJIT_OPSTMT3_MIR(ONEJIT_X)
+#undef ONEJIT_X
+
 #define ONEJIT_X(NAME, name) "x86_" #name,
-    ONEJIT_OPSTMT3_X86(ONEJIT_X)
+        ONEJIT_OPSTMT3_X86(ONEJIT_X)
 #undef ONEJIT_X
 };
 

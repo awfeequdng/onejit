@@ -24,10 +24,11 @@ namespace onejit {
 
 enum ArchId : uint8_t {
   NOARCH = 0,
-  X64 = 1, // alias for x86_64, amd64
-  X86 = 2, // alias for i386, i486, i586, i686, ix86
-  ARM64 = 3,
-  ARM = 4,
+  MIR = 1, // uses libmir for native code generation
+  X64 = 2, // alias for x86_64, amd64
+  X86 = 3, // alias for i386, i486, i586, i686, ix86
+  ARM64 = 4,
+  ARM = 5,
 
   ARCHID_N,
 };

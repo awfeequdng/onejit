@@ -20,6 +20,7 @@ namespace onejit {
 
 static const char archstring[] = //
     "\6NOARCH\0"
+    "\3MIR\0\0\0\0"
     "\3X64\0\0\0\0"
     "\3X86\0\0\0\0"
     "\5ARM64\0\0"

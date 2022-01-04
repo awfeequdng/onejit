@@ -31,7 +31,6 @@ class Mem : public Tuple {
 
   friend class ::onejit::Func;
   friend class Node;
-  friend class x64::Mem;
 
 public:
   /**
@@ -62,9 +61,7 @@ public:
 
 protected:
   // used by subclasses
-  Mem(Func &func, Kind kind, OpN op, Exprs args) noexcept //
-      : Base{create(func, kind, op, args)} {
-  }
+  static Node create(Func &func, Kind kind, OpN op, Exprs args) noexcept;
 
   // downcast Node to Mem. also used by subclasses
   constexpr explicit Mem(const Node &node) noexcept : Base{node} {
@@ -80,8 +77,6 @@ private:
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
     return op >= MEM_OP;
   }
-
-  static Node create(Func &func, Kind kind, OpN op, Exprs args) noexcept;
 };
 
 } // namespace ir

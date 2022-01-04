@@ -82,7 +82,7 @@ enum OpStmt1 : uint16_t {
 // numeric values of the OpStmt1 enum constants below this line MAY CHANGE WITHOUT WARNING
 
 #define ONEJIT_OPSTMT1_ASM(x)                                                                      \
-  x(JA, ja)       /* jump if above */                                                              \
+  x(/**/ JA, ja)  /* jump if above */                                                              \
       x(JAE, jae) /* jump if above or equal */                                                     \
       x(JB, jb)   /* jump if below */                                                              \
       x(JBE, jbe) /* jump if below or equal */                                                     \
@@ -93,8 +93,11 @@ enum OpStmt1 : uint16_t {
       x(JLE, jle) /* jump if less or equal */                                                      \
       x(JNE, jne) /* jump if not equal (if not zero) */
 
+#define ONEJIT_OPSTMT1_MIR(x) /*                                                         */        \
+  x(/**/ JMP, jmp)            /* unconditional jump to label */
+
 #define ONEJIT_OPSTMT1_X86(x)                                                                      \
-  x(BSWAP, bswap)      /* x = byteswap(x) - invert endianity of 32bit or 64bit register */         \
+  x(/**/ BSWAP, bswap) /* x = byteswap(x) - invert endianity of 32bit or 64bit register  */        \
       x(CALL, call)    /* call function. argument is relative offset, register or memory */        \
       x(CBW, cbw)      /* sign-extend %al -> %ax or %ax -> %eax or  %eax -> %rax */                \
       x(DEC, dec)      /* decrement register or memory by 1 */                                     \
@@ -118,7 +121,7 @@ enum OpStmt1 : uint16_t {
       x(JS, js)        /* jump if sign */                                                          \
       x(JMP, jmp)      /* unconditional jump. argument is relative offset, register or memory */   \
       x(NEG, neg)      /* negate (i.e. -x) register or memory */                                   \
-      x(NOT, not)      /* invert (i.e. ^x) register or memory */                                   \
+      x(NOT, not )     /* invert (i.e. ^x) register or memory */                                   \
       x(POP, pop)      /* pop 2 or 8 bytes from stack into register or memory */                   \
       x(PUSH, push)    /* push 2 or 8 bytes to stack from register or memory */                    \
       x(RDTSC, rdtsc)  /* read timestamp counter into %rdx:%rax */                                 \
@@ -151,12 +154,16 @@ enum OpStmt1 : uint16_t {
   ONEJIT_OPSTMT1_ASM(ONEJIT_X)
 #undef ONEJIT_X
 
-#define ONEJIT_X(NAME, name) X86_##NAME,
-      ONEJIT_OPSTMT1_X86(ONEJIT_X)
+#define ONEJIT_X(NAME, name) MIR_##NAME,
+      ONEJIT_OPSTMT1_MIR(ONEJIT_X)
 #undef ONEJIT_X
 
-          X86_CWDE = X86_CBW, /* sign-extend  %ax -> %eax */
-  X86_CDQE = X86_CBW,         /* sign-extend %eax -> %rax */
+#define ONEJIT_X(NAME, name) X86_##NAME,
+          ONEJIT_OPSTMT1_X86(ONEJIT_X)
+#undef ONEJIT_X
+
+              X86_CWDE = X86_CBW, /* sign-extend  %ax -> %eax */
+  X86_CDQE = X86_CBW,             /* sign-extend %eax -> %rax */
 
 };
 
@@ -182,6 +189,12 @@ enum OpStmt2 : uint16_t {
 // numeric values of the OpStmt2 enum constants below this line MAY CHANGE WITHOUT WARNING
 
 #define ONEJIT_OPSTMT2_ASM(x) x(CMP, cmp) /* compare arguments, set architectural flags */
+
+#define ONEJIT_OPSTMT2_MIR(x)                                                                      \
+  x(/**/ NOT, not ) /* x = ~y on 64-bit integer register or memory */                              \
+      x(NOTS, nots) /* x = ~y on 32-bit integer register or memory */                              \
+      x(NEG, neg)   /* x = -y on 64-bit integer register or memory */                              \
+      x(NEGS, negs) /* x = -y on 32-bit integer register or memory */
 
 #define ONEJIT_OPSTMT2_X86(x)                                                                      \
   x(/**/ ADD, add)              /* x += y on register or memory */                                 \
@@ -315,8 +328,12 @@ enum OpStmt2 : uint16_t {
   ONEJIT_OPSTMT2_ASM(ONEJIT_X)
 #undef ONEJIT_X
 
+#define ONEJIT_X(NAME, name) MIR_##NAME,
+      ONEJIT_OPSTMT2_MIR(ONEJIT_X)
+#undef ONEJIT_X
+
 #define ONEJIT_X(NAME, name) X86_##NAME,
-      ONEJIT_OPSTMT2_X86(ONEJIT_X)
+          ONEJIT_OPSTMT2_X86(ONEJIT_X)
 #undef ONEJIT_X
 };
 
@@ -325,6 +342,56 @@ enum OpStmt3 : uint16_t {
   IF = 1,
 
 // numeric values of the OpStmt3 enum constants below this line MAY CHANGE WITHOUT WARNING
+
+#define ONEJIT_OPSTMT3_MIR(x)                                                                      \
+  x(/**/ ADD, add)  /* x = y + z on 64-bit integer register or memory */                           \
+      x(ADDS, adds) /* x = y + z on 32-bit integer register or memory */                           \
+      x(AND, and)   /* x = y & z on 64-bit integer register or memory */                           \
+      x(ANDS, ands) /* x = y & z on 32-bit integer register or memory */                           \
+                                                                                                   \
+      x(BEQ, beq)    /* jump to label x if 64 bit integer y == z */                                \
+      x(BEQS, beqs)  /* jump to label x if 32 bit integer y == z */                                \
+      x(FBEQ, dbeq)  /* jump to label x if float32 integer y == z */                               \
+      x(DBEQ, dbeq)  /* jump to label x if float64 integer y == z */                               \
+      x(LDBEQ, dbeq) /* jump to label x if float80 integer y == z */                               \
+                                                                                                   \
+      x(BNE, bne)    /* jump to label x if 64 bit integer y != z */                                \
+      x(BNES, bnes)  /* jump to label x if 32 bit integer y != z */                                \
+      x(FBNE, dbne)  /* jump to label x if float32 integer y != z */                               \
+      x(DBNE, dbne)  /* jump to label x if float64 integer y != z */                               \
+      x(LDBNE, dbne) /* jump to label x if float80 integer y != z */                               \
+                                                                                                   \
+      x(BLT, blt)     /* jump to label x if 64 bit integer y < z */                                \
+      x(BLTS, blts)   /* jump to label x if 32 bit integer y < z */                                \
+      x(UBLT, ublt)   /* jump to label x if 64 bit unsigned y < z */                               \
+      x(UBLTS, ublts) /* jump to label x if 32 bit unsigned y < z */                               \
+      x(FBLT, dblt)   /* jump to label x if float32 integer y < z */                               \
+      x(DBLT, dblt)   /* jump to label x if float64 integer y < z */                               \
+      x(LDBLT, dblt)  /* jump to label x if float80 integer y < z */                               \
+                                                                                                   \
+      x(BLE, ble)     /* jump to label x if 64 bit integer y <= z */                               \
+      x(BLES, bles)   /* jump to label x if 32 bit integer y <= z */                               \
+      x(UBLE, uble)   /* jump to label x if 64 bit unsigned y <= z */                              \
+      x(UBLES, ubles) /* jump to label x if 32 bit unsigned y <= z */                              \
+      x(FBLE, dble)   /* jump to label x if float32 integer y <= z */                              \
+      x(DBLE, dble)   /* jump to label x if float64 integer y <= z */                              \
+      x(LDBLE, dble)  /* jump to label x if float80 integer y <= z */                              \
+                                                                                                   \
+      x(BGT, bgt)     /* jump to label x if 64 bit integer y > z */                                \
+      x(BGTS, bgts)   /* jump to label x if 32 bit integer y > z */                                \
+      x(UBGT, ubgt)   /* jump to label x if 64 bit unsigned y > z */                               \
+      x(UBGTS, ubgts) /* jump to label x if 32 bit unsigned y > z */                               \
+      x(FBGT, dbgt)   /* jump to label x if float32 integer y > z */                               \
+      x(DBGT, dbgt)   /* jump to label x if float64 integer y > z */                               \
+      x(LDBGT, dbgt)  /* jump to label x if float80 integer y > z */                               \
+                                                                                                   \
+      x(BGE, bge)     /* jump to label x if 64 bit integer y >= z */                               \
+      x(BGES, bges)   /* jump to label x if 32 bit integer y >= z */                               \
+      x(UBGE, ubge)   /* jump to label x if 64 bit unsigned y >= z */                              \
+      x(UBGES, ubges) /* jump to label x if 32 bit unsigned y >= z */                              \
+      x(FBGE, dbge)   /* jump to label x if float32 integer y >= z */                              \
+      x(DBGE, dbge)   /* jump to label x if float64 integer y >= z */                              \
+      x(LDBGE, dbge)  /* jump to label x if float80 integer y >= z */
 
 #define ONEJIT_OPSTMT3_X86(x)                                                                      \
   x(/**/ IMUL3, imul3)  /* signed multiply by constant */                                          \
@@ -337,8 +404,12 @@ enum OpStmt3 : uint16_t {
       x(INSERTPS, insertps)   /* insert one float into packed floats */                            \
       x(PINSR, pinsr)         /* insert 1,2,4 or 8 bytes from register or memory to %xmm */
 
+#define ONEJIT_X(NAME, name) MIR_##NAME,
+  ONEJIT_OPSTMT3_MIR(ONEJIT_X)
+#undef ONEJIT_X
+
 #define ONEJIT_X(NAME, name) X86_##NAME,
-  ONEJIT_OPSTMT3_X86(ONEJIT_X)
+      ONEJIT_OPSTMT3_X86(ONEJIT_X)
 #undef ONEJIT_X
 };
 
