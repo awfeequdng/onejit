@@ -45,10 +45,32 @@ enum OpStmt2 : uint16_t {
 // numeric values of the OpStmt2 enum constants below this line MAY CHANGE WITHOUT WARNING
 
 #define ONEJIT_OPSTMT2_MIR(x)                                                                      \
-  x(/**/ NOT, not)  /* x = ~y on 64-bit integer register or memory */                              \
-      x(NOTS, nots) /* x = ~y on 32-bit integer register or memory */                              \
-      x(NEG, neg)   /* x = -y on 64-bit integer register or memory */                              \
-      x(NEGS, negs) /* x = -y on 32-bit integer register or memory */
+  x(MOV, mov)         /* x = y on 64-bit integer register or memory */                             \
+      x(FMOV, fmov)   /* x = y on 32-bit float register or memory */                               \
+      x(DMOV, dmov)   /* x = y on 64-bit float register or memory */                               \
+      x(LDMOV, ldmov) /* x = y on 80-bit float register or memory */                               \
+                                                                                                   \
+      x(EXT8, ext8)     /* sign-extend 8-bit integer to 64 bit */                                  \
+      x(EXT16, ext16)   /* sign-extend 16-bit integer to 64 bit */                                 \
+      x(EXT32, ext32)   /* sign-extend 32-bit integer to 64 bit */                                 \
+      x(UEXT8, uext8)   /* zero-extend 8-bit integer to 64 bit */                                  \
+      x(UEXT16, uext16) /* zero-extend 16-bit integer to 64 bit */                                 \
+      x(UEXT32, uext32) /* zero-extend 32-bit integer to 64 bit */                                 \
+      x(I2F, i2f)       /* convert int64 to float32 */                                             \
+      x(I2D, i2d)       /* convert int64 to float64 */                                             \
+      x(I2LD, i2ld)     /* convert int64 to float80 */                                             \
+      x(UI2F, ui2f)     /* convert uint64 to float32 */                                            \
+      x(UI2D, ui2d)     /* convert uint64 to float64 */                                            \
+      x(UI2LD, ui2ld)   /* convert uint64 to float80 */                                            \
+      x(F2I, f2i)       /* convert float32 to int64 */                                             \
+      x(D2I, d2i)       /* convert float64 to int64 */                                             \
+      x(LD2I, ld2i)     /* convert float80 to int64 */                                             \
+      x(F2D, f2d)       /* convert float32 to float64 */                                           \
+      x(F2LD, f2ld)     /* convert float32 to float80 */                                           \
+      x(NOT, not)       /* x = ~y on 64-bit integer register or memory */                          \
+      x(NOTS, nots)     /* x = ~y on 32-bit integer register or memory */                          \
+      x(NEG, neg)       /* x = -y on 64-bit integer register or memory */                          \
+      x(NEGS, negs)     /* x = -y on 32-bit integer register or memory */
 
 #define ONEJIT_OPSTMT2_X86(x)                                                                      \
   x(/**/ ADD, add)              /* x += y on register or memory */                                 \
