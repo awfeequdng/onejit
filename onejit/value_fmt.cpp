@@ -38,13 +38,13 @@ const Fmt &operator<<(const Fmt &fmt, const Value &value) {
   case eUint16:
   case eUint32:
   case eUint64:
-  case eArchFlags:
     fmt << value.uint64();
     break;
   case eFloat32:
     fmt << value.float32();
     break;
   case eFloat64:
+  case eFloat128:
     fmt << value.float64();
     break;
   case ePtr:

@@ -27,7 +27,7 @@ void Test::arch() {
 }
 
 void Test::kind() {
-  for (uint8_t i = 0; i <= eArchFlags; i++) {
+  for (uint8_t i = 0; i <= ePtr; i++) {
     Kind k{i};
     TEST(bool(k), ==, i != 0);
     TEST(k.is(k.group()), ==, true);
@@ -35,7 +35,7 @@ void Test::kind() {
     TEST(k.nosimd(), ==, k);
     TEST(k.bits().val(), ==, k.nosimd().bits().val());
   }
-  for (uint8_t i = 0; i <= eArchFlags; i++) {
+  for (uint8_t i = 0; i <= ePtr; i++) {
     Kind k{eKind(i), SimdN{2}};
     TEST(bool(k), ==, true);
     TEST(k.is(k.group()), ==, true);
@@ -105,7 +105,7 @@ void Test::simple_expr() {
   TEST(bool(c.is<Var>()), ==, false);
   TEST(bool(c.is<Tuple>()), ==, false);
 
-  for (uint8_t i = eVoid; i <= eArchFlags; i++) {
+  for (uint8_t i = eVoid; i <= ePtr; i++) {
     Kind k = Kind(i);
     Expr v = Var{func, k};
     Node node = Tuple{func, ADD, v, c};

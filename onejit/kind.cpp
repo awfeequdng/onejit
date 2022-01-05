@@ -19,34 +19,34 @@
 namespace onejit {
 
 static const Chars kstring[] = {
-    "bad",     "void",      "bool",              //
-    "int8",    "int16",     "int32",   "int64",  //
-    "uint8",   "uint16",    "uint32",  "uint64", //
-    "float16", "float32",   "float64",           //
-    "ptr",     "archflags", "?",                 //
+    "bad",     "void",    "bool",                //
+    "int8",    "int16",   "int32",   "int64",    //
+    "uint8",   "uint16",  "uint32",  "uint64",   //
+    "float16", "float32", "float64", "float128", //
+    "ptr",     "?",                              //
 };
 
 static const char kstringsuffix[] = //
     "\1?\0\1v\0\1e\0"
     "\1b\0\1s\0\1i\0\1l\0"
     "\2ub\2us\2ui\2ul"
-    "\2hf\1f\0\2lf"
-    "\1p\0\003cmp";
+    "\2hf\2sf\2df\2qf"
+    "\1p";
 
 static const Bits kbits[] = {
-    Bits0,  Bits0,  Bits1,          // Bad, Void, Bool
-    Bits8,  Bits16, Bits32, Bits64, // Int*
-    Bits8,  Bits16, Bits32, Bits64, // Uint*
-    Bits16, Bits32, Bits64,         // Float*
-    Bits64, Bits64,                 // Ptr, ArchFlags
+    Bits0,  Bits0,  Bits1,           // Bad, Void, Bool
+    Bits8,  Bits16, Bits32, Bits64,  // Int*
+    Bits8,  Bits16, Bits32, Bits64,  // Uint*
+    Bits16, Bits32, Bits64, Bits128, // Float*
+    Bits64,                          // Ptr
 };
 
 static const Group kgroup[] = {
-    gVoid,  gVoid,  gBool,         // Bad, Void, Bool
-    gInt,   gInt,   gInt,   gInt,  // Int*
-    gUint,  gUint,  gUint,  gUint, // Uint*
-    gFloat, gFloat, gFloat,        // Float*
-    gPtr,   gArch,                 // Ptr, ArchFlags
+    gVoid,  gVoid,  gBool,          // Bad, Void, Bool
+    gInt,   gInt,   gInt,   gInt,   // Int*
+    gUint,  gUint,  gUint,  gUint,  // Uint*
+    gFloat, gFloat, gFloat, gFloat, // Float*
+    gPtr,                           // Ptr
 };
 
 const Chars Kind::string() const noexcept {

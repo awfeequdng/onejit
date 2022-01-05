@@ -61,10 +61,10 @@ Value Value::cast(Kind to) noexcept {
     case eUint32:
     case eUint64:
     case ePtr:
-    case eArchFlags:
       f = float(uint64());
       break;
     case eFloat64:
+    case eFloat128:
       f = float(float64());
       break;
     default:
@@ -91,11 +91,13 @@ Value Value::cast(Kind to) noexcept {
     case eUint32:
     case eUint64:
     case ePtr:
-    case eArchFlags:
       f = double(uint64());
       break;
     case eFloat32:
       f = double(float32());
+      break;
+    case eFloat128:
+      f = double(float64());
       break;
     default:
       return Value{};
@@ -134,10 +136,10 @@ Value Value::cast(Kind to) noexcept {
       break;
     case eUint64:
     case ePtr:
-    case eArchFlags:
       bits = uint64_t(f);
       break;
     case eFloat64:
+    case eFloat128:
       bits = Float64Bits{double(f)}.bits();
       break;
     default:
@@ -176,11 +178,13 @@ Value Value::cast(Kind to) noexcept {
       break;
     case eUint64:
     case ePtr:
-    case eArchFlags:
       bits = uint64_t(f);
       break;
     case eFloat32:
       bits = Float32Bits{float(f)}.bits();
+      break;
+    case eFloat128:
+      bits = Float64Bits{f}.bits();
       break;
     default:
       return Value{};

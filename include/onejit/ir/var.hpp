@@ -17,8 +17,8 @@
 #define ONEJIT_IR_VAR_HPP
 
 #include <onejit/fmt.hpp>
-#include <onejit/local.hpp>
 #include <onejit/ir/expr.hpp>
+#include <onejit/local.hpp>
 
 namespace onejit {
 namespace ir {
@@ -84,15 +84,6 @@ private:
   // called by Var{Func} -> Func::new_var()
   static Var create(Code *holder, Local local) noexcept;
 };
-
-class VarHelper {
-public:
-  // Var representing architectural flags register: EFLAGS on x86/x64, APSR on arm/arm64 ...
-  static constexpr const Var Flags{Local{ArchFlags, Id{1}}};
-};
-
-// Var representing architectural flags register: EFLAGS on x86/x64, APSR on arm/arm64 ...
-constexpr const Var FlagsVar = VarHelper::Flags;
 
 } // namespace ir
 } // namespace onejit

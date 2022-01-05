@@ -276,6 +276,8 @@ Compiler &Compiler::compile(Stmt3 st) noexcept {
                                          MIR_FBGT, MIR_FBGE, MIR_FBLT, MIR_FBLE, MIR_FBNE};
   static const OpStmt3 jump_float64[] = {MIR_DBGT, MIR_DBGE, MIR_DBLT, MIR_DBLE, MIR_DBEQ,
                                          MIR_DBGT, MIR_DBGE, MIR_DBLT, MIR_DBLE, MIR_DBNE};
+  static const OpStmt3 jump_float128[] = {MIR_LDBGT, MIR_LDBGE, MIR_LDBLT, MIR_LDBLE, MIR_LDBEQ,
+                                          MIR_LDBGT, MIR_LDBGE, MIR_LDBLT, MIR_LDBLE, MIR_LDBNE};
   const OpStmt3 op = st.op();
   if (op >= ASM_JA && op <= ASM_JNE) {
     Label to = st.child_is<Label>(0);
@@ -296,6 +298,9 @@ Compiler &Compiler::compile(Stmt3 st) noexcept {
       break;
     case eFloat64:
       jump_table = jump_float64;
+      break;
+    case eFloat128:
+      jump_table = jump_float128;
       break;
     }
     return add(Stmt3{*func_, jump_table[op - ASM_JA], to, x, y});

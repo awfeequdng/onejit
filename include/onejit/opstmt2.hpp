@@ -58,24 +58,24 @@ enum OpStmt2 : uint16_t {
       x(UEXT32, uext32) /* zero-extend 32-bit integer to 64 bit */                                 \
       x(I2F, i2f)       /* convert int64 to float32 */                                             \
       x(I2D, i2d)       /* convert int64 to float64 */                                             \
-      x(I2LD, i2ld)     /* convert int64 to float80 */                                             \
+      x(I2LD, i2ld)     /* convert int64 to float128 */                                            \
       x(UI2F, ui2f)     /* convert uint64 to float32 */                                            \
       x(UI2D, ui2d)     /* convert uint64 to float64 */                                            \
-      x(UI2LD, ui2ld)   /* convert uint64 to float80 */                                            \
+      x(UI2LD, ui2ld)   /* convert uint64 to float128 */                                           \
       x(F2I, f2i)       /* convert float32 to int64 */                                             \
       x(D2I, d2i)       /* convert float64 to int64 */                                             \
-      x(LD2I, ld2i)     /* convert float80 to int64 */                                             \
+      x(LD2I, ld2i)     /* convert float128 to int64 */                                            \
       x(F2D, f2d)       /* convert float32 to float64 */                                           \
-      x(F2LD, f2ld)     /* convert float32 to float80 */                                           \
+      x(F2LD, f2ld)     /* convert float32 to float128 */                                          \
       x(D2F, d2f)       /* convert float64 to float32 */                                           \
-      x(D2LD, d2ld)     /* convert float64 to float80 */                                           \
-      x(LD2F, ld2f)     /* convert float80 to float32 */                                           \
-      x(LD2D, ld2d)     /* convert float80 to float64 */                                           \
+      x(D2LD, d2ld)     /* convert float64 to float128 */                                          \
+      x(LD2F, ld2f)     /* convert float128 to float32 */                                          \
+      x(LD2D, ld2d)     /* convert float128 to float64 */                                          \
       x(NEG, neg)       /* x = -y on 64-bit integer register or memory */                          \
       x(NEGS, negs)     /* x = -y on 32-bit integer register or memory */                          \
       x(FNEG, fneg)     /* x = -y on float32 (or memory?) */                                       \
       x(DNEG, dneg)     /* x = -y on float64 (or memory?) */                                       \
-      x(LDNEG, ldneg)   /* x = -y on float80 (or memory?) */                                       \
+      x(LDNEG, ldneg)   /* x = -y on float128 (or memory?) */                                      \
                                                                                                    \
       x(ALLOCA, alloca) /* 2 operands: result address and size  */
 

@@ -35,11 +35,11 @@ enum eKind : uint8_t {
   eUint16 = 8,
   eUint32 = 9,
   eUint64 = 10,
-  // eFloat16 = 11,
+  eFloat16 = 11, // not implemented
   eFloat32 = 12,
   eFloat64 = 13,
-  ePtr = 14,
-  eArchFlags = 15,
+  eFloat128 = 14,
+  ePtr = 15,
 
   eKindHi = 255,
 };
@@ -198,11 +198,11 @@ constexpr const Kind Uint8{eUint8};
 constexpr const Kind Uint16{eUint16};
 constexpr const Kind Uint32{eUint32};
 constexpr const Kind Uint64{eUint64};
-// constexpr const Kind Float16{eFloat16};
+constexpr const Kind Float16{eFloat16};
 constexpr const Kind Float32{eFloat32};
 constexpr const Kind Float64{eFloat64};
+constexpr const Kind Float128{eFloat128};
 constexpr const Kind Ptr{ePtr};
-constexpr const Kind ArchFlags{eArchFlags};
 
 } // namespace onejit
 

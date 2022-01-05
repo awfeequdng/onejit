@@ -52,6 +52,7 @@ Const One(Func &func, Kind kind) noexcept {
   case eFloat32:
     return Const{func, float(1)};
   case eFloat64:
+  case eFloat128:
     return Const{func, double(1)};
   default:
     return Const{kind, uint16_t(1)};
@@ -63,6 +64,7 @@ Const Two(Func &func, Kind kind) noexcept {
   case eFloat32:
     return Const{func, float(2)};
   case eFloat64:
+  case eFloat128:
     return Const{func, double(2)};
   default:
     return Const{kind, uint16_t(2)};

@@ -35,6 +35,8 @@ mKind mir_kind(Kind kind) noexcept {
     mkind = mFloat32;
   } else if (ekind == eFloat64) {
     mkind = mFloat64;
+  } else if (ekind == eFloat128) {
+    mkind = mFloat128;
   } else {
     mkind = mUint32;
   }
@@ -47,9 +49,66 @@ OpStmt2 mir_mov(Kind kind) noexcept {
     return MIR_FMOV;
   case eFloat64:
     return MIR_DMOV;
+  case eFloat128:
+    return MIR_LDMOV;
   default:
-    return MIR_MOV;
+    return MIR_MOV; // both 64-bit and 32-bit integer move
   }
+}
+
+// convert Op2 arithmetic instruction to MIR_* instruction
+OpStmt3 mir_arith(Op2 op, Kind kind) noexcept {
+  static const OpStmt2 st2_ops[] = {SUB_ASSIGN, QUO_ASSIGN, SHL_ASSIGN, SHR_ASSIGN};
+  if (op < SUB || op > SHR) {
+    return BAD_ST3;
+  }
+  return mir_arith(st2_ops[op - SUB], kind);
+}
+
+// convert OpN arithmetic instruction to MIR_* instruction
+OpStmt3 mir_arith(OpN op, Kind kind) noexcept {
+  static const OpStmt2 st2_ops[] = {ADD_ASSIGN, MUL_ASSIGN, AND_ASSIGN, OR_ASSIGN, XOR_ASSIGN};
+  if (op < ADD || op > XOR) {
+    return BAD_ST3;
+  }
+  return mir_arith(st2_ops[op - ADD], kind);
+}
+
+// convert OpStmt2 *_ASSIGN instruction to MIR_* instruction
+OpStmt3 mir_arith(OpStmt2 op, Kind kind) noexcept {
+  enum mIndex2 : size_t { mInt32, mUint32, mInt64, mUint64, mFloat32, mFloat64, mFloat128 };
+  static const OpStmt3 ops[][7] = {
+      {MIR_ADDS, MIR_ADDS, MIR_ADD, MIR_ADD, MIR_FADD, MIR_DADD, MIR_LDADD},   // ADD_ASSIGN
+      {MIR_SUBS, MIR_SUBS, MIR_SUB, MIR_SUB, MIR_FSUB, MIR_DSUB, MIR_LDSUB},   // SUB_ASSIGN
+      {MIR_MULS, MIR_MULS, MIR_MUL, MIR_MUL, MIR_FMUL, MIR_DMUL, MIR_LDMUL},   // MUL_ASSIGN
+      {MIR_DIVS, MIR_UDIVS, MIR_DIV, MIR_UDIV, MIR_FDIV, MIR_DDIV, MIR_LDDIV}, // QUO_ASSIGN
+      {MIR_MODS, MIR_UMODS, MIR_MOD, MIR_UMOD, BAD_ST3, BAD_ST3, BAD_ST3},     // REM_ASSIGN
+      {MIR_ANDS, MIR_ANDS, MIR_AND, MIR_AND, BAD_ST3, BAD_ST3, BAD_ST3},       // AND_ASSIGN
+      {MIR_ORS, MIR_ORS, MIR_OR, MIR_OR, BAD_ST3, BAD_ST3, BAD_ST3},           // OR_ASSIGN
+      {MIR_XORS, MIR_XORS, MIR_XOR, MIR_XOR, BAD_ST3, BAD_ST3, BAD_ST3},       // XOR_ASSIGN
+      {MIR_LSHS, MIR_LSHS, MIR_LSH, MIR_LSH, BAD_ST3, BAD_ST3, BAD_ST3},       // SHL_ASSIGN
+      {MIR_RSHS, MIR_URSHS, MIR_RSH, MIR_URSH, BAD_ST3, BAD_ST3, BAD_ST3},     // SHR_ASSIGN
+  };
+  if (op < ADD_ASSIGN || op > SHR_ASSIGN) {
+    return BAD_ST3;
+  }
+  return ops[op - ADD_ASSIGN][mir_kind(kind)];
+}
+
+// convert Op2 comparison instruction to MIR_* instruction
+OpStmt3 mir_compare(Op2 op, Kind kind) noexcept {
+  static const OpStmt3 cmp[][7] = {
+      {MIR_LTS, MIR_ULTS, MIR_LT, MIR_ULT, MIR_FLT, MIR_DLT, MIR_LDLT}, // LSS
+      {MIR_LES, MIR_ULES, MIR_LE, MIR_ULE, MIR_FLE, MIR_DLE, MIR_LDLE}, // LEQ
+      {MIR_NES, MIR_NES, MIR_NE, MIR_NE, MIR_FNE, MIR_DNE, MIR_LDNE},   // NEQ
+      {MIR_EQS, MIR_EQS, MIR_EQ, MIR_EQ, MIR_FEQ, MIR_DEQ, MIR_LDEQ},   // EQL
+      {MIR_GTS, MIR_UGTS, MIR_GT, MIR_UGT, MIR_FGT, MIR_DGT, MIR_LDGT}, // GTR
+      {MIR_GES, MIR_UGES, MIR_GE, MIR_UGE, MIR_FGE, MIR_DGE, MIR_LDGE}, // GEQ
+  };
+  if (op < LSS || op > GEQ) {
+    return BAD_ST3;
+  }
+  return cmp[op - LSS][mir_kind(kind)];
 }
 
 // convert OpStmt3 ASM_J* conditional jump to MIR_* instruction
@@ -62,6 +121,8 @@ OpStmt3 mir_jump(OpStmt3 op, Kind kind) noexcept {
                                          MIR_FBGT, MIR_FBGE, MIR_FBLT, MIR_FBLE, MIR_FBNE};
   static const OpStmt3 jump_float64[] = {MIR_DBGT, MIR_DBGE, MIR_DBLT, MIR_DBLE, MIR_DBEQ,
                                          MIR_DBGT, MIR_DBGE, MIR_DBLT, MIR_DBLE, MIR_DBNE};
+  static const OpStmt3 jump_float128[] = {MIR_LDBGT, MIR_LDBGE, MIR_LDBLT, MIR_LDBLE, MIR_LDBEQ,
+                                          MIR_LDBGT, MIR_LDBGE, MIR_LDBLT, MIR_LDBLE, MIR_LDBNE};
   if (op < ASM_JA || op > ASM_JNE) {
     return BAD_ST3;
   }
@@ -81,28 +142,11 @@ OpStmt3 mir_jump(OpStmt3 op, Kind kind) noexcept {
   case eFloat64:
     jump_table = jump_float64;
     break;
+  case eFloat128:
+    jump_table = jump_float128;
+    break;
   }
   return jump_table[op - ASM_JA];
-}
-
-OpStmt3 mir_arith(OpStmt2 op, Kind kind) noexcept {
-  enum mIndex2 : size_t { mInt32, mUint32, mInt64, mUint64, mFloat32, mFloat64, mFloat80 };
-  static const OpStmt3 ops[][7] = {
-      {MIR_ADDS, MIR_ADDS, MIR_ADD, MIR_ADD, MIR_FADD, MIR_DADD, MIR_LDADD},   // ADD_ASSIGN
-      {MIR_SUBS, MIR_SUBS, MIR_SUB, MIR_SUB, MIR_FSUB, MIR_DSUB, MIR_LDSUB},   // SUB_ASSIGN
-      {MIR_MULS, MIR_MULS, MIR_MUL, MIR_MUL, MIR_FMUL, MIR_DMUL, MIR_LDMUL},   // MUL_ASSIGN
-      {MIR_DIVS, MIR_UDIVS, MIR_DIV, MIR_UDIV, MIR_FDIV, MIR_DDIV, MIR_LDDIV}, // QUO_ASSIGN
-      {MIR_MODS, MIR_UMODS, MIR_MOD, MIR_UMOD, BAD_ST3, BAD_ST3, BAD_ST3},     // REM_ASSIGN
-      {MIR_ANDS, MIR_ANDS, MIR_AND, MIR_AND, BAD_ST3, BAD_ST3, BAD_ST3},       // AND_ASSIGN
-      {MIR_ORS, MIR_ORS, MIR_OR, MIR_OR, BAD_ST3, BAD_ST3, BAD_ST3},           // OR_ASSIGN
-      {MIR_XORS, MIR_XORS, MIR_XOR, MIR_XOR, BAD_ST3, BAD_ST3, BAD_ST3},       // XOR_ASSIGN
-      {MIR_LSHS, MIR_LSHS, MIR_LSH, MIR_LSH, BAD_ST3, BAD_ST3, BAD_ST3},       // SHL_ASSIGN
-      {MIR_RSHS, MIR_URSHS, MIR_RSH, MIR_URSH, BAD_ST3, BAD_ST3, BAD_ST3},     // SHR_ASSIGN
-  };
-  if (op < ADD_ASSIGN || op > SHR_ASSIGN) {
-    return BAD_ST3;
-  }
-  return ops[op - ADD_ASSIGN][mir_kind(kind)];
 }
 
 } // namespace mir

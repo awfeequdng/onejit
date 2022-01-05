@@ -29,7 +29,6 @@ enum Group : uint8_t {
   gUint = 3,
   gFloat = 4,
   gPtr = 5,
-  gArch = 6, // arch-specific Kind
 };
 
 const Chars &to_string(Group g) noexcept;

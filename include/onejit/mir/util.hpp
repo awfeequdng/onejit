@@ -21,7 +21,7 @@
 namespace onejit {
 namespace mir {
 
-enum mKind : uint8_t { mInt32, mUint32, mInt64, mUint64, mFloat32, mFloat64, mFloat80 };
+enum mKind : uint8_t { mInt32, mUint32, mInt64, mUint64, mFloat32, mFloat64, mFloat128 };
 
 // convert Kind to mKind
 mKind mir_kind(Kind kind) noexcept;
@@ -32,11 +32,14 @@ OpStmt2 mir_mov(Kind kind) noexcept;
 // convert Op2 arithmetic instruction to MIR_* instruction
 OpStmt3 mir_arith(Op2 op, Kind kind) noexcept;
 
-// convert Op2 arithmetic instruction to MIR_* instruction
+// convert OpN arithmetic instruction to MIR_* instruction
 OpStmt3 mir_arith(OpN op, Kind kind) noexcept;
 
 // convert OpStmt2 *_ASSIGN instruction to MIR_* instruction
 OpStmt3 mir_arith(OpStmt2 op, Kind kind) noexcept;
+
+// convert Op2 comparison instruction to MIR_* instruction
+OpStmt3 mir_compare(Op2 op, Kind kind) noexcept;
 
 // convert OpStmt3 ASM_J* conditional jump to MIR_* instruction
 OpStmt3 mir_jump(OpStmt3 op, Kind kind) noexcept;

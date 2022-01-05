@@ -33,7 +33,7 @@ class Compiler {
   friend class Address;
   friend class Mem;
 
-  enum mKind : size_t { mInt32, mUint32, mInt64, mUint64, mFloat32, mFloat64, mFloat80 };
+  enum mKind : size_t { mInt32, mUint32, mInt64, mUint64, mFloat32, mFloat64, mFloat128 };
 
 public:
   constexpr Compiler() noexcept //
