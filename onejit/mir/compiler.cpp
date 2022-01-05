@@ -157,15 +157,18 @@ Expr Compiler::simplify(Binary expr) noexcept {
 }
 
 void Compiler::simplify_binary(Expr &x, Expr &y) noexcept {
-  Expr simpl_x = to_var_mem_const(simplify(x));
-  Expr simpl_y = to_var_mem_const(simplify(y));
-  if (simpl_x.type() == MEM && simpl_y.type() == MEM) {
-    // both arguments are memory.
-    // not supported by x86_64 assembly, force one to register
-    simpl_y = to_var(simpl_y);
+  Expr sx = x;
+  Expr sy = y;
+  // apply x side effects first
+  if (sx.type() == MEM) {
+    sx = to_var_mem_const(sx);
+    sy = to_var_const(simplify(sy));
+  } else {
+    sx = to_var(simplify(sx));
+    sy = to_var_mem_const(simplify(sy));
   }
-  x = simpl_x;
-  y = simpl_y;
+  x = sx;
+  y = sy;
 }
 
 Expr Compiler::simplify(Tuple expr) noexcept {
@@ -200,7 +203,8 @@ Compiler &Compiler::compile(Assign st) noexcept {
   Expr src = st.src(), dst = st.dst();
   // simplify src first: its side effects, if any, must be applied before dst
   //
-  // do not call to_var_mem_const(simplify(src)): it creates redundant Vars
+  // do not call to_var_mem_const(simplify(src)): it creates redundant code
+  // as we support src being an expression
   src = simplify(src);
   dst = to_var_mem_const(simplify(dst));
   if (src.type() == MEM && dst.type() == MEM) {
@@ -252,58 +256,61 @@ Node Compiler::simplify_assign(Assign st, Expr dst, Unary src) noexcept {
 }
 
 Node Compiler::simplify_assign(Assign st, Expr dst, Binary src) noexcept {
-  // TODO
-  (void)dst;
-  (void)src;
-  return st;
+  Op2 op = src.op();
+  OpStmt3 op3;
+  if (op >= SUB && op <= SHR) {
+    op3 = mir_arith(op, dst.kind());
+  } else if (op >= LSS && op <= GEQ) {
+    op3 = mir_compare(op, dst.kind());
+  } else {
+    // TODO
+    return st;
+  }
+  return simplify_ternary(op3, dst, src.x(), src.y());
 }
 
 Node Compiler::simplify_assign(Assign st, Expr dst, Tuple src) noexcept {
-  // TODO
-  (void)dst;
-  (void)src;
-  return st;
+  const OpN op = src.op();
+  const uint32_t n = src.children();
+  switch (n) {
+  case 2:
+    if (op >= ADD && op <= XOR) {
+      const OpStmt3 op3 = mir_arith(op, dst.kind());
+      return simplify_ternary(op3, dst, src.arg(0), src.arg(1));
+    }
+    break;
+  default:
+    break;
+  }
+  return st; // TODO
+}
+
+Node Compiler::simplify_ternary(OpStmt3 op, Expr dst, Expr x, Expr y) noexcept {
+  if (dst.type() == MEM) {
+    x = to_var_const(x);
+    y = to_var_const(y);
+    dst = to_var_mem_const(dst);
+  } else {
+    x = to_var_mem_const(x);
+    if (x.type() == MEM) {
+      y = to_var_const(y);
+    } else {
+      y = to_var_mem_const(y);
+    }
+    dst = to_var(dst);
+  }
+  return Stmt3{*func_, op, dst, x, y};
 }
 
 // ===============================  compile(Stmt3)  ============================
 
 Compiler &Compiler::compile(Stmt3 st) noexcept {
-  static const OpStmt3 jump_int32[] = {MIR_UBGTS, MIR_UBGES, MIR_UBLTS, MIR_UBLES, MIR_BEQS,
-                                       MIR_BGTS,  MIR_BGES,  MIR_BLTS,  MIR_BLES,  MIR_BNES};
-  static const OpStmt3 jump_int64[] = {MIR_UBGT, MIR_UBGE, MIR_UBLT, MIR_UBLE, MIR_BEQ,
-                                       MIR_BGT,  MIR_BGE,  MIR_BLT,  MIR_BLE,  MIR_BNE};
-  static const OpStmt3 jump_float32[] = {MIR_FBGT, MIR_FBGE, MIR_FBLT, MIR_FBLE, MIR_FBEQ,
-                                         MIR_FBGT, MIR_FBGE, MIR_FBLT, MIR_FBLE, MIR_FBNE};
-  static const OpStmt3 jump_float64[] = {MIR_DBGT, MIR_DBGE, MIR_DBLT, MIR_DBLE, MIR_DBEQ,
-                                         MIR_DBGT, MIR_DBGE, MIR_DBLT, MIR_DBLE, MIR_DBNE};
-  static const OpStmt3 jump_float128[] = {MIR_LDBGT, MIR_LDBGE, MIR_LDBLT, MIR_LDBLE, MIR_LDBEQ,
-                                          MIR_LDBGT, MIR_LDBGE, MIR_LDBLT, MIR_LDBLE, MIR_LDBNE};
   const OpStmt3 op = st.op();
   if (op >= ASM_JA && op <= ASM_JNE) {
     Label to = st.child_is<Label>(0);
     Expr x = simplify(st.child_is<Expr>(1));
     Expr y = simplify(st.child_is<Expr>(2));
-    const OpStmt3 *jump_table;
-    switch (x.kind().val()) {
-    default:
-      jump_table = jump_int32;
-      break;
-    case eInt64:
-    case eUint64:
-    case ePtr:
-      jump_table = jump_int64;
-      break;
-    case eFloat32:
-      jump_table = jump_float32;
-      break;
-    case eFloat64:
-      jump_table = jump_float64;
-      break;
-    case eFloat128:
-      jump_table = jump_float128;
-      break;
-    }
-    return add(Stmt3{*func_, jump_table[op - ASM_JA], to, x, y});
+    return add(Stmt3{*func_, mir_jump(op, x.kind()), to, x, y});
   } else {
     return error(st, "unexpected Stmt3");
   }

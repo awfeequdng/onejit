@@ -78,11 +78,11 @@ void Test::func_fib() {
   expected = "(block\n\
     label_0\n\
     (mir_uble label_1 var1000_ul 2)\n\
-    (= var1002_ul (+ var1000_ul 18446744073709551615))\n\
+    (mir_add var1002_ul var1000_ul 18446744073709551615)\n\
     (= var1003_ul (call label_0 var1002_ul))\n\
-    (= var1004_ul (+ var1000_ul 18446744073709551614))\n\
+    (mir_add var1004_ul var1000_ul 18446744073709551614)\n\
     (= var1005_ul (call label_0 var1004_ul))\n\
-    (= var1001_ul (+ var1003_ul var1005_ul))\n\
+    (mir_add var1001_ul var1003_ul var1005_ul)\n\
     (return var1001_ul)\n\
     (mir_jmp label_2)\n\
     label_1\n\
