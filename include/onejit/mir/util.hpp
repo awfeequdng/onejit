@@ -1,0 +1,47 @@
+/*
+ * onejit - in-memory assembler
+ *
+ * Copyright (C) 2021 Massimiliano Ghilardi
+ *
+ *     This Source Code Form is subject to the terms of the Mozilla Public
+ *     License, v. 2.0. If a copy of the MPL was not distributed with this
+ *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * util.hpp
+ *
+ *  Created on Jan 05, 2022
+ *      Author Massimiliano Ghilardi
+ */
+#ifndef ONEJIT_MIR_UTIL_HPP
+#define ONEJIT_MIR_UTIL_HPP
+
+#include <onejit/fwd.hpp>
+#include <onejit/kind.hpp>
+
+namespace onejit {
+namespace mir {
+
+enum mKind : uint8_t { mInt32, mUint32, mInt64, mUint64, mFloat32, mFloat64, mFloat80 };
+
+// convert Kind to mKind
+mKind mir_kind(Kind kind) noexcept;
+
+// return MIR_*MOV* instruction appropriate for kind
+OpStmt2 mir_mov(Kind kind) noexcept;
+
+// convert Op2 arithmetic instruction to MIR_* instruction
+OpStmt3 mir_arith(Op2 op, Kind kind) noexcept;
+
+// convert Op2 arithmetic instruction to MIR_* instruction
+OpStmt3 mir_arith(OpN op, Kind kind) noexcept;
+
+// convert OpStmt2 *_ASSIGN instruction to MIR_* instruction
+OpStmt3 mir_arith(OpStmt2 op, Kind kind) noexcept;
+
+// convert OpStmt3 ASM_J* conditional jump to MIR_* instruction
+OpStmt3 mir_jump(OpStmt3 op, Kind kind) noexcept;
+
+} // namespace mir
+} // namespace onejit
+
+#endif // ONEJIT_MIR_UTIL_HPP

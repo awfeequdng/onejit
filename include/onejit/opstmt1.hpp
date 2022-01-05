@@ -32,7 +32,7 @@ enum OpStmt1 : uint16_t {
 // numeric values of the OpStmt1 enum constants below this line MAY CHANGE WITHOUT WARNING
 
 #define ONEJIT_OPSTMT1_MIR(x) /*                                                         */        \
-  x(/**/ JMP, jmp)            /* unconditional jump to label */
+  x(/**/ JMP, jmp)            /* unconditional jump to label                             */
 
 #define ONEJIT_OPSTMT1_X86(x)                                                                      \
   x(/**/ BSWAP, bswap) /* x = byteswap(x) - invert endianity of 32bit or 64bit register  */        \

@@ -466,7 +466,7 @@ Node Compiler::compile(JumpIf jump_if, Flags) noexcept {
   if (negate) {
     jop = negate_condjump(jop);
   }
-  add(Stmt3{*func_, to, x, y, jop});
+  add(Stmt3{*func_, jop, to, x, y});
   // all compile(Stmt*) must return VoidConst
   return VoidConst;
 }

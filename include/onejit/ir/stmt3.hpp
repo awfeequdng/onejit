@@ -64,8 +64,8 @@ protected:
   constexpr explicit Stmt3(const Node &node) noexcept : Base{node} {
   }
 
-  Stmt3(Func &func, Node child0, Node child1, Node child2, OpStmt3 op) noexcept
-      : Base{create(func, child0, child1, child2, op)} {
+  Stmt3(Func &func, OpStmt3 op, Node child0, Node child1, Node child2) noexcept
+      : Base{create(func, op, child0, child1, child2)} {
   }
 
   // downcast helper
@@ -77,8 +77,8 @@ protected:
     return op() == IF ? i == 0 : true;
   }
 
-  static Node create(Func &func, Node child0, Node child1, Node child2, OpStmt3 op) noexcept;
-  static Node create(Func &func, Nodes children, OpStmt3 op) noexcept;
+  static Node create(Func &func, OpStmt3 op, Node child0, Node child1, Node child2) noexcept;
+  static Node create(Func &func, OpStmt3 op, Nodes children) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ public:
   // create a new 'if (test) { then } else { else_ }'
   // the 'else' part can be omitted by specifying else_ = VoidConst
   If(Func &func, const Expr &test, const Node &then, const Node &else_ = VoidConst) noexcept //
-      : Base{func, test, then, else_, IF} {
+      : Base{func, IF, test, then, else_} {
   }
 
   static constexpr OpStmt3 op() noexcept {

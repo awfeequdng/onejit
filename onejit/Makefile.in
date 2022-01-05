@@ -122,12 +122,12 @@ am_libonejit_a_OBJECTS = abi.$(OBJEXT) archid.$(OBJEXT) \
 	ir/stmt4.$(OBJEXT) ir/stmtn.$(OBJEXT) ir/tuple.$(OBJEXT) \
 	ir/unary.$(OBJEXT) ir/util.$(OBJEXT) ir/var.$(OBJEXT) \
 	reg/allocator.$(OBJEXT) mir/address.$(OBJEXT) \
-	mir/compiler.$(OBJEXT) mir/mem.$(OBJEXT) x64/address.$(OBJEXT) \
-	x64/arg.$(OBJEXT) x64/asm0.$(OBJEXT) x64/asm1.$(OBJEXT) \
-	x64/asm2.$(OBJEXT) x64/asm3.$(OBJEXT) x64/asmn.$(OBJEXT) \
-	x64/assembler.$(OBJEXT) x64/compiler.$(OBJEXT) \
-	x64/mem.$(OBJEXT) x64/rex_byte.$(OBJEXT) x64/scale.$(OBJEXT) \
-	x64/util.$(OBJEXT)
+	mir/compiler.$(OBJEXT) mir/mem.$(OBJEXT) mir/util.$(OBJEXT) \
+	x64/address.$(OBJEXT) x64/arg.$(OBJEXT) x64/asm0.$(OBJEXT) \
+	x64/asm1.$(OBJEXT) x64/asm2.$(OBJEXT) x64/asm3.$(OBJEXT) \
+	x64/asmn.$(OBJEXT) x64/assembler.$(OBJEXT) \
+	x64/compiler.$(OBJEXT) x64/mem.$(OBJEXT) \
+	x64/rex_byte.$(OBJEXT) x64/scale.$(OBJEXT) x64/util.$(OBJEXT)
 libonejit_a_OBJECTS = $(am_libonejit_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -167,14 +167,14 @@ am__depfiles_remade = ./$(DEPDIR)/abi.Po ./$(DEPDIR)/archid.Po \
 	ir/$(DEPDIR)/tuple.Po ir/$(DEPDIR)/unary.Po \
 	ir/$(DEPDIR)/util.Po ir/$(DEPDIR)/var.Po \
 	mir/$(DEPDIR)/address.Po mir/$(DEPDIR)/compiler.Po \
-	mir/$(DEPDIR)/mem.Po reg/$(DEPDIR)/allocator.Po \
-	x64/$(DEPDIR)/address.Po x64/$(DEPDIR)/arg.Po \
-	x64/$(DEPDIR)/asm0.Po x64/$(DEPDIR)/asm1.Po \
-	x64/$(DEPDIR)/asm2.Po x64/$(DEPDIR)/asm3.Po \
-	x64/$(DEPDIR)/asmn.Po x64/$(DEPDIR)/assembler.Po \
-	x64/$(DEPDIR)/compiler.Po x64/$(DEPDIR)/mem.Po \
-	x64/$(DEPDIR)/rex_byte.Po x64/$(DEPDIR)/scale.Po \
-	x64/$(DEPDIR)/util.Po
+	mir/$(DEPDIR)/mem.Po mir/$(DEPDIR)/util.Po \
+	reg/$(DEPDIR)/allocator.Po x64/$(DEPDIR)/address.Po \
+	x64/$(DEPDIR)/arg.Po x64/$(DEPDIR)/asm0.Po \
+	x64/$(DEPDIR)/asm1.Po x64/$(DEPDIR)/asm2.Po \
+	x64/$(DEPDIR)/asm3.Po x64/$(DEPDIR)/asmn.Po \
+	x64/$(DEPDIR)/assembler.Po x64/$(DEPDIR)/compiler.Po \
+	x64/$(DEPDIR)/mem.Po x64/$(DEPDIR)/rex_byte.Po \
+	x64/$(DEPDIR)/scale.Po x64/$(DEPDIR)/util.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -379,7 +379,7 @@ libonejit_a_SOURCES = \
         \
         reg/allocator.cpp \
         \
-        mir/address.cpp mir/compiler.cpp mir/mem.cpp \
+        mir/address.cpp mir/compiler.cpp mir/mem.cpp mir/util.cpp \
         \
         x64/address.cpp x64/arg.cpp x64/asm0.cpp x64/asm1.cpp x64/asm2.cpp x64/asm3.cpp x64/asmn.cpp \
         x64/assembler.cpp x64/compiler.cpp x64/mem.cpp x64/rex_byte.cpp x64/scale.cpp x64/util.cpp
@@ -471,6 +471,7 @@ mir/address.$(OBJEXT): mir/$(am__dirstamp) \
 mir/compiler.$(OBJEXT): mir/$(am__dirstamp) \
 	mir/$(DEPDIR)/$(am__dirstamp)
 mir/mem.$(OBJEXT): mir/$(am__dirstamp) mir/$(DEPDIR)/$(am__dirstamp)
+mir/util.$(OBJEXT): mir/$(am__dirstamp) mir/$(DEPDIR)/$(am__dirstamp)
 x64/$(am__dirstamp):
 	@$(MKDIR_P) x64
 	@: > x64/$(am__dirstamp)
@@ -560,6 +561,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@mir/$(DEPDIR)/address.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@mir/$(DEPDIR)/compiler.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@mir/$(DEPDIR)/mem.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@mir/$(DEPDIR)/util.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@reg/$(DEPDIR)/allocator.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/address.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@x64/$(DEPDIR)/arg.Po@am__quote@ # am--include-marker
@@ -851,6 +853,7 @@ distclean: distclean-recursive
 	-rm -f mir/$(DEPDIR)/address.Po
 	-rm -f mir/$(DEPDIR)/compiler.Po
 	-rm -f mir/$(DEPDIR)/mem.Po
+	-rm -f mir/$(DEPDIR)/util.Po
 	-rm -f reg/$(DEPDIR)/allocator.Po
 	-rm -f x64/$(DEPDIR)/address.Po
 	-rm -f x64/$(DEPDIR)/arg.Po
@@ -960,6 +963,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f mir/$(DEPDIR)/address.Po
 	-rm -f mir/$(DEPDIR)/compiler.Po
 	-rm -f mir/$(DEPDIR)/mem.Po
+	-rm -f mir/$(DEPDIR)/util.Po
 	-rm -f reg/$(DEPDIR)/allocator.Po
 	-rm -f x64/$(DEPDIR)/address.Po
 	-rm -f x64/$(DEPDIR)/arg.Po

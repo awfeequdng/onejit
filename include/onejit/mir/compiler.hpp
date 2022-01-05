@@ -33,6 +33,8 @@ class Compiler {
   friend class Address;
   friend class Mem;
 
+  enum mKind : size_t { mInt32, mUint32, mInt64, mUint64, mFloat32, mFloat64, mFloat80 };
+
 public:
   constexpr Compiler() noexcept //
       : func_{}, node_{}, error_{}, flags_{}, good_{true} {
@@ -63,11 +65,11 @@ private:
   Compiler &compile(Stmt3 stmt) noexcept;
   Compiler &compile(StmtN stmt) noexcept;
 
-  Expr simplify(Binary expr) noexcept;
   Expr simplify(Expr expr) noexcept;
   Expr simplify(onejit::Mem expr) noexcept;
-  Expr simplify(Tuple expr) noexcept;
   Expr simplify(Unary expr) noexcept;
+  Expr simplify(Binary expr) noexcept;
+  Expr simplify(Tuple expr) noexcept;
 
   Node simplify_assign(Assign st, Expr dst, Expr src) noexcept;
   Node simplify_assign(Assign st, Expr dst, Unary src) noexcept;

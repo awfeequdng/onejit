@@ -20,6 +20,7 @@
 #include <onejit/ir/const.hpp> // VoidConst
 #include <onejit/ir/label.hpp>
 #include <onejit/ir/stmt.hpp>
+#include <onejit/mir/fwd.hpp>
 #include <onejit/opstmt2.hpp>
 #include <onejit/x64/fwd.hpp>
 #include <onestl/view.hpp>
@@ -37,6 +38,7 @@ class Stmt2 : public Stmt {
   friend class ::onejit::Compiler;
   friend class ::onejit::Func;
   friend class x64::Compiler;
+  friend class mir::Compiler;
 
 public:
   /**
@@ -74,8 +76,8 @@ protected:
   }
 
   // used by subclasses
-  Stmt2(Func &func, Node child0, Node child1, OpStmt2 op) noexcept
-      : Base{create(func, child0, child1, op)} {
+  Stmt2(Func &func, OpStmt2 op, Node child0, Node child1) noexcept
+      : Base{create(func, op, child0, child1)} {
   }
 
 private:
@@ -83,7 +85,7 @@ private:
     return op() == CASE ? i == 0 : op() == DEFAULT ? false : true;
   }
 
-  static Node create(Func &func, Node child0, Node child1, OpStmt2 op) noexcept;
+  static Node create(Func &func, OpStmt2 op, Node child0, Node child1) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -103,7 +105,7 @@ public:
   }
 
   Assign(Func &func, OpStmt2 op, Expr dst, Expr src) noexcept //
-      : Base{func, dst, src, op} {
+      : Base{func, op, dst, src} {
   }
 
   constexpr OpStmt2 op() const noexcept {
@@ -152,7 +154,7 @@ public:
   }
 
   Case(Func &func, Expr expr, Node body) noexcept //
-      : Base{func, expr, body, CASE} {
+      : Base{func, CASE, expr, body} {
   }
 
   // can return either CASE or DEFAULT
@@ -176,8 +178,8 @@ protected:
   }
 
   // used by subclasses
-  Case(Func &func, Expr expr, Node body, OpStmt2 op) noexcept //
-      : Base{func, expr, body, op} {
+  Case(Func &func, OpStmt2 op, Expr expr, Node body) noexcept //
+      : Base{func, op, expr, body} {
   }
 
 private:
@@ -209,7 +211,7 @@ public:
   }
 
   Default(Func &func, Node body) noexcept //
-      : Base{func, VoidConst, body, DEFAULT} {
+      : Base{func, DEFAULT, VoidConst, body} {
   }
 
   static constexpr OpStmt2 op() noexcept {
@@ -237,7 +239,7 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// conditional jump. usually only found in compiled code
+// conditional jump. only allowed in input IR - never used in compiled code
 class JumpIf : public Stmt2 {
   using Base = Stmt2;
   friend class Node;
@@ -254,7 +256,7 @@ public:
   }
 
   JumpIf(Func &func, Label to, Expr test) noexcept //
-      : Base{func, to, test, JUMP_IF} {
+      : Base{func, JUMP_IF, to, test} {
   }
 
   static constexpr OpStmt2 op() noexcept {

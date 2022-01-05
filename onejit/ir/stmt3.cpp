@@ -24,13 +24,14 @@ namespace ir {
 
 // ============================  Stmt3  ========================================
 
-ONEJIT_NOINLINE Node Stmt3::create(Func &func, Node child0, Node child1, Node child2,
-                                   OpStmt3 op) noexcept {
-  const Node children[] = {child0, child1, child2};
-  return create(func, Nodes(children, 3), op);
+ONEJIT_NOINLINE Node Stmt3::create(Func &func, OpStmt3 op, Node child0, Node child1,
+                                   Node child2) noexcept {
+  return Base::create_indirect(func,                               //
+                               Header{STMT_3, Void, uint16_t(op)}, //
+                               {child0, child1, child2});
 }
 
-ONEJIT_NOINLINE Node Stmt3::create(Func &func, Nodes children, OpStmt3 op) noexcept {
+ONEJIT_NOINLINE Node Stmt3::create(Func &func, OpStmt3 op, Nodes children) noexcept {
   return Base::create_indirect(func,                               //
                                Header{STMT_3, Void, uint16_t(op)}, //
                                children);

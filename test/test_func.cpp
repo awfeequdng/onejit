@@ -86,7 +86,7 @@ void Test::func_fib() {
     (return var1001_ul)\n\
     (mir_jmp label_2)\n\
     label_1\n\
-    (= var1001_ul 1)\n\
+    (mir_mov var1001_ul 1)\n\
     (return var1001_ul)\n\
     label_2\n\
     (return var1001_ul))";

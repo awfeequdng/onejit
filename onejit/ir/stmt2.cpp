@@ -23,7 +23,7 @@ namespace ir {
 
 // ============================  Stmt2  ========================================
 
-ONEJIT_NOINLINE Node Stmt2::create(Func &func, Node child0, Node child1, OpStmt2 op) noexcept {
+ONEJIT_NOINLINE Node Stmt2::create(Func &func, OpStmt2 op, Node child0, Node child1) noexcept {
   return Base::create_indirect(func,                               //
                                Header{STMT_2, Void, uint16_t(op)}, //
                                {child0, child1});

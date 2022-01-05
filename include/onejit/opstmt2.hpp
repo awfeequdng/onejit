@@ -75,7 +75,9 @@ enum OpStmt2 : uint16_t {
       x(NEGS, negs)     /* x = -y on 32-bit integer register or memory */                          \
       x(FNEG, fneg)     /* x = -y on float32 (or memory?) */                                       \
       x(DNEG, dneg)     /* x = -y on float64 (or memory?) */                                       \
-      x(LDNEG, ldneg)   /* x = -y on float80 (or memory?) */
+      x(LDNEG, ldneg)   /* x = -y on float80 (or memory?) */                                       \
+                                                                                                   \
+      x(ALLOCA, alloca) /* 2 operands: result address and size  */
 
 #define ONEJIT_OPSTMT2_X86(x)                                                                      \
   x(/**/ ADD, add)              /* x += y on register or memory */                                 \

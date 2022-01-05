@@ -224,15 +224,10 @@ Compiler &Compiler::compile(Stmt1 st) noexcept {
 // ===============================  compile(Stmt2)  ============================
 
 Compiler &Compiler::compile(Stmt2 st) noexcept {
-  switch (st.op()) {
-  case JUMP_IF:
-    return compile(st.is<JumpIf>());
-  default:
-    if (Assign assign = st.is<Assign>()) {
-      return compile(assign);
-    }
-    return error(st, "unexpected Stmt2");
+  if (Assign assign = st.is<Assign>()) {
+    return compile(assign);
   }
+  return error(st, "unexpected Stmt2");
 }
 
 Compiler &Compiler::compile(Assign st) noexcept {
@@ -281,7 +276,7 @@ Node Compiler::simplify_assign(Assign st, Expr dst, Expr src) noexcept {
   } else {
     error(st, "unexpected Assign operation");
   }
-  return Stmt2{*func_, dst, src, op};
+  return Stmt2{*func_, op, dst, src};
 }
 
 Node Compiler::simplify_assign(Assign st, Expr dst, Unary src) noexcept {
@@ -296,7 +291,7 @@ Node Compiler::simplify_assign(Assign st, Expr dst, Tuple src) noexcept {
   case ADD:
     if (dst.type() == VAR) {
       if (Mem mem{*this, Ptr, ChildRange{src}}) {
-        return Stmt2{*func_, dst, mem, X86_LEA};
+        return Stmt2{*func_, X86_LEA, dst, mem};
       }
     }
     break;
@@ -333,7 +328,7 @@ Compiler &Compiler::compile(Stmt3 st) noexcept {
     Expr x = st.child_is<Expr>(1);
     Expr y = st.child_is<Expr>(2);
     simplify_binary(x, y);
-    add(Stmt2{*func_, x, y, X86_CMP});
+    add(Stmt2{*func_, X86_CMP, x, y});
     return add(Stmt1{*func_, to, op1});
   } else {
     return error(st, "unexpected Stmt3");

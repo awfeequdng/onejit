@@ -18,6 +18,7 @@
 #include <onejit/ir.hpp>
 #include <onejit/mir/compiler.hpp>
 #include <onejit/mir/mem.hpp>
+#include <onejit/mir/util.hpp>
 
 namespace onejit {
 
@@ -178,7 +179,7 @@ Compiler &Compiler::compile(Stmt1 st) noexcept {
   if (op == GOTO) {
     op = MIR_JMP;
   } else if (op == INC || op == DEC) {
-    // TODO convert INC, DEC to ADD, SUB
+    // TODO convert INC, DEC to MIR_ADD, MIR_SUB
   } else {
     return error(st, "unexpected Stmt1 operation");
   }
@@ -189,28 +190,61 @@ Compiler &Compiler::compile(Stmt1 st) noexcept {
 // ===============================  compile(Stmt2)  ============================
 
 Compiler &Compiler::compile(Stmt2 st) noexcept {
-  return add(st); // TODO
+  if (Assign assign = st.is<Assign>()) {
+    return compile(assign);
+  }
+  return error(st, "unexpected Stmt2");
 }
 
 Compiler &Compiler::compile(Assign st) noexcept {
-  return add(st); // TODO
+  Expr src = st.src(), dst = st.dst();
+  // simplify src first: its side effects, if any, must be applied before dst
+  //
+  // do not call to_var_mem_const(simplify(src)): it creates redundant Vars
+  src = simplify(src);
+  dst = to_var_mem_const(simplify(dst));
+  if (src.type() == MEM && dst.type() == MEM) {
+    // both arguments are memory.
+    // not supported by MIR assembly, force one to register
+    src = to_var(src);
+  }
+  return add(simplify_assign(st, dst, src));
 }
 
 Node Compiler::simplify_assign(Assign st, Expr dst, Expr src) noexcept {
-  // TODO
-  (void)dst;
-  (void)src;
-  return st;
+  OpStmt2 op = st.op();
+  if (op >= ADD_ASSIGN && op <= SHR_ASSIGN) {
+    // MIR assembly does not have two-operand x += y etc.
+    // convert to x = x + y etc.
+    src = to_var_mem_const(src);
+    dst = to_var_mem_const(dst);
+    Expr tmp = to_var(dst);
+    return Stmt3{*func_, mir_arith(op, tmp.kind()), dst, tmp, src};
+  }
+  if (op == ASSIGN) {
+    switch (src.type()) {
+    case VAR:
+    case MEM:
+    case CONST:
+    case LABEL:
+      return Assign{*func_, mir_mov(dst.kind()), dst, src};
+    case UNARY:
+      return simplify_assign(st, dst, src.is<Unary>());
+    case BINARY:
+      return simplify_assign(st, dst, src.is<Binary>());
+    case TUPLE:
+      return simplify_assign(st, dst, src.is<Tuple>());
+    default:
+      error(st, "unexpected Assign right argument");
+      break;
+    }
+  } else {
+    error(st, "unexpected Assign statement");
+  }
+  return Node{};
 }
 
 Node Compiler::simplify_assign(Assign st, Expr dst, Unary src) noexcept {
-  // TODO
-  (void)dst;
-  (void)src;
-  return st;
-}
-
-Node Compiler::simplify_assign(Assign st, Expr dst, Tuple src) noexcept {
   // TODO
   (void)dst;
   (void)src;
@@ -224,33 +258,51 @@ Node Compiler::simplify_assign(Assign st, Expr dst, Binary src) noexcept {
   return st;
 }
 
+Node Compiler::simplify_assign(Assign st, Expr dst, Tuple src) noexcept {
+  // TODO
+  (void)dst;
+  (void)src;
+  return st;
+}
+
 // ===============================  compile(Stmt3)  ============================
 
 Compiler &Compiler::compile(Stmt3 st) noexcept {
-
-  static const OpStmt3 int64_jump[] = {MIR_UBGT, MIR_UBGE, MIR_UBLT, MIR_UBLE, MIR_BEQ,
-                                       MIR_BGT,  MIR_BGE,  MIR_BLT,  MIR_BLE,  MIR_BNE};
-#if 0
-  static const OpStmt3 int32_jump[] = {MIR_UBGTS, MIR_UBGES, MIR_UBLTS, MIR_UBLES, MIR_BEQS,
+  static const OpStmt3 jump_int32[] = {MIR_UBGTS, MIR_UBGES, MIR_UBLTS, MIR_UBLES, MIR_BEQS,
                                        MIR_BGTS,  MIR_BGES,  MIR_BLTS,  MIR_BLES,  MIR_BNES};
-  static const OpStmt3 float32_jump[] = {MIR_FBGT, MIR_FBGE, MIR_FBLT, MIR_FBLE, MIR_FBEQ,
+  static const OpStmt3 jump_int64[] = {MIR_UBGT, MIR_UBGE, MIR_UBLT, MIR_UBLE, MIR_BEQ,
+                                       MIR_BGT,  MIR_BGE,  MIR_BLT,  MIR_BLE,  MIR_BNE};
+  static const OpStmt3 jump_float32[] = {MIR_FBGT, MIR_FBGE, MIR_FBLT, MIR_FBLE, MIR_FBEQ,
                                          MIR_FBGT, MIR_FBGE, MIR_FBLT, MIR_FBLE, MIR_FBNE};
-  static const OpStmt3 float64_jump[] = {MIR_DBGT, MIR_DBGE, MIR_DBLT, MIR_DBLE, MIR_DBEQ,
+  static const OpStmt3 jump_float64[] = {MIR_DBGT, MIR_DBGE, MIR_DBLT, MIR_DBLE, MIR_DBEQ,
                                          MIR_DBGT, MIR_DBGE, MIR_DBLT, MIR_DBLE, MIR_DBNE};
-#endif
   const OpStmt3 op = st.op();
   if (op >= ASM_JA && op <= ASM_JNE) {
-    // TODO merge comparison and jump
-    // TODO convert int32, float32, float64 comparisons
     Label to = st.child_is<Label>(0);
     Expr x = simplify(st.child_is<Expr>(1));
     Expr y = simplify(st.child_is<Expr>(2));
-    return add(Stmt3{*func_, to, x, y, int64_jump[op - ASM_JA]});
+    const OpStmt3 *jump_table;
+    switch (x.kind().val()) {
+    default:
+      jump_table = jump_int32;
+      break;
+    case eInt64:
+    case eUint64:
+    case ePtr:
+      jump_table = jump_int64;
+      break;
+    case eFloat32:
+      jump_table = jump_float32;
+      break;
+    case eFloat64:
+      jump_table = jump_float64;
+      break;
+    }
+    return add(Stmt3{*func_, jump_table[op - ASM_JA], to, x, y});
   } else {
-    // TODO
-    return add(st);
+    return error(st, "unexpected Stmt3");
   }
-} // namespace mir
+}
 
 // ===============================  compile(StmtN)  ============================
 
@@ -291,8 +343,7 @@ Var Compiler::to_var(Expr expr) noexcept {
   if (expr && !v) {
     // copy Expr result to a Var
     v = Var{*func_, expr.kind()};
-    // compile(Assign{...}) would cause infinite recursion
-    add(Assign{*func_, ASSIGN, v, expr});
+    add(Stmt2{*func_, mir_mov(expr.kind()), v, expr});
   }
   return v;
 }
