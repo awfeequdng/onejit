@@ -245,7 +245,7 @@ Node Compiler::simplify_assign(Assign st, Expr dst, Expr src) noexcept {
   } else {
     error(st, "unexpected Assign statement");
   }
-  return Node{};
+  return st;
 }
 
 Node Compiler::simplify_assign(Assign st, Expr dst, Unary src) noexcept {
@@ -271,16 +271,19 @@ Node Compiler::simplify_assign(Assign st, Expr dst, Binary src) noexcept {
 
 Node Compiler::simplify_assign(Assign st, Expr dst, Tuple src) noexcept {
   const OpN op = src.op();
-  const uint32_t n = src.children();
-  switch (n) {
-  case 2:
-    if (op >= ADD && op <= XOR) {
-      const OpStmt3 op3 = mir_arith(op, dst.kind());
-      return simplify_ternary(op3, dst, src.arg(0), src.arg(1));
+  if (op >= ADD && op <= XOR) {
+    Expr x = src.arg(0);
+    Expr y = src.arg(1);
+    const OpStmt3 op3 = mir_arith(op, dst.kind());
+    const uint32_t n = src.children();
+    if (n < 2) {
+      error(st, "unexpected Tuple inside Assign, expecting at least 2 operands");
+      return st;
+    } else if (n == 2) {
+      return simplify_ternary(op3, dst, x, y);
     }
-    break;
-  default:
-    break;
+  } else if (op == CALL) {
+    return simplify_call(st, Tuple{*func_, dst.kind(), COMMA, {dst}}, src);
   }
   return st; // TODO
 }
@@ -300,6 +303,19 @@ Node Compiler::simplify_ternary(OpStmt3 op, Expr dst, Expr x, Expr y) noexcept {
     dst = to_var(dst);
   }
   return Stmt3{*func_, op, dst, x, y};
+}
+
+Node Compiler::simplify_call(Assign st, Tuple dst, Tuple src) noexcept {
+  FuncType ftype = src.child_is<FuncType>(0);
+  Expr faddress = src.child_is<Expr>(1);
+  if (ftype && faddress) {
+    return Stmt4{*func_, MIR_CALL,
+                 ftype,  faddress,
+                 dst,    Tuple{*func_, src.kind(), COMMA, ChildRange{src, 2, src.children() - 2}}};
+  } else {
+    error(st, "invalid Call: first two arguments must be FuncType, Expr");
+  }
+  return st;
 }
 
 // ===============================  compile(Stmt3)  ============================

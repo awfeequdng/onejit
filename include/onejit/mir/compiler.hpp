@@ -78,6 +78,7 @@ private:
 
   void simplify_binary(Expr &x, Expr &y) noexcept;
   Node simplify_ternary(OpStmt3 op, Expr dst, Expr x, Expr y) noexcept;
+  Node simplify_call(Assign st, Tuple dst, Tuple src) noexcept;
 
   constexpr Func *func() const noexcept {
     return func_;

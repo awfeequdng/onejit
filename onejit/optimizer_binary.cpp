@@ -15,11 +15,11 @@
 
 #include <onejit/eval.hpp>
 #include <onejit/func.hpp>
-#include <onejit/mem.hpp>
 #include <onejit/ir/binary.hpp>
 #include <onejit/ir/comma.hpp>
 #include <onejit/ir/const.hpp>
 #include <onejit/ir/tuple.hpp>
+#include <onejit/mem.hpp>
 #include <onejit/optimizer.hpp>
 #include <onestl/range.hpp>
 
@@ -107,9 +107,10 @@ Expr Optimizer::partial_eval_binary(Op2 op, Expr x, Expr y) noexcept {
       // optimize (op x identity) to x
       return x;
     }
+#if 0
     if (op == SUB) {
       // optimize (x - const) to (x + (-const))
-      // because + is easier to optimize further
+      // because + is easier to optimize further on x86
       Value v = -c.val();
       if (v.is_valid() && (c = Const{*func_, v})) {
         // optimize() may resize nodes_ and change its data()
@@ -118,6 +119,7 @@ Expr Optimizer::partial_eval_binary(Op2 op, Expr x, Expr y) noexcept {
         return optimize(Tuple{*func_, ADD, x, c}, false);
       }
     }
+#endif // 0
   }
   return changed && x && y ? Binary{*func_, op, x, y} : Binary{};
 }

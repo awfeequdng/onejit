@@ -53,6 +53,10 @@ public:
       : Base{create(func, kind, op, nodes)} {
   }
 
+  Tuple(Func &func, Kind kind, OpN op, const ChildRange &nodes) noexcept //
+      : Base{create(func, kind, op, nodes)} {
+  }
+
   Tuple(Func &func, Kind kind, OpN op, std::initializer_list<Node> nodes) noexcept //
       : Base{create(func, kind, op, nodes)} {
   }
@@ -83,6 +87,8 @@ private:
   }
 
   static Node create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept;
+
+  static Node create(Func &func, Kind kind, OpN op, const ChildRange &nodes) noexcept;
 
   static Node create(Func &func, Kind kind, OpN op, std::initializer_list<Node> nodes) noexcept {
     return create(func, kind, op, Nodes{nodes.begin(), nodes.size()});

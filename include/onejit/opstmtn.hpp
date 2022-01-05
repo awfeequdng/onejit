@@ -36,12 +36,10 @@ enum OpStmtN : uint16_t {
   SET_ = 6, // arguments are formal registers to set. used in function prologue and in calls.
 
 #define ONEJIT_OPSTMTN_MIR(x) /*                                                                */ \
-  x(/**/ CALL, call)    /* call function. 1st argument is prototype, 2nd is ref to address, then   \
-                           return registers, finally arguments */                                  \
-      x(SWITCH, switch) /* 1st operand is an index, subsequent ops are labels to which goto        \
-                           according the index (1st label has index zero).  The insn               \
-                           behavior is undefined if there is no label for the index. */            \
-      x(RET, ret)       /* return from function call. arguments are return values  */
+  x(SWITCH, switch)           /* 1st operand is an index, subsequent ops are labels to which goto  \
+                                 according the index (1st label has index zero).  The insn         \
+                                 behavior is undefined if there is no label for the index. */      \
+      x(RET, ret)             /* return from function call. arguments are return values  */
 
 #define ONEJIT_OPSTMTN_X86(x) /*                                                                */ \
   x(CALL_, call_) /* call function. 1st argument is destination, others are formal registers */    \

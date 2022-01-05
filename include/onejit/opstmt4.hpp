@@ -23,9 +23,20 @@
 
 namespace onejit {
 
+#define ONEJIT_OPSTMT4_MIR(x) /*                                                                */ \
+  x(/**/ CALL, call) /* call function. 1st argument is prototype, 2nd is ref to address, then      \
+                        tuple of return registers, finally tuple of arguments */
+
 enum OpStmt4 : uint16_t {
   BAD_ST4 = 0,
   FOR = 1,
+
+// numeric values of the OpStmt4 enum constants below this line MAY CHANGE WITHOUT WARNING
+
+#define ONEJIT_X(NAME, name) MIR_##NAME,
+  ONEJIT_OPSTMT4_MIR(ONEJIT_X)
+#undef ONEJIT_X
+
 };
 
 constexpr OpStmt4 operator+(OpStmt4 op, int delta) noexcept {

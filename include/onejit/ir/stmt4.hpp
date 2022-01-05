@@ -19,6 +19,7 @@
 #include <onejit/fmt.hpp>
 #include <onejit/ir/expr.hpp>
 #include <onejit/ir/stmt.hpp>
+#include <onejit/mir/fwd.hpp>
 #include <onejit/opstmt4.hpp>
 
 namespace onejit {
@@ -29,6 +30,7 @@ class Stmt4 : public Stmt {
   using Base = Stmt;
   friend class Node;
   friend class ::onejit::Func;
+  friend class mir::Compiler;
 
 public:
   /**
@@ -65,10 +67,10 @@ protected:
     return t == STMT_4;
   }
 
-  // used by subclasses
-  Stmt4(Func &func, const Node &child0, const Node &child1, //
-        const Node &child2, const Node &child3, OpStmt4 op) noexcept
-      : Base{create(func, child0, child1, child2, child3, op)} {
+  // used by subclasses and by mir::Compiler
+  Stmt4(Func &func, OpStmt4 op, const Node &child0, const Node &child1, //
+        const Node &child2, const Node &child3) noexcept
+      : Base{create(func, op, child0, child1, child2, child3)} {
   }
 
 private:
@@ -76,8 +78,8 @@ private:
     return op() == FOR ? i == 1 : true;
   }
 
-  static Node create(Func &func, const Node &child0, const Node &child1, //
-                     const Node &child2, const Node &child3, OpStmt4 op) noexcept;
+  static Node create(Func &func, OpStmt4 op, const Node &child0, const Node &child1, //
+                     const Node &child2, const Node &child3) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -98,7 +100,7 @@ public:
   }
 
   For(Func &func, const Node &init, const Expr &test, const Node &post, const Node &body) noexcept
-      : Base{func, init, test, post, body, FOR} {
+      : Base{func, FOR, init, test, post, body} {
   }
 
   static constexpr OpStmt4 op() noexcept {

@@ -248,7 +248,12 @@ const Fmt &operator<<(const Fmt &fmt, OpStmt3 op) {
 
 // ============================  OpStmt4  ======================================
 
-static const Chars op_stmt_4_string[] = {"?", "for"};
+static const Chars op_stmt_4_string[] = {"?", "for",
+
+#define ONEJIT_X(NAME, name) "mir_" #name,
+                                         ONEJIT_OPSTMT4_MIR(ONEJIT_X)
+#undef ONEJIT_X
+};
 
 const Chars to_string(OpStmt4 op) noexcept {
   size_t i = 0;

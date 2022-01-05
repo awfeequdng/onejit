@@ -72,6 +72,7 @@ void Test::optimize_expr_kind(Kind kind) {
     TEST(to_string(optimized), ==, expected);
   }
 
+#if 0  // this optimization is currently disabled
   if (kind.is_signed()) {
     // optimize() on (x-1)-2 should return x+(-3)
     expr = Binary{f, SUB, Binary{f, SUB, x, one}, two};
@@ -81,6 +82,7 @@ void Test::optimize_expr_kind(Kind kind) {
     TEST(optimized, !=, expr);
     TEST(to_string(optimized), ==, expected);
   }
+#endif // 0
 
   // optimize() on 1+(2+x) should return x+3
   expr = Tuple{f, ADD, one, Tuple{f, ADD, two, x}};

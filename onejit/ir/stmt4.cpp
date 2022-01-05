@@ -24,8 +24,8 @@ namespace ir {
 
 // ============================  Stmt4  ========================================
 
-ONEJIT_NOINLINE Node Stmt4::create(Func &func, const Node &child0, const Node &child1,
-                                   const Node &child2, const Node &child3, OpStmt4 op) noexcept {
+ONEJIT_NOINLINE Node Stmt4::create(Func &func, OpStmt4 op, const Node &child0, const Node &child1,
+                                   const Node &child2, const Node &child3) noexcept {
   return Base::create_indirect(func,                               //
                                Header{STMT_4, Void, uint16_t(op)}, //
                                {child0, child1, child2, child3});
@@ -36,7 +36,12 @@ const Fmt &Stmt4::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
   fmt << '(' << op() << ' ';
   child(0).format(fmt, syntax, depth) << ' ';
   child(1).format(fmt, syntax, depth) << ' ';
-  child(2).format(fmt, syntax, depth) << '\n' << Space{depth * 4};
+  child(2).format(fmt, syntax, depth);
+  if (op() == FOR) {
+    fmt << '\n' << Space{depth * 4};
+  } else {
+    fmt << ' ';
+  }
   child(3).format(fmt, syntax, depth) << ')';
   return fmt;
 }

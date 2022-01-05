@@ -60,9 +60,9 @@ void Test::func_fib() {
     label_0\n\
     (_set var1000_ul)\n\
     (asm_jbe label_1 var1000_ul 2)\n\
-    (= var1002_ul (+ var1000_ul 18446744073709551615))\n\
+    (= var1002_ul (- var1000_ul 1))\n\
     (= var1003_ul (call label_0 var1002_ul))\n\
-    (= var1004_ul (+ var1000_ul 18446744073709551614))\n\
+    (= var1004_ul (- var1000_ul 2))\n\
     (= var1005_ul (call label_0 var1004_ul))\n\
     (= var1001_ul (+ var1003_ul var1005_ul))\n\
     (return var1001_ul)\n\
@@ -78,10 +78,10 @@ void Test::func_fib() {
   expected = "(block\n\
     label_0\n\
     (mir_uble label_1 var1000_ul 2)\n\
-    (mir_add var1002_ul var1000_ul 18446744073709551615)\n\
-    (= var1003_ul (call label_0 var1002_ul))\n\
-    (mir_add var1004_ul var1000_ul 18446744073709551614)\n\
-    (= var1005_ul (call label_0 var1004_ul))\n\
+    (mir_sub var1002_ul var1000_ul 1)\n\
+    (mir_call (ftype (uint64) -> (uint64)) label_0 (comma var1003_ul) (comma var1002_ul))\n\
+    (mir_sub var1004_ul var1000_ul 2)\n\
+    (mir_call (ftype (uint64) -> (uint64)) label_0 (comma var1005_ul) (comma var1004_ul))\n\
     (mir_add var1001_ul var1003_ul var1005_ul)\n\
     (return var1001_ul)\n\
     (mir_jmp label_2)\n\
@@ -98,9 +98,9 @@ void Test::func_fib() {
     (_set var1000_ul)\n\
     (x86_cmp var1000_ul 2)\n\
     (x86_jbe label_1)\n\
-    (x86_lea var1002_ul (x86_mem_p -1 var1000_ul))\n\
+    (= var1002_ul (- var1000_ul 1))\n\
     (x86_call_ label_0 (_set var1003_ul) var1002_ul)\n\
-    (x86_lea var1004_ul (x86_mem_p -2 var1000_ul))\n\
+    (= var1004_ul (- var1000_ul 2))\n\
     (x86_call_ label_0 (_set var1005_ul) var1004_ul)\n\
     (x86_lea var1001_ul (x86_mem_p var1003_ul var1005_ul 1))\n\
     (x86_ret var1001_ul)\n\
@@ -126,9 +126,9 @@ void Test::func_fib() {
     (bb_1\n\
         (prev bb_0)\n\
         (nodes\n\
-            (x86_lea var1002_ul (x86_mem_p -1 var1000_ul))\n\
+            (= var1002_ul (- var1000_ul 1))\n\
             (x86_call_ label_0 (_set var1003_ul) var1002_ul)\n\
-            (x86_lea var1004_ul (x86_mem_p -2 var1000_ul))\n\
+            (= var1004_ul (- var1000_ul 2))\n\
             (x86_call_ label_0 (_set var1005_ul) var1004_ul)\n\
             (x86_lea var1001_ul (x86_mem_p var1003_ul var1005_ul 1))\n\
             (x86_ret var1001_ul)\n\

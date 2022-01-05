@@ -32,6 +32,12 @@ Node Tuple::create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept {
                                nodes);
 }
 
+Node Tuple::create(Func &func, Kind kind, OpN op, const ChildRange &nodes) noexcept {
+  return Base::create_indirect_from_ranges(func,                    //
+                                           Header{TUPLE, kind, op}, //
+                                           ChildRanges{&nodes, 1});
+}
+
 const Fmt &Tuple::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
   if (type() == MEM) {
     // may happen, Mem is a subclass of Tuple
