@@ -42,54 +42,127 @@ enum OpStmt3 : uint16_t {
       x(JNE, jne) /* jump if not equal (if not zero) */
 
 #define ONEJIT_OPSTMT3_MIR(x)                                                                      \
-  x(/**/ ADD, add)  /* x = y + z on 64-bit integer register or memory */                           \
-      x(ADDS, adds) /* x = y + z on 32-bit integer register or memory */                           \
-      x(AND, and)   /* x = y & z on 64-bit integer register or memory */                           \
-      x(ANDS, ands) /* x = y & z on 32-bit integer register or memory */                           \
+  x(/**/ ADD, add)    /* x = y + z on [u]int64 */                                                  \
+      x(ADDS, adds)   /* x = y + z on [u]int32 */                                                  \
+      x(FADD, fadd)   /* x = y + z on float32  */                                                  \
+      x(DADD, dadd)   /* x = y + z on float64  */                                                  \
+      x(LDADD, ldadd) /* x = y + z on float80  */                                                  \
                                                                                                    \
-      x(BEQ, beq)    /* jump to label x if 64 bit integer y == z */                                \
-      x(BEQS, beqs)  /* jump to label x if 32 bit integer y == z */                                \
-      x(FBEQ, dbeq)  /* jump to label x if float32 integer y == z */                               \
-      x(DBEQ, dbeq)  /* jump to label x if float64 integer y == z */                               \
-      x(LDBEQ, dbeq) /* jump to label x if float80 integer y == z */                               \
+      x(SUB, sub)     /* x = y - z on [u]int64 */                                                  \
+      x(SUBS, subs)   /* x = y - z on [u]int32 */                                                  \
+      x(FSUB, fsub)   /* x = y - z on float32  */                                                  \
+      x(DSUB, dsub)   /* x = y - z on float64  */                                                  \
+      x(LDSUB, ldsub) /* x = y - z on float80  */                                                  \
                                                                                                    \
-      x(BNE, bne)    /* jump to label x if 64 bit integer y != z */                                \
-      x(BNES, bnes)  /* jump to label x if 32 bit integer y != z */                                \
-      x(FBNE, dbne)  /* jump to label x if float32 integer y != z */                               \
-      x(DBNE, dbne)  /* jump to label x if float64 integer y != z */                               \
-      x(LDBNE, dbne) /* jump to label x if float80 integer y != z */                               \
+      x(MUL, mul)     /* x = y * z on [u]int64 */                                                  \
+      x(MULS, muls)   /* x = y * z on [u]int32 */                                                  \
+      x(FMUL, fmul)   /* x = y * z on float32  */                                                  \
+      x(DMUL, dmul)   /* x = y * z on float64  */                                                  \
+      x(LDMUL, ldmul) /* x = y * z on float80  */                                                  \
                                                                                                    \
-      x(BLT, blt)     /* jump to label x if 64 bit integer y < z */                                \
-      x(BLTS, blts)   /* jump to label x if 32 bit integer y < z */                                \
-      x(UBLT, ublt)   /* jump to label x if 64 bit unsigned y < z */                               \
-      x(UBLTS, ublts) /* jump to label x if 32 bit unsigned y < z */                               \
-      x(FBLT, dblt)   /* jump to label x if float32 integer y < z */                               \
-      x(DBLT, dblt)   /* jump to label x if float64 integer y < z */                               \
-      x(LDBLT, dblt)  /* jump to label x if float80 integer y < z */                               \
+      x(DIV, div)     /* x = y / z on int64    */                                                  \
+      x(DIVS, divs)   /* x = y / z on int32    */                                                  \
+      x(UDIV, udiv)   /* x = y / z on uint64   */                                                  \
+      x(UDIVS, udivs) /* x = y / z on uint32   */                                                  \
+      x(FDIV, fdiv)   /* x = y / z on float32  */                                                  \
+      x(DDIV, ddiv)   /* x = y / z on float64  */                                                  \
+      x(LDDIV, lddiv) /* x = y / z on float80  */                                                  \
                                                                                                    \
-      x(BLE, ble)     /* jump to label x if 64 bit integer y <= z */                               \
-      x(BLES, bles)   /* jump to label x if 32 bit integer y <= z */                               \
-      x(UBLE, uble)   /* jump to label x if 64 bit unsigned y <= z */                              \
-      x(UBLES, ubles) /* jump to label x if 32 bit unsigned y <= z */                              \
-      x(FBLE, dble)   /* jump to label x if float32 integer y <= z */                              \
-      x(DBLE, dble)   /* jump to label x if float64 integer y <= z */                              \
-      x(LDBLE, dble)  /* jump to label x if float80 integer y <= z */                              \
+      x(MOD, mod)     /* x = y % z on int64    */                                                  \
+      x(MODS, mods)   /* x = y % z on int32    */                                                  \
+      x(UMOD, umod)   /* x = y % z on uint64   */                                                  \
+      x(UMODS, umods) /* x = y % z on uint32   */                                                  \
                                                                                                    \
-      x(BGT, bgt)     /* jump to label x if 64 bit integer y > z */                                \
-      x(BGTS, bgts)   /* jump to label x if 32 bit integer y > z */                                \
-      x(UBGT, ubgt)   /* jump to label x if 64 bit unsigned y > z */                               \
-      x(UBGTS, ubgts) /* jump to label x if 32 bit unsigned y > z */                               \
-      x(FBGT, dbgt)   /* jump to label x if float32 integer y > z */                               \
-      x(DBGT, dbgt)   /* jump to label x if float64 integer y > z */                               \
-      x(LDBGT, dbgt)  /* jump to label x if float80 integer y > z */                               \
+      x(AND, and)     /* x = y & z on [u]int64 */                                                  \
+      x(ANDS, ands)   /* x = y & z on [u]int32 */                                                  \
+      x(OR, or)       /* x = y | z on [u]int64 */                                                  \
+      x(ORS, ors)     /* x = y | z on [u]int32 */                                                  \
+      x(XOR, xor)     /* x = y ^ z on [u]int64 */                                                  \
+      x(XORS, xors)   /* x = y ^ z on [u]int32 */                                                  \
+      x(LSH, lsh)     /* x = y << z on [u]int64 */                                                 \
+      x(LSHS, lshs)   /* x = y << z on [u]int32 */                                                 \
+      x(RSH, rsh)     /* x = y >> z on int64 */                                                    \
+      x(RSHS, rshs)   /* x = y >> z on int32 */                                                    \
+      x(URSH, ursh)   /* x = y >> z on uint64 */                                                   \
+      x(URSHS, urshs) /* x = y >> z on uint32 */                                                   \
                                                                                                    \
-      x(BGE, bge)     /* jump to label x if 64 bit integer y >= z */                               \
-      x(BGES, bges)   /* jump to label x if 32 bit integer y >= z */                               \
-      x(UBGE, ubge)   /* jump to label x if 64 bit unsigned y >= z */                              \
-      x(UBGES, ubges) /* jump to label x if 32 bit unsigned y >= z */                              \
-      x(FBGE, dbge)   /* jump to label x if float32 integer y >= z */                              \
-      x(DBGE, dbge)   /* jump to label x if float64 integer y >= z */                              \
-      x(LDBGE, dbge)  /* jump to label x if float80 integer y >= z */
+      x(EQ, eq)     /* set x = y == z on [u]int64 */                                               \
+      x(EQS, eqs)   /* set x = y == z on [u]int32 */                                               \
+      x(FEQ, feq)   /* set x = y == z on float32  */                                               \
+      x(DEQ, deq)   /* set x = y == z on float64  */                                               \
+      x(LDEQ, ldeq) /* set x = y == z on float80  */                                               \
+      x(NE, ne)     /* set x = y != z on [u]int64 */                                               \
+      x(NES, nes)   /* set x = y != z on [u]int32 */                                               \
+      x(FNE, fne)   /* set x = y != z on float32  */                                               \
+      x(DNE, dne)   /* set x = y != z on float64  */                                               \
+      x(LDNE, ldne) /* set x = y != z on float80  */                                               \
+      x(LT, lt)     /* set x = y <  z on int64   */                                                \
+      x(LTS, lts)   /* set x = y <  z on int32   */                                                \
+      x(ULT, ult)   /* set x = y <  z on uint64  */                                                \
+      x(ULTS, ults) /* set x = y <  z on uint32  */                                                \
+      x(FLT, flt)   /* set x = y <  z on float32 */                                                \
+      x(DLT, dlt)   /* set x = y <  z on float64 */                                                \
+      x(LDLT, ldlt) /* set x = y <  z on float80 */                                                \
+      x(LE, le)     /* set x = y <= z on int64   */                                                \
+      x(LES, les)   /* set x = y <= z on int32   */                                                \
+      x(ULE, ule)   /* set x = y <= z on uint64  */                                                \
+      x(ULES, ules) /* set x = y <= z on uint32  */                                                \
+      x(FLE, fle)   /* set x = y <= z on float32 */                                                \
+      x(DLE, dle)   /* set x = y <= z on float64 */                                                \
+      x(LDLE, ldle) /* set x = y <= z on float80 */                                                \
+      x(GT, gt)     /* set x = y >  z on int64   */                                                \
+      x(GTS, gts)   /* set x = y >  z on int32   */                                                \
+      x(UGT, ugt)   /* set x = y >  z on uint64  */                                                \
+      x(UGTS, ugts) /* set x = y >  z on uint32  */                                                \
+      x(FGT, fgt)   /* set x = y >  z on float32 */                                                \
+      x(DGT, dgt)   /* set x = y >  z on float64 */                                                \
+      x(LDGT, ldgt) /* set x = y >  z on float80 */                                                \
+      x(GE, ge)     /* set x = y >= z on int64   */                                                \
+      x(GES, ges)   /* set x = y >= z on int32   */                                                \
+      x(UGE, uge)   /* set x = y >= z on uint64  */                                                \
+      x(UGES, uges) /* set x = y >= z on uint32  */                                                \
+      x(FGE, fge)   /* set x = y >= z on float32 */                                                \
+      x(DGE, dge)   /* set x = y >= z on float64 */                                                \
+      x(LDGE, ldge) /* set x = y >= z on float80 */                                                \
+                                                                                                   \
+      x(BEQ, beq)     /* jump to label x if y == z on [u]int64 */                                  \
+      x(BEQS, beqs)   /* jump to label x if y == z on [u]int32 */                                  \
+      x(FBEQ, fbeq)   /* jump to label x if y == z on float32  */                                  \
+      x(DBEQ, dbeq)   /* jump to label x if y == z on float64  */                                  \
+      x(LDBEQ, ldbeq) /* jump to label x if y == z on float80  */                                  \
+      x(BNE, bne)     /* jump to label x if y != z on [u]int64 */                                  \
+      x(BNES, bnes)   /* jump to label x if y != z on [u]int32 */                                  \
+      x(FBNE, dbne)   /* jump to label x if y != z on float32  */                                  \
+      x(DBNE, dbne)   /* jump to label x if y != z on float64  */                                  \
+      x(LDBNE, dbne)  /* jump to label x if y != z on float80  */                                  \
+      x(BLT, blt)     /* jump to label x if y <  z on int64   */                                   \
+      x(BLTS, blts)   /* jump to label x if y <  z on int32   */                                   \
+      x(UBLT, ublt)   /* jump to label x if y <  z on uint64  */                                   \
+      x(UBLTS, ublts) /* jump to label x if y <  z on uint32  */                                   \
+      x(FBLT, dblt)   /* jump to label x if y <  z on float32 */                                   \
+      x(DBLT, dblt)   /* jump to label x if y <  z on float64 */                                   \
+      x(LDBLT, dblt)  /* jump to label x if y <  z on float80 */                                   \
+      x(BLE, ble)     /* jump to label x if y <= z on int64   */                                   \
+      x(BLES, bles)   /* jump to label x if y <= z on int32   */                                   \
+      x(UBLE, uble)   /* jump to label x if y <= z on uint64  */                                   \
+      x(UBLES, ubles) /* jump to label x if y <= z on uint32  */                                   \
+      x(FBLE, dble)   /* jump to label x if y <= z on float32 */                                   \
+      x(DBLE, dble)   /* jump to label x if y <= z on float64 */                                   \
+      x(LDBLE, dble)  /* jump to label x if y <= z on float80 */                                   \
+      x(BGT, bgt)     /* jump to label x if y >  z on int64   */                                   \
+      x(BGTS, bgts)   /* jump to label x if y >  z on int32   */                                   \
+      x(UBGT, ubgt)   /* jump to label x if y >  z on uint64  */                                   \
+      x(UBGTS, ubgts) /* jump to label x if y >  z on uint32  */                                   \
+      x(FBGT, dbgt)   /* jump to label x if y >  z on float32 */                                   \
+      x(DBGT, dbgt)   /* jump to label x if y >  z on float64 */                                   \
+      x(LDBGT, dbgt)  /* jump to label x if y >  z on float80 */                                   \
+      x(BGE, bge)     /* jump to label x if y >= z on int64   */                                   \
+      x(BGES, bges)   /* jump to label x if y >= z on int32   */                                   \
+      x(UBGE, ubge)   /* jump to label x if y >= z on uint64  */                                   \
+      x(UBGES, ubges) /* jump to label x if y >= z on uint32  */                                   \
+      x(FBGE, dbge)   /* jump to label x if y >= z on float32 */                                   \
+      x(DBGE, dbge)   /* jump to label x if y >= z on float64 */                                   \
+      x(LDBGE, dbge)  /* jump to label x if y >= z on float80 */
 
 #define ONEJIT_OPSTMT3_X86(x)                                                                      \
   x(/**/ IMUL3, imul3)  /* signed multiply by constant */                                          \

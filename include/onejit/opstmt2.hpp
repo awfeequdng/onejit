@@ -45,7 +45,7 @@ enum OpStmt2 : uint16_t {
 // numeric values of the OpStmt2 enum constants below this line MAY CHANGE WITHOUT WARNING
 
 #define ONEJIT_OPSTMT2_MIR(x)                                                                      \
-  x(MOV, mov)         /* x = y on 64-bit integer register or memory */                             \
+  x(MOV, mov)         /* x = y on integer register (any size) or memory */                         \
       x(FMOV, fmov)   /* x = y on 32-bit float register or memory */                               \
       x(DMOV, dmov)   /* x = y on 64-bit float register or memory */                               \
       x(LDMOV, ldmov) /* x = y on 80-bit float register or memory */                               \
@@ -67,10 +67,15 @@ enum OpStmt2 : uint16_t {
       x(LD2I, ld2i)     /* convert float80 to int64 */                                             \
       x(F2D, f2d)       /* convert float32 to float64 */                                           \
       x(F2LD, f2ld)     /* convert float32 to float80 */                                           \
-      x(NOT, not)       /* x = ~y on 64-bit integer register or memory */                          \
-      x(NOTS, nots)     /* x = ~y on 32-bit integer register or memory */                          \
+      x(D2F, d2f)       /* convert float64 to float32 */                                           \
+      x(D2LD, d2ld)     /* convert float64 to float80 */                                           \
+      x(LD2F, ld2f)     /* convert float80 to float32 */                                           \
+      x(LD2D, ld2d)     /* convert float80 to float64 */                                           \
       x(NEG, neg)       /* x = -y on 64-bit integer register or memory */                          \
-      x(NEGS, negs)     /* x = -y on 32-bit integer register or memory */
+      x(NEGS, negs)     /* x = -y on 32-bit integer register or memory */                          \
+      x(FNEG, fneg)     /* x = -y on float32 (or memory?) */                                       \
+      x(DNEG, dneg)     /* x = -y on float64 (or memory?) */                                       \
+      x(LDNEG, ldneg)   /* x = -y on float80 (or memory?) */
 
 #define ONEJIT_OPSTMT2_X86(x)                                                                      \
   x(/**/ ADD, add)              /* x += y on register or memory */                                 \
