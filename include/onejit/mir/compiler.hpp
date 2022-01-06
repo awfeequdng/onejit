@@ -65,7 +65,7 @@ public:
   explicit operator bool() const noexcept;
 
 private:
-  // private, use onejit::Compiler::compile_mir() instead
+  // private, use onejit::Compiler::compile_arch(func, MIR) instead
   Compiler &compile(Func &func, reg::Allocator &allocator, Array<Node> &node,      //
                     FlowGraph &flowgraph, Array<Error> &error, Opt flags, Abi abi) //
       noexcept;
