@@ -23,7 +23,7 @@ namespace mir {
 
 // convert Kind to mKind
 mKind mir_kind(Kind kind) noexcept {
-  const eKind ekind = kind.val();
+  const eKind ekind = kind.nosimd().val();
   mKind mkind;
   if (ekind >= eInt8 && kind <= eInt32) {
     mkind = mInt32;
@@ -43,8 +43,9 @@ mKind mir_kind(Kind kind) noexcept {
   return mkind;
 }
 
+// return the MIR_*MOV* instruction appropriate for kind
 OpStmt2 mir_mov(Kind kind) noexcept {
-  switch (kind.val()) {
+  switch (kind.nosimd().val()) {
   case eFloat32:
     return MIR_FMOV;
   case eFloat64:
@@ -56,7 +57,84 @@ OpStmt2 mir_mov(Kind kind) noexcept {
   }
 }
 
-// convert Op2 arithmetic instruction to MIR_* instruction
+// return the MIR_*NEG* instruction appropriate for kind
+OpStmt2 mir_neg(Kind kind) noexcept {
+  switch (kind.nosimd().val()) {
+  case eFloat32:
+    return MIR_FNEG;
+  case eFloat64:
+    return MIR_DNEG;
+  case eFloat128:
+    return MIR_LDNEG;
+  default:
+    return kind.bits() == Bits64 ? MIR_NEG : MIR_NEGS;
+  }
+}
+
+// return the MIR_*2* conversion instruction appropriate for converting kind from -> to
+OpStmt2 mir_cast(Kind to, Kind from) noexcept {
+  switch (from.nosimd().val()) {
+  case eFloat32: // float32 -> ?
+    switch (to.nosimd().val()) {
+    case eFloat32:
+      return MIR_FMOV;
+    case eFloat64:
+      return MIR_F2D;
+    case eFloat128:
+      return MIR_F2LD;
+    default:
+      return MIR_F2I;
+    }
+  case eFloat64: // float64 -> ?
+    switch (to.nosimd().val()) {
+    case eFloat32:
+      return MIR_D2F;
+    case eFloat64:
+      return MIR_DMOV;
+    case eFloat128:
+      return MIR_D2LD;
+    default:
+      return MIR_D2I;
+    }
+  case eFloat128: // float128 -> ?
+    switch (to.nosimd().val()) {
+    case eFloat32:
+      return MIR_LD2F;
+    case eFloat64:
+      return MIR_LD2D;
+    case eFloat128:
+      return MIR_LDMOV;
+    default:
+      return MIR_LD2I;
+    }
+  default: // *int* -> ?
+    switch (to.nosimd().val()) {
+    case eFloat32:
+      return MIR_I2F;
+    case eFloat64:
+      return MIR_I2D;
+    case eFloat128:
+      return MIR_I2LD;
+    default:
+      break; // *int* -> *int* widen or narrow, done below
+    }
+  }
+  const bool sign_extend = to.is_signed();
+  const eBits ebits = from.bits() < to.bits() ? from.ebits() : to.ebits();
+  switch (ebits) {
+  case eBits16:
+    return sign_extend ? MIR_EXT16 : MIR_UEXT16;
+  case eBits32:
+    return sign_extend ? MIR_EXT32 : MIR_UEXT32;
+  default:
+    if (ebits <= eBits8) {
+      return sign_extend ? MIR_EXT8 : MIR_UEXT8;
+    }
+    return MIR_MOV;
+  }
+}
+
+// convert Op2 arithmetic instruction to MIR_* OpStmt3 instruction
 OpStmt3 mir_arith(Op2 op, Kind kind) noexcept {
   static const OpStmt2 st2_ops[] = {SUB_ASSIGN, QUO_ASSIGN, SHL_ASSIGN, SHR_ASSIGN};
   if (op < SUB || op > SHR) {
@@ -65,7 +143,7 @@ OpStmt3 mir_arith(Op2 op, Kind kind) noexcept {
   return mir_arith(st2_ops[op - SUB], kind);
 }
 
-// convert OpN arithmetic instruction to MIR_* instruction
+// convert OpN arithmetic instruction to MIR_* OpStmt3 instruction
 OpStmt3 mir_arith(OpN op, Kind kind) noexcept {
   static const OpStmt2 st2_ops[] = {ADD_ASSIGN, MUL_ASSIGN, AND_ASSIGN, OR_ASSIGN, XOR_ASSIGN};
   if (op < ADD || op > XOR) {
@@ -74,7 +152,7 @@ OpStmt3 mir_arith(OpN op, Kind kind) noexcept {
   return mir_arith(st2_ops[op - ADD], kind);
 }
 
-// convert OpStmt2 *_ASSIGN instruction to MIR_* instruction
+// convert OpStmt2 *_ASSIGN instruction to MIR_* OpStmt3 instruction
 OpStmt3 mir_arith(OpStmt2 op, Kind kind) noexcept {
   enum mIndex2 : size_t { mInt32, mUint32, mInt64, mUint64, mFloat32, mFloat64, mFloat128 };
   static const OpStmt3 ops[][7] = {

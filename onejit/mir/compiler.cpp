@@ -32,9 +32,9 @@ Compiler &Compiler::compile_mir(Func &func, Opt flags) noexcept {
   return *this;
 }
 
-// ===============================  mir::Compiler  =============================
-
 namespace mir {
+
+// ===============================  mir::Compiler  =============================
 
 Compiler::operator bool() const noexcept {
   return good_ && func_ && *func_;
@@ -101,78 +101,11 @@ Compiler &Compiler::compile(Node node) noexcept {
     return compile(node.is<StmtN>());
   default:
     if (Expr expr = node.is<Expr>()) {
-      return compile(expr);
+      (void)simplify(expr); // apply side effects, ignore result
+      return *this;
     }
     return error(node, "unexpected Node");
   }
-}
-
-// ===============================  compile(Expr)  =============================
-
-Compiler &Compiler::compile(Expr expr) noexcept {
-  return add(simplify(expr));
-}
-
-Expr Compiler::simplify(Expr expr) noexcept {
-  switch (expr.type()) {
-  case VAR:
-  case LABEL:
-  case CONST:
-    return expr;
-  case MEM:
-    return simplify(expr.is<onejit::Mem>());
-  case UNARY:
-    return simplify(expr.is<Unary>());
-  case BINARY:
-    return simplify(expr.is<Binary>());
-  case TUPLE:
-    return simplify(expr.is<Tuple>());
-  default:
-    error(expr, "unexpected Expr");
-    return expr;
-  }
-}
-
-Expr Compiler::simplify(onejit::Mem expr) noexcept {
-  return expr; // TODO
-}
-
-Expr Compiler::simplify(Unary expr) noexcept {
-  Expr x = expr.x();
-  Expr simpl_x = to_var_mem_const(simplify(x));
-  if (simpl_x != x) {
-    return Unary{*func_, expr.kind(), expr.op(), simpl_x};
-  }
-  return expr;
-}
-
-Expr Compiler::simplify(Binary expr) noexcept {
-  Expr x = expr.x(), y = expr.y();
-  Expr simpl_x = x, simpl_y = y;
-  simplify_binary(simpl_x, simpl_y);
-  if (simpl_x != x || simpl_y != y) {
-    return Binary{*func_, expr.op(), simpl_x, simpl_y};
-  }
-  return expr;
-}
-
-void Compiler::simplify_binary(Expr &x, Expr &y) noexcept {
-  Expr sx = x;
-  Expr sy = y;
-  // apply x side effects first
-  if (sx.type() == MEM) {
-    sx = to_var_mem_const(sx);
-    sy = to_var_const(simplify(sy));
-  } else {
-    sx = to_var(simplify(sx));
-    sy = to_var_mem_const(simplify(sy));
-  }
-  x = sx;
-  y = sy;
-}
-
-Expr Compiler::simplify(Tuple expr) noexcept {
-  return expr; // TODO
 }
 
 // ===============================  compile(Stmt1)  ============================
@@ -200,122 +133,36 @@ Compiler &Compiler::compile(Stmt2 st) noexcept {
 }
 
 Compiler &Compiler::compile(Assign st) noexcept {
-  Expr src = st.src(), dst = st.dst();
-  // simplify src first: its side effects, if any, must be applied before dst
-  //
-  // do not call to_var_mem_const(simplify(src)): it creates redundant code
-  // as we support src being an expression
-  src = simplify(src);
-  dst = to_var_mem_const(simplify(dst));
-  if (src.type() == MEM && dst.type() == MEM) {
-    // both arguments are memory.
-    // not supported by MIR assembly, force one to register
-    src = to_var(src);
-  }
-  return add(simplify_assign(st, dst, src));
-}
-
-Node Compiler::simplify_assign(Assign st, Expr dst, Expr src) noexcept {
+  // simplify dst first: its side effects, if any, must be applied before src.
+  // It also provides the destination where to store src result.
+  Expr dst = simplify(st.dst(), toAny);
   OpStmt2 op = st.op();
   if (op >= ADD_ASSIGN && op <= SHR_ASSIGN) {
-    // MIR assembly does not have two-operand x += y etc.
-    // convert to x = x + y etc.
-    src = to_var_mem_const(src);
-    dst = to_var_mem_const(dst);
-    Expr tmp = to_var(dst);
-    return Stmt3{*func_, mir_arith(op, tmp.kind()), dst, tmp, src};
-  }
-  if (op == ASSIGN) {
-    switch (src.type()) {
-    case VAR:
-    case MEM:
-    case CONST:
-    case LABEL:
-      return Assign{*func_, mir_mov(dst.kind()), dst, src};
-    case UNARY:
-      return simplify_assign(st, dst, src.is<Unary>());
-    case BINARY:
-      return simplify_assign(st, dst, src.is<Binary>());
-    case TUPLE:
-      return simplify_assign(st, dst, src.is<Tuple>());
-    default:
-      error(st, "unexpected Assign right argument");
-      break;
+
+    // MIR assembly does not have two-operands arithmetic:
+    // convert "dst OP= src" to "tmp = dst; dst = tmp OP src"
+    Expr tmp = dst;
+    Mask mask = toAny;
+    if (dst.type() == MEM) {
+      // MIR assembly support at most one memory operand
+      tmp = Var{*func_, dst.kind()};
+      mask = toVarOrConst;
+    }
+    Expr src = simplify(st.src(), mask);
+
+    add(Stmt3{*func_, mir_arith(op, dst.kind()), dst, tmp, src});
+
+  } else if (op == ASSIGN) {
+
+    Mask mask = dst.type() == MEM ? toVarOrConst : toAny;
+    Expr src = simplify(st.src(), mask, dst);
+    if (src != dst) {
+      add(Stmt2{*func_, mir_mov(dst.kind()), dst, src});
     }
   } else {
     error(st, "unexpected Assign statement");
   }
-  return st;
-}
-
-Node Compiler::simplify_assign(Assign st, Expr dst, Unary src) noexcept {
-  // TODO
-  (void)dst;
-  (void)src;
-  return st;
-}
-
-Node Compiler::simplify_assign(Assign st, Expr dst, Binary src) noexcept {
-  Op2 op = src.op();
-  OpStmt3 op3;
-  if (op >= SUB && op <= SHR) {
-    op3 = mir_arith(op, dst.kind());
-  } else if (op >= LSS && op <= GEQ) {
-    op3 = mir_compare(op, dst.kind());
-  } else {
-    // TODO
-    return st;
-  }
-  return simplify_ternary(op3, dst, src.x(), src.y());
-}
-
-Node Compiler::simplify_assign(Assign st, Expr dst, Tuple src) noexcept {
-  const OpN op = src.op();
-  if (op >= ADD && op <= XOR) {
-    Expr x = src.arg(0);
-    Expr y = src.arg(1);
-    const OpStmt3 op3 = mir_arith(op, dst.kind());
-    const uint32_t n = src.children();
-    if (n < 2) {
-      error(st, "unexpected Tuple inside Assign, expecting at least 2 operands");
-      return st;
-    } else if (n == 2) {
-      return simplify_ternary(op3, dst, x, y);
-    }
-  } else if (op == CALL) {
-    return simplify_call(st, Tuple{*func_, dst.kind(), COMMA, {dst}}, src);
-  }
-  return st; // TODO
-}
-
-Node Compiler::simplify_ternary(OpStmt3 op, Expr dst, Expr x, Expr y) noexcept {
-  if (dst.type() == MEM) {
-    x = to_var_const(x);
-    y = to_var_const(y);
-    dst = to_var_mem_const(dst);
-  } else {
-    x = to_var_mem_const(x);
-    if (x.type() == MEM) {
-      y = to_var_const(y);
-    } else {
-      y = to_var_mem_const(y);
-    }
-    dst = to_var(dst);
-  }
-  return Stmt3{*func_, op, dst, x, y};
-}
-
-Node Compiler::simplify_call(Assign st, Tuple dst, Tuple src) noexcept {
-  FuncType ftype = src.child_is<FuncType>(0);
-  Expr faddress = src.child_is<Expr>(1);
-  if (ftype && faddress) {
-    return Stmt4{*func_, MIR_CALL,
-                 ftype,  faddress,
-                 dst,    Tuple{*func_, src.kind(), COMMA, ChildRange{src, 2, src.children() - 2}}};
-  } else {
-    error(st, "invalid Call: first two arguments must be FuncType, Expr");
-  }
-  return st;
+  return *this;
 }
 
 // ===============================  compile(Stmt3)  ============================
@@ -364,39 +211,136 @@ Compiler &Compiler::compile(Return st) noexcept {
   return add(st); // TODO
 }
 
+// ===============================  simplify(Expr)  ============================
+
+Expr Compiler::simplify(Expr expr, Mask mask, Expr opt_dst) noexcept {
+  switch (expr.type()) {
+  case VAR:
+  case LABEL:
+    return expr;
+  case CONST:
+    return simplify(expr.is<Const>(), mask, opt_dst);
+  case MEM:
+    return simplify(expr.is<onejit::Mem>(), mask, opt_dst);
+  case UNARY:
+    return simplify(expr.is<Unary>(), opt_dst);
+  case BINARY:
+    return simplify(expr.is<Binary>(), opt_dst);
+  case TUPLE:
+    return simplify(expr.is<Tuple>(), opt_dst);
+  default:
+    error(expr, "unexpected Expr");
+    return expr;
+  }
+}
+
+Expr Compiler::simplify(Const expr, Mask mask, Expr opt_dst) noexcept {
+  if (mask & toConst) {
+    return expr;
+  }
+  return to_var(expr, opt_dst);
+}
+
+Expr Compiler::simplify(onejit::Mem expr, Mask mask, Expr opt_dst) noexcept {
+  (void)mask;
+  (void)opt_dst;
+  return expr; // TODO
+}
+
+Expr Compiler::simplify(Unary expr, Expr opt_dst) noexcept {
+  // avoid multiple memory side effects, they may happen in wrong order
+  Expr x = simplify(expr.x(), toConst | (opt_dst.type() == MEM ? toVar : toMem));
+  Kind kfrom = x.kind();
+  Kind kto = expr.kind();
+  Op1 op = expr.op();
+  Expr dst = opt_dst ? opt_dst : Var{*func_, kto};
+  switch (op) {
+  case XOR1: // unary xor, inverts all bits. MIR only has binary xor: dst = x ^ y
+    add(Stmt3{*func_, kfrom.bits() == Bits64 ? MIR_XOR : MIR_XORS, //
+              dst, x, MinusOne(*func_, kfrom)});
+    break;
+  case NOT1: // boolean not, swaps zero and non-zero. MIR only has comparison vs. zero
+    add(Stmt3{*func_, kfrom.bits() == Bits64 ? MIR_EQ : MIR_EQS, //
+              dst, x, Zero(kfrom)});
+    break;
+  case NEG1: // arithmetic negative, -x. MIR has MIR_NEG and friends
+    add(Stmt2{*func_, mir_neg(kfrom), dst, x});
+    break;
+  case CAST: // convert int to float or vice-versa, widen or narrow integers
+    add(Stmt2{*func_, mir_cast(kto, kfrom), dst, x});
+    return dst;
+  case BITCOPY:
+    // TODO
+    // [[fallthrough]]
+  default:
+    error(expr, "unexpected Unary expression");
+  }
+  return dst;
+}
+
+Expr Compiler::simplify(Binary expr, Expr opt_dst) noexcept {
+  // avoid multiple memory side effects, they may happen in wrong order
+  const Mask mask = (opt_dst.type() == MEM ? toConst : toConst | toMem);
+  Expr x = simplify(expr.x(), mask);
+  // avoid multiple memory side effects, they may happen in wrong order
+  Expr y = simplify(expr.y(), mask & (x.type() == MEM ? toConst : toConst | toMem));
+
+  Op2 op = expr.op();
+  Kind kind = expr.kind();
+  OpStmt3 mir_op;
+  if (op >= SUB && op <= SHR) {
+    mir_op = mir_arith(op, kind);
+  } else if (op >= LSS && op <= GEQ) {
+    mir_op = mir_compare(op, kind);
+  } else {
+    // TODO
+    return expr;
+  }
+  Expr dst = opt_dst ? opt_dst : Var{*func_, expr.kind()};
+  add(Stmt3{*func_, mir_op, dst, x, y});
+  return dst;
+}
+
+Expr Compiler::simplify(Tuple expr, Expr opt_dst) noexcept {
+  (void)opt_dst;
+  return expr; // TODO
+}
+
+Expr Compiler::simplify(Call call, Expr opt_dst) noexcept {
+  FuncType ftype = call.ftype();
+  Expr faddress = call.address();
+  if (!ftype || !faddress) {
+    error(call, "invalid Call: first two arguments must be FuncType, Expr");
+    return call;
+  }
+  (void)opt_dst;
+#if 0  // TODO
+  add(Stmt4{*func_, MIR_CALL, ftype, faddress, dst,
+            Tuple{*func_, src.kind(), COMMA, ChildRange{src, 2, src.children() - 2}}});
+#endif // 0
+  return call;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
-Var Compiler::to_var(Expr expr) noexcept {
-  Var v = expr.is<Var>();
-  if (expr && !v) {
-    // copy Expr result to a Var
-    v = Var{*func_, expr.kind()};
-    add(Stmt2{*func_, mir_mov(expr.kind()), v, expr});
+Var Compiler::to_var(Expr simplified_expr, Expr opt_dst) noexcept {
+  if (!simplified_expr) {
+    error(simplified_expr, "invalid Expr");
+    return Var{};
   }
+  if (Var v = opt_dst.is<Var>()) {
+    // opt_dst is a Var, copy Expr into it
+    add(Stmt2{*func_, mir_mov(v.kind()), v, simplified_expr});
+    return v;
+  }
+  if (Var v = simplified_expr.is<Var>()) {
+    // Expr is already a Var, just return it
+    return v;
+  }
+  // copy Expr result to a Var, then return the Var
+  Var v{*func_, simplified_expr.kind()};
+  add(Stmt2{*func_, mir_mov(v.kind()), v, simplified_expr});
   return v;
-}
-
-Expr Compiler::to_var_const(Expr expr) noexcept {
-  switch (expr.type()) {
-  case VAR:
-  case CONST:
-  case LABEL:
-    return expr;
-  default:
-    return to_var(expr);
-  }
-}
-
-Expr Compiler::to_var_mem_const(Expr expr) noexcept {
-  switch (expr.type()) {
-  case VAR:
-  case MEM:
-  case CONST:
-  case LABEL:
-    return expr;
-  default:
-    return to_var(expr);
-  }
 }
 
 Compiler &Compiler::add(Node node) noexcept {

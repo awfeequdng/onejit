@@ -34,7 +34,7 @@ void ONESTL_NORETURN Failed::throw_check_failed() const {
             << "\n\twhere  " << Chars{lstr_} << "\tis " << lhs_                          //
             << "\n\tand    " << Chars{rstr_} << "\tis " << rhs_;
 
-  throw std::range_error(buf.c_str());
+  throw std::runtime_error(buf.c_str());
 }
 
 void ONESTL_NORETURN Failed::throw_bounds_failed() const {
@@ -48,7 +48,7 @@ void ONESTL_NORETURN Failed::throw_bounds_failed() const {
 }
 
 void ONESTL_NORETURN throw_check_failed() {
-  throw std::range_error("runtime check failed");
+  throw std::runtime_error("runtime check failed");
 }
 
 void ONESTL_NORETURN throw_bounds_failed() {

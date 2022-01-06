@@ -33,7 +33,23 @@ class Compiler {
   friend class Address;
   friend class Mem;
 
-  enum mKind : size_t { mInt32, mUint32, mInt64, mUint64, mFloat32, mFloat64, mFloat128 };
+  enum mKind : uint8_t { mInt32, mUint32, mInt64, mUint64, mFloat32, mFloat64, mFloat128 };
+  enum Mask : uint8_t {
+    toVar = 0, // toVar is always assumed
+    toConst = 1,
+    toMem = 2,
+    toVarOrConst = toVar | toConst,
+    toVarOrMem = toVar | toMem,
+    toAny = toVar | toConst | toMem
+  };
+
+  friend constexpr Mask operator&(Mask left, Mask right) noexcept {
+    return Mask(uint8_t(left) & uint8_t(right));
+  }
+
+  friend constexpr Mask operator|(Mask left, Mask right) noexcept {
+    return Mask(uint8_t(left) | uint8_t(right));
+  }
 
 public:
   constexpr Compiler() noexcept //
@@ -57,7 +73,6 @@ private:
   Compiler &compile(Assign stmt) noexcept;
   Compiler &compile(AssignCall stmt) noexcept;
   Compiler &compile(Block stmt) noexcept;
-  Compiler &compile(Expr expr) noexcept;
   Compiler &compile(Node node) noexcept;
   Compiler &compile(Return stmt) noexcept;
   Compiler &compile(Stmt1 stmt) noexcept;
@@ -65,36 +80,19 @@ private:
   Compiler &compile(Stmt3 stmt) noexcept;
   Compiler &compile(StmtN stmt) noexcept;
 
-  Expr simplify(Expr expr) noexcept;
-  Expr simplify(onejit::Mem expr) noexcept;
-  Expr simplify(Unary expr) noexcept;
-  Expr simplify(Binary expr) noexcept;
-  Expr simplify(Tuple expr) noexcept;
-
-  Node simplify_assign(Assign st, Expr dst, Expr src) noexcept;
-  Node simplify_assign(Assign st, Expr dst, Unary src) noexcept;
-  Node simplify_assign(Assign st, Expr dst, Binary src) noexcept;
-  Node simplify_assign(Assign st, Expr dst, Tuple src) noexcept;
-
-  void simplify_binary(Expr &x, Expr &y) noexcept;
-  Node simplify_ternary(OpStmt3 op, Expr dst, Expr x, Expr y) noexcept;
-  Node simplify_call(Assign st, Tuple dst, Tuple src) noexcept;
+  Expr simplify(Expr expr, Mask mask = toAny, Expr opt_dst = Expr{}) noexcept;
+  Expr simplify(Const expr, Mask mask = toAny, Expr opt_dst = Expr{}) noexcept;
+  Expr simplify(onejit::Mem expr, Mask mask = toAny, Expr opt_dst = Expr{}) noexcept;
+  Expr simplify(Unary expr, Expr opt_dst = Expr{}) noexcept;
+  Expr simplify(Binary expr, Expr opt_dst = Expr{}) noexcept;
+  Expr simplify(Tuple expr, Expr opt_dst = Expr{}) noexcept;
+  Expr simplify(Call expr, Expr opt_dst = Expr{}) noexcept;
 
   constexpr Func *func() const noexcept {
     return func_;
   }
 
-  // if expr is a Var, does nothing and returns it.
-  // otherwise copies expression result to a new local variable and returns it.
-  Var to_var(Expr expr) noexcept;
-
-  // if expr is a Var or Const, does nothing and returns it
-  // otherwise copies expression result to a new local variable and returns it.
-  Expr to_var_const(Expr expr) noexcept;
-
-  // if expr is a Var, Mem or Const, does nothing and returns it
-  // otherwise copies expression result to a new local variable and returns it.
-  Expr to_var_mem_const(Expr expr) noexcept;
+  Var to_var(Expr simplified_expr, Expr opt_dst = Expr{}) noexcept;
 
   // add an already compiled node to compiled list
   Compiler &add(Node node) noexcept;

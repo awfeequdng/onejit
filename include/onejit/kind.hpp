@@ -82,6 +82,10 @@ public:
 
   Bits bits() const noexcept;
 
+  eBits ebits() const noexcept {
+    return bits().ebits();
+  }
+
   size_t bitsize() const noexcept {
     return bits().val();
   }
