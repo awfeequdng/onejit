@@ -27,13 +27,13 @@ namespace ir {
 
 // ============================  StmtN  ========================================
 
-Node StmtN::create(Func &func, const Nodes children, OpStmtN op) noexcept {
+Node StmtN::create(Func &func, OpStmtN op, const Nodes children) noexcept {
   return Base::create_indirect(func,                               //
                                Header{STMT_N, Void, uint16_t(op)}, //
                                children);
 }
 
-ONEJIT_NOINLINE Node StmtN::create(Func &func, const ChildRanges &children, OpStmtN op) noexcept {
+ONEJIT_NOINLINE Node StmtN::create(Func &func, OpStmtN op, const ChildRanges children) noexcept {
   return Base::create_indirect_from_ranges(func,                               //
                                            Header{STMT_N, Void, uint16_t(op)}, //
                                            children);

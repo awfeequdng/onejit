@@ -75,7 +75,6 @@ void Test::func_fib() {
   compile(f, NOARCH);
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
-#if 1
   expected = "(block\n\
     label_0\n\
     (mir_uble label_1 var1000_ul 2)\n\
@@ -84,16 +83,15 @@ void Test::func_fib() {
     (mir_sub var1004_ul var1000_ul 2)\n\
     (mir_call (ftype (uint64) -> (uint64)) label_0 (mir_rets var1005_ul) (mir_args var1004_ul))\n\
     (mir_add var1001_ul var1003_ul var1005_ul)\n\
-    (return var1001_ul)\n\
+    (mir_ret var1001_ul)\n\
     (mir_jmp label_2)\n\
     label_1\n\
     (mir_mov var1001_ul 1)\n\
-    (return var1001_ul)\n\
+    (mir_ret var1001_ul)\n\
     label_2\n\
-    (return var1001_ul))";
+    (mir_ret var1001_ul))";
   compile(f, MIR);
   TEST(to_string(f.get_compiled(MIR)), ==, expected);
-#endif // 0
 
   expected = "(block\n\
     label_0\n\

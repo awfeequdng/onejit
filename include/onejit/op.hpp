@@ -62,7 +62,7 @@ enum OpN : uint16_t {
   MIN,
   COMMA,
   CALL,
-  MEM_OP,
+  MEM_OP, // Mem class default Op
 
   // numeric values of the OpN enum constants below this line MAY CHANGE WITHOUT WARNING
 

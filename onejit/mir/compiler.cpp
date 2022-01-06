@@ -208,11 +208,39 @@ Compiler &Compiler::compile(Block st) noexcept {
 }
 
 Compiler &Compiler::compile(AssignCall st) noexcept {
-  return add(st); // TODO
+  while (const uint32_t n = st.children()) {
+    Call call = st.child_is<Call>(n - 1);
+    if (!call) {
+      break;
+    }
+    Array<Node> array(n - 1);
+    if (array.size() != n - 1) {
+      return out_of_memory(st);
+    }
+    for (uint32_t i = 0; i < n; i++) {
+      array.set(i, simplify(st.child_is<Expr>(i), toVarOrMem));
+    }
+    Tuple dst{*func_, Void, MIR_RETS, array};
+    Expr results = simplify(call, dst);
+    if (results != dst) {
+      return error(
+          st, "internal error: miscompiled Call, results are not stored in expected variables");
+    }
+    return *this;
+  }
+  return error(st, "missing Call inside AssignCall");
 }
 
 Compiler &Compiler::compile(Return st) noexcept {
-  return add(st); // TODO
+  const uint32_t n = st.children();
+  Array<Node> array(n);
+  if (array.size() != n) {
+    return out_of_memory(st);
+  }
+  for (uint32_t i = 0; i < n; i++) {
+    array.set(i, simplify(st.child_is<Expr>(i), toVar));
+  }
+  return add(StmtN{*func_, MIR_RET, array});
 }
 
 // ===============================  simplify(Expr)  ============================
@@ -253,7 +281,7 @@ Expr Compiler::simplify(onejit::Mem expr, Mask mask, Expr opt_dst) noexcept {
 
 Expr Compiler::simplify(Unary expr, Expr opt_dst) noexcept {
   // avoid multiple memory side effects, they may happen in wrong order
-  Expr x = simplify(expr.x(), toConst | (opt_dst.type() == MEM ? toVar : toMem));
+  Expr x = simplify(expr.x(), opt_dst.type() == MEM ? toVarOrConst : toAny);
   Kind kfrom = x.kind();
   Kind kto = expr.kind();
   Op1 op = expr.op();
@@ -284,10 +312,11 @@ Expr Compiler::simplify(Unary expr, Expr opt_dst) noexcept {
 
 Expr Compiler::simplify(Binary expr, Expr opt_dst) noexcept {
   // avoid multiple memory side effects, they may happen in wrong order
-  const Mask mask = (opt_dst.type() == MEM ? toConst : toConst | toMem);
+  Mask mask = (opt_dst.type() == MEM ? toVarOrConst : toAny);
   Expr x = simplify(expr.x(), mask);
   // avoid multiple memory side effects, they may happen in wrong order
-  Expr y = simplify(expr.y(), mask & (x.type() == MEM ? toConst : toConst | toMem));
+  mask = mask & (x.type() == MEM ? toVarOrConst : toAny);
+  Expr y = simplify(expr.y(), mask);
 
   Op2 op = expr.op();
   Kind kind = expr.kind();
@@ -309,6 +338,20 @@ Expr Compiler::simplify(Tuple expr, Expr opt_dst) noexcept {
   if (Call call = expr.is<Call>()) {
     return simplify(call, opt_dst);
   }
+  uint32_t n = expr.children();
+  OpN op = expr.op();
+  if (op >= ADD && op <= XOR) {
+    if (n == 2) {
+      Mask mask = opt_dst.type() == MEM ? toVarOrConst : toAny;
+      Expr x = simplify(expr.arg(0), mask);
+      mask = mask & (x.type() == MEM ? toVarOrConst : toAny);
+      Expr y = simplify(expr.arg(1), mask);
+      Expr dst = opt_dst ? opt_dst : Var{*func_, expr.kind()};
+      add(Stmt3{*func_, mir_arith(op, expr.kind()), dst, x, y});
+      return dst;
+    }
+  }
+
   return expr; // TODO
 }
 
@@ -326,30 +369,37 @@ Expr Compiler::simplify(Call call, Expr opt_dst) noexcept {
       // opt_dst contains the places where to store multiple results
       if (tuple.children() != ftype.result_n()) {
         error(call, "invalid Call destination: number of results does not match");
+        return Expr{};
+      }
+      if (tuple.op() != MIR_RETS) {
+        error(opt_dst, "invalid Call destination OpN, expecting MIR_RETS");
+        return Expr{};
       }
       ret = results = tuple;
     } else if (opt_dst.type() == VAR || opt_dst.type() == MEM) {
       // opt_dst contains the place where to store a single result. wrap it in a Tuple
       if (ftype.result_n() != 1) {
         error(call, "invalid Call destination: number of results does not match");
+        return Expr{};
       }
       ret = opt_dst;
       results = Tuple{*func_, Void, MIR_RETS, {opt_dst}};
     } else {
-      error(opt_dst, "invalid Call destination");
+      error(opt_dst, "invalid Call destination type");
+      return Expr{};
     }
   } else {
     // no result specified by caller: create temporary variables
-    const size_t n = ftype.result_n();
-    Array<Expr> array(n);
+    const uint16_t n = ftype.result_n();
+    Array<Node> array(n);
     if (array.size() != n) {
       out_of_memory(call);
       return Expr{};
     }
-    for (size_t i = 0; i < n; i++) {
-      array[i] = Var{*func_, ftype.result(i)};
+    for (uint16_t i = 0; i < n; i++) {
+      array.set(i, Var{*func_, ftype.result(i)});
     }
-    ret = results = Tuple{*func_, Void, MIR_RETS, Nodes{array.data(), n}};
+    ret = results = Tuple{*func_, Void, MIR_RETS, array};
   }
   add(Stmt4{*func_, MIR_CALL, ftype, faddress, results,
             Tuple{*func_, Void, MIR_ARGS, ChildRange{call, 2, call.children() - 2}}});

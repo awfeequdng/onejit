@@ -23,7 +23,7 @@ namespace ir {
 
 Node Comma::create(Func &func, Exprs args) noexcept {
   return Base::create(func, Void, COMMA, //
-                      Nodes{args.begin(), args.size()});
+                      Nodes{args.data(), args.size()});
 }
 
 } // namespace ir

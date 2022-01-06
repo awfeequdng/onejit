@@ -67,13 +67,13 @@ protected:
   }
 
   // used by subclasses
-  StmtN(Func &func, Nodes children, OpStmtN op) noexcept //
-      : Base{create(func, children, op)} {
+  StmtN(Func &func, OpStmtN op, Nodes children) noexcept //
+      : Base{create(func, op, children)} {
   }
 
   // used by x64::Compiler
-  StmtN(Func &func, const ChildRanges &children, OpStmtN op) noexcept //
-      : Base{create(func, children, op)} {
+  StmtN(Func &func, OpStmtN op, ChildRanges children) noexcept //
+      : Base{create(func, op, children)} {
   }
 
 private:
@@ -81,8 +81,8 @@ private:
     return op() == BLOCK ? false : op() == COND ? (i & 1) == 0 : true;
   }
 
-  static Node create(Func &func, Nodes children, OpStmtN op) noexcept;
-  static Node create(Func &func, const ChildRanges &children, OpStmtN op) noexcept;
+  static Node create(Func &func, OpStmtN op, Nodes children) noexcept;
+  static Node create(Func &func, OpStmtN op, ChildRanges children) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -155,15 +155,15 @@ public:
   }
 
   Block(Func &func, const Node &node) noexcept //
-      : Base{func, Nodes{&node, 1}, BLOCK} {
+      : Base{func, BLOCK, Nodes{&node, 1}} {
   }
 
   Block(Func &func, std::initializer_list<Node> nodes) noexcept
-      : Base{func, Nodes{nodes.begin(), nodes.size()}, BLOCK} {
+      : Base{func, BLOCK, Nodes{nodes.begin(), nodes.size()}} {
   }
 
   Block(Func &func, const Nodes nodes) noexcept //
-      : Base{func, nodes, BLOCK} {
+      : Base{func, BLOCK, nodes} {
   }
 
   static constexpr OpStmtN op() noexcept {
@@ -208,11 +208,11 @@ public:
   }
 
   Cond(Func &func, std::initializer_list<Node> nodes) noexcept
-      : Base{func, Nodes{nodes.begin(), nodes.size()}, COND} {
+      : Base{func, COND, Nodes{nodes.begin(), nodes.size()}} {
   }
 
   Cond(Func &func, Nodes nodes) noexcept //
-      : Base{func, nodes, COND} {
+      : Base{func, COND, nodes} {
   }
 
   static constexpr OpStmtN op() noexcept {

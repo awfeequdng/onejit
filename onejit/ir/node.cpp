@@ -144,8 +144,7 @@ Node Node::create_indirect(Func &func, Header header, Nodes children) noexcept {
   return Node{};
 }
 
-Node Node::create_indirect_from_ranges(Func &func, Header header,
-                                       const ChildRanges &children) noexcept {
+Node Node::create_indirect_from_ranges(Func &func, Header header, ChildRanges children) noexcept {
   Code *holder = func.code();
   const size_t ni = children.size();
   while (holder) {

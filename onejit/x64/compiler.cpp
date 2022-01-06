@@ -296,11 +296,11 @@ Node Compiler::simplify_assign(Assign st, Expr dst, Tuple src) noexcept {
     }
     break;
   case CALL: {
-    StmtN set{*func_, Nodes{&dst, 1}, SET_};
+    StmtN set{*func_, SET_, Nodes{&dst, 1}};
     ChildRange ranges[] = {ChildRange{src, 0, 2},          // ftype, label
                            ChildRange{Block{*func_, set}}, // (set_ dst)
                            ChildRange{src, 2, sub_uint32(src.children(), 2)}};
-    return StmtN{*func_, ChildRanges{ranges, 3}, X86_CALL_};
+    return StmtN{*func_, X86_CALL_, ChildRanges{ranges, 3}};
   }
   default:
     break;
@@ -365,7 +365,7 @@ Compiler &Compiler::compile(AssignCall st) noexcept {
 
 Compiler &Compiler::compile(Return st) noexcept {
   ChildRange children{st, 0, st.children()};
-  return add(StmtN{*func_, ChildRanges{&children, 1}, X86_RET});
+  return add(StmtN{*func_, X86_RET, ChildRanges{&children, 1}});
 }
 
 ////////////////////////////////////////////////////////////////////////////////

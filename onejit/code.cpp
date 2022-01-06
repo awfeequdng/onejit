@@ -14,9 +14,9 @@
  */
 
 #include <onejit/code.hpp>
-#include <onejit/local.hpp>
 #include <onejit/ir/childrange.hpp>
 #include <onejit/ir/header.hpp>
+#include <onejit/local.hpp>
 
 #include <cstring>
 
@@ -127,7 +127,7 @@ Code &Code::add(const Node &node, Offset parent_offset) noexcept {
   return add_item(offset);
 }
 
-Code &Code::add_ranges(const ChildRanges &nodes, Offset parent_offset) noexcept {
+Code &Code::add_ranges(ChildRanges nodes, Offset parent_offset) noexcept {
   for (size_t i = 0, ni = nodes.size(); i < ni; i++) {
     ChildRange range = nodes[i];
     for (size_t j = 0, nj = range.size(); j < nj; j++) {

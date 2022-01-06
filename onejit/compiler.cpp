@@ -815,7 +815,7 @@ Compiler &Compiler::add_prologue(Func &func) noexcept {
   if (n == 0 || vars.size() < n) {
     return *this;
   }
-  return add(StmtN{*func_, Nodes{vars.data(), n}, SET_});
+  return add(StmtN{*func_, SET_, Nodes{vars.data(), n}});
 }
 
 Compiler &Compiler::add_epilogue(Func &func) noexcept {

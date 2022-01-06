@@ -77,8 +77,8 @@ public:
   }
 
   Node &operator=(const Node &other) &noexcept = default;
-  // forbid assignment to temporary Node: we want
-  // Array<Node>::operator[](size_t) = expression to fail at compile time
+  // forbid assignment to temporary Node: we want temporary_node = expr to fail at compile time.
+  // Needed because Array<Node>>::operator[] returns a temporary Node by value, not a Node&
   Node &operator=(const Node &other) &&noexcept = delete;
 
   // return true if this Node is valid
@@ -220,8 +220,7 @@ private:
   }
 
   // used by subclasses' create() method
-  static Node create_indirect_from_ranges(Func &func, Header header,
-                                          const ChildRanges &children) noexcept;
+  static Node create_indirect_from_ranges(Func &func, Header header, ChildRanges children) noexcept;
 
   Header header_;
   CodeItem off_or_dir_;

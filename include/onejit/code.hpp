@@ -107,7 +107,7 @@ public:
     return *this;
   }
 
-  Code &add_ranges(const ChildRanges &nodes, Offset parent_offset) noexcept;
+  Code &add_ranges(ChildRanges nodes, Offset parent_offset) noexcept;
 
   // return Code length, in CodeItems
   using Base::size;
