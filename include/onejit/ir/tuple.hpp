@@ -45,6 +45,10 @@ public:
   constexpr Tuple() noexcept : Base{} {
   }
 
+  Tuple(Func &func, OpN op, Node x) noexcept //
+      : Base{create(func, x.kind(), op, {x})} {
+  }
+
   Tuple(Func &func, OpN op, Node x, Node y) noexcept //
       : Base{create(func, x.kind(), op, {x, y})} {
   }

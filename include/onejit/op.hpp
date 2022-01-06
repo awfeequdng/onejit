@@ -69,6 +69,9 @@ enum OpN : uint16_t {
   MIR_MEM,
   X86_MEM,
   ARM64_MEM,
+
+  MIR_ARGS, // multiple arguments of a function call
+  MIR_RETS, // multiple return values of a function call
 };
 
 constexpr Op1 operator+(Op1 op, int delta) noexcept {

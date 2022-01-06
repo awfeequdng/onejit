@@ -25,7 +25,7 @@ namespace onejit {
 
 enum OpStmtN : uint16_t {
   BAD_STN = 0,
-  ASSIGN_CALL = 1,
+  ASSIGN_CALL = 1, // collect results of a function call and assign them to multiple places
   BLOCK = 2,
   COND = 3, // n-ary IF ... [ELSEIF* ... [ELSE ...]]
   RETURN = 4,
@@ -33,7 +33,7 @@ enum OpStmtN : uint16_t {
 
   // numeric values of the OpStmtN enum constants below this line MAY CHANGE WITHOUT WARNING
 
-  SET_ = 6, // arguments are formal registers to set. used in function prologue and in calls.
+  SET_ = 6, // arguments are formal registers to set. used in function prologue.
 
 #define ONEJIT_OPSTMTN_MIR(x) /*                                                                */ \
   x(SWITCH, switch)           /* 1st operand is an index, subsequent ops are labels to which goto  \

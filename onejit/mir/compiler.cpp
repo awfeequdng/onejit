@@ -101,7 +101,11 @@ Compiler &Compiler::compile(Node node) noexcept {
     return compile(node.is<StmtN>());
   default:
     if (Expr expr = node.is<Expr>()) {
-      (void)simplify(expr); // apply side effects, ignore result
+      // apply side effects, ignore result (unless it's a label)
+      expr = simplify(expr);
+      if (expr.type() == LABEL) {
+        add(expr);
+      }
       return *this;
     }
     return error(node, "unexpected Node");
@@ -302,7 +306,9 @@ Expr Compiler::simplify(Binary expr, Expr opt_dst) noexcept {
 }
 
 Expr Compiler::simplify(Tuple expr, Expr opt_dst) noexcept {
-  (void)opt_dst;
+  if (Call call = expr.is<Call>()) {
+    return simplify(call, opt_dst);
+  }
   return expr; // TODO
 }
 
@@ -313,12 +319,41 @@ Expr Compiler::simplify(Call call, Expr opt_dst) noexcept {
     error(call, "invalid Call: first two arguments must be FuncType, Expr");
     return call;
   }
-  (void)opt_dst;
-#if 0  // TODO
-  add(Stmt4{*func_, MIR_CALL, ftype, faddress, dst,
-            Tuple{*func_, src.kind(), COMMA, ChildRange{src, 2, src.children() - 2}}});
-#endif // 0
-  return call;
+  Tuple results;
+  Expr ret;
+  if (opt_dst) {
+    if (Tuple tuple = opt_dst.is<Tuple>()) {
+      // opt_dst contains the places where to store multiple results
+      if (tuple.children() != ftype.result_n()) {
+        error(call, "invalid Call destination: number of results does not match");
+      }
+      ret = results = tuple;
+    } else if (opt_dst.type() == VAR || opt_dst.type() == MEM) {
+      // opt_dst contains the place where to store a single result. wrap it in a Tuple
+      if (ftype.result_n() != 1) {
+        error(call, "invalid Call destination: number of results does not match");
+      }
+      ret = opt_dst;
+      results = Tuple{*func_, Void, MIR_RETS, {opt_dst}};
+    } else {
+      error(opt_dst, "invalid Call destination");
+    }
+  } else {
+    // no result specified by caller: create temporary variables
+    const size_t n = ftype.result_n();
+    Array<Expr> array(n);
+    if (array.size() != n) {
+      out_of_memory(call);
+      return Expr{};
+    }
+    for (size_t i = 0; i < n; i++) {
+      array[i] = Var{*func_, ftype.result(i)};
+    }
+    ret = results = Tuple{*func_, Void, MIR_RETS, Nodes{array.data(), n}};
+  }
+  add(Stmt4{*func_, MIR_CALL, ftype, faddress, results,
+            Tuple{*func_, Void, MIR_ARGS, ChildRange{call, 2, call.children() - 2}}});
+  return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
