@@ -39,7 +39,9 @@ enum OpStmtN : uint16_t {
   x(SWITCH, switch)           /* 1st operand is an index, subsequent ops are labels to which goto  \
                                  according the index (1st label has index zero).  The insn         \
                                  behavior is undefined if there is no label for the index. */      \
-      x(RET, ret)             /* return from function call. arguments are return values  */
+      x(CALL, call) /* 1st operand is FuncType, then address, then one tuple containing result     \
+                       variables, followed by arguments */                                         \
+      x(RET, ret)   /* return from function call. arguments are return values  */
 
 #define ONEJIT_OPSTMTN_X86(x) /*                                                                */ \
   x(CALL_, call_) /* call function. 1st argument is destination, others are formal registers */    \

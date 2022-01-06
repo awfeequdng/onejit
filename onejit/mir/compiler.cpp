@@ -356,13 +356,35 @@ Expr Compiler::simplify(Tuple expr, Expr opt_dst) noexcept {
 }
 
 Expr Compiler::simplify(Call call, Expr opt_dst) noexcept {
-  FuncType ftype = call.ftype();
-  Expr faddress = call.address();
-  if (!ftype || !faddress) {
-    error(call, "invalid Call: first two arguments must be FuncType, Expr");
-    return call;
-  }
   Tuple results;
+  Expr ret = prepare_call_results(call, opt_dst, results);
+  if (!ret) {
+    // an error happened, and was already reported
+    return ret;
+  }
+  const uint32_t argn = call.children() - 2;
+  Array<Node> children(argn + 3);
+  if (children.size() != argn + 3) {
+    out_of_memory(call);
+    return Expr{};
+  }
+  children.set(0, call.ftype());
+  children.set(1, call.address());
+  children.set(2, results);
+  for (uint32_t i = 0; i < argn; i++) {
+    children.set(i + 3, simplify(call.arg(i), toVar));
+  }
+  add(StmtN{*func_, MIR_CALL, children});
+  return ret;
+}
+
+Expr Compiler::prepare_call_results(Call call, Expr opt_dst, Tuple &results) noexcept {
+  FuncType ftype = call.ftype();
+  if (!ftype || !call.address()) {
+    error(call, "invalid Call: first two arguments must be FuncType, Expr");
+    return Expr{};
+  }
+
   Expr ret;
   if (opt_dst) {
     if (Tuple tuple = opt_dst.is<Tuple>()) {
@@ -401,8 +423,6 @@ Expr Compiler::simplify(Call call, Expr opt_dst) noexcept {
     }
     ret = results = Tuple{*func_, Void, MIR_RETS, array};
   }
-  add(Stmt4{*func_, MIR_CALL, ftype, faddress, results,
-            Tuple{*func_, Void, MIR_ARGS, ChildRange{call, 2, call.children() - 2}}});
   return ret;
 }
 

@@ -90,8 +90,8 @@ const Fmt &operator<<(const Fmt &fmt, Op2 op) {
 
 // ============================  OpN  ==========================================
 
-static const Chars opnstring[] = {"max",     "min",     "comma",     "call",     "mem",
-                                  "mir_mem", "x86_mem", "arm64_mem", "mir_args", "mir_rets"};
+static const Chars opnstring[] = {"max",     "min",     "comma",     "call",    "mem",
+                                  "mir_mem", "x86_mem", "arm64_mem", "mir_rets"};
 
 const Chars to_string(OpN op) noexcept {
   if (op >= MAX && op - MAX < ONEJIT_N_OF(opnstring)) {

@@ -70,7 +70,6 @@ enum OpN : uint16_t {
   X86_MEM,
   ARM64_MEM,
 
-  MIR_ARGS, // multiple arguments of a function call
   MIR_RETS, // multiple return values of a function call
 };
 

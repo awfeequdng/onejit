@@ -88,6 +88,8 @@ private:
   Expr simplify(Tuple expr, Expr opt_dst = Expr{}) noexcept;
   Expr simplify(Call expr, Expr opt_dst = Expr{}) noexcept;
 
+  Expr prepare_call_results(Call call, Expr opt_dst, Tuple &results) noexcept;
+
   constexpr Func *func() const noexcept {
     return func_;
   }

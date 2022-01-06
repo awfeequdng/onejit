@@ -79,9 +79,9 @@ void Test::func_fib() {
     label_0\n\
     (mir_uble label_1 var1000_ul 2)\n\
     (mir_sub var1002_ul var1000_ul 1)\n\
-    (mir_call (ftype (uint64) -> (uint64)) label_0 (mir_rets var1003_ul) (mir_args var1002_ul))\n\
+    (mir_call label_0 (mir_rets var1003_ul) var1002_ul)\n\
     (mir_sub var1004_ul var1000_ul 2)\n\
-    (mir_call (ftype (uint64) -> (uint64)) label_0 (mir_rets var1005_ul) (mir_args var1004_ul))\n\
+    (mir_call label_0 (mir_rets var1005_ul) var1004_ul)\n\
     (mir_add var1001_ul var1003_ul var1005_ul)\n\
     (mir_ret var1001_ul)\n\
     (mir_jmp label_2)\n\

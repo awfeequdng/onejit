@@ -45,7 +45,7 @@ const Fmt &StmtN::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
   fmt << '(' << op;
   ++depth;
 
-  const bool is_call = op == X86_CALL_;
+  const bool is_call = op == X86_CALL_ || op == MIR_CALL;
 
   // if op == X86_CALL_, skip child(0) i.e. FuncType
   for (size_t i = size_t(is_call), n = children(); i < n; i++) {
