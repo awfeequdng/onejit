@@ -321,7 +321,7 @@ Expr Compiler::compile(Comma expr, Flags flags) noexcept {
     return Expr{};
   }
   for (uint32_t i = 0; i + 1 < n; i++) {
-    compile(expr.arg(i), flags);
+    (void)compile(expr.arg(i), flags);
   }
   return compile(expr.arg(n - 1), flags);
 }
