@@ -79,6 +79,7 @@ private:
   Expr compile(Binary expr, Flags flags) noexcept;
   Node compile(Block stmt, Flags flags) noexcept;
   Expr compile(Call expr, Flags flags) noexcept;
+  Expr compile(Comma expr, Flags flags) noexcept;
   Node compile(Cond stmt, Flags flags) noexcept;
   Expr compile(Expr expr, Flags flags) noexcept;
   Node compile(For stmt, Flags flags) noexcept;

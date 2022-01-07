@@ -60,7 +60,7 @@ enum OpN : uint16_t {
   XOR, // ^
   MAX,
   MIN,
-  COMMA,
+  COMMA, // only present in input IR
   CALL,
   MEM_OP, // Mem class default Op
 

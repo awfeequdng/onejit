@@ -85,13 +85,10 @@ const Fmt &operator<<(const Fmt &fmt, Hex arg) {
   char buf[16];
   uint64_t val = arg.val();
   unsigned i = sizeof(buf);
-  while (i) {
+  do {
     buf[--i] = "0123456789abcdef"[val & 0x0F];
     val >>= 4;
-    if (val == 0) {
-      break;
-    }
-  }
+  } while (i && val);
   return fmt.write(buf + i, sizeof(buf) - i);
 }
 

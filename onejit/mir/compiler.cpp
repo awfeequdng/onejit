@@ -44,8 +44,7 @@ Compiler &Compiler::compile(Func &func, reg::Allocator & /*allocator*/, Array<No
                             FlowGraph & /*flowgraph*/, Array<Error> &error_vec, Opt flags,
                             Abi /*abi*/) noexcept {
   if (func.get_compiled(MIR)) {
-    // already compiled for MIR
-    return *this;
+    return *this; // already compiled for MIR
   }
   Node node = func.get_compiled(NOARCH);
   if (!node) {
@@ -74,7 +73,7 @@ Compiler &Compiler::finish() noexcept {
       compiled = (*node_)[0];
       break;
     default:
-      compiled = Block{*func_, *node_};
+      compiled = Block{f(), *node_};
       break;
     }
     func_->set_compiled(MIR, compiled);
@@ -115,16 +114,23 @@ Compiler &Compiler::compile(Node node) noexcept {
 // ===============================  compile(Stmt1)  ============================
 
 Compiler &Compiler::compile(Stmt1 st) noexcept {
+  Expr expr = simplify(st.arg());
   OpStmt1 op = st.op();
   if (op == GOTO) {
     op = MIR_JMP;
+    return add(Stmt1{f(), expr, op});
   } else if (op == INC || op == DEC) {
-    // TODO convert INC, DEC to MIR_ADD, MIR_SUB
+    // convert INC -> MIR_ADD, and DEC -> MIR_SUB
+    Expr tmp = expr;
+    if (tmp.type() == MEM) {
+      // MIR instructions support at most one memory operand
+      tmp = to_var(expr);
+    }
+    return add(Stmt3{f(), op == INC ? MIR_ADD : MIR_SUB, //
+                     expr, tmp, One(f(), expr.kind())});
   } else {
     return error(st, "unexpected Stmt1 operation");
   }
-  Expr expr = simplify(st.arg());
-  return add(Stmt1{*func_, expr, op});
 }
 
 // ===============================  compile(Stmt2)  ============================
@@ -147,21 +153,22 @@ Compiler &Compiler::compile(Assign st) noexcept {
     // convert "dst OP= src" to "tmp = dst; dst = tmp OP src"
     Expr tmp = dst;
     Mask mask = toAny;
-    if (dst.type() == MEM) {
+    if (dst.type() != VAR) {
       // MIR assembly support at most one memory operand
-      tmp = Var{*func_, dst.kind()};
+      tmp = Var{f(), dst.kind()};
       mask = toVarOrConst;
+      add(Stmt2{f(), mir_mov(dst.kind()), tmp, dst});
     }
     Expr src = simplify(st.src(), mask);
 
-    add(Stmt3{*func_, mir_arith(op, dst.kind()), dst, tmp, src});
+    add(Stmt3{f(), mir_arith(op, dst.kind()), dst, tmp, src});
 
   } else if (op == ASSIGN) {
 
     Mask mask = dst.type() == MEM ? toVarOrConst : toAny;
     Expr src = simplify(st.src(), mask, dst);
     if (src != dst) {
-      add(Stmt2{*func_, mir_mov(dst.kind()), dst, src});
+      add(Stmt2{f(), mir_mov(dst.kind()), dst, src});
     }
   } else {
     error(st, "unexpected Assign statement");
@@ -177,7 +184,7 @@ Compiler &Compiler::compile(Stmt3 st) noexcept {
     Label to = st.child_is<Label>(0);
     Expr x = simplify(st.child_is<Expr>(1));
     Expr y = simplify(st.child_is<Expr>(2));
-    return add(Stmt3{*func_, mir_jump(op, x.kind()), to, x, y});
+    return add(Stmt3{f(), mir_jump(op, x.kind()), to, x, y});
   } else {
     return error(st, "unexpected Stmt3");
   }
@@ -213,14 +220,14 @@ Compiler &Compiler::compile(AssignCall st) noexcept {
     if (!call) {
       break;
     }
-    Array<Node> array(n - 1);
-    if (array.size() != n - 1) {
+    Array<Node> array;
+    if (!array.resize(n - 1)) {
       return out_of_memory(st);
     }
     for (uint32_t i = 0; i < n; i++) {
       array.set(i, simplify(st.child_is<Expr>(i), toVarOrMem));
     }
-    Tuple dst{*func_, Void, MIR_RETS, array};
+    Tuple dst{f(), Void, MIR_RETS, array};
     Expr results = simplify(call, dst);
     if (results != dst) {
       return error(
@@ -233,14 +240,14 @@ Compiler &Compiler::compile(AssignCall st) noexcept {
 
 Compiler &Compiler::compile(Return st) noexcept {
   const uint32_t n = st.children();
-  Array<Node> array(n);
-  if (array.size() != n) {
+  Array<Node> array;
+  if (!array.resize(n)) {
     return out_of_memory(st);
   }
   for (uint32_t i = 0; i < n; i++) {
     array.set(i, simplify(st.child_is<Expr>(i), toVar));
   }
-  return add(StmtN{*func_, MIR_RET, array});
+  return add(StmtN{f(), MIR_RET, array});
 }
 
 // ===============================  simplify(Expr)  ============================
@@ -285,27 +292,28 @@ Expr Compiler::simplify(Unary expr, Expr opt_dst) noexcept {
   Kind kfrom = x.kind();
   Kind kto = expr.kind();
   Op1 op = expr.op();
-  Expr dst = opt_dst ? opt_dst : Var{*func_, kto};
+  Expr dst = opt_dst ? opt_dst : Var{f(), kto};
   switch (op) {
   case XOR1: // unary xor, inverts all bits. MIR only has binary xor: dst = x ^ y
-    add(Stmt3{*func_, kfrom.bits() == Bits64 ? MIR_XOR : MIR_XORS, //
-              dst, x, MinusOne(*func_, kfrom)});
+    add(Stmt3{f(), kfrom.ebits() == eBits64 ? MIR_XOR : MIR_XORS, //
+              dst, x, MinusOne(f(), kfrom)});
     break;
   case NOT1: // boolean not, swaps zero and non-zero. MIR only has comparison vs. zero
-    add(Stmt3{*func_, kfrom.bits() == Bits64 ? MIR_EQ : MIR_EQS, //
+    add(Stmt3{f(), kfrom.ebits() == eBits64 ? MIR_EQ : MIR_EQS, //
               dst, x, Zero(kfrom)});
     break;
   case NEG1: // arithmetic negative, -x. MIR has MIR_NEG and friends
-    add(Stmt2{*func_, mir_neg(kfrom), dst, x});
+    add(Stmt2{f(), mir_neg(kfrom), dst, x});
     break;
   case CAST: // convert int to float or vice-versa, widen or narrow integers
-    add(Stmt2{*func_, mir_cast(kto, kfrom), dst, x});
+    add(Stmt2{f(), mir_cast(kto, kfrom), dst, x});
     return dst;
   case BITCOPY:
-    // TODO
-    // [[fallthrough]]
+    add(Stmt2{f(), MIR_MOV, dst, x}); // TODO: correct?
+    return dst;
   default:
-    error(expr, "unexpected Unary expression");
+    error(expr, "unexpected Unary expression operand");
+    return Expr{};
   }
   return dst;
 }
@@ -326,33 +334,43 @@ Expr Compiler::simplify(Binary expr, Expr opt_dst) noexcept {
   } else if (op >= LSS && op <= GEQ) {
     mir_op = mir_compare(op, kind);
   } else {
-    // TODO
-    return expr;
+    error(expr, "unexpected Binary expression operand");
+    return Expr{};
   }
-  Expr dst = opt_dst ? opt_dst : Var{*func_, expr.kind()};
-  add(Stmt3{*func_, mir_op, dst, x, y});
+  Expr dst = opt_dst ? opt_dst : Var{f(), expr.kind()};
+  add(Stmt3{f(), mir_op, dst, x, y});
   return dst;
 }
 
 Expr Compiler::simplify(Tuple expr, Expr opt_dst) noexcept {
-  if (Call call = expr.is<Call>()) {
-    return simplify(call, opt_dst);
-  }
-  uint32_t n = expr.children();
   OpN op = expr.op();
-  if (op >= ADD && op <= XOR) {
+  uint32_t n = expr.children();
+  switch (op) {
+  case CALL:
+    return simplify(expr.is<Call>(), opt_dst);
+  case MAX:
+    break; // TODO
+  case MIN:
+    break; // TODO
+  case MEM_OP:
+    break; // TODO
+  default:
+    if (op < ADD || op > XOR) {
+      error(expr, "unexpected Tuple expression operand");
+      return Expr{};
+    }
     if (n == 2) {
       Mask mask = opt_dst.type() == MEM ? toVarOrConst : toAny;
       Expr x = simplify(expr.arg(0), mask);
       mask = mask & (x.type() == MEM ? toVarOrConst : toAny);
       Expr y = simplify(expr.arg(1), mask);
-      Expr dst = opt_dst ? opt_dst : Var{*func_, expr.kind()};
-      add(Stmt3{*func_, mir_arith(op, expr.kind()), dst, x, y});
+      Expr dst = opt_dst ? opt_dst : Var{f(), expr.kind()};
+      add(Stmt3{f(), mir_arith(op, expr.kind()), dst, x, y});
       return dst;
     }
+    break; // TODO n != 2
   }
-
-  return expr; // TODO
+  return expr;
 }
 
 Expr Compiler::simplify(Call call, Expr opt_dst) noexcept {
@@ -363,8 +381,8 @@ Expr Compiler::simplify(Call call, Expr opt_dst) noexcept {
     return ret;
   }
   const uint32_t argn = call.children() - 2;
-  Array<Node> children(argn + 3);
-  if (children.size() != argn + 3) {
+  Array<Node> children;
+  if (!children.resize(argn + 3)) {
     out_of_memory(call);
     return Expr{};
   }
@@ -374,7 +392,7 @@ Expr Compiler::simplify(Call call, Expr opt_dst) noexcept {
   for (uint32_t i = 0; i < argn; i++) {
     children.set(i + 3, simplify(call.arg(i), toVar));
   }
-  add(StmtN{*func_, MIR_CALL, children});
+  add(StmtN{f(), MIR_CALL, children});
   return ret;
 }
 
@@ -405,7 +423,7 @@ Expr Compiler::prepare_call_results(Call call, Expr opt_dst, Tuple &results) noe
         return Expr{};
       }
       ret = opt_dst;
-      results = Tuple{*func_, Void, MIR_RETS, {opt_dst}};
+      results = Tuple{f(), Void, MIR_RETS, {opt_dst}};
     } else {
       error(opt_dst, "invalid Call destination type");
       return Expr{};
@@ -413,15 +431,15 @@ Expr Compiler::prepare_call_results(Call call, Expr opt_dst, Tuple &results) noe
   } else {
     // no result specified by caller: create temporary variables
     const uint16_t n = ftype.result_n();
-    Array<Node> array(n);
-    if (array.size() != n) {
+    Array<Node> array;
+    if (!array.resize(n)) {
       out_of_memory(call);
       return Expr{};
     }
     for (uint16_t i = 0; i < n; i++) {
-      array.set(i, Var{*func_, ftype.result(i)});
+      array.set(i, Var{f(), ftype.result(i)});
     }
-    ret = results = Tuple{*func_, Void, MIR_RETS, array};
+    ret = results = Tuple{f(), Void, MIR_RETS, array};
   }
   return ret;
 }
@@ -435,7 +453,7 @@ Var Compiler::to_var(Expr simplified_expr, Expr opt_dst) noexcept {
   }
   if (Var v = opt_dst.is<Var>()) {
     // opt_dst is a Var, copy Expr into it
-    add(Stmt2{*func_, mir_mov(v.kind()), v, simplified_expr});
+    add(Stmt2{f(), mir_mov(v.kind()), v, simplified_expr});
     return v;
   }
   if (Var v = simplified_expr.is<Var>()) {
@@ -443,8 +461,8 @@ Var Compiler::to_var(Expr simplified_expr, Expr opt_dst) noexcept {
     return v;
   }
   // copy Expr result to a Var, then return the Var
-  Var v{*func_, simplified_expr.kind()};
-  add(Stmt2{*func_, mir_mov(v.kind()), v, simplified_expr});
+  Var v{f(), simplified_expr.kind()};
+  add(Stmt2{f(), mir_mov(v.kind()), v, simplified_expr});
   return v;
 }
 

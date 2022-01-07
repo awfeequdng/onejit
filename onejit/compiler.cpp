@@ -18,6 +18,7 @@
 #include <onejit/func.hpp>
 #include <onejit/ir/binary.hpp>
 #include <onejit/ir/call.hpp>
+#include <onejit/ir/comma.hpp>
 #include <onejit/ir/const.hpp>
 #include <onejit/ir/mem.hpp>
 #include <onejit/ir/stmt0.hpp>
@@ -273,13 +274,13 @@ Expr Compiler::compile(Tuple expr, Flags flags) noexcept {
     return compile(call, flags);
   }
   Array<Node> nodes;
-  const size_t n = expr.children();
+  const uint32_t n = expr.children();
   if (!nodes.resize(n)) {
     out_of_memory(expr);
     return expr;
   }
   bool changed = false;
-  for (size_t i = 0; i < n; i++) {
+  for (uint32_t i = 0; i < n; i++) {
     Node child = expr.child(i);
     Node comp_child = compile(child, flags);
     nodes.set(i, comp_child);
@@ -312,6 +313,17 @@ Expr Compiler::compile(Call call, Flags flags) noexcept {
   Var dst{*func_, call.kind()};
   add(Assign{*func_, ASSIGN, dst, call});
   return dst;
+}
+
+Expr Compiler::compile(Comma expr, Flags flags) noexcept {
+  const uint32_t n = expr.children();
+  if (n == 0) {
+    return Expr{};
+  }
+  for (uint32_t i = 0; i + 1 < n; i++) {
+    compile(expr.arg(i), flags);
+  }
+  return compile(expr.arg(n - 1), flags);
 }
 
 // ===============================  compile(Stmt0)  ============================

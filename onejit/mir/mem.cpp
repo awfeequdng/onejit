@@ -13,6 +13,7 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/func.hpp>
 #include <onejit/ir/childrange.hpp>
 #include <onejit/ir/const.hpp>
 #include <onejit/ir/label.hpp>
@@ -54,7 +55,7 @@ Node Mem::create(Func &func, Kind kind, const Address &address) noexcept {
 Node Mem::create(Compiler &comp, Kind kind, Exprs children) noexcept {
   Func *func = comp.func();
   Address address;
-  if (func && address.insert(comp, children)) {
+  if (func && *func && address.insert(comp, children)) {
     return create(*func, kind, address);
   }
   return Node{};
@@ -63,7 +64,7 @@ Node Mem::create(Compiler &comp, Kind kind, Exprs children) noexcept {
 Node Mem::create(Compiler &comp, Kind kind, const ChildRange &children) noexcept {
   Func *func = comp.func();
   Address address;
-  if (func && address.insert(comp, children)) {
+  if (func && *func && address.insert(comp, children)) {
     return create(*func, kind, address);
   }
   return Node{};

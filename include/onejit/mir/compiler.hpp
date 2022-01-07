@@ -94,12 +94,16 @@ private:
     return func_;
   }
 
+  constexpr Func &f() const noexcept {
+    return *func_;
+  }
+
   Var to_var(Expr simplified_expr, Expr opt_dst = Expr{}) noexcept;
 
   // add an already compiled node to compiled list
   Compiler &add(Node node) noexcept;
 
-  // store compiled code into function.set_compiled(X64)
+  // store compiled code into function.set_compiled(MIR)
   // invoked by compile(Func)
   Compiler &finish() noexcept;
 

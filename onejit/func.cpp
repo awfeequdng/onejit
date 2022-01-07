@@ -69,7 +69,7 @@ Func &Func::set_compiled(ArchId archid, const Node &compiled) noexcept {
     if (archid == NOARCH) {
       compiled_var_n_ = vars_.size();
     } else {
-      // do not keep vars created by compile_<ARCH>()
+      // do not keep vars created by compile_arch(ArchId)
       // otherwise different archs would interfere with each other
       vars_.truncate(compiled_var_n_);
     }
@@ -81,7 +81,7 @@ Label Func::new_label() noexcept {
   Label l;
   const size_t i = labels_.size();
   if (i <= 0xFFFF) {
-    l = Label::create(holder_, 0, i);
+    l = Label::create(holder_, 0, uint16_t(i));
     if (l && !labels_.append(l)) {
       l = Label{};
     }

@@ -54,8 +54,6 @@ void Test::func_fib() {
     (return 1))";
   TEST(to_string(f.get_body()), ==, expected);
 
-  // (- x 1) becomes (+ x uint64_t(-1))
-  // (- x 2) becomes (+ x uint64_t(-2))
   expected = "(block\n\
     label_0\n\
     (_set var1000_ul)\n\
@@ -217,6 +215,21 @@ void Test::func_loop() {
   compile(f, NOARCH);
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
+  expected = "(block\n\
+    label_0\n\
+    (mir_mov var1001_ul 0)\n\
+    (mir_mov var1002_ul 0)\n\
+    (mir_jmp label_2)\n\
+    label_1\n\
+    (mir_add var1001_ul var1001_ul var1002_ul)\n\
+    (mir_add var1002_ul var1002_ul 1)\n\
+    label_2\n\
+    (mir_ublt label_1 var1002_ul var1000_ul)\n\
+    label_3\n\
+    (mir_ret var1001_ul))";
+  compile(f, MIR);
+  TEST(to_string(f.get_compiled(MIR)), ==, expected);
+
   expected = "(flowgraph\n\
     (bb_0\n\
         (nodes\n\
@@ -327,6 +340,24 @@ void Test::func_switch1() {
     (return var1001_ul))";
   compile(f, NOARCH);
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
+
+  expected = "(block\n\
+    label_0\n\
+    (mir_bne label_2 var1000_ul 0)\n\
+    (mir_mov var1001_ul 1)\n\
+    (mir_jmp label_1)\n\
+    label_2\n\
+    (mir_bne label_4 var1000_ul 1)\n\
+    label_3\n\
+    (mir_mov var1001_ul 2)\n\
+    (mir_jmp label_1)\n\
+    label_4\n\
+    label_5\n\
+    (mir_add var1001_ul var1000_ul 1)\n\
+    label_1\n\
+    (mir_ret var1001_ul))";
+  compile(f, MIR);
+  TEST(to_string(f.get_compiled(MIR)), ==, expected);
 
   expected = "(flowgraph\n\
     (bb_0\n\
@@ -456,6 +487,25 @@ void Test::func_switch2() {
   compile(f, NOARCH);
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
+  expected = "(block\n\
+    label_0\n\
+    (mir_bne label_2 var1000_ul 0)\n\
+    (mir_mov var1001_ul 1)\n\
+    (mir_jmp label_1)\n\
+    label_2\n\
+    (mir_jmp label_4)\n\
+    label_3\n\
+    (mir_add var1001_ul var1000_ul 1)\n\
+    (mir_jmp label_1)\n\
+    label_4\n\
+    (mir_bne label_3 var1000_ul 1)\n\
+    label_5\n\
+    (mir_mov var1001_ul 2)\n\
+    label_1\n\
+    (mir_ret var1001_ul))";
+  compile(f, MIR);
+  TEST(to_string(f.get_compiled(MIR)), ==, expected);
+
   expected = "(flowgraph\n\
     (bb_0\n\
         (nodes\n\
@@ -584,6 +634,22 @@ void Test::func_cond() {
   compile(f, NOARCH);
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
 
+  expected = "(block\n\
+    label_0\n\
+    (mir_bne label_2 var1000_ul 0)\n\
+    (mir_mov var1001_ul 1)\n\
+    (mir_jmp label_1)\n\
+    label_2\n\
+    (mir_bne label_3 var1000_ul 1)\n\
+    (mir_mov var1001_ul 2)\n\
+    (mir_jmp label_1)\n\
+    label_3\n\
+    (mir_add var1001_ul var1000_ul 1)\n\
+    label_1\n\
+    (mir_ret var1001_ul))";
+  compile(f, MIR);
+  TEST(to_string(f.get_compiled(MIR)), ==, expected);
+
   expected = "(flowgraph\n\
     (bb_0\n\
         (nodes\n\
@@ -680,6 +746,21 @@ void Test::func_and_or() {
     (return var1002_e))";
   compile(f, NOARCH);
   TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
+
+  expected = "(block\n\
+    label_0\n\
+    (mir_mov var1003_e (mem_e var1000_p))\n\
+    (mir_beqs label_1 var1003_e false)\n\
+    (mir_mov var1003_e (mem_e var1001_p))\n\
+    label_1\n\
+    (mir_mov var1004_e (mem_e var1000_p))\n\
+    (mir_bnes label_2 var1004_e false)\n\
+    (mir_mov var1004_e (mem_e var1001_p))\n\
+    label_2\n\
+    (mir_xors var1002_e var1003_e var1004_e)\n\
+    (mir_ret var1002_e))";
+  compile(f, MIR);
+  TEST(to_string(f.get_compiled(MIR)), ==, expected);
 
   // dump_and_clear_code();
   holder.clear();

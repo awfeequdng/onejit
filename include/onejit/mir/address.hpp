@@ -25,7 +25,7 @@ namespace onejit {
 namespace mir {
 
 ////////////////////////////////////////////////////////////////////////////////
-// address representable bye a single MIR instruction:
+// address representable by a single MIR instruction:
 // offset_int64 + optional_base_register + optional_index_reg * {1,2,4,8}
 class Address {
 public:

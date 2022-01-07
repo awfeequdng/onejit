@@ -27,9 +27,9 @@ enum OpStmtN : uint16_t {
   BAD_STN = 0,
   ASSIGN_CALL = 1, // collect results of a function call and assign them to multiple places
   BLOCK = 2,
-  COND = 3, // n-ary IF ... [ELSEIF* ... [ELSE ...]]
+  COND = 3, // n-ary IF ... [ELSEIF* ... [ELSE ...]]. allowed only in input IR
   RETURN = 4,
-  SWITCH = 5,
+  SWITCH = 5, // children are expression then CASE* and [DEFAULT]. allowed only in input IR
 
   // numeric values of the OpStmtN enum constants below this line MAY CHANGE WITHOUT WARNING
 
