@@ -41,8 +41,8 @@ enum Op2 : uint16_t {
   SHL, // <<
   SHR, // >>
 
-  LAND, // &&
-  LOR,  // ||
+  LAND, // &&   only allowed in input IR - never used in compiled code
+  LOR,  // ||   only allowed in input IR - never used in compiled code
   LSS,  // <
   LEQ,  // <=
   NEQ,  // <> !=
@@ -60,7 +60,7 @@ enum OpN : uint16_t {
   XOR, // ^
   MAX,
   MIN,
-  COMMA, // only present in input IR
+  COMMA, // only allowed in input IR - never used in compiled code
   CALL,
   MEM_OP, // Mem class default Op
 

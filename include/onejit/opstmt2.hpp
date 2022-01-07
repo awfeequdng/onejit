@@ -38,9 +38,9 @@ enum OpStmt2 : uint16_t {
   SHR_ASSIGN, // >>=
   ASSIGN,     // =
 
-  CASE,
-  DEFAULT,
-  JUMP_IF,
+  CASE,    // only allowed in input IR - never used in compiled code
+  DEFAULT, // only allowed in input IR - never used in compiled code
+  JUMP_IF, // only allowed in input IR - never used in compiled code
 
 // numeric values of the OpStmt2 enum constants below this line MAY CHANGE WITHOUT WARNING
 
