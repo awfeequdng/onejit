@@ -230,6 +230,23 @@ void Test::func_loop() {
   compile(f, MIR);
   TEST(to_string(f.get_compiled(MIR)), ==, expected);
 
+  expected = "(block\n\
+    label_0\n\
+    (_set var1000_ul)\n\
+    (x86_mov var1001_ul 0)\n\
+    (x86_mov var1002_ul 0)\n\
+    (x86_jmp label_2)\n\
+    label_1\n\
+    (x86_add var1001_ul var1002_ul)\n\
+    (x86_inc var1002_ul)\n\
+    label_2\n\
+    (x86_cmp var1002_ul var1000_ul)\n\
+    (x86_jb label_1)\n\
+    label_3\n\
+    (x86_ret var1001_ul))";
+  compile(f, X64);
+  TEST(to_string(f.get_compiled(X64)), ==, expected);
+
   expected = "(flowgraph\n\
     (bb_0\n\
         (nodes\n\
@@ -267,7 +284,6 @@ void Test::func_loop() {
         )\n\
     )\n\
 )";
-  compile(f, X64);
   TEST(to_string(comp.flowgraph_), ==, expected);
 
   // dump_and_clear_code();
@@ -709,7 +725,7 @@ void Test::func_cond() {
 }
 
 void Test::func_and_or() {
-  Func &f = func.reset(&holder, Name{&holder, "fand_or"}, FuncType{&holder, {Ptr, Ptr}, {Bool}});
+  Func &f = func.reset(&holder, Name{&holder, "f_and_or"}, FuncType{&holder, {Ptr, Ptr}, {Bool}});
   Var a = f.param(0);
   Var b = f.param(1);
   Mem ma{f, Bool, {a}};
@@ -764,6 +780,51 @@ void Test::func_and_or() {
 
   // dump_and_clear_code();
   holder.clear();
+}
+
+void Test::func_tuple() {
+  Func &f = func.reset(&holder, Name{&holder, "ftuple"},
+                       FuncType{&holder, {Float64, Float64, Float64}, {Float64}});
+  Var a = f.param(0);
+  Var b = f.param(1);
+  Var c = f.param(2);
+
+  /**
+   * jit equivalent of C/C++ source code
+   *
+   * bool ftuple(double a, double b, double c) {
+   *   return a * b * c;
+   * }
+   */
+
+  f.set_body(Return{f, Tuple{f, Float64, MUL, {a, b, c}}});
+
+  Chars expected = "(return (* var1000_df var1001_df var1002_df))";
+  TEST(to_string(f.get_body()), ==, expected);
+
+  expected = "(block\n\
+    label_0\n\
+    (_set var1000_df var1001_df var1002_df)\n\
+    (= var1003_df (* var1000_df var1001_df var1002_df))\n\
+    (return var1003_df))";
+  compile(f, NOARCH);
+  TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
+
+  expected = "(block\n\
+    label_0\n\
+    (mir_dmul var1004_df var1000_df var1001_df)\n\
+    (mir_dmul var1003_df var1004_df var1002_df)\n\
+    (mir_ret var1003_df))";
+  compile(f, MIR);
+  TEST(to_string(f.get_compiled(MIR)), ==, expected);
+
+  expected = "(block\n\
+    label_0\n\
+    (_set var1000_df var1001_df var1002_df)\n\
+    (= var1003_df (* var1000_df var1001_df var1002_df))\n\
+    (x86_ret var1003_df))";
+  compile(f, X64);
+  TEST(to_string(f.get_compiled(X64)), ==, expected);
 }
 
 } // namespace onejit

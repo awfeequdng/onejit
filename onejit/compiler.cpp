@@ -286,8 +286,19 @@ Expr Compiler::compile(Tuple expr, Flags flags) noexcept {
     nodes.set(i, comp_child);
     changed = changed || child != comp_child;
   }
+  Kind kind = expr.kind();
+  OpN op = expr.op();
+  if (op >= ADD && op <= COMMA) {
+    if (n == 0) {
+      // replace zero-argument ADD, MUL ... COMMA with the appropriate constant
+      return Const{*func_, Value::identity(kind, op)};
+    } else if (n == 1) {
+      // replace one-argument ADD, MUL ... COMMA with the only argument
+      return nodes[0].is<Expr>();
+    }
+  }
   if (changed) {
-    expr = Tuple{*func_, expr.kind(), expr.op(), nodes};
+    expr = Tuple{*func_, kind, op, nodes};
   }
   return expr;
 }

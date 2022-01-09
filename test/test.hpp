@@ -40,6 +40,7 @@ private:
   void const_expr() const;
   void simple_expr();
   void nested_expr();
+  void tuple_expr();
   void mir_expr();
   void x64_expr();
   void eval_expr();
@@ -50,6 +51,7 @@ private:
   void func_switch2();
   void func_cond();
   void func_and_or();
+  void func_tuple();
   void optimize();
   void optimize_expr_kind(Kind kind);
   void optimize_assign_kind(Kind kind);

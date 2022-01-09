@@ -352,23 +352,27 @@ Expr Compiler::simplify(Tuple expr, Expr opt_dst) noexcept {
     break; // TODO
   case MIN:
     break; // TODO
-  case MEM_OP:
-    break; // TODO
   default:
     if (op < ADD || op > XOR) {
-      error(expr, "unexpected Tuple expression operand");
+      error(expr, "unexpected Tuple operand");
+      return Expr{};
+    } else if (n <= 1) {
+      // should not happen
+      error(expr, "unexpected Tuple number of arguments");
       return Expr{};
     }
-    if (n == 2) {
-      Mask mask = opt_dst.type() == MEM ? toVarOrConst : toAny;
-      Expr x = simplify(expr.arg(0), mask);
+    OpStmt3 op3 = mir_arith(op, expr.kind());
+    Mask mask = opt_dst.type() == MEM ? toVarOrConst : toAny;
+    Expr x = simplify(expr.arg(0), mask);
+    // compile (x OP y) and store result into new x
+    for (uint32_t i = 1; i < n; i++) {
       mask = mask & (x.type() == MEM ? toVarOrConst : toAny);
-      Expr y = simplify(expr.arg(1), mask);
-      Expr dst = opt_dst ? opt_dst : Var{f(), expr.kind()};
-      add(Stmt3{f(), mir_arith(op, expr.kind()), dst, x, y});
-      return dst;
+      Expr y = simplify(expr.arg(i), mask);
+      Expr dst = (i + 1 == n && opt_dst) ? opt_dst : Var{f(), expr.kind()};
+      add(Stmt3{f(), op3, dst, x, y});
+      x = dst;
     }
-    break; // TODO n != 2
+    return x;
   }
   return expr;
 }

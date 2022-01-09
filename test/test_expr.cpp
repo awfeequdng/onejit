@@ -197,4 +197,30 @@ void Test::nested_expr() {
   holder.clear();
 }
 
+void Test::tuple_expr() {
+  for (uint8_t i = eInt8; i <= eFloat64; i++) {
+    Kind k{i};
+    Expr v1 = Var{func, k};
+    Expr v2 = Var{func, k};
+    Expr c1 = One(func, k);
+    Expr c2 = Two(func, k);
+
+    {
+      Tuple e1{func, k, ADD, {v1}};
+      Node opt1 = opt.optimize(func, e1);
+      TEST(opt1, ==, v1);
+    }
+
+    {
+      Tuple e4{func, k, ADD, {v1, v2, c1, c2}};
+      TEST(e4.children(), ==, 4);
+      TEST(e4.arg(0), ==, v1);
+      TEST(e4.arg(1), ==, v2);
+      TEST(e4.arg(2), ==, c1);
+      TEST(e4.arg(3), ==, c2);
+    }
+  }
+  holder.clear();
+}
+
 } // namespace onejit

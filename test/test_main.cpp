@@ -50,6 +50,7 @@ void Test::run() {
   const_expr();
   simple_expr();
   nested_expr();
+  tuple_expr();
   mir_expr();
   x64_expr();
   eval_expr();
@@ -61,6 +62,7 @@ void Test::run() {
   func_switch2();
   func_cond();
   func_and_or();
+  func_tuple();
 
   Fmt{stdout} << testcount() << " tests passed\n";
 }
