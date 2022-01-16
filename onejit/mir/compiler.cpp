@@ -308,8 +308,8 @@ Expr Compiler::simplify(Unary expr, Expr opt_dst) noexcept {
   case CAST: // convert int to float or vice-versa, widen or narrow integers
     add(Stmt2{f(), mir_cast(kto, kfrom), dst, x});
     return dst;
-  case BITCOPY:
-    add(Stmt2{f(), MIR_MOV, dst, x}); // TODO: correct?
+  case BITCOPY: // TODO: must store bytes in ALLOCA:ted memory and load from it
+    error(expr, "unimplemented Unary operand: BITCOPY");
     return dst;
   default:
     error(expr, "unexpected Unary expression operand");
@@ -345,36 +345,61 @@ Expr Compiler::simplify(Binary expr, Expr opt_dst) noexcept {
 Expr Compiler::simplify(Tuple expr, Expr opt_dst) noexcept {
   OpN op = expr.op();
   uint32_t n = expr.children();
+  Kind kind = expr.kind();
   switch (op) {
   case CALL:
     return simplify(expr.is<Call>(), opt_dst);
   case MAX:
-    break; // TODO
   case MIN:
-    break; // TODO
+    if (n <= 1) {
+      // should not happen
+      error(expr, "unexpected Tuple number of arguments, should be > 1");
+      return Expr{};
+    } else {
+      OpStmt2 op2mov = mir_mov(kind);
+      OpStmt3 op3jmp = mir_jump(op == MAX ? GEQ : LEQ, kind);
+      Mask mask = opt_dst.type() == MEM ? toVarOrConst : toAny;
+      Expr x = simplify(expr.arg(0), mask);
+      Expr dst = Var{f(), kind};
+      add(Stmt2{f(), op2mov, dst, x});
+      // simplify i-th argument and compute max/min between dst and y,
+      // then store result into dst (or opt_dst)
+      for (uint32_t i = 1; i < n; i++) {
+        mask = mask & (x.type() == MEM ? toVarOrConst : toAny);
+        Expr y = simplify(expr.arg(i), mask);
+        if (i + 1 == n && opt_dst) {
+          add(Stmt2{f(), op2mov, opt_dst, dst});
+          dst = opt_dst;
+        }
+        Label l = f().new_label();
+        add(Stmt3{f(), op3jmp, l, dst, y});
+        add(Stmt2{f(), op2mov, dst, y});
+        add(l);
+      }
+      return dst;
+    }
   default:
     if (op < ADD || op > XOR) {
       error(expr, "unexpected Tuple operand");
       return Expr{};
     } else if (n <= 1) {
       // should not happen
-      error(expr, "unexpected Tuple number of arguments");
+      error(expr, "unexpected Tuple number of arguments, should be > 1");
       return Expr{};
     }
-    OpStmt3 op3 = mir_arith(op, expr.kind());
+    OpStmt3 op3 = mir_arith(op, kind);
     Mask mask = opt_dst.type() == MEM ? toVarOrConst : toAny;
     Expr x = simplify(expr.arg(0), mask);
     // compile (x OP y) and store result into new x
     for (uint32_t i = 1; i < n; i++) {
       mask = mask & (x.type() == MEM ? toVarOrConst : toAny);
       Expr y = simplify(expr.arg(i), mask);
-      Expr dst = (i + 1 == n && opt_dst) ? opt_dst : Var{f(), expr.kind()};
+      Expr dst = (i + 1 == n && opt_dst) ? opt_dst : Var{f(), kind};
       add(Stmt3{f(), op3, dst, x, y});
       x = dst;
     }
     return x;
   }
-  return expr;
 }
 
 Expr Compiler::simplify(Call call, Expr opt_dst) noexcept {

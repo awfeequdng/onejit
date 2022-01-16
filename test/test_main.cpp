@@ -63,6 +63,7 @@ void Test::run() {
   func_cond();
   func_and_or();
   func_tuple();
+  func_max();
 
   Fmt{stdout} << testcount() << " tests passed\n";
 }

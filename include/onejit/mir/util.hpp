@@ -47,7 +47,10 @@ OpStmt3 mir_arith(OpStmt2 op, Kind kind) noexcept;
 // convert Op2 comparison instruction to MIR_* instruction
 OpStmt3 mir_compare(Op2 op, Kind kind) noexcept;
 
-// convert OpStmt3 ASM_J* conditional jump to MIR_* instruction
+// convert Op2 comparison instruction to MIR_* conditional jump
+OpStmt3 mir_jump(Op2 op, Kind kind) noexcept;
+
+// convert OpStmt3 ASM_J* conditional jump to MIR_* conditional jump
 OpStmt3 mir_jump(OpStmt3 op, Kind kind) noexcept;
 
 } // namespace mir

@@ -23,6 +23,7 @@
 #include <onejit/ir/label.hpp>
 #include <onejit/ir/name.hpp>
 #include <onejit/ir/var.hpp>
+#include <onejit/mir/fwd.hpp>
 #include <onejit/op.hpp>
 #include <onejit/x64/fwd.hpp>
 #include <onestl/array.hpp>
@@ -38,6 +39,7 @@ class Func : private FuncHeader {
   friend class ir::Label;
   friend class ir::Var;
   friend class x64::Compiler;
+  friend class mir::Compiler;
 
 public:
   /**

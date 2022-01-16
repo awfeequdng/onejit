@@ -189,7 +189,23 @@ OpStmt3 mir_compare(Op2 op, Kind kind) noexcept {
   return cmp[op - LSS][mir_kind(kind)];
 }
 
-// convert OpStmt3 ASM_J* conditional jump to MIR_* instruction
+// convert Op2 comparison instruction to MIR_* conditional jump
+OpStmt3 mir_jump(Op2 op, Kind kind) noexcept {
+  static const OpStmt3 cmp[][7] = {
+      {MIR_BLTS, MIR_UBLTS, MIR_BLT, MIR_UBLT, MIR_FBLT, MIR_DBLT, MIR_LDBLT}, // LSS
+      {MIR_BLES, MIR_UBLES, MIR_BLE, MIR_UBLE, MIR_FBLE, MIR_DBLE, MIR_LDBLE}, // LEQ
+      {MIR_BNES, MIR_BNES, MIR_BNE, MIR_BNE, MIR_FBNE, MIR_DBNE, MIR_LDBNE},   // NEQ
+      {MIR_BEQS, MIR_BEQS, MIR_BEQ, MIR_BEQ, MIR_FBEQ, MIR_DBEQ, MIR_LDBEQ},   // EQL
+      {MIR_BGTS, MIR_UBGTS, MIR_BGT, MIR_UBGT, MIR_FBGT, MIR_DBGT, MIR_LDBGT}, // GTR
+      {MIR_BGES, MIR_UBGES, MIR_BGE, MIR_UBGE, MIR_FBGE, MIR_DBGE, MIR_LDBGE}, // GEQ
+  };
+  if (op < LSS || op > GEQ) {
+    return BAD_ST3;
+  }
+  return cmp[op - LSS][mir_kind(kind)];
+}
+
+// convert OpStmt3 ASM_J* conditional jump to MIR_* conditional jump
 OpStmt3 mir_jump(OpStmt3 op, Kind kind) noexcept {
   static const OpStmt3 jump_int32[] = {MIR_UBGTS, MIR_UBGES, MIR_UBLTS, MIR_UBLES, MIR_BEQS,
                                        MIR_BGTS,  MIR_BGES,  MIR_BLTS,  MIR_BLES,  MIR_BNES};

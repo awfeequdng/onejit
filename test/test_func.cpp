@@ -827,4 +827,64 @@ void Test::func_tuple() {
   TEST(to_string(f.get_compiled(X64)), ==, expected);
 }
 
+void Test::func_max() {
+  Func &f = func.reset(&holder, Name{&holder, "fmax"},
+                       FuncType{&holder, {Float64, Float64, Float64}, {Float64}});
+  Var a = f.param(0);
+  Var b = f.param(1);
+  Var c = f.param(2);
+
+  /**
+   * jit equivalent of C++ source code
+   *
+   * bool fmax(double a, double b, double c) {
+   *   return std::max({a+b, b+c, a+c});
+   * }
+   */
+
+  f.set_body(Return{f, Tuple{f,
+                             Float64,
+                             MAX,
+                             {Tuple{f, ADD, a, b}, //
+                              Tuple{f, ADD, b, c}, //
+                              Tuple{f, ADD, a, c}}}});
+
+  Chars expected = "(return (max (+ var1000_df var1001_df) (+ var1001_df var1002_df) (+ var1000_df "
+                   "var1002_df)))";
+  TEST(to_string(f.get_body()), ==, expected);
+
+  expected = "(block\n\
+    label_0\n\
+    (_set var1000_df var1001_df var1002_df)\n\
+    (= var1003_df (max (+ var1000_df var1001_df) (+ var1000_df var1002_df) (+ var1001_df var1002_df)))\n\
+    (return var1003_df))";
+  compile(f, NOARCH);
+  TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
+
+  expected = "(block\n\
+    label_0\n\
+    (mir_dadd var1004_df var1000_df var1001_df)\n\
+    (mir_dmov var1005_df var1004_df)\n\
+    (mir_dadd var1006_df var1000_df var1002_df)\n\
+    (mir_dbge label_1 var1005_df var1006_df)\n\
+    (mir_dmov var1005_df var1006_df)\n\
+    label_1\n\
+    (mir_dadd var1007_df var1001_df var1002_df)\n\
+    (mir_dmov var1003_df var1005_df)\n\
+    (mir_dbge label_2 var1003_df var1007_df)\n\
+    (mir_dmov var1003_df var1007_df)\n\
+    label_2\n\
+    (mir_ret var1003_df))";
+  compile(f, MIR);
+  TEST(to_string(f.get_compiled(MIR)), ==, expected);
+
+  expected = "(block\n\
+    label_0\n\
+    (_set var1000_df var1001_df var1002_df)\n\
+    (= var1003_df (max (+ var1000_df var1001_df) (+ var1000_df var1002_df) (+ var1001_df var1002_df)))\n\
+    (x86_ret var1003_df))";
+  compile(f, X64);
+  TEST(to_string(f.get_compiled(X64)), ==, expected);
+}
+
 } // namespace onejit

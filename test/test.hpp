@@ -52,6 +52,7 @@ private:
   void func_cond();
   void func_and_or();
   void func_tuple();
+  void func_max();
   void optimize();
   void optimize_expr_kind(Kind kind);
   void optimize_assign_kind(Kind kind);
