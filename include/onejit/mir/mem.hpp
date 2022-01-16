@@ -49,7 +49,7 @@ public:
 
   // try to create mir::Mem whose address is the sum of all children.
   // return invalid mir::Mem if it fails.
-  Mem(Compiler &comp, Kind kind, Exprs children) noexcept //
+  Mem(Compiler &comp, Kind kind, Nodes children) noexcept //
       : Base{create(comp, kind, children)} {
   }
 
@@ -91,7 +91,7 @@ private:
   }
 
   static Node create(Func &func, Kind kind, const Address &address) noexcept;
-  static Node create(Compiler &comp, Kind kind, Exprs children) noexcept;
+  static Node create(Compiler &comp, Kind kind, Nodes children) noexcept;
   static Node create(Compiler &comp, Kind kind, const ChildRange &children) noexcept;
 
 }; // class Mem

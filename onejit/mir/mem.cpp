@@ -52,7 +52,7 @@ Node Mem::create(Func &func, Kind kind, const Address &address) noexcept {
   return Mem{};
 }
 
-Node Mem::create(Compiler &comp, Kind kind, Exprs children) noexcept {
+Node Mem::create(Compiler &comp, Kind kind, Nodes children) noexcept {
   Func *func = comp.func();
   Address address;
   if (func && *func && address.insert(comp, children)) {

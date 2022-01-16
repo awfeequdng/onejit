@@ -281,9 +281,31 @@ Expr Compiler::simplify(Const expr, Mask mask, Expr opt_dst) noexcept {
 }
 
 Expr Compiler::simplify(onejit::Mem expr, Mask mask, Expr opt_dst) noexcept {
-  (void)mask;
-  (void)opt_dst;
-  return expr; // TODO
+  const uint32_t n = expr.children();
+  Array<Node> children;
+  if (!children.resize(n)) {
+    out_of_memory(expr);
+    return Expr{};
+  }
+  for (uint32_t i = 0; i < n; i++) {
+    children.set(i, simplify(expr.arg(i), toVarOrConst));
+  }
+  Kind kind = expr.kind();
+  Mem mem{*this, kind, children}; // may fail if too many or too complex args
+  if (!mem) {
+    Expr arg = simplify(Tuple{f(), kind, ADD, children});
+    mem = Mem{*this, expr.kind(), Nodes{&arg, 1}};
+    if (!mem) {
+      error(expr, "internal error: failed to compile onejit::mir::Mem");
+      return Expr{};
+    }
+  }
+  if (mask & toMem) {
+    return mem;
+  }
+  Expr dst = (opt_dst && opt_dst.type() == VAR) ? opt_dst : Var{f(), kind};
+  add(Stmt2{f(), mir_mov(kind), dst, mem});
+  return dst;
 }
 
 Expr Compiler::simplify(Unary expr, Expr opt_dst) noexcept {

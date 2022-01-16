@@ -765,13 +765,13 @@ void Test::func_and_or() {
 
   expected = "(block\n\
     label_0\n\
-    (mir_mov var1003_e (mem_e var1000_p))\n\
+    (mir_mov var1003_e (mir_mem_e var1000_p))\n\
     (mir_beqs label_1 var1003_e false)\n\
-    (mir_mov var1003_e (mem_e var1001_p))\n\
+    (mir_mov var1003_e (mir_mem_e var1001_p))\n\
     label_1\n\
-    (mir_mov var1004_e (mem_e var1000_p))\n\
+    (mir_mov var1004_e (mir_mem_e var1000_p))\n\
     (mir_bnes label_2 var1004_e false)\n\
-    (mir_mov var1004_e (mem_e var1001_p))\n\
+    (mir_mov var1004_e (mir_mem_e var1001_p))\n\
     label_2\n\
     (mir_xors var1002_e var1003_e var1004_e)\n\
     (mir_ret var1002_e))";

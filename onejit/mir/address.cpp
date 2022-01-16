@@ -72,9 +72,9 @@ bool Address::insert(Compiler &comp, Node node) noexcept {
   return true;
 }
 
-bool Address::insert(Compiler &comp, Exprs children) noexcept {
-  for (Expr expr : children) {
-    if (!insert(comp, expr)) {
+bool Address::insert(Compiler &comp, Nodes children) noexcept {
+  for (Node node : children) {
+    if (!insert(comp, node)) {
       return false;
     }
   }
