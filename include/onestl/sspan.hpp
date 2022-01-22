@@ -31,10 +31,8 @@ public:
   }
 
   constexpr SSpan(const SSpan<T> &other) noexcept = default;
-  constexpr SSpan(const Span<T> &other) noexcept : Base{other} {
-  }
   constexpr SSpan(SSpan<T> &&other) noexcept = default;
-  constexpr SSpan(Span<T> &&other) noexcept : Base{std::move(other)} {
+  constexpr SSpan(Span<T> other) noexcept : Base{other} {
   }
 
   ~SSpan() noexcept = default;

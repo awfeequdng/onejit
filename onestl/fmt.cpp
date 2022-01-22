@@ -73,11 +73,6 @@ const Fmt &operator<<(const Fmt &fmt, std::nullptr_t) {
   return fmt.write("null", 4);
 }
 
-// c_str must be '\0' terminated
-const Fmt &operator<<(const Fmt &fmt, const char *c_str) {
-  return fmt.write(c_str, c_str ? std::strlen(c_str) : 0);
-}
-
 const Fmt &operator<<(const Fmt &fmt, Hex arg) {
   if (!fmt || !fmt.writer().func()) {
     return fmt;

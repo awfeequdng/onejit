@@ -63,14 +63,14 @@ const Fmt &TestDisasm::disasm(const Fmt &fmt, Bytes bytes) {
 }
 
 const Fmt &TestDisasm::format(const Fmt &fmt, const cs_insn *insn) {
-  fmt << "(x86_" << Chars(cs_insn_name(handle_, insn->id));
+  fmt << "(x86_" << Chars::of(cs_insn_name(handle_, insn->id));
 
   cs_detail *detail = insn->detail;
   for (size_t i = 0, n = detail->x86.op_count; i < n; i++) {
     cs_x86_op *op = detail->x86.operands + i;
     switch (op->type) {
     case X86_OP_REG:
-      fmt << ' ' << Chars(cs_reg_name(handle_, op->reg));
+      fmt << ' ' << Chars::of(cs_reg_name(handle_, op->reg));
       break;
     case X86_OP_IMM:
       fmt << ' ' << fix_immediate(insn, op->imm);
@@ -81,10 +81,10 @@ const Fmt &TestDisasm::format(const Fmt &fmt, const cs_insn *insn) {
         fmt << ' ' << op->mem.disp;
       }
       if (op->mem.base != X86_REG_INVALID) {
-        fmt << ' ' << Chars(cs_reg_name(handle_, op->mem.base));
+        fmt << ' ' << Chars::of(cs_reg_name(handle_, op->mem.base));
       }
       if (op->mem.index != X86_REG_INVALID) {
-        fmt << ' ' << Chars(cs_reg_name(handle_, op->mem.index));
+        fmt << ' ' << Chars::of(cs_reg_name(handle_, op->mem.index));
         fmt << ' ' << op->mem.scale;
       }
       fmt << ')';

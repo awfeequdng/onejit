@@ -89,7 +89,7 @@ public:
     init(n);
   }
   // also catches Span<T> and Chars
-  explicit Array(const View<T> &other) noexcept : Base{}, cap_{0} {
+  explicit Array(View<T> other) noexcept : Base{}, cap_{0} {
     dup(other.data(), other.size());
   }
   explicit Array(const Array<T> &other) noexcept : Base{}, cap_{0} {

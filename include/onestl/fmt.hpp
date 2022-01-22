@@ -94,7 +94,7 @@ const Fmt &operator<<(const Fmt &fmt, std::nullptr_t);
 /**
  * operator<<(Fmt, const void *) is not defined.
  * to print an address in hexadecimal format, use: fmt << "0x" << Hex(address)
- * to print the content of a C string (i.e. const char *) use: fmt << Chars{c_str}
+ * to print the content of a C string (i.e. const char *) use: fmt << Chars::of(c_str)
  */
 const Fmt &operator<<(const Fmt &fmt, const void *arg) = delete;
 
@@ -130,7 +130,7 @@ inline const Fmt &operator<<(const Fmt &fmt, View<uint8_t> arg) {
   return fmt.write(reinterpret_cast<const char *>(arg.data()), arg.size());
 }
 
-template <size_t N> const Fmt &operator<<(const Fmt &fmt, const char (&addr)[N]) {
+template <size_t N> inline const Fmt &operator<<(const Fmt &fmt, const char (&addr)[N]) {
   return fmt.write(addr, N - 1);
 }
 

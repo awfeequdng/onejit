@@ -38,7 +38,7 @@ public:
   // thus they mail fail => we require users to explicitly invoke them.
   explicit Buffer(size_t n) noexcept : Base{}, good_{Base::init(n)} {
   }
-  explicit Buffer(const View<T> &other) noexcept : Base{}, good_{Base::dup(other)} {
+  explicit Buffer(View<T> other) noexcept : Base{}, good_{Base::dup(other)} {
   }
   Buffer(Buffer<T> &&other) noexcept : Base{}, good_{true} {
     swap(other);

@@ -121,7 +121,7 @@ protected:
   Span<T> &operator=(Span<T> &&) noexcept = default;
 
   // used *only* by method span(start, end)
-  constexpr explicit Span(const View<T> &other) noexcept : Base{other} {
+  constexpr explicit Span(View<T> other) noexcept : Base{other} {
   }
 
   using Base::data_;

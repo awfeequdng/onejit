@@ -29,20 +29,22 @@ Failed::Failed(String &&lhs, String &&rhs, const char *opstr, const char *lstr, 
 
 void ONESTL_NORETURN Failed::throw_check_failed() const {
   String buf;
-  Fmt{&buf} << "check failed at " << Chars{file_} << ':' << line_                        //
-            << "\n\tcheck: " << Chars{lstr_} << ' ' << Chars{op_} << ' ' << Chars{rstr_} //
-            << "\n\twhere  " << Chars{lstr_} << "\tis " << lhs_                          //
-            << "\n\tand    " << Chars{rstr_} << "\tis " << rhs_;
+  Fmt{&buf} << "check failed at " << Chars::of(file_) << ':' << line_ //
+            << "\n\tcheck: " << Chars::of(lstr_) << ' ' << Chars::of(op_) << ' '
+            << Chars::of(rstr_)                                     //
+            << "\n\twhere  " << Chars::of(lstr_) << "\tis " << lhs_ //
+            << "\n\tand    " << Chars::of(rstr_) << "\tis " << rhs_;
 
   throw std::runtime_error(buf.c_str());
 }
 
 void ONESTL_NORETURN Failed::throw_bounds_failed() const {
   String buf;
-  Fmt{&buf} << "container out-of-bounds access at " << Chars{file_} << ':' << line_      //
-            << "\n\tcheck: " << Chars{lstr_} << ' ' << Chars{op_} << ' ' << Chars{rstr_} //
-            << "\n\twhere  " << Chars{lstr_} << "\tis " << lhs_                          //
-            << "\n\tand    " << Chars{rstr_} << "\tis " << rhs_;
+  Fmt{&buf} << "container out-of-bounds access at " << Chars::of(file_) << ':' << line_ //
+            << "\n\tcheck: " << Chars::of(lstr_) << ' ' << Chars::of(op_) << ' '
+            << Chars::of(rstr_)                                     //
+            << "\n\twhere  " << Chars::of(lstr_) << "\tis " << lhs_ //
+            << "\n\tand    " << Chars::of(rstr_) << "\tis " << rhs_;
 
   throw std::out_of_range(buf.c_str());
 }

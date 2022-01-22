@@ -29,20 +29,20 @@ public:
   constexpr Chars() noexcept : Base{} {
   }
 
-  // construct Chars from '\0' terminated C string
-  explicit Chars(const T *c_str) noexcept;
-
   // construct Chars from literal string constant
   template <size_t N> constexpr Chars(const T (&addr)[N]) noexcept : Base{addr, N - 1} {
   }
 
   constexpr Chars(const T *addr, size_t n) noexcept : Base{addr, n} {
   }
-  constexpr Chars(const View<T> &other) noexcept : Base{other} {
+  constexpr Chars(View<T> other) noexcept : Base{other} {
   }
 
   constexpr Chars(const Chars &) noexcept = default;
   constexpr Chars(Chars &&) noexcept = default;
+
+  // construct Chars from '\0' terminated C string
+  static Chars of(const T *c_str) noexcept;
 
   // Chars is final: no subclass can change the ownership semantic of data_,
   // so exposing assignment operator is safe.
