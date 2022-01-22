@@ -21,6 +21,7 @@
 
 namespace onestl {
 
+// wrap a FILE* inside a Writer
 template <> Writer Writer::make<FILE *>(FILE *file) noexcept;
 
 } // namespace onestl

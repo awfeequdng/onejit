@@ -20,6 +20,7 @@
 
 namespace onestl {
 
+// wrap a String inside a Writer
 template <> Writer Writer::make<String *>(String *dst) noexcept;
 
 } // namespace onestl
