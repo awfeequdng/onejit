@@ -309,7 +309,7 @@ Expr Compiler::simplify(onejit::Mem expr, Mask mask, Expr opt_dst) noexcept {
 }
 
 Expr Compiler::simplify(Unary expr, Expr opt_dst) noexcept {
-  // avoid multiple memory side effects, they may happen in wrong order
+  // avoid multiple side effects, they may happen in wrong order
   Expr x = simplify(expr.x(), opt_dst.type() == MEM ? toVarOrConst : toAny);
   Kind kfrom = x.kind();
   Kind kto = expr.kind();
@@ -341,10 +341,10 @@ Expr Compiler::simplify(Unary expr, Expr opt_dst) noexcept {
 }
 
 Expr Compiler::simplify(Binary expr, Expr opt_dst) noexcept {
-  // avoid multiple memory side effects, they may happen in wrong order
+  // avoid multiple side effects, they may happen in wrong order
   Mask mask = (opt_dst.type() == MEM ? toVarOrConst : toAny);
   Expr x = simplify(expr.x(), mask);
-  // avoid multiple memory side effects, they may happen in wrong order
+  // avoid multiple side effects, they may happen in wrong order
   mask = mask & (x.type() == MEM ? toVarOrConst : toAny);
   Expr y = simplify(expr.y(), mask);
 

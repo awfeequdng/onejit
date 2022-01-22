@@ -60,6 +60,10 @@ public:
   constexpr Node() noexcept : header_{}, off_or_dir_{0}, code_{nullptr} {
   }
 
+  // rule-of-5: declare copy constructor because we declare assignment operator below
+  Node(Node &&other) noexcept = default;
+  Node(const Node &other) noexcept = default;
+
   constexpr Kind kind() const noexcept {
     return header_.kind();
   }
@@ -76,9 +80,12 @@ public:
     return header_;
   }
 
+  Node &operator=(Node &&other) &noexcept = default;
   Node &operator=(const Node &other) &noexcept = default;
+
   // forbid assignment to temporary Node: we want temporary_node = expr to fail at compile time.
   // Needed because Array<Node>>::operator[] returns a temporary Node by value, not a Node&
+  Node &operator=(Node &&other) &&noexcept = delete;
   Node &operator=(const Node &other) &&noexcept = delete;
 
   // return true if this Node is valid

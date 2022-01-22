@@ -154,7 +154,6 @@ OpStmt3 mir_arith(OpN op, Kind kind) noexcept {
 
 // convert OpStmt2 *_ASSIGN instruction to MIR_* OpStmt3 instruction
 OpStmt3 mir_arith(OpStmt2 op, Kind kind) noexcept {
-  enum mIndex2 : size_t { mInt32, mUint32, mInt64, mUint64, mFloat32, mFloat64, mFloat128 };
   static const OpStmt3 ops[][7] = {
       {MIR_ADDS, MIR_ADDS, MIR_ADD, MIR_ADD, MIR_FADD, MIR_DADD, MIR_LDADD},   // ADD_ASSIGN
       {MIR_SUBS, MIR_SUBS, MIR_SUB, MIR_SUB, MIR_FSUB, MIR_DSUB, MIR_LDSUB},   // SUB_ASSIGN
