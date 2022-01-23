@@ -10,7 +10,6 @@ AM_INIT_AUTOMAKE([1.14 foreign subdir-objects])
 
 # Checks for programs.
 AC_PROG_CXX
-AC_LANG(C++)
 AC_PROG_RANLIB
 AM_PROG_AR
 
@@ -21,11 +20,15 @@ PKG_CHECK_MODULES([CAPSTONE], [capstone >= 4.0.0],
                   AC_DEFINE([HAVE_LIBCAPSTONE], 1, [Define to 1 if you have the capstone library.]),
                   [true])
 
+AC_CHECK_LIB([mir], [MIR_new_module])
+
 # Checks for library functions.
 AC_CHECK_FUNCS([ffs ffsl])
 
+AC_LANG(C++)
+
 # Checks for header files.
-AC_CHECK_HEADERS([cerrno cstddef cstdint cstdio cstring strings.h])
+AC_CHECK_HEADERS([cerrno cstddef cstdint cstdio cstring strings.h mir.h mir-gen.h mir/mir.h mir/mir-gen.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
@@ -57,7 +60,20 @@ do
 done
 # CXXFLAGS="$initial_CXXFLAGS"
 
-
+HAVE_MIR=0
+if test "$ac_cv_lib_mir_MIR_new_module" = "yes"; then
+  if test "$ac_cv_header_mir_h" = "yes" -o "$ac_cv_header_mir_mir_h" = "yes"; then
+    if test "$ac_cv_header_mir_gen_h" = "yes" -o "$ac_cv_header_mir_mir_gen_h" = "yes"; then
+      HAVE_MIR=1
+    fi
+  fi
+fi
+if test "$HAVE_MIR" != 0; then
+  AC_DEFINE([HAVE_MIR], 1, [Define to 1 if you have the MIR header files and library.])
+  AC_MSG_NOTICE([Compiling with MIR jit native code generator.])
+else
+  AC_MSG_WARN([Compiling without MIR jit native code generator. Consider installing MIR from https://github.com/vnmakarov/mir])
+fi
 
 AC_SUBST([CAPSTONE_CFLAGS])
 AC_SUBST([CAPSTONE_LIBS])

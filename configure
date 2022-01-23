@@ -1585,10 +1585,10 @@ fi
 
 } # ac_fn_c_try_compile
 
-# ac_fn_cxx_try_link LINENO
-# -------------------------
+# ac_fn_c_try_link LINENO
+# -----------------------
 # Try to link conftest.$ac_ext, and return whether this succeeded.
-ac_fn_cxx_try_link ()
+ac_fn_c_try_link ()
 {
   as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
   rm -f conftest.$ac_objext conftest.beam conftest$ac_exeext
@@ -1608,7 +1608,7 @@ printf "%s\n" "$ac_try_echo"; } >&5
   fi
   printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; } && {
-	 test -z "$ac_cxx_werror_flag" ||
+	 test -z "$ac_c_werror_flag" ||
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext && {
 	 test "$cross_compiling" = yes ||
@@ -1630,12 +1630,12 @@ fi
   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
   as_fn_set_status $ac_retval
 
-} # ac_fn_cxx_try_link
+} # ac_fn_c_try_link
 
-# ac_fn_cxx_check_func LINENO FUNC VAR
-# ------------------------------------
+# ac_fn_c_check_func LINENO FUNC VAR
+# ----------------------------------
 # Tests whether FUNC exists, setting the cache variable VAR accordingly
-ac_fn_cxx_check_func ()
+ac_fn_c_check_func ()
 {
   as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
@@ -1678,7 +1678,7 @@ return $2 ();
   return 0;
 }
 _ACEOF
-if ac_fn_cxx_try_link "$LINENO"
+if ac_fn_c_try_link "$LINENO"
 then :
   eval "$3=yes"
 else $as_nop
@@ -1692,7 +1692,7 @@ eval ac_res=\$$3
 printf "%s\n" "$ac_res" >&6; }
   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
 
-} # ac_fn_cxx_check_func
+} # ac_fn_c_check_func
 
 # ac_fn_cxx_check_header_compile LINENO HEADER VAR INCLUDES
 # ---------------------------------------------------------
@@ -4167,12 +4167,6 @@ else
 fi
 
 
-ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
 if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}ranlib", so it can be a program name with args.
 set dummy ${ac_tool_prefix}ranlib; ac_word=$2
@@ -5363,11 +5357,11 @@ then :
 
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-   ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+   ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $am_cv_ar_interface" >&5
@@ -5598,15 +5592,58 @@ printf "%s\n" "#define HAVE_LIBCAPSTONE 1" >>confdefs.h
 
 fi
 
-# Checks for library functions.
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for MIR_new_module in -lmir" >&5
+printf %s "checking for MIR_new_module in -lmir... " >&6; }
+if test ${ac_cv_lib_mir_MIR_new_module+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmir  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
 
-ac_fn_cxx_check_func "$LINENO" "ffs" "ac_cv_func_ffs"
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+char MIR_new_module ();
+int
+main (void)
+{
+return MIR_new_module ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ac_cv_lib_mir_MIR_new_module=yes
+else $as_nop
+  ac_cv_lib_mir_MIR_new_module=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mir_MIR_new_module" >&5
+printf "%s\n" "$ac_cv_lib_mir_MIR_new_module" >&6; }
+if test "x$ac_cv_lib_mir_MIR_new_module" = xyes
+then :
+  printf "%s\n" "#define HAVE_LIBMIR 1" >>confdefs.h
+
+  LIBS="-lmir $LIBS"
+
+fi
+
+
+# Checks for library functions.
+ac_fn_c_check_func "$LINENO" "ffs" "ac_cv_func_ffs"
 if test "x$ac_cv_func_ffs" = xyes
 then :
   printf "%s\n" "#define HAVE_FFS 1" >>confdefs.h
 
 fi
-ac_fn_cxx_check_func "$LINENO" "ffsl" "ac_cv_func_ffsl"
+ac_fn_c_check_func "$LINENO" "ffsl" "ac_cv_func_ffsl"
 if test "x$ac_cv_func_ffsl" = xyes
 then :
   printf "%s\n" "#define HAVE_FFSL 1" >>confdefs.h
@@ -5614,7 +5651,15 @@ then :
 fi
 
 
+ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
 # Checks for header files.
+
 ac_header= ac_cache=
 for ac_item in $ac_header_cxx_list
 do
@@ -5680,6 +5725,30 @@ then :
   printf "%s\n" "#define HAVE_STRINGS_H 1" >>confdefs.h
 
 fi
+ac_fn_cxx_check_header_compile "$LINENO" "mir.h" "ac_cv_header_mir_h" "$ac_includes_default"
+if test "x$ac_cv_header_mir_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_MIR_H 1" >>confdefs.h
+
+fi
+ac_fn_cxx_check_header_compile "$LINENO" "mir-gen.h" "ac_cv_header_mir_gen_h" "$ac_includes_default"
+if test "x$ac_cv_header_mir_gen_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_MIR_GEN_H 1" >>confdefs.h
+
+fi
+ac_fn_cxx_check_header_compile "$LINENO" "mir/mir.h" "ac_cv_header_mir_mir_h" "$ac_includes_default"
+if test "x$ac_cv_header_mir_mir_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_MIR_MIR_H 1" >>confdefs.h
+
+fi
+ac_fn_cxx_check_header_compile "$LINENO" "mir/mir-gen.h" "ac_cv_header_mir_mir_gen_h" "$ac_includes_default"
+if test "x$ac_cv_header_mir_mir_gen_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_MIR_MIR_GEN_H 1" >>confdefs.h
+
+fi
 
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -5738,7 +5807,24 @@ printf "%s\n" "$ac_res" >&6; }
 done
 # CXXFLAGS="$initial_CXXFLAGS"
 
+HAVE_MIR=0
+if test "$ac_cv_lib_mir_MIR_new_module" = "yes"; then
+  if test "$ac_cv_header_mir_h" = "yes" -o "$ac_cv_header_mir_mir_h" = "yes"; then
+    if test "$ac_cv_header_mir_gen_h" = "yes" -o "$ac_cv_header_mir_mir_gen_h" = "yes"; then
+      HAVE_MIR=1
+    fi
+  fi
+fi
+if test "$HAVE_MIR" != 0; then
 
+printf "%s\n" "#define HAVE_MIR 1" >>confdefs.h
+
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Compiling with MIR jit native code generator." >&5
+printf "%s\n" "$as_me: Compiling with MIR jit native code generator." >&6;}
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Compiling without MIR jit native code generator. Consider installing MIR from https://github.com/vnmakarov/mir" >&5
+printf "%s\n" "$as_me: WARNING: Compiling without MIR jit native code generator. Consider installing MIR from https://github.com/vnmakarov/mir" >&2;}
+fi
 
 
 
