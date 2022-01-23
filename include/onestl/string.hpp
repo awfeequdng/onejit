@@ -34,7 +34,7 @@ public:
   String(const T *addr, size_t n) noexcept : Base{addr, n} {
   }
   // also catches Span<T> and Chars
-  explicit String(const View<T> &other) noexcept : Base{other} {
+  explicit String(View<T> other) noexcept : Base{other} {
   }
   explicit String(const String &other) noexcept : Base{other} {
   }

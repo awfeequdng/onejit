@@ -20,8 +20,8 @@
 namespace onestl {
 
 // construct Chars from '\0' terminated C string
-Chars::Chars(const T *c_str) noexcept //
-    : Base{c_str, c_str ? std::strlen(c_str) : 0} {
+Chars Chars::of(const T *c_str) noexcept {
+  return Chars{c_str, c_str ? std::strlen(c_str) : 0};
 }
 
 } // namespace onestl

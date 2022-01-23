@@ -4,8 +4,8 @@
         "*.S": "c",
         "*.cu": "cpp",
         "*.forth": "forth",
-        "*.l": "c",
         "*.lua": "lua",
+        "*.l": "c",
         "cctype": "cpp",
         "clocale": "cpp",
         "cmath": "cpp",
@@ -89,7 +89,8 @@
         "list": "cpp",
         "__debug": "cpp",
         "__mutex_base": "cpp",
-        "numbers": "cpp"
+        "numbers": "cpp",
+        "semaphore": "cpp"
     },
     "files.watcherExclude": {
         "**/.git/**": true
