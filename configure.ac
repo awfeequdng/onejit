@@ -20,7 +20,8 @@ PKG_CHECK_MODULES([CAPSTONE], [capstone >= 4.0.0],
                   AC_DEFINE([HAVE_LIBCAPSTONE], 1, [Define to 1 if you have the capstone library.]),
                   [true])
 
-AC_CHECK_LIB([mir], [MIR_new_module])
+# Check for MIR library. Do not prepend -lmir to LIBS
+AC_CHECK_LIB([mir], [MIR_new_module], [AC_DEFINE([HAVE_LIBMIR])])
 
 # Checks for library functions.
 AC_CHECK_FUNCS([ffs ffsl])
@@ -70,6 +71,7 @@ if test "$ac_cv_lib_mir_MIR_new_module" = "yes"; then
 fi
 if test "$HAVE_MIR" != 0; then
   AC_DEFINE([HAVE_MIR], 1, [Define to 1 if you have the MIR header files and library.])
+  AC_SUBST([MIR_LIBS], [-lmir])
   AC_MSG_NOTICE([Compiling with MIR jit native code generator.])
 else
   AC_MSG_WARN([Compiling without MIR jit native code generator. Consider installing MIR from https://github.com/vnmakarov/mir])

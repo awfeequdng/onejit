@@ -106,7 +106,7 @@ am_test_jit_OBJECTS = test_disasm.$(OBJEXT) test_expr.$(OBJEXT) \
 test_jit_OBJECTS = $(am_test_jit_OBJECTS)
 am__DEPENDENCIES_1 =
 test_jit_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -249,6 +249,7 @@ LIBONESTL = @LIBONESTL@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
+MIR_LIBS = @MIR_LIBS@
 MKDIR_P = @MKDIR_P@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
@@ -321,7 +322,7 @@ test_jit_SOURCES = test_disasm.cpp test_expr.cpp test_eval.cpp test_func.cpp tes
 
 # test_jit_CXXFLAGS    =
 EXTRA_test_jit_DEPENDENCIES = $(LIBONEJIT) $(LIBONESTL)
-test_jit_LDADD = $(LIBONEJIT) $(LIBONESTL) $(CAPSTONE_LIBS)
+test_jit_LDADD = $(LIBONEJIT) $(LIBONESTL) $(CAPSTONE_LIBS) $(MIR_LIBS)
 all: all-recursive
 
 .SUFFIXES:

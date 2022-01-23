@@ -654,6 +654,7 @@ LTLIBOBJS
 LIBOBJS
 LIBONESTL
 LIBONEJIT
+MIR_LIBS
 CAPSTONE_LIBS
 CAPSTONE_CFLAGS
 PKG_CONFIG_LIBDIR
@@ -5592,6 +5593,7 @@ printf "%s\n" "#define HAVE_LIBCAPSTONE 1" >>confdefs.h
 
 fi
 
+# Check for MIR library. Do not prepend -lmir to LIBS
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for MIR_new_module in -lmir" >&5
 printf %s "checking for MIR_new_module in -lmir... " >&6; }
 if test ${ac_cv_lib_mir_MIR_new_module+y}
@@ -5630,8 +5632,6 @@ printf "%s\n" "$ac_cv_lib_mir_MIR_new_module" >&6; }
 if test "x$ac_cv_lib_mir_MIR_new_module" = xyes
 then :
   printf "%s\n" "#define HAVE_LIBMIR 1" >>confdefs.h
-
-  LIBS="-lmir $LIBS"
 
 fi
 
@@ -5818,6 +5818,8 @@ fi
 if test "$HAVE_MIR" != 0; then
 
 printf "%s\n" "#define HAVE_MIR 1" >>confdefs.h
+
+  MIR_LIBS=-lmir
 
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Compiling with MIR jit native code generator." >&5
 printf "%s\n" "$as_me: Compiling with MIR jit native code generator." >&6;}

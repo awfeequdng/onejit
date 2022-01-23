@@ -11,5 +11,5 @@ test_jit_SOURCES       = test_disasm.cpp test_expr.cpp test_eval.cpp test_func.c
 # test_jit_CXXFLAGS    =
 
 EXTRA_test_jit_DEPENDENCIES = $(LIBONEJIT) $(LIBONESTL)
-test_jit_LDADD              = $(LIBONEJIT) $(LIBONESTL) $(CAPSTONE_LIBS)
+test_jit_LDADD              = $(LIBONEJIT) $(LIBONESTL) $(CAPSTONE_LIBS) $(MIR_LIBS)
 # test_jit_LDFLAGS          = -export-dynamic $(LDFLAGS_BIN_EXPORT_DYNAMIC)

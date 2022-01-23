@@ -14,14 +14,40 @@
  */
 
 #include <onejit/mir/assembler.hpp>
+#include <onejit_config.h>
+
+#if defined(HAVE_MIR_H)
+#include <mir.h>
+#elif defined(HAVE_MIR_MIR_H)
+#include <mir/mir.h>
+#endif
+
+#if defined(HAVE_MIR_GEN_H)
+#include <mir-gen.h>
+#elif defined(HAVE_MIR_MIR_GEN_H)
+#include <mir/mir-gen.h>
+#endif
 
 namespace onejit {
 namespace mir {
 
-Assembler::Assembler() : error_{}, good_{true} {
+Assembler::Assembler() : ctx_{nullptr}, error_{}, good_{true} {
+#ifdef HAVE_MIR
+  ctx_ = MIR_init();
+  if (!ctx_) {
+    error(Node{}, "MIR_init() failed");
+  }
+#else
+  error(Node{}, "MIR support not compiled");
+#endif
 }
 
 Assembler::~Assembler() noexcept {
+#ifdef HAVE_MIR
+  if (ctx_) {
+    MIR_finish(ctx_);
+  }
+#endif
 }
 
 Assembler &Assembler::error(Node where, Chars msg) noexcept {

@@ -22,6 +22,9 @@
 #include <onestl/chars.hpp>
 #include <onestl/crange.hpp>
 
+struct MIR_context;
+typedef struct MIR_context *MIR_context_t;
+
 namespace onejit {
 namespace mir {
 
@@ -47,6 +50,7 @@ public:
   Assembler &out_of_memory(Node where) noexcept;
 
 private:
+  MIR_context_t ctx_;
   Array<Error> error_;
   bool good_;
 
