@@ -30,15 +30,6 @@ type Node interface {
 	WriteTo(out io.StringWriter)
 }
 
-var strNil = []byte("nil")
-
-func NodeString(node Node) string {
-	if node == nil {
-		return "nil"
-	}
-	return node.String()
-}
-
 func choose2(i int, a Node, b Node) (ret Node) {
 	switch i {
 	case 0:
@@ -81,8 +72,9 @@ func choose4(i int, a Node, b Node, c Node, d Node) (ret Node) {
 	return ret
 }
 
+// always panics
 func outOfRange() Node {
-	return *(*Node)(nil)
+	return ([]Node)(nil)[0]
 }
 
 func writeListTo(out io.StringWriter, list Node) {

@@ -31,7 +31,7 @@ func (d *Dir) Len() int {
 }
 
 func (d *Dir) At(i int) (child Node) {
-	// cannot use child = d.Files[i] here: assigning a nil pointer to an interface
+	// cannot use child = d.Files[i] here: assigning a concrete nil pointer to an interface
 	// creates a "half-nil" interface
 	if file := d.Files[i]; file != nil {
 		child = file
@@ -47,7 +47,7 @@ func (d *Dir) End() token.Pos {
 	}
 }
 
-// return package name
+// PkgName returns package name
 func (d *Dir) PkgName() string {
 	if len(d.Files) == 0 {
 		return strings.Basename(d.PkgPath())
@@ -55,7 +55,7 @@ func (d *Dir) PkgName() string {
 	return d.Files[0].PkgName()
 }
 
-// return package path
+// PkgPath returns package path
 func (d *Dir) PkgPath() string {
 	if d == nil {
 		return ""
