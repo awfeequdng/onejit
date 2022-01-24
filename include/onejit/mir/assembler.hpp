@@ -23,7 +23,11 @@
 #include <onestl/crange.hpp>
 
 struct MIR_context;
+struct MIR_item;
+struct MIR_module;
 typedef struct MIR_context *MIR_context_t;
+typedef struct MIR_item *MIR_item_t;
+typedef struct MIR_module *MIR_module_t;
 
 namespace onejit {
 namespace mir {
@@ -35,8 +39,8 @@ public:
 
   ~Assembler() noexcept;
 
-  // assemble a MIR instruction.
-  Assembler &add(const Node &node) noexcept;
+  // assemble a function. must be already compiled to MIR instructions.
+  Assembler &add(const Func &func) noexcept;
 
   // return current assembler errors
   constexpr CRange<Error> errors() const noexcept {
@@ -50,7 +54,14 @@ public:
   Assembler &out_of_memory(Node where) noexcept;
 
 private:
-  MIR_context_t ctx_;
+  // assemble a MIR instruction.
+  Assembler &add(Node node) noexcept;
+
+private:
+  MIR_context_t mctx_;
+  MIR_module_t mmod_;
+  MIR_item_t mfunc_;
+  const Func *func_;
   Array<Error> error_;
   bool good_;
 

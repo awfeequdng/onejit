@@ -13,6 +13,7 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/func.hpp>
 #include <onejit/mir/assembler.hpp>
 #include <onejit_config.h>
 
@@ -31,10 +32,14 @@
 namespace onejit {
 namespace mir {
 
-Assembler::Assembler() : ctx_{nullptr}, error_{}, good_{true} {
+Assembler::Assembler() : mctx_{}, mmod_{}, mfunc_{}, func_{}, error_{}, good_{true} {
 #ifdef HAVE_MIR
-  ctx_ = MIR_init();
-  if (!ctx_) {
+  mctx_ = MIR_init();
+  if (mctx_) {
+    MIR_gen_init(mctx_, 1 /*threads*/);
+    MIR_gen_set_optimize_level(mctx_, 0 /*thread*/, 3 /*-O3*/);
+    mmod_ = MIR_new_module(mctx_, "m");
+  } else {
     error(Node{}, "MIR_init() failed");
   }
 #else
@@ -44,10 +49,54 @@ Assembler::Assembler() : ctx_{nullptr}, error_{}, good_{true} {
 
 Assembler::~Assembler() noexcept {
 #ifdef HAVE_MIR
-  if (ctx_) {
-    MIR_finish(ctx_);
+  if (mctx_) {
+    MIR_finish(mctx_);
   }
 #endif
+}
+
+static MIR_type_t tomir(Kind kind) noexcept {
+  static const MIR_type_t mtypes[] = {
+      MIR_T_UNDEF, MIR_T_UNDEF, MIR_T_U8,             // eBad, eVoid, eBool
+      MIR_T_I8,    MIR_T_I16,   MIR_T_I32, MIR_T_I64, // eInt*
+      MIR_T_U8,    MIR_T_U16,   MIR_T_U32, MIR_T_U64, // eUint*
+      MIR_T_UNDEF, MIR_T_F,     MIR_T_D,   MIR_T_LD,  // eFloat*
+      MIR_T_U64,                                      // ePtr
+  };
+  return mtypes[kind.nosimd().val()];
+}
+
+Assembler &Assembler::add(const Func &func) noexcept {
+  func_ = &func;
+#ifdef HAVE_MIR
+  Vars params = func.params();
+  Vars results = func.results();
+  size_t param_n = params.size();
+  size_t result_n = results.size();
+  Array<MIR_var_t> mparams(param_n);
+  Array<MIR_type_t> mresults(result_n);
+
+  for (size_t i = 0; i < param_n; i++) {
+    // mparams.set(i, ); // TODO: fill
+  }
+  for (size_t i = 0; i < result_n; i++) {
+    mresults.set(i, tomir(results[i].kind()));
+  }
+
+  String name(func.name().chars()); // must be '\0' terminated
+  mfunc_ = MIR_new_func_arr(mctx_, name.c_str(), mresults.size(), mresults.data(), //
+                            mparams.size(), mparams.data());
+#endif
+  return *this;
+}
+
+Assembler &Assembler::add(Node node) noexcept {
+#ifdef HAVE_MIR
+  (void)node;
+#else
+  (void)node;
+#endif
+  return *this;
 }
 
 Assembler &Assembler::error(Node where, Chars msg) noexcept {
