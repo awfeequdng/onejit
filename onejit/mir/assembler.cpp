@@ -55,6 +55,7 @@ Assembler::~Assembler() noexcept {
 #endif
 }
 
+#ifdef HAVE_MIR
 static MIR_type_t tomir(Kind kind) noexcept {
   static const MIR_type_t mtypes[] = {
       MIR_T_UNDEF, MIR_T_UNDEF, MIR_T_U8,             // eBad, eVoid, eBool
@@ -65,6 +66,7 @@ static MIR_type_t tomir(Kind kind) noexcept {
   };
   return mtypes[kind.nosimd().val()];
 }
+#endif // HAVE_MIR
 
 Assembler &Assembler::add(const Func &func) noexcept {
   func_ = &func;
@@ -86,6 +88,10 @@ Assembler &Assembler::add(const Func &func) noexcept {
   String name(func.name().chars()); // must be '\0' terminated
   mfunc_ = MIR_new_func_arr(mctx_, name.c_str(), mresults.size(), mresults.data(), //
                             mparams.size(), mparams.data());
+#else
+  (void)mctx_;
+  (void)mmod_;
+  (void)mfunc_;
 #endif
   return *this;
 }
