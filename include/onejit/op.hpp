@@ -73,28 +73,28 @@ enum OpN : uint16_t {
   MIR_RETS, // multiple return values of a function call
 };
 
-constexpr Op1 operator+(Op1 op, int delta) noexcept {
+constexpr inline Op1 operator+(Op1 op, int delta) noexcept {
   return Op1(int(op) + delta);
 }
-constexpr Op1 operator-(Op1 op, int delta) noexcept {
+constexpr inline Op1 operator-(Op1 op, int delta) noexcept {
   return Op1(int(op) - delta);
 }
 
-constexpr Op2 operator+(Op2 op, int delta) noexcept {
+constexpr inline Op2 operator+(Op2 op, int delta) noexcept {
   return Op2(int(op) + delta);
 }
-constexpr Op2 operator-(Op2 op, int delta) noexcept {
+constexpr inline Op2 operator-(Op2 op, int delta) noexcept {
   return Op2(int(op) - delta);
 }
 
-constexpr OpN operator+(OpN op, int delta) noexcept {
+constexpr inline OpN operator+(OpN op, int delta) noexcept {
   return OpN(int(op) + delta);
 }
-constexpr OpN operator-(OpN op, int delta) noexcept {
+constexpr inline OpN operator-(OpN op, int delta) noexcept {
   return OpN(int(op) - delta);
 }
 
-constexpr bool is_comparison(Op2 op) noexcept {
+constexpr inline bool is_comparison(Op2 op) noexcept {
   return op >= LSS && op <= GEQ;
 }
 // change < to >, <= to >=, > to < and >= to <=
@@ -102,16 +102,16 @@ Op2 swap_comparison(Op2 op) noexcept;
 // change < to >=, <= to >, != to ==, == to !=, > to <= and >= to <
 Op2 not_comparison(Op2 op) noexcept;
 
-constexpr bool is_arithmetic(OpN op) noexcept {
+constexpr inline bool is_arithmetic(OpN op) noexcept {
   return op >= ADD && op <= COMMA;
 }
-constexpr bool is_associative(OpN op) noexcept {
+constexpr inline bool is_associative(OpN op) noexcept {
   return op >= ADD && op <= COMMA;
 }
-constexpr bool is_commutative(OpN op) noexcept {
+constexpr inline bool is_commutative(OpN op) noexcept {
   return op >= ADD && op <= MIN;
 }
-constexpr bool is_bitwise(OpN op) noexcept {
+constexpr inline bool is_bitwise(OpN op) noexcept {
   return op >= AND && op <= XOR;
 }
 

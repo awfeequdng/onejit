@@ -837,7 +837,7 @@ void Test::func_max() {
   /**
    * jit equivalent of C++ source code
    *
-   * bool fmax(double a, double b, double c) {
+   * double fmax(double a, double b, double c) {
    *   return std::max({a+b, b+c, a+c});
    * }
    */

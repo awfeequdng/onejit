@@ -169,7 +169,7 @@ Node Node::create_indirect_from_ranges(Func &func, Header header, ChildRanges ch
   return Node{};
 }
 
-constexpr bool is_allowed(Type t, uint16_t op, Allow allow_mask) noexcept {
+constexpr inline bool is_allowed(Type t, uint16_t op, Allow allow_mask) noexcept {
   return ((allow_mask & AllowDivision) || t != BINARY || Op2(op) < QUO || Op2(op) > REM) &&
          ((allow_mask & AllowMemAccess) || t != MEM) &&
          ((allow_mask & AllowCall) || t != TUPLE || OpN(op) != CALL);

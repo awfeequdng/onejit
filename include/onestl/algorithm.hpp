@@ -19,11 +19,11 @@
 
 namespace onestl {
 
-constexpr size_t max2(size_t a, size_t b) noexcept {
+constexpr inline size_t max2(size_t a, size_t b) noexcept {
   return b < a ? a : b;
 }
 
-constexpr size_t min2(size_t a, size_t b) noexcept {
+constexpr inline size_t min2(size_t a, size_t b) noexcept {
   return a < b ? a : b;
 }
 

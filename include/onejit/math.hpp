@@ -35,18 +35,18 @@ constexpr inline uint16_t sub_uint16(uint64_t a, uint64_t b) noexcept {
   return a >= b ? saturate_uint16(a - b) : 0;
 }
 
-// add uint32_t a + b with saturation
-constexpr inline uint32_t add_uint32(uint32_t a, uint32_t b) noexcept {
-  return saturate_uint32(uint64_t(a) + uint64_t(b));
+// add a + b with saturation to uint32_t
+constexpr inline uint32_t add_uint32(uint64_t a, uint64_t b) noexcept {
+  return saturate_uint32(a + b);
 }
 
-// multiply uint32_t a * b with saturation
-constexpr inline uint32_t mul_uint32(uint32_t a, uint32_t b) noexcept {
-  return saturate_uint32(uint64_t(a) * uint64_t(b));
+// multiply a * b with saturation to uint32_t
+constexpr inline uint32_t mul_uint32(uint64_t a, uint64_t b) noexcept {
+  return saturate_uint32(a * b);
 }
 
 // subtract a - b with saturation to uint32_t
-constexpr inline uint16_t sub_uint32(uint64_t a, uint64_t b) noexcept {
+constexpr inline uint32_t sub_uint32(uint64_t a, uint64_t b) noexcept {
   return a >= b ? saturate_uint32(a - b) : 0;
 }
 

@@ -216,14 +216,14 @@ enum OpStmt2 : uint16_t {
 #undef ONEJIT_X
 };
 
-constexpr OpStmt2 operator+(OpStmt2 op, int delta) noexcept {
+constexpr inline OpStmt2 operator+(OpStmt2 op, int delta) noexcept {
   return OpStmt2(int(op) + delta);
 }
-constexpr OpStmt2 operator-(OpStmt2 op, int delta) noexcept {
+constexpr inline OpStmt2 operator-(OpStmt2 op, int delta) noexcept {
   return OpStmt2(int(op) - delta);
 }
 
-constexpr bool is_assign(OpStmt2 op) noexcept {
+constexpr inline bool is_assign(OpStmt2 op) noexcept {
   return op >= ADD_ASSIGN && op <= ASSIGN;
 }
 

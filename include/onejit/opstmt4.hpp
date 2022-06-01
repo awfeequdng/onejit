@@ -31,10 +31,10 @@ enum OpStmt4 : uint16_t {
 
 };
 
-constexpr OpStmt4 operator+(OpStmt4 op, int delta) noexcept {
+constexpr inline OpStmt4 operator+(OpStmt4 op, int delta) noexcept {
   return OpStmt4(int(op) + delta);
 }
-constexpr OpStmt4 operator-(OpStmt4 op, int delta) noexcept {
+constexpr inline OpStmt4 operator-(OpStmt4 op, int delta) noexcept {
   return OpStmt4(int(op) - delta);
 }
 

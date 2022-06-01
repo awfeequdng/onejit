@@ -261,13 +261,13 @@ inline Value operator>=(Value a, Value b) noexcept {
 // return true if Values a and b have the same kind and bits
 // differs from operator== when kind is Bad, or floating point +/- 0,
 // or floating point not-a-number
-constexpr bool identical(Value a, Value b) noexcept {
+constexpr inline bool identical(Value a, Value b) noexcept {
   return a.kind() == b.kind() && a.bits() == b.bits();
 }
 
 // if a and b are boolean, return their &&
 // otherwise return Value{}
-constexpr Value and_(Value a, Value b) noexcept {
+constexpr inline Value and_(Value a, Value b) noexcept {
   return (a.kind() == Bool && b.kind() == Bool) //
              ? Value{a.boolean() && b.boolean()}
              : Value{};
@@ -275,7 +275,7 @@ constexpr Value and_(Value a, Value b) noexcept {
 
 // if a and b are boolean, return their &&
 // otherwise return Value{}
-constexpr Value or_(Value a, Value b) noexcept {
+constexpr inline Value or_(Value a, Value b) noexcept {
   return (a.kind() == Bool && b.kind() == Bool) //
              ? Value{a.boolean() || b.boolean()}
              : Value{};
@@ -326,7 +326,7 @@ inline Value Value::operator!() const noexcept {
 
 Value operator~(Value a) noexcept;
 Value operator-(Value a) noexcept;
-constexpr Value operator+(Value a) noexcept {
+constexpr inline Value operator+(Value a) noexcept {
   return a;
 }
 

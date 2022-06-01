@@ -59,7 +59,7 @@ enum OpStmt1 : uint16_t {
       x(JS, js)        /* jump if sign */                                                          \
       x(JMP, jmp)      /* unconditional jump. argument is relative offset, register or memory */   \
       x(NEG, neg)      /* negate (i.e. -x) register or memory */                                   \
-      x(NOT, not)      /* invert (i.e. ^x) register or memory */                                   \
+      x(NOT, not )     /* invert (i.e. ^x) register or memory */                                   \
       x(POP, pop)      /* pop 2 or 8 bytes from stack into register or memory */                   \
       x(PUSH, push)    /* push 2 or 8 bytes to stack from register or memory */                    \
       x(RDTSC, rdtsc)  /* read timestamp counter into %rdx:%rax */                                 \
@@ -101,10 +101,10 @@ enum OpStmt1 : uint16_t {
 
 };
 
-constexpr OpStmt1 operator+(OpStmt1 op, int delta) noexcept {
+constexpr inline OpStmt1 operator+(OpStmt1 op, int delta) noexcept {
   return OpStmt1(int(op) + delta);
 }
-constexpr OpStmt1 operator-(OpStmt1 op, int delta) noexcept {
+constexpr inline OpStmt1 operator-(OpStmt1 op, int delta) noexcept {
   return OpStmt1(int(op) - delta);
 }
 

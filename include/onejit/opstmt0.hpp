@@ -71,10 +71,10 @@ enum OpStmt0 : uint16_t {
 #undef ONEJIT_X
 };
 
-constexpr OpStmt0 operator+(OpStmt0 op, int delta) noexcept {
+constexpr inline OpStmt0 operator+(OpStmt0 op, int delta) noexcept {
   return OpStmt0(int(op) + delta);
 }
-constexpr OpStmt0 operator-(OpStmt0 op, int delta) noexcept {
+constexpr inline OpStmt0 operator-(OpStmt0 op, int delta) noexcept {
   return OpStmt0(int(op) - delta);
 }
 
