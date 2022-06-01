@@ -476,7 +476,7 @@ Node Compiler::compile(JumpIf jump_if, Flags) noexcept {
     if (Const cy = y.is<Const>()) {
       // test is a constant,
       // optimize to unconditional jump
-      Value v = eval_binary(op, cx.val(), cy.val());
+      Value v = eval_binary_op(op, cx.val(), cy.val());
       if (v.is_valid()) {
         if (negate ? !v : v) {
           add(Goto{*func_, to});

@@ -119,7 +119,7 @@ Node Optimizer::try_optimize(Unary expr, const Range<Node> &children) noexcept {
     if ((flags_ & OptFoldConstant) && x.type() == CONST) {
       Value v0 = x.is<Const>().val();
       if (v0.is_valid()) {
-        Value ve = eval_unary(kind, op, v0);
+        Value ve = eval_unary_op(kind, op, v0);
         if (ve.is_valid()) {
           return Const{*func_, ve};
         }

@@ -47,7 +47,7 @@ void Test::eval_expr_kind(Kind kind) {
   Value expected = Value{kind.is_unsigned() ? 6 : 2}.cast(kind);
 
   TEST(is_const(expr), ==, true);
-  Value result = eval(expr);
+  Value result = eval_const(expr);
   TEST(result, ==, expected);
 
   // run eval() on the expression 3 < 4
@@ -55,7 +55,7 @@ void Test::eval_expr_kind(Kind kind) {
   expected = Value{true};
 
   TEST(is_const(expr), ==, true);
-  result = eval(expr);
+  result = eval_const(expr);
   TEST(result, ==, expected);
 }
 

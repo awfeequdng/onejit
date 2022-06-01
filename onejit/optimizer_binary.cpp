@@ -35,7 +35,7 @@ Node Optimizer::try_optimize(Binary expr, const Range<Node> &children) noexcept 
       Value v0 = x.is<Const>().val();
       Value v1 = y.is<Const>().val();
       if (v0.is_valid() && v1.is_valid()) {
-        Value ve = eval_binary(op, v0, v1);
+        Value ve = eval_binary_op(op, v0, v1);
         if (ve.is_valid()) {
           return Const{*func_, ve};
         }

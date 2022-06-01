@@ -58,18 +58,18 @@ bool is_const(Expr expr) noexcept {
   return false;
 }
 
-Value eval(Expr expr) noexcept {
+Value eval_const(Expr expr) noexcept {
   switch (expr.type()) {
   case UNARY: {
     Unary ue = expr.is<Unary>();
-    Value x = eval(ue.x());
-    return eval_unary(ue.kind(), ue.op(), x);
+    Value x = eval_const(ue.x());
+    return eval_unary_op(ue.kind(), ue.op(), x);
   }
   case BINARY: {
     Binary be = expr.is<Binary>();
-    Value x = eval(be.x());
-    Value y = eval(be.y());
-    return eval_binary(be.op(), x, y);
+    Value x = eval_const(be.x());
+    Value y = eval_const(be.y());
+    return eval_binary_op(be.op(), x, y);
   }
   case TUPLE: {
     Tuple te = expr.is<Tuple>();
@@ -78,8 +78,8 @@ Value eval(Expr expr) noexcept {
     }
     Value v = Value::identity(te.kind(), te.op());
     for (size_t i = 0, n = te.children(); v.is_valid() && i < n; i++) {
-      Value vi = eval(te.arg(i));
-      v = eval_tuple(te.kind(), te.op(), {v, vi});
+      Value vi = eval_const(te.arg(i));
+      v = eval_tuple_op(te.kind(), te.op(), {v, vi});
     }
     return v;
   }
@@ -91,7 +91,7 @@ Value eval(Expr expr) noexcept {
   return Value{};
 }
 
-Value eval_unary(Kind kind, Op1 op, Value x) noexcept {
+Value eval_unary_op(Kind kind, Op1 op, Value x) noexcept {
   switch (op) {
   case XOR1:
     x = ~x;
@@ -115,7 +115,7 @@ Value eval_unary(Kind kind, Op1 op, Value x) noexcept {
   return x;
 }
 
-Value eval_binary(Op2 op, Value x, Value y) noexcept {
+Value eval_binary_op(Op2 op, Value x, Value y) noexcept {
   switch (op) {
   case SUB:
     x = x - y;
@@ -163,11 +163,11 @@ Value eval_binary(Op2 op, Value x, Value y) noexcept {
   return x;
 }
 
-Value eval_tuple(Kind kind, OpN op, std::initializer_list<Value> vs) noexcept {
-  return eval_tuple(kind, op, Values{vs.begin(), vs.size()});
+Value eval_tuple_op(Kind kind, OpN op, std::initializer_list<Value> vs) noexcept {
+  return eval_tuple_op(kind, op, Values{vs.begin(), vs.size()});
 }
 
-Value eval_tuple(Kind kind, OpN op, Values vs) noexcept {
+Value eval_tuple_op(Kind kind, OpN op, Values vs) noexcept {
   Value x = Value::identity(kind, op);
   switch (op) {
   case ADD:

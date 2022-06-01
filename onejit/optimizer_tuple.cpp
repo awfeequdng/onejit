@@ -88,7 +88,7 @@ Expr Optimizer::partial_eval_tuple(Tuple expr, Range<Node> &noderange) noexcept 
     if (flags_ & OptFoldConstant) {
       for (; n != 0; --n) {
         if (Const c = children[n - 1].is<Const>()) {
-          v = eval_tuple(kind, op, {c.val(), v});
+          v = eval_tuple_op(kind, op, {c.val(), v});
         } else {
           break;
         }
