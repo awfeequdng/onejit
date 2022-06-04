@@ -40,6 +40,7 @@ class Func : private FuncHeader {
   friend class ir::Var;
   friend class x64::Compiler;
   friend class mir::Compiler;
+  friend class mir::Assembler;
 
 public:
   /**
@@ -73,32 +74,38 @@ public:
   using Base::param_n;
   using Base::result_n;
 
-  // get FuncHeader
+  /// @return FuncHeader of this function
   constexpr const FuncHeader &fheader() const noexcept {
     return *this;
   }
 
-  // get function address. the returned label may be not resolved yet.
+  /// @return function address. the returned label may be not resolved yet.
   constexpr Label address() const noexcept {
     return labels_[0];
   }
 
-  /// \return i-th function parameter
+  /// @return all local labels defined by this function.
+  /// labels_[0] is the function address
+  constexpr Labels labels() const noexcept {
+    return labels_;
+  }
+
+  /// @return i-th function parameter
   constexpr Var param(uint16_t i) const noexcept {
     return params()[i];
   }
 
-  /// \return i-th function result
+  /// @return i-th function result
   constexpr Var result(uint16_t i) const noexcept {
     return results()[i];
   }
 
-  /// \return function parameters
+  /// @return function parameters
   constexpr Vars params() const noexcept {
     return vars_.view(0, param_n());
   }
 
-  /// \return function results
+  /// @return function results
   constexpr Vars results() const noexcept {
     return vars_.view(param_n(), param_n() + result_n());
   }

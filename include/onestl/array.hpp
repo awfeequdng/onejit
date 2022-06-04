@@ -138,6 +138,10 @@ public:
     return dup(other.data(), other.size());
   }
 
+  void clear() noexcept {
+    size_ = 0;
+  }
+
   bool resize(size_t n) noexcept {
     if (size_ >= n) {
       size_ = n;

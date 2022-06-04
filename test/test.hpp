@@ -12,6 +12,8 @@
  *  Created on Jan 08, 2021
  *      Author Massimiliano Ghilardi
  */
+#ifndef TEST_TEST_HPP
+#define TEST_TEST_HPP
 
 #include <onejit/compiler.hpp>
 #include <onejit/func.hpp>
@@ -69,3 +71,5 @@ private:
 };
 
 } // namespace onejit
+
+#endif // TEST_TEST_HPP

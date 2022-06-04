@@ -73,6 +73,7 @@ class VarHelper;
 using ChildRanges = View<ChildRange>;
 using Cases = View<Case>;
 using Exprs = View<Expr>;
+using Labels = View<Label>;
 using Nodes = View<Node>;
 using Vars = View<Var>;
 

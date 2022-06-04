@@ -20,6 +20,7 @@ namespace onejit {
 namespace mir {
 
 class Address;
+class Assembler;
 class Compiler;
 class Emit;
 class Inst;

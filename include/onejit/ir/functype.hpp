@@ -58,17 +58,17 @@ public:
     return FTYPE;
   }
 
-  /// \return number of parameters
+  /// @return number of parameters
   uint16_t param_n() const noexcept;
 
-  /// \return number of results
+  /// @return number of results
   constexpr uint16_t result_n() const noexcept {
     return Base::op();
   }
 
-  /// \return kind of i-th parameter, or Bad if out-of-bounds
+  /// @return kind of i-th parameter, or Bad if out-of-bounds
   Kind param(uint16_t i) const noexcept;
-  /// \return kind of i-th result, or Bad if out-of-bounds
+  /// @return kind of i-th result, or Bad if out-of-bounds
   Kind result(uint16_t i) const noexcept;
 
   const Fmt &format(const Fmt &fmt, Syntax syntax = Syntax::Default, size_t depth = 0) const;

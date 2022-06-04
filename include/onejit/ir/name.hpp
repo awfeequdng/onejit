@@ -47,12 +47,12 @@ public:
     return NAME;
   }
 
-  /// \return string size, in bytes
+  /// @return string size, in bytes
   constexpr uint16_t size() const noexcept {
     return Base::op();
   }
 
-  /// \return reference to string contents inside Code* holder
+  /// @return reference to string contents inside Code* holder
   Chars chars() const noexcept;
 
   const Fmt &format(const Fmt &fmt, Syntax syntax = Syntax::Default, size_t depth = 0) const;

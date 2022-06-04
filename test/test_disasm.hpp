@@ -12,6 +12,8 @@
  *  Created on Feb 04, 2021
  *      Author Massimiliano Ghilardi
  */
+#ifndef TEST_TEST_DISASM_HPP
+#define TEST_TEST_DISASM_HPP
 
 #include <onejit/fwd.hpp>
 #include <onejit/test.hpp>
@@ -59,3 +61,5 @@ private:
 };
 
 } // namespace onejit
+
+#endif // TEST_TEST_DISASM_HPP

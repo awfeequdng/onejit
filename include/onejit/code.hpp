@@ -112,7 +112,7 @@ public:
   /// @return Code length, in CodeItems
   using Base::size;
 
-  /// \return Code length, in bytes
+  /// @return Code length, in bytes
   constexpr Offset length() const noexcept {
     return Base::size() * sizeof(T);
   }

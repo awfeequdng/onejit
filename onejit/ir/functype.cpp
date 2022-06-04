@@ -14,24 +14,24 @@
  */
 
 #include <onejit/code.hpp>
-#include <onejit/math.hpp>
 #include <onejit/ir/functype.hpp>
+#include <onejit/math.hpp>
 #include <onestl/chars.hpp>
 
 namespace onejit {
 namespace ir {
 
-/// \return number of parameters
+/// @return number of parameters
 uint16_t FuncType::param_n() const noexcept {
   return sub_uint16(children(), result_n());
 }
 
-/// \return kind of i-th parameter, or Bad if fmt-of-bounds
+/// @return kind of i-th parameter, or Bad if fmt-of-bounds
 Kind FuncType::param(uint16_t i) const noexcept {
   return child(i + result_n()).kind();
 }
 
-/// \return kind of i-th result, or Bad if fmt-of-bounds
+/// @return kind of i-th result, or Bad if fmt-of-bounds
 Kind FuncType::result(uint16_t i) const noexcept {
   return i >= result_n() ? Bad : child(i).kind();
 }

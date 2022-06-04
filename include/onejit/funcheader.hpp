@@ -83,12 +83,12 @@ public:
     return result_n_;
   }
 
-  /// \return kind of i-th parameter, or Bad if out-of-bounds
+  /// @return kind of i-th parameter, or Bad if out-of-bounds
   Kind param(uint16_t i) const noexcept {
     return ftype_.param(i);
   }
 
-  /// \return kind of i-th result, or Bad if out-of-bounds
+  /// @return kind of i-th result, or Bad if out-of-bounds
   Kind result(uint16_t i) const noexcept {
     return ftype_.result(i);
   }
