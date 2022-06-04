@@ -84,7 +84,8 @@ private:
   void add_stmt4(Stmt4 stmt);
   void add_stmtn(StmtN stmt);
   void add_block(Block stmt);
-  void add_return(StmtN stmt);
+  void add_call(StmtN stmt);
+  void add_return(Return stmt);
   void add_expr(Expr expr);
   void add_label(Label label);
 

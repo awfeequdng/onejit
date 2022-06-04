@@ -84,12 +84,6 @@ Node AssignCall::create(Func &func, Exprs assign_to, const Call &call) noexcept 
 
 // ============================  Return  ===================================
 
-Node Return::create(Func &func, Exprs exprs) noexcept {
-  return Node::create_indirect(func,                         //
-                               Header{STMT_N, Void, RETURN}, //
-                               Nodes{exprs.data(), exprs.size()});
-}
-
 // ============================  Switch  ===================================
 
 // cases can contain at most one Default

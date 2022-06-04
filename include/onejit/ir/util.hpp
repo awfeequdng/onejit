@@ -17,6 +17,7 @@
 #define ONEJIT_IR_UTIL_HPP
 
 #include <onejit/ir/fwd.hpp>
+#include <onejit/opstmtn.hpp>
 
 namespace onejit {
 namespace ir {
@@ -25,6 +26,10 @@ bool is_jump(Node node) noexcept;
 bool is_cond_jump(Node node) noexcept;
 bool is_uncond_jump(Node node) noexcept;
 bool is_return(Node node) noexcept;
+
+constexpr inline bool is_return_op(OpStmtN op) noexcept {
+  return op == RETURN || op == MIR_RET || op == X86_RET;
+}
 
 // If node is a jump, return its destination label.
 // Note: RETURN, X86_RET, ARM64_RET etc. are jumps but have no destination label

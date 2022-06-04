@@ -68,7 +68,7 @@ void Test::func_fib_mir() {
 
   fmt << "jit_func disassembly at address " << Hex(disam_addr) << '\n';
 
-  disasm(fmt, Bytes{disam_addr, 40}) << '\n';
+  disasm(fmt, Bytes{disam_addr, 70}) << '\n';
 
   // TEST(assembler.errors().size(), ==, 0);
 }

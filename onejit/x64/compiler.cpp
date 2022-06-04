@@ -365,7 +365,7 @@ Compiler &Compiler::compile(AssignCall st) noexcept {
 
 Compiler &Compiler::compile(Return st) noexcept {
   ChildRange children{st, 0, st.children()};
-  return add(StmtN{*func_, X86_RET, ChildRanges{&children, 1}});
+  return add(Return{*func_, X86_RET, ChildRanges{&children, 1}});
 }
 
 ////////////////////////////////////////////////////////////////////////////////

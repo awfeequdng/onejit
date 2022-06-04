@@ -14,7 +14,7 @@
  */
 
 #include <onejit/ir/label.hpp>
-#include <onejit/ir/node.hpp>
+#include <onejit/ir/stmtn.hpp>
 #include <onejit/ir/util.hpp>
 
 namespace onejit {
@@ -93,11 +93,7 @@ bool is_cond_jump(Node node) noexcept {
 }
 
 bool is_return(Node node) noexcept {
-  if (node.type() == STMT_N) {
-    OpStmtN opn = OpStmtN(node.op());
-    return opn == RETURN || opn == X86_RET;
-  }
-  return false;
+  return node.type() == STMT_N && is_return_op(OpStmtN(node.op()));
 }
 
 Label jump_label(Node node) noexcept {

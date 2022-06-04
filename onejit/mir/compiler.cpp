@@ -240,14 +240,14 @@ Compiler &Compiler::compile(AssignCall st) noexcept {
 
 Compiler &Compiler::compile(Return st) noexcept {
   const uint32_t n = st.children();
-  Array<Node> array;
+  Array<Expr> array;
   if (!array.resize(n)) {
     return out_of_memory(st);
   }
   for (uint32_t i = 0; i < n; i++) {
     array.set(i, simplify(st.child_is<Expr>(i), toVar));
   }
-  return add(StmtN{f(), MIR_RET, array});
+  return add(Return{f(), MIR_RET, array});
 }
 
 // ===============================  simplify(Expr)  ============================

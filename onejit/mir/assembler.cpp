@@ -48,6 +48,67 @@
 namespace onejit {
 namespace mir {
 
+#ifdef HAVE_MIR
+
+struct Op {
+  Op() noexcept : impl{} {
+  }
+
+  constexpr explicit operator bool() const noexcept {
+    return impl.mode != MIR_OP_UNDEF;
+  }
+
+  MIR_op_t impl;
+};
+
+static MIR_type_t to_mir_memkind(Kind kind) noexcept {
+  static const MIR_type_t mtypes[] = {
+      MIR_T_UNDEF, MIR_T_UNDEF, MIR_T_U8,             // eBad, eVoid, eBool
+      MIR_T_I8,    MIR_T_I16,   MIR_T_I32, MIR_T_I64, // eInt*
+      MIR_T_U8,    MIR_T_U16,   MIR_T_U32, MIR_T_U64, // eUint*
+      MIR_T_UNDEF, MIR_T_F,     MIR_T_D,   MIR_T_LD,  // eFloat*
+      MIR_T_U64,                                      // ePtr
+  };
+  return mtypes[kind.nosimd().val()];
+}
+
+static MIR_type_t to_mir_kind(Kind kind) noexcept {
+  static const MIR_type_t mtypes[] = {
+      MIR_T_UNDEF, MIR_T_UNDEF, MIR_T_I64,            // eBad, eVoid, eBool
+      MIR_T_I64,   MIR_T_I64,   MIR_T_I64, MIR_T_I64, // eInt*
+      MIR_T_I64,   MIR_T_I64,   MIR_T_I64, MIR_T_I64, // eUint*
+      MIR_T_UNDEF, MIR_T_F,     MIR_T_D,   MIR_T_LD,  // eFloat*
+      MIR_T_I64,                                      // ePtr
+  };
+  return mtypes[kind.nosimd().val()];
+}
+
+static MIR_insn_code_t to_mir_code2(OpStmt2 op) noexcept {
+#define ONEJIT_X(NAME, name) ::MIR_##NAME,
+  static const MIR_insn_code_t mcodes[] = {
+      ONEJIT_OPSTMT2_MIR(ONEJIT_X) //
+  };
+#undef ONEJIT_X
+  if (op >= MIR_MOV && op - MIR_MOV < ONEJIT_N_OF(mcodes)) {
+    return mcodes[op - MIR_MOV];
+  }
+  return ::MIR_INVALID_INSN;
+}
+
+static MIR_insn_code_t to_mir_code3(OpStmt3 op) noexcept {
+#define ONEJIT_X(NAME, name) ::MIR_##NAME,
+  static const MIR_insn_code_t mcodes[] = {
+      ONEJIT_OPSTMT3_MIR(ONEJIT_X) //
+  };
+#undef ONEJIT_X
+  if (op >= MIR_ADD && op - MIR_ADD < ONEJIT_N_OF(mcodes)) {
+    return mcodes[op - MIR_ADD];
+  }
+  return ::MIR_INVALID_INSN;
+}
+
+// ----------------------------------- Assembler -------------------------------
+
 Assembler::Assembler()
     : mctx_{}, mmod_{}, mfunc_{}, mlabels_{}, func_{}, param_names_{}, error_{}, good_{true} {
   mctx_ = MIR_init();
@@ -80,40 +141,6 @@ Assembler::~Assembler() noexcept {
   } catch (...) {
   }
 }
-
-#ifdef HAVE_MIR
-static MIR_type_t to_mir_memkind(Kind kind) noexcept {
-  static const MIR_type_t mtypes[] = {
-      MIR_T_UNDEF, MIR_T_UNDEF, MIR_T_U8,             // eBad, eVoid, eBool
-      MIR_T_I8,    MIR_T_I16,   MIR_T_I32, MIR_T_I64, // eInt*
-      MIR_T_U8,    MIR_T_U16,   MIR_T_U32, MIR_T_U64, // eUint*
-      MIR_T_UNDEF, MIR_T_F,     MIR_T_D,   MIR_T_LD,  // eFloat*
-      MIR_T_U64,                                      // ePtr
-  };
-  return mtypes[kind.nosimd().val()];
-}
-
-static MIR_type_t to_mir_kind(Kind kind) noexcept {
-  static const MIR_type_t mtypes[] = {
-      MIR_T_UNDEF, MIR_T_UNDEF, MIR_T_I64,            // eBad, eVoid, eBool
-      MIR_T_I64,   MIR_T_I64,   MIR_T_I64, MIR_T_I64, // eInt*
-      MIR_T_I64,   MIR_T_I64,   MIR_T_I64, MIR_T_I64, // eUint*
-      MIR_T_UNDEF, MIR_T_F,     MIR_T_D,   MIR_T_LD,  // eFloat*
-      MIR_T_I64,                                      // ePtr
-  };
-  return mtypes[kind.nosimd().val()];
-}
-
-struct Op {
-  Op() noexcept : impl{} {
-  }
-
-  constexpr explicit operator bool() const noexcept {
-    return impl.mode != MIR_OP_UNDEF;
-  }
-
-  MIR_op_t impl;
-};
 
 void *Assembler::assemble(const Func &func) {
   Node body = func.get_compiled(MIR);
@@ -248,18 +275,23 @@ void Assembler::add_stmt1(Stmt1 stmt) {
   error(stmt, "unimplemented MIR statement Stmt1");
 }
 void Assembler::add_stmt2(Stmt2 stmt) {
-  switch (stmt.op()) {
-  case MIR_MOV:
-    return add_mir_insn(stmt, ::MIR_MOV,
+  const MIR_insn_code_t code = to_mir_code2(stmt.op());
+  if (code != ::MIR_INVALID_INSN) {
+    return add_mir_insn(stmt, code,
                         {op(stmt.child(0).is<Expr>()), //
                          op(stmt.child(1).is<Expr>())});
-  default:
-    break;
   }
   error(stmt, "unimplemented MIR statement Stmt2");
 }
 
 void Assembler::add_stmt3(Stmt3 stmt) {
+  const MIR_insn_code_t code = to_mir_code3(stmt.op());
+  if (code != ::MIR_INVALID_INSN) {
+    return add_mir_insn(stmt, code,
+                        {op(stmt.child(0).is<Expr>()), //
+                         op(stmt.child(1).is<Expr>()), //
+                         op(stmt.child(2).is<Expr>())});
+  }
   error(stmt, "unimplemented MIR statement Stmt3");
 }
 
@@ -273,8 +305,11 @@ void Assembler::add_stmtn(StmtN stmt) {
     break;
   case BLOCK:
     return add_block(stmt.is<Block>());
+  case MIR_CALL:
+    return add_call(stmt);
   case MIR_RET:
-    return add_return(stmt);
+    return add_return(stmt.is<Return>());
+  case MIR_SWITCH:
   case COND:
   case SWITCH:
   case RETURN:
@@ -290,7 +325,11 @@ void Assembler::add_block(Block stmt) {
   }
 }
 
-void Assembler::add_return(StmtN stmt) {
+void Assembler::add_call(StmtN stmt) {
+  error(stmt, "unimplemented MIR statement Call");
+}
+
+void Assembler::add_return(Return stmt) {
   const size_t n = stmt.children();
   std::vector<Op> operands(n);
   for (size_t i = 0; i < n; i++) {

@@ -29,7 +29,7 @@ namespace ir {
 Node Tuple::create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept {
   return Base::create_indirect(func,                    //
                                Header{TUPLE, kind, op}, //
-                               Nodes{nodes.data(), nodes.size()});
+                               nodes);
 }
 
 Node Tuple::create(Func &func, Kind kind, OpN op, const ChildRange &nodes) noexcept {

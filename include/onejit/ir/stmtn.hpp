@@ -19,6 +19,7 @@
 #include <onejit/fmt.hpp>
 #include <onejit/ir/stmt.hpp>
 #include <onejit/ir/stmt2.hpp> // onejit::Case
+#include <onejit/ir/util.hpp>  // is_return_op()
 #include <onejit/mir/fwd.hpp>
 #include <onejit/opstmtn.hpp>
 #include <onejit/x64/fwd.hpp>
@@ -76,13 +77,13 @@ protected:
       : Base{create(func, op, children)} {
   }
 
+  static Node create(Func &func, OpStmtN op, ChildRanges children) noexcept;
+  static Node create(Func &func, OpStmtN op, Nodes children) noexcept;
+
 private:
   constexpr bool child_result_is_used(uint32_t i) const noexcept {
     return op() == BLOCK ? false : op() == COND ? (i & 1) == 0 : true;
   }
-
-  static Node create(Func &func, OpStmtN op, Nodes children) noexcept;
-  static Node create(Func &func, OpStmtN op, ChildRanges children) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -252,24 +253,29 @@ public:
   constexpr Return() noexcept : Base{} {
   }
 
-  explicit Return(Func &func) noexcept //
-      : Base{create(func, Exprs{})} {
+  explicit Return(Func &func, OpStmtN op = RETURN) noexcept //
+      : Base{func, op, Nodes{}} {
   }
 
   Return(Func &func, Expr expr) noexcept //
-      : Base{create(func, Exprs{&expr, 1})} {
+      : Base{func, RETURN, Nodes{&expr, 1}} {
   }
 
-  Return(Func &func, std::initializer_list<Expr> exprs) noexcept
-      : Base{create(func, Exprs{exprs.begin(), exprs.size()})} {
+  Return(Func &func, OpStmtN op, Expr expr) noexcept //
+      : Base{func, op, Nodes{&expr, 1}} {
   }
 
-  Return(Func &func, Exprs exprs) noexcept //
-      : Base{create(func, exprs)} {
+  Return(Func &func, OpStmtN op, std::initializer_list<Expr> exprs) noexcept
+      : Base{func, op, Nodes{exprs.begin(), exprs.size()}} {
   }
 
-  static constexpr OpStmtN op() noexcept {
-    return RETURN;
+  Return(Func &func, OpStmtN op, Exprs exprs) noexcept //
+      : Base{func, op, Nodes{exprs.data(), exprs.size()}} {
+  }
+
+  // used by x64::Compiler
+  Return(Func &func, OpStmtN op, ChildRanges children) noexcept //
+      : Base{func, op, children} {
   }
 
 private:
@@ -279,14 +285,12 @@ private:
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op == RETURN;
+    return is_return_op(OpStmtN(op));
   }
 
   static constexpr bool child_result_is_used(uint32_t /*i*/) noexcept {
     return true;
   }
-
-  static Node create(Func &func, Exprs exprs) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

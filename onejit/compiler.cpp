@@ -686,7 +686,7 @@ Node Compiler::compile(Return st, Flags) noexcept {
   if (!vars) {
     out_of_memory(st);
   }
-  add(Return{*func_, vars});
+  add(Return{*func_, RETURN, vars});
   return VoidConst;
 }
 
@@ -845,7 +845,7 @@ Compiler &Compiler::add_epilogue(Func &func) noexcept {
   size_t n = node_.size();
   if (n == 0 || !is_return(node_[n - 1])) {
     Vars results = func.results();
-    add(Return{func, Exprs{results.data(), results.size()}});
+    add(Return{func, RETURN, Exprs{results.data(), results.size()}});
   }
   return *this;
 }
