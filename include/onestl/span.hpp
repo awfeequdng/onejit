@@ -92,7 +92,7 @@ public:
     return data() + size_;
   }
 
-  // return a sub-span of this Span. returns Span{} if start or end are out of bounds.
+  /// @return a sub-span of this Span. returns Span{} if start or end are out of bounds.
   /*constexpr*/ Span<T> span(size_t start, size_t end) noexcept {
     return Span<T>{Base::view(start, end)};
   }

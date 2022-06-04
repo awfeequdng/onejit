@@ -81,7 +81,7 @@ public:
   // does nothing if label is invalid i.e. bool(l) == false
   Assembler &add_relocation(Label l) noexcept;
 
-  // return current assembler errors
+  /// @return current assembler errors
   constexpr CRange<Error> errors() const noexcept {
     return CRange<Error>{&error_};
   }

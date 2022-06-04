@@ -5594,6 +5594,9 @@ printf "%s\n" "#define HAVE_LIBCAPSTONE 1" >>confdefs.h
 fi
 
 # Check for MIR library. Do not prepend -lmir to LIBS
+
+printf "%s\n" "#define HAVE_LIBMIR /**/" >>confdefs.h
+
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for MIR_new_module in -lmir" >&5
 printf %s "checking for MIR_new_module in -lmir... " >&6; }
 if test ${ac_cv_lib_mir_MIR_new_module+y}
@@ -5632,6 +5635,52 @@ printf "%s\n" "$ac_cv_lib_mir_MIR_new_module" >&6; }
 if test "x$ac_cv_lib_mir_MIR_new_module" = xyes
 then :
   printf "%s\n" "#define HAVE_LIBMIR 1" >>confdefs.h
+
+fi
+
+
+# Check for pthread library, needed by MIR. Do not prepend -lpthread to LIBS
+
+printf "%s\n" "#define HAVE_LIBPTHREAD /**/" >>confdefs.h
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pthread_create in -lpthread" >&5
+printf %s "checking for pthread_create in -lpthread... " >&6; }
+if test ${ac_cv_lib_pthread_pthread_create+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpthread  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+char pthread_create ();
+int
+main (void)
+{
+return pthread_create ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ac_cv_lib_pthread_pthread_create=yes
+else $as_nop
+  ac_cv_lib_pthread_pthread_create=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pthread_pthread_create" >&5
+printf "%s\n" "$ac_cv_lib_pthread_pthread_create" >&6; }
+if test "x$ac_cv_lib_pthread_pthread_create" = xyes
+then :
+  printf "%s\n" "#define HAVE_LIBPTHREAD 1" >>confdefs.h
 
 fi
 
@@ -5819,8 +5868,13 @@ if test "$HAVE_MIR" != 0; then
 
 printf "%s\n" "#define HAVE_MIR 1" >>confdefs.h
 
-  MIR_LIBS=-lmir
+  if test "$HAVE_PTHREAD" != 0; then
+    MIR_LIBS='-lmir -lpthread'
 
+  else
+    MIR_LIBS='-lmir'
+
+  fi
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Compiling with MIR jit native code generator." >&5
 printf "%s\n" "$as_me: Compiling with MIR jit native code generator." >&6;}
 else

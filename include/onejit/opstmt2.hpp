@@ -232,9 +232,9 @@ Op2 to_op2(OpStmt2 op) noexcept;
 // if OpStmt2 is *_ASSIGN, return the corresponding OpN
 OpN to_opn(OpStmt2 op) noexcept;
 
-// return the *_ASSIGN corresponding to Op2
+/// @return the *_ASSIGN corresponding to Op2
 OpStmt2 to_assign_op(Op2 op) noexcept;
-// return the *_ASSIGN corresponding to OpN
+/// @return the *_ASSIGN corresponding to OpN
 OpStmt2 to_assign_op(OpN op) noexcept;
 
 const Chars to_string(OpStmt2 op) noexcept;

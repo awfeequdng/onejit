@@ -16,14 +16,12 @@
 #define ONEJIT_MIR_HPP
 
 #include <onejit/mir/address.hpp>
+#include <onejit/mir/assembler.hpp>
 // #include <onejit/mir/arg.hpp> // TODO
 // #include <onejit/mir/asm.hpp> // TODO
 #include <onejit/mir/compiler.hpp>
 #include <onejit/mir/fwd.hpp>
 // #include <onejit/mir/inst.hpp> // TODO
 #include <onejit/mir/mem.hpp>
-// #include <onejit/mir/reg.hpp>   // redundant
-// #include <onejit/mir/regid.hpp> // redundant
-// #include <onejit/mir/scale.hpp> // redundant
 
 #endif // ONEJIT_MIR_HPP

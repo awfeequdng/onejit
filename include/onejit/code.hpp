@@ -109,7 +109,7 @@ public:
 
   Code &add_ranges(ChildRanges nodes, Offset parent_offset) noexcept;
 
-  // return Code length, in CodeItems
+  /// @return Code length, in CodeItems
   using Base::size;
 
   /// \return Code length, in bytes

@@ -21,8 +21,8 @@
 
 namespace onejit {
 
-void Test::mir_expr() {
-  Func &f = func.reset(&holder, Name{&holder, "mir_expr"}, FuncType{&holder, {}, {}});
+void Test::expr_mir() {
+  Func &f = func.reset(&holder, Name{&holder, "expr_mir"}, FuncType{&holder, {}, {}});
 
   {
     mir::Mem mem{f, Uint8, mir::Address{1234, Var{f, Ptr}, Var{f, Uint64}, mir::Scale8}};
@@ -30,12 +30,34 @@ void Test::mir_expr() {
     Chars expected = "(mir_mem_ub 1234 var1000_p var1001_ul 8)";
     TEST(to_string(mem), ==, expected);
   }
+}
 
-  Assembler assembler;
+void Test::func_fib_mir() {
+  make_func_fib(Uint64);
+  Func &f = func;
+  compile(f, MIR);
 
-  // dump_and_clear_code();
-  holder.clear();
-  assembler.clear();
+  Chars expected = "(block\n\
+    label_0\n\
+    (mir_uble label_1 var1000_ul 2)\n\
+    (mir_sub var1002_ul var1000_ul 1)\n\
+    (mir_call label_0 (mir_rets var1003_ul) var1002_ul)\n\
+    (mir_sub var1004_ul var1000_ul 2)\n\
+    (mir_call label_0 (mir_rets var1005_ul) var1004_ul)\n\
+    (mir_add var1001_ul var1003_ul var1005_ul)\n\
+    (mir_ret var1001_ul)\n\
+    (mir_jmp label_2)\n\
+    label_1\n\
+    (mir_mov var1001_ul 1)\n\
+    (mir_ret var1001_ul)\n\
+    label_2\n\
+    (mir_ret var1001_ul))";
+
+  TEST(to_string(f.get_compiled(MIR)), ==, expected);
+
+  mir::Assembler assembler;
+
+  assembler.add(f);
 }
 
 } // namespace onejit

@@ -61,7 +61,7 @@ public:
 
   ~Compiler() noexcept = default;
 
-  // return false if out of memory
+  /// @return false if out of memory
   explicit operator bool() const noexcept;
 
 private:

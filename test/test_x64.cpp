@@ -35,8 +35,8 @@ static bool is_compatible(OpStmt1 op, Kind kind) noexcept {
   }
 }
 
-void Test::x64_expr() {
-  Func &f = func.reset(&holder, Name{&holder, "x64_expr"}, FuncType{&holder, {}, {}});
+void Test::expr_x64() {
+  Func &f = func.reset(&holder, Name{&holder, "expr_x64"}, FuncType{&holder, {}, {}});
 
   {
     x64::Mem mem{f, Int32, x64::Address{-67890}};

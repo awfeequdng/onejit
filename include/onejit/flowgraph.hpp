@@ -32,7 +32,7 @@ public:
 
   FlowGraph &operator=(FlowGraph &&) noexcept = default;
 
-  // return false if out of memory
+  /// @return false if out of memory
   bool build(Span<Node> nodes, Array<Error> &error) noexcept;
 
   constexpr BasicBlocks view() const noexcept {
@@ -42,7 +42,7 @@ public:
   const Fmt &format(const Fmt &fmt) const;
 
 private:
-  // return false if out of memory
+  /// @return false if out of memory
   bool build_basicblocks(Span<Node> nodes) noexcept;
   // for every label in basicblocks_,
   // set links_[label.index()] to the basic block containing label

@@ -80,7 +80,7 @@ public:
   }
 
   // checked element access:
-  // return i-th element by value, or T{} if index is out of bounds
+  /// @return i-th element by value, or T{} if index is out of bounds
   constexpr T operator[](size_t index) const noexcept(noexcept(T{})) {
     return impl_ && index < size_ ? (*impl_)[index + start_] : T{};
   }

@@ -26,13 +26,13 @@ enum mKind : uint8_t { mInt32, mUint32, mInt64, mUint64, mFloat32, mFloat64, mFl
 // convert Kind to mKind
 mKind mir_kind(Kind kind) noexcept;
 
-// return MIR_*MOV* instruction appropriate for kind
+/// @return MIR_*MOV* instruction appropriate for kind
 OpStmt2 mir_mov(Kind kind) noexcept;
 
-// return the MIR_*NEG* instruction appropriate for kind
+/// @return the MIR_*NEG* instruction appropriate for kind
 OpStmt2 mir_neg(Kind kind) noexcept;
 
-// return the MIR_*2* conversion instruction appropriate for converting kind from -> to
+/// @return the MIR_*2* conversion instruction appropriate for converting kind from -> to
 OpStmt2 mir_cast(Kind to, Kind from) noexcept;
 
 // convert Op2 arithmetic instruction to MIR_* instruction

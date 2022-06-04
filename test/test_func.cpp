@@ -21,9 +21,9 @@
 
 namespace onejit {
 
-void Test::func_fib() {
-  Kind kind = Uint64;
-  Func &f = func.reset(&holder, Name{&holder, "fib"}, FuncType{&holder, {kind}, {kind}});
+void Test::make_func_fib(Kind kind) {
+  Func &f = func;
+  f.reset(&holder, Name{&holder, "fib"}, FuncType{&holder, {kind}, {kind}});
   Var n = f.param(0);
   Const one = One(f, kind);
   Const two = Two(f, kind);
@@ -48,6 +48,12 @@ void Test::func_fib() {
                       Call{f, f.fheader(), {Binary{f, SUB, n, one}}},   //
                       Call{f, f.fheader(), {Binary{f, SUB, n, two}}}}}, //
          Return{f, one}});                                              //
+}
+
+void Test::func_fib() {
+
+  make_func_fib(Uint64);
+  Func &f = func;
 
   Chars expected = "(if (> var1000_ul 2)\n\
     (return (+ (call label_0 (- var1000_ul 1)) (call label_0 (- var1000_ul 2))))\n\

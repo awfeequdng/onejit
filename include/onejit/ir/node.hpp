@@ -88,12 +88,12 @@ public:
   Node &operator=(Node &&other) &&noexcept = delete;
   Node &operator=(const Node &other) &&noexcept = delete;
 
-  // return true if this Node is valid
+  /// @return true if this Node is valid
   constexpr explicit operator bool() const noexcept {
     return bool(header_);
   }
 
-  // return true if this Node is invalid
+  /// @return true if this Node is invalid
   constexpr bool operator!() const noexcept {
     return !header_;
   }
@@ -115,8 +115,8 @@ public:
   bool deep_equal(const Node &other, Allow allow_mask = AllowAll) noexcept;
 
   // deep comparison:
-  // return -1 if this tree is "less" than other tree,
-  // return +1 if this tree is "greater" than other tree,
+  /// @return -1 if this tree is "less" than other tree,
+  /// @return +1 if this tree is "greater" than other tree,
   // otherwise return 0. Recurses on children.
   int deep_compare(const Node &other) const noexcept;
 
@@ -126,19 +126,19 @@ public:
   // Recurses on children.
   bool deep_pure(Allow allow_mask = AllowAll) const noexcept;
 
-  // return Node length, in bytes
+  /// @return Node length, in bytes
   Offset length_bytes() const noexcept {
     return mul_uint32(length_items(), sizeof(CodeItem));
   }
 
-  // return Node length, in CodeItems
+  /// @return Node length, in CodeItems
   Offset length_items() const noexcept;
 
   // unified tree API: get number of children nodes
   uint32_t children() const noexcept;
 
   // unified tree API: get i-th child node.
-  // return Node{} if i is out of bounds
+  /// @return Node{} if i is out of bounds
   Node child(uint32_t i) const noexcept;
 
   // try to downcast child(i) to T. return T{} if fails.
@@ -159,7 +159,7 @@ public:
     return ONEJIT_CHECK(T::is_allowed_type(type()), &&, T::is_allowed_op(op())), T{*this};
   }
 
-  // return true if all children between start ... end-1 can be downcasted to T.
+  /// @return true if all children between start ... end-1 can be downcasted to T.
   template <class T> bool children_are(uint32_t start, uint32_t end) const noexcept {
     for (size_t i = start; i < end; i++) {
       if (!child_is<T>(i)) {
@@ -199,22 +199,22 @@ protected:
   }
 
   // get CodeItem indirect data
-  // return 0 if byte_offset is out of bounds
+  /// @return 0 if byte_offset is out of bounds
   CodeItem get(Offset byte_offset) const noexcept {
     return uint32(byte_offset);
   }
 
   // get uint32_t indirect data
-  // return 0 if byte_offset is out of bounds
+  /// @return 0 if byte_offset is out of bounds
   uint32_t uint32(Offset byte_offset) const noexcept;
 
   // get uint64_t indirect data
-  // return 0 if byte_offset is out of bounds
+  /// @return 0 if byte_offset is out of bounds
   uint64_t uint64(Offset byte_offset) const noexcept;
 
 private:
-  // return true if result of i-th child is used.
-  // return false if child is only evaluated for its side effects.
+  /// @return true if result of i-th child is used.
+  /// @return false if child is only evaluated for its side effects.
   bool child_result_is_used(uint32_t i) const noexcept;
 
   // used by Optimizer and by subclasses' create() method

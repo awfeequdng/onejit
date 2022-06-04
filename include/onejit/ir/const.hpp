@@ -99,10 +99,10 @@ public:
     return 0;
   }
 
-  // return immediate value of this constant expression
+  /// @return immediate value of this constant expression
   Imm imm() const noexcept;
 
-  // return immediate value of this constant expression
+  /// @return immediate value of this constant expression
   Value val() const noexcept {
     return imm();
   }
@@ -137,21 +137,21 @@ constexpr const Expr VoidExpr = VoidConst;
 constexpr const Expr TrueExpr = TrueConst;
 constexpr const Expr FalseExpr = FalseConst;
 
-// return a Const value = 0 with specified Kind
+/// @return a Const value = 0 with specified Kind
 // equivalent to Const{kind, uint16_t(0)}
 constexpr inline Const Zero(Kind kind) noexcept {
   return Const{kind, uint16_t(0)};
 }
 
-// return a Const value = 1 with specified Kind
+/// @return a Const value = 1 with specified Kind
 // equivalent to Const{func, Value{1}.cast(kind)}
 Const One(Func &func, Kind kind) noexcept;
 
-// return a Const value = 2 with specified Kind
+/// @return a Const value = 2 with specified Kind
 // equivalent to Const{func, Value{2}.cast(kind)}
 Const Two(Func &func, Kind kind) noexcept;
 
-// return a Const value = -2 with specified Kind
+/// @return a Const value = -2 with specified Kind
 // equivalent to Const{func, Value{-1}.cast(kind)}
 Const MinusOne(Func &func, Kind kind) noexcept;
 

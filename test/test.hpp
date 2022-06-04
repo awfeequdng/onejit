@@ -37,15 +37,17 @@ private:
   void stl_graph();  // test onestl::Graph
   void arch();
   void kind();
-  void const_expr() const;
-  void simple_expr();
-  void nested_expr();
-  void tuple_expr();
-  void mir_expr();
-  void x64_expr();
+  void expr_const() const;
+  void expr_simple();
+  void expr_nested();
+  void expr_tuple();
+  void expr_mir();
+  void expr_x64();
   void eval_expr();
   void eval_expr_kind(Kind kind);
+  void make_func_fib(Kind kind);
   void func_fib();
+  void func_fib_mir();
   void func_loop();
   void func_switch1();
   void func_switch2();

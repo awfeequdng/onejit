@@ -90,7 +90,7 @@ public:
   }
 
   // checked element access:
-  // return i-th bit, or false if index is out of bounds
+  /// @return i-th bit, or false if index is out of bounds
   constexpr bool operator[](Index index) const noexcept {
     return index < size_ ? get(data_, index) : false;
   }
@@ -98,15 +98,15 @@ public:
   // set or clear i-th bit. does nothing if index is out of bounds.
   void set(Index index, bool value) noexcept;
 
-  // return index of first bit == value between 'start' and 'end'-1
-  // return NoPos if all bits in such range are == !value
+  /// @return index of first bit == value between 'start' and 'end'-1
+  /// @return NoPos if all bits in such range are == !value
   Index find(bool value, Index start = 0, Index end = NoPos) const noexcept;
 
   // set or clear all bits between 'start' and 'end'-1
   void fill(bool value, Index start = 0, Index end = NoPos) noexcept;
 
   // resize bitset, changing its size.
-  // return false if out of memory.
+  /// @return false if out of memory.
   bool resize(size_t n) noexcept {
     if (size_ >= n) {
       size_ = n;
@@ -116,7 +116,7 @@ public:
   }
 
   // increase bitset capacity.
-  // return false if out of memory.
+  /// @return false if out of memory.
   bool reserve(size_t newcap) noexcept {
     if (newcap <= cap_) {
       return true;

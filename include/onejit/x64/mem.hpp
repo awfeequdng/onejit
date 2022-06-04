@@ -47,13 +47,13 @@ public:
   }
 
   // try to create x64::Mem whose address is the sum of all children.
-  // return invalid x64::Mem if it fails.
+  /// @return invalid x64::Mem if it fails.
   Mem(Compiler &comp, Kind kind, Exprs children) noexcept //
       : Base{create(comp, kind, children)} {
   }
 
   // try to create x64::Mem whose address is the sum of all children.
-  // return invalid x64::Mem if it fails.
+  /// @return invalid x64::Mem if it fails.
   Mem(Compiler &comp, Kind kind, const ChildRange &children) noexcept
       : Base{create(comp, kind, children)} {
   }

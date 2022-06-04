@@ -45,7 +45,7 @@ public:
   explicit operator bool() const noexcept;
 
   // checked element access:
-  // return i-th Node by value, or Node{} if index is out of bounds
+  /// @return i-th Node by value, or Node{} if index is out of bounds
   Node operator[](uint32_t i) const noexcept {
     return i < size_ ? node_.child(i + start_) : Node{};
   }

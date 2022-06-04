@@ -49,11 +49,11 @@ public:
   bool insert(Compiler &comp, Node node) noexcept;
 
   // try to incrementally fill Address adding the sum of all children.
-  // return false if it fails.
+  /// @return false if it fails.
   bool insert(Compiler &comp, Exprs children) noexcept;
 
   // try to incrementally fill Address by adding the sum of all children.
-  // return false if it fails.
+  /// @return false if it fails.
   bool insert(Compiler &comp, const ChildRange &children) noexcept;
 
 }; // class Address

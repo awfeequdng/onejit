@@ -18,9 +18,10 @@
 
 #include <onejit/error.hpp>
 #include <onejit/fwd.hpp>
-#include <onestl/array.hpp>
-#include <onestl/chars.hpp>
 #include <onestl/crange.hpp>
+#include <onestl/string.hpp>
+
+#include <vector>
 
 struct MIR_context;
 struct MIR_item;
@@ -42,9 +43,14 @@ public:
   // assemble a function. must be already compiled to MIR instructions.
   Assembler &add(const Func &func) noexcept;
 
-  // return current assembler errors
+  /// @return current assembler errors
   constexpr CRange<Error> errors() const noexcept {
     return CRange<Error>{&error_};
+  }
+
+  /// @return false if some error occurred
+  constexpr explicit operator bool() const noexcept {
+    return good_;
   }
 
   // add an assembler error
@@ -62,6 +68,7 @@ private:
   MIR_module_t mmod_;
   MIR_item_t mfunc_;
   const Func *func_;
+  std::vector<String> param_names_;
   Array<Error> error_;
   bool good_;
 

@@ -61,22 +61,22 @@ public:
   // resize Graph and remove all edges
   bool reset(Size size) noexcept;
 
-  // return true if nodes a and b are connected, otherwise false.
-  // return false also if a or b are out of bounds
+  /// @return true if nodes a and b are connected, otherwise false.
+  /// @return false also if a or b are out of bounds
   bool operator()(Node a, Node b) const noexcept;
 
   // add or remove an edge betwen nodes a and b.
   // does nothing if a or b are out of bounds
   void set(Node a, Node b, bool value) noexcept;
 
-  // return number of edges connected to specified node.
-  // return 0 if node is out of bounds.
+  /// @return number of edges connected to specified node.
+  /// @return 0 if node is out of bounds.
   constexpr Degree degree(Node node) const noexcept {
     return degree_[node];
   }
 
   // search among edges of specified node, and return first connected node >= first_neighbor.
-  // return NoPos if node has no edges connecting to nodes >= first_neighbor
+  /// @return NoPos if node has no edges connecting to nodes >= first_neighbor
   Node first_set(Node node, Node first_neighbor = Node(0)) const noexcept;
 
   // remove specified node and all its edges
@@ -84,7 +84,7 @@ public:
   void remove(Node node) noexcept;
 
   // copy content of other Graph into this graph.
-  // return false if out of memory.
+  /// @return false if out of memory.
   bool dup(const Graph &other) noexcept;
 
   void swap(Graph &other) noexcept {

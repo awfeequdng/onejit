@@ -94,17 +94,17 @@ public:
     return SimdN::fromlog2(val_ >> 4);
   }
 
-  // return a new Kind with specified SimdN repetitions
+  /// @return a new Kind with specified SimdN repetitions
   constexpr Kind simdn(size_t simd_n) const noexcept {
     return Kind{val_, SimdN{simd_n}};
   }
 
-  // return a new Kind with specified SimdN repetitions
+  /// @return a new Kind with specified SimdN repetitions
   constexpr Kind simdn(SimdN simd_n) const noexcept {
     return Kind{val_, simd_n};
   }
 
-  // return a new Kind without SimdN repetitions
+  /// @return a new Kind without SimdN repetitions
   constexpr Kind nosimd() const noexcept {
     return Kind{uint8_t(val_ & 0xF)};
   }

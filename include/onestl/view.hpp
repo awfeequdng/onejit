@@ -83,7 +83,7 @@ public:
     return data_ + size_;
   }
 
-  // return sub-view of this view. returns View{} if start or end are out of bounds.
+  /// @return sub-view of this view. returns View{} if start or end are out of bounds.
   constexpr View<T> view(size_t start, size_t end) const noexcept {
     return start <= end && end <= size_ ? View<T>{data_ + start, end - start} : View<T>{};
   }

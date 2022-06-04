@@ -235,7 +235,7 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// return 0, 1 or multiple values
+/// @return 0, 1 or multiple values
 class Return : public StmtN {
   using Base = StmtN;
   friend class Node;

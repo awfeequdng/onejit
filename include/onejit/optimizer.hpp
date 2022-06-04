@@ -60,7 +60,7 @@ public:
     return bool(nodes_);
   }
 
-  // return the configured checks that compiled code must perform at runtime.
+  /// @return the configured checks that compiled code must perform at runtime.
   constexpr Check check() const noexcept {
     return check_;
   }

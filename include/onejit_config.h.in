@@ -27,8 +27,11 @@
 /* Define to 1 if you have the capstone library. */
 #undef HAVE_LIBCAPSTONE
 
-/* Define to 1 if you have the `mir' library (-lmir). */
+/* Define to 1 if you have the `mir' library (-lmir) */
 #undef HAVE_LIBMIR
+
+/* Define to 1 if you have the `pthread' library (-lpthread) */
+#undef HAVE_LIBPTHREAD
 
 /* Define to 1 if you have the MIR header files and library. */
 #undef HAVE_MIR

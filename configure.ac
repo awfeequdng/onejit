@@ -21,7 +21,12 @@ PKG_CHECK_MODULES([CAPSTONE], [capstone >= 4.0.0],
                   [true])
 
 # Check for MIR library. Do not prepend -lmir to LIBS
+AC_DEFINE([HAVE_LIBMIR], [], [Define to 1 if you have the `mir' library (-lmir)])
 AC_CHECK_LIB([mir], [MIR_new_module], [AC_DEFINE([HAVE_LIBMIR])])
+
+# Check for pthread library, needed by MIR. Do not prepend -lpthread to LIBS
+AC_DEFINE([HAVE_LIBPTHREAD], [], [Define to 1 if you have the `pthread' library (-lpthread)])
+AC_CHECK_LIB([pthread], [pthread_create], [AC_DEFINE([HAVE_LIBPTHREAD])])
 
 # Checks for library functions.
 AC_CHECK_FUNCS([ffs ffsl])
@@ -71,7 +76,11 @@ if test "$ac_cv_lib_mir_MIR_new_module" = "yes"; then
 fi
 if test "$HAVE_MIR" != 0; then
   AC_DEFINE([HAVE_MIR], 1, [Define to 1 if you have the MIR header files and library.])
-  AC_SUBST([MIR_LIBS], [-lmir])
+  if test "$HAVE_PTHREAD" != 0; then
+    AC_SUBST([MIR_LIBS], ['-lmir -lpthread'])
+  else
+    AC_SUBST([MIR_LIBS], ['-lmir'])
+  fi
   AC_MSG_NOTICE([Compiling with MIR jit native code generator.])
 else
   AC_MSG_WARN([Compiling without MIR jit native code generator. Consider installing MIR from https://github.com/vnmakarov/mir])

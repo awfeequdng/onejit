@@ -41,10 +41,10 @@ public:
 
   // reset Allocator and reinitialize it
   // for a (possibly) different number of registers.
-  // return false if out of memory.
+  /// @return false if out of memory.
   bool reset(Size num_regs) noexcept;
 
-  // return the allocator size, i.e. the num_regs passed to constructor or reset()
+  /// @return the allocator size, i.e. the num_regs passed to constructor or reset()
   constexpr Size size() const noexcept {
     return g_.size();
   }
@@ -65,13 +65,13 @@ public:
   // choose a color for each Reg present in graph()
   void allocate_regs(Color num_colors) noexcept;
 
-  // return colors chosen by allocate_regs()
+  /// @return colors chosen by allocate_regs()
   // spilled Regs will have color >= num_colors
   constexpr View<Color> get_colors() const noexcept {
     return colors_;
   }
 
-  // return a bitset with size() == num_regs.
+  /// @return a bitset with size() == num_regs.
   // can be resized and used as buffer by user code,
   // as long as its size is again num_regs when allocate_regs() is called.
   BitSet &get_bitset() noexcept {

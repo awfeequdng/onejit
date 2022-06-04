@@ -50,7 +50,7 @@ void Test::kind() {
 extern constexpr const Imm one_million{uint64_t(1000000ul)};
 extern constexpr const Imm one_billion{uint64_t(1000000000ul)};
 
-void Test::const_expr() const {
+void Test::expr_const() const {
   TEST(Const{Void}, ==, VoidConst);
   TEST(Const{true}, ==, TrueConst);
   TEST(Const{false}, ==, FalseConst);
@@ -71,7 +71,7 @@ void Test::const_expr() const {
   TEST(minus_32k.imm(), ==, Imm{int16_t(-32768)});
 }
 
-void Test::simple_expr() {
+void Test::expr_simple() {
   Imm imm{1.5f};
   Expr c = Const{func, imm};
 
@@ -165,7 +165,7 @@ void Test::simple_expr() {
   holder.clear();
 }
 
-void Test::nested_expr() {
+void Test::expr_nested() {
   for (uint8_t i = eInt8; i <= eUint64; i++) {
     Kind k{i};
 
@@ -197,7 +197,7 @@ void Test::nested_expr() {
   holder.clear();
 }
 
-void Test::tuple_expr() {
+void Test::expr_tuple() {
   for (uint8_t i = eInt8; i <= eFloat64; i++) {
     Kind k{i};
     Expr v1 = Var{func, k};

@@ -104,17 +104,17 @@ public:
         arg_{arg}, arg_size_{arg_size} {
   }
 
-  // return instruction prefix to use when argument is register or memory
+  /// @return instruction prefix to use when argument is register or memory
   constexpr Bytes bytes() const noexcept {
     return Bytes{bytes_, bytes_len_};
   }
 
-  // return instruction prefix to use when argument is 8-bit immediate
+  /// @return instruction prefix to use when argument is 8-bit immediate
   constexpr Bytes imm8_bytes() const noexcept {
     return Bytes{imm8_bytes_, size_t((imm8_bytes_[0] != 0) + (imm8_bytes_[1] != 0))};
   }
 
-  // return instruction prefix to use when argument is 32-bit immediate or label
+  /// @return instruction prefix to use when argument is 32-bit immediate or label
   constexpr Bytes imm32_bytes() const noexcept {
     return Bytes{imm32_bytes_, size_t((imm32_bytes_[0] != 0) + (imm32_bytes_[1] != 0))};
   }

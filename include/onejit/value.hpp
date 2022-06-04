@@ -126,11 +126,11 @@ public:
     return ekind_ != eBad;
   }
 
-  // return true if Value != zero,
+  /// @return true if Value != zero,
   // as C operator bool does on POD types
   explicit operator bool() const noexcept;
 
-  // return true if Value == zero,
+  /// @return true if Value == zero,
   // as C operator ! does on POD types
   Value operator!() const noexcept;
 
@@ -185,37 +185,37 @@ public:
   // convert between kinds, for example between float and int
   Value cast(Kind to) noexcept;
 
-  // return a Value = 0 with specified kind
+  /// @return a Value = 0 with specified kind
   static constexpr Value zero(Kind kind) noexcept {
     return Value{kind, uint64_t(0)};
   }
 
-  // return a Value = 1 with specified kind
+  /// @return a Value = 1 with specified kind
   static Value one(Kind kind) noexcept {
     return Value{1}.cast(kind);
   }
 
-  // return a Value = -1 with specified kind
+  /// @return a Value = -1 with specified kind
   static Value minus_one(Kind kind) noexcept {
     return Value{-1}.cast(kind);
   }
 
-  // return the maximum value of specified kind
+  /// @return the maximum value of specified kind
   static Value max(Kind kind) noexcept;
-  // return the minimum value of specified kind
+  /// @return the minimum value of specified kind
   static Value min(Kind kind) noexcept;
 
-  // return the identity element for specified operation and kind,
+  /// @return the identity element for specified operation and kind,
   // or Value{} if op has no identity element
   // i.e. 0 for SUB, SHL, SHR; 1 for QUO ...
   static Value identity(Kind kind, Op2 op) noexcept;
 
-  // return the identity element for specified operation and kind,
+  /// @return the identity element for specified operation and kind,
   // or Value{} if op has no identity element
   // i.e. 0 for ADD, OR, XOR; 1 for MUL, -1 for AND ...
   static Value identity(Kind kind, OpN op) noexcept;
 
-  // return the absorbing element for specified operation and kind,
+  /// @return the absorbing element for specified operation and kind,
   // or Value{} if op has no absorbing element
   // i.e. 0 for MUL, AND; -1 for OR ...
   static Value absorbing(Kind kind, OpN op) noexcept;
@@ -258,7 +258,7 @@ inline Value operator>=(Value a, Value b) noexcept {
   return b <= a;
 }
 
-// return true if Values a and b have the same kind and bits
+/// @return true if Values a and b have the same kind and bits
 // differs from operator== when kind is Bad, or floating point +/- 0,
 // or floating point not-a-number
 constexpr inline bool identical(Value a, Value b) noexcept {

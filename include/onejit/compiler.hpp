@@ -42,7 +42,7 @@ public:
 
   ~Compiler() noexcept;
 
-  // return false if out of memory
+  /// @return false if out of memory
   explicit operator bool() const noexcept;
 
   constexpr Func *func() const noexcept {
@@ -63,12 +63,12 @@ public:
   // compile function to arch-specific assembly. calls compile() if needed
   Compiler &compile_arch(Func &func, ArchId archid, Opt flags = OptAll) noexcept;
 
-  // return the configured checks that compiled code must perform at runtime.
+  /// @return the configured checks that compiled code must perform at runtime.
   constexpr Check check() const noexcept {
     return optimizer_.check();
   }
 
-  // return current compile errors
+  /// @return current compile errors
   constexpr CRange<Error> errors() const noexcept {
     return CRange<Error>{&error_};
   }

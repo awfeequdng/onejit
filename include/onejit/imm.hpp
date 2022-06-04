@@ -166,16 +166,16 @@ private:
       return rotate_bits == 0 ? val : (val >> rotate_bits) | (val << (64 - rotate_bits));
     }
 
-    // return direct value if possible, otherwise zero
+    /// @return direct value if possible, otherwise zero
     static constexpr ONEJIT_NOINLINE uint32_t recurse(eKind ekind, uint64_t bits, //
                                                       uint8_t rotate_bits,
                                                       uint64_t xor_mask) noexcept {
-      return can_direct(ekind, bits, rotate_bits, xor_mask)                               //
-                 ? make_direct(ekind, bits, rotate_bits, xor_mask)                        //
-                 : xor_mask == 0 ? recurse(ekind, bits, rotate_bits, ~xor_mask)           //
-                                 : rotate_bits < 64                                       //
-                                       ? recurse(ekind, bits, rotate_bits + 8, ~xor_mask) //
-                                       : 0;
+      return can_direct(ekind, bits, rotate_bits, xor_mask)                     //
+                 ? make_direct(ekind, bits, rotate_bits, xor_mask)              //
+                 : xor_mask == 0 ? recurse(ekind, bits, rotate_bits, ~xor_mask) //
+                   : rotate_bits < 64                                           //
+                       ? recurse(ekind, bits, rotate_bits + 8, ~xor_mask)       //
+                       : 0;
     }
 
     static constexpr bool can_direct(eKind /*ekind*/, uint64_t bits, //
