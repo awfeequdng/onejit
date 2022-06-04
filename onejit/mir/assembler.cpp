@@ -110,7 +110,8 @@ static MIR_insn_code_t to_mir_code3(OpStmt3 op) noexcept {
 // ----------------------------------- Assembler -------------------------------
 
 Assembler::Assembler()
-    : mctx_{}, mmod_{}, mfunc_{}, mlabels_{}, func_{}, param_names_{}, error_{}, good_{true} {
+    : mctx_{}, mmod_{}, funcs_{}, mproto_{}, mfunc_{}, mlabels_{}, func_{},
+      param_names_{}, error_{}, good_{true} {
   mctx_ = MIR_init();
   if (mctx_) {
     MIR_gen_init(mctx_, 1 /*threads*/);
@@ -126,6 +127,7 @@ Assembler::Assembler()
 
 Assembler::~Assembler() noexcept {
   try {
+    mproto_ = nullptr;
     if (mfunc_) {
       mfunc_ = nullptr;
       MIR_finish_func(mctx_);
@@ -148,7 +150,9 @@ void *Assembler::assemble(const Func &func) {
     error(Node{}, "function is not compiled for MIR arch, cannot assemble it");
     return nullptr;
   }
-  create_mir_func(func);
+  if (!create_mir_func(func)) {
+    return nullptr;
+  }
   declare_mir_labels();
   declare_mir_vars();
   add_node(body);
@@ -160,17 +164,19 @@ void *Assembler::assemble(const Func &func) {
   MIR_link(mctx_, MIR_set_gen_interface, nullptr);
   void *jit_compiled_func = MIR_gen(mctx_, 0, mfunc_);
 
+  mproto_ = nullptr;
   mfunc_ = nullptr;
   mmod_ = nullptr;
 
   return jit_compiled_func;
 }
 
-void Assembler::create_mir_func(const Func &func) {
+bool Assembler::create_mir_func(const Func &func) {
   if (!mmod_) {
     mmod_ = MIR_new_module(mctx_, "m");
     if (!mmod_) {
       error(Node{}, "MIR_new_module() failed");
+      return false;
     }
   }
   func_ = &func;
@@ -181,9 +187,16 @@ void Assembler::create_mir_func(const Func &func) {
   size_t result_n = results.size();
   Array<MIR_var_t> mparams(param_n);
   Array<MIR_type_t> mresults(result_n);
-
-  param_names_.resize(param_n);
-  mparams.resize(param_n);
+  if (!mparams.resize(param_n) || !mresults.resize(result_n)) {
+    out_of_memory(Node{});
+    return false;
+  }
+  try {
+    param_names_.resize(param_n);
+  } catch (...) {
+    out_of_memory(Node{});
+    return false;
+  }
 
   for (size_t i = 0; i < param_n; i++) {
     Fmt{&param_names_[i]} << "arg" << (i + 1);
@@ -198,6 +211,18 @@ void Assembler::create_mir_func(const Func &func) {
   String name(func.name().chars()); // must be '\0' terminated
   mfunc_ = MIR_new_func_arr(mctx_, name.c_str(), mresults.size(), mresults.data(), //
                             mparams.size(), mparams.data());
+  name.append(Chars{".proto"});
+  mproto_ = MIR_new_proto_arr(mctx_, name.c_str(), mresults.size(), mresults.data(), //
+                              mparams.size(), mparams.data());
+
+  try {
+    funcs_[func.address()] = &func;
+    mfuncs_[&func] = ProtoFunc{mproto_, mfunc_};
+  } catch (...) {
+    out_of_memory(Node{});
+    return false;
+  }
+  return true;
 }
 
 void Assembler::declare_mir_labels() {

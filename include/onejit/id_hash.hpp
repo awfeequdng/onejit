@@ -23,7 +23,7 @@
 namespace std {
 
 // specialize std::hash<onejit::Id> - allows instantiating std::unordered_map<onejit::Id, ...>
-template <> struct hash<onejit::Id> : public hash<uint32_t> {
+template <> struct hash<onejit::Id> : private hash<uint32_t> {
   typedef onejit::Id argument_type; // deprecated in C++17
   typedef size_t result_type;       // deprecated in C++17
 

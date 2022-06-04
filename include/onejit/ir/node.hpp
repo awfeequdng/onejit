@@ -25,6 +25,10 @@
 
 #include <type_traits> // std::is_base_of<>
 
+namespace std {
+template <class T> struct hash;
+}
+
 namespace onejit {
 namespace ir {
 
@@ -55,6 +59,8 @@ class Node {
   friend class ::onejit::CodeParser;
   friend class ::onejit::Func;
   friend class ::onejit::Optimizer;
+
+  template <class T> friend struct ::std::hash;
 
 public:
   constexpr Node() noexcept : header_{}, off_or_dir_{0}, code_{nullptr} {

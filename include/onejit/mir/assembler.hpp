@@ -19,6 +19,7 @@
 #include <onejit/error.hpp>
 #include <onejit/fwd.hpp>
 #include <onejit/id_hash.hpp>
+#include <onejit/ir/node_hash.hpp>
 #include <onestl/crange.hpp>
 #include <onestl/string.hpp>
 
@@ -42,6 +43,11 @@ namespace mir {
 
 struct Op; // wraps MIR_op_t
 typedef View<Op> Ops;
+
+struct ProtoFunc {
+  MIR_item_t proto;
+  MIR_item_t func;
+};
 
 class Assembler {
 
@@ -71,7 +77,7 @@ public:
   Assembler &out_of_memory(Node where) noexcept;
 
 private:
-  void create_mir_func(const Func &func);
+  bool create_mir_func(const Func &func);
   void declare_mir_labels();
   void declare_mir_vars();
 
@@ -107,11 +113,19 @@ private:
 private:
   MIR_context_t mctx_;
   MIR_module_t mmod_;
+
+  std::unordered_map<Node /*Label*/, const Func *> funcs_;
+  std::unordered_map<const Func *, ProtoFunc> mfuncs_;
+
+  // per-function fields
+  MIR_item_t mproto_;
   MIR_item_t mfunc_;
   Array<MIR_label_t> mlabels_;
   std::unordered_map<Id, MIR_reg_t> mvars_;
   const Func *func_;
   std::vector<String> param_names_;
+
+  // Assembler state
   Array<Error> error_;
   bool good_;
 
