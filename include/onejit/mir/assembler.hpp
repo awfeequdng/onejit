@@ -19,7 +19,7 @@
 #include <onejit/error.hpp>
 #include <onejit/fwd.hpp>
 #include <onejit/id_hash.hpp>
-#include <onejit/ir/node_hash.hpp>
+#include <onejit/ir/label_hash.hpp>
 #include <onestl/crange.hpp>
 #include <onestl/string.hpp>
 
@@ -45,8 +45,9 @@ struct Op; // wraps MIR_op_t
 typedef View<Op> Ops;
 
 struct ProtoFunc {
-  MIR_item_t proto;
-  MIR_item_t func;
+  MIR_item_t mproto;
+  MIR_item_t mfunc;
+  const Func *func;
 };
 
 class Assembler {
@@ -77,6 +78,7 @@ public:
   Assembler &out_of_memory(Node where) noexcept;
 
 private:
+  const ProtoFunc *find_mir_func(Label label);
   bool create_mir_func(const Func &func);
   void declare_mir_labels();
   void declare_mir_vars();
@@ -111,13 +113,14 @@ private:
   Op op(Var var);
 
 private:
+  // libmir context
   MIR_context_t mctx_;
   MIR_module_t mmod_;
 
-  std::unordered_map<Node /*Label*/, const Func *> funcs_;
-  std::unordered_map<const Func *, ProtoFunc> mfuncs_;
+  // known functions
+  std::unordered_map<Label, ProtoFunc> mfuncs_;
 
-  // per-function fields
+  // data of current function being assembled
   MIR_item_t mproto_;
   MIR_item_t mfunc_;
   Array<MIR_label_t> mlabels_;

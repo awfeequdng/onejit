@@ -39,7 +39,7 @@ namespace onestl {
  * spans and views to the array elements *only* if they change the array's capacity:
  *   append reserve resize
  *
- * Some methods may change the array's size, while preserving its capacity.
+ * Also, some methods may change the array's size, while preserving its capacity.
  * Doing so invalidates the references, pointers, iterators, spans and views
  * to the array elements *at or after* the minimum between the old and new size.
  * The following methods may change the size, and either preserve or change the capacity:

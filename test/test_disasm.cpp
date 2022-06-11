@@ -73,7 +73,8 @@ const Fmt &TestDisasm::format(const Fmt &fmt, const cs_insn *insn) {
       fmt << ' ' << Chars::of(cs_reg_name(handle_, op->reg));
       break;
     case X86_OP_IMM:
-      fmt << ' ' << fix_immediate(insn, op->imm);
+      fmt << ' ';
+      format_immediate(fmt, insn, op->imm);
       break;
     case X86_OP_MEM:
       fmt << " (x86_mem" << (op->size * 8);
@@ -122,11 +123,16 @@ static bool is_jump(const cs_detail *detail) noexcept {
  *
  * fix it.
  */
-int64_t TestDisasm::fix_immediate(const cs_insn *insn, int64_t imm) noexcept {
+const Fmt &TestDisasm::format_immediate(const Fmt &fmt, const cs_insn *insn, int64_t imm) {
   if (is_jump(insn->detail)) {
-    return int32_t(imm - insn->size);
+    imm -= insn->size;
   }
-  return imm;
+  if (imm >= -0x10000 && imm <= 0x10000) {
+    fmt << imm;
+  } else {
+    fmt << "0x" << Hex(uint64_t(imm));
+  }
+  return fmt;
 }
 
 void TestDisasm::test_asm_disasm_x64(const Node &node, Assembler &assembler) {

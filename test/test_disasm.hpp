@@ -51,7 +51,7 @@ private:
 
 #ifdef HAVE_LIBCAPSTONE
   const Fmt &format(const Fmt &fmt, const cs_insn *insn);
-  static int64_t fix_immediate(const cs_insn *insn, int64_t imm) noexcept;
+  const Fmt &format_immediate(const Fmt &fmt, const cs_insn *insn, int64_t imm);
 
   csh handle_;
   cs_err err_;

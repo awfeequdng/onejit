@@ -90,7 +90,7 @@ public:
   Node &operator=(const Node &other) &noexcept = default;
 
   // forbid assignment to temporary Node: we want temporary_node = expr to fail at compile time.
-  // Needed because Array<Node>>::operator[] returns a temporary Node by value, not a Node&
+  // Needed because Array<Node>::operator[] returns a temporary Node by value, not a Node&
   Node &operator=(Node &&other) &&noexcept = delete;
   Node &operator=(const Node &other) &&noexcept = delete;
 
@@ -153,7 +153,7 @@ public:
     return child(i).is<T>();
   }
 
-  // try to downcast Node to T. return T{} if fails.
+  // try to downcast this Node to T. return T{} if fails.
   template <class T> constexpr T is() const noexcept {
     static_assert(std::is_base_of<Node, T>::value, "Node::is(): type T must be a subclass of Node");
     return T::is_allowed_type(type()) && T::is_allowed_op(op()) ? T{*this} : T{};

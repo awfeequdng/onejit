@@ -15,6 +15,7 @@
 
 #include <onejit/func.hpp>
 #include <onejit/ir/binary.hpp>
+#include <onejit/ir/childrange.hpp>
 #include <onejit/ir/expr.hpp>
 #include <onejit/ir/label.hpp>
 #include <onejit/ir/stmt0.hpp>
@@ -54,13 +55,22 @@ struct Op {
   Op() noexcept : impl{} {
   }
 
+  explicit Op(MIR_op_t mir_op) : impl{mir_op} {
+  }
+
   constexpr explicit operator bool() const noexcept {
     return impl.mode != MIR_OP_UNDEF;
+  }
+
+  Op &operator=(MIR_op_t mir_op) {
+    impl = mir_op;
+    return *this;
   }
 
   MIR_op_t impl;
 };
 
+#if 0  // not used yet
 static MIR_type_t to_mir_memkind(Kind kind) noexcept {
   static const MIR_type_t mtypes[] = {
       MIR_T_UNDEF, MIR_T_UNDEF, MIR_T_U8,             // eBad, eVoid, eBool
@@ -71,6 +81,7 @@ static MIR_type_t to_mir_memkind(Kind kind) noexcept {
   };
   return mtypes[kind.nosimd().val()];
 }
+#endif // 0
 
 static MIR_type_t to_mir_kind(Kind kind) noexcept {
   static const MIR_type_t mtypes[] = {
@@ -110,7 +121,7 @@ static MIR_insn_code_t to_mir_code3(OpStmt3 op) noexcept {
 // ----------------------------------- Assembler -------------------------------
 
 Assembler::Assembler()
-    : mctx_{}, mmod_{}, funcs_{}, mproto_{}, mfunc_{}, mlabels_{}, func_{},
+    : mctx_{}, mmod_{}, mfuncs_{}, mproto_{}, mfunc_{}, mlabels_{}, func_{},
       param_names_{}, error_{}, good_{true} {
   mctx_ = MIR_init();
   if (mctx_) {
@@ -171,6 +182,11 @@ void *Assembler::assemble(const Func &func) {
   return jit_compiled_func;
 }
 
+const ProtoFunc *Assembler::find_mir_func(Label label) {
+  auto iter = mfuncs_.find(label);
+  return iter == mfuncs_.end() ? nullptr : &iter->second;
+}
+
 bool Assembler::create_mir_func(const Func &func) {
   if (!mmod_) {
     mmod_ = MIR_new_module(mctx_, "m");
@@ -216,8 +232,7 @@ bool Assembler::create_mir_func(const Func &func) {
                               mparams.size(), mparams.data());
 
   try {
-    funcs_[func.address()] = &func;
-    mfuncs_[&func] = ProtoFunc{mproto_, mfunc_};
+    mfuncs_[func.address()] = ProtoFunc{mproto_, mfunc_, &func};
   } catch (...) {
     out_of_memory(Node{});
     return false;
@@ -351,7 +366,32 @@ void Assembler::add_block(Block stmt) {
 }
 
 void Assembler::add_call(StmtN stmt) {
-  error(stmt, "unimplemented MIR statement Call");
+  // FuncType ftype = stmt.child_is<FuncType>(0);
+  Label label = stmt.child_is<Label>(1);
+  const ProtoFunc *callee = find_mir_func(label);
+  if (!callee) {
+    error(stmt,
+          "called function not yet assembled (call of forward-declared function is unimplemented)");
+    return;
+  }
+
+  Tuple rets = stmt.child_is<Tuple>(2);
+  uint32_t retn = rets.children();
+  uint32_t argn = stmt.children() - 3;
+  size_t n = 2 + retn + argn;
+
+  std::vector<Op> operands(n);
+  operands[0] = MIR_new_ref_op(mctx_, callee->mproto);
+  operands[1] = MIR_new_ref_op(mctx_, callee->mfunc);
+  for (uint32_t i = 0; i < retn; i++) {
+    operands[i + 2] = op(rets.child_is<Expr>(i));
+  }
+  // ChildRange args{stmt, 3, argn};
+  for (uint32_t i = 0; i < argn; i++) {
+    operands[i + 2 + retn] = op(stmt.child_is<Expr>(i + 3));
+  }
+
+  add_mir_insn(stmt, ::MIR_CALL, Ops{operands.data(), n});
 }
 
 void Assembler::add_return(Return stmt) {

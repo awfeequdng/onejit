@@ -25,3 +25,5 @@ Makefile
 /include/onejit_config.h
 /include/stamp-h1
 /test/test_jit
+/.vscode
+

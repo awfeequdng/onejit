@@ -23,5 +23,15 @@ ChildRange::operator bool() const noexcept {
   return node_ && size_ && size_ <= n && start_ <= n - size_;
 }
 
+const Fmt &operator<<(const Fmt &fmt, const ChildRange &range) {
+  fmt << "(childrange";
+  if (range) {
+    for (uint32_t i = 0, n = range.size(); i < n; i++) {
+      fmt << ' ' << range[i];
+    }
+  }
+  return fmt << ')';
+}
+
 } // namespace ir
 } // namespace onejit

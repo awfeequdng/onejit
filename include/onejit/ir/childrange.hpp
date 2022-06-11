@@ -46,14 +46,28 @@ public:
 
   // checked element access:
   /// @return i-th Node by value, or Node{} if index is out of bounds
-  Node operator[](uint32_t i) const noexcept {
+  Node child(uint32_t i) const noexcept {
     return i < size_ ? node_.child(i + start_) : Node{};
+  }
+
+  // checked element access:
+  /// @return i-th Node by value, or Node{} if index is out of bounds
+  Node operator[](uint32_t i) const noexcept {
+    return child(i);
+  }
+
+  // try to downcast child(i) to T. return T{} if fails.
+  // equivalent to child(i).is<T>()
+  template <class T> constexpr ONEJIT_NOINLINE T child_is(uint32_t i) const noexcept {
+    return child(i).is<T>();
   }
 
 private:
   Node node_;
   uint32_t start_, size_;
 };
+
+const Fmt &operator<<(const Fmt &fmt, const ChildRange &range);
 
 } // namespace ir
 } // namespace onejit

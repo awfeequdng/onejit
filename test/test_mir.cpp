@@ -17,6 +17,8 @@
 #include <onejit/ir.hpp>
 #include <onejit/mir.hpp>
 
+#include <time.h>
+
 #include "test.hpp"
 
 namespace onejit {
@@ -61,16 +63,38 @@ void Test::func_fib_mir() {
 
   Fmt fmt{stdout};
   fmt << assembler.errors();
-  fmt << "jit_func compiled    at address " << Hex(jit_func_addr) << '\n';
+  TEST(assembler.errors().size(), ==, 0);
 
-  // +16 skips the preamble 'movabs $0x____, %r11; jmp *%r11'
-  const uint8_t *disam_addr = static_cast<const uint8_t *>(jit_func_addr) + 16;
+  if (false) {
+    // +16 skips the preamble 'movabs $0x____, %r11; jmp *%r11'
+    const uint8_t *disam_addr = static_cast<const uint8_t *>(jit_func_addr) + 16;
 
-  fmt << "jit_func disassembly at address " << Hex(disam_addr) << '\n';
+    fmt << "jit_func compiled    at address 0x" << Hex(jit_func_addr) << '\n' //
+        << "jit_func disassembly at address 0x" << Hex(disam_addr) << '\n';
 
-  disasm(fmt, Bytes{disam_addr, 70}) << '\n';
+    disasm(fmt, Bytes{disam_addr, 126}) << '\n';
+  }
 
-  // TEST(assembler.errors().size(), ==, 0);
+  // call jit-compiled function to compute fibonacci(40)
+  using JitFtype = uint32_t (*)(uint32_t);
+  JitFtype jit_func = JitFtype(jit_func_addr);
+
+#ifdef CLOCK_THREAD_CPUTIME_ID
+  timespec tstart, tend;
+  clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tstart);
+  uint32_t ret = jit_func(40);
+  clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tend);
+#else
+  uint32_t ret = jit_func(40);
+#endif
+
+  TEST(ret, ==, 102334155);
+
+#ifdef CLOCK_THREAD_CPUTIME_ID
+  double start = tstart.tv_sec + tstart.tv_nsec * 1e-9;
+  double end = tend.tv_sec + tend.tv_nsec * 1e-9;
+  fmt << "  MIR jit-compiled function fibonacci(40) took " << (end - start) << " seconds\n";
+#endif
 }
 
 } // namespace onejit
