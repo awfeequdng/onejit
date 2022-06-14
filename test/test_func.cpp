@@ -21,9 +21,8 @@
 
 namespace onejit {
 
-void Test::make_func_fib(Kind kind) {
-  Func &f = func;
-  f.reset(&holder, Name{&holder, "fib"}, FuncType{&holder, {kind}, {kind}});
+Func &Test::make_func_fib(Kind kind) {
+  Func &f = func.reset(&holder, Name{&holder, "fib"}, FuncType{&holder, {kind}, {kind}});
   Var n = f.param(0);
   Const one = One(f, kind);
   Const two = Two(f, kind);
@@ -48,12 +47,11 @@ void Test::make_func_fib(Kind kind) {
                       Call{f, f.fheader(), {Binary{f, SUB, n, one}}},   //
                       Call{f, f.fheader(), {Binary{f, SUB, n, two}}}}}, //
          Return{f, one}});                                              //
+  return f;
 }
 
 void Test::func_fib() {
-
-  make_func_fib(Uint64);
-  Func &f = func;
+  Func &f = make_func_fib(Uint64);
 
   Chars expected = "(if (> var1000_ul 2)\n\
     (return (+ (call label_0 (- var1000_ul 1)) (call label_0 (- var1000_ul 2))))\n\
@@ -166,8 +164,7 @@ void Test::func_fib() {
   holder.clear();
 }
 
-void Test::func_loop() {
-  Kind kind = Uint64;
+Func &Test::make_func_loop(Kind kind) {
   Func &f = func.reset(&holder, Name{&holder, "loop"}, FuncType{&holder, {kind}, {kind}});
   Var n = f.param(0);
   Var total = f.result(0);
@@ -197,6 +194,11 @@ void Test::func_loop() {
                  Assign{f, ADD_ASSIGN, total, i} // body
              },
              Return{f, total}}});
+  return f;
+}
+
+void Test::func_loop() {
+  Func &f = make_func_loop(Uint64);
 
   Chars expected = "(block\n\
     (= var1001_ul 0)\n\

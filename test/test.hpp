@@ -47,10 +47,12 @@ private:
   void expr_x64();
   void eval_expr();
   void eval_expr_kind(Kind kind);
-  void make_func_fib(Kind kind);
+  Func &make_func_fib(Kind kind);
   void func_fib();
   void func_fib_mir();
+  Func &make_func_loop(Kind kind);
   void func_loop();
+  void func_loop_mir();
   void func_switch1();
   void func_switch2();
   void func_cond();

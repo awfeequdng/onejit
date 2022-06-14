@@ -59,6 +59,7 @@ void Test::run() {
   func_fib();
   func_fib_mir();
   func_loop();
+  func_loop_mir();
   func_switch1();
   func_switch2();
   func_cond();
