@@ -540,7 +540,7 @@ Assembler::Assembler() : good_{true} {
   error(Node{}, "MIR support not compiled");
 }
 
-Assembler::~Assembler() {
+Assembler::~Assembler() noexcept {
 }
 
 void *Assembler::assemble(const Func &func) {

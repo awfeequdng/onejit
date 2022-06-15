@@ -18,6 +18,7 @@
 
 #include <onejit/fmt.hpp>
 #include <onejit/ir/allow.hpp>
+#include <onejit/ir/hash_fwd.hpp>
 #include <onejit/ir/header.hpp>
 #include <onejit/ir/syntax.hpp>
 #include <onejit/math.hpp>
@@ -25,9 +26,6 @@
 
 #include <type_traits> // std::is_base_of<>
 
-namespace std {
-template <class T> struct hash;
-}
 
 namespace onejit {
 namespace ir {
@@ -60,7 +58,7 @@ class Node {
   friend class ::onejit::Func;
   friend class ::onejit::Optimizer;
 
-  template <class T> friend struct ::std::hash;
+  template <class T> friend struct ::std NAMESPACE_NDK ::hash;
 
 public:
   constexpr Node() noexcept : header_{}, off_or_dir_{0}, code_{nullptr} {

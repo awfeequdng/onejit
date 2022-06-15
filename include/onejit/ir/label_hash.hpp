@@ -20,6 +20,7 @@
 #include <onejit/ir/node_hash.hpp>
 
 namespace std {
+NAMESPACE_NDK_BEGIN
 
 // specialize std::hash<onejit::ir::Node> - allows instantiating
 // std::unordered_map<onejit::ir::Node, ...>
@@ -36,6 +37,7 @@ public:
   }
 };
 
+NAMESPACE_NDK_END
 } // namespace std
 
 #endif // ONEJIT_LABEL_HASH_HPP
