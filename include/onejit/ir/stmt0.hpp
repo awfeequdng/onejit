@@ -82,7 +82,7 @@ protected:
   }
 
   static constexpr CodeItem direct(OpStmt0 op) noexcept {
-    return op <= FALLTHROUGH ? CodeItem(op) : CodeItem(op) << 4 | 0x6;
+    return CodeItem(op) << 4 | 0x6;
   }
 
   static constexpr OpStmt0 parse_direct_op(CodeItem item) noexcept {

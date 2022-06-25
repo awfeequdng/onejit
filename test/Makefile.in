@@ -100,9 +100,11 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_test_jit_OBJECTS = test_disasm.$(OBJEXT) test_expr.$(OBJEXT) \
-	test_eval.$(OBJEXT) test_func.$(OBJEXT) test_main.$(OBJEXT) \
-	test_optimize.$(OBJEXT) test_regallocator.$(OBJEXT) \
-	test_stl.$(OBJEXT) test_mir.$(OBJEXT) test_x64.$(OBJEXT)
+	test_eval.$(OBJEXT) test_func.$(OBJEXT) \
+	test_make_func.$(OBJEXT) test_main.$(OBJEXT) \
+	test_mir.$(OBJEXT) test_optimize.$(OBJEXT) \
+	test_regallocator.$(OBJEXT) test_stl.$(OBJEXT) \
+	test_stmt.$(OBJEXT) test_x64.$(OBJEXT)
 test_jit_OBJECTS = $(am_test_jit_OBJECTS)
 am__DEPENDENCIES_1 =
 test_jit_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
@@ -125,8 +127,9 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/test_disasm.Po \
 	./$(DEPDIR)/test_eval.Po ./$(DEPDIR)/test_expr.Po \
 	./$(DEPDIR)/test_func.Po ./$(DEPDIR)/test_main.Po \
-	./$(DEPDIR)/test_mir.Po ./$(DEPDIR)/test_optimize.Po \
-	./$(DEPDIR)/test_regallocator.Po ./$(DEPDIR)/test_stl.Po \
+	./$(DEPDIR)/test_make_func.Po ./$(DEPDIR)/test_mir.Po \
+	./$(DEPDIR)/test_optimize.Po ./$(DEPDIR)/test_regallocator.Po \
+	./$(DEPDIR)/test_stl.Po ./$(DEPDIR)/test_stmt.Po \
 	./$(DEPDIR)/test_x64.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -316,9 +319,9 @@ top_srcdir = @top_srcdir@
 SUBDIRS = 
 AM_CPPFLAGS = -I$(top_srcdir)/include
 AM_CXXFLAGS = $(CAPSTONE_CFLAGS)
-test_jit_SOURCES = test_disasm.cpp test_expr.cpp test_eval.cpp test_func.cpp test_main.cpp \
-                         test_optimize.cpp test_regallocator.cpp test_stl.cpp test_mir.cpp \
-                         test_x64.cpp
+test_jit_SOURCES = test_disasm.cpp test_expr.cpp test_eval.cpp test_func.cpp test_make_func.cpp \
+                         test_main.cpp test_mir.cpp test_optimize.cpp test_regallocator.cpp \
+                         test_stl.cpp test_stmt.cpp test_x64.cpp
 
 # test_jit_CXXFLAGS    =
 EXTRA_test_jit_DEPENDENCIES = $(LIBONEJIT) $(LIBONESTL)
@@ -414,10 +417,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_expr.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_func.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_main.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_make_func.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_mir.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_optimize.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_regallocator.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stl.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stmt.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_x64.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -646,10 +651,12 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/test_expr.Po
 	-rm -f ./$(DEPDIR)/test_func.Po
 	-rm -f ./$(DEPDIR)/test_main.Po
+	-rm -f ./$(DEPDIR)/test_make_func.Po
 	-rm -f ./$(DEPDIR)/test_mir.Po
 	-rm -f ./$(DEPDIR)/test_optimize.Po
 	-rm -f ./$(DEPDIR)/test_regallocator.Po
 	-rm -f ./$(DEPDIR)/test_stl.Po
+	-rm -f ./$(DEPDIR)/test_stmt.Po
 	-rm -f ./$(DEPDIR)/test_x64.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -701,10 +708,12 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/test_expr.Po
 	-rm -f ./$(DEPDIR)/test_func.Po
 	-rm -f ./$(DEPDIR)/test_main.Po
+	-rm -f ./$(DEPDIR)/test_make_func.Po
 	-rm -f ./$(DEPDIR)/test_mir.Po
 	-rm -f ./$(DEPDIR)/test_optimize.Po
 	-rm -f ./$(DEPDIR)/test_regallocator.Po
 	-rm -f ./$(DEPDIR)/test_stl.Po
+	-rm -f ./$(DEPDIR)/test_stmt.Po
 	-rm -f ./$(DEPDIR)/test_x64.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic

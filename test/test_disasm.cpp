@@ -100,7 +100,6 @@ const Fmt &TestDisasm::format(const Fmt &fmt, const cs_insn *insn) {
 static bool is_jump(cs_group_type group) noexcept {
   switch (group) {
   case CS_GRP_JUMP:
-  case CS_GRP_CALL:
   case CS_GRP_BRANCH_RELATIVE:
     return true;
   default:
@@ -117,6 +116,15 @@ static bool is_jump(const cs_detail *detail) noexcept {
   return false;
 }
 
+static bool is_call(const cs_detail *detail) noexcept {
+  for (size_t i = 0, n = detail->groups_count; i < n; i++) {
+    if (cs_group_type(detail->groups[i]) == CS_GRP_CALL) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /**
  * capstone computes absolute destination address of jumps,
  * while we want relative address from end of disassembled instruction.
@@ -124,7 +132,7 @@ static bool is_jump(const cs_detail *detail) noexcept {
  * fix it.
  */
 const Fmt &TestDisasm::format_immediate(const Fmt &fmt, const cs_insn *insn, int64_t imm) {
-  if (is_jump(insn->detail)) {
+  if (!is_call(insn->detail) && is_jump(insn->detail)) {
     imm -= insn->size;
   }
   if (imm >= -0x10000 && imm <= 0x10000) {

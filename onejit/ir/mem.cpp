@@ -26,7 +26,7 @@ Node Mem::create(Func &func, Kind kind, OpN op, Exprs args) noexcept {
                                Nodes{args.data(), args.size()});
 }
 
-const Fmt &Mem::format(const Fmt &fmt, Syntax syntax, size_t /*depth*/) const {
+const Fmt &Mem::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
   fmt << '(' << op();
   if (syntax == Syntax::CapstoneCompat) {
     fmt << kind().bitsize();
@@ -36,7 +36,8 @@ const Fmt &Mem::format(const Fmt &fmt, Syntax syntax, size_t /*depth*/) const {
   for (size_t i = 0, n = children(); i < n; i++) {
     Node node = child(i);
     if (node) {
-      fmt << ' ' << node;
+      fmt << ' ';
+      node.format(fmt, syntax, depth + 1);
     }
   }
   return fmt << ')';

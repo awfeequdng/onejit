@@ -25,7 +25,7 @@ namespace onejit {
 
 enum eKind : uint8_t {
   eBad = 0,
-  eVoid = 1,
+  eVoid = 1, // value == 0 cannot be encoded
   eBool = 2,
   eInt8 = 3,
   eInt16 = 4,

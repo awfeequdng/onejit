@@ -20,42 +20,46 @@
 namespace onejit {
 
 const Fmt &operator<<(const Fmt &fmt, const Value &value) {
-  const Kind kind = value.kind();
+  return value.format(fmt);
+}
+
+const Fmt &Value::format(const Fmt &fmt, ir::Syntax syntax, size_t /*depth*/) const {
+  const Kind kind = this->kind();
   switch (kind.nosimd().val()) {
   case eVoid:
     fmt << "void";
     break;
   case eBool:
-    fmt << (value.boolean() ? Chars("true") : Chars("false"));
+    fmt << (boolean() ? Chars("true") : Chars("false"));
     break;
   case eInt8:
   case eInt16:
   case eInt32:
   case eInt64:
-    fmt << value.int64();
+    fmt << int64();
     break;
   case eUint8:
   case eUint16:
   case eUint32:
   case eUint64:
-    fmt << value.uint64();
+    fmt << uint64();
     break;
   case eFloat32:
-    fmt << value.float32();
+    fmt << float32();
     break;
   case eFloat64:
   case eFloat128:
-    fmt << value.float64();
+    fmt << float64();
     break;
   case ePtr:
-    fmt << "0x" << Hex{value.ptr()};
+    fmt << "0x" << Hex{ptr()};
     break;
   default:
     fmt << '?';
     break;
   }
   const size_t n = kind.simdn().val();
-  if (n > 1) {
+  if (syntax == ir::Syntax::Default && n > 1) {
     fmt << '_' << kind.stringsuffix() << 'x' << n;
   }
   return fmt;

@@ -90,7 +90,9 @@
         "__debug": "cpp",
         "__mutex_base": "cpp",
         "numbers": "cpp",
-        "semaphore": "cpp"
+        "semaphore": "cpp",
+        "shared_mutex": "cpp",
+        "version": "cpp"
     },
     "files.watcherExclude": {
         "**/.git/**": true

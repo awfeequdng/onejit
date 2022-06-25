@@ -178,17 +178,18 @@ private:
                        : 0;
     }
 
-    static constexpr bool can_direct(eKind /*ekind*/, uint64_t bits, //
+    static constexpr bool can_direct(eKind ekind, uint64_t bits, //
                                      uint8_t rotate_bits, uint64_t xor_mask) noexcept {
-      return rrot(bits ^ xor_mask, rotate_bits) <= 0x7FFFFF;
+      return ekind <= eVoid || rrot(bits ^ xor_mask, rotate_bits) <= 0x7FFFFF;
     }
 
     static constexpr uint32_t make_direct(eKind ekind, uint64_t bits, //
                                           uint8_t rotate_bits, uint64_t xor_mask) noexcept {
-      return 1 | (ekind & 0x0F) << 1                             //
-             | uint32_t(rotate_bits / 8) << 5                    //
-             | uint32_t(rrot(bits ^ xor_mask, rotate_bits)) << 8 //
-             | uint32_t(xor_mask & (1 << 31));
+      return 1 | (ekind & 0x0F) << 1 |                                              //
+             (ekind <= eVoid ? 0                                                    //
+                             : (uint32_t(rotate_bits / 8) << 5 |                    //
+                                uint32_t(rrot(bits ^ xor_mask, rotate_bits)) << 8 | //
+                                uint32_t(xor_mask & (1 << 31))));
     }
 
   private:

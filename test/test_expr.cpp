@@ -27,7 +27,7 @@ void Test::arch() {
 }
 
 void Test::kind() {
-  for (uint8_t i = 0; i <= ePtr; i++) {
+  for (uint8_t i = eBad; i <= ePtr; i++) {
     Kind k{i};
     TEST(bool(k), ==, i != 0);
     TEST(k.is(k.group()), ==, true);
@@ -35,7 +35,7 @@ void Test::kind() {
     TEST(k.nosimd(), ==, k);
     TEST(k.bits().val(), ==, k.nosimd().bits().val());
   }
-  for (uint8_t i = 0; i <= ePtr; i++) {
+  for (uint8_t i = eBad; i <= ePtr; i++) {
     Kind k{eKind(i), SimdN{2}};
     TEST(bool(k), ==, true);
     TEST(k.is(k.group()), ==, true);
@@ -55,10 +55,22 @@ void Test::expr_const() const {
   TEST(Const{true}, ==, TrueConst);
   TEST(Const{false}, ==, FalseConst);
 
+  Chars expected = "void";
+  TEST(to_string(VoidConst), ==, expected);
+  expected = "true";
+  TEST(to_string(TrueConst), ==, expected);
+  expected = "false";
+  TEST(to_string(FalseConst), ==, expected);
+
   Const one{Int8, int16_t(1)};
   Const minus_one{Int8, int16_t(-1)};
   TEST(one.imm(), ==, Imm{int8_t(1)});
   TEST(minus_one.imm(), ==, Imm{int8_t(-1)});
+
+  expected = "1";
+  TEST(to_string(one), ==, expected);
+  expected = "-1";
+  TEST(to_string(minus_one), ==, expected);
 
   Const plus_10k{Int16, int16_t(10000)};
   Const minus_10k{Int16, int16_t(-10000)};
@@ -74,6 +86,9 @@ void Test::expr_const() const {
 void Test::expr_simple() {
   Imm imm{1.5f};
   Expr c = Const{func, imm};
+
+  Chars expected = "1.5";
+  TEST(to_string(c), ==, expected);
 
   TEST(imm.kind(), ==, Float32);
   TEST(imm.float32(), ==, 1.5f);
@@ -105,7 +120,7 @@ void Test::expr_simple() {
   TEST(bool(c.is<Var>()), ==, false);
   TEST(bool(c.is<Tuple>()), ==, false);
 
-  for (uint8_t i = eVoid; i <= ePtr; i++) {
+  for (uint8_t i = eBool; i <= ePtr; i++) {
     Kind k = Kind(i);
     Expr v = Var{func, k};
     Node node = Tuple{func, ADD, v, c};

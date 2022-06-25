@@ -75,8 +75,8 @@ Const MinusOne(Func &func, Kind kind) noexcept {
   return Const{func, Value{-1}.cast(kind)};
 }
 
-const Fmt &Const::format(const Fmt &fmt, Syntax /*syntax*/, size_t /*depth*/) const {
-  return fmt << imm();
+const Fmt &Const::format(const Fmt &fmt, Syntax syntax, size_t depth) const {
+  return imm().format(fmt, syntax, depth);
 }
 
 } // namespace ir

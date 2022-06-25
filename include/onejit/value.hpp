@@ -16,6 +16,7 @@
 #ifndef ONEJIT_VALUE_HPP
 #define ONEJIT_VALUE_HPP
 
+#include <onejit/ir/syntax.hpp>
 #include <onejit/kind.hpp>
 
 namespace onejit {
@@ -219,6 +220,9 @@ public:
   // or Value{} if op has no absorbing element
   // i.e. 0 for MUL, AND; -1 for OR ...
   static Value absorbing(Kind kind, OpN op) noexcept;
+
+  const Fmt &format(const Fmt &fmt, ir::Syntax syntax = ir::Syntax::Default,
+                    size_t depth = 0) const;
 
 private:
   uint64_t bits_;

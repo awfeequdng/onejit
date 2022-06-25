@@ -27,7 +27,7 @@ enum OpStmt0 : uint16_t {
   BAD = 0,
   BREAK = 1,       // only allowed in input IR - never used in compiled code
   CONTINUE = 2,    // idem
-  FALLTHROUGH = 3, // idem
+  FALLTHROUGH = 3, // idem.
 
 // numeric values of the OpStmt0 enum constants below this line MAY CHANGE WITHOUT WARNING
 

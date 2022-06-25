@@ -62,19 +62,14 @@ Node Node::child(uint32_t i) const noexcept {
   const Code *code = nullptr;
 
   // item low bits can be:
+  // 0b0000 => empty Node
   // 0b***1 => direct CONST
   // 0b**00 => indirect Node. item is relative offset
   // 0b*010 => direct VAR
   // 0b0110 => direct Stmt0
   // 0b1110 => Header
 
-  if (item == 0) {
-    // nothing to do
-  } else if (item < 4) {
-    // special case. Stmt0, one of:
-    // BadStmt (handled above) Break Continue Fallthrough
-    header = Header{STMT_0, Void, uint16_t(item)};
-  } else if ((item & 1) != 0) {
+  if ((item & 1) != 0) {
     // direct Const
     offset_or_direct = item;
     header = Header{CONST, Imm::parse_direct_kind(item), 0};
@@ -86,14 +81,20 @@ Node Node::child(uint32_t i) const noexcept {
     // direct Stmt0
     offset_or_direct = item;
     header = Header{STMT_0, Void, Stmt0::parse_direct_op(item)};
-  } else if ((item & 3) == 0) {
+  } else if (item && (item & 3) == 0) {
     // indirect Node: item is relative offset between parent and child
     offset_or_direct = off_or_dir_ + item;
     header = Header{code_->get(offset_or_direct)};
     code = code_; // only indirect Nodes need code
   } else {
+    // Header 0b0000 is empty Node i.e. type = STMT_0, kind = eBad, op = OpStmt0::BAD, direct = 0
+    //     and is the only "false" node i.e. with operator bool() == false.
+    // The direct Stmt0 BadStmt{} is quite similar, it has
+    //     type = STMT_0, kind = eVoid, op = OpStmt0::BAD, direct = 6.
+    // TODO: Merge them?
+    //
     // Header or tag 0b1110: should not appear here,
-    // => return an invalid node
+    // => return an empty node
     return Node{};
   }
   return Node{header, offset_or_direct, code};

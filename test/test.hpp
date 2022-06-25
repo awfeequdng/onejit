@@ -39,6 +39,7 @@ private:
   void stl_graph();  // test onestl::Graph
   void arch();
   void kind();
+
   void expr_const() const;
   void expr_simple();
   void expr_nested();
@@ -47,24 +48,35 @@ private:
   void expr_x64();
   void eval_expr();
   void eval_expr_kind(Kind kind);
-  Func &make_func_fib(Kind kind);
+
+  void stmt_if();
+
   void func_fib();
   void func_fib_mir();
-  Func &make_func_loop(Kind kind);
   void func_loop();
   void func_loop_mir();
+  void func_memchr();
+  void func_memchr_mir();
   void func_switch1();
   void func_switch2();
   void func_cond();
   void func_and_or();
   void func_tuple();
   void func_max();
+
   void optimize();
   void optimize_expr_kind(Kind kind);
   void optimize_assign_kind(Kind kind);
   void regallocator();
 
+  Func &make_func_fib(Kind kind);
+  Func &make_func_loop(Kind kind);
+  Func &make_func_memchr(Kind kind);
+
   void compile(Func &func, ArchId archid);
+
+  // return high-resolution clock: CLOCK_THREAD_CPUTIME_ID if available, otherwise CLOCK_REALTIM
+  static double get_cpu_clock();
 
   Code holder;
   Func func;

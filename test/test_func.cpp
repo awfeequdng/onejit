@@ -21,35 +21,6 @@
 
 namespace onejit {
 
-Func &Test::make_func_fib(Kind kind) {
-  Func &f = func.reset(&holder, Name{&holder, "fib"}, FuncType{&holder, {kind}, {kind}});
-  Var n = f.param(0);
-  Const one = One(f, kind);
-  Const two = Two(f, kind);
-
-  /**
-   * jit equivalent of C/C++ source code
-   *
-   * uint64_t fib(uint64_t n) {
-   *   if (n > 2) {
-   *     return f(n-1) + f(n-2);
-   *   } else {
-   *     return 1;
-   *   }
-   * }
-   */
-
-  f.set_body(                                                           //
-      If{f, Binary{f, GTR, n, two},                                     //
-         Return{f,                                                      //
-                Tuple{f,                                                //
-                      ADD,                                              //
-                      Call{f, f.fheader(), {Binary{f, SUB, n, one}}},   //
-                      Call{f, f.fheader(), {Binary{f, SUB, n, two}}}}}, //
-         Return{f, one}});                                              //
-  return f;
-}
-
 void Test::func_fib() {
   Func &f = make_func_fib(Uint64);
 
@@ -162,39 +133,6 @@ void Test::func_fib() {
 
   // dump_and_clear_code();
   holder.clear();
-}
-
-Func &Test::make_func_loop(Kind kind) {
-  Func &f = func.reset(&holder, Name{&holder, "loop"}, FuncType{&holder, {kind}, {kind}});
-  Var n = f.param(0);
-  Var total = f.result(0);
-  Var i{f, kind};
-  Const zero = Zero(kind);
-
-  /**
-   * jit equivalent of C/C++ source code
-   *
-   * uint64_t loop(uint64_t n) {
-   *   uint64_t total = 0, i;
-   *   for (i = 0; i < n; i++) {
-   *     total += i;
-   *   }
-   *   return total;
-   * }
-   */
-
-  f.set_body( //
-      Block{f,
-            {Assign{f, ASSIGN, total, zero},
-             For{
-                 f,                              //
-                 Assign{f, ASSIGN, i, zero},     // init
-                 Binary{f, LSS, i, n},           // test
-                 Inc{f, i},                      // post
-                 Assign{f, ADD_ASSIGN, total, i} // body
-             },
-             Return{f, total}}});
-  return f;
 }
 
 void Test::func_loop() {
@@ -893,6 +831,18 @@ void Test::func_max() {
     (x86_ret var1003_df))";
   compile(f, X64);
   TEST(to_string(f.get_compiled(X64)), ==, expected);
+}
+
+void Test::func_memchr() {
+  Func &f = make_func_memchr(Uint64);
+
+  Chars expected = "(block\n\
+    (for (= var1004_ul 0) (< var1004_ul var1001_ul) (++ var1004_ul)\n\
+        (if (== (mem_ub var1000_p var1004_ul) var1002_ub)\n\
+            (return (+ var1000_p var1004_ul))\n\
+            void))\n\
+    (return 0x0))";
+  TEST(to_string(f.get_body()), ==, expected);
 }
 
 } // namespace onejit

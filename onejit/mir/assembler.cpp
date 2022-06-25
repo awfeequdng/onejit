@@ -173,6 +173,7 @@ void *Assembler::assemble(const Func &func) {
   MIR_finish_module(mctx_);
   MIR_load_module(mctx_, mmod_);
   MIR_link(mctx_, MIR_set_gen_interface, nullptr);
+
   void *jit_compiled_func = MIR_gen(mctx_, 0, mfunc_);
 
   mproto_ = nullptr;
@@ -271,7 +272,7 @@ void Assembler::declare_mir_vars() {
       // skip params created above
       continue;
     }
-    fmt << id;
+    fmt << var;
     mvars_[id] = MIR_new_func_reg(mctx_, mfunc_->u.func, to_mir_kind(var.kind()), name.c_str());
     name.clear();
   }

@@ -17,8 +17,6 @@
 #include <onejit/ir.hpp>
 #include <onejit/mir.hpp>
 
-#include <time.h>
-
 #include "test.hpp"
 
 namespace onejit {
@@ -78,24 +76,17 @@ void Test::func_fib_mir() {
   using JitFtype = uint32_t (*)(uint32_t);
   JitFtype jit_func = JitFtype(jit_func_addr);
 
-  const uint32_t arg = 40;
+  for (size_t i = 0; i < 1; i++) {
+    const double start = get_cpu_clock();
+    const uint32_t arg = 40;
+    const uint32_t ret = jit_func(arg);
+    const double end = get_cpu_clock();
 
-#ifdef CLOCK_THREAD_CPUTIME_ID
-  timespec tstart, tend;
-  clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tstart);
-  uint32_t ret = jit_func(arg);
-  clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tend);
-#else
-  uint32_t ret = jit_func(arg);
-#endif
+    TEST(ret, ==, 102334155);
 
-  TEST(ret, ==, 102334155);
-
-#ifdef CLOCK_THREAD_CPUTIME_ID
-  double start = tstart.tv_sec + tstart.tv_nsec * 1e-9;
-  double end = tend.tv_sec + tend.tv_nsec * 1e-9;
-  fmt << "  MIR jit-compiled function fibonacci(40) took " << (end - start) << " seconds\n";
-#endif
+    fmt << "  MIR jit-compiled function fibonacci(" << arg << ")\ttook " << (end - start)
+        << " seconds\n";
+  }
 }
 
 void Test::func_loop_mir() {
@@ -125,38 +116,40 @@ void Test::func_loop_mir() {
   fmt << assembler.errors();
   TEST(assembler.errors().size(), ==, 0);
 
-  if (true) {
+  if (false) {
     // +16 skips the preamble 'movabs $0x____, %r11; jmp *%r11'
     const uint8_t *disam_addr = static_cast<const uint8_t *>(jit_func_addr) + 16;
 
     fmt << "jit_func compiled    at address 0x" << Hex(jit_func_addr) << '\n' //
         << "jit_func disassembly at address 0x" << Hex(disam_addr) << '\n';
 
-    disasm(fmt, Bytes{disam_addr, 126}) << '\n';
+    disasm(fmt, Bytes{disam_addr, 64}) << '\n';
   }
 
   // call jit-compiled function to compute fibonacci(40)
   using JitFtype = uint64_t (*)(uint64_t);
   JitFtype jit_func = JitFtype(jit_func_addr);
 
-  const uint64_t arg = 1234567890;
+  for (size_t i = 0; i < 1; i++) {
+    const double start = get_cpu_clock();
+    const uint64_t arg = 1234567890ul;
+    const uint64_t ret = jit_func(arg);
+    const double end = get_cpu_clock();
 
-#ifdef CLOCK_THREAD_CPUTIME_ID
-  timespec tstart, tend;
-  clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tstart);
-  uint64_t ret = jit_func(arg);
-  clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tend);
-#else
-  uint64_t ret = jit_func(arg);
-#endif
+    TEST(ret, ==, arg * (arg - 1) / 2);
 
-  TEST(ret, ==, arg * (arg - 1) / 2);
+    fmt << "  MIR jit-compiled function loop(" << arg << ")\ttook " << (end - start)
+        << " seconds\n";
+  }
+}
 
-#ifdef CLOCK_THREAD_CPUTIME_ID
-  double start = tstart.tv_sec + tstart.tv_nsec * 1e-9;
-  double end = tend.tv_sec + tend.tv_nsec * 1e-9;
-  fmt << "  MIR jit-compiled function loop(" << arg << ") took " << (end - start) << " seconds\n";
-#endif
+void Test::func_memchr_mir() {
+  Func &f = make_func_memchr(Uint64);
+  compile(f, MIR);
+
+  Chars expected = "(block)";
+
+  TEST(to_string(f.get_compiled(MIR)), ==, expected);
 }
 
 } // namespace onejit

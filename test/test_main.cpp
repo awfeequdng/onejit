@@ -19,6 +19,7 @@
 #include <onejit/codeparser.hpp>
 
 #include <cstdio> // stdout
+#include <time.h> // clock_gettime()
 
 #ifdef __unix__
 #include <fcntl.h>     // open()
@@ -47,6 +48,7 @@ void Test::run() {
   stl_graph();
   arch();
   kind();
+
   expr_const();
   expr_simple();
   expr_nested();
@@ -54,18 +56,23 @@ void Test::run() {
   expr_mir();
   expr_x64();
   eval_expr();
+
+  stmt_if();
+
   optimize();
   regallocator();
+
+  func_and_or();
+  func_cond();
   func_fib();
   func_fib_mir();
   func_loop();
   func_loop_mir();
+  func_max();
+  func_memchr();
   func_switch1();
   func_switch2();
-  func_cond();
-  func_and_or();
   func_tuple();
-  func_max();
 
   Fmt{stdout} << testcount() << " tests passed\n";
 }
@@ -105,6 +112,20 @@ void Test::dump_and_clear_code() {
   }
 
   holder.clear();
+}
+
+double Test::get_cpu_clock() {
+#if defined(CLOCK_THREAD_CPUTIME_ID)
+  timespec t;
+  clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t);
+  return t.tv_sec + t.tv_nsec * 1e-9;
+#elif defined(CLOCK_REALTIME)
+  timespec t;
+  clock_gettime(CLOCK_REALTIME, &t);
+  return t.tv_sec + t.tv_nsec * 1e-9;
+#else
+  return 0.0 / 0.0;
+#endif
 }
 
 } // namespace onejit
