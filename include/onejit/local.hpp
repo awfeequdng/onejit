@@ -32,6 +32,14 @@ class Local {
   friend class ir::Var;
   friend class ir::VarHelper;
 
+  friend constexpr inline bool operator==(Local a, Local b) noexcept {
+    return a.val_ == b.val_;
+  }
+
+  friend constexpr inline bool operator!=(Local a, Local b) noexcept {
+    return a.val_ != b.val_;
+  }
+
 public:
   // create an invalid Local.
   constexpr Local() noexcept : val_{eBad} {
@@ -100,14 +108,6 @@ private:
 #endif
   };
 };
-
-constexpr inline bool operator==(Local a, Local b) noexcept {
-  return a.kind() == b.kind() && a.id() == b.id();
-}
-
-constexpr inline bool operator!=(Local a, Local b) noexcept {
-  return a.kind() != b.kind() || a.id() != b.id();
-}
 
 inline const Fmt &operator<<(const Fmt &fmt, Local local) {
   return local.format(fmt);

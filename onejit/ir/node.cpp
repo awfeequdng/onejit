@@ -74,7 +74,7 @@ Node Node::child(uint32_t i) const noexcept {
     offset_or_direct = item;
     header = Header{CONST, Imm::parse_direct_kind(item), 0};
   } else if ((item & 7) == 2) {
-    // direct Local
+    // direct Var
     offset_or_direct = item;
     header = Header{VAR, Local::parse_direct_kind(item), 0};
   } else if ((item & 0xF) == 6) {
@@ -88,7 +88,7 @@ Node Node::child(uint32_t i) const noexcept {
     code = code_; // only indirect Nodes need code
   } else {
     // Header 0b0000 is empty Node i.e. type = STMT_0, kind = eBad, op = OpStmt0::BAD, direct = 0
-    //     and is the only "false" node i.e. with operator bool() == false.
+    //     and its operator bool() == false because kind == eBad.
     // The direct Stmt0 BadStmt{} is quite similar, it has
     //     type = STMT_0, kind = eVoid, op = OpStmt0::BAD, direct = 6.
     // TODO: Merge them?
