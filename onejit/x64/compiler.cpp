@@ -169,6 +169,7 @@ Expr Compiler::simplify(Expr expr) noexcept {
   }
 }
 
+// convert onejit::Mem to onejit::x64::Mem
 Expr Compiler::simplify(onejit::Mem expr) noexcept {
   const uint32_t n = expr.children();
   Array<Expr> children;
@@ -177,19 +178,18 @@ Expr Compiler::simplify(onejit::Mem expr) noexcept {
     return Expr{};
   }
   for (uint32_t i = 0; i < n; i++) {
-    children.set(i, to_var_const(simplify(expr.arg(i))));
+    children.set(i, simplify(expr.arg(i)));
   }
 
   Address address;
   for (uint32_t i = 0; i < n; i++) {
     Expr arg = children[i];
     if (!address.insert(*this, arg)) {
-      Expr reg = Var{*func_, arg.kind()};
-      add(Stmt2{*func_, X86_MOV, reg, arg});
-      if (!address.insert(*this, reg)) {
-        children.set(i, reg);
-        arg = to_var_const(simplify(Tuple{*func_, Ptr, ADD, Nodes{children.data(), n}}));
-        Mem mem{*this, expr.kind(), Exprs{&arg, 1}};
+      arg = to_var_const(arg);
+      if (!address.insert(*this, arg)) {
+        children.set(i, arg);
+        Expr args = to_var_const(simplify(Tuple{*func_, Ptr, ADD, Nodes{children.data(), n}}));
+        Mem mem{*this, expr.kind(), Exprs{&args, 1}};
         if (!mem) {
           error(expr, "internal error: failed to compile onejit::x64::Mem");
           return Expr{};
