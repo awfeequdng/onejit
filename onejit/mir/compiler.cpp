@@ -293,8 +293,8 @@ Expr Compiler::simplify(onejit::Mem expr, Mask mask, Expr opt_dst) noexcept {
   Kind kind = expr.kind();
   Mem mem{*this, kind, children}; // may fail if too many or too complex args
   if (!mem) {
-    Expr arg = simplify(Tuple{f(), kind, ADD, children});
-    mem = Mem{*this, expr.kind(), Nodes{&arg, 1}};
+    Expr arg = simplify(Tuple{f(), Ptr, ADD, children});
+    mem = Mem{*this, kind, Nodes{&arg, 1}};
     if (!mem) {
       error(expr, "internal error: failed to compile onejit::mir::Mem");
       return Expr{};

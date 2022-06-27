@@ -26,33 +26,30 @@ namespace onejit {
 namespace x64 {
 
 Node Mem::create(Func &func, Kind kind, const Address &address) noexcept {
-  do {
-    Expr args[5] = {};
-    size_t len = 0;
-    if (address.label) {
-      args[0] = address.label;
-      len = 1;
-    }
-    if (address.offset != 0) {
-      args[1] = Const{func, address.offset};
-      if (!args[1]) {
-        break;
-      }
-      len = 2;
-    }
-    if (address.base) {
-      args[2] = address.base;
-      len = 3;
-    }
-    if (address.index && address.scale) {
-      args[3] = address.index;
-      args[4] = Const{Uint8, uint16_t(address.scale.val())};
-      len = 5;
-    }
-    return Base::create(func, kind, X86_MEM, Exprs{args, len});
 
-  } while (false);
-  return Mem{};
+  Expr args[5] = {};
+  size_t len = 0;
+  if (address.label) {
+    args[0] = address.label;
+    len = 1;
+  }
+  if (address.offset != 0) {
+    args[1] = Const{func, address.offset};
+    if (!args[1]) {
+      return Mem{};
+    }
+    len = 2;
+  }
+  if (address.base) {
+    args[2] = address.base;
+    len = 3;
+  }
+  if (address.index && address.scale) {
+    args[3] = address.index;
+    args[4] = Const{Uint8, uint16_t(address.scale.val())};
+    len = 5;
+  }
+  return Base::create(func, kind, X86_MEM, Exprs{args, len});
 }
 
 Node Mem::create(Compiler &comp, Kind kind, Exprs children) noexcept {

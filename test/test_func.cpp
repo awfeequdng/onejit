@@ -869,7 +869,7 @@ void Test::func_memchr() {
     (x86_mov var1004_ul 0)\n\
     (x86_jmp label_2)\n\
     label_1\n\
-    (x86_cmp var1002_ub (mem_ub var1000_p var1004_ul))\n\
+    (x86_cmp var1002_ub (x86_mem_ub var1000_p var1004_ul 1))\n\
     (x86_jne label_4)\n\
     (x86_lea var1003_p (x86_mem_p var1004_ul var1000_p 1))\n\
     (x86_ret var1003_p)\n\

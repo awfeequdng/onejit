@@ -16,6 +16,7 @@
 #include <onejit/compiler.hpp>
 #include <onejit/func.hpp>
 #include <onejit/ir.hpp>
+#include <onejit/x64/address.hpp>
 #include <onejit/x64/compiler.hpp>
 #include <onejit/x64/mem.hpp>
 
@@ -169,7 +170,35 @@ Expr Compiler::simplify(Expr expr) noexcept {
 }
 
 Expr Compiler::simplify(onejit::Mem expr) noexcept {
-  return expr; // TODO
+  const uint32_t n = expr.children();
+  Array<Expr> children;
+  if (!children.resize(n)) {
+    out_of_memory(expr);
+    return Expr{};
+  }
+  for (uint32_t i = 0; i < n; i++) {
+    children.set(i, to_var_const(simplify(expr.arg(i))));
+  }
+
+  Address address;
+  for (uint32_t i = 0; i < n; i++) {
+    Expr arg = children[i];
+    if (!address.insert(*this, arg)) {
+      Expr reg = Var{*func_, arg.kind()};
+      add(Stmt2{*func_, X86_MOV, reg, arg});
+      if (!address.insert(*this, reg)) {
+        children.set(i, reg);
+        arg = to_var_const(simplify(Tuple{*func_, Ptr, ADD, Nodes{children.data(), n}}));
+        Mem mem{*this, expr.kind(), Exprs{&arg, 1}};
+        if (!mem) {
+          error(expr, "internal error: failed to compile onejit::x64::Mem");
+          return Expr{};
+        }
+        return mem;
+      }
+    }
+  }
+  return Mem{*func_, expr.kind(), address};
 }
 
 Expr Compiler::simplify(Unary expr) noexcept {
