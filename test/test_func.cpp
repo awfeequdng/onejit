@@ -843,6 +843,46 @@ void Test::func_memchr() {
             void))\n\
     (return 0x0))";
   TEST(to_string(f.get_body()), ==, expected);
+
+  expected = "(block\n\
+    label_0\n\
+    (_set var1000_p var1001_ul var1002_ub)\n\
+    (= var1004_ul 0)\n\
+    (goto label_2)\n\
+    label_1\n\
+    (asm_jne label_4 var1002_ub (mem_ub var1000_p var1004_ul))\n\
+    (= var1003_p (+ var1004_ul var1000_p))\n\
+    (return var1003_p)\n\
+    label_4\n\
+    (++ var1004_ul)\n\
+    label_2\n\
+    (asm_jb label_1 var1004_ul var1001_ul)\n\
+    label_3\n\
+    (= var1003_p 0x0)\n\
+    (return var1003_p))";
+  compile(f, NOARCH);
+  TEST(to_string(f.get_compiled(NOARCH)), ==, expected);
+
+  expected = "(block\n\
+    label_0\n\
+    (_set var1000_p var1001_ul var1002_ub)\n\
+    (x86_mov var1004_ul 0)\n\
+    (x86_jmp label_2)\n\
+    label_1\n\
+    (x86_cmp var1002_ub (mem_ub var1000_p var1004_ul))\n\
+    (x86_jne label_4)\n\
+    (x86_lea var1003_p (x86_mem_p var1004_ul var1000_p 1))\n\
+    (x86_ret var1003_p)\n\
+    label_4\n\
+    (x86_inc var1004_ul)\n\
+    label_2\n\
+    (x86_cmp var1004_ul var1001_ul)\n\
+    (x86_jb label_1)\n\
+    label_3\n\
+    (x86_mov var1003_p 0x0)\n\
+    (x86_ret var1003_p))";
+  compile(f, X64);
+  TEST(to_string(f.get_compiled(X64)), ==, expected);
 }
 
 } // namespace onejit

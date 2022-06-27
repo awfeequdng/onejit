@@ -23,12 +23,7 @@ namespace onejit {
 // ============================  OpStmt0  ======================================
 
 static const Chars op_stmt_0_string[] = {
-    "_",
-    "break",
-    "continue",
-    "", // 3 reserved for VoidConst
-    "", // 4 conflicts with indirect nodes
-    "fallthrough",
+    "_", "break", "continue", "fallthrough",
 
 #define ONEJIT_X(NAME, name) "x86_" #name,
     ONEJIT_OPSTMT0_X86(ONEJIT_X)

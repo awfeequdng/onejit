@@ -105,25 +105,21 @@ Func &Test::make_func_memchr(Kind kind) {
    * }
    */
 
-  If if_{f, Binary{f, EQL, Mem{f, Uint8, {addr, i}}, ch}, //
-         Return{f, Tuple{f, ADD, addr, i}}};
-
-  Chars expected = "(if (== (mem_ub var1000_p var1004_ul) var1002_ub)\n\
-    (return (+ var1000_p var1004_ul))\n\
-    void)";
-
-  TEST(to_string(if_), ==, expected);
-
   f.set_body( //
-      Block{f,
-            {For{
-                 f,                          //
-                 Assign{f, ASSIGN, i, zero}, // init
-                 Binary{f, LSS, i, len},     // test
-                 Inc{f, i},                  // post
-                 if_,                        // body
-             },
-             Return{f, Zero(Ptr)}}});
+      Block{
+          f,
+          {For{
+               f,                          //
+               Assign{f, ASSIGN, i, zero}, // init
+               Binary{f, LSS, i, len},     // test
+               Inc{f, i},                  // post
+               /**/                        // body
+               If{f, Binary{f, EQL, Mem{f, Uint8, {addr, i}}, ch},
+                  Return{f, Tuple{f, ADD, addr, i}}},
+           },
+           Return{f, Zero(Ptr)}} // namespace onejit
+      });
+
   return f;
 }
 

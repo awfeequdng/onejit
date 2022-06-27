@@ -145,10 +145,23 @@ void Test::func_loop_mir() {
 
 void Test::func_memchr_mir() {
   Func &f = make_func_memchr(Uint64);
+
+  Chars expected = "(block\n\
+    label_0\n\
+    (mir_mov var1004_ul 0)\n\
+    (mir_jmp label_2)\n\
+    label_1\n\
+    (mir_bnes label_4 var1002_ub (mir_mem_ub var1000_p var1004_ul 1))\n\
+    (mir_add var1003_p var1004_ul var1000_p)\n\
+    (mir_ret var1003_p)\n\
+    label_4\n\
+    (mir_add var1004_ul var1004_ul 1)\n\
+    label_2\n\
+    (mir_ublt label_1 var1004_ul var1001_ul)\n\
+    label_3\n\
+    (mir_mov var1003_p 0x0)\n\
+    (mir_ret var1003_p))";
   compile(f, MIR);
-
-  Chars expected = "(block)";
-
   TEST(to_string(f.get_compiled(MIR)), ==, expected);
 }
 

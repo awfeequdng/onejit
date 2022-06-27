@@ -70,6 +70,7 @@ void Test::run() {
   func_loop_mir();
   func_max();
   func_memchr();
+  func_memchr_mir();
   func_switch1();
   func_switch2();
   func_tuple();
