@@ -18,6 +18,7 @@
 #include <onejit/ir/call.hpp>
 #include <onejit/ir/functype.hpp>
 #include <onejit/ir/label.hpp>
+#include <onejit/op.hpp>
 #include <onestl/buffer.hpp>
 
 namespace onejit {

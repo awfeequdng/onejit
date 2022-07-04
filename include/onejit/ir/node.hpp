@@ -26,7 +26,6 @@
 
 #include <type_traits> // std::is_base_of<>
 
-
 namespace onejit {
 namespace ir {
 
@@ -243,6 +242,9 @@ String to_string(Node node, Syntax syntax = Syntax::Default, size_t depth = 0);
 inline const Fmt &operator<<(const Fmt &fmt, const Node &node) {
   return node.format(fmt);
 }
+
+// useful to call from debuggers
+void print_node(Node node);
 
 } // namespace ir
 } // namespace onejit

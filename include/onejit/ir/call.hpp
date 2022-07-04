@@ -78,7 +78,7 @@ private:
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op == CALL;
+    return OpN(op) == CALL;
   }
 
   static Node create(Func &caller, const FuncType &ftype, const Expr &address, Exprs args) noexcept;

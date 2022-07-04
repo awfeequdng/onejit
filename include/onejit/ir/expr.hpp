@@ -39,10 +39,6 @@ public:
   constexpr Expr() noexcept : Base{} {
   }
 
-  SideEffects side_effects() const noexcept {
-    return SideEffects(Base::op() & 0xF000);
-  }
-
 protected:
   // downcast Node to Expr
   constexpr explicit Expr(const Node &node) noexcept : Base{node} {

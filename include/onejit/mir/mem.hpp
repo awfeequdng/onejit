@@ -87,7 +87,7 @@ private:
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op == MIR_MEM;
+    return OpN(op) == MIR_MEM;
   }
 
   static Node create(Func &func, Kind kind, const Address &address) noexcept;

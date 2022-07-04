@@ -35,6 +35,8 @@
 #include <onejit/test.hpp>
 #include <onestl/chars.hpp>
 
+#include <cstdio>
+
 namespace onejit {
 namespace ir {
 
@@ -304,5 +306,10 @@ String to_string(Node node, Syntax syntax, size_t depth) {
   return str;
 }
 
+// useful to call from debuggers
+void print_node(Node node) {
+  Fmt{stdout} << node << '\n';
+  fflush(stdout);
+}
 } // namespace ir
 } // namespace onejit

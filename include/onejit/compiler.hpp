@@ -119,8 +119,12 @@ private:
   Compiler &exit_loop() noexcept;
 
   // copy expression result to a new local variable.
-  // if node is already a Var, does nothing and returns it
+  // if node is not an Expr or is already a Var, does nothing and returns it.
   Var to_var(Node node) noexcept;
+
+  // if node is a Var, Mem or Const, or is not an Expr does nothing and returns it.
+  // otherwise copies expression result to a new local variable and returns it.
+  Expr to_var_mem_const(Node node) noexcept;
 
   // copy node.child(start ... end-1) to new local variables,
   // and append such variables to vars.

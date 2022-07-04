@@ -75,7 +75,7 @@ private:
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op >= MEM_OP;
+    return OpN(op) >= MEM_OP;
   }
 };
 

@@ -64,7 +64,7 @@ private:
 
   // downcast helper
   static constexpr bool is_allowed_op(uint16_t op) noexcept {
-    return op == COMMA;
+    return OpN(op) == COMMA;
   }
 
   static Node create(Func &func, Exprs args) noexcept;

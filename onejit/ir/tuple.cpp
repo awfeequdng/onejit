@@ -27,33 +27,15 @@ namespace ir {
 
 // ============================  Tuple  ====================================
 
-uint16_t Tuple::compose_side_effects(OpN op, Nodes nodes) noexcept {
-  uint16_t eff = op;
-  for (size_t i = 0, n = nodes.size(); i < n; i++) {
-    eff = eff | nodes[i].is<Expr>().side_effects();
-  }
-  return eff;
-}
-
-uint16_t Tuple::compose_side_effects(OpN op, const ChildRange &nodes) noexcept {
-  uint16_t eff = op;
-  for (size_t i = 0, n = nodes.size(); i < n; i++) {
-    eff = eff | nodes[i].is<Expr>().side_effects();
-  }
-  return eff;
-}
-
 Node Tuple::create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept {
-  const uint16_t node_op = compose_side_effects(op, nodes);
-  return Base::create_indirect(func,                         //
-                               Header{TUPLE, kind, node_op}, //
+  return Base::create_indirect(func,                    //
+                               Header{TUPLE, kind, op}, //
                                nodes);
 }
 
 Node Tuple::create(Func &func, Kind kind, OpN op, const ChildRange &nodes) noexcept {
-  const uint16_t node_op = compose_side_effects(op, nodes);
-  return Base::create_indirect_from_ranges(func,                         //
-                                           Header{TUPLE, kind, node_op}, //
+  return Base::create_indirect_from_ranges(func,                    //
+                                           Header{TUPLE, kind, op}, //
                                            ChildRanges{&nodes, 1});
 }
 

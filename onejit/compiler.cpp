@@ -282,7 +282,7 @@ Expr Compiler::compile(Tuple expr, Flags flags) noexcept {
   bool changed = false;
   for (uint32_t i = 0; i < n; i++) {
     Node child = expr.child(i);
-    Node comp_child = compile(child, flags);
+    Node comp_child = to_var_mem_const(compile(child, flags));
     nodes.set(i, comp_child);
     changed = changed || child != comp_child;
   }
@@ -509,9 +509,9 @@ Node Compiler::compile(Stmt3 st, Flags flags) noexcept {
 Node Compiler::compile(If st, Flags) noexcept {
   Node then = st.then();
   Node else_ = st.else_();
-  Expr test = compile(st.test(), SimplifyDefault);
+  Expr test = compile(st.test(), SimplifyCall);
   if (Const ctest = test.is<Const>()) {
-    compile_add(ctest.val() ? then : else_, SimplifyDefault);
+    compile_add(ctest.val() ? then : else_, SimplifyCall);
     return VoidConst;
   }
   bool have_else = else_.type() != CONST;
@@ -521,12 +521,12 @@ Node Compiler::compile(If st, Flags) noexcept {
   test = Unary{*func_, NOT1, test};
   JumpIf jump_if{*func_, else_label, test};
 
-  compile_add(jump_if, SimplifyDefault) //
-      .compile_add(then, SimplifyDefault);
+  compile_add(jump_if, SimplifyCall) //
+      .compile_add(then, SimplifyCall);
   if (have_else) {
     add(Goto{*func_, endif_label}) //
         .add(else_label)
-        .compile_add(else_, SimplifyDefault);
+        .compile_add(else_, SimplifyCall);
   }
   add(endif_label);
   return VoidConst;
@@ -818,6 +818,18 @@ Var Compiler::to_var(Node node) noexcept {
     compile_add(Assign{*func_, ASSIGN, v, e}, SimplifyDefault);
   }
   return v;
+}
+
+Expr Compiler::to_var_mem_const(Node node) noexcept {
+  switch (node.type()) {
+  case VAR:
+  case MEM:
+  case CONST:
+  case LABEL:
+    return node.is<Expr>();
+  default:
+    return to_var(node);
+  }
 }
 
 Compiler &Compiler::to_vars(Node node, uint32_t start, uint32_t end, //

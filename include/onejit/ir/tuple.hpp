@@ -90,9 +90,6 @@ private:
     return true;
   }
 
-  static uint16_t compose_side_effects(OpN op, Nodes nodes) noexcept;
-  static uint16_t compose_side_effects(OpN op, const ChildRange &nodes) noexcept;
-
   static Node create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept;
 
   static Node create(Func &func, Kind kind, OpN op, const ChildRange &nodes) noexcept;
