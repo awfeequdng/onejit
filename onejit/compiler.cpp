@@ -18,6 +18,7 @@
 #include <onejit/func.hpp>
 #include <onejit/ir/binary.hpp>
 #include <onejit/ir/call.hpp>
+#include <onejit/ir/childrange.hpp>
 #include <onejit/ir/comma.hpp>
 #include <onejit/ir/const.hpp>
 #include <onejit/ir/mem.hpp>
@@ -410,9 +411,9 @@ Node Compiler::compile(Stmt2 st, Flags flags) noexcept {
 Node Compiler::compile(Assign assign, Flags) noexcept {
   Expr src = assign.src();
   Expr dst = assign.dst();
-  // compile src first: its side effects, if any, must be applied before dst
+  // compile dst first: its side effects, if any, must be applied before src
+  Expr comp_dst = to_place(compile(dst, SimplifyDefault));
   Expr comp_src = compile(src, SimplifyAll);
-  Expr comp_dst = compile(dst, SimplifyDefault);
   if (src != comp_src || dst != comp_src) {
     assign = Assign{*func_, assign.op(), comp_dst, comp_src};
   }
@@ -607,9 +608,9 @@ Node Compiler::compile(AssignCall st, Flags) noexcept {
     if (call == comp_call && st.children_are<Var>(0, n - 1)) {
       break;
     }
-    Array<Expr> vars;
-    to_vars(st, 0, n - 1, vars);
-    st = AssignCall{*func_, vars, comp_call};
+    Array<Expr> places;
+    to_places(st, 0, n - 1, places);
+    st = AssignCall{*func_, places, comp_call};
     break;
   }
   add(st);
@@ -820,6 +821,17 @@ Var Compiler::to_var(Node node) noexcept {
   return v;
 }
 
+Expr Compiler::to_var_const(Node node) noexcept {
+  switch (node.type()) {
+  case VAR:
+  case CONST:
+  case LABEL:
+    return node.is<Expr>();
+  default:
+    return to_var(node);
+  }
+}
+
 Expr Compiler::to_var_mem_const(Node node) noexcept {
   switch (node.type()) {
   case VAR:
@@ -832,6 +844,16 @@ Expr Compiler::to_var_mem_const(Node node) noexcept {
   }
 }
 
+Expr Compiler::to_place(Node node) noexcept {
+  Mem mem = node.is<Mem>();
+  if (!mem) {
+    return node.is<Expr>();
+  }
+  Expr address = Tuple{*func_, Ptr, ADD, ChildRange{mem}};
+  address = to_var_const(compile(address, SimplifyAll));
+  return Mem{*func_, mem.kind(), {address}};
+}
+
 Compiler &Compiler::to_vars(Node node, uint32_t start, uint32_t end, //
                             Array<Expr> &vars) noexcept {
   if (!vars.resize(end > start ? end - start : 0)) {
@@ -839,6 +861,17 @@ Compiler &Compiler::to_vars(Node node, uint32_t start, uint32_t end, //
   }
   for (size_t i = start; i < end; i++) {
     vars.set(i - start, to_var(node.child(i)));
+  }
+  return *this;
+}
+
+Compiler &Compiler::to_places(Node node, uint32_t start, uint32_t end, //
+                              Array<Expr> &places) noexcept {
+  if (!places.resize(end > start ? end - start : 0)) {
+    return out_of_memory(node);
+  }
+  for (size_t i = start; i < end; i++) {
+    places.set(i - start, to_place(node.child(i)));
   }
   return *this;
 }

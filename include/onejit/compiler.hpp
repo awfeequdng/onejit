@@ -122,14 +122,28 @@ private:
   // if node is not an Expr or is already a Var, does nothing and returns it.
   Var to_var(Node node) noexcept;
 
+  // if node is a Var or Const, or is not an Expr does nothing and returns it.
+  // otherwise copies expression result to a new local variable and returns it.
+  Expr to_var_const(Node node) noexcept;
+
   // if node is a Var, Mem or Const, or is not an Expr does nothing and returns it.
   // otherwise copies expression result to a new local variable and returns it.
   Expr to_var_mem_const(Node node) noexcept;
 
-  // copy node.child(start ... end-1) to new local variables,
-  // and append such variables to vars.
+  // if node is a Mem, compute its address and return Mem{address}.
+  // Used to simplify left hand side of assignments and apply their side effects
+  // before the right hand side
+  Expr to_place(Node node) noexcept;
+
+  // call to_var() on each node's child in the range [start, end-1].
+  // and store returned variables to vars.
   Compiler &to_vars(Node node, uint32_t start, uint32_t end, //
                     Array<Expr> &vars) noexcept;
+
+  // call to_place() on each node's child in the range [start, end-1].
+  // and store returned places to vars.
+  Compiler &to_places(Node node, uint32_t start, uint32_t end, //
+                      Array<Expr> &places) noexcept;
 
   Compiler &add_prologue(Func &func) noexcept;
   Compiler &add_epilogue(Func &func) noexcept;
