@@ -36,7 +36,7 @@ enum Compiler::Flags : uint8_t {
   SimplifyNone = 0,
   SimplifyCall = 1 << 0,
   SimplifyLandLor = 1 << 1,
-  SimplifyAll = 0x3,
+  SimplifyAll = SimplifyCall | SimplifyLandLor,
   SimplifyDefault = SimplifyLandLor,
 };
 
@@ -639,7 +639,7 @@ Node Compiler::compile(Cond st, Flags) noexcept {
       compile_add(JumpIf{*func_, l_next, //
                          Unary{*func_, NOT1, st.child_is<Expr>(i)}},
                   SimplifyDefault);
-      compile_add(st.child(i + 1), SimplifyDefault);
+      compile_add(st.child(i + 1), SimplifyAll);
       if (!is_last && goto_end) {
         add(goto_end);
       }
@@ -678,7 +678,7 @@ Node Compiler::compile(Return st, Flags) noexcept {
     if (expr != var) {
       // compile expression and copy its result
       // to expected location func_->result(i)
-      expr = compile(expr, SimplifyDefault);
+      expr = compile(expr, SimplifyAll);
       add(Assign{*func_, ASSIGN, var, expr});
     }
     vars.append(var);
@@ -752,7 +752,7 @@ Node Compiler::compile(Switch st, Flags) noexcept {
       add(l_this_fallthrough);
     }
     enter_case(l_break, l_fallthrough);
-    compile_add(case_i.body(), SimplifyDefault);
+    compile_add(case_i.body(), SimplifyAll);
     exit_case();
     // automatically add 'break' at the end of each case.
     // can be overridden, by adding 'fallthrough' as last statement in Case{...}

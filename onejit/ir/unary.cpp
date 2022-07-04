@@ -21,8 +21,8 @@ namespace onejit {
 namespace ir {
 
 ONEJIT_NOINLINE Node Unary::create(Func &func, Kind kind, Op1 op, Expr child) noexcept {
-  return Base::create_indirect(func,                        //
-                               Header{UNARY, kind, op}, //
+  return Base::create_indirect(func,                                                     //
+                               Header{UNARY, kind, uint16_t(op | child.side_effects())}, //
                                {child});
 }
 

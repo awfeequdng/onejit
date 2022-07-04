@@ -23,7 +23,7 @@
 
 namespace onejit {
 
-enum Op1 : uint16_t {
+enum Op1 : uint8_t {
   BAD1 = 0,
   XOR1 = 1,    // invert all bits
   NOT1 = 2,    // boolean negation
@@ -33,7 +33,7 @@ enum Op1 : uint16_t {
 };
 
 // see OpN for + * & | ^
-enum Op2 : uint16_t {
+enum Op2 : uint8_t {
   BAD2 = 0,
   SUB, // -
   QUO, // /
@@ -51,7 +51,7 @@ enum Op2 : uint16_t {
   GEQ,  // >=
 };
 
-enum OpN : uint16_t {
+enum OpN : uint8_t {
   BADN = 0,
   ADD, // +
   MUL, // *
@@ -71,6 +71,15 @@ enum OpN : uint16_t {
   ARM64_MEM,
 
   MIR_RETS, // multiple return values of a function call
+};
+
+// side effects of an expression
+enum SideEffects : uint16_t {
+  EffNone = 0,
+  EffIsMem = 0x1000,    // expression is a memory dereference
+  EffMemRead = 0x2000,  // expression reads memory
+  EffMemWrite = 0x4000, // expression writes memory
+  EffMemRW = 0x6000,    // assumed if an expression contains functions calls
 };
 
 constexpr inline Op1 operator+(Op1 op, int delta) noexcept {
@@ -113,6 +122,18 @@ constexpr inline bool is_commutative(OpN op) noexcept {
 }
 constexpr inline bool is_bitwise(OpN op) noexcept {
   return op >= AND && op <= XOR;
+}
+
+constexpr inline SideEffects operator&(SideEffects left, SideEffects right) noexcept {
+  return SideEffects(uint8_t(left) & uint8_t(right));
+}
+
+constexpr inline SideEffects operator|(SideEffects left, SideEffects right) noexcept {
+  return SideEffects(uint8_t(left) | uint8_t(right));
+}
+
+constexpr inline bool is_set(SideEffects bits, SideEffects key) noexcept {
+  return (uint8_t(bits) & uint8_t(key)) != 0;
 }
 
 const Chars to_string(Op1 op) noexcept;

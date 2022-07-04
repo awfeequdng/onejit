@@ -29,9 +29,10 @@ Node Binary::create(Func &func, Op2 op, const Expr &left, const Expr &right) {
   } else if (op <= GEQ) {
     kind = Bool; // && || comparison
   }
+  uint16_t node_op = op | left.side_effects() | right.side_effects();
 
-  return Base::create_indirect(func,                     //
-                               Header{BINARY, kind, op}, //
+  return Base::create_indirect(func,                          //
+                               Header{BINARY, kind, node_op}, //
                                {left, right});
 }
 

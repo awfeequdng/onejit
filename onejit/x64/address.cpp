@@ -83,8 +83,8 @@ bool Address::insert(Compiler &comp, Node node) noexcept {
   return false;
 }
 
-bool Address::insert(Compiler &comp, Exprs children) noexcept {
-  for (Expr expr : children) {
+bool Address::insert(Compiler &comp, Exprs exprs) noexcept {
+  for (Expr expr : exprs) {
     if (!insert(comp, expr)) {
       return false;
     }
@@ -92,9 +92,9 @@ bool Address::insert(Compiler &comp, Exprs children) noexcept {
   return true;
 }
 
-bool Address::insert(Compiler &comp, const ChildRange &children) noexcept {
-  for (size_t i = 0, n = children.size(); i < n; i++) {
-    if (!insert(comp, children[i])) {
+bool Address::insert(Compiler &comp, const ChildRange &nodes) noexcept {
+  for (uint32_t i = 0, n = nodes.size(); i < n; i++) {
+    if (!insert(comp, nodes[i])) {
       return false;
     }
   }

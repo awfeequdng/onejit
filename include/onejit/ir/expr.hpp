@@ -17,6 +17,7 @@
 #define ONEJIT_IR_EXPR_HPP
 
 #include <onejit/ir/node.hpp>
+#include <onejit/op.hpp>
 
 namespace onejit {
 namespace ir {
@@ -36,6 +37,10 @@ public:
    * to construct a valid Expr, use one of the subclasses constructors
    */
   constexpr Expr() noexcept : Base{} {
+  }
+
+  SideEffects side_effects() const noexcept {
+    return SideEffects(Base::op() & 0xF000);
   }
 
 protected:

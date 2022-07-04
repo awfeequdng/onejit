@@ -145,21 +145,20 @@ Node Node::create_indirect(Func &func, Header header, Nodes children) noexcept {
   return Node{};
 }
 
-Node Node::create_indirect_from_ranges(Func &func, Header header, ChildRanges children) noexcept {
+Node Node::create_indirect_from_ranges(Func &func, Header header, ChildRanges nodes) noexcept {
   Code *holder = func.code();
-  const size_t ni = children.size();
   while (holder) {
     size_t n = 0;
     const bool islist = is_list(header.type());
     if (islist) {
-      for (size_t i = 0; i < ni; i++) {
-        n += children[i].size();
+      for (size_t i = 0, ni = nodes.size(); i < ni; i++) {
+        n += nodes[i].size();
       }
     }
     CodeItem offset = holder->length();
     if (n == uint32_t(n) && holder->add(header)) {
       if (!islist || holder->add_uint32(n)) {
-        if (holder->add_ranges(children, offset)) {
+        if (holder->add_ranges(nodes, offset)) {
           return Node{header, offset, holder};
         }
       }

@@ -15,6 +15,7 @@
 
 #include <onejit/code.hpp>
 #include <onejit/func.hpp>
+#include <onejit/ir/childrange.hpp>
 #include <onejit/ir/functype.hpp>
 #include <onejit/ir/label.hpp>
 #include <onejit/ir/mem.hpp>
@@ -26,15 +27,33 @@ namespace ir {
 
 // ============================  Tuple  ====================================
 
+uint16_t Tuple::compose_side_effects(OpN op, Nodes nodes) noexcept {
+  uint16_t eff = op;
+  for (size_t i = 0, n = nodes.size(); i < n; i++) {
+    eff = eff | nodes[i].is<Expr>().side_effects();
+  }
+  return eff;
+}
+
+uint16_t Tuple::compose_side_effects(OpN op, const ChildRange &nodes) noexcept {
+  uint16_t eff = op;
+  for (size_t i = 0, n = nodes.size(); i < n; i++) {
+    eff = eff | nodes[i].is<Expr>().side_effects();
+  }
+  return eff;
+}
+
 Node Tuple::create(Func &func, Kind kind, OpN op, Nodes nodes) noexcept {
-  return Base::create_indirect(func,                    //
-                               Header{TUPLE, kind, op}, //
+  const uint16_t node_op = compose_side_effects(op, nodes);
+  return Base::create_indirect(func,                         //
+                               Header{TUPLE, kind, node_op}, //
                                nodes);
 }
 
 Node Tuple::create(Func &func, Kind kind, OpN op, const ChildRange &nodes) noexcept {
-  return Base::create_indirect_from_ranges(func,                    //
-                                           Header{TUPLE, kind, op}, //
+  const uint16_t node_op = compose_side_effects(op, nodes);
+  return Base::create_indirect_from_ranges(func,                         //
+                                           Header{TUPLE, kind, node_op}, //
                                            ChildRanges{&nodes, 1});
 }
 
