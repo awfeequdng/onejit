@@ -830,9 +830,9 @@ void Test::func_max() {
   expected = "(block\n\
     label_0\n\
     (_set var1000_df var1001_df var1002_df)\n\
-    (x86_lea var1004_df (x86_mem_p var1000_df var1001_df 1))\n\
-    (x86_lea var1005_df (x86_mem_p var1000_df var1002_df 1))\n\
-    (x86_lea var1006_df (x86_mem_p var1001_df var1002_df 1))\n\
+    (= var1004_df (+ var1000_df var1001_df))\n\
+    (= var1005_df (+ var1000_df var1002_df))\n\
+    (= var1006_df (+ var1001_df var1002_df))\n\
     (= var1003_df (max var1004_df var1005_df var1006_df))\n\
     (x86_ret var1003_df))";
   compile(f, X64);

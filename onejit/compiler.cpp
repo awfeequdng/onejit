@@ -859,7 +859,7 @@ Compiler &Compiler::to_vars(Node node, uint32_t start, uint32_t end, //
   if (!vars.resize(end > start ? end - start : 0)) {
     return out_of_memory(node);
   }
-  for (size_t i = start; i < end; i++) {
+  for (uint32_t i = start; i < end; i++) {
     vars.set(i - start, to_var(node.child(i)));
   }
   return *this;
@@ -870,7 +870,7 @@ Compiler &Compiler::to_places(Node node, uint32_t start, uint32_t end, //
   if (!places.resize(end > start ? end - start : 0)) {
     return out_of_memory(node);
   }
-  for (size_t i = start; i < end; i++) {
+  for (uint32_t i = start; i < end; i++) {
     places.set(i - start, to_place(node.child(i)));
   }
   return *this;

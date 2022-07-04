@@ -318,7 +318,7 @@ Node Compiler::simplify_assign(Assign st, Expr dst, Unary src) noexcept {
 Node Compiler::simplify_assign(Assign st, Expr dst, Tuple src) noexcept {
   switch (src.op()) {
   case ADD:
-    if (dst.type() == VAR) {
+    if (dst.type() == VAR && dst.kind().is_integer_or_ptr() && dst.kind().bits() == Bits64) {
       if (Mem mem{*this, Ptr, ChildRange{src}}) {
         return Stmt2{*func_, X86_LEA, dst, mem};
       }
