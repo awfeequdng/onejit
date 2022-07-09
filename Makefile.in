@@ -98,7 +98,7 @@ DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/include/onejit_config.h
+CONFIG_HEADER = $(top_builddir)/onejit/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgdatadir)"
@@ -186,10 +186,8 @@ am__define_uniq_tagged_files = \
 DIST_SUBDIRS = $(SUBDIRS)
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/admin/ar-lib \
 	$(top_srcdir)/admin/compile $(top_srcdir)/admin/install-sh \
-	$(top_srcdir)/admin/missing \
-	$(top_srcdir)/include/onejit_config.h.in README.md \
-	admin/ar-lib admin/compile admin/depcomp admin/install-sh \
-	admin/missing
+	$(top_srcdir)/admin/missing README.md admin/ar-lib \
+	admin/compile admin/depcomp admin/install-sh admin/missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -375,21 +373,6 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
-
-include/onejit_config.h: include/stamp-h1
-	@test -f $@ || rm -f include/stamp-h1
-	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) include/stamp-h1
-
-include/stamp-h1: $(top_srcdir)/include/onejit_config.h.in $(top_builddir)/config.status
-	@rm -f include/stamp-h1
-	cd $(top_builddir) && $(SHELL) ./config.status include/onejit_config.h
-$(top_srcdir)/include/onejit_config.h.in:  $(am__configure_deps) 
-	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
-	rm -f include/stamp-h1
-	touch $@
-
-distclean-hdr:
-	-rm -f include/onejit_config.h include/stamp-h1
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
@@ -801,7 +784,7 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -f Makefile
-distclean-am: clean-am distclean-generic distclean-hdr distclean-tags
+distclean-am: clean-am distclean-generic distclean-tags
 
 dvi: dvi-recursive
 
@@ -870,9 +853,9 @@ uninstall-am: uninstall-binPROGRAMS uninstall-pkgdataDATA
 	clean-cscope clean-generic cscope cscopelist-am ctags ctags-am \
 	dist dist-all dist-bzip2 dist-gzip dist-lzip dist-shar \
 	dist-tarZ dist-xz dist-zip dist-zstd distcheck distclean \
-	distclean-generic distclean-hdr distclean-tags distcleancheck \
-	distdir distuninstallcheck dvi dvi-am html html-am info \
-	info-am install install-am install-binPROGRAMS install-data \
+	distclean-generic distclean-tags distcleancheck distdir \
+	distuninstallcheck dvi dvi-am html html-am info info-am \
+	install install-am install-binPROGRAMS install-data \
 	install-data-am install-dvi install-dvi-am install-exec \
 	install-exec-am install-html install-html-am install-info \
 	install-info-am install-man install-pdf install-pdf-am \
@@ -885,7 +868,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-pkgdataDATA
 .PRECIOUS: Makefile
 
 
-# AM_CPPFLAGS          = -I$(top_srcdir)/include
+# AM_CPPFLAGS          = -I$(top_srcdir)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

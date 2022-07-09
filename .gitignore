@@ -22,8 +22,7 @@ config.status
 Makefile
 /autom4te.cache
 /go/go
-/include/onejit_config.h
-/include/stamp-h1
+/onejit/config.h
+/stamp-h1
 /test/test_jit
 /.vscode
-

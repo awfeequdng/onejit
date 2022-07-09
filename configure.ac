@@ -4,7 +4,7 @@
 AC_PREREQ([2.69])
 AC_INIT([onejit],[0.0.0],[github.com/cosmos72/onejit])
 AC_CONFIG_SRCDIR([onejit/archid.cpp])
-AC_CONFIG_HEADERS([include/onejit_config.h])
+AC_CONFIG_HEADERS([onejit/config.h])
 AC_CONFIG_AUX_DIR([admin])
 AM_INIT_AUTOMAKE([1.14 foreign subdir-objects])
 

@@ -94,7 +94,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/include/onejit_config.h
+CONFIG_HEADER = $(top_builddir)/onejit/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
@@ -121,7 +121,7 @@ AM_V_at = $(am__v_at_@AM_V@)
 am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 = 
-DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
+DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/onejit
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/test_disasm.Po \
@@ -317,7 +317,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = 
-AM_CPPFLAGS = -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_srcdir)
 AM_CXXFLAGS = $(CAPSTONE_CFLAGS)
 test_jit_SOURCES = test_disasm.cpp test_expr.cpp test_eval.cpp test_func.cpp test_make_func.cpp \
                          test_main.cpp test_mir.cpp test_optimize.cpp test_regallocator.cpp \

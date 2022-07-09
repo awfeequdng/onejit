@@ -15,9 +15,9 @@
 #ifndef TEST_TEST_DISASM_HPP
 #define TEST_TEST_DISASM_HPP
 
+#include <onejit/config.h> // HAVE_LIBCAPSTONE
 #include <onejit/fwd.hpp>
 #include <onejit/test.hpp>
-#include <onejit_config.h> // HAVE_LIBCAPSTONE
 
 #ifdef HAVE_LIBCAPSTONE
 #include <capstone.h>

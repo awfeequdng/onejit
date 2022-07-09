@@ -3,7 +3,7 @@ SUBDIRS =
 noinst_LIBRARIES       = libonestl.a
 # pkglib_LTLIBRARIES   =
 
-AM_CPPFLAGS            = -I$(top_srcdir)/include
+AM_CPPFLAGS            = -I$(top_srcdir)
 # libonestl_a_CPPFLAGS =
 
 libonestl_a_SOURCES    = array.cpp arrayhelper.cpp bitset.cpp chars.cpp fmt.cpp graph.cpp \

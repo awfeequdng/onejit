@@ -13,6 +13,7 @@
  *      Author Massimiliano Ghilardi
  */
 
+#include <onejit/config.h>
 #include <onejit/func.hpp>
 #include <onejit/ir/binary.hpp>
 #include <onejit/ir/childrange.hpp>
@@ -27,7 +28,6 @@
 #include <onejit/ir/tuple.hpp>
 #include <onejit/ir/unary.hpp>
 #include <onejit/mir/assembler.hpp>
-#include <onejit_config.h>
 #include <onestl/fmt.hpp>
 #include <onestl/writer_cstdio.hpp> // for debugging only
 #include <onestl/writer_string.hpp>

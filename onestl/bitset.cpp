@@ -13,7 +13,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onejit_config.h> // HAVE_*
+#include <onejit/config.h> // HAVE_*
 #include <onestl/bitset.hpp>
 #include <onestl/mem.hpp>
 

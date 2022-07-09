@@ -2723,7 +2723,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-ac_config_headers="$ac_config_headers include/onejit_config.h"
+ac_config_headers="$ac_config_headers onejit/config.h"
 
 
 am__api_version='1.16'
@@ -6617,7 +6617,7 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "include/onejit_config.h") CONFIG_HEADERS="$CONFIG_HEADERS include/onejit_config.h" ;;
+    "onejit/config.h") CONFIG_HEADERS="$CONFIG_HEADERS onejit/config.h" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "onejit/Makefile") CONFIG_FILES="$CONFIG_FILES onejit/Makefile" ;;

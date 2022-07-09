@@ -2,7 +2,7 @@ SUBDIRS =
 
 bin_PROGRAMS           = test_jit
 
-AM_CPPFLAGS            = -I$(top_srcdir)/include
+AM_CPPFLAGS            = -I$(top_srcdir)
 AM_CXXFLAGS            = $(CAPSTONE_CFLAGS)
 
 test_jit_SOURCES       = test_disasm.cpp test_expr.cpp test_eval.cpp test_func.cpp test_make_func.cpp \

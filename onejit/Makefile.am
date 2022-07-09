@@ -3,7 +3,7 @@ SUBDIRS =
 noinst_LIBRARIES       = libonejit.a
 # pkglib_LTLIBRARIES   =
 
-AM_CPPFLAGS            = -I$(top_srcdir)/include
+AM_CPPFLAGS            = -I$(top_srcdir)
 # libonejit_a_CXXFLAGS =
 
 libonejit_a_SOURCES    = \
