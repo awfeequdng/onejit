@@ -12,13 +12,14 @@
  *  Created on Jan 25, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONESTL_FMT_HPP
-#define ONESTL_FMT_HPP
+#ifndef ONESTL_IO_FMT_HPP
+#define ONESTL_IO_FMT_HPP
 
 #include <onestl/chars.hpp>
-#include <onestl/writer.hpp>
+#include <onestl/io/writer.hpp>
 
 namespace onestl {
+namespace io {
 
 ////////////////////////////////////////////////////////////////////////////////
 class Fmt {
@@ -120,20 +121,21 @@ inline const Fmt &operator<<(const Fmt &fmt, float arg) {
   return fmt << double(arg);
 }
 
-inline const Fmt &operator<<(const Fmt &fmt, View<char> arg) {
-  return fmt.write(arg.data(), arg.size());
-}
-inline const Fmt &operator<<(const Fmt &fmt, View<int8_t> arg) {
-  return fmt.write(reinterpret_cast<const char *>(arg.data()), arg.size());
-}
-inline const Fmt &operator<<(const Fmt &fmt, View<uint8_t> arg) {
-  return fmt.write(reinterpret_cast<const char *>(arg.data()), arg.size());
-}
-
 template <size_t N> inline const Fmt &operator<<(const Fmt &fmt, const char (&addr)[N]) {
   return fmt.write(addr, N - 1);
 }
 
+inline const io::Fmt &operator<<(const io::Fmt &fmt, View<char> arg) {
+  return fmt.write(arg.data(), arg.size());
+}
+inline const io::Fmt &operator<<(const io::Fmt &fmt, View<int8_t> arg) {
+  return fmt.write(reinterpret_cast<const char *>(arg.data()), arg.size());
+}
+inline const io::Fmt &operator<<(const io::Fmt &fmt, View<uint8_t> arg) {
+  return fmt.write(reinterpret_cast<const char *>(arg.data()), arg.size());
+}
+
+} // namespace io
 } // namespace onestl
 
-#endif // ONESTL_FMT_HPP
+#endif // ONESTL_IO_FMT_HPP

@@ -7,33 +7,35 @@
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * writer_cstdio.cpp
+ * writer_string.cpp
  *
  *  Created on Jan 26, 2021
  *      Author Massimiliano Ghilardi
  */
 
-#include <onestl/writer.hpp>
-#include <onestl/writer_cstdio.hpp>
+#include <onestl/io/writer.hpp>
+#include <onestl/io/writer_string.hpp>
+#include <onestl/string.hpp>
 
-#include <cerrno>
-#include <cstdio>
+#include <cerrno> // ENOMEM
 
 namespace onestl {
+namespace io {
 
-static int write_to_file(void *handle, const char *chars, size_t n) noexcept {
-  FILE *dst = reinterpret_cast<FILE *>(handle);
+static int write_to_string(void *handle, const char *chars, size_t n) noexcept {
+  String *dst = reinterpret_cast<String *>(handle);
   int err = 0;
   if (!dst) {
     err = EINVAL;
-  } else if (std::fwrite(chars, 1, n, dst) != n) {
-    err = errno;
+  } else if (!dst->append(View<char>{chars, n})) {
+    err = ENOMEM;
   }
   return err;
 }
 
-template <> Writer Writer::make<FILE *>(FILE *dst) noexcept {
-  return Writer{dst, write_to_file};
+template <> Writer Writer::make<String *>(String *dst) noexcept {
+  return Writer{dst, write_to_string};
 }
 
+} // namespace io
 } // namespace onestl

@@ -7,23 +7,28 @@
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * writer_cstdio.hpp
+ * reader.cpp
  *
- *  Created on Jan 26, 2021
+ *  Created on Jul 09, 2022
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONESTL_WRITER_CSTDIO_HPP
-#define ONESTL_WRITER_CSTDIO_HPP
 
-#include <onestl/writer.hpp>
-
-#include <cstdio>
+#include <onestl/io/reader.hpp>
 
 namespace onestl {
+namespace io {
 
-// wrap a FILE* inside a Writer
-template <> Writer Writer::make<FILE *>(FILE *file) noexcept;
+////////////////////////////////////////////////////////////////////////////////
+int Reader::read(char *chars, size_t n) const {
+  int err = 0;
+  if (func_) {
+    err = func_(handle_, offset_, chars, n);
+    if (err > 0) {
+      offset_ += (uint64_t)err;
+    }
+  }
+  return err;
+}
 
+} // namespace io
 } // namespace onestl
-
-#endif // ONESTL_WRITER_CSTDIO_HPP

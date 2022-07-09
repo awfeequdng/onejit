@@ -92,7 +92,8 @@
         "numbers": "cpp",
         "semaphore": "cpp",
         "shared_mutex": "cpp",
-        "version": "cpp"
+        "version": "cpp",
+        "climits": "cpp"
     },
     "files.watcherExclude": {
         "**/.git/**": true

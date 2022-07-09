@@ -33,6 +33,8 @@ using Chars = ::onestl::Chars;
 using Fmt = ::onestl::Fmt;
 using Graph = ::onestl::Graph;
 using Hex = ::onestl::Hex;
+using Reader = ::onestl::Reader;
+using Scan = ::onestl::Scan;
 using String = ::onestl::String;
 using Writer = ::onestl::Writer;
 

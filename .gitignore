@@ -23,6 +23,6 @@ Makefile
 /autom4te.cache
 /go/go
 /onejit/config.h
-/stamp-h1
+/onejit/stamp-h1
 /test/test_jit
 /.vscode

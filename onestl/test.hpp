@@ -15,8 +15,8 @@
 #ifndef ONESTL_TEST_HPP
 #define ONESTL_TEST_HPP
 
-#include <onestl/fmt.hpp>
 #include <onestl/fwd.hpp>
+#include <onestl/io/fmt.hpp>
 #include <onestl/string.hpp>
 #include <onestl/test_tiny.hpp>
 

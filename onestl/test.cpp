@@ -13,7 +13,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onestl/fmt.hpp>
+#include <onestl/io/fmt.hpp>
 #include <onestl/string.hpp>
 #include <onestl/test.hpp>
 

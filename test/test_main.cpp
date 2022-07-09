@@ -46,6 +46,7 @@ FuncType Test::ftype() {
 void Test::run() {
   stl_bitset();
   stl_graph();
+  stl_scan();
   arch();
   kind();
 

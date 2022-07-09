@@ -13,12 +13,13 @@
  *      Author Massimiliano Ghilardi
  */
 
-#include <onestl/fmt.hpp>
+#include <onestl/io/fmt.hpp>
 
 #include <cstdio>  // std::snprintf()
 #include <cstring> // std::strlen()
 
 namespace onestl {
+namespace io {
 
 ONESTL_NOINLINE const Fmt &Fmt::write(const char *chars, size_t n) const {
   if (n != 0 && err_ == 0) {
@@ -87,4 +88,5 @@ const Fmt &operator<<(const Fmt &fmt, Hex arg) {
   return fmt.write(buf + i, sizeof(buf) - i);
 }
 
+} // namespace io
 } // namespace onestl

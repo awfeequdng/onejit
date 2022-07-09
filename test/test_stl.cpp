@@ -17,6 +17,8 @@
 
 #include <onestl/bitset.hpp>
 #include <onestl/graph.hpp>
+#include <onestl/io/reader_chars.hpp>
+#include <onestl/io/scan.hpp>
 
 namespace onejit {
 
@@ -132,6 +134,18 @@ void Test::stl_graph() {
     TEST(g.degree(a), ==, 0);
     TEST(g.first_set(a), ==, Graph::NoPos);
   }
+}
+
+void Test::stl_scan() {
+  Chars chars = " \t\n-1234567890";
+  Scan scan{&chars};
+  TEST(bool(scan), ==, true);
+
+  int64_t i = 0;
+  scan >> i;
+  TEST(bool(scan), ==, true);
+  TEST(scan.eof(), ==, true);
+  TEST(i, ==, -1234567890);
 }
 
 } // namespace onejit

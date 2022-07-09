@@ -7,22 +7,25 @@
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * writer_string.hpp
+ * writer_cstdio.hpp
  *
  *  Created on Jan 26, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONESTL_WRITER_STRING_HPP
-#define ONESTL_WRITER_STRING_HPP
+#ifndef ONESTL_IO_WRITER_CSTDIO_HPP
+#define ONESTL_IO_WRITER_CSTDIO_HPP
 
-#include <onestl/string.hpp>
-#include <onestl/writer.hpp>
+#include <onestl/io/writer.hpp>
+
+#include <cstdio>
 
 namespace onestl {
+namespace io {
 
-// wrap a String inside a Writer
-template <> Writer Writer::make<String *>(String *dst) noexcept;
+// wrap a FILE* inside a Writer
+template <> Writer Writer::make<FILE *>(FILE *file) noexcept;
 
+} // namespace io
 } // namespace onestl
 
-#endif // ONESTL_WRITER_STRING_HPP
+#endif // ONESTL_IO_WRITER_CSTDIO_HPP

@@ -15,7 +15,7 @@
 
 #include <onejit/group.hpp>
 #include <onestl/chars.hpp>
-#include <onestl/fmt.hpp>
+#include <onestl/io/fmt.hpp>
 
 namespace onejit {
 

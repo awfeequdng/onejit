@@ -104,10 +104,12 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libonestl_a_AR = $(AR) $(ARFLAGS)
 libonestl_a_LIBADD =
+am__dirstamp = $(am__leading_dot)dirstamp
 am_libonestl_a_OBJECTS = array.$(OBJEXT) arrayhelper.$(OBJEXT) \
-	bitset.$(OBJEXT) chars.$(OBJEXT) fmt.$(OBJEXT) graph.$(OBJEXT) \
-	mem.$(OBJEXT) string.$(OBJEXT) test.$(OBJEXT) \
-	writer_cstdio.$(OBJEXT) writer_string.$(OBJEXT)
+	bitset.$(OBJEXT) chars.$(OBJEXT) graph.$(OBJEXT) mem.$(OBJEXT) \
+	string.$(OBJEXT) test.$(OBJEXT) io/reader.$(OBJEXT) \
+	io/reader_chars.$(OBJEXT) io/scan.$(OBJEXT) io/fmt.$(OBJEXT) \
+	io/writer_cstdio.$(OBJEXT) io/writer_string.$(OBJEXT)
 libonestl_a_OBJECTS = $(am_libonestl_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -125,10 +127,11 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/onejit
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/array.Po ./$(DEPDIR)/arrayhelper.Po \
-	./$(DEPDIR)/bitset.Po ./$(DEPDIR)/chars.Po ./$(DEPDIR)/fmt.Po \
+	./$(DEPDIR)/bitset.Po ./$(DEPDIR)/chars.Po \
 	./$(DEPDIR)/graph.Po ./$(DEPDIR)/mem.Po ./$(DEPDIR)/string.Po \
-	./$(DEPDIR)/test.Po ./$(DEPDIR)/writer_cstdio.Po \
-	./$(DEPDIR)/writer_string.Po
+	./$(DEPDIR)/test.Po io/$(DEPDIR)/fmt.Po io/$(DEPDIR)/reader.Po \
+	io/$(DEPDIR)/reader_chars.Po io/$(DEPDIR)/scan.Po \
+	io/$(DEPDIR)/writer_cstdio.Po io/$(DEPDIR)/writer_string.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -319,8 +322,9 @@ noinst_LIBRARIES = libonestl.a
 # pkglib_LTLIBRARIES   =
 AM_CPPFLAGS = -I$(top_srcdir)
 # libonestl_a_CPPFLAGS =
-libonestl_a_SOURCES = array.cpp arrayhelper.cpp bitset.cpp chars.cpp fmt.cpp graph.cpp \
-                         mem.cpp string.cpp test.cpp writer_cstdio.cpp writer_string.cpp
+libonestl_a_SOURCES = array.cpp arrayhelper.cpp bitset.cpp chars.cpp graph.cpp mem.cpp string.cpp test.cpp \
+                         io/reader.cpp io/reader_chars.cpp io/scan.cpp \
+                         io/fmt.cpp io/writer_cstdio.cpp io/writer_string.cpp
 
 all: all-recursive
 
@@ -358,6 +362,21 @@ $(am__aclocal_m4_deps):
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+io/$(am__dirstamp):
+	@$(MKDIR_P) io
+	@: > io/$(am__dirstamp)
+io/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) io/$(DEPDIR)
+	@: > io/$(DEPDIR)/$(am__dirstamp)
+io/reader.$(OBJEXT): io/$(am__dirstamp) io/$(DEPDIR)/$(am__dirstamp)
+io/reader_chars.$(OBJEXT): io/$(am__dirstamp) \
+	io/$(DEPDIR)/$(am__dirstamp)
+io/scan.$(OBJEXT): io/$(am__dirstamp) io/$(DEPDIR)/$(am__dirstamp)
+io/fmt.$(OBJEXT): io/$(am__dirstamp) io/$(DEPDIR)/$(am__dirstamp)
+io/writer_cstdio.$(OBJEXT): io/$(am__dirstamp) \
+	io/$(DEPDIR)/$(am__dirstamp)
+io/writer_string.$(OBJEXT): io/$(am__dirstamp) \
+	io/$(DEPDIR)/$(am__dirstamp)
 
 libonestl.a: $(libonestl_a_OBJECTS) $(libonestl_a_DEPENDENCIES) $(EXTRA_libonestl_a_DEPENDENCIES) 
 	$(AM_V_at)-rm -f libonestl.a
@@ -366,6 +385,7 @@ libonestl.a: $(libonestl_a_OBJECTS) $(libonestl_a_DEPENDENCIES) $(EXTRA_libonest
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f io/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -374,13 +394,16 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/arrayhelper.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bitset.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chars.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fmt.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/graph.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mem.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/writer_cstdio.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/writer_string.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@io/$(DEPDIR)/fmt.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@io/$(DEPDIR)/reader.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@io/$(DEPDIR)/reader_chars.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@io/$(DEPDIR)/scan.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@io/$(DEPDIR)/writer_cstdio.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@io/$(DEPDIR)/writer_string.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -591,6 +614,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f io/$(DEPDIR)/$(am__dirstamp)
+	-rm -f io/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -604,13 +629,16 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/arrayhelper.Po
 	-rm -f ./$(DEPDIR)/bitset.Po
 	-rm -f ./$(DEPDIR)/chars.Po
-	-rm -f ./$(DEPDIR)/fmt.Po
 	-rm -f ./$(DEPDIR)/graph.Po
 	-rm -f ./$(DEPDIR)/mem.Po
 	-rm -f ./$(DEPDIR)/string.Po
 	-rm -f ./$(DEPDIR)/test.Po
-	-rm -f ./$(DEPDIR)/writer_cstdio.Po
-	-rm -f ./$(DEPDIR)/writer_string.Po
+	-rm -f io/$(DEPDIR)/fmt.Po
+	-rm -f io/$(DEPDIR)/reader.Po
+	-rm -f io/$(DEPDIR)/reader_chars.Po
+	-rm -f io/$(DEPDIR)/scan.Po
+	-rm -f io/$(DEPDIR)/writer_cstdio.Po
+	-rm -f io/$(DEPDIR)/writer_string.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -660,13 +688,16 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/arrayhelper.Po
 	-rm -f ./$(DEPDIR)/bitset.Po
 	-rm -f ./$(DEPDIR)/chars.Po
-	-rm -f ./$(DEPDIR)/fmt.Po
 	-rm -f ./$(DEPDIR)/graph.Po
 	-rm -f ./$(DEPDIR)/mem.Po
 	-rm -f ./$(DEPDIR)/string.Po
 	-rm -f ./$(DEPDIR)/test.Po
-	-rm -f ./$(DEPDIR)/writer_cstdio.Po
-	-rm -f ./$(DEPDIR)/writer_string.Po
+	-rm -f io/$(DEPDIR)/fmt.Po
+	-rm -f io/$(DEPDIR)/reader.Po
+	-rm -f io/$(DEPDIR)/reader_chars.Po
+	-rm -f io/$(DEPDIR)/scan.Po
+	-rm -f io/$(DEPDIR)/writer_cstdio.Po
+	-rm -f io/$(DEPDIR)/writer_string.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

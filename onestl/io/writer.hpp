@@ -12,12 +12,13 @@
  *  Created on Jan 25, 2021
  *      Author Massimiliano Ghilardi
  */
-#ifndef ONESTL_WRITER_HPP
-#define ONESTL_WRITER_HPP
+#ifndef ONESTL_IO_WRITER_HPP
+#define ONESTL_IO_WRITER_HPP
 
 #include <cstddef> // size_t
 
 namespace onestl {
+namespace io {
 
 ////////////////////////////////////////////////////////////////////////////////
 class Writer final {
@@ -60,6 +61,7 @@ private:
   func_type func_;
 };
 
+} // namespace io
 } // namespace onestl
 
-#endif // ONESTL_WRITER_HPP
+#endif // ONESTL_IO_WRITER_HPP

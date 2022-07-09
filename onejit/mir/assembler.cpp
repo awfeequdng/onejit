@@ -28,9 +28,9 @@
 #include <onejit/ir/tuple.hpp>
 #include <onejit/ir/unary.hpp>
 #include <onejit/mir/assembler.hpp>
-#include <onestl/fmt.hpp>
-#include <onestl/writer_cstdio.hpp> // for debugging only
-#include <onestl/writer_string.hpp>
+#include <onestl/io/fmt.hpp>
+#include <onestl/io/writer_cstdio.hpp> // for debugging only
+#include <onestl/io/writer_string.hpp>
 
 #include <cstdio> // for debugging only
 

@@ -1,5 +1,5 @@
 /*
- * onejit - JIT compiler in C++
+ * onestl - Tiny STL C++ library
  *
  * Copyright (C) 2018-2021 Massimiliano Ghilardi
  *
@@ -7,16 +7,25 @@
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * fmt.hpp
+ * fwd.hpp
  *
- *  Created on Jan 09, 2021
+ *  Created on Jul 09, 2022
  *      Author Massimiliano Ghilardi
  */
 
-#ifndef ONEJIT_FMT_HPP
-#define ONEJIT_FMT_HPP
+#ifndef ONESTL_IO_FWD_HPP
+#define ONESTL_IO_FWD_HPP
 
-#include <onejit/fmt_fwd.hpp>
-#include <onestl/io/fmt.hpp>
+namespace onestl {
+namespace io {
 
-#endif // ONEJIT_FMT_HPP
+class Fmt;
+class Hex;
+class Scan;
+class Reader;
+class Writer;
+
+} // namespace io
+} // namespace onestl
+
+#endif // ONESTL_IO_FWD_HPP

@@ -16,6 +16,8 @@
 #ifndef ONESTL_FWD_HPP
 #define ONESTL_FWD_HPP
 
+#include <onestl/io/fwd.hpp>
+
 #include <cstddef> // size_t
 #include <cstdint> // uint*_t
 
@@ -31,12 +33,9 @@ namespace onestl {
 
 class BitSet;
 class Chars;
-class Fmt;
 class Graph;
-class Hex;
 class String;
 class ArrayHelper;
-class Writer;
 
 template <class T> class Array;
 template <class T> class Buffer;
@@ -47,6 +46,12 @@ template <class T> class Span;
 template <class T> class View;
 
 typedef View<uint8_t> Bytes;
+
+typedef io::Fmt Fmt;
+typedef io::Hex Hex;
+typedef io::Scan Scan;
+typedef io::Reader Reader;
+typedef io::Writer Writer;
 
 namespace graph {
 // the following three typedefs are guaranteed to be the same type

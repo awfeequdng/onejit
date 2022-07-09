@@ -27,6 +27,10 @@ constexpr inline size_t min2(size_t a, size_t b) noexcept {
   return a < b ? a : b;
 }
 
+constexpr inline size_t min3(size_t a, size_t b, size_t c) noexcept {
+  return min2(min2(a, b), c);
+}
+
 } // namespace onestl
 
 #endif // ONESTL_ALGORITHM_HPP

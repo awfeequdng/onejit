@@ -37,6 +37,7 @@ private:
   // called by run()
   void stl_bitset(); // test onestl::BitSet
   void stl_graph();  // test onestl::Graph
+  void stl_scan();   // test onestl::Scan
   void arch();
   void kind();
 
